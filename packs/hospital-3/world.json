@@ -1,0 +1,78 @@
+{
+ "_what_this_is": "St. Brendan's out-patients wing: era and medium, THE RULER, the conventions a plan cannot hold, the word lists that refuse a prompt, and where this pack's batches and readings live.",
+ "era": "circa-1995 district general hospital, out-patients wing",
+ "medium": "Style/medium: a high-realism digital painting in the manner of architectural interior visualisation — clean hard wipeable surfaces, scuffed at trolley height, flat even fluorescent light with a gentle natural falloff, no visible light source",
+ "ruler": {
+  "kind": "handrail",
+  "height_m": 0.9,
+  "datum": "floor",
+  "why": "This wing's universal anchor: a continuous wall handrail at 0.90 m above the floor, on every wall of every room including the returns. A painter draws it and the instrument finds it."
+ },
+ "conventions": {
+  "window_sill_m": 0.9,
+  "window_head_m": 2.1,
+  "door_head_m": 2.1,
+  "door_width_m": 1.2,
+  "light_module_m": 0.6,
+  "why": "Hospital rooms of this wing: a doorway is a bed-width 1.20 x 2.10 m opening in a steel frame; a window sits above the handrail line.",
+  "glazing": "  The glass is plain clear glass in a white-painted steel frame, the daylight beyond it flat and grey: ",
+  "window": {
+   "surround": {
+    "default": "in a white-painted steel frame with a flat white sill"
+   },
+   "mullion": "white steel transom bar",
+   "transom": "a single horizontal transom bar",
+   "opening_light": "a top-hung opening vent on friction stays",
+   "why": "A 1990s hospital window: steel frame, white paint, a top-hung vent for air."
+  }
+ },
+ "rulers": [
+  {
+   "match": "handrail|hand rail|bump rail|crash rail",
+   "size_m": 0.9,
+   "name": "the wall handrail above the floor (this wing's universal anchor)"
+  },
+  {
+   "match": "door[^,]*height|doorway[^,]*head",
+   "size_m": 2.1,
+   "name": "the doorway's height at the wall plane"
+  },
+  {
+   "match": "door[^,]*width|doorway[^,]*wide",
+   "size_m": 1.2,
+   "name": "the doorway's width"
+  },
+  {
+   "match": "window opening|window glass",
+   "size_m": 2.0,
+   "name": "the window's opening, frame to frame"
+  },
+  {
+   "match": "cladding sheet|protection sheet|sheet joint",
+   "size_m": 1.2,
+   "name": "one wall sheet between its joints, at the handrail's ruled height"
+  }
+ ],
+ "refusals": {
+  "interior_fabric": "handrail|wall-protection|wall-cladding|cladding|mineral-fibre|sheet vinyl|safety vinyl|linoleum|ceiling tile|curtain track",
+  "interior_fabric_why": "A facing outside the wing has none of this; naming it even to forbid it puts it in front of the generator.",
+  "panelling": "wall-protection|wall-cladding|handrail",
+  "panelling_why": "The protection sheet and the cladding belong to the rooms that carry the handrail (the ruled anchor names it, which is how the lint knows the room has that fabric); a prompt whose room has no rail must not name them.",
+  "rationed_line": "^curtain track:[^\\n]*$",
+  "entitled_to_rationed": "ward|WARD",
+  "rationed_why": "The recessed curtain track is the ward's alone; repeated in every room it becomes a motif.",
+  "redacted_correction": "the previous attempt at this wall was rejected because it did not paint this wing as the materials and the anchor below describe it. Those words replace anything the earlier attempt was told.",
+  "redacted_correction_why": "What replaces a correction that cannot be carried into an outside-the-wing prompt."
+ },
+ "paths": {
+  "batch_dir": "design/batches/hospital-3",
+  "fixture_dir": "fixtures/hospital-3",
+  "store_dir": "backdrops",
+  "readings_dir": "design/plan-draft/measured/hospital-3",
+  "world_query": "hospital-3"
+ },
+ "use_case": "location-study",
+ "constraints": {
+  "surfaces": "Every surface carries only what its materials say: wayfinding is colour alone — no legible text, no signage copy, no logos, no posters, no notices"
+ }
+}

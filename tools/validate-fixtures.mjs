@@ -168,6 +168,7 @@ const TOLERANCE_CITATION = /we can accept a tolerance for drift here/;
 const TOLERANCE_LOG = /design\/approvals\.log/;
 
 const require_ = createRequire(import.meta.url);
+import { activePack } from "./pack.mjs";
 const groundplane = require_("../src/groundplane.js");
 const { GRID_META } = require_("../src/renderer.js");
 const harness = require_("../src/harness.js");
@@ -2052,7 +2053,10 @@ const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).hr
 if (import.meta.url === invokedPath) {
   const args = process.argv.slice(2);
   const i = args.indexOf("--fixture-dir");
-  const fixtureDir = i !== -1 && args[i + 1] ? resolve(args[i + 1]) : join(ROOT, "fixtures", "demo-study");
+  /* [Kabe, 2026-08-30 hospital-3 step 2] `--pack` names the fixture dir too (see
+     validate-plan): one flag, one location. */
+  const fixtureDir = i !== -1 && args[i + 1] ? resolve(args[i + 1])
+    : (args.includes("--pack") ? resolve(ROOT, activePack().paths.fixture_dir) : join(ROOT, "fixtures", "demo-study"));
 
   let records;
   try {

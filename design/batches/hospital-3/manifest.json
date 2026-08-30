@@ -1,0 +1,1287 @@
+{
+  "_what_this_is": "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
+  "_arrivals_are_unordered": "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete. THE ONE ORDERING, row 38's mechanism made the default at row 42: every location paints its LEAD wall first — the most-carried one, named in `room_order` below — and the other three carry `depends_on` until that wall's picture is on disk. A packet whose `depends_on` is set is NOT PAINTED YET; its PACKET.md says so in its first line. Once the lead has landed, its three followers go out together and the parallelism inside a room is unchanged.",
+  "_seams": "[HUMAN 2026-08-24] \"the side of the completed picture which is adjacent to the wall about to be developed should have that sides 10% of the picture cropped and sent as an additional reference picture, with a description that this is a reference image of what should be sitting on the left/right edge\" — every entry below whose neighbour is painted carries `edge_seed`: the strip that went out beside the layout image (`edge_seed.image_index` is which Image number it was given - the index is derived from whether an Image 1 rode, never typed [row 43]), where it was cut from, and its sha256. Open locations REQUIRE the strip; indoor ones take it opportunistically. ORDERING is no longer scoped to open locations - see `_lead_rule` and `room_order` below - and what is still scoped to them is the RING: outdoors each facing continues the one at its left edge, indoors all three continue the lead.",
+  "_lead_rule": "[HUMAN 2026-08-24] \"Can we paint the whole scene on wall 1 for a room, use it to influence wall 2-4\" — one facing of each room is painted first and the other three take it as Image 1 (row 40's own-room rule, extended to accept the lead's CANDIDATE) plus row 38's edge strip where it abuts. The lead is the MOST-CARRIED wall: doors, windows and fireplaces counted; ties break to the wall the room's entry door faces, then to compass order.",
+  "room_order": {
+    "reception": {
+      "lead": "reception/N",
+      "lead_why": "N/E carry equally (N:1 E:1 S:0 W:0) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "N",
+          "key": "reception/N",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "reception/N",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "reception/E",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "reception/N",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "reception/N",
+          "depends_on": "reception/N"
+        },
+        {
+          "facing": "S",
+          "key": "reception/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "reception/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "reception/N",
+          "depends_on": "reception/N"
+        },
+        {
+          "facing": "W",
+          "key": "reception/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "reception/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "reception/N",
+          "depends_on": "reception/N"
+        }
+      ]
+    },
+    "treatment_room": {
+      "lead": "treatment_room/E",
+      "lead_why": "N/E/W carry equally (N:1 E:1 S:0 W:1), so the tie breaks to the wall the room's entry door (its W wall) faces",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "E",
+          "key": "treatment_room/E",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "treatment_room/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "N",
+          "key": "treatment_room/N",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "treatment_room/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "treatment_room/E",
+          "depends_on": "treatment_room/E"
+        },
+        {
+          "facing": "S",
+          "key": "treatment_room/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "treatment_room/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "treatment_room/E",
+          "depends_on": "treatment_room/E"
+        },
+        {
+          "facing": "W",
+          "key": "treatment_room/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "treatment_room/E",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "treatment_room/E",
+          "depends_on": "treatment_room/E"
+        }
+      ]
+    },
+    "ward": {
+      "lead": "ward/S",
+      "lead_why": "S/W carry equally (N:0 E:0 S:1 W:1) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "S",
+          "key": "ward/S",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "ward/S",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "N",
+          "key": "ward/N",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "ward/S",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "ward/S",
+          "depends_on": "ward/S"
+        },
+        {
+          "facing": "E",
+          "key": "ward/E",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "ward/S",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "ward/S",
+          "depends_on": "ward/S"
+        },
+        {
+          "facing": "W",
+          "key": "ward/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "ward/S",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "ward/S",
+          "depends_on": "ward/S"
+        }
+      ]
+    }
+  },
+  "_speed_rule": "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
+  "_reuse_rule": "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
+  "_technique": "t2",
+  "_register": "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
+  "_generated": "2026-08-30",
+  "facings_in_plan": 12,
+  "emitted": 12,
+  "skipped": 0,
+  "skipped_entries": [],
+  "entries": [
+    {
+      "key": "reception/N",
+      "room": "reception",
+      "facing": "N",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "window"
+      ],
+      "packet": "design/batches/hospital-3/reception-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "08960888c3d10e3aad328645e208cfc24f2e012f3367afc3aed4e8b39b228147",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 128,
+      "corner_x1_px": 1408,
+      "storey_height_m": 3,
+      "wall_width_m": 6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 586.4733333333334,
+          "half_width": 15.36,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 138.47333333333336,
+          "half_width": 51.2,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 127.67,
+            "x1": 1408.33,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 427,
+        "rail_columns": [
+          [
+            128,
+            554
+          ],
+          [
+            982,
+            1408
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 554.67,
+          "x1": 981.33
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 586.47,
+      "voice": {
+        "id": "reception_public",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "reception/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "18cde1b6",
+          "candidate": "backdrops/source/reception-N/row23-18cde1b6.png",
+          "prompt": "backdrops/source/reception-N/row23-18cde1b6.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "reception/S",
+      "room": "reception",
+      "facing": "S",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/hospital-3/reception-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "35e88dee4836aca61cf3f6aec23e197ebedb68bac459f0e10567b51057d42990",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 128,
+      "corner_x1_px": 1408,
+      "storey_height_m": 3,
+      "wall_width_m": 6,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 586.4733333333334,
+          "half_width": 15.36,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 138.47333333333336,
+          "half_width": 51.2,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            128,
+            1408
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 586.47,
+      "voice": {
+        "id": "reception_public",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "reception/N",
+      "lead": "reception/N",
+      "is_lead": false,
+      "continues": "reception/N",
+      "order_position": 2,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "23bdb263",
+          "candidate": "backdrops/source/reception-S/row23-23bdb263.png",
+          "prompt": "backdrops/source/reception-S/row23-23bdb263.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "reception/E",
+      "room": "reception",
+      "facing": "E",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/hospital-3/reception-E",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "a3e36a7a747b8a172cf02854681a227c12f405a495360eddc00e953f030c3767",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 227.55555555555554,
+      "camera_wall_m": 4.5,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7766584201388889,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 39.822222222222194,
+      "corner_x1_px": 1496.177777777778,
+      "storey_height_m": 3,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 795.2982222222222,
+          "half_width": 21.54,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 590.4982222222222,
+          "half_width": 16.38,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 112.63155555555556,
+          "half_width": 54.61,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 358.47,
+            "x1": 1177.53,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 273,
+        "rail_columns": [
+          [
+            39.822222222222194,
+            631
+          ],
+          [
+            905,
+            1496.177777777778
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 631.47,
+          "x1": 904.53
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 590.5,
+      "voice": {
+        "id": "reception_public",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "reception/N",
+      "lead": "reception/N",
+      "is_lead": false,
+      "continues": "reception/N",
+      "order_position": 1,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "89d98c96",
+          "candidate": "backdrops/source/reception-E/row23-89d98c96.png",
+          "prompt": "backdrops/source/reception-E/row23-89d98c96.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "reception/W",
+      "room": "reception",
+      "facing": "W",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/hospital-3/reception-W",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "98b2a6d63cf4c7aa1c8da41dce21a7a36682dd3696e21f8869bc9662e8e01105",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 227.55555555555554,
+      "camera_wall_m": 4.5,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7766584201388889,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 39.822222222222194,
+      "corner_x1_px": 1496.177777777778,
+      "storey_height_m": 3,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 795.2982222222222,
+          "half_width": 21.54,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 590.4982222222222,
+          "half_width": 16.38,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 112.63155555555556,
+          "half_width": 54.61,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            39.822222222222194,
+            1496.177777777778
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 590.5,
+      "voice": {
+        "id": "reception_public",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "reception/N",
+      "lead": "reception/N",
+      "is_lead": false,
+      "continues": "reception/N",
+      "order_position": 3,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "c735210e",
+          "candidate": "backdrops/source/reception-W/row23-c735210e.png",
+          "prompt": "backdrops/source/reception-W/row23-c735210e.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "treatment_room/N",
+      "room": "treatment_room",
+      "facing": "N",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "window"
+      ],
+      "packet": "design/batches/hospital-3/treatment_room-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "6bd7878ef97defde01d155bd166355618028c45c5288d7fc2bc051e0762a3b03",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 213.33333333333326,
+      "corner_x1_px": 1322.6666666666667,
+      "storey_height_m": 3,
+      "wall_width_m": 5.2,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 586.4733333333334,
+          "half_width": 15.36,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 138.47333333333336,
+          "half_width": 51.2,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 127.67,
+            "x1": 1408.33,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 427,
+        "rail_columns": [
+          [
+            213.33333333333326,
+            554
+          ],
+          [
+            982,
+            1322.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 554.67,
+          "x1": 981.33
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 586.47,
+      "voice": {
+        "id": "treatment_clinical",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "treatment_room/E",
+      "lead": "treatment_room/E",
+      "is_lead": false,
+      "continues": "treatment_room/E",
+      "order_position": 1,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "7cae834a",
+          "candidate": "backdrops/source/treatment_room-N/row23-7cae834a.png",
+          "prompt": "backdrops/source/treatment_room-N/row23-7cae834a.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "treatment_room/S",
+      "room": "treatment_room",
+      "facing": "S",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/hospital-3/treatment_room-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "9e0fea630b295c1fd378820e6243d977d92d710927690535cf36bd11e984a78d",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 213.33333333333326,
+      "corner_x1_px": 1322.6666666666667,
+      "storey_height_m": 3,
+      "wall_width_m": 5.2,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 586.4733333333334,
+          "half_width": 15.36,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 138.47333333333336,
+          "half_width": 51.2,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            213.33333333333326,
+            1322.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 586.47,
+      "voice": {
+        "id": "treatment_clinical",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "treatment_room/E",
+      "lead": "treatment_room/E",
+      "is_lead": false,
+      "continues": "treatment_room/E",
+      "order_position": 2,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "8bcadcb4",
+          "candidate": "backdrops/source/treatment_room-S/row23-8bcadcb4.png",
+          "prompt": "backdrops/source/treatment_room-S/row23-8bcadcb4.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "treatment_room/E",
+      "room": "treatment_room",
+      "facing": "E",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/hospital-3/treatment_room-E",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "7c4cacf0ff42b6e4b8aee13423a8dc3e212999e42c65c63e272ab344baf41079",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 215.57894736842104,
+      "camera_wall_m": 4.75,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7628221628289473,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 78.14736842105265,
+      "corner_x1_px": 1457.8526315789472,
+      "storey_height_m": 3,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 781.1298947368421,
+          "half_width": 20.4,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 587.1088421052631,
+          "half_width": 15.52,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 134.39305263157894,
+          "half_width": 51.74,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door02",
+            "x0": 379.65,
+            "x1": 1156.35,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 259,
+        "rail_columns": [
+          [
+            78.14736842105265,
+            638
+          ],
+          [
+            898,
+            1457.8526315789472
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 638.65,
+          "x1": 897.35
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 587.11,
+      "voice": {
+        "id": "treatment_clinical",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "treatment_room/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b9551bf5",
+          "candidate": "backdrops/source/treatment_room-E/row23-b9551bf5.png",
+          "prompt": "backdrops/source/treatment_room-E/row23-b9551bf5.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "treatment_room/W",
+      "room": "treatment_room",
+      "facing": "W",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/hospital-3/treatment_room-W",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "7c4cacf0ff42b6e4b8aee13423a8dc3e212999e42c65c63e272ab344baf41079",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 215.57894736842104,
+      "camera_wall_m": 4.75,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7628221628289473,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 78.14736842105265,
+      "corner_x1_px": 1457.8526315789472,
+      "storey_height_m": 3,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 781.1298947368421,
+          "half_width": 20.4,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 587.1088421052631,
+          "half_width": 15.52,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 134.39305263157894,
+          "half_width": 51.74,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 379.65,
+            "x1": 1156.35,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 259,
+        "rail_columns": [
+          [
+            78.14736842105265,
+            638
+          ],
+          [
+            898,
+            1457.8526315789472
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 638.65,
+          "x1": 897.35
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 587.11,
+      "voice": {
+        "id": "treatment_clinical",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "treatment_room/E",
+      "lead": "treatment_room/E",
+      "is_lead": false,
+      "continues": "treatment_room/E",
+      "order_position": 3,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "d1a7cbe0",
+          "candidate": "backdrops/source/treatment_room-W/row23-d1a7cbe0.png",
+          "prompt": "backdrops/source/treatment_room-W/row23-d1a7cbe0.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "ward/N",
+      "room": "ward",
+      "facing": "N",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/hospital-3/ward-N",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "a690e4a7764558d9a70b2662bcdbe25e39b5e5ff594190d1e6aca0048324bc3e",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 42.66666666666663,
+      "corner_x1_px": 1493.3333333333335,
+      "storey_height_m": 3,
+      "wall_width_m": 6.8,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 586.4733333333334,
+          "half_width": 15.36,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 138.47333333333336,
+          "half_width": 51.2,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            42.66666666666663,
+            1493.3333333333335
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 586.47,
+      "voice": {
+        "id": "ward_bay",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "ward/S",
+      "lead": "ward/S",
+      "is_lead": false,
+      "continues": "ward/S",
+      "order_position": 1,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "72a53369",
+          "candidate": "backdrops/source/ward-N/row23-72a53369.png",
+          "prompt": "backdrops/source/ward-N/row23-72a53369.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "ward/S",
+      "room": "ward",
+      "facing": "S",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "window"
+      ],
+      "packet": "design/batches/hospital-3/ward-S",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "94334ce6e5dc06ceebe1f81d89bc9e19a2b2efd8cb0178e3c25045ea4cf030b5",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 42.66666666666663,
+      "corner_x1_px": 1493.3333333333335,
+      "storey_height_m": 3,
+      "wall_width_m": 6.8,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 586.4733333333334,
+          "half_width": 15.36,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 138.47333333333336,
+          "half_width": 51.2,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "window",
+            "id": null,
+            "x0": 127.67,
+            "x1": 1408.33,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 427,
+        "rail_columns": [
+          [
+            42.66666666666663,
+            554
+          ],
+          [
+            982,
+            1493.3333333333335
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "window",
+          "x0": 554.67,
+          "x1": 981.33
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 586.47,
+      "voice": {
+        "id": "ward_bay",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "ward/S",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "90e3ccad",
+          "candidate": "backdrops/source/ward-S/row23-90e3ccad.png",
+          "prompt": "backdrops/source/ward-S/row23-90e3ccad.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "ward/E",
+      "room": "ward",
+      "facing": "E",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/hospital-3/ward-E",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "aa2a0c8d5abb8e5da521db89b4b1d176a6757ea15129c4c8489c147ee5b550ed",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 200.78431372549022,
+      "camera_wall_m": 5.1,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7457303155637256,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 125.49019607843127,
+      "corner_x1_px": 1410.5098039215686,
+      "storey_height_m": 3,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 763.627843137255,
+          "half_width": 19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 582.9219607843138,
+          "half_width": 14.46,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 161.2749019607843,
+          "half_width": 48.19,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            125.49019607843127,
+            1410.5098039215686
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 582.92,
+      "voice": {
+        "id": "ward_bay",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "ward/S",
+      "lead": "ward/S",
+      "is_lead": false,
+      "continues": "ward/S",
+      "order_position": 2,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "cc91eb7f",
+          "candidate": "backdrops/source/ward-E/row23-cc91eb7f.png",
+          "prompt": "backdrops/source/ward-E/row23-cc91eb7f.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "ward/W",
+      "room": "ward",
+      "facing": "W",
+      "floor": "ground",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/hospital-3/ward-W",
+      "register": "g5-noappendix",
+      "scaffold_sha256": "0bc7a27343d55f2b788e16424e608666c67f2eeff42625d1ffc15cebf651d439",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 200.78431372549022,
+      "camera_wall_m": 5.1,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7457303155637256,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 125.49019607843127,
+      "corner_x1_px": 1410.5098039215686,
+      "storey_height_m": 3,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 763.627843137255,
+          "half_width": 19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 582.9219607843138,
+          "half_width": 14.46,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 161.2749019607843,
+          "half_width": 48.19,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door02",
+            "x0": 406.53,
+            "x1": 1129.47,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 241,
+        "rail_columns": [
+          [
+            125.49019607843127,
+            647
+          ],
+          [
+            889,
+            1410.5098039215686
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 647.53,
+          "x1": 888.47
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 582.92,
+      "voice": {
+        "id": "ward_bay",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "handrail"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "ward/S",
+      "lead": "ward/S",
+      "is_lead": false,
+      "continues": "ward/S",
+      "order_position": 3,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "647d9ce1",
+          "candidate": "backdrops/source/ward-W/row23-647d9ce1.png",
+          "prompt": "backdrops/source/ward-W/row23-647d9ce1.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    }
+  ]
+}

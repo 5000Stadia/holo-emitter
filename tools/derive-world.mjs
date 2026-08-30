@@ -73,8 +73,10 @@ for (const key of domain) {
   const ex = locations.flatMap((l) => l.exits).find((e) => e.id === target);
   if (intent === "go" && ex) {
     if (outcome === "arrive") lines[key] = `You pass from the ${nameOf(ex.from)} into the ${nameOf(ex.to)}.`;
-    else if (outcome === "refused_unreachable") lines[key] = `The way to the ${nameOf(ex.to)} is not before you from here.`;
-    else lines[key] = `The way to the ${nameOf(ex.to)} does not answer.`;
+    /* [hospital-3 step 2b] PER-ENTITY PROSE: two doors into one room share a
+       destination, so the line names the door's own side too. */
+    else if (outcome === "refused_unreachable") lines[key] = `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} is not before you from here.`;
+    else lines[key] = `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} does not answer.`;
   } else {
     lines[key] = `Nothing comes of it.`;
   }

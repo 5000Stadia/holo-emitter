@@ -1,0 +1,353 @@
+{
+ "schema": "holo-emitter-plan/0.1",
+ "version": 1,
+ "units": "m",
+ "north": "+y",
+ "standpoint_stand_back": 0.25,
+ "standpoint_threshold_clearance_m": 0.45,
+ "entrance": "reception",
+ "wall_thickness": {
+  "exterior": 0.4,
+  "partition": 0.2
+ },
+ "outline": [
+  [
+   0,
+   0
+  ],
+  [
+   19.2,
+   0
+  ],
+  [
+   19.2,
+   7.2
+  ],
+  [
+   0,
+   7.2
+  ]
+ ],
+ "floors": [
+  {
+   "id": "ground",
+   "level": 0,
+   "storey_height_m": 3.0
+  }
+ ],
+ "wall_bands": [
+  {
+   "id": "H0",
+   "kind": "exterior",
+   "floors": [
+    "ground"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 0.4,
+    "y0": 0,
+    "y1": 7.2
+   }
+  },
+  {
+   "id": "H1",
+   "kind": "exterior",
+   "floors": [
+    "ground"
+   ],
+   "rect": {
+    "x0": 18.8,
+    "x1": 19.2,
+    "y0": 0,
+    "y1": 7.2
+   }
+  },
+  {
+   "id": "H2",
+   "kind": "exterior",
+   "floors": [
+    "ground"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 19.2,
+    "y0": 0,
+    "y1": 0.4
+   }
+  },
+  {
+   "id": "H3",
+   "kind": "exterior",
+   "floors": [
+    "ground"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 19.2,
+    "y0": 6.8,
+    "y1": 7.2
+   }
+  },
+  {
+   "id": "P0",
+   "kind": "partition",
+   "floors": [
+    "ground"
+   ],
+   "rect": {
+    "x0": 6.4,
+    "x1": 6.6,
+    "y0": 0.4,
+    "y1": 6.8
+   }
+  },
+  {
+   "id": "P1",
+   "kind": "partition",
+   "floors": [
+    "ground"
+   ],
+   "rect": {
+    "x0": 11.8,
+    "x1": 12.0,
+    "y0": 0.4,
+    "y1": 6.8
+   }
+  }
+ ],
+ "rooms": [
+  {
+   "id": "reception",
+   "floor": "ground",
+   "name": "RECEPTION",
+   "type": "enclosed",
+   "archetype": "public",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.4,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.4000000000000004,
+      "y": 2.0
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 6.0,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.4000000000000004,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.0,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 1.9,
+      "y": 3.6
+     },
+     "wall_line": 6.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.5
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 4.9,
+      "y": 3.6
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.5
+    }
+   }
+  },
+  {
+   "id": "treatment_room",
+   "floor": "ground",
+   "name": "TREATMENT ROOM",
+   "type": "enclosed",
+   "archetype": "clinical",
+   "rect": {
+    "x0": 6.6,
+    "x1": 11.8,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 9.2,
+      "y": 2.0
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 5.2,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 9.2,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 5.2,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 7.05,
+      "y": 3.6
+     },
+     "wall_line": 11.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.75,
+     "standpoint_source": "threshold"
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 11.35,
+      "y": 3.6
+     },
+     "wall_line": 6.6,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.75,
+     "standpoint_source": "threshold"
+    }
+   }
+  },
+  {
+   "id": "ward",
+   "floor": "ground",
+   "name": "WARD",
+   "type": "enclosed",
+   "archetype": "ward",
+   "rect": {
+    "x0": 12.0,
+    "x1": 18.8,
+    "y0": 0.4,
+    "y1": 6.8
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 15.4,
+      "y": 2.0
+     },
+     "wall_line": 6.8,
+     "wall_width_m": 6.8,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 15.4,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.8,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 13.7,
+      "y": 3.6
+     },
+     "wall_line": 18.8,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 5.1
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 17.1,
+      "y": 3.6
+     },
+     "wall_line": 12.0,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 5.1
+    }
+   }
+  }
+ ],
+ "openings": [
+  {
+   "id": "door01",
+   "kind": "door",
+   "floor": "ground",
+   "axis": "EW",
+   "rect": {
+    "x0": 6.4,
+    "x1": 6.6,
+    "y0": 3.0,
+    "y1": 4.2
+   },
+   "joins": [
+    "reception",
+    "treatment_room"
+   ]
+  },
+  {
+   "id": "door02",
+   "kind": "door",
+   "floor": "ground",
+   "axis": "EW",
+   "rect": {
+    "x0": 11.8,
+    "x1": 12.0,
+    "y0": 3.0,
+    "y1": 4.2
+   },
+   "joins": [
+    "treatment_room",
+    "ward"
+   ]
+  }
+ ],
+ "windows": [
+  {
+   "floor": "ground",
+   "rect": {
+    "x0": 2.4,
+    "x1": 4.4,
+    "y0": 6.8,
+    "y1": 7.2
+   }
+  },
+  {
+   "floor": "ground",
+   "rect": {
+    "x0": 8.2,
+    "x1": 10.2,
+    "y0": 6.8,
+    "y1": 7.2
+   }
+  },
+  {
+   "floor": "ground",
+   "rect": {
+    "x0": 14.4,
+    "x1": 16.4,
+    "y0": 0,
+    "y1": 0.4
+   }
+  }
+ ],
+ "fireplaces": [],
+ "stairs": [],
+ "objects": []
+}

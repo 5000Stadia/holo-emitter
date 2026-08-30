@@ -1,0 +1,227 @@
+{
+ "_what_this_is": "Three voices for three rooms of the out-patients wing. Materials in this world's language; every horizontal anchor is the wall handrail at 0.90 m.",
+ "ANCHOR_M": 0.9,
+ "WINDOW_SILL_M": 0.9,
+ "WINDOW_HEAD_M": 2.1,
+ "LIGHT_MODULE_M": 0.6,
+ "ANCHORS": {
+  "handrail": {
+   "id": "handrail",
+   "line": "the continuous wall handrail above the floor",
+   "datum": "floor",
+   "sentence": "A clearly legible continuous wood-effect PVC handrail with a rounded profile runs corner to corner at exactly 0.90 m above the floor, on every exposed wall surface including the side-wall returns, interrupted only by the doorway.",
+   "label": "HANDRAIL 0.90 M ABOVE FLOOR - GATE ANCHOR",
+   "legend_word": "HANDRAIL",
+   "why": "This wing's universal anchor: every room carries the building's wall handrail at one height, on every wall. A painter draws it and the instrument finds it."
+  }
+ },
+ "VOICES": {
+  "reception_public": {
+   "id": "reception_public",
+   "why": "The waiting area is the wing's public face: it was decorated once, in a colour scheme, and has been scuffed at hip height ever since.",
+   "outdoor": false,
+   "walls": "pale mint painted plaster above the handrail; below it, grey-green wipeable wall-protection sheet with a dark grey vinyl skirting, scuffed along the sitting line",
+   "ceiling": "a suspended grid of white mineral-fibre ceiling tiles with recessed fluorescent light panels",
+   "floor": "mottled grey-blue sheet vinyl with welded seams, coved up the wall at the skirting",
+   "blank": "unbroken grey-green wall-protection sheet below the handrail with pale mint painted plaster above",
+   "anchor": "handrail",
+   "glass": "plain",
+   "window_status": "public"
+  },
+  "treatment_clinical": {
+   "id": "treatment_clinical",
+   "why": "The treatment room is washed down daily: everything on its walls is a sheet that can be wiped, and its light is the flattest in the wing.",
+   "outdoor": false,
+   "walls": "white glossy antibacterial wall-cladding sheets with welded joints below the handrail; satin white painted plasterboard above it",
+   "ceiling": "a suspended grid of white mineral-fibre ceiling tiles, one tile water-stained",
+   "floor": "pale speckled seamless safety vinyl, coved up the wall at the skirting",
+   "blank": "unbroken white glossy wall-cladding sheets below the handrail with satin white painted plasterboard above",
+   "anchor": "handrail",
+   "glass": "plain",
+   "window_status": "clinical"
+  },
+  "ward_bay": {
+   "id": "ward_bay",
+   "why": "The ward is the room somebody lies in for a week: warmer paint, a softer floor, the same rail, and the marks of beds parked against the wall.",
+   "outdoor": false,
+   "walls": "warm cream painted plaster above the handrail; below it, magnolia wipeable wall-protection sheet with a beige vinyl skirting, dented at bed-frame height",
+   "ceiling": "plain white painted plasterboard with a recessed curtain track around the bay",
+   "floor": "marbled beige linoleum, worn dull along the walking line",
+   "blank": "unbroken magnolia wall-protection sheet below the handrail with warm cream painted plaster above",
+   "anchor": "handrail",
+   "glass": "plain",
+   "window_status": "ward"
+  }
+ },
+ "ROOM_VOICE": {
+  "reception": "reception_public",
+  "treatment_room": "treatment_clinical",
+  "ward": "ward_bay"
+ },
+ "ARCHETYPE_FALLBACK": {
+  "public": "reception_public",
+  "clinical": "treatment_clinical",
+  "ward": "ward_bay"
+ },
+ "TYPE_FALLBACK": {
+  "enclosed": "reception_public"
+ },
+ "MATERIALS": {
+  "wall/protection-sheet-mint": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 1.2,
+    "feature": "sheet joint"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 1.2,
+    "stile_m": 0.02,
+    "plinth_m": 0.1,
+    "chair_rail_m": 0.9,
+    "chair_rail_h_m": 0.06,
+    "cornice_m": 0.0,
+    "architrave_m": 0.06,
+    "bevel_m": 0.0
+   }
+  },
+  "wall/cladding-white-gloss": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 1.2,
+    "feature": "welded joint"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 1.2,
+    "stile_m": 0.02,
+    "plinth_m": 0.1,
+    "chair_rail_m": 0.9,
+    "chair_rail_h_m": 0.06,
+    "cornice_m": 0.0,
+    "architrave_m": 0.06,
+    "bevel_m": 0.0
+   }
+  },
+  "wall/protection-sheet-magnolia": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "across",
+    "scale_kind": "periodic",
+    "pitch_m": 1.2,
+    "feature": "sheet joint"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 1.2,
+    "stile_m": 0.02,
+    "plinth_m": 0.1,
+    "chair_rail_m": 0.9,
+    "chair_rail_h_m": 0.06,
+    "cornice_m": 0.0,
+    "architrave_m": 0.06,
+    "bevel_m": 0.0
+   }
+  },
+  "ceiling/mineral-tile-grid": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.6,
+    "feature": "tile"
+   }
+  },
+  "ceiling/painted-plasterboard": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "roller texture"
+   }
+  },
+  "floor/sheet-vinyl-welded": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 2.0,
+    "feature": "welded seam"
+   }
+  },
+  "floor/safety-vinyl-speckled": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "speckle"
+   }
+  },
+  "floor/linoleum-marbled": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "marbling"
+   }
+  }
+ },
+ "MATERIAL_BINDING": {
+  "reception_public": {
+   "walls": "wall/protection-sheet-mint",
+   "blank": "wall/protection-sheet-mint",
+   "ceiling": "ceiling/mineral-tile-grid",
+   "floor": "floor/sheet-vinyl-welded"
+  },
+  "treatment_clinical": {
+   "walls": "wall/cladding-white-gloss",
+   "blank": "wall/cladding-white-gloss",
+   "ceiling": "ceiling/mineral-tile-grid",
+   "floor": "floor/safety-vinyl-speckled"
+  },
+  "ward_bay": {
+   "walls": "wall/protection-sheet-magnolia",
+   "blank": "wall/protection-sheet-magnolia",
+   "ceiling": "ceiling/painted-plasterboard",
+   "floor": "floor/linoleum-marbled"
+  }
+ },
+ "MATERIAL_PART_OF_KEY": {
+  "walls": "walls",
+  "walls_with_openings": "walls",
+  "ceiling": "overhead",
+  "floor": "underfoot"
+ },
+ "SAID_BEFORE": {}
+}

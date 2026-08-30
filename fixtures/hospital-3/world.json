@@ -1,0 +1,75 @@
+{
+  "schema": "holo-emitter/0.1",
+  "locations": [
+    {
+      "id": "reception",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_reception_treatment_room",
+          "from": "reception",
+          "facing": "E",
+          "to": "treatment_room",
+          "arrive_facing": "E",
+          "via": "door01"
+        }
+      ]
+    },
+    {
+      "id": "treatment_room",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_treatment_room_reception",
+          "from": "treatment_room",
+          "facing": "W",
+          "to": "reception",
+          "arrive_facing": "W",
+          "via": "door01"
+        },
+        {
+          "id": "door_treatment_room_ward",
+          "from": "treatment_room",
+          "facing": "E",
+          "to": "ward",
+          "arrive_facing": "E",
+          "via": "door02"
+        }
+      ]
+    },
+    {
+      "id": "ward",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_ward_treatment_room",
+          "from": "ward",
+          "facing": "W",
+          "to": "treatment_room",
+          "arrive_facing": "W",
+          "via": "door02"
+        }
+      ]
+    }
+  ],
+  "entities": [],
+  "relations": [],
+  "knowledge": {
+    "player": []
+  }
+}

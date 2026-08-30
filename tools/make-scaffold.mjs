@@ -76,7 +76,7 @@ import { VOICES, emitMaterials, canonicalMaterial }       // [row 36] the swatch
  * MATERIAL, NOT THE WORDING" below. */
 import { declaredMaterialPhrases } from "./room-voices.mjs";
 import { voiceFor, windowLines, hangingsFor, ANCHOR_M, carryableOutdoors, REDACTED_CORRECTION,
-  lightsFor, surroundFor, transomFor, casementSentence } from "./room-voices.mjs";
+  lightsFor, surroundFor, transomFor, casementSentence, WINDOW_WORDS } from "./room-voices.mjs";
 /* [row 43] THE REGISTER, and it is shared rather than copied:
  * `frame-language.mjs` is the one home for both of them. `g5Prompt` is what
  * production composes, without the coordinate appendix; `registerBlock` is
@@ -157,8 +157,8 @@ const DOOR_HEAD_M = PACK.world.conventions.door_head_m;
  * the scaffold's own and they say so on its legend. */
 const CONVENTION = {
   fireplace_height_m: 1.60,
-  window_sill_m: 0.90,
-  window_head_m: 2.00,
+  window_sill_m: PACK.world.conventions.window_sill_m,   // the pack's, so the sheet and the sentence agree
+  window_head_m: PACK.world.conventions.window_head_m,
   firebox_width_m: 0.90            // ruled size, but a CROSS-RULER: votes on nothing
 };
 
@@ -2339,6 +2339,9 @@ export function g5CtxFor(plan, key, meta, rects, opts = {}) {
      * Two walls of equal bay count in different rooms must not read the same,
      * and that is what these three carry. */
     window_surround: surroundFor(voice.window_status),
+    window_words: WINDOW_WORDS,
+    window_sill_m: CONVENTION.window_sill_m,
+    window_head_m: CONVENTION.window_head_m,
     window_transom: transomFor,
     window_casement: casementSentence(
       rects.filter((r) => r.kind === "window").map((r) => ({
@@ -2505,6 +2508,13 @@ async function emitManor(outDir, opts) {
   const todo = outstanding.slice(0, opts.limit || undefined);
   mkdirSync(outDir, { recursive: true });
 
+  /* [hospital-3 step 3] REFUSE BEFORE THE BROWSER, BY NAME. The page boots
+     from `<fixture_dir>/fixture.js`; without it the wait below times out after
+     30 s saying nothing. The first third-pack run lost that half minute. */
+  const fixtureJs = resolve(ROOT, PACK.paths.fixture_dir, "fixture.js");
+  if (!existsSync(fixtureJs)) {
+    throw new Error(`make-scaffold: ${fixtureJs} is not baked — run \`node tools/bake-fixtures.mjs --pack ${PACK.name}\` after derive-world`);
+  }
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: 1536, height: 1200 } });
   await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);

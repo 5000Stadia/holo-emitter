@@ -1,0 +1,10 @@
+{
+  "_what_this_is": "The three-room hospital proof: reception, treatment room and ward in a row, two doors between them, one window each. Nothing in these four files is in the engine; a location is data.",
+  "name": "hospital-3",
+  "title": "ST. BRENDAN'S OUT-PATIENTS WING",
+  "files": {
+    "plan": "plan.json",
+    "voices": "voices.json",
+    "world": "world.json"
+  }
+}

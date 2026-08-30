@@ -1,7 +1,7 @@
 {
  "_what_this_is": "KOWLOON-7 street level: era and medium, THE RULER, the conventions a plan cannot hold, the word lists that refuse a prompt, and where this pack's batches and readings live.",
  "era": "circa-2087 arcology street level",
- "medium": "Style/medium: a high-realism digital painting in the manner of near-future street-interior concept art \u2014 worn hard surfaces, grease and damp, cool even ambient light with gentle falloff into the corners, every sign and tube DARK and unlit; a location study for a game, not a photograph and not a neon glow render.",
+ "medium": "Style/medium: a high-realism digital painting in the manner of near-future street-interior concept art — worn hard surfaces, grease and damp, cool even ambient light with gentle falloff into the corners, every sign and tube DARK and unlit; a location study for a game, not a photograph and not a neon glow render.",
  "ruler": {
   "kind": "cable_channel",
   "height_m": 1.1,
@@ -15,7 +15,16 @@
   "door_width_m": 0.9,
   "light_module_m": 0.6,
   "why": "Street-level rooms of this block: a service window sits above the counter line; a doorway is a standard 0.90 x 2.00 m steel-framed opening.",
-  "glazing": "  The glass is wired safety glass in a steel frame, grimed and faintly green: "
+  "glazing": "  The glass is wired safety glass in a steel frame, grimed and faintly green: ",
+  "window": {
+   "surround": {
+    "default": "in a rusted steel frame"
+   },
+   "mullion": "steel glazing bar",
+   "transom": "a single steel transom",
+   "opening_light": "a sliding pane in a steel track",
+   "why": "Street level: every window is a steel frame; a light that opens slides."
+  }
  },
  "rulers": [
   {
@@ -64,6 +73,6 @@
  },
  "use_case": "location-study",
  "constraints": {
-  "surfaces": "Every surface carries only what its materials say: the stencilled lettering and the crew's tag are painted marks, never readable words \u2014 no legible text, no signage copy, no logos"
+  "surfaces": "Every surface carries only what its materials say: the stencilled lettering and the crew's tag are painted marks, never readable words — no legible text, no signage copy, no logos"
  }
 }

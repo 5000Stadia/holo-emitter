@@ -34,12 +34,15 @@ import {
 const require = createRequire(import.meta.url);
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+import { activePack } from "./pack.mjs";
 const args = process.argv.slice(2);
 function argOf(flag, dflt) {
   const i = args.indexOf(flag);
   return i !== -1 ? args[i + 1] : dflt;
 }
-const fixtureDir = argOf("--fixture-dir", join(root, "fixtures", "demo-study"));
+/* [hospital-3 step 3] `--pack` names the fixture dir, as it does for the
+   validators: one flag, one location. */
+const fixtureDir = argOf("--fixture-dir", args.includes("--pack") ? activePack().paths.fixture_dir : join(root, "fixtures", "demo-study"));
 const outFile = argOf("--out", join(fixtureDir, "fixture.js"));
 
 const FILES = ["world", "staging", "narration", "viewstate"];

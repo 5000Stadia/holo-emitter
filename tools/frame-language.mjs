@@ -804,12 +804,13 @@ export function g5WallLines(ctx) {
      * `room-voices.mjs` rather than being decided here. */
     body.push(`${n > 1 ? `${nWord(n)} window openings stand` : "one window opening stands"} ` +
       `${listWords(grp.at)}, ${n > 1 ? "each " : ""}exactly ${grp.width_m.toFixed(2)} m wide, the ` +
-      `sill 0.90 m and the head 2.00 m above the ${GROUND}` +
+      `sill ${(ctx.window_sill_m ?? 0.9).toFixed(2)} m and the head ${(ctx.window_head_m ?? 2.0).toFixed(2)} m above the ${GROUND}` +
       (ctx.window_surround ? `, set ${ctx.window_surround}` : "") +
-      (lights ? `, divided by ${nWord(mull)} stone mullion${mull === 1 ? "" : "s"} into ` +
+      /* [Kabe, 2026-08-30] the member's word is the pack's (`conventions.window`) */
+      (lights ? `, divided by ${nWord(mull)} ${(ctx.window_words || {}).mullion || "glazing bar"}${mull === 1 ? "" : "s"} into ` +
         `${nWord(lights)} equal upright light${lights === 1 ? "" : "s"}` : "") +
       (ctx.window_transom && ctx.window_transom(grp.width_m)
-        ? `, and crossed by a single stone transom, the only transom on this ${SURFACE}`
+        ? `, and crossed by ${(ctx.window_words || {}).transom || "a single transom"}, the only transom on this ${SURFACE}`
         : ""));
   }
 

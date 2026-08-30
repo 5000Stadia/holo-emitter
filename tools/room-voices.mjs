@@ -242,10 +242,19 @@ export function transomFor(widthM) {
  * room's in a plain chamfer. It is the clause that keeps two walls of equal
  * bay count from reading identically across rooms.
  */
+/* [Kabe, 2026-08-30 hospital-3 step 3] THE WORDS ARE THE PACK'S. "The theme
+ * shouldn't bleed into the code": stone mullions and iron-hinged casements are
+ * 1660's, and the third pack's first prompt asked a 1995 hospital for them.
+ * `world.json` -> `conventions.window` carries the surround by rank, the
+ * dividing member, the transom and the light that opens; the code keeps only
+ * the rule (which light, how many, where). Neutral words where a pack says
+ * nothing, never a period's. */
+export const WINDOW_WORDS = Object.assign({
+  surround: {}, mullion: "glazing bar", transom: "a single transom", opening_light: "an opening light"
+}, (PACK.world.conventions || {}).window || {});
 export function surroundFor(status) {
-  if (status === "state") return "under a moulded stone label mould";
-  if (status === "principal") return "in a moulded stone surround";
-  return "in a plain chamfered stone surround";
+  const s = WINDOW_WORDS.surround || {};
+  return s[status] || s.default || "in a plain frame";
 }
 
 const COUNT_WORD = ["no", "one", "two", "three", "four", "five", "six",
@@ -273,7 +282,7 @@ export function casementSentence(windows, surfaceWord) {
     ? `the left-hand light in the ${count(left)} opening${left > 1 ? "s" : ""} left of the ` +
       `${surface}'s centre, and the right-hand light in the ${count(right)} right of it.`
     : `the ${left ? "left" : "right"}-hand light${many ? ", in every one of them" : ""}.`;
-  return `One light in ${many ? "each window" : "it"} is a casement hung on iron hinges: ${side}`;
+  return `One light in ${many ? "each window" : "it"} is ${WINDOW_WORDS.opening_light}: ${side}`;
 }
 
 /**
@@ -327,10 +336,10 @@ export function windowLines(voice, windows, roomName, surfaceWord, hasStyleImage
       ? (g.n === 1 ? "  The window is" : g.n === 2 ? "  Both are" : `  All ${count(g.n)} are`)
       : (g.n === 1 ? "  One of them is" : `  ${count(g.n).replace(/^./, (c) => c.toUpperCase())} of them are`);
     L.push(`${subject} ${g.width_m.toFixed(2)} m wide, set ${surroundFor(status)}, ` +
-      `divided by ${count(mullions)} stone mullion${mullions > 1 ? "s" : ""} into ` +
+      `divided by ${count(mullions)} ${WINDOW_WORDS.mullion}${mullions > 1 ? "s" : ""} into ` +
       `${count(lights)} equal upright light${lights > 1 ? "s" : ""}` +
       (transomFor(g.width_m)
-        ? ", and crossed by a single stone transom, the only transom on this " + surface
+        ? `, and crossed by ${WINDOW_WORDS.transom}, the only transom on this ` + surface
         : "") +
       `, the sill ${WINDOW_SILL_M.toFixed(2)} m above the ${datum} and the head ${WINDOW_HEAD_M.toFixed(2)} m above it.`);
   }

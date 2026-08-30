@@ -1853,7 +1853,12 @@ const invokedPath = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).hr
 if (import.meta.url === invokedPath) {
   const args = process.argv.slice(2);
   const i = args.indexOf("--fixture-dir");
-  const fixtureDir = i !== -1 && args[i + 1] ? resolve(args[i + 1]) : join(ROOT, "fixtures", "demo-study");
+  /* [Kabe, 2026-08-30 hospital-3 step 2] `--pack` NAMES THE FIXTURE TOO. The first
+     run of a third pack validated the manor's plan against the hospital's
+     archetypes, because the pack chose the voices and the default dir stayed
+     the study's. One flag, one location. */
+  const fixtureDir = i !== -1 && args[i + 1] ? resolve(args[i + 1])
+    : (args.includes("--pack") ? resolve(ROOT, activePack().paths.fixture_dir) : join(ROOT, "fixtures", "demo-study"));
   /* [row 44] A FIXTURE NAMES ITS PLAN IN `plan.ref` (a pack's plan lives in the
    * pack; the site never carries a symlink - a dangling one fails the Pages
    * build). `plan.json` beside the fixture is still honoured for the demos. */
