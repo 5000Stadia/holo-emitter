@@ -51,6 +51,17 @@ def active_pack_name(argv=None, env=None):
             return argv[i + 1]
         if a.startswith("--pack="):
             return a[len("--pack="):]
+    # A fixture names its pack (`<fixture>/pack.ref`): a tool given
+    # --fixture-dir is working on that pack, and the fixture's claim outranks
+    # the environment (same order as tools/pack.mjs).
+    if "--fixture-dir" in argv:
+        i = argv.index("--fixture-dir")
+        if i + 1 < len(argv):
+            ref = os.path.join(argv[i + 1], "pack.ref")
+            if os.path.exists(ref):
+                name = open(ref).read().strip()
+                if name:
+                    return name
     if env.get("HOLO_PACK"):
         return env["HOLO_PACK"]
     return DEFAULT_PACK
