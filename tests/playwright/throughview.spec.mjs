@@ -216,19 +216,17 @@ test.describe("row 43 — the far floor meets the threshold", () => {
     }
   });
 
-  test("the far floor crosses its own bottom edge without a seam", () => {
-    const above = VIEW.above, below = VIEW.below;
-    expect(below.length).toBe(above.length);
-    let worst = 0, at = -1;
-    for (let i = 0; i < above.length; i++) {
-      for (let c = 0; c < 3; c++) {
-        const d = Math.abs(above[i][c] - below[i][c]);
-        if (d > worst) { worst = d; at = i; }
-      }
-    }
-    expect(worst,
-      `column ${at} jumps by ${worst} across the far frame's bottom edge`)
-      .toBeLessThanOrEqual(12);
+  test("the far floor reaches the threshold: the frame is moved to the foot, no strip", () => {
+    /* [Kabe, 2026-08-29] "Just MOVE the background source image of that room
+       to butt up against the foreground image at the bottom of the doorframe."
+       So the row just above the threshold is the far room's own floor - every
+       column its own red - and not a strip filled from it. */
+    const row = VIEW.at_threshold;
+    const distinct = new Set(row.map((px) => px.join(","))).size;
+    expect(distinct, "the row above the threshold is the far floor, not a band").toBeGreaterThan(8);
+    const mean = (i) => row.reduce((a, px) => a + px[i], 0) / row.length;
+    expect(mean(0) - Math.max(mean(1), mean(2)),
+      "the row above the threshold is the far room's red floor, not its dark wall").toBeGreaterThan(20);
   });
 
   test("and it is the same picture twice (§12.2)", () => {
