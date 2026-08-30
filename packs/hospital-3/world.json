@@ -24,7 +24,9 @@
    "transom": "a single horizontal transom bar",
    "opening_light": "a top-hung opening vent on friction stays",
    "why": "A 1990s hospital window: steel frame, white paint, a top-hung vent for air."
-  }
+  },
+  "floor_licence_px": 60,
+  "floor_licence_why": "How far the painted wall foot may stand from the declared floor row before the reading is refused: this pack's painters put the foot 10-60 px above the declared row on every wall, and the warp pins it back; the manor keeps the scaffold's 20."
  },
  "rulers": [
   {

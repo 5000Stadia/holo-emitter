@@ -212,6 +212,19 @@ def cfg_from_sidecar(side):
     floor_y = m["floor_line_y"] * m["image_h_px"]
     ppm = m["px_per_m_at_wall"]
     fw, rb, cb = b["floor_window"], b["rail_band"], b["ceiling_band"]
+    # [Kabe, 2026-08-30] THE FLOOR LICENCE IS THE PACK'S. The scaffold's bracket
+    # is +/-20 px around the DECLARED floor row, and on every hospital and
+    # cyberpunk wall the painted foot stands 10-60 px above it: the old reader
+    # clamped to the bracket's edge and nobody saw; the foot rule reads the
+    # truth and the truth fell outside the licence, which computes no scale at
+    # all and re-asks the painter for a wall the warp corrects in a second.
+    # A pack says how far its painters' feet may stand from the declared row
+    # (`conventions.floor_licence_px`); the manor says nothing and keeps 20.
+    # The SEARCH keeps the scaffold's bracket (a wider minimum-search picks the
+    # dark skirting itself: reception/E read 42 px high the first time); only
+    # the LICENCE widens.
+    _lic = ((_PACK.world.get("conventions") or {}).get("floor_licence_px")) if _PACK else None
+    _lic = float(_lic) if isinstance(_lic, (int, float)) and _lic > fw["half_width"] else float(fw["half_width"])
 
     # HOTFIX (live run 2026-08-24, second crash): manor brackets carry FLOAT
     # column endpoints, and on a wall whose corners overrun the frame they are
@@ -255,6 +268,7 @@ def cfg_from_sidecar(side):
         corner_x0=m["corner_x0_px"], corner_x1=m["corner_x1_px"],
         floor_window=(int(fw["centre"] - fw["half_width"]),
                       int(fw["centre"] + fw["half_width"])),
+        floor_licence=(int(fw["centre"] - _lic), int(fw["centre"] + _lic)),
         rail_band=rail_band,
         # THE CEILING SEARCH RUNS FROM THE FRAME TOP TO THE BOTTOM OF THE
         # DECLARED CEILING BRACKET, and it is open upward on purpose. The
@@ -930,7 +944,7 @@ def measure_candidate(path, side, cfg, ref, picks):
     L = luma(rgb)
 
     floor_y, mod, rail_above = _floor_and_rail(L, cfg, picks)
-    a, b = cfg["floor_window"]
+    a, b = cfg.get("floor_licence") or cfg["floor_window"]
     floor_in_band = (a <= floor_y <= b)
     rail_y = mod["dado_rail_y_px"]
     ra, rb = cfg["rail_band"]

@@ -24,7 +24,9 @@
    "transom": "a single steel transom",
    "opening_light": "a sliding pane in a steel track",
    "why": "Street level: every window is a steel frame; a light that opens slides."
-  }
+  },
+  "floor_licence_px": 60,
+  "floor_licence_why": "How far the painted wall foot may stand from the declared floor row before the reading is refused: this pack's painters put the foot 10-60 px above the declared row on every wall, and the warp pins it back; the manor keeps the scaffold's 20."
  },
  "rulers": [
   {

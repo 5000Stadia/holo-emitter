@@ -6,7 +6,10 @@
   },
   "reception/S": {
    "attempts": 1,
-   "status": "waiting"
+   "status": "promoted",
+   "candidate": "backdrops/source/reception-S/row23-23bdb263.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "reception/E": {
    "attempts": 1,
@@ -30,19 +33,31 @@
   },
   "treatment_room/W": {
    "attempts": 1,
-   "status": "waiting"
+   "status": "promoted",
+   "candidate": "backdrops/source/treatment_room-W/row23-d1a7cbe0.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "ward/N": {
    "attempts": 1,
-   "status": "waiting"
+   "status": "promoted",
+   "candidate": "backdrops/source/ward-N/row23-72a53369.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "ward/S": {
    "attempts": 1,
-   "status": "waiting"
+   "status": "promoted",
+   "candidate": "backdrops/source/ward-S/row23-90e3ccad.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "ward/E": {
    "attempts": 1,
-   "status": "waiting"
+   "status": "promoted",
+   "candidate": "backdrops/source/ward-E/row23-cc91eb7f.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "ward/W": {
    "attempts": 1,
