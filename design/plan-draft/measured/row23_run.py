@@ -377,14 +377,26 @@ def measure_roll(key, r, side, cfg, ref, picks):
     """
     _t = time.time()                                              # [row 33]
     _cached = os.path.join(OUT, "%s.json" % r["id"])
+    # [underground-2] THE BYTES, NOT THE ID. A re-emitted ask reuses its roll id
+    # and the painter delivers a NEW painting at the SAME path; a cache keyed by
+    # id then serves the old painting's reading for the new bytes (platform/E
+    # held twice on a reading of a frame that no longer existed). The reading
+    # names the file's digest and is retaken when the bytes moved.
+    import hashlib as _hl
+    try:
+        _sha = _hl.sha256(open(os.path.join(ROOT, r["candidate"]), "rb").read()).hexdigest()
+    except OSError:
+        _sha = None
     if os.path.exists(_cached) and not REMEASURE:
         _old = json.load(open(_cached))
+        if _old.get("candidate_sha256") != _sha:
+            _old = {}
         # [Kabe, 2026-08-30] A READING IS A FUNCTION OF THE BYTES *AND THE
         # INSTRUMENT*. The floor rule changed (foot, not shadow) and a pass
         # re-promoted twelve walls on their cached readings — the old rows,
         # to the pixel. A reading names the instrument it was taken with, and
         # one taken by another is taken again.
-        if _instrument_current(_old):
+        if _old and _instrument_current(_old):
             return _old
     try:
         d = row23_lib.measure_candidate(os.path.join(ROOT, r["candidate"]),
@@ -407,6 +419,7 @@ def measure_roll(key, r, side, cfg, ref, picks):
                    {"roll_id": r["id"], "candidate": r["candidate"],
                     "verdict": d.get("verdict"), "kind": d.get("kind")})
     d["id"], d["candidate"] = r["id"], r["candidate"]
+    d["candidate_sha256"] = _sha
     _stamp_instrument(d)
     os.makedirs(OUT, exist_ok=True)
     json.dump(d, open(_cached, "w"), indent=2)
@@ -785,7 +798,7 @@ def _record_exit(st, name, reason, cand_rel=None):
     st["exit"] = name
     st["exit_reason"] = reason
     if cand_rel is not None:
-        st["exit_attempt"] = {"candidate": cand_rel, "exit": name, "instrument": INSTRUMENT_ID,
+        st["exit_attempt"] = {"candidate": cand_rel, "exit": name, "instrument": INSTRUMENT_ID, "candidate_sha256": (reading or {}).get("candidate_sha256") if isinstance(reading, dict) else None,
                               "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
 
 
@@ -794,7 +807,19 @@ def _exit_tried(st, cand_rel):
     # [Kabe, 2026-08-30] ...on this candidate BY THIS INSTRUMENT. A changed
     # reader is a new routing, or a wall holds forever on a reading nobody takes.
     _a = st.get("exit_attempt") or {}
-    return _a.get("candidate") == cand_rel and _a.get("instrument") == INSTRUMENT_ID
+    if _a.get("candidate") != cand_rel or _a.get("instrument") != INSTRUMENT_ID:
+        return False
+    # ...and on these BYTES: a repainted candidate at the same path is a new
+    # routing (see measure_roll's candidate_sha256).
+    _want = _a.get("candidate_sha256")
+    if _want:
+        import hashlib as _hl
+        try:
+            if _hl.sha256(open(os.path.join(ROOT, cand_rel), "rb").read()).hexdigest() != _want:
+                return False
+        except OSError:
+            return False
+    return True
 
 
 def _snapped_frame(key):
