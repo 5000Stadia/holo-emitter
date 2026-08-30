@@ -9,131 +9,131 @@
   "unrecoverable": [],
   "rooms": [
     {
-      "room": "noodle_bar",
+      "room": "booking_hall",
       "facings": [
         {
           "facing": "N",
-          "voice": "noodle_counter_trade",
-          "candidate": "backdrops/source-warped/noodle_bar-N/warped.png",
+          "voice": "booking_hall_tiled",
+          "candidate": "backdrops/source-warped/booking_hall-N/warped.png",
           "ruling": {
-            "walls": "corrugated galvanised steel sheet below the cable channel, grease-darkened; above it, stained bare concrete block with faded stencilled lettering and a dead neon tube bracketed to the wall, unlit",
-            "overhead": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles",
-            "underfoot": "cracked pale terrazzo with a steel drain channel running across it",
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band; below the band, dark bottle-green glazed tiles with a moulded black tile capping",
+            "overhead": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps",
+            "underfoot": "buff terrazzo divided by narrow brass strips into large squares",
             "hangings": null
           },
-          "ask_path": "backdrops/source-warped/noodle_bar-N/warped.prompt.txt",
+          "ask_path": "backdrops/source-warped/booking_hall-N/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
-          "asked": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles. Underfoot: cracked pale terrazzo with a steel drain channel running across it.",
-          "ask_key": "raw concrete slab with black-painted rectangular ductwork and hanging cable bundles cracked pale terrazzo with steel drain channel running across it",
+          "asked": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps. Underfoot: buff terrazzo divided by narrow brass strips into large squares.",
+          "ask_key": "flat white plaster ceiling with deep moulded cornice and single row of pendant opal-glass globe lamps buff terrazzo divided by narrow brass strips into large squares",
           "ask_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
             "hangings": null
           },
           "ruling_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
             "hangings": null
           },
           "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/concrete-slab-ducts\"],[\"underfoot\",\"floor/cracked-terrazzo\"],[\"walls\",\"wall/corrugated-galvanised\"]]"
-        },
-        {
-          "facing": "E",
-          "voice": "noodle_counter_trade",
-          "candidate": "backdrops/source-warped/noodle_bar-E/warped.png",
-          "ruling": {
-            "walls": "corrugated galvanised steel sheet below the cable channel, grease-darkened; above it, stained bare concrete block with faded stencilled lettering and a dead neon tube bracketed to the wall, unlit",
-            "overhead": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles",
-            "underfoot": "cracked pale terrazzo with a steel drain channel running across it",
-            "hangings": null
-          },
-          "ask_path": "backdrops/source-warped/noodle_bar-E/warped.prompt.txt",
-          "ask_via": "beside the candidate",
-          "missing": [],
-          "verdict": "current",
-          "asked": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles. Underfoot: cracked pale terrazzo with a steel drain channel running across it.",
-          "ask_key": "raw concrete slab with black-painted rectangular ductwork and hanging cable bundles cracked pale terrazzo with steel drain channel running across it",
-          "ask_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
-            "hangings": null
-          },
-          "ruling_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
-            "hangings": null
-          },
-          "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/concrete-slab-ducts\"],[\"underfoot\",\"floor/cracked-terrazzo\"],[\"walls\",\"wall/corrugated-galvanised\"]]"
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cornice\"],[\"underfoot\",\"floor/terrazzo-brass\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
         },
         {
           "facing": "S",
-          "voice": "noodle_counter_trade",
-          "candidate": "backdrops/source-warped/noodle_bar-S/warped.png",
+          "voice": "booking_hall_tiled",
+          "candidate": "backdrops/source-warped/booking_hall-S/warped.png",
           "ruling": {
-            "walls": "corrugated galvanised steel sheet below the cable channel, grease-darkened; above it, stained bare concrete block with faded stencilled lettering and a dead neon tube bracketed to the wall, unlit",
-            "overhead": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles",
-            "underfoot": "cracked pale terrazzo with a steel drain channel running across it",
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band; below the band, dark bottle-green glazed tiles with a moulded black tile capping",
+            "overhead": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps",
+            "underfoot": "buff terrazzo divided by narrow brass strips into large squares",
             "hangings": null
           },
-          "ask_path": "backdrops/source-warped/noodle_bar-S/warped.prompt.txt",
+          "ask_path": "backdrops/source-warped/booking_hall-S/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
-          "asked": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles. Underfoot: cracked pale terrazzo with a steel drain channel running across it.",
-          "ask_key": "raw concrete slab with black-painted rectangular ductwork and hanging cable bundles cracked pale terrazzo with steel drain channel running across it",
+          "asked": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps. Underfoot: buff terrazzo divided by narrow brass strips into large squares.",
+          "ask_key": "flat white plaster ceiling with deep moulded cornice and single row of pendant opal-glass globe lamps buff terrazzo divided by narrow brass strips into large squares",
           "ask_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
             "hangings": null
           },
           "ruling_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
             "hangings": null
           },
           "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/concrete-slab-ducts\"],[\"underfoot\",\"floor/cracked-terrazzo\"],[\"walls\",\"wall/corrugated-galvanised\"]]"
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cornice\"],[\"underfoot\",\"floor/terrazzo-brass\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
+        },
+        {
+          "facing": "E",
+          "voice": "booking_hall_tiled",
+          "candidate": "backdrops/source/booking_hall-E/row23-9828f287.png",
+          "ruling": {
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band; below the band, dark bottle-green glazed tiles with a moulded black tile capping",
+            "overhead": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps",
+            "underfoot": "buff terrazzo divided by narrow brass strips into large squares",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/booking_hall-E/row23-9828f287.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps. Underfoot: buff terrazzo divided by narrow brass strips into large squares.",
+          "ask_key": "flat white plaster ceiling with deep moulded cornice and single row of pendant opal-glass globe lamps buff terrazzo divided by narrow brass strips into large squares",
+          "ask_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cornice\"],[\"underfoot\",\"floor/terrazzo-brass\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
         },
         {
           "facing": "W",
-          "voice": "noodle_counter_trade",
-          "candidate": "backdrops/source-warped/noodle_bar-W/warped.png",
+          "voice": "booking_hall_tiled",
+          "candidate": "backdrops/source-warped/booking_hall-W/warped.png",
           "ruling": {
-            "walls": "corrugated galvanised steel sheet below the cable channel, grease-darkened; above it, stained bare concrete block with faded stencilled lettering and a dead neon tube bracketed to the wall, unlit",
-            "overhead": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles",
-            "underfoot": "cracked pale terrazzo with a steel drain channel running across it",
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band; below the band, dark bottle-green glazed tiles with a moulded black tile capping",
+            "overhead": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps",
+            "underfoot": "buff terrazzo divided by narrow brass strips into large squares",
             "hangings": null
           },
-          "ask_path": "backdrops/source-warped/noodle_bar-W/warped.prompt.txt",
+          "ask_path": "backdrops/source-warped/booking_hall-W/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
-          "asked": "a raw concrete slab with black-painted rectangular ductwork and hanging cable bundles. Underfoot: cracked pale terrazzo with a steel drain channel running across it.",
-          "ask_key": "raw concrete slab with black-painted rectangular ductwork and hanging cable bundles cracked pale terrazzo with steel drain channel running across it",
+          "asked": "a flat white plaster ceiling with a deep moulded cornice and a single row of pendant opal-glass globe lamps. Underfoot: buff terrazzo divided by narrow brass strips into large squares.",
+          "ask_key": "flat white plaster ceiling with deep moulded cornice and single row of pendant opal-glass globe lamps buff terrazzo divided by narrow brass strips into large squares",
           "ask_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
             "hangings": null
           },
           "ruling_materials": {
-            "walls": "wall/corrugated-galvanised",
-            "overhead": "ceiling/concrete-slab-ducts",
-            "underfoot": "floor/cracked-terrazzo",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/plaster-cornice",
+            "underfoot": "floor/terrazzo-brass",
             "hangings": null
           },
           "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/concrete-slab-ducts\"],[\"underfoot\",\"floor/cracked-terrazzo\"],[\"walls\",\"wall/corrugated-galvanised\"]]"
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cornice\"],[\"underfoot\",\"floor/terrazzo-brass\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -144,131 +144,142 @@
       "verdict": "current"
     },
     {
-      "room": "back_office",
+      "room": "platform",
       "facings": [
         {
-          "facing": "N",
-          "voice": "back_office_soft",
-          "candidate": "backdrops/source-warped/back_office-N/warped.png",
-          "ruling": {
-            "walls": "charcoal acoustic foam panels in a grid below the cable channel; above it, painted plasterboard in a dirty off-white with surface-run conduit and a single spray-painted tag",
-            "overhead": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through",
-            "underfoot": "grey rubber studded tile, worn smooth along the walking line",
-            "hangings": null
-          },
-          "ask_path": "backdrops/source-warped/back_office-N/warped.prompt.txt",
-          "ask_via": "beside the candidate",
-          "missing": [],
-          "verdict": "current",
-          "asked": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through. Underfoot: grey rubber studded tile, worn smooth along the walking line.",
-          "ask_key": "suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through grey rubber studded tile worn smooth along walking line",
-          "ask_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
-            "hangings": null
-          },
-          "ruling_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
-            "hangings": null
-          },
-          "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/suspended-tile-grid\"],[\"underfoot\",\"floor/rubber-stud-tile\"],[\"walls\",\"wall/acoustic-foam-grid\"]]"
-        },
-        {
           "facing": "E",
-          "voice": "back_office_soft",
-          "candidate": "backdrops/source-warped/back_office-E/warped.png",
+          "voice": "platform_vault",
+          "candidate": "backdrops/source-warped/platform-E/warped.png",
           "ruling": {
-            "walls": "charcoal acoustic foam panels in a grid below the cable channel; above it, painted plasterboard in a dirty off-white with surface-run conduit and a single spray-painted tag",
-            "overhead": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through",
-            "underfoot": "grey rubber studded tile, worn smooth along the walking line",
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall",
+            "overhead": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre",
+            "underfoot": "smooth grey concrete, a single worn white painted guidance line running down its length",
             "hangings": null
           },
-          "ask_path": "backdrops/source-warped/back_office-E/warped.prompt.txt",
+          "ask_path": "backdrops/source-warped/platform-E/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
-          "asked": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through. Underfoot: grey rubber studded tile, worn smooth along the walking line.",
-          "ask_key": "suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through grey rubber studded tile worn smooth along walking line",
+          "asked": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.",
+          "ask_key": "broad flat-painted concrete soffit springing from moulded cornice line carrying run of shaded pendant lamps down its centre smooth grey concrete single worn white painted guidance line running down its length",
           "ask_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
             "hangings": null
           },
           "ruling_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
             "hangings": null
           },
           "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/suspended-tile-grid\"],[\"underfoot\",\"floor/rubber-stud-tile\"],[\"walls\",\"wall/acoustic-foam-grid\"]]"
-        },
-        {
-          "facing": "S",
-          "voice": "back_office_soft",
-          "candidate": "backdrops/source-warped/back_office-S/warped.png",
-          "ruling": {
-            "walls": "charcoal acoustic foam panels in a grid below the cable channel; above it, painted plasterboard in a dirty off-white with surface-run conduit and a single spray-painted tag",
-            "overhead": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through",
-            "underfoot": "grey rubber studded tile, worn smooth along the walking line",
-            "hangings": null
-          },
-          "ask_path": "backdrops/source-warped/back_office-S/warped.prompt.txt",
-          "ask_via": "beside the candidate",
-          "missing": [],
-          "verdict": "current",
-          "asked": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through. Underfoot: grey rubber studded tile, worn smooth along the walking line.",
-          "ask_key": "suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through grey rubber studded tile worn smooth along walking line",
-          "ask_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
-            "hangings": null
-          },
-          "ruling_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
-            "hangings": null
-          },
-          "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/suspended-tile-grid\"],[\"underfoot\",\"floor/rubber-stud-tile\"],[\"walls\",\"wall/acoustic-foam-grid\"]]"
+          "ask_material_key": "[[\"overhead\",\"ceiling/painted-soffit\"],[\"underfoot\",\"floor/concrete-guideline\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
         },
         {
           "facing": "W",
-          "voice": "back_office_soft",
-          "candidate": "backdrops/source-warped/back_office-W/warped.png",
+          "voice": "platform_vault",
+          "candidate": "backdrops/source-warped/platform-W/warped.png",
           "ruling": {
-            "walls": "charcoal acoustic foam panels in a grid below the cable channel; above it, painted plasterboard in a dirty off-white with surface-run conduit and a single spray-painted tag",
-            "overhead": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through",
-            "underfoot": "grey rubber studded tile, worn smooth along the walking line",
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall",
+            "overhead": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre",
+            "underfoot": "smooth grey concrete, a single worn white painted guidance line running down its length",
             "hangings": null
           },
-          "ask_path": "backdrops/source-warped/back_office-W/warped.prompt.txt",
+          "ask_path": "backdrops/source-warped/platform-W/warped.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
-          "asked": "a suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through. Underfoot: grey rubber studded tile, worn smooth along the walking line.",
-          "ask_key": "suspended grid of stained ceiling tiles with two tiles missing and cable trays showing through grey rubber studded tile worn smooth along walking line",
+          "asked": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.",
+          "ask_key": "broad flat-painted concrete soffit springing from moulded cornice line carrying run of shaded pendant lamps down its centre smooth grey concrete single worn white painted guidance line running down its length",
           "ask_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
             "hangings": null
           },
           "ruling_materials": {
-            "walls": "wall/acoustic-foam-grid",
-            "overhead": "ceiling/suspended-tile-grid",
-            "underfoot": "floor/rubber-stud-tile",
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
             "hangings": null
           },
           "class": "current",
-          "ask_material_key": "[[\"overhead\",\"ceiling/suspended-tile-grid\"],[\"underfoot\",\"floor/rubber-stud-tile\"],[\"walls\",\"wall/acoustic-foam-grid\"]]"
+          "ask_material_key": "[[\"overhead\",\"ceiling/painted-soffit\"],[\"underfoot\",\"floor/concrete-guideline\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
+        }
+      ],
+      "distinct_asks": 1,
+      "split": false,
+      "stale": [],
+      "refined": [],
+      "unprovable": [],
+      "verdict": "current"
+    },
+    {
+      "room": "platform_far",
+      "facings": [
+        {
+          "facing": "E",
+          "voice": "platform_vault",
+          "candidate": "backdrops/source/platform_far-E/row23-e23c4ed5.png",
+          "ruling": {
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall",
+            "overhead": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre",
+            "underfoot": "smooth grey concrete, a single worn white painted guidance line running down its length",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/platform_far-E/row23-e23c4ed5.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.",
+          "ask_key": "broad flat-painted concrete soffit springing from moulded cornice line carrying run of shaded pendant lamps down its centre smooth grey concrete single worn white painted guidance line running down its length",
+          "ask_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/painted-soffit\"],[\"underfoot\",\"floor/concrete-guideline\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
+        },
+        {
+          "facing": "W",
+          "voice": "platform_vault",
+          "candidate": "backdrops/source-warped/platform_far-W/warped.png",
+          "ruling": {
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall",
+            "overhead": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre",
+            "underfoot": "smooth grey concrete, a single worn white painted guidance line running down its length",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source-warped/platform_far-W/warped.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.",
+          "ask_key": "broad flat-painted concrete soffit springing from moulded cornice line carrying run of shaded pendant lamps down its centre smooth grey concrete single worn white painted guidance line running down its length",
+          "ask_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/painted-soffit\"],[\"underfoot\",\"floor/concrete-guideline\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
         }
       ],
       "distinct_asks": 1,

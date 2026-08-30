@@ -1,0 +1,343 @@
+{
+ "candidate_id": "9ff3228b",
+ "cells": [
+  "platform",
+  "platform_far"
+ ],
+ "crossed_edges": [
+  13.4
+ ],
+ "derivation": "deep_view/1",
+ "extended_fraction": 0.8474,
+ "extended_px": 1332840,
+ "facing": "platform/E",
+ "fallbacks": [
+  {
+   "fill": "far_frame_edge",
+   "pixels": 38967,
+   "source": [
+    "far"
+   ],
+   "surface": "platform.ceiling.left",
+   "why": "the c0.left source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 38913,
+   "source": [
+    "far"
+   ],
+   "surface": "platform.ceiling.right",
+   "why": "the c0.right source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 187018,
+   "source": [
+    "far"
+   ],
+   "surface": "platform.floor.left",
+   "why": "the c0.left source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 186616,
+   "source": [
+    "far"
+   ],
+   "surface": "platform.floor.right",
+   "why": "the c0.right source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 66268,
+   "source": [
+    "far"
+   ],
+   "surface": "platform.left",
+   "why": "the c0.left source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 65457,
+   "source": [
+    "far"
+   ],
+   "surface": "platform.right",
+   "why": "the c0.right source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 127462,
+   "source": [
+    "far"
+   ],
+   "surface": "platform_far.ceiling.left"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 127206,
+   "source": [
+    "far"
+   ],
+   "surface": "platform_far.ceiling.right"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 59771,
+   "source": [
+    "far"
+   ],
+   "surface": "platform_far.floor.left"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 59761,
+   "source": [
+    "far"
+   ],
+   "surface": "platform_far.floor.right"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 187545,
+   "source": [
+    "far"
+   ],
+   "surface": "platform_far.left",
+   "why": "the c1.left source for this surface is not promoted, so the far frame's edge stands in for it"
+  },
+  {
+   "fill": "far_frame_edge",
+   "pixels": 187856,
+   "source": [
+    "far"
+   ],
+   "surface": "platform_far.right",
+   "why": "the c1.right source for this surface is not promoted, so the far frame's edge stands in for it"
+  }
+ ],
+ "far_cell": "platform_far",
+ "geometry": {
+  "camera_wall_m": 11.2,
+  "edge_depth_m": 4.800000000000001,
+  "eye_m": 1.183,
+  "focal_px": 1024.0,
+  "horizon_y": 0.51377,
+  "standpoint": [
+   8.6,
+   3.6
+  ],
+  "standpoint_stand_back_m": 0.25,
+  "storey_height_m": 3.4,
+  "t_edge": 0.42857142857142866,
+  "t_near": 0.022321428571428572,
+  "wall_line": 19.8
+ },
+ "inputs": [
+  {
+   "facing": "platform_far/E",
+   "meta": "backdrops/platform_far/E.meta.json",
+   "meta_sha256": "2598b2a63e2988791ce38ff23f0659700fcebae4b1856d8793608ce2adfbc1dc",
+   "png": "backdrops/platform_far/E.png",
+   "png_sha256": "bf21975adf484e4061937fa0d05d561392a67b485349380ab675fa0b8732c470",
+   "role": "far"
+  }
+ ],
+ "k_camera": 0.4285714285714286,
+ "k_corners": 0.5489145001340124,
+ "kind": "derived_deep_view",
+ "missing_sources": [
+  "c0.left",
+  "c0.right",
+  "c1.left",
+  "c1.right"
+ ],
+ "painted_fraction": 0.1526,
+ "png": "backdrops/source/platform-E/row23-deep9ff3228b.png",
+ "quads": {
+  "ceiling": [
+   [
+    -12339.199999999999,
+    -8554.731520000001
+   ],
+   [
+    85.33333333333348,
+    53.140480000000025
+   ],
+   [
+    1450.6666666666667,
+    53.140480000000025
+   ],
+   [
+    13875.200000000004,
+    -8554.731520000001
+   ]
+  ],
+  "crossed_edge": {
+   "bl": [
+    85.33333333333348,
+    778.4738133333332
+   ],
+   "br": [
+    1450.6666666666667,
+    778.4738133333332
+   ],
+   "tl": [
+    85.33333333333348,
+    53.140480000000025
+   ],
+   "tr": [
+    1450.6666666666667,
+    53.140480000000025
+   ]
+  },
+  "floor": [
+   [
+    -12339.199999999999,
+    5371.668479999998
+   ],
+   [
+    85.33333333333348,
+    778.4738133333332
+   ],
+   [
+    1450.6666666666667,
+    778.4738133333332
+   ],
+   [
+    13875.200000000004,
+    5371.668479999998
+   ]
+  ],
+  "left": [
+   [
+    -12339.199999999999,
+    -8554.731520000001
+   ],
+   [
+    85.33333333333348,
+    53.140480000000025
+   ],
+   [
+    85.33333333333348,
+    778.4738133333332
+   ],
+   [
+    -12339.199999999999,
+    5371.668479999998
+   ]
+  ],
+  "near_plane": {
+   "bl": [
+    -12339.199999999999,
+    5371.668479999998
+   ],
+   "br": [
+    13875.200000000004,
+    5371.668479999998
+   ],
+   "tl": [
+    -12339.199999999999,
+    -8554.731520000001
+   ],
+   "tr": [
+    13875.200000000004,
+    -8554.731520000001
+   ]
+  },
+  "right": [
+   [
+    13875.200000000004,
+    -8554.731520000001
+   ],
+   [
+    1450.6666666666667,
+    53.140480000000025
+   ],
+   [
+    1450.6666666666667,
+    778.4738133333332
+   ],
+   [
+    13875.200000000004,
+    5371.668479999998
+   ]
+  ],
+  "wall": {
+   "bl": [
+    475.42857142857144,
+    634.2604799999999
+   ],
+   "br": [
+    1060.5714285714287,
+    634.2604799999999
+   ],
+   "tl": [
+    475.42857142857144,
+    323.4033371428571
+   ],
+   "tr": [
+    1060.5714285714287,
+    323.4033371428571
+   ]
+  }
+ },
+ "seam": {
+  "feather_px": 0,
+  "join": "crossed_edge_rect"
+ },
+ "sources": [
+  {
+   "camera_wall_m": 4.8,
+   "eye_m": 1.044,
+   "facing": "platform_far/E",
+   "ppm_h": 166.5625,
+   "ppm_v": 197.5,
+   "role": "far"
+  }
+ ],
+ "surfaces": {
+  "platform.ceiling.left": [
+   "far"
+  ],
+  "platform.ceiling.right": [
+   "far"
+  ],
+  "platform.floor.left": [
+   "far"
+  ],
+  "platform.floor.right": [
+   "far"
+  ],
+  "platform.left": [
+   "far"
+  ],
+  "platform.right": [
+   "far"
+  ],
+  "platform_far.ceiling.left": [
+   "far"
+  ],
+  "platform_far.ceiling.right": [
+   "far"
+  ],
+  "platform_far.floor.left": [
+   "far"
+  ],
+  "platform_far.floor.right": [
+   "far"
+  ],
+  "platform_far.left": [
+   "far"
+  ],
+  "platform_far.right": [
+   "far"
+  ],
+  "wall": [
+   "far"
+  ]
+ },
+ "tool": "design/plan-draft/measured/deep_view.py",
+ "unassigned_px": 0
+}
