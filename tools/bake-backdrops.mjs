@@ -88,7 +88,19 @@ const QUALITY = 92;
  * the alphabet: reception shipped, treatment_room and ward did not. A derived
  * tree is never partial on disk now — it is encoded into a side directory and
  * renamed into place in one step. */
-const buildDir = servedDir + ".building";
+/* UNIQUE PER PROCESS. Three pack loops share one served tree; two bakes at
+ * once with a fixed build-dir name deleted each other's half-encoded work
+ * (FileNotFoundError in served.building/, 2026-08-30). Each bake builds in
+ * its own directory and the swap still lands whole trees — last writer wins,
+ * both complete. Stale build dirs from crashed bakes are swept when old. */
+const buildDir = servedDir + ".building-" + process.pid;
+for (const d of readdirSync(dirname(servedDir))) {
+  if (!d.startsWith("served.building")) continue;
+  const full = join(dirname(servedDir), d);
+  try {
+    if (Date.now() - statSync(full).mtimeMs > 15 * 60 * 1000) rmSync(full, { recursive: true, force: true });
+  } catch { /* another bake owns or already removed it */ }
+}
 rmSync(buildDir, { recursive: true, force: true });
 mkdirSync(buildDir, { recursive: true });
 const entries = [];

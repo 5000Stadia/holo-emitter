@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 83 painting(s), 36.0 MB served in total,
+// 90 painting(s), 38.5 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -24,6 +24,10 @@
 //   back_stair/W: 1.82 MB of PNG -> 335 kB of JPEG (q92); channels move by 1.1307 on average, 20 at worst, of 255.
 //   back_stair_head/N: 2.72 MB of PNG -> 454 kB of JPEG (q92); channels move by 1.8686 on average, 22 at worst, of 255.
 //   back_stair_head/S: 1.91 MB of PNG -> 352 kB of JPEG (q92); channels move by 1.2116 on average, 19 at worst, of 255.
+//   booking_hall/E: 2.62 MB of PNG -> 453 kB of JPEG (q92); channels move by 1.6941 on average, 19 at worst, of 255.
+//   booking_hall/N: 2.10 MB of PNG -> 431 kB of JPEG (q92); channels move by 1.4044 on average, 17 at worst, of 255.
+//   booking_hall/S: 1.86 MB of PNG -> 349 kB of JPEG (q92); channels move by 1.1744 on average, 17 at worst, of 255.
+//   booking_hall/W: 1.87 MB of PNG -> 361 kB of JPEG (q92); channels move by 1.1676 on average, 15 at worst, of 255.
 //   buttery_pantry/E: 2.57 MB of PNG -> 506 kB of JPEG (q92); channels move by 1.7094 on average, 26 at worst, of 255.
 //   buttery_pantry/N: 2.47 MB of PNG -> 492 kB of JPEG (q92); channels move by 1.6938 on average, 21 at worst, of 255.
 //   buttery_pantry/S: 2.39 MB of PNG -> 495 kB of JPEG (q92); channels move by 1.6577 on average, 23 at worst, of 255.
@@ -73,6 +77,9 @@
 //   noodle_bar/N: 2.31 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.4597 on average, 14 at worst, of 255.
 //   noodle_bar/S: 2.00 MB of PNG -> 393 kB of JPEG (q92); channels move by 1.1475 on average, 13 at worst, of 255.
 //   noodle_bar/W: 2.52 MB of PNG -> 495 kB of JPEG (q92); channels move by 1.6273 on average, 17 at worst, of 255.
+//   platform/N: 1.59 MB of PNG -> 310 kB of JPEG (q92); channels move by 0.9898 on average, 17 at worst, of 255.
+//   platform/S: 1.78 MB of PNG -> 339 kB of JPEG (q92); channels move by 1.1473 on average, 16 at worst, of 255.
+//   platform/W: 1.61 MB of PNG -> 307 kB of JPEG (q92); channels move by 0.9843 on average, 16 at worst, of 255.
 //   privy_garden/N: 2.81 MB of PNG -> 538 kB of JPEG (q92); channels move by 1.9158 on average, 23 at worst, of 255.
 //   privy_garden/S: 3.11 MB of PNG -> 567 kB of JPEG (q92); channels move by 2.0468 on average, 20 at worst, of 255.
 //   reception/E: 1.58 MB of PNG -> 222 kB of JPEG (q92); channels move by 0.9467 on average, 12 at worst, of 255.
@@ -100,7 +107,7 @@
 //   ward/S: 2.08 MB of PNG -> 243 kB of JPEG (q92); channels move by 1.1536 on average, 13 at worst, of 255.
 //   ward/W: 1.52 MB of PNG -> 209 kB of JPEG (q92); channels move by 0.8841 on average, 12 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "456af533",
+  fp: "6c07d857",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -111,6 +118,10 @@ window.HOLO_BACKDROPS = {
   "back_stair/W": { file: "back_stair/W.jpg", bytes: 334509 },
   "back_stair_head/N": { file: "back_stair_head/N.jpg", bytes: 454486 },
   "back_stair_head/S": { file: "back_stair_head/S.jpg", bytes: 351675 },
+  "booking_hall/E": { file: "booking_hall/E.jpg", bytes: 453409 },
+  "booking_hall/N": { file: "booking_hall/N.jpg", bytes: 430871 },
+  "booking_hall/S": { file: "booking_hall/S.jpg", bytes: 349443 },
+  "booking_hall/W": { file: "booking_hall/W.jpg", bytes: 361395 },
   "buttery_pantry/E": { file: "buttery_pantry/E.jpg", bytes: 506139 },
   "buttery_pantry/N": { file: "buttery_pantry/N.jpg", bytes: 492329 },
   "buttery_pantry/S": { file: "buttery_pantry/S.jpg", bytes: 494666 },
@@ -160,6 +171,9 @@ window.HOLO_BACKDROPS = {
   "noodle_bar/N": { file: "noodle_bar/N.jpg", bytes: 454691 },
   "noodle_bar/S": { file: "noodle_bar/S.jpg", bytes: 392725 },
   "noodle_bar/W": { file: "noodle_bar/W.jpg", bytes: 494703 },
+  "platform/N": { file: "platform/N.jpg", bytes: 310175 },
+  "platform/S": { file: "platform/S.jpg", bytes: 339327 },
+  "platform/W": { file: "platform/W.jpg", bytes: 307423 },
   "privy_garden/N": { file: "privy_garden/N.jpg", bytes: 537646 },
   "privy_garden/S": { file: "privy_garden/S.jpg", bytes: 566540 },
   "reception/E": { file: "reception/E.jpg", bytes: 222395 },
