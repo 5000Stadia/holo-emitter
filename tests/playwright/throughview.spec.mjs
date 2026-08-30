@@ -114,7 +114,9 @@ async function throughView(page, root) {
       return out;
     };
     const strip = [];
-    for (let y = Math.ceil(frameBottom); y < Math.floor(threshold); y++) {
+    /* Clear of the seam's own treated band (SEAM_MIX_PX): its rows mix the
+       two floors on purpose and are not the strip under test. */
+    for (let y = Math.ceil(frameBottom); y < Math.floor(threshold) - 4; y++) {
       strip.push([y, band(one, y)]);
     }
     const sample = (y) => {
@@ -137,10 +139,10 @@ async function throughView(page, root) {
       frame_bottom: frameBottom, threshold: threshold,
       above: band(one, Math.floor(frameBottom) - 2),
       below: band(one, Math.ceil(frameBottom) + 1),
-      at_threshold: band(one, Math.floor(threshold) - 1),
+      at_threshold: band(one, Math.floor(threshold) - 4),   // just above the seam's treated band
       strip_rows: strip.length,
       strip: strip,
-      repeat: band(two, Math.floor(threshold) - 1),
+      repeat: band(two, Math.floor(threshold) - 4),
       probes: [sample(frameBottom + 1), sample(threshold - 0.5),
         sample(dy + H * map.k * 0.9)]
     };

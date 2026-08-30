@@ -1550,9 +1550,18 @@
    * `depth_m` from this room's face: the far room is seen to that plane, this
    * room's floor runs to it. Half, by Kabe's ruling above. */
   var PASSAGE_SHARE = 0.5;
-  /* How tall the softened band at the threshold seam is, in rows — half on
+  /* How tall the treated band at the threshold seam is, in rows — half on
    * each floor. [Kabe] "4-6 pixels ... 2-3 on each floor." */
-  var SEAM_BLUR_PX = 6;
+  var SEAM_MIX_PX = 6;
+  /* HOW the band is treated — a look decision awaiting Kabe's pick from the
+   * comparison batch, made by a constant like THROUGH_DIM:
+   *   "hard"   the crisp seam alone
+   *   "blur"   the band redrawn through a 1.5 px blur
+   *   "dither" each band pixel shows one floor or the other, by a coordinate
+   *            hash that ramps down the band (texture from both rooms)
+   *   "soft"   the dither, then the blur over it
+   * A render may override via options.seam_style (the comparison harness). */
+  var SEAM_STYLE = "dither";
   /* [Kabe, 2026-08-30] "The door frame in the background room isn't showing
    * the room two rooms back." How many rooms deep a through-view looks: 2 is
    * this room's doorway showing the next room AND that room's doorway showing
@@ -1944,30 +1953,83 @@
       ctx.drawImage(ctx.canvas, 0, sy, W, sh, 0, sy, W, sh);
       ctx.restore();
     }
-    /* [Kabe, 2026-08-30] AND THE SEAM ITSELF IS SOFTENED, BY A HAIR. "A blur
-       over 4-6 pixels on the combined background floor and foreground floor —
-       2-3 pixels on each — but only for those rows: no blurring spilling out
-       into either room. My theory is it will make an ambiguous divider line
-       that looks like a divider." So: the band SEAM_BLUR_PX tall centred on
-       the seam is redrawn through a small blur, clipped to exactly that band
-       inside the aperture; the copy carries a few extra rows so the filter has
-       both floors to sample, and the write cannot leave the band. */
-    if (sillBottom - sillTop > 0.5 && floorHere < H && typeof ctx.filter === "string") {
-      var bandTop = Math.max(0, Math.floor(sillTop - SEAM_BLUR_PX / 2));
-      var bandH = SEAM_BLUR_PX;
-      var feed = 4;
-      var strip = makeCanvas(doc, W, bandH + 2 * feed);
-      var sc = strip.getContext("2d");
-      sc.drawImage(ctx.canvas, 0, bandTop - feed, W, bandH + 2 * feed, 0, 0, W, bandH + 2 * feed);
+    /* [Kabe, 2026-08-30] THE SEAM IS A DITHER, NOT A BLUR. His second idea,
+       replacing the blur: "same concept for the window size but randomized
+       transparency between the two layers, so it will maintain most of its
+       transition look with texture rooted to the rooms." Each pixel of the
+       SEAM_MIX_PX band centred on the seam shows one floor or the other -
+       the chance of showing this room's floor ramps 0..1 down the band - so
+       the divider reads as an ambiguous line built from both floors' own
+       texture. The "randomness" is a hash of the pixel's own coordinates:
+       the same picture twice is still the same picture (section 12.2), and
+       nothing is written outside the band. */
+    var seamStyle = (options && options.seam_style) || SEAM_STYLE;
+    if ((seamStyle === "dither" || seamStyle === "soft") && sillBottom - sillTop > 0.5 && floorHere < H) {
+      var bandH = SEAM_MIX_PX;
+      var bandTop = Math.max(0, Math.round(sillTop - bandH / 2));
+      var bx0 = Math.max(0, Math.floor(a.x - 1));
+      var bx1 = Math.min(W, Math.ceil(a.x + a.w + 1));
+      var bw = bx1 - bx0;
+      if (bw > 0 && bandTop + bandH <= H) {
+        /* This room's floor, mirrored about the floor line, for every band row. */
+        var nearS = makeCanvas(doc, bw, bandH);
+        var nc = nearS.getContext("2d");
+        nc.setTransform(1, 0, 0, -1, -bx0, 2 * floorHere - bandTop);
+        nc.drawImage(ctx.canvas, 0, 0);
+        /* The far floor for every band row: its own rows above the seam, its
+           last row carried into the rows below (the frame ends at the seam). */
+        var farS = makeCanvas(doc, bw, bandH);
+        var fcx = farS.getContext("2d");
+        var lastFar = Math.max(bandTop, Math.floor(sillTop) - 1);
+        for (var br = 0; br < bandH; br++) {
+          fcx.drawImage(ctx.canvas, bx0, Math.min(bandTop + br, lastFar), bw, 1, 0, br, bw, 1);
+        }
+        var nd = nc.getImageData(0, 0, bw, bandH).data;
+        var fd = fcx.getImageData(0, 0, bw, bandH).data;
+        var mixS = makeCanvas(doc, bw, bandH);
+        var mc = mixS.getContext("2d");
+        var out = mc.createImageData(bw, bandH);
+        var od = out.data;
+        for (var r = 0; r < bandH; r++) {
+          var tNear = (r + 0.5) / bandH;
+          for (var x = 0; x < bw; x++) {
+            var hsh = Math.sin((bx0 + x) * 12.9898 + (bandTop + r) * 78.233) * 43758.5453;
+            hsh -= Math.floor(hsh);
+            var src = hsh < tNear ? nd : fd;
+            var k4 = (r * bw + x) * 4;
+            od[k4] = src[k4]; od[k4 + 1] = src[k4 + 1]; od[k4 + 2] = src[k4 + 2]; od[k4 + 3] = 255;
+          }
+        }
+        mc.putImageData(out, 0, 0);
+        ctx.save();
+        ctx.beginPath();
+        apertureClipPath(ctx, a);
+        ctx.clip();
+        ctx.beginPath();
+        ctx.rect(bx0, bandTop, bw, bandH);
+        ctx.clip();
+        ctx.drawImage(mixS, bx0, bandTop);
+        ctx.restore();
+      }
+    }
+    if ((seamStyle === "blur" || seamStyle === "soft") && sillBottom - sillTop > 0.5 && floorHere < H && typeof ctx.filter === "string") {
+      /* The blur treatment: the band redrawn through a small blur, clipped to
+         exactly that band inside the aperture; the copy carries feed rows so
+         the filter has both floors to sample, and the write cannot leave the
+         band. */
+      var blTop = Math.max(0, Math.floor(sillTop - SEAM_MIX_PX / 2));
+      var blFeed = 4;
+      var blStrip = makeCanvas(doc, W, SEAM_MIX_PX + 2 * blFeed);
+      blStrip.getContext("2d").drawImage(ctx.canvas, 0, blTop - blFeed, W, SEAM_MIX_PX + 2 * blFeed, 0, 0, W, SEAM_MIX_PX + 2 * blFeed);
       ctx.save();
       ctx.beginPath();
       apertureClipPath(ctx, a);
       ctx.clip();
       ctx.beginPath();
-      ctx.rect(a.x - 1, bandTop, a.w + 2, bandH);
+      ctx.rect(a.x - 1, blTop, a.w + 2, SEAM_MIX_PX);
       ctx.clip();
       ctx.filter = "blur(1.5px)";
-      ctx.drawImage(strip, 0, bandTop - feed);
+      ctx.drawImage(blStrip, 0, blTop - blFeed);
       ctx.filter = "none";
       ctx.restore();
     }
