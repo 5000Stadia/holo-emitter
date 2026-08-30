@@ -5,18 +5,18 @@
   "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.762695,
+  "floor_line_y": 0.750977,
   "horizon_y": 0.445703,
-  "px_per_m_at_wall": 230.0,
-  "px_per_m_at_bottom": 402.18,
-  "implied_focal_px": 1035.0,
-  "eye_height_m": 1.4113,
-  "storey_height_m": 3.0043,
+  "px_per_m_at_wall": 216.667,
+  "px_per_m_at_bottom": 393.4,
+  "implied_focal_px": 975.0,
+  "eye_height_m": 1.4428,
+  "storey_height_m": 3.1338,
   "drawn_standpoint_m": 4.5,
-  "delta_focal_pct": 1.07,
-  "delta_eye_pct": -6.32,
+  "delta_focal_pct": -4.79,
+  "delta_eye_pct": -5.23,
   "band_pct": 8.0,
-  "wall_width_m": 6.1261,
+  "wall_width_m": 6.5031,
   "camera_wall_m": 4.5,
   "camera_far_m": null,
   "corner_x0_px": 62,
@@ -24,7 +24,7 @@
   "key_tint": "#c8c5ba",
   "key_dir": "R-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.90 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 207,
+  "calibration_px": 195,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
@@ -35,9 +35,9 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 758,
-        "y": 693,
-        "edge_px": 23494
+        "x": 740,
+        "y": 649,
+        "edge_px": 22346
       },
       "ceiling": {
         "x": 770,
@@ -45,9 +45,9 @@
         "edge_px": 5402
       },
       "side_walls": {
-        "x": 752,
-        "y": 333,
-        "edge_px": 5629
+        "x": 804,
+        "y": 329,
+        "edge_px": 5438
       }
     },
     "adopted_y": 456.4,
@@ -67,9 +67,15 @@
     "far_line_ruler": null
   },
   "_measured_px": {
-    "wall_floor_line_y_px": 781,
+    "wall_floor_line_y_px": 769,
     "chair_rail_y_px": 574,
-    "dado_rail_above_floor_px": 207,
+    "dado_rail_above_floor_px": 195,
+    "floor_read": {
+      "minimum": 781,
+      "rule": "foot",
+      "saturated": false,
+      "foot": 769
+    },
     "capping_above_floor_px": null,
     "wall_ceiling_line_y_px": 90,
     "corner_x0_px": 62,
@@ -128,16 +134,16 @@
       32
     ],
     "sobel_bright_side_deg_whole_frame": 91.53,
-    "sobel_bright_side_deg_wall_band": 91.56,
+    "sobel_bright_side_deg_wall_band": 91.62,
     "left_third_minus_right_third_luminance_whole_frame": 0.8,
-    "left_third_minus_right_third_luminance_wall_band": -0.709
+    "left_third_minus_right_third_luminance_wall_band": -0.761
   },
   "_derived": {
-    "eye_height_m": 1.4113,
-    "storey_height_m": 3.0043,
-    "implied_wall_width_m": 6.1261,
-    "px_per_m_at_bottom": 402.1824,
-    "implied_camera_wall_m": 4.4522
+    "eye_height_m": 1.4428,
+    "storey_height_m": 3.1338,
+    "implied_wall_width_m": 6.5031,
+    "px_per_m_at_bottom": 393.4017,
+    "implied_camera_wall_m": 4.7261
   },
   "_withheld_because": [],
   "_hold_family": null,
@@ -145,35 +151,35 @@
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      390,
-      712
+      401,
+      704
     ],
     "wall_band_px": [
       62,
       1471
     ],
-    "wall_median_luminance": 130.53,
-    "min_enumerated_px": 92,
+    "wall_median_luminance": 129.14,
+    "min_enumerated_px": 87,
     "min_head_m": 1.4,
     "storey_m": 3.0,
-    "candidates_before_head_test": 1
+    "candidates_before_head_test": 2
   },
   "_windows_read": {
     "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
     "body_rows": [
-      359,
-      536
+      371,
+      538
     ],
     "wall_band_px": [
       62,
       1471
     ],
     "window_band_px": [
-      321,
+      336,
       574
     ],
-    "wall_median_luminance": 193.78,
-    "min_enumerated_px": 46,
+    "wall_median_luminance": 193.71,
+    "min_enumerated_px": 43,
     "lattice_min": 0.2,
     "lattice_support": 0.12,
     "edge_min": 12.0,

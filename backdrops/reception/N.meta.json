@@ -8,7 +8,7 @@
   "horizon_y": 0.51377,
   "key_dir": "L-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.90 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 185,
+  "calibration_px": 179,
   "camera_wall_m": 4.8,
   "facing_type": "enclosed",
   "wall_continuous": true,
@@ -36,11 +36,11 @@
   "provisional": false,
   "measured": true,
   "backdrop": "wall",
-  "focal_px": 986.7,
+  "focal_px": 954.7,
   "nearest_floor_m": 2.433,
   "measured_room": {
-    "storey_height_m": 3.449,
-    "wall_width_m": 6.227,
+    "storey_height_m": 3.665,
+    "wall_width_m": 6.436,
     "ruled_storey_height_m": 3,
     "ruled_wall_width_m": 6,
     "warp": {
@@ -69,16 +69,16 @@
         ]
       },
       "worst_segment": {
-        "axis": "x",
-        "name": "corner_left..corner_right",
-        "scale": 1.056,
-        "target_px": 1280,
-        "source_px": 1212
+        "axis": "y",
+        "name": "ceiling_line..floor_line",
+        "scale": 1.067,
+        "target_px": 640,
+        "source_px": 600
       },
       "revealed_px": 32256,
       "remeasured": {
-        "px_per_m_at_wall": 205.556,
-        "floor_line_y": 0.740234,
+        "px_per_m_at_wall": 198.889,
+        "floor_line_y": 0.759766,
         "corner_x0_px": 128,
         "corner_x1_px": 1408,
         "corner_scale_px_per_m": 213.333

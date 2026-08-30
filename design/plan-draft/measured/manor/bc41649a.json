@@ -3,6 +3,11 @@
     "wall_floor_line_y_px": 641,
     "chair_rail_y_px": 553,
     "dado_rail_above_floor_px": 88,
+    "floor_read": {
+      "minimum": 641,
+      "rule": "shadow-seam",
+      "saturated": false
+    },
     "capping_above_floor_px": null
   },
   "_windows": {
@@ -323,5 +328,6 @@
   "verdict": "PASS",
   "kind": null,
   "id": "bc41649a",
-  "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png"
+  "candidate": "backdrops/source/great_hall-W/row23-bc41649a.png",
+  "instrument": "dd2fd014b6fe"
 }

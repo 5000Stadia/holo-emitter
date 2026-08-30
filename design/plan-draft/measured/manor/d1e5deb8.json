@@ -3,6 +3,11 @@
     "wall_floor_line_y_px": 849,
     "chair_rail_y_px": 593,
     "dado_rail_above_floor_px": 256,
+    "floor_read": {
+      "minimum": 849,
+      "rule": "shadow-seam",
+      "saturated": false
+    },
     "capping_above_floor_px": 264
   },
   "_windows": {
@@ -278,5 +283,6 @@
   "verdict": "PASS",
   "kind": null,
   "id": "d1e5deb8",
-  "candidate": "backdrops/source/back_stair-S/row23-d1e5deb8.png"
+  "candidate": "backdrops/source/back_stair-S/row23-d1e5deb8.png",
+  "instrument": "dd2fd014b6fe"
 }

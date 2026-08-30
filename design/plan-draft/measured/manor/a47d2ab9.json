@@ -3,6 +3,11 @@
     "wall_floor_line_y_px": 703,
     "chair_rail_y_px": 574,
     "dado_rail_above_floor_px": 129,
+    "floor_read": {
+      "minimum": 703,
+      "rule": "shadow-seam",
+      "saturated": false
+    },
     "capping_above_floor_px": 152
   },
   "_windows": {
@@ -303,5 +308,6 @@
   "verdict": "FAIL",
   "kind": "generation_miss",
   "id": "a47d2ab9",
-  "candidate": "backdrops/source/kitchen-N/row23-a47d2ab9.png"
+  "candidate": "backdrops/source/kitchen-N/row23-a47d2ab9.png",
+  "instrument": "dd2fd014b6fe"
 }

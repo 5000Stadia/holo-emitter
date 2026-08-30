@@ -11,9 +11,9 @@
  "sha256": "c4253e7e9dbac3609f1abf485dce350560c8f092b915d851ccdc9fa306c41ab6",
  "reading_cache": null,
  "before": {
-  "camera_verdict": "PASS",
-  "delta_focal_pct": -3.32,
-  "delta_eye_pct": -5.13,
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -19.92,
+  "delta_eye_pct": -1.24,
   "hold_family": "unfitted-horizon"
  },
  "source_notes": {
@@ -21,20 +21,20 @@
   "corners": "measured",
   "vanishing_point": "declared-principal-point",
   "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
-  "px_per_m_at_wall": 220.0
+  "px_per_m_at_wall": 182.222
  },
  "target_notes": {
   "horizontal": "the declared corners, both inside the frame",
   "corners_in_frame": true,
-  "ppm_source": 220.0,
+  "ppm_source": 182.222,
   "ppm_target": 227.556,
-  "scale_k": 1.0343
+  "scale_k": 1.2488
  },
  "source_box": {
-  "x0": 96.0,
-  "x1": 1442.0,
+  "x0": 95.0,
+  "x1": 1445.0,
   "yc": 38.0,
-  "yf": 773.0,
+  "yf": 739.0,
   "vx": 768.0,
   "vy": 526.1
  },
@@ -57,8 +57,8 @@
  "aperture_notes": {
   "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
   "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
-  "source_storey_m": 3.341,
-  "source_ppm": 220.0
+  "source_storey_m": 3.847,
+  "source_ppm": 182.222
  },
  "apertures": {
   "doors": {
@@ -84,8 +84,8 @@
    "name": "corner_left",
    "kind": "room_corner",
    "target": 39.822,
-   "source": 96.0,
-   "ask_px": -56.2,
+   "source": 95.0,
+   "ask_px": -55.2,
    "residual_px": 0.0
   },
   {
@@ -108,8 +108,8 @@
    "name": "corner_right",
    "kind": "room_corner",
    "target": 1496.178,
-   "source": 1442.0,
-   "ask_px": 54.2,
+   "source": 1445.0,
+   "ask_px": 51.2,
    "residual_px": 0.0
   }
  ],
@@ -134,22 +134,22 @@
    "name": "floor_line",
    "kind": "room_corner",
    "target": 795.298,
-   "source": 773.0,
-   "ask_px": 22.3,
+   "source": 739.0,
+   "ask_px": 56.3,
    "residual_px": 0.0
   }
  ],
  "stretch": {
   "x_scale_min": 1.05,
-  "x_scale_max": 1.112,
-  "y_scale_min": 0.894,
+  "x_scale_max": 1.11,
+  "y_scale_min": 0.958,
   "y_scale_max": 1.007,
   "x_segments": [
    {
     "name": "corner_left..door:door01:left",
     "target_px": 591.6,
-    "source_px": 532.0,
-    "scale": 1.112
+    "source_px": 533.0,
+    "scale": 1.11
    },
    {
     "name": "door:door01:left..door:door01:right",
@@ -160,8 +160,8 @@
    {
     "name": "door:door01:right..corner_right",
     "target_px": 591.6,
-    "source_px": 554.0,
-    "scale": 1.068
+    "source_px": 557.0,
+    "scale": 1.062
    }
   ],
   "y_segments": [
@@ -174,8 +174,8 @@
    {
     "name": "door:door01:head..floor_line",
     "target_px": 455.1,
-    "source_px": 509.0,
-    "scale": 0.894
+    "source_px": 475.0,
+    "scale": 0.958
    }
   ],
   "monotone": true,
@@ -191,14 +191,14 @@
  "seam_blend_px": 24,
  "column_count": 4,
  "row_count": 3,
- "seconds": 5.31,
+ "seconds": 5.21,
  "warped_image": "backdrops/source-warped/reception-E/warped.png",
  "asked_from": "backdrops/source/reception-E/row23-89d98c96.prompt.txt",
- "warped_sha256": "f25758ad4fd9b989528ab52c550efefe6bf05da04e91b586262a0c1bee2cd603",
+ "warped_sha256": "9e16fe9d78c9b0658a339bc6531f670fb451db7137b1c474aa4f1b80e7069762",
  "after": {
-  "camera_verdict": "FAIL",
-  "delta_focal_pct": -9.67,
-  "delta_eye_pct": 4.41,
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -3.32,
+  "delta_eye_pct": 3.32,
   "hold_family": "unfitted-horizon"
  }
 }

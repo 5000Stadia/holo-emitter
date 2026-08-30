@@ -3,6 +3,11 @@
     "wall_floor_line_y_px": 604,
     "chair_rail_y_px": 545,
     "dado_rail_above_floor_px": 59,
+    "floor_read": {
+      "minimum": 604,
+      "rule": "shadow-seam",
+      "saturated": false
+    },
     "capping_above_floor_px": null
   },
   "_windows": {
@@ -300,5 +305,6 @@
   "verdict": "PASS",
   "kind": null,
   "id": "5d428d94",
-  "candidate": "backdrops/source/privy_garden-W/row23-5d428d94.png"
+  "candidate": "backdrops/source/privy_garden-W/row23-5d428d94.png",
+  "instrument": "dd2fd014b6fe"
 }

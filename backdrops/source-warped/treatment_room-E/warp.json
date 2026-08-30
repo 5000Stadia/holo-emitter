@@ -11,9 +11,9 @@
  "sha256": "8e853ba67015efdcf2c2b449eb9ef6bef024be5464a27ca4c2c0187e9b4ba550",
  "reading_cache": null,
  "before": {
-  "camera_verdict": "PASS",
-  "delta_focal_pct": -2.07,
-  "delta_eye_pct": -5.94,
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -8.26,
+  "delta_eye_pct": -4.73,
   "hold_family": "unfitted-horizon"
  },
  "source_notes": {
@@ -21,20 +21,20 @@
   "corners": "measured",
   "vanishing_point": "declared-principal-point",
   "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
-  "px_per_m_at_wall": 211.111
+  "px_per_m_at_wall": 197.778
  },
  "target_notes": {
   "horizontal": "the declared corners, both inside the frame",
   "corners_in_frame": true,
-  "ppm_source": 211.111,
+  "ppm_source": 197.778,
   "ppm_target": 215.579,
-  "scale_k": 1.0212
+  "scale_k": 1.09
  },
  "source_box": {
   "x0": 178.0,
-  "x1": 1351.0,
+  "x1": 1350.0,
   "yc": 80.0,
-  "yf": 761.0,
+  "yf": 749.0,
   "vx": 768.0,
   "vy": 526.1
  },
@@ -57,8 +57,8 @@
  "aperture_notes": {
   "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
   "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
-  "source_storey_m": 3.226,
-  "source_ppm": 211.111
+  "source_storey_m": 3.383,
+  "source_ppm": 197.778
  },
  "apertures": {
   "doors": {
@@ -100,16 +100,16 @@
    "name": "door:door02:right",
    "kind": "door",
    "target": 897.347,
-   "source": 912.0,
-   "ask_px": -14.7,
+   "source": 907.0,
+   "ask_px": -9.7,
    "residual_px": 0.0
   },
   {
    "name": "corner_right",
    "kind": "room_corner",
    "target": 1457.853,
-   "source": 1351.0,
-   "ask_px": 106.9,
+   "source": 1350.0,
+   "ask_px": 107.9,
    "residual_px": 0.0
   }
  ],
@@ -134,15 +134,15 @@
    "name": "floor_line",
    "kind": "room_corner",
    "target": 781.13,
-   "source": 761.0,
-   "ask_px": 20.1,
+   "source": 749.0,
+   "ask_px": 32.1,
    "residual_px": 0.0
   }
  ],
  "stretch": {
-  "x_scale_min": 0.895,
-  "x_scale_max": 1.277,
-  "y_scale_min": 0.849,
+  "x_scale_min": 0.911,
+  "x_scale_max": 1.265,
+  "y_scale_min": 0.869,
   "y_scale_max": 1.246,
   "x_segments": [
    {
@@ -154,14 +154,14 @@
    {
     "name": "door:door02:left..door:door02:right",
     "target_px": 258.7,
-    "source_px": 289.0,
-    "scale": 0.895
+    "source_px": 284.0,
+    "scale": 0.911
    },
    {
     "name": "door:door02:right..corner_right",
     "target_px": 560.5,
-    "source_px": 439.0,
-    "scale": 1.277
+    "source_px": 443.0,
+    "scale": 1.265
    }
   ],
   "y_segments": [
@@ -174,8 +174,8 @@
    {
     "name": "door:door02:head..floor_line",
     "target_px": 431.2,
-    "source_px": 508.0,
-    "scale": 0.849
+    "source_px": 496.0,
+    "scale": 0.869
    }
   ],
   "monotone": true,
@@ -191,14 +191,14 @@
  "seam_blend_px": 24,
  "column_count": 4,
  "row_count": 3,
- "seconds": 5.67,
+ "seconds": 5.91,
  "warped_image": "backdrops/source-warped/treatment_room-E/warped.png",
  "asked_from": "backdrops/source/treatment_room-E/row23-b9551bf5.prompt.txt",
- "warped_sha256": "ac51724da588c8c259bf82e7160380bf53f30fc336e2b0434563ab73d8592306",
+ "warped_sha256": "7685dac5542cf460a66424dc80dac1965b3344a22b15a65e4a8f075ad8102f1e",
  "after": {
   "camera_verdict": "FAIL",
-  "delta_focal_pct": -11.87,
-  "delta_eye_pct": 4.51,
+  "delta_focal_pct": -10.83,
+  "delta_eye_pct": 6.82,
   "hold_family": "unfitted-horizon"
  }
 }

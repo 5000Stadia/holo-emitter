@@ -12,8 +12,8 @@
  "reading_cache": null,
  "before": {
   "camera_verdict": "PASS",
-  "delta_focal_pct": -2.08,
-  "delta_eye_pct": -5.75,
+  "delta_focal_pct": -7.81,
+  "delta_eye_pct": -4.62,
   "hold_family": "unfitted-horizon"
  },
  "source_notes": {
@@ -21,20 +21,20 @@
   "corners": "measured",
   "vanishing_point": "declared-principal-point",
   "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
-  "px_per_m_at_wall": 208.889
+  "px_per_m_at_wall": 196.667
  },
  "target_notes": {
   "horizontal": "the declared corners, both inside the frame",
   "corners_in_frame": true,
-  "ppm_source": 208.889,
+  "ppm_source": 196.667,
   "ppm_target": 213.333,
-  "scale_k": 1.0213
+  "scale_k": 1.0847
  },
  "source_box": {
-  "x0": 174.0,
-  "x1": 1357.0,
+  "x0": 171.0,
+  "x1": 1358.0,
   "yc": 104.0,
-  "yf": 759.0,
+  "yf": 748.0,
   "vx": 768.0,
   "vy": 526.1
  },
@@ -57,8 +57,8 @@
  "aperture_notes": {
   "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
   "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
-  "source_storey_m": 3.136,
-  "source_ppm": 208.889
+  "source_storey_m": 3.275,
+  "source_ppm": 196.667
  },
  "apertures": {
   "doors": {
@@ -87,16 +87,16 @@
    "name": "corner_left",
    "kind": "room_corner",
    "target": 213.333,
-   "source": 174.0,
-   "ask_px": 39.3,
+   "source": 171.0,
+   "ask_px": 42.3,
    "residual_px": 0.0
   },
   {
    "name": "corner_right",
    "kind": "room_corner",
    "target": 1322.667,
-   "source": 1357.0,
-   "ask_px": -34.3,
+   "source": 1358.0,
+   "ask_px": -35.3,
    "residual_px": 0.0
   }
  ],
@@ -113,53 +113,53 @@
    "name": "floor_line",
    "kind": "room_corner",
    "target": 778.473,
-   "source": 759.0,
-   "ask_px": 19.5,
+   "source": 748.0,
+   "ask_px": 30.5,
    "residual_px": 0.0
   }
  ],
  "stretch": {
-  "x_scale_min": 0.938,
-  "x_scale_max": 0.938,
-  "y_scale_min": 0.977,
-  "y_scale_max": 0.977,
+  "x_scale_min": 0.935,
+  "x_scale_max": 0.935,
+  "y_scale_min": 0.994,
+  "y_scale_max": 0.994,
   "x_segments": [
    {
     "name": "corner_left..corner_right",
     "target_px": 1109.3,
-    "source_px": 1183.0,
-    "scale": 0.938
+    "source_px": 1187.0,
+    "scale": 0.935
    }
   ],
   "y_segments": [
    {
     "name": "ceiling_line..floor_line",
     "target_px": 640.0,
-    "source_px": 655.0,
-    "scale": 0.977
+    "source_px": 644.0,
+    "scale": 0.994
    }
   ],
   "monotone": true,
   "folded_px": 0
  },
  "max_residual_px": 0.0,
- "revealed_px": 160401,
- "revealed_fraction": 0.10198,
+ "revealed_px": 165265,
+ "revealed_fraction": 0.10507,
  "revealed_fill": "plane_recession",
  "fill_fade_px": 24,
- "filled_px": 232003,
+ "filled_px": 236692,
  "mirror_band_px": 0,
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 5.73,
+ "seconds": 5.81,
  "warped_image": "backdrops/source-warped/treatment_room-N/warped.png",
  "asked_from": "backdrops/source/treatment_room-N/row23-7cae834a.prompt.txt",
- "warped_sha256": "77cd35eb51eecb40e13bf746b284cc8ccac77c4393d6f02493f5126b61973d73",
+ "warped_sha256": "a53a3d3c875c04db412f1f94dce0fb9fe46d491ef4c11b28bd66638e3f0723f5",
  "after": {
   "camera_verdict": "PASS",
-  "delta_focal_pct": -4.17,
-  "delta_eye_pct": -3.7,
+  "delta_focal_pct": -6.77,
+  "delta_eye_pct": 0.26,
   "hold_family": "unfitted-horizon"
  }
 }

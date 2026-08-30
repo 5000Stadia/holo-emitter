@@ -70,6 +70,12 @@
     "wall_floor_line_y_px": 761,
     "chair_rail_y_px": 571,
     "dado_rail_above_floor_px": 190,
+    "floor_read": {
+      "minimum": 761,
+      "rule": "foot",
+      "saturated": true,
+      "foot": 761
+    },
     "capping_above_floor_px": null,
     "wall_ceiling_line_y_px": 99,
     "corner_x0_px": 155,

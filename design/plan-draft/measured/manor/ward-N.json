@@ -5,18 +5,18 @@
   "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.75293,
+  "floor_line_y": 0.753906,
   "horizon_y": 0.489844,
-  "px_per_m_at_wall": 222.222,
-  "px_per_m_at_bottom": 430.92,
-  "implied_focal_px": 1066.7,
-  "eye_height_m": 1.2123,
-  "storey_height_m": 3.2175,
+  "px_per_m_at_wall": 223.333,
+  "px_per_m_at_bottom": 431.49,
+  "implied_focal_px": 1072.0,
+  "eye_height_m": 1.2107,
+  "storey_height_m": 3.206,
   "drawn_standpoint_m": 4.8,
-  "delta_focal_pct": 4.17,
-  "delta_eye_pct": -6.84,
+  "delta_focal_pct": 4.69,
+  "delta_eye_pct": -6.93,
   "band_pct": 8.0,
-  "wall_width_m": 5.8995,
+  "wall_width_m": 5.8701,
   "camera_wall_m": 4.8,
   "camera_far_m": null,
   "corner_x0_px": 119,
@@ -24,7 +24,7 @@
   "key_tint": "#c8c0b6",
   "key_dir": "C-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 0.90 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 200,
+  "calibration_px": 201,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
@@ -37,7 +37,7 @@
       "floor": {
         "x": 726,
         "y": 656,
-        "edge_px": 26766
+        "edge_px": 26680
       },
       "ceiling": {
         "x": 734,
@@ -47,7 +47,7 @@
       "side_walls": {
         "x": 784,
         "y": 351,
-        "edge_px": 10424
+        "edge_px": 10450
       }
     },
     "adopted_y": 501.6,
@@ -67,9 +67,15 @@
     "far_line_ruler": null
   },
   "_measured_px": {
-    "wall_floor_line_y_px": 771,
+    "wall_floor_line_y_px": 772,
     "chair_rail_y_px": 571,
-    "dado_rail_above_floor_px": 200,
+    "dado_rail_above_floor_px": 201,
+    "floor_read": {
+      "minimum": 771,
+      "rule": "foot",
+      "saturated": false,
+      "foot": 772
+    },
     "capping_above_floor_px": null,
     "wall_ceiling_line_y_px": 56,
     "corner_x0_px": 119,
@@ -117,7 +123,7 @@
       186.58
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c8b7a1",
+      "floor_under_brightest": "#c8b7a2",
       "floor_bottom_strip": "#c8b8a4",
       "mid_wall_right": "#c8c0b6",
       "mid_wall_left": "#c8c0b5",
@@ -128,16 +134,16 @@
       456
     ],
     "sobel_bright_side_deg_whole_frame": 95.57,
-    "sobel_bright_side_deg_wall_band": 90.93,
+    "sobel_bright_side_deg_wall_band": 90.91,
     "left_third_minus_right_third_luminance_whole_frame": -2.393,
-    "left_third_minus_right_third_luminance_wall_band": -2.884
+    "left_third_minus_right_third_luminance_wall_band": -2.88
   },
   "_derived": {
-    "eye_height_m": 1.2123,
-    "storey_height_m": 3.2175,
-    "implied_wall_width_m": 5.8995,
-    "px_per_m_at_bottom": 430.9164,
-    "implied_camera_wall_m": 4.608
+    "eye_height_m": 1.2107,
+    "storey_height_m": 3.206,
+    "implied_wall_width_m": 5.8701,
+    "px_per_m_at_bottom": 431.4859,
+    "implied_camera_wall_m": 4.5851
   },
   "_withheld_because": [],
   "_hold_family": null,
@@ -145,8 +151,8 @@
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      393,
-      704
+      392,
+      705
     ],
     "wall_band_px": [
       119,
@@ -161,7 +167,7 @@
   "_windows_read": {
     "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
     "body_rows": [
-      363,
+      362,
       534
     ],
     "wall_band_px": [
@@ -169,11 +175,11 @@
       1430
     ],
     "window_band_px": [
-      327,
+      325,
       571
     ],
     "wall_median_luminance": 218.77,
-    "min_enumerated_px": 44,
+    "min_enumerated_px": 45,
     "lattice_min": 0.2,
     "lattice_support": 0.12,
     "edge_min": 12.0,
