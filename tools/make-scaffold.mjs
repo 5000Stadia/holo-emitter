@@ -3521,6 +3521,12 @@ export function attachStyle(plan, key, dir, opts = {}) {
    * reason is printed, because a seat reading the packet would otherwise wonder
    * why a room with four painted walls shows none of them. */
   const root = opts.root || ROOT;
+  if (style.same_wall) {
+    /* The SAME-WALL reference rides RAW - its content is the point; filling
+       its openings would erase the very identity the ask asserts. */
+    copyFileSync(join(root, style.rel), join(dir, style.file));
+    return { ...style, derived: false };
+  }
   const seed = deriveStyleSeed(plan, `${style.room}/${style.facing}`, {
     root, rel: style.rel, source_kind: style.source_kind, metaFromReading
   });
@@ -3614,7 +3620,77 @@ function leadAskIsRuling(plan, loc, f, root, candidateRel) {
       `is a different material` };
 }
 
+
+/* [Kabe, 2026-08-30] THE LONG ROOM'S DEEP VIEW IS THE SAME WALL, SAID SO. Two
+ * independent asks painted one wall twice and the details disagreed (the disc
+ * grew a face, one lamp became three). The deep facing's ask now carries the
+ * CLOSE painting itself as Image 1 with an identity sentence and the camera
+ * move in metres: "based off that picture, X m further back" — Kabe's own
+ * wording. The close painting must be PROMOTED first (a seed must pass the
+ * instrument before it may teach). */
+export function deepViewOf(plan, key) {
+  const [loc, F] = key.split("/");
+  const room = (plan.rooms || []).find((r) => r.id === loc);
+  const fc = room && room.facings && room.facings[F];
+  if (!room || !fc || fc.wall_line == null) return null;
+  const ax = (F === "N" || F === "S") ? "y" : "x";
+  const ownEdge = F === "N" ? room.rect.y1 : F === "S" ? room.rect.y0
+    : F === "E" ? room.rect.x1 : room.rect.x0;
+  if (Math.abs(fc.wall_line - ownEdge) < 1e-6) return null;
+  let cell = room, line = ownEdge, hops = 0;
+  while (hops++ < 8) {
+    const oe = (plan.openings || []).find((o) =>
+      o.kind === "open_edge" && o.floor === cell.floor && o.rect &&
+      (o.joins || []).includes(cell.id) &&
+      Math.abs(o.rect[ax + "0"] - line) < 1e-6 && Math.abs(o.rect[ax + "1"] - line) < 1e-6);
+    if (!oe) return null;
+    const next = (plan.rooms || []).find((r) => r.id === (oe.joins || []).find((j) => j !== cell.id));
+    if (!next) return null;
+    cell = next;
+    line = F === "N" ? cell.rect.y1 : F === "S" ? cell.rect.y0
+      : F === "E" ? cell.rect.x1 : cell.rect.x0;
+    if (Math.abs(line - fc.wall_line) < 1e-6) {
+      const cfc = cell.facings && cell.facings[F];
+      if (!cfc) return null;
+      return { close_key: `${cell.id}/${F}`, close_cam: cfc.camera_wall_m,
+               deep_cam: fc.camera_wall_m, back_m: fc.camera_wall_m - cfc.camera_wall_m };
+    }
+  }
+  return null;
+}
+
+export function sameWallImageFor(plan, key, opts = {}) {
+  const root = opts.root || ROOT;
+  const dv = deepViewOf(plan, key);
+  if (!dv) return null;
+  const [cLoc, cF] = dv.close_key.split("/");
+  const png = join(root, "backdrops", cLoc, `${cF}.png`);
+  const metaFile = join(root, "backdrops", cLoc, `${cF}.meta.json`);
+  if (!existsSync(png) || !existsSync(metaFile)) return null;   // waits: the close view teaches only once promoted
+  const meta = JSON.parse(readFileSync(metaFile, "utf8"));
+  const frac = (meta.wall_width_m * groundplane.FOCAL_PX / dv.deep_cam) / CANVAS_W;
+  const fracWord = frac > 0.55 ? "over half" : frac > 0.42 ? "about half" : frac > 0.3 ? "about a third" : "about a quarter";
+  return {
+    rel: relative(root, png), file: `same-wall-${cLoc}-${cF}.png`, room: cLoc, facing: cF,
+    same_wall: true, source_kind: "promoted-same-wall", lead: false,
+    facing_word: { N: "north", E: "east", S: "south", W: "west" }[cF],
+    why: `${dv.close_key} is THIS SAME WALL promoted at ${dv.close_cam} m; this facing views it from ${dv.deep_cam} m`,
+    role_sentence:
+      `Image 1 IS THIS VERY WALL AND THIS VERY ROOM, photographed from ${dv.close_cam.toFixed(1)} m away. ` +
+      `This picture is based directly on Image 1: paint the identical wall with everything on it - every ` +
+      `fixture, lamp, disc, mark and line exactly as Image 1 shows them, nothing added and nothing removed - ` +
+      `but from ${dv.back_m.toFixed(1)} m further back, so the camera now stands ${dv.deep_cam.toFixed(1)} m ` +
+      `from that wall. At this distance the wall spans ${fracWord} of the picture's width, and the room's own ` +
+      `side walls, ceiling and floor - the same surfaces visible at the edges of Image 1 - continue toward ` +
+      `you and fill the rest of the frame. Change the camera distance and nothing else.`
+  };
+}
+
 export function styleImageFor(plan, key, opts = {}) {
+  /* [Kabe, 2026-08-30] A DEEP FACING'S IMAGE 1 IS THE SAME WALL, PROMOTED —
+     decided here, the one home every caller reads. */
+  const sw = sameWallImageFor(plan, key, opts);
+  if (sw) return sw;
   const root = opts.root || ROOT;
   const [loc, f] = key.split("/");
   const name0 = ((plan.rooms || []).find((r) => r.id === loc) || {}).name || loc;
