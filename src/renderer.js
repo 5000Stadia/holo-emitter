@@ -1552,7 +1552,7 @@
   var PASSAGE_SHARE = 0.5;
   /* How tall the treated band at the threshold seam is, in rows — half on
    * each floor. [Kabe] "4-6 pixels ... 2-3 on each floor." */
-  var SEAM_MIX_PX = 6;
+  var SEAM_MIX_PX = 3;   // [Kabe] "soft is best but that dither is too big — 2 or 3 px instead of 6"
   /* HOW the band is treated — a look decision awaiting Kabe's pick from the
    * comparison batch, made by a constant like THROUGH_DIM:
    *   "hard"   the crisp seam alone
@@ -1561,7 +1561,7 @@
    *            hash that ramps down the band (texture from both rooms)
    *   "soft"   the dither, then the blur over it
    * A render may override via options.seam_style (the comparison harness). */
-  var SEAM_STYLE = "dither";
+  var SEAM_STYLE = "soft";   // [Kabe's pick, 2026-08-30] the dither with the blur over it
   /* [Kabe, 2026-08-30] "The door frame in the background room isn't showing
    * the room two rooms back." How many rooms deep a through-view looks: 2 is
    * this room's doorway showing the next room AND that room's doorway showing
