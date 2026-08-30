@@ -194,7 +194,7 @@
     "candidates_before_head_test": 3
   },
   "_windows_read": {
-    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, admitted only where the light is crossed by a repeating lattice in both directions and lifts clear of its own wall; a window's lights are joined across their mullions; nothing here is told what width to look for",
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
     "body_rows": [
       471,
       542
@@ -210,6 +210,11 @@
     "wall_median_luminance": 20.89,
     "min_enumerated_px": 19,
     "lattice_min": 0.2,
+    "lattice_support": 0.12,
+    "edge_min": 12.0,
+    "frame_min": 0.34,
+    "contrast_min": 0.3,
+    "light_min_l": 90.0,
     "admit_lift": 60.0,
     "sweep_lift": 12.0,
     "mullion_max_m": 0.25,
@@ -251,7 +256,17 @@
           "pitch_y_m": 0.043,
           "edge_energy": 11.26
         },
-        "rejected": "bright, but its light stands only 38.5 above a 20.9 wall, under the 60 a painted window lifts on this store"
+        "frame": 0.462,
+        "contrast": 0.3145,
+        "boundaries": {
+          "left": 1.0,
+          "right": 0.828,
+          "head": 0.02,
+          "sill": 0.0,
+          "interior_l": 59.35,
+          "ring_l": 45.15
+        },
+        "rejected": "bright, but its light stands only 38.5 above a 20.9 wall and reads 59 absolute, under the 90 daylight shows through glass at; and there is no glazing in it: a lattice scoring 0.240 (0.12 asked) over 11.3 of fine edge (12 asked), which is a panel catching the light and not a leaded window"
       },
       {
         "x0_px": 547,
@@ -288,7 +303,17 @@
           "pitch_y_m": 0.043,
           "edge_energy": 9.56
         },
-        "rejected": "bright, but its light stands only 27.0 above a 20.9 wall, under the 60 a painted window lifts on this store"
+        "frame": 0.5123,
+        "contrast": 0.5933,
+        "boundaries": {
+          "left": 1.0,
+          "right": 1.0,
+          "head": 0.049,
+          "sill": 0.0,
+          "interior_l": 47.51,
+          "ring_l": 29.82
+        },
+        "rejected": "bright, but its light stands only 27.0 above a 20.9 wall and reads 48 absolute, under the 90 daylight shows through glass at; and there is no glazing in it: a lattice scoring 0.326 (0.12 asked) over 9.6 of fine edge (12 asked), which is a panel catching the light and not a leaded window"
       },
       {
         "x0_px": 632,
@@ -329,7 +354,17 @@
           "pitch_y_m": 0.043,
           "edge_energy": 10.85
         },
-        "rejected": "bright, but its light stands only 20.2 above a 20.9 wall, under the 60 a painted window lifts on this store"
+        "frame": 0.25,
+        "contrast": 0.1271,
+        "boundaries": {
+          "left": 0.0,
+          "right": 1.0,
+          "head": 0.0,
+          "sill": 0.0,
+          "interior_l": 40.07,
+          "ring_l": 35.55
+        },
+        "rejected": "bright, but its light stands only 20.2 above a 20.9 wall and reads 40 absolute, under the 90 daylight shows through glass at; and there is no glazing in it: a lattice scoring 0.399 (0.12 asked) over 10.8 of fine edge (12 asked), which is a panel catching the light and not a leaded window; and no rectangle encloses it: its four boundaries support 0.25 (0.34 asked) and it stands 0.13 clear of the wall around it (0.30 asked)"
       }
     ]
   }
