@@ -42,3 +42,4 @@ Rule for this log: every step, its wall-clock, its outcome, and — for anything
 | 19e | [Kabe] "Less darkening" | 3 min | **live**: SEAM_LINE_SHADE 0.3 → 0.18 | — | — |
 | 19f | [Kabe] "Little blur" | 5 min | **live**: the broken line and one row either side redrawn through a 1 px blur (write stays in the band) | — | — |
 | 19g | [Kabe] "Way less blur, only a tiny bit" | 3 min | **live**: the line blur is a named constant, 1 px → 0.4 px (SEAM_LINE_BLUR_PX) | — | — |
+| 19h | [Kabe] "Little less darken" | 3 min | **live**: SEAM_LINE_SHADE 0.18 → 0.13 | — | — |
