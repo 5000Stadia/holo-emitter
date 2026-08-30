@@ -67,6 +67,13 @@ S=$(mktemp -d)
 trap 'RC=$?; rm -rf "$S"; note publish.site "$T_PUBLISH" "{\"head\":\"$HEAD_SHA\",\"exit_code\":$RC}"' EXIT
 
 cp index.html "$S"/
+# [Kabe, 2026-08-30] "Still getting a blend like this" — his browser held the
+# previous src/renderer.js: Pages serves scripts with max-age=600 and the page
+# named them by bare URL, so a publish could be masked for ten minutes by any
+# cache in the way. Every script the shipped page loads is named with the
+# commit it was published from; a new publish is a new URL, nothing to purge.
+# The repo's own index.html is untouched (the suite reads it by bare names).
+sed -i -E "s#(<script src=\"[^\"?]+\.js)\"#\1?v=$HEAD_SHA\"#g; s#(fixture\.js)\"><#\1?v=$HEAD_SHA\"><#g" "$S"/index.html
 touch "$S"/.nojekyll
 cp -r src "$S"/src
 cp -r fixtures "$S"/fixtures
