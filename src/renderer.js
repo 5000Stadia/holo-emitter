@@ -1697,6 +1697,16 @@
     var sDest = destMeta.px_per_m_at_wall;
     var dx = W / 2 + k * ((a.beyond_offset_m || 0) * sDest - W / 2);
     var dy = hHere - k * hDest;
+    /* [Kabe, 2026-08-29] JOIN THE EDGE, DO NOT FILL THE GAP. With the horizons
+       coincident the far frame's bottom lands above the doorway's foot (row 25's
+       fill, then a combed floor, stood in the strip). "Just MOVE the background
+       source image of that room to butt up against the foreground image at the
+       bottom of the doorframe" - so when a gap would exist the far frame is
+       moved down until its bottom edge sits on the threshold; the horizons then
+       differ by the gap, a smaller lie than any invented floor. When the far
+       frame already reaches the foot, nothing moves. */
+    var footHere = a.y + a.h;
+    if (dy + dh < footHere) dy = footHere - dh;
     var dw = W * k, dh = H * k;
     ctx.save();
     ctx.beginPath();
