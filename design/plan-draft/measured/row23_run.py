@@ -793,12 +793,12 @@ WARP_REFUSALS = ("meshwarp.landmark_unreadable", "meshwarp.aperture_count",
 LEGACY_EXITS = False
 
 
-def _record_exit(st, name, reason, cand_rel=None):
+def _record_exit(st, name, reason, cand_rel=None, sha=None):
     """What left the pipeline by which door, and why, on the wall's own record."""
     st["exit"] = name
     st["exit_reason"] = reason
     if cand_rel is not None:
-        st["exit_attempt"] = {"candidate": cand_rel, "exit": name, "instrument": INSTRUMENT_ID, "candidate_sha256": (reading or {}).get("candidate_sha256") if isinstance(reading, dict) else None,
+        st["exit_attempt"] = {"candidate": cand_rel, "exit": name, "instrument": INSTRUMENT_ID, "candidate_sha256": sha,
                               "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
 
 
@@ -1447,7 +1447,8 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam,
                 st["answered_correction"] = st.pop("correction")
             st["snapped_from_family"] = fam
             st.pop("hold_family", None)
-        _record_exit(st, exit_name, reason, cand_rel)
+        _record_exit(st, exit_name, reason, cand_rel,
+                     sha=(reading.get("candidate_sha256") if isinstance(reading, dict) else None))
         timings.record("exit.route", _t, time.time(), key,
                        {"candidate": cand_rel, "exit": exit_name, "family": fam})
         return exit_name, reason
