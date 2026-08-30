@@ -1564,7 +1564,7 @@
    *            hash that ramps down the band (texture from both rooms)
    *   "soft"   the dither, then the blur over it
    * A render may override via options.seam_style (the comparison harness). */
-  var SEAM_STYLE = "soft";   // [Kabe's pick, 2026-08-30] the dither with the blur over it
+  var SEAM_STYLE = "line";   // [Kabe, 2026-08-30] "ditch the dither — transparent random darkening, only 1 px"
   /* [Kabe, 2026-08-30] "The door frame in the background room isn't showing
    * the room two rooms back." How many rooms deep a through-view looks: 2 is
    * this room's doorway showing the next room AND that room's doorway showing
@@ -2046,16 +2046,37 @@
       ctx.filter = "none";
       ctx.restore();
     }
-    /* The threshold's own line: the seam row darkened by SEAM_LINE_SHADE, on
-       top of whatever treatment ran, inside the aperture and nowhere else. */
+    /* The threshold's own line: the seam row darkened — with RANDOMIZED
+       TRANSPARENCY, pixel by pixel. [Kabe] "Looks too solid ... ditch the
+       dither, go back to transparent random with darkening only 1 px." Each
+       pixel of the one seam row is shaded by SEAM_LINE_SHADE scaled by a hash
+       of its own coordinates (mean SEAM_LINE_SHADE, deterministic, so a
+       replay is byte-identical) — a broken, uneven line instead of a ruled
+       one. Inside the aperture, that row, nothing else. */
     if (seamStyle !== "hard" && sillBottom - sillTop > 0.5 && floorHere < H && SEAM_LINE_SHADE > 0) {
-      ctx.save();
-      ctx.beginPath();
-      apertureClipPath(ctx, a);
-      ctx.clip();
-      ctx.fillStyle = "rgba(0,0,0," + SEAM_LINE_SHADE + ")";
-      ctx.fillRect(a.x - 1, seamTop, a.w + 2, Math.max(1, seamMix));
-      ctx.restore();
+      var lnX0 = Math.max(0, Math.floor(a.x - 1));
+      var lnW = Math.min(W, Math.ceil(a.x + a.w + 1)) - lnX0;
+      var lnH = Math.max(1, seamMix);
+      if (lnW > 0) {
+        var lnS = makeCanvas(doc, lnW, lnH);
+        var lc = lnS.getContext("2d");
+        var lnData = lc.createImageData(lnW, lnH);
+        for (var lr = 0; lr < lnH; lr++) {
+          for (var lx = 0; lx < lnW; lx++) {
+            var lh = Math.sin((lnX0 + lx) * 12.9898 + (seamTop + lr) * 78.233) * 43758.5453;
+            lh -= Math.floor(lh);
+            var li = (lr * lnW + lx) * 4;
+            lnData.data[li + 3] = Math.round(255 * Math.min(1, SEAM_LINE_SHADE * 2 * lh));
+          }
+        }
+        lc.putImageData(lnData, 0, 0);
+        ctx.save();
+        ctx.beginPath();
+        apertureClipPath(ctx, a);
+        ctx.clip();
+        ctx.drawImage(lnS, lnX0, seamTop);
+        ctx.restore();
+      }
     }
     return true;
   }
