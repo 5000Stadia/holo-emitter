@@ -105,14 +105,17 @@ def painting_for(loc, f):
     return rgb
 
 
-def sources(roles=("far", "left", "right")):
+#: The near cell is `c0`, the far cell `c1`. `c1`'s own side walls are left
+#: UNPROMOTED on purpose: that is the case where the band beyond the edge has
+#: only the far facing's own returns to read, and the fallback must say so.
+def sources(roles=("far", "c0.left", "c0.right")):
+    have = {"far": ("far", "E"), "c0.left": ("near", "N"),
+            "c0.right": ("near", "S"), "c1.left": ("far", "N"),
+            "c1.right": ("far", "S")}
     out = {}
-    if "far" in roles:
-        out["far"] = ("far", "E", meta_for("far", "E"), painting_for("far", "E"))
-    if "left" in roles:
-        out["left"] = ("near", "N", meta_for("near", "N"), painting_for("near", "N"))
-    if "right" in roles:
-        out["right"] = ("near", "S", meta_for("near", "S"), painting_for("near", "S"))
+    for role in roles:
+        loc, f = have[role]
+        out[role] = (loc, f, meta_for(loc, f), painting_for(loc, f))
     return out
 
 
@@ -151,6 +154,56 @@ class DetectionTest(unittest.TestCase):
         self.assertEqual(dv.side_facings("W"), ("S", "N"))
         self.assertEqual(dv.side_facings("N"), ("W", "E"))
         self.assertEqual(dv.side_facings("S"), ("E", "W"))
+
+
+class ParameterTest(unittest.TestCase):
+    """The five-plane box's two parameters, read as the metres they are.
+
+    This is the test that catches reading the WALL's vertical parameter as its
+    horizontal one: the frame still assembles, and every colour still lands in
+    the right region, but one source row is smeared across the whole wall.
+    """
+
+    def setUp(self):
+        room = dv.room_of(PLAN, "near")
+        self.cam = dv.target_camera(PLAN, room, "E")
+        self.box = self.cam.box(*dv.across_span(dv.room_of(PLAN, "far")["rect"], "E"))
+        self.idx, self.q, self.xr, self.yr, self.hgt, self.lost = \
+            dv.surface_points(self.cam, self.box, STOREY)
+
+    def at(self, x, y):
+        i = int(y) * dv.W + int(x)
+        return (snap.REGIONS[self.idx.ravel()[i]], self.xr.ravel()[i],
+                self.yr.ravel()[i], self.hgt.ravel()[i])
+
+    def test_the_wall_runs_from_the_floor_line_to_the_ceiling_line(self):
+        floor = self.at(dv.W / 2, self.box["yf"] - 1)
+        ceil = self.at(dv.W / 2, self.box["yc"] + 1)
+        self.assertEqual(floor[0], "wall")
+        self.assertEqual(ceil[0], "wall")
+        self.assertAlmostEqual(floor[3], 0.0, places=1)
+        self.assertAlmostEqual(ceil[3], STOREY, places=1)
+        # and it stands at the far cell's own east wall, 11.2 m out.
+        self.assertAlmostEqual(floor[1], 12.8, places=6)
+        self.assertAlmostEqual(ceil[1], 12.8, places=6)
+
+    def test_the_wall_corners_are_the_rooms_corners(self):
+        left = self.at(self.box["x0"] + 1, dv.HORIZON_Y * dv.H)
+        right = self.at(self.box["x1"] - 1, dv.HORIZON_Y * dv.H)
+        self.assertAlmostEqual(left[2], 6.4, places=1)
+        self.assertAlmostEqual(right[2], 0.0, places=1)
+
+    def test_the_side_planes_are_the_rooms_own_side_walls(self):
+        r, xr, yr, h = self.at(40, 500)
+        self.assertEqual(r, "left")
+        self.assertAlmostEqual(yr, 6.4, places=6)
+        self.assertTrue(0.0 < h < STOREY, h)
+        r, xr, yr, h = self.at(1500, 500)
+        self.assertEqual(r, "right")
+        self.assertAlmostEqual(yr, 0.0, places=6)
+
+    def test_every_pixel_lies_on_one_of_the_five(self):
+        self.assertEqual(self.lost, 0)
 
 
 class AssemblyTest(unittest.TestCase):
@@ -199,16 +252,18 @@ class AssemblyTest(unittest.TestCase):
         self.assertEqual(self.record["seam"]["feather_px"], 0)
         self.assertEqual(self.record["unassigned_px"], 0)
         self.assertEqual(sorted(s["role"] for s in self.record["sources"]),
-                         ["far", "left", "right"])
+                         ["c0.left", "c0.right", "far"])
         self.assertEqual(self.record["surfaces"]["wall"], ["far"])
-        self.assertEqual(self.record["surfaces"]["near.left"], ["left"])
+        self.assertEqual(self.record["surfaces"]["near.left"], ["c0.left"])
+        self.assertEqual(self.record["surfaces"]["far.left"], ["far"])
+        self.assertEqual(self.record["missing_sources"], ["c1.left", "c1.right"])
 
     def test_a_missing_side_is_recorded_as_a_fallback(self):
-        frame, rec = dv.assemble(PLAN, "near", "E", sources(("far", "right")))
+        frame, rec = dv.assemble(PLAN, "near", "E", sources(("far", "c0.right")))
         why = [f for f in rec["fallbacks"] if f["surface"] == "near.left"]
         self.assertTrue(why, rec["fallbacks"])
         self.assertEqual(why[0]["fill"], "far_frame_edge")
-        self.assertEqual(rec["missing_sources"], ["left"])
+        self.assertIn("c0.left", rec["missing_sources"])
         # and the pixels there are the far frame extended, not black.
         self.assertEqual(probe(frame, 40, 500)[0], PAINTINGS["far/E"])
 
@@ -223,8 +278,8 @@ class SeamTest(unittest.TestCase):
     def setUp(self):
         flat = {}
         for role, (loc, f, c) in {"far": ("far", "E", 60),
-                                  "left": ("near", "N", 90),
-                                  "right": ("near", "S", 150)}.items():
+                                  "c0.left": ("near", "N", 90),
+                                  "c0.right": ("near", "S", 150)}.items():
             rgb = np.full((dv.H, dv.W, 3), c, dtype=np.uint8)
             flat[role] = (loc, f, meta_for(loc, f), rgb)
         self.frame, _ = dv.assemble(PLAN, "near", "E", flat)
@@ -269,7 +324,7 @@ class DeterminismTest(unittest.TestCase):
             self.assertEqual(rec1["candidate_id"], rec2["candidate_id"])
             self.assertEqual(len(rec1["candidate_id"]), 8)
             self.assertEqual(sorted(i["role"] for i in rec1["inputs"]),
-                             ["far", "left", "right"])
+                             ["c0.left", "c0.right", "far"])
             self.assertTrue(js1.endswith(".deep.json"))
             with open(js1) as fh:
                 self.assertEqual(json.load(fh)["candidate_id"], rec1["candidate_id"])

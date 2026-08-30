@@ -93,6 +93,13 @@ HORIZON_Y = 0.51377
 #: thing a reviewer must be told.
 EPS = 1e-9
 
+#: THE DERIVATION'S OWN NAME, and it is in the candidate id on purpose. The
+#: inputs and the geometry are not the whole of what makes these pixels: the
+#: rule that assembles them is too. Bump it when the assembly changes what it
+#: draws, so that a rerun after a fix is a NEW candidate the pipeline measures
+#: rather than the same id with different pixels behind it.
+DERIVATION = "deep_view/1"
+
 FACING_DIR = {"N": (0.0, 1.0), "S": (0.0, -1.0),
               "E": (1.0, 0.0), "W": (-1.0, 0.0)}
 
@@ -357,7 +364,14 @@ def surface_points(tgt, tbox, storey):
         if not np.any(m):
             continue
         if r == "wall":
-            lat[m], dep[m], hgt[m] = lat_wall[m], tgt.wall_m, p[m] * storey
+            # On the WALL the box's two parameters are (across, up): `p` is
+            # the fraction along the corner-to-corner rectangle and `q` is the
+            # fraction from the floor line to the ceiling line. On the four
+            # RECEDING planes they are (up-or-across, depth) instead — `q` is
+            # the depth ratio there. Reading `q` as height on the wall and as
+            # depth on the ring is the whole of the difference, and getting it
+            # backwards on the wall smears one source row across the frame.
+            lat[m], dep[m], hgt[m] = lat_wall[m], tgt.wall_m, q[m] * storey
         elif r in ("floor", "ceiling"):
             lat[m] = lat_wall[m]
             dep[m] = q[m] * tgt.wall_m
@@ -419,7 +433,21 @@ def assemble(plan, loc, f, sources, near_room=None):
 
     idx, q, xr, yr, hgt, lost = surface_points(tgt, tbox, storey)
     names = list(snap.REGIONS)
-    beyond = q >= t_edge - 1e-12
+
+    #: THE BANDS. Each cell the walk crosses owns a depth range of this view,
+    #: and within its own range the ring surfaces — the two side walls, the
+    #: floor, the ceiling — are THAT CELL'S own promoted paintings. This is
+    #: why the far cell's side walls are not taken from its E painting: a
+    #: facing's frame shows only the last metre or so of its own returns (the
+    #: outer few hundred columns), while the same cell's N and S paintings
+    #: show those walls whole and fronto-parallel. One cell, one set of walls,
+    #: whichever painting of that cell actually shows the surface.
+    origin = tgt.ox if f in ("E", "W") else tgt.oy
+    bands, d0 = [], 0.0
+    for i, c in enumerate(cells):
+        d1 = abs(edges[i] - origin) if i < len(edges) else tgt.wall_m
+        bands.append((d0 / tgt.wall_m, d1 / tgt.wall_m, c))
+        d0 = d1
 
     cams, rgbs = {}, {}
     for role, tup in sources.items():
@@ -463,24 +491,36 @@ def assemble(plan, loc, f, sources, near_room=None):
             used[label] = sorted(set(used.get(label, []) + [role]))
             ext_px[label] = ext_px.get(label, 0) + int(todo.sum())
 
-    # 1. The wall this facing views, and everything at or beyond the crossed
-    #    edge: the far cell's own painting, re-photographed from here.
+    # 1. The wall this facing views: the far cell's own painting of it,
+    #    re-photographed from this standpoint. Nothing else can show it.
     paint(idx == names.index("wall"), ["far"], "wall")
-    for r in ("floor", "ceiling", "left", "right"):
-        paint((idx == names.index(r)) & beyond, ["far"], "beyond." + r)
 
-    # 2. The near ring. The side walls are the near cell's own paintings of
-    #    those very walls; the floor and the ceiling are read from whichever
-    #    of the two shows that half of the room, preferring its own side.
-    near = ~beyond
-    paint((idx == names.index("left")) & near, ["left", "far"], "near.left")
-    paint((idx == names.index("right")) & near, ["right", "far"], "near.right")
+    # 2. The ring, band by band. Which side of the view a floor or ceiling
+    #    pixel lies on decides which of the cell's two side paintings is asked
+    #    first; the other, and then the far facing, answer where it cannot.
     dx, dy = xr - tgt.ox, yr - tgt.oy
-    lat_left_side = dx * tgt.rdir[0] + dy * tgt.rdir[1]
-    for r in ("floor", "ceiling"):
-        m = (idx == names.index(r)) & near
-        paint(m & (lat_left_side <= 0.0), ["left", "right", "far"], "near." + r + ".left")
-        paint(m & (lat_left_side > 0.0), ["right", "left", "far"], "near." + r + ".right")
+    lat_side = dx * tgt.rdir[0] + dy * tgt.rdir[1]
+    last = len(bands) - 1
+    wanted_roles = []
+    for i, (t0, t1, cell) in enumerate(bands):
+        band = q >= t0 - 1e-12
+        if i < last:
+            band = band & (q < t1 - 1e-12)
+        left_role, right_role = "c%d.left" % i, "c%d.right" % i
+        wanted_roles += [left_role, right_role]
+        for reg, role in (("left", left_role), ("right", right_role)):
+            paint((idx == names.index(reg)) & band, [role, "far"],
+                  "%s.%s" % (cell["id"], reg))
+        for reg in ("floor", "ceiling"):
+            m = (idx == names.index(reg)) & band
+            for half, nat, oth in (("left", left_role, right_role),
+                                   ("right", right_role, left_role)):
+                sel = m & (lat_side <= 0.0 if half == "left" else lat_side > 0.0)
+                # The FAR cell's own floor and ceiling are asked of the facing
+                # painting first: it looks the way this view looks, so its
+                # boards and its joists need the least turning to get here.
+                order = ["far", nat, oth] if i == last else [nat, oth, "far"]
+                paint(sel, order, "%s.%s.%s" % (cell["id"], reg, half))
 
     #: TWO KINDS OF FALLBACK, and the record separates them because a reviewer
     #: reads them differently. `plane_recession` is a painting that HAS this
@@ -489,7 +529,7 @@ def assemble(plan, loc, f, sources, near_room=None):
     #: `far_frame_edge` is a surface whose OWN painting is not promoted at all,
     #: so the far frame's edge stands in for it; that is a wall waiting for a
     #: roll, not a wall that was slightly too short.
-    missing = [r for r in ("left", "right") if r not in rgbs]
+    missing = [r for r in wanted_roles if r not in rgbs]
     for label, n in sorted(ext_px.items()):
         absent = natural.get(label) not in rgbs
         entry = {"surface": label, "pixels": n, "source": used.get(label, []),
@@ -535,6 +575,11 @@ def assemble(plan, loc, f, sources, near_room=None):
         "surfaces": {k: v for k, v in sorted(used.items())},
         "fallbacks": fallbacks,
         "missing_sources": missing,
+        #: The whole cost of the fill in one number, because a reviewer asks
+        #: "how much of this frame is paint" before anything else.
+        "extended_px": int(sum(ext_px.values())),
+        "extended_fraction": round(sum(ext_px.values()) / float(W * H), 5),
+        "painted_fraction": round(1.0 - sum(ext_px.values()) / float(W * H), 5),
         "unassigned_px": lost,
         "seam": {"feather_px": 0, "join": "crossed_edge_rect"},
     }
@@ -599,7 +644,8 @@ def candidate_id(inputs, geometry):
     same store derive the same id, and a rerun that changes nothing writes the
     same file.
     """
-    payload = json.dumps({"inputs": inputs, "geometry": geometry},
+    payload = json.dumps({"derivation": DERIVATION, "inputs": inputs,
+                          "geometry": geometry},
                          sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:8]
 
@@ -619,7 +665,15 @@ def derive(pack, loc, f, root=None, out_dir=None):
     far_id = cells[-1]["id"]
     left_f, right_f = side_facings(f)
 
-    wanted = [("far", far_id, f), ("left", loc, left_f), ("right", loc, right_f)]
+    #: What this facing is derived FROM: the far cell's painting of the wall
+    #: it views, and every crossed cell's own two side walls. A cell whose
+    #: sides are not promoted is not a refusal — its band falls back and the
+    #: record names it — but the far cell's own facing is, because that is the
+    #: wall the facing exists to show.
+    wanted = [("far", far_id, f)]
+    for i, c in enumerate(cells):
+        wanted.append(("c%d.left" % i, c["id"], left_f))
+        wanted.append(("c%d.right" % i, c["id"], right_f))
     sources, inputs = {}, []
     for role, rid, rf in wanted:
         got = load_source(root, rid, rf)
@@ -642,6 +696,7 @@ def derive(pack, loc, f, root=None, out_dir=None):
     cid = candidate_id(inputs, record["geometry"])
     record["inputs"] = inputs
     record["candidate_id"] = cid
+    record["derivation"] = DERIVATION
     out_dir = out_dir or os.path.join(root, "backdrops", "source", "%s-%s" % (loc, f))
     png_out = os.path.join(out_dir, "row23-deep%s.png" % cid)
     json_out = os.path.join(out_dir, "row23-deep%s.deep.json" % cid)
@@ -694,7 +749,7 @@ def main(argv=None):
             if not args.all:
                 rc = 2
             continue
-        ext = sum(x.get("pixels") or 0 for x in rec["fallbacks"])
+        ext = rec["extended_px"]
         print("%s/%s -> %s" % (loc, f, os.path.relpath(png, args.root)))
         print("   record %s" % os.path.relpath(js, args.root))
         print("   far %s  k_camera %.4f  k_corners %.4f  extended %d px (%.2f%%)"
