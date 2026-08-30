@@ -1,0 +1,160 @@
+{
+ "facing": "booking_hall/S",
+ "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "c124ab87c98a72495848d7bf7581d0b59f4dd2a0a9dcbda9c381609ab10df428",
+ "instrument": "7991604bcb26",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -16.02,
+  "delta_eye_pct": 8.47,
+  "hold_family": null
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "measured-ramp",
+  "px_per_m_at_wall": 179.167
+ },
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "ppm_source": 179.167,
+  "ppm_target": 213.333,
+  "scale_k": 1.1907
+ },
+ "source_box": {
+  "x0": 110.0,
+  "x1": 1421.0,
+  "yc": 61.0,
+  "yf": 756.0,
+  "vx": 754.0,
+  "vy": 603.7
+ },
+ "target_box": {
+  "x0": 85.33,
+  "x1": 1450.67,
+  "yc": 53.14,
+  "yf": 778.47,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+  "source_storey_m": 3.879,
+  "source_ppm": 179.167
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 85.333,
+   "source": 110.0,
+   "ask_px": -24.7,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1450.667,
+   "source": 1421.0,
+   "ask_px": 29.7,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 53.14,
+   "source": 61.0,
+   "ask_px": -7.9,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 778.473,
+   "source": 756.0,
+   "ask_px": 22.5,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.041,
+  "x_scale_max": 1.041,
+  "y_scale_min": 1.044,
+  "y_scale_max": 1.044,
+  "x_segments": [
+   {
+    "name": "corner_left..corner_right",
+    "target_px": 1365.3,
+    "source_px": 1311.0,
+    "scale": 1.041
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..floor_line",
+    "target_px": 725.3,
+    "source_px": 695.0,
+    "scale": 1.044
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 20,
+ "revealed_fraction": 1e-05,
+ "revealed_fill": "plane_recession",
+ "fill_fade_px": 24,
+ "filled_px": 612,
+ "mirror_band_px": 0,
+ "seam_blend_px": 24,
+ "column_count": 2,
+ "row_count": 2,
+ "seconds": 5.29,
+ "warped_image": "backdrops/source-warped/booking_hall-S/warped.png",
+ "asked_from": "backdrops/source/booking_hall-S/row23-5fc9fd07.prompt.txt",
+ "warped_sha256": "e68d467b94fa5fadb91266c34e9c0e4bf9f79e4d51c250d996f97f98516c4867",
+ "after": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -18.36,
+  "delta_eye_pct": 8.18,
+  "hold_family": null
+ }
+}
