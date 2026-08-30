@@ -1555,7 +1555,7 @@
   var SEAM_MIX_PX = 1;   // [Kabe's final pick, 2026-08-30] "I like at 1px"
   /* ...and the seam row itself is darkened to say THRESHOLD: "darken that one
    * line row to emphasize the transitional seam and I think we'll have it." */
-  var SEAM_LINE_SHADE = 0.3;
+  var SEAM_LINE_SHADE = 0.18;   // [Kabe] "less darkening"
   /* HOW the band is treated — a look decision awaiting Kabe's pick from the
    * comparison batch, made by a constant like THROUGH_DIM:
    *   "hard"   the crisp seam alone
