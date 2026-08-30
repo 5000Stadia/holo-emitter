@@ -30,6 +30,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | what landed |
 |---|---|
+| L-CAUSES | the issue-cause ledger and its five classes (identity-poor caches, theme-in-code, two homes for one truth, concurrent writers, live-state mutation): `design/audit/issue-causes-2026-08-30.md` — Kabe's 'take note of when issues came up and why' |
 | L-THRESHOLD | through-view threshold, THE STANDARD (Kabe, 2026-08-30, after nine looks): far room to the leaf's plane (`PASSAGE_SHARE` 0.5 of `depth_m`), this room's floor solid to the floor line, the seam one 1 px row of randomized-transparency darkening (`SEAM_LINE_SHADE` 0.11, coordinate hash — deterministic) under a 0.55 px blur (`SEAM_LINE_BLUR_PX`); `SEAM_STYLE` "line" (hard/blur/dither/soft remain selectable); `depth_m` flows plan → promotion → meta, validator-checked |
 | L-TRACE | aperture inside-edge tracer (aperture_trace.py): rectangle prior → normal-band search → cyclic DP closed loop; threshold = floor line; contrast-bounded trust region; arched only as a real shape; confidence that sees failure; 26 ms/wall |
 | L-DELIVERY | paintings served per wall (backdrops/served/<loc>/<F>.jpg) by URL: current facing first, neighbours after first paint, visible loading state; critical path 45.3 MB → 1.44 MB; the pixel bundle is gone |
