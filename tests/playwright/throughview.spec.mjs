@@ -220,13 +220,13 @@ test.describe("row 43 — the far floor meets the threshold", () => {
     /* [Kabe, 2026-08-29] "Just MOVE the background source image of that room
        to butt up against the foreground image at the bottom of the doorframe."
        So the row just above the threshold is the far room's own floor - every
-       column its own red - and not a strip filled from it. */
+       column its own colour - and not a strip filled from it. */
     const row = VIEW.at_threshold;
     const distinct = new Set(row.map((px) => px.join(","))).size;
     expect(distinct, "the row above the threshold is the far floor, not a band").toBeGreaterThan(8);
     const mean = (i) => row.reduce((a, px) => a + px[i], 0) / row.length;
-    expect(mean(0) - Math.max(mean(1), mean(2)),
-      "the row above the threshold is the far room's red floor, not its dark wall").toBeGreaterThan(20);
+    expect(mean(1) - Math.max(mean(0), mean(2)),
+      "the row above the threshold is the far room's green floor, not its dark wall").toBeGreaterThan(20);
   });
 
   test("and it is the same picture twice (§12.2)", () => {
