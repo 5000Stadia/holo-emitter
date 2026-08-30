@@ -22,13 +22,13 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | Q-DOOR-EDGE | queued (after B-DELIVERY): rectangle as prior → closed-loop inside-edge trace (perimeter samples, normal-band edge search, cyclic DP with smoothness); rectangular doors reproduce the rectangle, arches follow the arc; same tracer cuts asset mattes | queued |
-| B-DELIVERY | paintings load per wall by URL (current facing first, neighbours prefetched, visible loading state); the 44 MB blocking pixel bundle leaves the critical path (Kabe: first launch hangs) — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-DELIVERY | paintings served per wall (backdrops/served/<loc>/<F>.jpg) by URL: current facing first, neighbours after first paint, visible loading state; critical path 45.3 MB → 1.44 MB; the pixel bundle is gone |
 | L-SEAM | through-view: the far room's floor is sampled at each strip row's own depth and carried along its recession to the threshold; side strips continue the far frame's own band; the grey divider is gone (noodle_bar/E) |
 | L-FILL | the warp's reveal fill extends each surface along its own receding line, cross-fading down the recession (no mirror, no chevron) |
 | L-WINDOW | window detector on the seat's memo: 80-frame labelled corpus + evaluator; 2-D rectangle evidence, lift demoted; paired 32→35, FP 12→9, FN 16→13; servants_hall/E still a named miss (proposal merge) |
