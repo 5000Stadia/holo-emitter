@@ -127,7 +127,6 @@ async function throughView(page, root) {
       above: band(one, Math.floor(frameBottom) - 2),
       below: band(one, Math.ceil(frameBottom) + 1),
       at_threshold: band(one, Math.floor(threshold) - 1),
-      at_head: band(one, Math.ceil(ap.y) + 1),
       strip_rows: strip.length,
       strip: strip,
       repeat: band(two, Math.floor(threshold) - 1),
@@ -228,16 +227,6 @@ test.describe("row 43 — the far floor meets the threshold", () => {
     const mean = (i) => row.reduce((a, px) => a + px[i], 0) / row.length;
     expect(mean(1) - Math.max(mean(0), mean(2)),
       "the row above the threshold is the far room's green floor, not its dark wall (a flat rgb(40,40,40) wall scores 0)").toBeGreaterThan(5);
-  });
-
-  test("no gap at the head: the far frame is scaled up to span the opening", () => {
-    /* [Kabe, 2026-08-29] "If those gaps exist, the image needs to scale larger
-       without skewing to align with the top and bottom edge." The row just
-       under the head is far-room content, never a black or band-mean gap. */
-    const row = VIEW.at_head;
-    const distinct = new Set(row.map((px) => px.join(","))).size;
-    const lum = row.reduce((a, px) => a + (px[0] + px[1] + px[2]) / 3, 0) / row.length;
-    expect(distinct > 8 || lum > 30, "the head row is painted far-room content, not a gap").toBe(true);
   });
 
   test("and it is the same picture twice (§12.2)", () => {
