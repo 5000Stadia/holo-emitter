@@ -21,13 +21,14 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-TRACE | tracer landed (aperture_trace.py, 26 ms/wall, corners as line intersections, buttery_pantry/S corrected 50 px); follow-up capped: the threshold is the floor line (geometry, not paint), low-contrast excursions bounded, confidence that sees failure | building (2) |
+| B-TRACE-WIRE | the traced aperture polygon becomes THE aperture: promotion writes meta.openings[].polygon (+confidence, head_kind), the warp pins its corners, the page clips the through-view and fits the leaf to it; a low-confidence trace falls back to the rectangle, recorded — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
 ## Recently landed (for "issue with…" back-reference)
 
 | handle | what landed |
 |---|---|
+| L-TRACE | aperture inside-edge tracer (aperture_trace.py): rectangle prior → normal-band search → cyclic DP closed loop; threshold = floor line; contrast-bounded trust region; arched only as a real shape; confidence that sees failure; 26 ms/wall |
 | L-DELIVERY | paintings served per wall (backdrops/served/<loc>/<F>.jpg) by URL: current facing first, neighbours after first paint, visible loading state; critical path 45.3 MB → 1.44 MB; the pixel bundle is gone |
 | L-SEAM | through-view: the far room's floor is sampled at each strip row's own depth and carried along its recession to the threshold; side strips continue the far frame's own band; the grey divider is gone (noodle_bar/E) |
 | L-FILL | the warp's reveal fill extends each surface along its own receding line, cross-fading down the recession (no mirror, no chevron) |
