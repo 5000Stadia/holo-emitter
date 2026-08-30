@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 71 painting(s), 33.2 MB served in total,
+// 83 painting(s), 36.0 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -75,6 +75,10 @@
 //   noodle_bar/W: 2.52 MB of PNG -> 495 kB of JPEG (q92); channels move by 1.6273 on average, 17 at worst, of 255.
 //   privy_garden/N: 2.81 MB of PNG -> 538 kB of JPEG (q92); channels move by 1.9158 on average, 23 at worst, of 255.
 //   privy_garden/S: 3.11 MB of PNG -> 567 kB of JPEG (q92); channels move by 2.0468 on average, 20 at worst, of 255.
+//   reception/E: 1.59 MB of PNG -> 225 kB of JPEG (q92); channels move by 0.9514 on average, 12 at worst, of 255.
+//   reception/N: 1.57 MB of PNG -> 229 kB of JPEG (q92); channels move by 0.9275 on average, 12 at worst, of 255.
+//   reception/S: 2.27 MB of PNG -> 267 kB of JPEG (q92); channels move by 1.3194 on average, 14 at worst, of 255.
+//   reception/W: 2.10 MB of PNG -> 233 kB of JPEG (q92); channels move by 1.1619 on average, 15 at worst, of 255.
 //   servants_hall/E: 3.14 MB of PNG -> 550 kB of JPEG (q92); channels move by 1.9944 on average, 22 at worst, of 255.
 //   servants_hall/N: 3.12 MB of PNG -> 548 kB of JPEG (q92); channels move by 2.0177 on average, 19 at worst, of 255.
 //   servants_hall/S: 3.08 MB of PNG -> 533 kB of JPEG (q92); channels move by 2.0582 on average, 19 at worst, of 255.
@@ -87,8 +91,16 @@
 //   stair_landing/N: 2.47 MB of PNG -> 424 kB of JPEG (q92); channels move by 1.6345 on average, 26 at worst, of 255.
 //   study/N: 2.52 MB of PNG -> 510 kB of JPEG (q92); channels move by 1.6929 on average, 24 at worst, of 255.
 //   study/W: 2.33 MB of PNG -> 462 kB of JPEG (q92); channels move by 1.5236 on average, 17 at worst, of 255.
+//   treatment_room/E: 1.57 MB of PNG -> 220 kB of JPEG (q92); channels move by 0.9422 on average, 12 at worst, of 255.
+//   treatment_room/N: 1.51 MB of PNG -> 209 kB of JPEG (q92); channels move by 0.8876 on average, 13 at worst, of 255.
+//   treatment_room/S: 1.57 MB of PNG -> 212 kB of JPEG (q92); channels move by 0.9456 on average, 12 at worst, of 255.
+//   treatment_room/W: 2.35 MB of PNG -> 272 kB of JPEG (q92); channels move by 1.3934 on average, 15 at worst, of 255.
+//   ward/E: 2.01 MB of PNG -> 220 kB of JPEG (q92); channels move by 1.074 on average, 12 at worst, of 255.
+//   ward/N: 2.07 MB of PNG -> 228 kB of JPEG (q92); channels move by 1.1245 on average, 14 at worst, of 255.
+//   ward/S: 2.08 MB of PNG -> 243 kB of JPEG (q92); channels move by 1.1536 on average, 13 at worst, of 255.
+//   ward/W: 2.17 MB of PNG -> 247 kB of JPEG (q92); channels move by 1.201 on average, 13 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "74e02762",
+  fp: "62355577",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -150,6 +162,10 @@ window.HOLO_BACKDROPS = {
   "noodle_bar/W": { file: "noodle_bar/W.jpg", bytes: 494703 },
   "privy_garden/N": { file: "privy_garden/N.jpg", bytes: 537646 },
   "privy_garden/S": { file: "privy_garden/S.jpg", bytes: 566540 },
+  "reception/E": { file: "reception/E.jpg", bytes: 224636 },
+  "reception/N": { file: "reception/N.jpg", bytes: 228821 },
+  "reception/S": { file: "reception/S.jpg", bytes: 267317 },
+  "reception/W": { file: "reception/W.jpg", bytes: 232888 },
   "servants_hall/E": { file: "servants_hall/E.jpg", bytes: 549616 },
   "servants_hall/N": { file: "servants_hall/N.jpg", bytes: 548334 },
   "servants_hall/S": { file: "servants_hall/S.jpg", bytes: 533373 },
@@ -161,6 +177,14 @@ window.HOLO_BACKDROPS = {
   "stair_landing/E": { file: "stair_landing/E.jpg", bytes: 399521 },
   "stair_landing/N": { file: "stair_landing/N.jpg", bytes: 423962 },
   "study/N": { file: "study/N.jpg", bytes: 510456 },
-  "study/W": { file: "study/W.jpg", bytes: 462154 }
+  "study/W": { file: "study/W.jpg", bytes: 462154 },
+  "treatment_room/E": { file: "treatment_room/E.jpg", bytes: 220356 },
+  "treatment_room/N": { file: "treatment_room/N.jpg", bytes: 209322 },
+  "treatment_room/S": { file: "treatment_room/S.jpg", bytes: 211787 },
+  "treatment_room/W": { file: "treatment_room/W.jpg", bytes: 271654 },
+  "ward/E": { file: "ward/E.jpg", bytes: 219691 },
+  "ward/N": { file: "ward/N.jpg", bytes: 228186 },
+  "ward/S": { file: "ward/S.jpg", bytes: 242749 },
+  "ward/W": { file: "ward/W.jpg", bytes: 246526 }
   }
 };
