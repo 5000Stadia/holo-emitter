@@ -1130,7 +1130,8 @@
       ],
       "head_kind": "straight",
       "trace_confidence": 0.9688,
-      "polygon_used": true
+      "polygon_used": true,
+      "depth_m": 0.6
     },
     {
       "id": "op17",
@@ -2189,7 +2190,8 @@
       ],
       "head_kind": "straight",
       "trace_confidence": 0.9821,
-      "polygon_used": true
+      "polygon_used": true,
+      "depth_m": 0.6
     }
   ]
 }

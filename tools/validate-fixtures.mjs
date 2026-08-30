@@ -538,6 +538,13 @@ function checkMeta(label, meta, findings, canvasW, canvasH, derivedForLabel) {
             depthTrouble.push(`${k} is ${JSON.stringify(v)}, where the metres through an opening are a finite number${nonNegative ? " that is not behind the camera" : ""} or null`);
           }
         }
+        /* [Kabe, 2026-08-30] A way through must know how thick the wall is:
+         * `depth_m` is what projects the threshold the far room may never
+         * cross, and a door that knows what lies beyond but not its own depth
+         * would draw that room to the floor line - "fundamentally nonsensical". */
+        if (o.depth_m !== null && o.depth_m !== undefined && !(typeof o.depth_m === "number" && isFinite(o.depth_m) && o.depth_m > 0)) {
+          depthTrouble.push(`depth_m is ${JSON.stringify(o.depth_m)}, where the wall's thickness at an opening is a positive number of metres (the plan's opening rect spans it); absent means the floor line`);
+        }
         if (known === 1) {
           depthTrouble.push(o.beyond_m == null
             ? "it knows where the far room stands across the view and not how far off it is"

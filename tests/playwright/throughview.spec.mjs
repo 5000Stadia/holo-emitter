@@ -66,9 +66,12 @@ async function throughView(page, root) {
     ic.fillRect(0, 0, W, H);
     const fRow = Math.round(destMeta.floor_line_y * destMeta.image_h_px);
     for (let y = fRow; y < H; y++) {
-      const b = 120 + ((y - fRow) >> 2);
+      /* Capped short of the green: the far frame's LAST rows are what stand
+         at the threshold now that it is scaled to reach it, and a ramp that
+         overtook the green there would fail the floor test on its own. */
+      const b = Math.min(190, 120 + ((y - fRow) >> 2));
       for (let x = 0; x < W; x += 8) {
-        ic.fillStyle = "rgb(" + (30 + ((x >> 3) % 28) * 8) + ",190," + b + ")";
+        ic.fillStyle = "rgb(" + (30 + ((x >> 3) % 28) * 8) + ",220," + b + ")";
         ic.fillRect(x, y, 8, 1);
       }
     }
@@ -91,7 +94,15 @@ async function throughView(page, root) {
     const dy = meta.horizon_y * meta.image_h_px -
       map.k * destMeta.horizon_y * destMeta.image_h_px;
     const frameBottom = dy + H * map.k;
-    const threshold = ap.y + ap.h;
+    /* [Kabe, 2026-08-30] The threshold is the FAR side of the wall's thickness:
+       the far room's floor begins `depth_m` beyond the wall plane, which this
+       camera draws above its own floor line by the pinhole's rule (see the
+       renderer). The box's foot is only the threshold where the wall has no
+       depth on record. */
+    const floorHere = meta.floor_line_y * meta.image_h_px;
+    const hHere = meta.horizon_y * meta.image_h_px;
+    const projected = hHere + (floorHere - hHere) * meta.camera_wall_m / (meta.camera_wall_m + (ap.depth_m || 0));
+    const threshold = Math.min(ap.y + ap.h, projected);
 
     /* Clear of the reveals the grid draws OVER the through-view: 14 % of the
      * opening in from the left, 8.4 % in from the right. */
@@ -393,4 +404,73 @@ test.describe("row 43 — the through-view is clipped to the traced aperture", (
     expect(CUT.cut_notch,
       "the pixel outside it is not").not.toEqual(CUT.plain_notch);
   });
+});
+
+/* [Kabe, 2026-08-30] AND THE ROOM BEYOND NEVER STANDS BELOW THE THRESHOLD.
+ *
+ * "There needs to be a bottom threshold the background room image is never
+ * allowed to go below, in line with the foreground room's horizontal line where
+ * the back wall meets the floor's back edge. Otherwise it's fundamentally
+ * nonsensical." Then: "not even exactly in line but a few pixels up ... a door
+ * jamb, room divider spacing ... there's a general expected depth." The far
+ * room is seen through the wall's thickness, so its floor begins at the FAR
+ * side of that thickness — `depth_m`, the plan's — and this camera draws that
+ * row above its own floor line by the pinhole's rule. The case is a DIFFERENCE
+ * again: the same opening, its box run down to the floor line, drawn once with
+ * no depth (the far room reaches the floor line) and once 0.6 m deep (it stops
+ * short by the projected thickness, and the wall's own paint stands below).
+ */
+test("the room beyond stops at the far side of the wall's thickness, never below", async ({ page }) => {
+  await page.goto(navUrl(repoRoot));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  const r = await page.evaluate(() => {
+    const A = window.HOLO_APP, R = window.HOLO.renderer;
+    const vs = { location: "study", facing: "E" };
+    const H = 1024, W = 1536;
+    const FAR = [255, 0, 200];
+    const img = document.createElement("canvas");
+    img.width = W; img.height = H;
+    const ic = img.getContext("2d");
+    ic.fillStyle = "rgb(" + FAR.join(",") + ")";
+    ic.fillRect(0, 0, W, H);
+    const base = A.metaFor(vs);
+    const floorY = base.floor_line_y * base.image_h_px;
+    const horizonY = base.horizon_y * base.image_h_px;
+    const dHere = base.camera_wall_m != null ? base.camera_wall_m : base.camera_far_m;
+    const shoot = (depth) => {
+      const meta = JSON.parse(JSON.stringify(base));
+      const o = meta.openings[0];
+      delete o.polygon; o.polygon_used = false;
+      o.h = floorY - o.y;               // the box runs to the floor line
+      o.depth_m = depth;
+      const bd = {};
+      for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
+      bd[vs.location + "/" + vs.facing] = { meta };
+      const ap = R.apertures(A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+      const destMeta = JSON.parse(JSON.stringify(A.metaFor({ location: ap.to, facing: ap.arrive_facing })));
+      destMeta.openings = [];
+      bd[ap.to + "/" + ap.arrive_facing] = { meta: destMeta, image: img };
+      const c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      R.render(c, A.harness.world, A.harness.staging, A.library, bd, vs, { backdrop_only: true });
+      const g = c.getContext("2d");
+      const x = Math.round(ap.x + ap.w / 2);
+      const col = g.getImageData(x, 0, 1, H).data;
+      let last = -1;
+      for (let yy = 0; yy < H; yy++) {
+        const p = col.slice(yy * 4, yy * 4 + 3);
+        if (p[0] - p[1] > 40 && p[2] - p[1] > 30) last = yy;
+      }
+      return { last_far_row: last, depth_m: ap.depth_m };
+    };
+    const t = 0.6;
+    const expected = horizonY + (floorY - horizonY) * dHere / (dHere + t);
+    return { flush: shoot(0), deep: shoot(t), floorY, expected, dHere };
+  });
+  expect(r.deep.depth_m, "the aperture carries the plan's depth").toBe(0.6);
+  expect(Math.abs(r.flush.last_far_row - r.floorY),
+    `with no depth the far room reaches the floor line (${r.flush.last_far_row} vs ${r.floorY})`).toBeLessThanOrEqual(2);
+  expect(Math.abs(r.deep.last_far_row - r.expected),
+    `0.6 m deep it stops at the projected threshold (${r.deep.last_far_row} vs ${r.expected.toFixed(1)}, floor line ${r.floorY.toFixed(1)}, camera ${r.dHere} m)`).toBeLessThanOrEqual(2);
+  expect(r.floorY - r.deep.last_far_row, "which is a visible step above the floor line").toBeGreaterThan(8);
 });

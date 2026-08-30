@@ -1113,7 +1113,8 @@
       ],
       "head_kind": "straight",
       "trace_confidence": 0.2274,
-      "polygon_used": false
+      "polygon_used": false,
+      "depth_m": 0.6
     }
   ]
 }

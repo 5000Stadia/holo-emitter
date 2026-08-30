@@ -426,6 +426,23 @@ export const DOOR_OPENING_HEIGHT_M = 2.00;
  * `entity` field); an opening no entity fills carries null, and is still a
  * hole in a wall.
  */
+
+/* [Kabe, 2026-08-30] THE OPENING'S DEPTH, off the plan. A doorway is a short
+ * passage through the wall's thickness, and the room beyond begins at its FAR
+ * side: "not even exactly in line but a few pixels up ... a door jamb, room
+ * divider spacing ... there's a general expected depth." The plan's opening
+ * rect spans that thickness (the validator checks it against
+ * `wall_thickness`), so the depth is read off the rect along the passage axis
+ * rather than guessed from the paint: 0.6 m through the manor's exterior, 0.2 m
+ * through KOWLOON-7's partition. Null where the plan does not say. */
+export function openingDepthM(plan, id) {
+  const po = (plan && plan.openings || []).find((p) => p.id === id);
+  if (!po || !po.rect) return null;
+  const r = po.rect;
+  const d = po.axis === "NS" ? (r.y1 - r.y0) : po.axis === "EW" ? (r.x1 - r.x0) : Math.min(r.x1 - r.x0, r.y1 - r.y0);
+  return Number.isFinite(d) && d > 0 ? Number(d.toFixed(6)) : null;
+}
+
 export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W) {
   const width = meta.wall_width_m;
   if (!(width > 0)) return [];
@@ -456,7 +473,8 @@ export function openingsForFacing(plan, roomId, facing, meta, canvasW = CANVAS_W
       via: c.entity ?? null,
       x: Math.min(x0, x1), y: baseY - h,
       w: Math.abs(x1 - x0), h,
-      beyond_m: null, beyond_offset_m: null
+      beyond_m: null, beyond_offset_m: null,
+      depth_m: openingDepthM(plan, c.id)
     };
     /* WHAT LIES BEYOND, in the two numbers a picture of it needs.
      *

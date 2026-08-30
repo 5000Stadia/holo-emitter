@@ -964,6 +964,7 @@ for (const p of planned) {
     h: round(box ? box.h : (cand ? (cand.y1_px - cand.y0_px) : p.h), 2),
     beyond_m: p.beyond_m,
     beyond_offset_m: p.beyond_offset_m,
+    depth_m: (typeof p.depth_m === "number") ? p.depth_m : null,   // the wall's thickness at this opening (plan)
     measured: !!cand,
     /* [row 43] The traced loop, its four corners, what the head is and how much
      * of it the evidence licensed — written whether or not it is USED, because

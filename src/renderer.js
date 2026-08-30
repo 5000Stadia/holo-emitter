@@ -1393,6 +1393,7 @@
           light_state: leafId ? (open_ ? "open" : "closed") : "open",
           beyond_m: beyond ? beyond.beyond_m : null,
           beyond_offset_m: beyond ? beyond.beyond_offset_m : null,
+          depth_m: (beyond && typeof beyond.depth_m === "number" && beyond.depth_m > 0) ? beyond.depth_m : 0,
           x: rect.x,
           y: rect.y,
           w: rect.w,
@@ -1751,7 +1752,22 @@
        bottom edge." A far frame shorter than the opening is scaled UP uniformly
        until it spans the opening's height exactly; the sides overflow into the
        clip. The pinhole scale k is kept where it already fills the height. */
-    var openH = Math.min(a.y + a.h, meta.floor_line_y * meta.image_h_px) - a.y;   // the opening ends at the wall's floor line
+    /* [Kabe, 2026-08-30] THE THRESHOLD IS THE FAR SIDE OF THE WALL'S THICKNESS.
+       "There needs to be a bottom threshold the background room image is never
+       allowed to go below, in line with the foreground room's horizontal line
+       where the back wall meets the floor's back edge" - and then: "not even
+       exactly in line but a few pixels up ... a door jamb, room divider spacing
+       ... there's a general expected depth." The far room is seen through a
+       passage `depth_m` deep (the plan's wall thickness at this opening), so
+       its floor begins at depth dHere + depth_m, which this camera draws
+       ABOVE the wall's own floor line by the pinhole's rule: a floor row at
+       distance d sits (floorY - horizon) * dHere / d below the horizon.
+       0.6 m through a manor wall at 3.3 m is ~23 px up; 0.2 m through
+       KOWLOON-7's partition is ~9 px. No depth (older metas) means the floor
+       line itself, which is the rule's first form. */
+    var floorHere = meta.floor_line_y * meta.image_h_px;
+    var thresholdY = hHere + (floorHere - hHere) * dHere / (dHere + (a.depth_m || 0));
+    var openH = Math.min(a.y + a.h, thresholdY) - a.y;   // the opening ends at the threshold
     if (dh < openH) {
       var kFill = openH / H;
       dx = W / 2 + kFill * ((a.beyond_offset_m || 0) * sDest - W / 2);
@@ -1765,15 +1781,14 @@
        nonsensical." A far room is seen THROUGH the wall plane; the wall plane
        ends at its floor line; so the composite ends there whatever the door's
        rectangle or trace says about the threshold. */
-    var wallFloorY = meta.floor_line_y * meta.image_h_px;
-    var footHere = Math.min(a.y + a.h, wallFloorY);
+    var footHere = Math.min(a.y + a.h, thresholdY);
     if (dy + dh < footHere) dy = footHere - dh;
     ctx.save();
     ctx.beginPath();
     apertureClipPath(ctx, a);
     ctx.clip();
     ctx.beginPath();
-    ctx.rect(0, 0, W, wallFloorY);          // and nothing below the wall's floor line
+    ctx.rect(0, 0, W, thresholdY);          // and nothing below the threshold
     ctx.clip();
     /* The far room is smaller than the hole it is seen through, so its frame
      * does not cover the opening — and the strip left over is the floor at
@@ -1880,6 +1895,34 @@
     ctx.fillStyle = "#000000";
     ctx.fillRect(a.x, a.y, a.w, a.h);
     ctx.restore();
+    /* [Kabe, 2026-08-30] THE PASSAGE FLOOR. Between the threshold (the far
+       side of the wall's thickness) and the wall's own floor line lies the
+       doorway's floor - `depth_m` of it, foreshortened to a few rows. It is
+       neither room's picture: the far frame ends at the threshold by the rule
+       above, and the near painting holds whatever the painter imagined beyond
+       the jamb. So it is drawn as what it is - this room's floor continuing
+       through the wall - by mirroring this canvas's own floor (painting or
+       grid, whichever stands there) about the floor line, seamless at the
+       join, and standing it in the passage's shadow. */
+    var sillTop = thresholdY, sillBottom = Math.min(a.y + a.h, floorHere);
+    var band = Math.ceil(sillBottom - sillTop);
+    if (band > 0 && floorHere < H) {
+      ctx.save();
+      ctx.beginPath();
+      apertureClipPath(ctx, a);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.rect(a.x - 1, sillTop, a.w + 2, sillBottom - sillTop);
+      ctx.clip();
+      var sy = Math.floor(floorHere), sh = Math.min(band + 1, H - sy);
+      ctx.translate(0, 2 * floorHere);
+      ctx.scale(1, -1);
+      ctx.drawImage(ctx.canvas, 0, sy, W, sh, 0, sy, W, sh);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.fillStyle = "rgba(0,0,0,0.15)";
+      ctx.fillRect(a.x - 1, sillTop, a.w + 2, sillBottom - sillTop);
+      ctx.restore();
+    }
     return true;
   }
 

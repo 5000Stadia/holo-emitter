@@ -28,6 +28,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | what landed |
 |---|---|
+| L-THRESHOLD | through-view: the far room ends at the far side of the wall's thickness (`depth_m`, the plan's opening rect along its axis; projected by the pinhole above the floor line), never below; the passage floor between threshold and floor line is this wall's own floor mirrored about the floor line; promotion writes `depth_m`, `backfill-opening-depth.mjs` filled 29 metas, the fixture validator type-checks it |
 | L-TRACE | aperture inside-edge tracer (aperture_trace.py): rectangle prior → normal-band search → cyclic DP closed loop; threshold = floor line; contrast-bounded trust region; arched only as a real shape; confidence that sees failure; 26 ms/wall |
 | L-DELIVERY | paintings served per wall (backdrops/served/<loc>/<F>.jpg) by URL: current facing first, neighbours after first paint, visible loading state; critical path 45.3 MB → 1.44 MB; the pixel bundle is gone |
 | L-SEAM | through-view: the far room's floor is sampled at each strip row's own depth and carried along its recession to the threshold; side strips continue the far frame's own band; the grey divider is gone (noodle_bar/E) |
