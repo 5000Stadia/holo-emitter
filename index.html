@@ -535,7 +535,13 @@
         /* The wall you are standing in front of repaints the moment it lands.
            A neighbour just waits in the register, which is the whole point of
            having asked for it early. */
-        if (harness.viewstate && keyOf(harness.viewstate) === key) presentPainting();
+        /* [Kabe, 2026-08-30, ward/W] ...AND SO DOES A WALL THIS VIEW LOOKS
+           THROUGH. The room beyond a doorway is painted from its own wall's
+           image; when that image landed after this wall's paint, the doorway
+           kept the grid it was painted with until the next input. A neighbour
+           that the current view depends on repaints it too. */
+        if (harness.viewstate && (keyOf(harness.viewstate) === key ||
+            neighbourKeys(harness.viewstate).indexOf(key) !== -1)) presentPainting();
       });
       img.addEventListener("error", function () {
         console.error("BACKDROP ERROR: " + paintingDir + manifest[key].file +
@@ -575,6 +581,22 @@
       var ex = held.exits || [];
       for (i = 0; i < ex.length; i++) {
         if (ex[i] && ex[i].to && ex[i].arrive_facing) out.push(ex[i].to + "/" + ex[i].arrive_facing);
+      }
+      /* [Kabe, 2026-08-30] TWO ROOMS BACK, on the wall you face: the
+         through-view now looks through the far room's own doorway, so the
+         wall that doorway shows is part of THIS view and is asked for with
+         the neighbours (renderer THROUGH_DEPTH_MAX). */
+      for (i = 0; i < ex.length; i++) {
+        if (!ex[i] || ex[i].facing !== vs.facing || !ex[i].to) continue;
+        var far = null, j;
+        for (j = 0; j < locs.length; j++) if (locs[j].id === ex[i].to) far = locs[j];
+        var fx = (far && far.exits) || [];
+        for (j = 0; j < fx.length; j++) {
+          if (fx[j] && fx[j].facing === ex[i].arrive_facing && fx[j].to && fx[j].arrive_facing) {
+            var k2 = fx[j].to + "/" + fx[j].arrive_facing;
+            if (out.indexOf(k2) === -1) out.push(k2);
+          }
+        }
       }
       return out;
     }

@@ -101,7 +101,7 @@ async function throughView(page, root) {
        depth on record. */
     const floorHere = meta.floor_line_y * meta.image_h_px;
     const hHere = meta.horizon_y * meta.image_h_px;
-    const projected = hHere + (floorHere - hHere) * meta.camera_wall_m / (meta.camera_wall_m + (ap.depth_m || 0));
+    const projected = hHere + (floorHere - hHere) * meta.camera_wall_m / (meta.camera_wall_m + (ap.depth_m || 0) * 0.5);   // the leaf's plane, mid-thickness (PASSAGE_SHARE)
     const threshold = Math.min(ap.y + ap.h, projected);
 
     /* Clear of the reveals the grid draws OVER the through-view: 14 % of the
@@ -464,13 +464,20 @@ test("the room beyond stops at the far side of the wall's thickness, never below
       return { last_far_row: last, depth_m: ap.depth_m };
     };
     const t = 0.6;
-    const expected = horizonY + (floorY - horizonY) * dHere / (dHere + t);
+    const expected = horizonY + (floorY - horizonY) * dHere / (dHere + t * 0.5);   // PASSAGE_SHARE: the leaf's plane
     return { flush: shoot(0), deep: shoot(t), floorY, expected, dHere };
   });
   expect(r.deep.depth_m, "the aperture carries the plan's depth").toBe(0.6);
-  expect(Math.abs(r.flush.last_far_row - r.floorY),
-    `with no depth the far room reaches the floor line (${r.flush.last_far_row} vs ${r.floorY})`).toBeLessThanOrEqual(2);
-  expect(Math.abs(r.deep.last_far_row - r.expected),
-    `0.6 m deep it stops at the projected threshold (${r.deep.last_far_row} vs ${r.expected.toFixed(1)}, floor line ${r.floorY.toFixed(1)}, camera ${r.dHere} m)`).toBeLessThanOrEqual(2);
-  expect(r.floorY - r.deep.last_far_row, "which is a visible step above the floor line").toBeGreaterThan(8);
+  /* With no depth the blend still spans its minimum band (PASSAGE_BLEND_MIN_PX
+     = 24 rows): the far room is pure just above it and covered before the floor line. */
+  expect(r.flush.last_far_row,
+    `with no depth the far room is pure above the minimum blend band (${r.flush.last_far_row} vs ${r.floorY})`).toBeGreaterThanOrEqual(Math.floor(r.floorY) - 26);
+  expect(r.flush.last_far_row, "and covered before the floor line").toBeLessThan(r.floorY - 2);
+  /* [Kabe] the two floors BLEND from the leaf's plane to the floor line: the
+     last row that is still purely the far room lies inside that band, above the
+     floor line, and never below it. */
+  expect(r.deep.last_far_row,
+    `0.6 m deep the far room is still pure at the leaf's plane (${r.deep.last_far_row} vs plane ${r.expected.toFixed(1)})`).toBeGreaterThanOrEqual(Math.floor(r.expected) - 1);
+  expect(r.deep.last_far_row,
+    `and this room's floor has covered it before the floor line (${r.deep.last_far_row} vs floor ${r.floorY.toFixed(1)})`).toBeLessThan(r.floorY - 2);
 });
