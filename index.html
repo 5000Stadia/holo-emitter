@@ -87,6 +87,20 @@
     border: 1px solid rgba(200, 180, 137, 0.35); cursor: pointer;
   }
   #fullscreen-toggle svg { width: 100%; height: 100%; display: block; }
+  /* [Kabe, 2026-08-30] "A toggle on the demo to switch between demos." The
+     world switch: same chrome as its neighbour, one control, listing what
+     fixtures/index.js was baked with — a pack that is not baked is not
+     offered. Hidden until the boot fills it, and hidden for good when there
+     is only one world to be in. */
+  #world-switch {
+    position: absolute; top: 6px; right: calc(6px + 2rem + 6px); z-index: 3;
+    height: 2rem; max-width: 40%; padding: 0 6px;
+    font: inherit; font-size: 0.8rem; letter-spacing: 0.04em;
+    background: rgba(200, 180, 137, 0.06); color: #c8b489;
+    border: 1px solid rgba(200, 180, 137, 0.35); cursor: pointer;
+  }
+  #world-switch option { background: #14120d; color: #c8b489; }
+  #world-switch[hidden] { display: none; }
   /* The icon itself must change with the state it names, or a sighted mouse
      user — the majority case, who never reads the aria-label — sees a mark
      that contradicts the picture: an artifact critic found the glyph frozen
@@ -281,6 +295,7 @@
     <button id="chevron-left" class="chevron affordance chrome" aria-label="turn left">&lsaquo;</button>
     <button id="chevron-right" class="chevron affordance chrome" aria-label="turn right">&rsaquo;</button>
     <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g class="icon-enter" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></g><g class="icon-exit" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></g></svg></button>
+    <select id="world-switch" class="chrome" aria-label="which place this is" hidden></select>
     <div id="entity-controls"></div>
     <!-- The standing readout. `role="status"` rather than a bare div: the
          place and the facing are announced when they change, which is the
@@ -390,6 +405,7 @@
     }
   })();
   </script>
+  <script src="fixtures/index.js"></script>
   <script src="backdrops/baked.js"></script>
   <script src="library/baked.js"></script>
   <script src="src/groundplane.js"></script>
@@ -2086,6 +2102,32 @@
         pendingImages[pi].addEventListener("error", settle);
       }
     }
+  })();
+  </script>
+<script>
+  /* [Kabe, 2026-08-30] The world switch: filled from the baked list, marked at
+     the world this page booted, and a change is a plain navigation — a world
+     is a different baked fixture, and a reload is the honest way between two.
+     With one world (or none listed) the control stays hidden. */
+  (function () {
+    "use strict";
+    var sel = document.getElementById("world-switch");
+    var list = window.HOLO_WORLDS;
+    if (!sel || !Array.isArray(list) || list.length < 2) return;
+    var m = /[?&]world=([^&]*)/.exec(window.location.search || "");
+    var here = "nav-manor";
+    try { if (m) here = decodeURIComponent(m[1]); } catch (ignored) { /* the default stands */ }
+    for (var i = 0; i < list.length; i++) {
+      var o = document.createElement("option");
+      o.value = list[i].id;
+      o.textContent = list[i].title;
+      if (list[i].id === here) o.selected = true;
+      sel.appendChild(o);
+    }
+    sel.hidden = false;
+    sel.addEventListener("change", function () {
+      if (/^[A-Za-z0-9_-]+$/.test(sel.value)) window.location.search = "?world=" + sel.value;
+    });
   })();
   </script>
 </body>

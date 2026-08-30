@@ -292,8 +292,10 @@ test.describe("focus order", () => {
     const topOrder = await page.evaluate(() =>
       [...document.getElementById("stage").children].map((el) => el.id));
     expect(topOrder.slice(0, 3)).toEqual(["scene", "overlay", "veil"]);
-    expect(topOrder.slice(3, 6)).toEqual(["chevron-left", "chevron-right", "fullscreen-toggle"]);
-    expect(topOrder[6]).toBe("entity-controls");
+    /* [Kabe, 2026-08-30] The world switch stands beside the fullscreen
+       control — a real focusable, so the pin names it too. */
+    expect(topOrder.slice(3, 7)).toEqual(["chevron-left", "chevron-right", "fullscreen-toggle", "world-switch"]);
+    expect(topOrder[7]).toBe("entity-controls");
   });
 });
 

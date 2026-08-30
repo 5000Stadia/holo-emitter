@@ -66,6 +66,7 @@ S=$(mktemp -d)
 # replacing each other — which is what a second `trap ... EXIT` line would do.
 trap 'RC=$?; rm -rf "$S"; note publish.site "$T_PUBLISH" "{\"head\":\"$HEAD_SHA\",\"exit_code\":$RC}"' EXIT
 
+node tools/bake-worlds-index.mjs
 cp index.html "$S"/
 # [Kabe, 2026-08-30] "Still getting a blend like this" — his browser held the
 # previous src/renderer.js: Pages serves scripts with max-age=600 and the page
