@@ -21,6 +21,8 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
+| B-FLOOR | theme-neutral floor-line reader (corner witness + step witness + the manor's skirting rule as pack data; agree or refuse `floor_line_unreadable`); back_office/W re-warped; regression table vs 63 manor walls — capped, branch `floor-line-witnesses` | building |
+| RUN-HOSPITAL | the three-room hospital pack (`packs/hospital-3`, reception ↔ treatment room ↔ ward, handrail ruler 0.90 m): 12 packets emitted 2026-08-30 02:00, painter typed-in via its pane, loop `tmux hospital-loop`; every step and hang-up logged in `design/batches/hospital-3/STEPS.md` | painting |
 | B-TRACE-WIRE | the traced aperture polygon becomes THE aperture: promotion writes meta.openings[].polygon (+confidence, head_kind), the warp pins its corners, the page clips the through-view and fits the leaf to it; a low-confidence trace falls back to the rectangle, recorded — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
