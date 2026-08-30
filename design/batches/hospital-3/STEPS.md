@@ -44,3 +44,4 @@ Rule for this log: every step, its wall-clock, its outcome, and — for anything
 | 19g | [Kabe] "Way less blur, only a tiny bit" | 3 min | **live**: the line blur is a named constant, 1 px → 0.4 px (SEAM_LINE_BLUR_PX) | — | — |
 | 19h | [Kabe] "Little less darken" | 3 min | **live**: SEAM_LINE_SHADE 0.18 → 0.13 | — | — |
 | 19i | [Kabe] "Tiniest more blur, tiniest less darken" | 3 min | **live**: SEAM_LINE_SHADE 0.13 → 0.11, SEAM_LINE_BLUR_PX 0.4 → 0.55 | — | — |
+| 20 | [Kabe] "Looks good lets send it that will be the standard" | — | **SEALED**: the seam recipe is the production standard (approvals.log 2026-08-30); every pack inherits it | — | — |
