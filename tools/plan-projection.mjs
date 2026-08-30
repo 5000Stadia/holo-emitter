@@ -1723,7 +1723,16 @@ export function facingCarriers(plan, roomId, facing) {
    * (`thresholdsForFacing`); the ask did not. Same detection as there. */
   {
     const edge = sign > 0 ? room.rect[normalAxis + "1"] : room.rect[normalAxis + "0"];
+    /* [underground-2, Kabe's long room] ...BUT ONLY WHEN THE FACING VIEWS ITS
+       OWN EDGE. A deep facing (wall_line across a full-width open edge — the
+       two-box room) looks THROUGH the edge at the far cell's wall: the edge is
+       not on the viewed plane and is no carrier of it. Left in, it projected
+       nearer than the wall, spanned the whole frame, swallowed every column
+       band ("nothing to read down"), and the ask told the painter "there is no
+       wall here at all" with the court's stone piers — which he painted. */
+    const viewsOwnEdge = Math.abs((fc.wall_line ?? edge) - edge) < EPS;
     for (const o of plan.openings || []) {
+      if (!viewsOwnEdge) break;
       if (o.floor !== room.floor || o.kind !== "open_edge") continue;
       if (!(o.joins || []).includes(roomId) || !o.rect) continue;
       const line = o.rect[normalAxis + "0"];
