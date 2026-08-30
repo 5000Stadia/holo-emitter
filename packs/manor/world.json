@@ -27,7 +27,9 @@
    "transom": "a single stone transom",
    "opening_light": "a casement hung on iron hinges",
    "why": "1660: the dressing round an opening is a status marker; the lights are divided by stone; one light opens on iron hinges."
-  }
+  },
+  "floor_line": "shadow-seam",
+  "floor_line_why": "1660 panelling: the floor line is read at the darkest row of the shadow seam under the skirting foot (measure.py::pick_floor), the convention every promoted manor wall was measured by. A pack that does not say this reads the foot itself."
  },
  "rulers": [
   {

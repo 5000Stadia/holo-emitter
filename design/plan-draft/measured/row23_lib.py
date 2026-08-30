@@ -329,10 +329,46 @@ def _floor_and_rail(L, cfg, picks):
     fcfg = dict(floor_cols=cfg["rail_columns"],
                 floor_range=cfg["floor_search"],
                 floor_window=cfg["floor_window"])
-    floor_y, floor_cands, _ = picks["pick_floor"](L, fcfg)
+    floor_y, floor_cands, ev = picks["pick_floor"](L, fcfg)
+    # [Kabe, 2026-08-30] THE FLOOR LINE IS THE FOOT, NOT THE SHADOW UNDER IT.
+    # `pick_floor`'s minimum is the manor's convention (the darkest row of the
+    # shadow seam under the skirting, a few rows BELOW the wall's foot); on the
+    # hospital every wall read 5-11 px under its painted base, the door's seam
+    # sat below the room's back corner and Kabe saw it. "The centre of the door
+    # jamb can't be lower than the back corner of the current room." A pack
+    # that wants the seam says so (`conventions.floor_line: "shadow-seam"`,
+    # the manor's); every other pack gets the foot above the shadow.
+    convention = ((_PACK.world.get("conventions") or {}).get("floor_line")) if _PACK else None
+    read = dict(minimum=int(floor_y), rule="shadow-seam",
+                saturated=bool(floor_y <= cfg["floor_window"][0] + 1 or floor_y >= cfg["floor_window"][1] - 1))
+    if convention != "shadow-seam":
+        foot = foot_of(floor_y, floor_cands)
+        read.update(rule="foot", foot=(None if foot is None else int(foot)))
+        if foot is not None:
+            floor_y = foot
     mod = picks["module_in_bands"](L, floor_y, cfg["rail_band"], cfg["rail_columns"])
+    mod["floor_read"] = read
     rail_above = mod["dado_rail_above_floor_px"]
     return floor_y, mod, rail_above
+
+
+def foot_of(minimum_y, cands, reach=12, below=2):
+    """The wall's foot above its shadow: the STRONGEST step candidate within
+    `reach` rows above the shadow-seam minimum (or `below` rows under it, where
+    the step and the seam coincide). None where no candidate stands there, and
+    the caller keeps the minimum.
+
+    Pure, so it is testable on candidate lists alone: eight hospital and
+    cyberpunk walls read by eye (treatment_room/W 755, ward/W 735, reception/N
+    747, reception/E 781, ward/S 772, noodle_bar/E 776) are what fixed `reach`."""
+    best = None
+    for c in cands or []:
+        y = c.get("y")
+        if y is None or y < minimum_y - reach or y > minimum_y + below:
+            continue
+        if best is None or c.get("strength", 0) > best.get("strength", 0):
+            best = c
+    return None if best is None else best["y"]
 
 
 #: [row 32] The names a hold answers to. One per sub-family, so a wall that is
@@ -905,6 +941,7 @@ def measure_candidate(path, side, cfg, ref, picks):
             wall_floor_line_y_px=int(floor_y),
             chair_rail_y_px=int(rail_y),
             dado_rail_above_floor_px=int(rail_above),
+            floor_read=mod.get("floor_read"),
             capping_above_floor_px=mod.get("capping_above_floor_px"),
         ),
         _windows=dict(floor=cfg["floor_window"], rail=cfg["rail_band"],
