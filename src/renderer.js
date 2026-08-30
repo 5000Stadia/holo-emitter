@@ -1552,7 +1552,10 @@
   var PASSAGE_SHARE = 0.5;
   /* How tall the treated band at the threshold seam is, in rows — half on
    * each floor. [Kabe] "4-6 pixels ... 2-3 on each floor." */
-  var SEAM_MIX_PX = 3;   // [Kabe] "soft is best but that dither is too big — 2 or 3 px instead of 6"
+  var SEAM_MIX_PX = 1;   // [Kabe's final pick, 2026-08-30] "I like at 1px"
+  /* ...and the seam row itself is darkened to say THRESHOLD: "darken that one
+   * line row to emphasize the transitional seam and I think we'll have it." */
+  var SEAM_LINE_SHADE = 0.3;
   /* HOW the band is treated — a look decision awaiting Kabe's pick from the
    * comparison batch, made by a constant like THROUGH_DIM:
    *   "hard"   the crisp seam alone
@@ -2041,6 +2044,17 @@
       ctx.filter = "blur(1.5px)";
       ctx.drawImage(blStrip, 0, blTop - blFeed);
       ctx.filter = "none";
+      ctx.restore();
+    }
+    /* The threshold's own line: the seam row darkened by SEAM_LINE_SHADE, on
+       top of whatever treatment ran, inside the aperture and nowhere else. */
+    if (seamStyle !== "hard" && sillBottom - sillTop > 0.5 && floorHere < H && SEAM_LINE_SHADE > 0) {
+      ctx.save();
+      ctx.beginPath();
+      apertureClipPath(ctx, a);
+      ctx.clip();
+      ctx.fillStyle = "rgba(0,0,0," + SEAM_LINE_SHADE + ")";
+      ctx.fillRect(a.x - 1, seamTop, a.w + 2, Math.max(1, seamMix));
       ctx.restore();
     }
     return true;
