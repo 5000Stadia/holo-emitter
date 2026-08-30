@@ -40,3 +40,4 @@ Rule for this log: every step, its wall-clock, its outcome, and — for anything
 | 19c | [Kabe's final pick] "I like at 1px — also darken that one line row to emphasize the transitional seam and I think we'll have it" | 10 min | **live**: SEAM_MIX_PX 1, SOFT, plus SEAM_LINE_SHADE 0.3 — the seam row darkened over the treatment, inside the aperture only | — | — |
 | 19d | [Kabe] "Looks too solid — ditch the dither, go back to transparent random with darkening only 1px" | 10 min | **live**: SEAM_STYLE "line" — no floor mixing; the one seam row darkened pixel-by-pixel with randomized transparency (mean SEAM_LINE_SHADE 0.3, coordinate hash, deterministic) | — | — |
 | 19e | [Kabe] "Less darkening" | 3 min | **live**: SEAM_LINE_SHADE 0.3 → 0.18 | — | — |
+| 19f | [Kabe] "Little blur" | 5 min | **live**: the broken line and one row either side redrawn through a 1 px blur (write stays in the band) | — | — |

@@ -2075,6 +2075,23 @@
         apertureClipPath(ctx, a);
         ctx.clip();
         ctx.drawImage(lnS, lnX0, seamTop);
+        /* [Kabe] "Little blur": the drawn line and a row either side redrawn
+           through a 1 px blur, so the broken darkening melts into both floors.
+           Same discipline: feed rows for the filter, the write stays in the
+           small band, nothing leaves the aperture. */
+        if (typeof ctx.filter === "string") {
+          var lbTop = Math.max(0, seamTop - 1);
+          var lbH = lnH + 2;
+          var lbFeed = 3;
+          var lbStrip = makeCanvas(doc, W, lbH + 2 * lbFeed);
+          lbStrip.getContext("2d").drawImage(ctx.canvas, 0, lbTop - lbFeed, W, lbH + 2 * lbFeed, 0, 0, W, lbH + 2 * lbFeed);
+          ctx.beginPath();
+          ctx.rect(a.x - 1, lbTop, a.w + 2, lbH);
+          ctx.clip();
+          ctx.filter = "blur(1px)";
+          ctx.drawImage(lbStrip, 0, lbTop - lbFeed);
+          ctx.filter = "none";
+        }
         ctx.restore();
       }
     }
