@@ -274,6 +274,46 @@ const facingOf = (room, f) => {
  * made into meta: a facing whose view is part wall and part open ground
  * carries both, instead of one invented wall spanning the gap.
  */
+
+/* [Kabe, 2026-08-30] THE RUN A SIDE WALL BELONGS TO. In a long room a cell's
+ * side wall is one stretch of a wall that continues across the full-width open
+ * edges into the joined cells: no corner stands at the crossed edge, and the
+ * painting must let the flat wall run off the frame. This walks the span axis
+ * both ways and returns the run's ends in world coordinates. */
+export function runSpanOf(plan, room, facing) {
+  const span = viewSpan(room.rect, facing);
+  const [normalAxis] = NORMAL[facing];
+  const depthLo = normalAxis === "y" ? room.rect.y0 : room.rect.x0;
+  const depthHi = normalAxis === "y" ? room.rect.y1 : room.rect.x1;
+  const wallLine = facingOf(room, facing).wall_line;
+  let lo = span.lo, hi = span.hi;
+  for (const dir of [-1, 1]) {
+    let cell = room, hops = 0;
+    while (hops++ < 8) {
+      const edge = dir < 0
+        ? (span.axis === "x" ? cell.rect.x0 : cell.rect.y0)
+        : (span.axis === "x" ? cell.rect.x1 : cell.rect.y1);
+      const oe = (plan.openings || []).find((o) =>
+        o.kind === "open_edge" && o.floor === cell.floor && o.rect &&
+        (o.joins || []).includes(cell.id) &&
+        Math.abs(o.rect[span.axis + "0"] - edge) < EPS &&
+        Math.abs(o.rect[span.axis + "1"] - edge) < EPS &&
+        o.rect[normalAxis + "0"] <= depthLo + EPS && depthHi - EPS <= o.rect[normalAxis + "1"]);
+      if (!oe) break;
+      const next = (plan.rooms || []).find((r) => r.id === (oe.joins || []).find((j) => j !== cell.id));
+      if (!next) break;
+      /* the run continues only along the same wall line */
+      const nextLine = facing === "N" ? next.rect.y1 : facing === "S" ? next.rect.y0
+        : facing === "E" ? next.rect.x1 : next.rect.x0;
+      if (wallLine != null && Math.abs(nextLine - wallLine) > EPS) break;
+      cell = next;
+      if (dir < 0) lo = span.axis === "x" ? cell.rect.x0 : cell.rect.y0;
+      else hi = span.axis === "x" ? cell.rect.x1 : cell.rect.y1;
+    }
+  }
+  return { lo, hi, span };
+}
+
 export function wallSegments(plan, roomId, facing) {
   const room = roomOf(plan, roomId);
   const fc = facingOf(room, facing);
@@ -1502,6 +1542,22 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
    * would move the drawn digest of the plan Kabe approved. */
   meta.openings = openingsForFacing(plan, roomId, facing, meta, canvasW);
   if (walls.continuous) {
+    /* [Kabe, 2026-08-30] A RUN WALL'S CORNERS ARE THE RUN'S ENDS. The wall may
+       continue across full-width open edges into the joined cells; its real
+       corners then stand beyond this cell — off the frame on the open side —
+       and the register says the wall runs on. Off-frame float corners are a
+       state every instrument already tolerates (great_hall/N). */
+    const run = runSpanOf(plan, roomId, facing);
+    if (run.lo < run.span.lo - EPS || run.hi > run.span.hi + EPS) {
+      const [rx2, ry2] = RIGHT[facing];
+      const alongRight2 = run.span.axis === "x" ? rx2 : ry2;
+      const sAlong = run.span.axis === "x" ? fc.standpoint.x : fc.standpoint.y;
+      const pxOf = (v) => canvasW / 2 + (alongRight2 > 0 ? v - sAlong : sAlong - v) * pxAtWall;
+      const a2 = pxOf(run.lo), b2 = pxOf(run.hi);
+      meta.corner_x0_px = Math.min(a2, b2);
+      meta.corner_x1_px = Math.max(a2, b2);
+      meta.wall_run_m = Number((run.hi - run.lo).toFixed(6));
+    } else {
     /* The corners are the ends of the u-domain at the wall plane, so they are
      * `xAtScale(0)` and `xAtScale(1)` — the renderer's own u-mapping, called,
      * not copied. A private `canvasW/2 ± wall_width_m/2 × pxAtWall` gives the
@@ -1511,6 +1567,7 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
      * u-domain in another. Row 2 paid for this exact shape twice. */
     meta.corner_x0_px = groundplane.xAtScale(0, pxAtWall, meta, canvasW);
     meta.corner_x1_px = groundplane.xAtScale(1, pxAtWall, meta, canvasW);
+    }
   }
   /* [Row 15] The flights, AFTER the corners: `xAtScale` reads them where they
    * exist, and a flight runs deep into the room, which is exactly where the

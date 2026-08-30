@@ -969,7 +969,20 @@ export function g5PictureLines(ctx) {
       : "well inside";
     const fL = m.corner_x0_px != null ? m.corner_x0_px / CANVAS_W : null;
     const fR = m.corner_x1_px != null ? 1 - m.corner_x1_px / CANVAS_W : null;
-    if (fL != null && fR != null) {
+    /* [Kabe, 2026-08-30] A RUN WALL HAS NO CORNER ON ITS OPEN SIDE: "should
+       extend the flat wall off screen". A corner fraction below zero is a
+       corner beyond the frame, and the sentence says the wall runs on. */
+    const offL = fL != null && fL < 0, offR = fR != null && fR < 0;
+    if (fL != null && fR != null && (offL || offR)) {
+      const cornerSide = offL ? "right" : "left";
+      const runSide = offL ? "left" : "right";
+      const cf = offL ? fR : fL;
+      L.push(`  The ${SURFACE} you face is square on and is LONGER than the picture: its ${cornerSide} ` +
+        `corner stands ${fracWords(cf)} the picture's ${cornerSide} edge, and from that corner a side ` +
+        `wall runs toward you and leaves the picture through that edge. On the ${runSide} there is NO ` +
+        `corner and NO return wall: the flat ${SURFACE} simply continues and leaves the picture through ` +
+        `the ${runSide} edge, still face-on.`);
+    } else if (fL != null && fR != null) {
       L.push(`  The ${SURFACE} you face is square on and shows its whole width: its left corner stands ` +
         `${fracWords(fL)} the picture's left edge and its right corner ${fracWords(fR)} the right edge, ` +
         `and from each corner a side wall runs toward you and leaves the picture through ${edgeWords(edges)}.`);
@@ -982,7 +995,10 @@ export function g5PictureLines(ctx) {
      * "one metre covers N columns" fact had no words. Said as a fraction of
      * the picture's width, from the scaffold's own ruler. */
     const ppm = m.px_per_m_at_wall;
-    if (ppm > 0 && m.wall_width_m > 0) {
+    if (ppm > 0 && m.wall_run_m > 0 && (m.wall_run_m * ppm) > CANVAS_W) {
+      L.push(`  Seen from where you stand, the ${SURFACE} is ${m.wall_run_m.toFixed(1)} m long and wider than ` +
+        `the picture: about ${(CANVAS_W / ppm).toFixed(1)} m of it are in view, at one unbroken scale.`);
+    } else if (ppm > 0 && m.wall_width_m > 0) {
       const share = (m.wall_width_m * ppm) / CANVAS_W;
       const shareWords = share > 0.95 ? "almost the whole width of the picture" : share > 0.85 ? "about nine tenths of the picture's width"
         : share > 0.75 ? "about four fifths of the picture's width" : share > 0.65 ? "about seven tenths of the picture's width"
