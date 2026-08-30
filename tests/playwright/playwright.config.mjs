@@ -39,7 +39,24 @@ export default defineConfig({
      clause the intention singles out: the key not existing on screen until
      it is revealed. */
   projects: [
-    { name: "chromium", use: { browserName: "chromium" } },
+    {
+      name: "chromium",
+      use: {
+        browserName: "chromium",
+        /* [Row 45] THE SUITE OPENS `file://` PAGES AND READS THE CANVAS BACK.
+           Since the paintings are fetched by URL rather than baked in as
+           `data:`, Chromium treats every file:// image as another origin and
+           taints the canvas — `getImageData` throws SecurityError and a page
+           that is perfectly correct reads as a fault. That is a browser
+           default about local files, not a fact about the product: the live
+           site serves its walls same-origin over https and taints nothing, so
+           the flag restores in the test what production already has, and
+           nothing else about the run changes. (Firefox needs no equivalent —
+           it does not taint on file:// here.) It is the last thing the row-21
+           bake was buying, and it cost 44 MB on the wire. */
+        launchOptions: { args: ["--allow-file-access-from-files"] }
+      }
+    },
     {
       name: "firefox",
       use: { browserName: "firefox" }

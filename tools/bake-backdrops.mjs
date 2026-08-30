@@ -1,38 +1,52 @@
 #!/usr/bin/env node
-/* bake-backdrops.mjs — embed the promoted paintings into a classic script.
+/* bake-backdrops.mjs — encode the promoted paintings for the wire and write
+ * the manifest the page boots from.
  *
- *   node tools/bake-backdrops.mjs        # backdrops/** -> backdrops/baked.js
+ *   node tools/bake-backdrops.mjs
+ *     backdrops/<loc>/<F>.png  ->  backdrops/served/<loc>/<F>.jpg   (the pixels)
+ *                              ->  backdrops/baked.js               (the manifest)
  *
- * WHY A BAKE AND NOT AN <img src="backdrops/study/N.png">. A `file://` page
- * drawing a `file://` image taints the canvas in Chromium, and every hash test
- * in this project reads the canvas back — so the picture would be there and
- * nothing could measure it. A `data:` URI does not taint. This is the same
- * reason the fixtures are baked (§12.7 requires `file://`), and the shape is
- * deliberately the same one: the PNGs stay the sole truth, this file is
- * GENERATED, and a staleness test re-bakes to scratch and byte-compares.
+ * [Row 45] WHY THE PIXELS ARE NO LONGER IN THE SCRIPT. Until this row every
+ * painting rode in `baked.js` as a `data:` URI — 71 walls, 44 MB, a blocking
+ * <script> after the UI's own scripts. First paint of ONE wall waited for the
+ * download, parse and decode of EVERY wall in the building, in every world,
+ * and Kabe reported the result from the live site: "Sometimes loading hangs on
+ * first launch. UI is present but then hangs without images loading." It was
+ * not a hang. It was 44 MB.
  *
- * WHY THE PAGE IS NOT SERVED THE PNG, and what the alternative cost —
- * measured, because the production law asks an improvement to clock as one.
- * Embedded raw, a 2.6 MB PNG is 3.4 MB of base64, and `index.html` holds its
- * first frame until every painting has decoded. An artifact critic measured
- * that on a rate-limited link at 200 KB/s: 17.6-19.0 seconds of blank page
- * with nothing on the surface to explain it, and eight walls would be ~27 MB.
- * At q92 the same painting is 550 kB — 6.3x less, first paint under 4 seconds
- * on that same link — and the encode moves a channel by 1.7 of 255 on average.
- * Those numbers are printed into the generated file per painting, so the one
- * place where the page's picture is not byte-identical to the artifact this
- * repository holds carries its own difference as a number.
+ * So the bundle is unbundled. The same q92 encode, written one file per wall,
+ * fetched BY URL and only the wall you are looking at; `baked.js` keeps the
+ * names and the byte counts and nothing else, and is ~6 kB.
+ *
+ * WHY AN ENCODE AT ALL, and not the promoted PNG served directly — the number
+ * that decided it, unchanged from row 21: a promoted painting is 2.6 MB of PNG
+ * and 550 kB at q92, and the encode moves a channel by 1.7 of 255 on average.
+ * Six times the bytes on the one request that stands between a visitor and the
+ * first wall is worth more than a difference no eye has found; the published
+ * tree is 39 MB of walls rather than 176 MB. Those numbers are printed into
+ * the manifest per painting, so the one place where the page's picture is not
+ * byte-identical to the artifact this repository holds carries its own
+ * difference as a number.
  *
  * The PNG remains the promoted artifact and the flip test's own subject; what
- * ships to a browser is this encode of it.
+ * ships to a browser is this encode of it. `backdrops/served/` is GENERATED —
+ * every byte of it is re-derivable from the store by re-running this, and
+ * fixtures.spec's staleness case re-encodes to scratch and byte-compares the
+ * whole tree.
+ *
+ * WHAT A `file://` PAGE DOES NOW. Row 21 baked `data:` URIs because a file://
+ * page drawing a file:// image taints the canvas in Chromium and every hash
+ * test reads the canvas back. That is a browser flag, not a fact about the
+ * product — the live site serves same-origin over https and taints nothing —
+ * so the suite passes `--allow-file-access-from-files` (see
+ * tests/playwright/playwright.config.mjs) and the page keeps its URLs.
  *
  * The bake reads `backdrops/<loc>/<facing>.png` and NOTHING under
  * `backdrops/source/`: a candidate is not a backdrop until it is promoted, and
  * the promotion is where the gate is.
  */
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdtempSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
 import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
@@ -50,6 +64,14 @@ const argOf = (flag, dflt) => {
 };
 const backdropsDir = argOf("--backdrops-dir", join(root, "backdrops"));
 const outFile = argOf("--out", join(backdropsDir, "baked.js"));
+/* The encoded walls land beside the manifest, not beside the PNGs: one
+ * generated tree, one thing to delete, and a scratch bake (the staleness case,
+ * the timings case) writes its pixels into its own scratch rather than into the
+ * store it is measuring. */
+const servedDir = argOf("--served-dir", join(dirname(outFile), "served"));
+/* What the PAGE asks for, resolved against index.html — a constant of the site
+ * layout rather than of wherever this bake happened to write. */
+const urlPrefix = argOf("--url-prefix", "backdrops/served/");
 
 const FACING = /^([NESW])\.png$/;
 /* q92: the knee of the curve on these paintings — 550 kB against 628 kB at 94
@@ -57,8 +79,14 @@ const FACING = /^([NESW])\.png$/;
  * changes what every visitor sees, so it is a number with a home rather than a
  * literal in a call. */
 const QUALITY = 92;
+/* REBUILT, not updated. A demoted wall has to leave the served tree the same
+ * bake that takes it out of the manifest — a stale .jpg nobody names is a
+ * painting the site would still serve to anyone who guessed its URL. */
+rmSync(servedDir, { recursive: true, force: true });
+mkdirSync(servedDir, { recursive: true });
 const entries = [];
 for (const loc of readdirSync(backdropsDir).sort()) {
+  if (loc === "served") continue;                     // the bake's own output
   if (loc === "source") continue;                     // the asset seat's lane
   const dir = join(backdropsDir, loc);
   let st;
@@ -73,21 +101,17 @@ for (const loc of readdirSync(backdropsDir).sort()) {
      * ride in this file's own header, so the one place where the page's
      * picture is not byte-identical to the repository's artifact says so in
      * the artifact it produces. */
-    const scratch = mkdtempSync(join(tmpdir(), "holo-encode-"));
-    try {
-      const jpg = join(scratch, "b.jpg");
-      const report = JSON.parse(execFileSync("python3",
-        [join(root, "tools", "encode-backdrop.py"), join(dir, f), jpg, String(QUALITY)],
-        { encoding: "utf8" }).trim());
-      const bytes = readFileSync(jpg);
-      entries.push({
-        key: `${loc}/${mm[1]}`, b64: bytes.toString("base64"),
-        bytes: bytes.length, png_bytes: report.png_bytes,
-        max_delta: report.max_channel_delta, mean_delta: report.mean_channel_delta
-      });
-    } finally {
-      rmSync(scratch, { recursive: true, force: true });
-    }
+    mkdirSync(join(servedDir, loc), { recursive: true });
+    const jpg = join(servedDir, loc, `${mm[1]}.jpg`);
+    const report = JSON.parse(execFileSync("python3",
+      [join(root, "tools", "encode-backdrop.py"), join(dir, f), jpg, String(QUALITY)],
+      { encoding: "utf8" }).trim());
+    const bytes = readFileSync(jpg);
+    entries.push({
+      key: `${loc}/${mm[1]}`, file: `${loc}/${mm[1]}.jpg`,
+      bytes: bytes.length, png_bytes: report.png_bytes,
+      max_delta: report.max_channel_delta, mean_delta: report.mean_channel_delta
+    });
   }
 }
 
@@ -105,7 +129,7 @@ function fnv1a32(str) {
 const fp = fnv1a32(entries.map((e) => `${e.key}:${e.bytes}`).join("\n"));
 
 const body = entries.map((e) =>
-  `  ${JSON.stringify(e.key)}: { src: "data:image/jpeg;base64,${e.b64}" }`).join(",\n");
+  `  ${JSON.stringify(e.key)}: { file: ${JSON.stringify(e.file)}, bytes: ${e.bytes} }`).join(",\n");
 const cost = entries.map((e) =>
   `//   ${e.key}: ${(e.png_bytes / 1e6).toFixed(2)} MB of PNG -> ${(e.bytes / 1e3).toFixed(0)} kB of JPEG` +
   ` (q${QUALITY}); channels move by ${e.mean_delta} on average, ${e.max_delta} at worst, of 255.`)
@@ -118,17 +142,22 @@ const out = `// GENERATED FILE — DO NOT EDIT.
 //
 //     node tools/bake-backdrops.mjs
 //
-// This file exists only because a file:// page drawing a file:// image taints
-// the canvas in Chromium, and every hash test reads the canvas back. A stale
-// bake fails the test suite.
+// [Row 45] THE PIXELS ARE NOT IN THIS FILE. They are one JPEG per wall under
+// ${urlPrefix}, fetched by URL by the page, for the wall you are looking at
+// and the walls one turn or one step away. This is the manifest: which facings
+// have a painting, what each one is called, and what it weighs. A stale
+// manifest OR a stale served tree fails the test suite.
 //
-// ${entries.length} painting(s), ${entries.map((e) => e.key).join(", ") || "none"}.
+// ${entries.length} painting(s), ${(entries.reduce((s2, e) => s2 + e.bytes, 0) / 1e6).toFixed(1)} MB served in total,
+// heaviest ${(Math.max(0, ...entries.map((e) => e.bytes)) / 1e3).toFixed(0)} kB — and only ONE of them is ever on the
+// critical path to a first painted wall.
 //
 // WHAT THE ENCODE COST, measured by tools/encode-backdrop.py at bake time:
 ${cost || "//   (none)"}
 window.HOLO_BACKDROPS = {
   fp: "${fp}",
-  images: {
+  dir: ${JSON.stringify(urlPrefix)},
+  paintings: {
 ${body}
   }
 };
@@ -137,7 +166,9 @@ ${body}
 writeFileSync(outFile, out);
 /* [row 33] */
 timings.record("bake.backdrops", T0, Date.now() / 1000, null,
-  { paintings: entries.length, out_bytes: out.length, fp,
+  { paintings: entries.length, out_bytes: out.length, fp, served_dir: servedDir,
     png_bytes: entries.reduce((s, e) => s + e.png_bytes, 0),
     jpeg_bytes: entries.reduce((s, e) => s + e.bytes, 0) });
-console.log(`baked ${outFile} (fp ${fp}, ${entries.length} painting(s), ${(out.length / 1e6).toFixed(2)} MB)`);
+console.log(`baked ${outFile} (fp ${fp}, ${entries.length} painting(s), manifest ` +
+  `${(out.length / 1e3).toFixed(1)} kB, served ${(entries.reduce((s2, e) => s2 + e.bytes, 0) / 1e6).toFixed(1)} MB` +
+  ` -> ${servedDir})`);

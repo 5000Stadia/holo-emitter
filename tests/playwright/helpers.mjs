@@ -45,7 +45,12 @@ export function stageTree() {
      `backdrops/baked.js` is a script the page loads, so a staged tree without
      it fires the boot handler's missing-module fault and every test in that
      tree reads an apology instead of a room. `source/` is the asset seat's
-     lane — candidates, not backdrops — and is 20 MB of it, so it stays. */
+     lane — candidates, not backdrops — and is 20 MB of it, so it stays.
+     [Row 45] `backdrops/served/` comes too, and it is now the half that holds
+     the pixels: the page fetches `served/<loc>/<facing>.jpg` BY URL for the
+     wall in front of it, so a staged tree without it is a manor where every
+     wall draws the grid. A case that wants that state makes it deliberately by
+     deleting from the copy (see delivery.spec.mjs). */
   cpSync(join(repoRoot, "backdrops"), join(dir, "backdrops"), {
     recursive: true,
     filter: (src) => !src.split(/[\\/]/).includes("source")
