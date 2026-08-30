@@ -45,7 +45,7 @@
  * `backdrops/source/`: a candidate is not a backdrop until it is promoted, and
  * the promotion is where the gate is.
  */
-import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, statSync, mkdirSync, rmSync, renameSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { execFileSync } from "node:child_process";
@@ -82,8 +82,15 @@ const QUALITY = 92;
 /* REBUILT, not updated. A demoted wall has to leave the served tree the same
  * bake that takes it out of the manifest — a stale .jpg nobody names is a
  * painting the site would still serve to anyone who guessed its URL. */
-rmSync(servedDir, { recursive: true, force: true });
-mkdirSync(servedDir, { recursive: true });
+/* [Kabe, 2026-08-30] "Only first rooms images load for me." BUILT BESIDE, SWAPPED
+ * IN. This bake used to empty `served/` and re-encode it wall by wall, and the
+ * hospital publish copied the tree while the loop's bake was half-way through
+ * the alphabet: reception shipped, treatment_room and ward did not. A derived
+ * tree is never partial on disk now — it is encoded into a side directory and
+ * renamed into place in one step. */
+const buildDir = servedDir + ".building";
+rmSync(buildDir, { recursive: true, force: true });
+mkdirSync(buildDir, { recursive: true });
 const entries = [];
 for (const loc of readdirSync(backdropsDir).sort()) {
   if (loc === "served") continue;                     // the bake's own output
@@ -101,8 +108,8 @@ for (const loc of readdirSync(backdropsDir).sort()) {
      * ride in this file's own header, so the one place where the page's
      * picture is not byte-identical to the repository's artifact says so in
      * the artifact it produces. */
-    mkdirSync(join(servedDir, loc), { recursive: true });
-    const jpg = join(servedDir, loc, `${mm[1]}.jpg`);
+    mkdirSync(join(buildDir, loc), { recursive: true });
+    const jpg = join(buildDir, loc, `${mm[1]}.jpg`);
     const report = JSON.parse(execFileSync("python3",
       [join(root, "tools", "encode-backdrop.py"), join(dir, f), jpg, String(QUALITY)],
       { encoding: "utf8" }).trim());
@@ -163,6 +170,12 @@ ${body}
 };
 `;
 
+/* The swap: two renames, no window in which `served/` is half a tree. */
+const oldDir = servedDir + ".old";
+rmSync(oldDir, { recursive: true, force: true });
+if (existsSync(servedDir)) renameSync(servedDir, oldDir);
+renameSync(buildDir, servedDir);
+rmSync(oldDir, { recursive: true, force: true });
 writeFileSync(outFile, out);
 /* [row 33] */
 timings.record("bake.backdrops", T0, Date.now() / 1000, null,

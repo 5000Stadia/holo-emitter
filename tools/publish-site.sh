@@ -85,6 +85,21 @@ mkdir -p "$S"/backdrops
 cp backdrops/baked.js "$S"/backdrops/
 cp -r backdrops/served "$S"/backdrops/served
 cp -r library "$S"/library
+# [Kabe, 2026-08-30] "Only first rooms images load for me." EVERY PAINTING THE
+# MANIFEST NAMES MUST BE IN THE TREE BEING SHIPPED — the hospital publish copied
+# `served/` while the loop's bake was rebuilding it and shipped a manifest with
+# twelve walls whose JPEGs were not there. The manifest is the contract; the
+# tree is checked against it before anything is pushed.
+# The manifest's entries read `file: "<loc>/<F>.jpg"`, served under backdrops/served/.
+manifest_files() { grep -oE 'file: "[A-Za-z0-9_-]+/[NESW]\.jpg"' backdrops/baked.js | sed 's#^file: "#backdrops/served/#; s#"$##' | sort -u || true; }
+N_MANIFEST=$(manifest_files | wc -l)
+[ "$N_MANIFEST" -gt 0 ] || { echo "publish refused: the manifest names no paintings (backdrops/baked.js)" >&2; exit 2; }
+MISSING=$(manifest_files | while read -r j; do [ -f "$S/$j" ] || echo "$j"; done)
+if [ -n "$MISSING" ]; then
+  echo "publish refused: the manifest names paintings the served tree does not hold (a bake was mid-rebuild?):" >&2
+  echo "$MISSING" | head -20 >&2
+  exit 2
+fi
 
 # And the tree stays a size Pages will take. The soft limit is 1 GB for a
 # published site; this refuses well below it, because the failure mode is the
@@ -95,7 +110,7 @@ if [ "$SITE_MB" -gt 500 ]; then
   echo "publish refused: the runtime tree is ${SITE_MB} MB — GitHub Pages takes 1 GB and this is the size that broke it before" >&2
   exit 2
 fi
-echo "publish: runtime tree ${SITE_MB} MB"
+echo "publish: runtime tree ${SITE_MB} MB, ${N_MANIFEST} paintings all present"
 
 git -C "$S" init -q -b gh-pages
 git -C "$S" add -A
@@ -113,9 +128,14 @@ for i in $(seq 1 30); do
   sleep 10
   GOT=$(curl -s "https://5000stadia.github.io/holo-emitter/fixtures/nav-manor/world.json?cb=$RANDOM" \
     | grep -c '"id"' || true)
-  [ "$GOT" = "$WANT" ] && {
+  [ "$GOT" = "$WANT" ] || continue
+  # And the paintings themselves, every one the manifest names, by HEAD.
+  NOT_LIVE=$(manifest_files \
+    | xargs -P 16 -I{} sh -c 'c=$(curl -s -o /dev/null -w "%{http_code}" "https://5000stadia.github.io/holo-emitter/{}?cb=$RANDOM"); [ "$c" = 200 ] || echo "{} $c"' | wc -l)
+  [ "$NOT_LIVE" = 0 ] && {
     note publish.verify "$T_VERIFY" "{\"polls\":$i,\"ids\":$GOT,\"served\":true}"
-    echo "live: world serves ($GOT ids) @ $HEAD_SHA"; exit 0; }
+    echo "live: world serves ($GOT ids, every painting 200) @ $HEAD_SHA"; exit 0; }
+  echo "publish: ids serve, $NOT_LIVE painting(s) not yet 200 — waiting"
 done
 note publish.verify "$T_VERIFY" "{\"polls\":30,\"ids\":${GOT:-0},\"served\":false}"
 echo "publish-site: live world still stale after 5 min (want $WANT ids, got ${GOT:-0})" >&2
