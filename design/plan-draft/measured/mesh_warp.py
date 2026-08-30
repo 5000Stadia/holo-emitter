@@ -170,6 +170,7 @@ verdict to a promotion is the Navigator's.
 import argparse
 import hashlib
 import json
+import math
 import os
 import subprocess
 import sys
@@ -183,6 +184,7 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", "..", ".."))
 sys.path.insert(0, HERE)
 
 import row35_snap as snap                                       # noqa: E402
+import aperture_trace                                           # noqa: E402
 import door_measure                                             # noqa: E402
 import window_measure                                           # noqa: E402
 from measure_lib import load                                    # noqa: E402
@@ -629,11 +631,91 @@ def pair_apertures(kind, measured, planned, src_box, tgt_box, ppm_t):
 #: takes the synthetic door's worst jamb from 4.0 px to 0.0 px.
 APERTURE_EDGE_SAMPLES = 2
 
+#: [row 43] How many points of an ARCHED head are pinned, between its two
+#: springings. The traced loop carries some sixty samples across a head and
+#: pinning all of them would crowd the target frame with pins two px apart —
+#: which `dedupe_pins` would then throw away in an order nobody chose. Five is
+#: enough to carry a half-round's shape through a moving-least-squares field and
+#: sparse enough that every one of them survives.
+APERTURE_HEAD_SAMPLES = 5
+
+#: [row 43] The trace's own confidence, below which the traced loop is CARRIED
+#: AND NOT USED and the measured rectangle stays the aperture. The same number
+#: the promotion writes `polygon_used: false` at, and it is one number in two
+#: files on purpose: a warp that pinned a loop the promotion refused would move
+#: the paint to an aperture the meta does not hold.
+TRACE_MIN_CONFIDENCE = 0.5
+
+
+def _traced_corners(m):
+    """The four traced corners of a measured aperture, or None.
+
+    [row 43] `aperture_trace.py` reads the INSIDE EDGE of the frame off the
+    paint, with the measured rectangle demoted to a prior, and returns its
+    corners in the same order `_rect_corners` does — tl, tr, br, bl. Where the
+    measurement carries one that was used, those four points are the aperture
+    and the rectangle is its bounding box; where it does not, the rectangle is
+    all there is and nothing here invents more.
+    """
+    tr = m.get("trace")
+    if not tr or not tr.get("polygon_used"):
+        return None
+    c = tr.get("corners") or []
+    if len(c) != 4:
+        return None
+    return [(float(p[0]), float(p[1])) for p in c]
+
+
+def _head_samples(m, n=APERTURE_HEAD_SAMPLES):
+    """The interior points of an ARCHED head, springing to springing.
+
+    Walked forward round the traced loop from the tl corner's own sample to the
+    tr corner's, which is the head and only the head, and thinned to `n`. Empty
+    for a straight head: a straight head IS its two corners and the edge samples
+    between them, which the caller already lays.
+    """
+    tr = m.get("trace")
+    if not tr or not tr.get("polygon_used") or tr.get("head_kind") != "arched":
+        return []
+    poly = tr.get("polygon") or []
+    cs = tr.get("corner_samples") or []
+    if len(poly) < 8 or len(cs) != 4:
+        return []
+    i0, i1 = int(cs[0]), int(cs[1])
+    span = (i1 - i0) % len(poly)
+    if span < n + 1:
+        return []
+    return [(float(poly[(i0 + int(round(span * (j + 1.0) / (n + 1.0)))) % len(poly)][0]),
+             float(poly[(i0 + int(round(span * (j + 1.0) / (n + 1.0)))) % len(poly)][1]))
+            for j in range(n)]
+
 
 def aperture_pins(pairs, offset=(0.0, 0.0), edge_samples=APERTURE_EDGE_SAMPLES):
-    """A paired aperture's outline, measured rectangle onto plan rectangle.
+    """A paired aperture's outline, measured aperture onto plan rectangle.
 
     Four corners, plus `edge_samples` evenly spaced points along each side.
+
+    [row 43] THE SOURCE CORNERS ARE THE TRACED ONES where the measurement
+    carries a trace it used. The rectangle `door_measure` finds is the VOID's
+    bounding box, whose corners are inside the dark run and short of the jamb by
+    the reveal — on `buttery_pantry/S` by 50 px — so pinning them dragged the
+    jamb's paint onto the plan's line and left the frame's own inside edge
+    bowed beside it. The four traced corners are the point the ruling names,
+    "where the jamb's inner edge meets head and sill", and they are what the
+    warp now pins. Targets are unchanged: the plan's rectangle at the declared
+    camera, which is the only thing that says where an aperture BELONGS.
+
+    AN ARCHED HEAD IS PINNED, AND IT IS NOT FLATTENED. The plan holds no
+    vertical section and draws every head straight, so a target head taken
+    literally off the plan would pull a half-round arch down onto a straight
+    line — the warp erasing a shape the painter drew and the trace measured.
+    The head's SPRINGINGS go to the plan's straight head (they are the corners),
+    and each head sample's target is that same straight head displaced outward
+    by the sample's OWN measured rise, so the arc arrives in the declared frame
+    with its shape intact and its chord where the plan puts it. What the plan
+    and the paint then disagree about is exactly the sagitta, and that is
+    recorded — `residual_px` on every head pin, the sagitta at its crown —
+    rather than warped away.
     """
     ox, oy = offset
     pins = []
@@ -645,19 +727,46 @@ def aperture_pins(pairs, offset=(0.0, 0.0), edge_samples=APERTURE_EDGE_SAMPLES):
 
     for k, pr in enumerate(pairs):
         m, pl = pr["measured"], pr["plan"]
-        s = _rect_corners(m["x0_px"], m["y0_px"], m["x1_px"], m["y1_px"])
+        s = _traced_corners(m) or _rect_corners(
+            m["x0_px"], m["y0_px"], m["x1_px"], m["y1_px"])
         t = _rect_corners(pl["x"], pl["y"], pl["x"] + pl["w"], pl["y"] + pl["h"])
         names = ("tl", "tr", "br", "bl")
+        aid = pl.get("id", "#%d" % k)
         for e in range(4):
             ss = side(s[e], s[(e + 1) % 4], edge_samples)
             tt = side(t[e], t[(e + 1) % 4], edge_samples)
             for i, ((sxx, syy), (txx, tyy)) in enumerate(zip(ss, tt)):
                 nm = names[e] if i == 0 else "%s+%d" % (names[e], i)
                 pins.append(dict(
-                    name="%s:%s:%s" % (pr["kind"], pl.get("id", "#%d" % k), nm),
+                    name="%s:%s:%s" % (pr["kind"], aid, nm),
                     kind=pr["kind"],
                     target=[round(float(txx), 2), round(float(tyy), 2)],
                     source=[round(float(sxx) + ox, 2), round(float(syy) + oy, 2)]))
+        # THE ARCH, carried across with its rise. `u` is where the sample sits
+        # along the springing-to-springing chord and `rise` is how far it stands
+        # off it; the target is the plan's head at the same `u`, lifted by the
+        # same rise. A straight head returns no samples and lays no pins.
+        heads = _head_samples(m)
+        if heads:
+            ax, ay = s[0]
+            bx, by = s[1]
+            ln = math.hypot(bx - ax, by - ay)
+            if ln > 1e-6:
+                ux, uy = (bx - ax) / ln, (by - ay) / ln
+                nx, ny = -uy, ux
+                if ny > 0:                      # point it OUT of the aperture
+                    nx, ny = -nx, -ny
+                for j, (hx, hy) in enumerate(heads):
+                    u = ((hx - ax) * ux + (hy - ay) * uy) / ln
+                    rise = (hx - ax) * nx + (hy - ay) * ny
+                    tx = t[0][0] + (t[1][0] - t[0][0]) * u
+                    ty = t[0][1] + (t[1][1] - t[0][1]) * u + rise * ny
+                    pins.append(dict(
+                        name="%s:%s:head+%d" % (pr["kind"], aid, j + 1),
+                        kind=pr["kind"],
+                        target=[round(float(tx), 2), round(float(ty), 2)],
+                        source=[round(float(hx) + ox, 2), round(float(hy) + oy, 2)],
+                        residual_px=round(float(rise), 2)))
     return pins
 
 
@@ -782,6 +891,21 @@ def measured_apertures(png_path, src_box, reading, declared):
     storey = (src_box["yf"] - src_box["yc"]) / ppm
     doors, dnote = door_measure.measure_openings(
         png_path, src_box["x0"], src_box["x1"], yf, ppm, storey)
+    # [row 43] AND THEN THE INSIDE EDGE OF EACH ONE. `door_measure` finds the
+    # void; `aperture_trace` finds the frame's inside edge with that void's box
+    # for a prior and this wall's own floor line for the threshold. The trace
+    # rides on the measured rectangle as `trace`, and `aperture_pins` uses its
+    # corners in place of the box's where the confidence earns it — below
+    # TRACE_MIN_CONFIDENCE the reading is carried and not used, exactly as the
+    # promotion carries it.
+    if doors:
+        lum = aperture_trace._load_luma(png_path)
+        for d in doors:
+            tr = aperture_trace.trace_aperture(
+                lum, (d["x0_px"], d["y0_px"], d["x1_px"], d["y1_px"]),
+                floor_line_y=yf)
+            tr["polygon_used"] = bool(tr["wall_confidence"] >= TRACE_MIN_CONFIDENCE)
+            d["trace"] = tr
     wins, wnote = window_measure.measure_windows(
         png_path, src_box["x0"], src_box["x1"], yf, ppm, storey)
     return doors, wins, dict(

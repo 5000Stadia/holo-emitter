@@ -379,6 +379,29 @@
   }
 
   /**
+   * [ROW 43] aperturePoly(opening) -> [[x, y], ...] | null — THE TRACED LOOP
+   * this opening is, where the promotion used one.
+   *
+   * `openingFor` returns the whole §5 record and always has, so the polygon
+   * travels with `x/y/w/h` and no reader that only knows the rectangle notices
+   * anything: where a polygon is used, those four numbers ARE its bounding box.
+   * This is the one place that says whether the polygon governs.
+   *
+   * TWO FIELDS AND BOTH ARE LOAD-BEARING. `polygon` is written whenever
+   * `aperture_trace.py` produced a loop — including when the trace's confidence
+   * was too low to be trusted, so a person can look at what it found — and
+   * `polygon_used` is the promotion's verdict on whether that loop is the
+   * aperture. A reader that took `polygon` alone would clip the picture to a
+   * loop the promotion refused, which is the one thing recording a bad trace
+   * must not cost.
+   */
+  function aperturePoly(op) {
+    if (!op || op.polygon_used !== true) return null;
+    var p = op.polygon;
+    return (p && p.length >= 3) ? p : null;
+  }
+
+  /**
    * [ROW 42] leafFor(world, via) -> entity | null — WHICH ENTITY FILLS THE HOLE
    * `via` NAMES, and the one home of that question.
    *
@@ -539,6 +562,7 @@
     xAtScale: xAtScale,
     uDomain: uDomain,
     openingFor: openingFor,
+    aperturePoly: aperturePoly,
     leafFor: leafFor,
     windowFor: windowFor,
     apertureRect: apertureRect,

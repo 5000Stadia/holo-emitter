@@ -1230,6 +1230,7 @@
         var beyond = null;
         var kind = "door";
         var polys = null;
+        var poly = null;
         var direction = null;
         var leafId = null;
         /* [row 42] THE MEASURED HOLE, where the painting has one. `found` is
@@ -1261,7 +1262,14 @@
           source = entity ? "leaf" : "building";
           beyond = found;
           kind = found.kind || "door";
-          polys = found.hit_polys || null;
+          /* [row 43] THE TRACED LOOP IS THE REGION. Where the promotion used
+           * a traced aperture, the hit test is that polygon and not its
+           * bounding box: `door_measure`'s box is the void's, and its corners
+           * stand inside the paint by the reveal — up to 50 px of wall that
+           * answered a click as a doorway. A flight's own rings still win,
+           * because a staircase is not an aperture and carries its own. */
+          poly = gp.aperturePoly(found);
+          polys = found.hit_polys || (poly ? [poly] : null);
           direction = found.direction || null;
           if (entity) {
             leafId = entity.id;
@@ -1324,7 +1332,14 @@
            * its footprint — and a point is on the flight when it is inside one.
            * A doorway and a mouth carry none: their region is their own
            * rectangle, which is the hole in the wall. */
-          polys = found.hit_polys || null;
+          /* [row 43] THE TRACED LOOP IS THE REGION. Where the promotion used
+           * a traced aperture, the hit test is that polygon and not its
+           * bounding box: `door_measure`'s box is the void's, and its corners
+           * stand inside the paint by the reveal — up to 50 px of wall that
+           * answered a click as a doorway. A flight's own rings still win,
+           * because a staircase is not an aperture and carries its own. */
+          poly = gp.aperturePoly(found);
+          polys = found.hit_polys || (poly ? [poly] : null);
           direction = found.direction || null;
         }
         /* WHAT A WAY THROUGH NEEDS OF THE WALL, per kind, and it is law (b)
@@ -1352,6 +1367,11 @@
           source: source,
           kind: kind,
           polys: polys,
+          /* [row 43] The aperture's own traced outline, or null where the
+           * rectangle is the aperture. `polys` is the HIT region (a flight's
+           * rings, or this same loop); this is the SHAPE OF THE HOLE, which is
+           * what the through-view is clipped to. */
+          poly: poly,
           /* The facing this exit belongs to, where it is not the one you are
            * standing on — a flight seen from beside it. Null everywhere else,
            * so a reader that does not know about it behaves exactly as before. */
@@ -1442,7 +1462,7 @@
         out.push({
           exit: null, via: null, to: null, arrive_facing: null,
           source: casement ? "leaf" : "building",
-          kind: "window", polys: null, turn_to: null,
+          kind: "window", polys: null, poly: null, turn_to: null,
           direction: null, open: wopen,
           leaf: casement ? casement.id : null,
           /* A window with no casement is a hole full of glass and light passes
@@ -1625,6 +1645,26 @@
     };
   }
 
+  /* [row 43] THE HOLE THE ROOM BEYOND IS SEEN THROUGH is the aperture's own
+   * outline where the promotion traced one, and its rectangle where it did not.
+   * A traced head that is arched, or a jamb that leans, showed the far room in
+   * the corner of the box outside the paint's own opening — the far floor
+   * standing on this room's wall, which is the same defect as a click landing
+   * on plaster and reads worse because it is drawn. `ctx.rect` is kept as the
+   * other branch rather than emulated with four lineTo calls: a rectangle is
+   * the shape of most of this corpus and the two paths must not differ by a
+   * rounding.
+   *
+   * The path is laid but NOT closed or filled here: every caller follows with
+   * its own `ctx.clip()`, and a clip closes the path itself. */
+  function apertureClipPath(ctx, a) {
+    var p = a && a.poly;
+    if (!p || p.length < 3) { ctx.rect(a.x, a.y, a.w, a.h); return; }
+    ctx.moveTo(p[0][0], p[0][1]);
+    for (var i = 1; i < p.length; i++) ctx.lineTo(p[i][0], p[i][1]);
+    ctx.closePath();
+  }
+
   function drawThroughOpening(ctx, a, meta, world, staging, library, backdrops, doc, options) {
     /* A SHUT DOOR SHOWS NO ROOM. The leaf is a sprite with its own alpha and
      * it does not fill its placement rectangle to the pixel, so a lit room
@@ -1721,7 +1761,7 @@
     if (dy + dh < footHere) dy = footHere - dh;
     ctx.save();
     ctx.beginPath();
-    ctx.rect(a.x, a.y, a.w, a.h);
+    apertureClipPath(ctx, a);
     ctx.clip();
     /* The far room is smaller than the hole it is seen through, so its frame
      * does not cover the opening — and the strip left over is the floor at
