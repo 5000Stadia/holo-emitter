@@ -1043,7 +1043,13 @@ export function g5MediumLines(ctx) {
       : "  The layout diagram is a black-and-white line drawing on paper and holds no colour " +
         "of its own: the picture is this painting, in the materials named above.");
   }
-  if (ctx.style) {
+  if (ctx.style && ctx.style.same_wall && ctx.style.role_sentence) {
+    /* [Kabe, 2026-08-30] THE DEEP FACING'S IMAGE 1 IS THE SAME WALL, and the
+       register says exactly that — identity plus the camera move in metres —
+       instead of the materials-only clause, whose "take no architecture from
+       it" is the opposite of this ask. */
+    L.push(`  ${ctx.style.role_sentence}`);
+  } else if (ctx.style) {
     /* THE ONLY CLAUSE IN THE REGISTER ABOUT WHAT AN IMAGE IS NOT, and it is one
      * clause because one clause is what was ruled.
      *

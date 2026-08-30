@@ -1,6 +1,6 @@
 # platform/E — technique t2 (labelled scaffold)
 
-**Image 1 is a DERIVED style seed, not a wall.** `same-wall-platform_far-E.png` is `undefined` — platform_far/E, this room's own wall (sha256 `unrecorded`) — with every opening and carrier on it filled in from that wall's OWN adjacent fabric by `tools/style-seed.mjs`: undefined rectangle(s), undefined % of the wall, the floor and the ceiling untouched. The fill report rides beside it as `undefined` and the store's copy is `undefined` (sha256 `unrecorded`).  So it carries this room's materials, its palette and its light and NO ARCHITECTURE AT ALL: how many openings the wall being painted carries, where they stand and every dimension of them come from the layout image and the words.
+**Image 1 IS THE WALL THIS PACKET PAINTS.** `same-wall-platform_far-E.png` is `backdrops/platform_far/E.png` — the promoted painting of platform_far/E, the SAME wall this ask repaints from further back. It rides RAW (nothing filled, nothing removed); the prompt's own Image 1 sentence carries the identity and the camera move. Nothing in it is another room.
 
 **Image 3 is this wall's edge seed.** `edge-seed-left.png` is the 10 % of `backdrops/platform/N.png` that abuts this picture — its right-hand 154 columns, full frame height, cut by `tools/crop-edge-seed.py` (sha256 `537d5289e99e` from a painting at `91cf8448da3d`). The prompt names its role in words: _Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly._
 

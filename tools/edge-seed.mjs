@@ -716,6 +716,18 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
 export function stylePacketNote(style) {
   if (!style) return "";
   const s12 = (h) => (h ? String(h).slice(0, 12) : "unrecorded");
+  /* [Kabe, 2026-08-30] THE DEEP FACING'S IMAGE 1 IS THE WALL ITSELF. A long
+     room's deep ask carries the promoted CLOSE painting raw — its content is
+     the point — and says so, instead of the derived-seed paragraph whose every
+     claim ("no architecture at all") would be false of it. */
+  if (style.same_wall) {
+    return `**Image 1 IS THE WALL THIS PACKET PAINTS.** \`${style.file}\` is \`${style.rel}\` — ` +
+      `the promoted painting of ${style.room}/${style.facing}, the SAME wall this ask repaints ` +
+      `from further back. It rides RAW (nothing filled, nothing removed); the prompt's own Image 1 ` +
+      `sentence carries the identity and the camera move. Nothing in it is another room.
+
+`;
+  }
   return `**Image 1 is a DERIVED style seed, not a wall.** \`${style.file}\` is ` +
     `\`${style.derived_from}\` — ${style.room}/${style.facing}, this room's own wall ` +
     `(sha256 \`${s12(style.source_sha256)}\`) — with every opening and carrier on it filled in ` +
