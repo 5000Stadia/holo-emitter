@@ -18,7 +18,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 #: The files a reading is a function of. Adding a reader here is the whole of
 #: registering it.
 FILES = ("measure.py", "row23_lib.py", "door_measure.py", "aperture_trace.py",
-         "window_measure.py", "mesh_warp.py", "row35_snap.py")
+         "window_measure.py", "mesh_warp.py", "row35_snap.py",
+         # the JS half of the instrument: what a wall's openings and brackets
+         # ARE comes from these, and a fix there must re-route a latched wall
+         "../../../tools/plan-projection.mjs", "../../../tools/promote-backdrop.mjs")
 
 
 def _digest():

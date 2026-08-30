@@ -685,7 +685,18 @@ export function thresholdsForFacing(plan, roomId, facing, meta, canvasW = CANVAS
    * on it — which is what distinguishes the mouth in front of you from the one
    * behind you in the same 20 m of open ground. */
   const edge = sign > 0 ? room.rect[normalAxis + "1"] : room.rect[normalAxis + "0"];
+  /* [underground-2] Same law as facingCarriers: a deep facing looks ACROSS
+     its full-width open edge at the far cell's wall — the edge is not a hole
+     IN that wall, and written in anyway it spanned the frame and overlapped
+     the real door ("one hole cannot be two ways through", the warp's own
+     promotion refused). Only a facing that views its own edge holds its
+     open_edge as a threshold. */
+  const fcHere = room.facings && room.facings[facing];
+  const ownEdgeLine = sign > 0 ? room.rect[normalAxis + "1"] : room.rect[normalAxis + "0"];
+  const viewsOwnEdgeHere = !fcHere || fcHere.wall_line == null ||
+    Math.abs(fcHere.wall_line - ownEdgeLine) < EPS;
   for (const o of plan.openings || []) {
+    if (!viewsOwnEdgeHere) break;
     if (o.floor !== room.floor || o.kind !== "open_edge") continue;
     if (!(o.joins || []).includes(roomId)) continue;
     if (!o.rect) continue;
