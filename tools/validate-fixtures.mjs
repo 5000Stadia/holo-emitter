@@ -1362,7 +1362,29 @@ export function validate(fixtureDir, records, derivedMetas) {
        * of a lookup is how the renderer and this file would come to disagree
        * about which walls have ways through them. */
       const hole = groundplane.openingFor(m, ex.via);
-      if (!hole) {
+      /* [underground-2, the long room] A DEEP FACING IS ITSELF THE WAY ON. An
+         exit via a full-width open_edge that the facing looks ACROSS carries
+         no drawn hole in the meta by design: the whole painting is the room
+         continuing, and the page's up arrow is the control. The plan says
+         which exits those are: the via names an open_edge whose line lies
+         between the facing's own edge and its declared wall_line. */
+      let deepWayOn = false;
+      try {
+        const planD = JSON.parse(readFileSync(resolvePlanPath(fixtureDir), "utf8"));
+        const oe = (planD.openings || []).find((o) => o.id === ex.via && o.kind === "open_edge");
+        const roomD = (planD.rooms || []).find((r) => r.id === ex.from);
+        const fcD = roomD && roomD.facings && roomD.facings[ex.facing];
+        if (oe && fcD && fcD.wall_line != null && oe.rect) {
+          const ax = (ex.facing === "N" || ex.facing === "S") ? "y" : "x";
+          const line = oe.rect[ax + "0"];
+          const own = ex.facing === "N" ? roomD.rect.y1 : ex.facing === "S" ? roomD.rect.y0
+            : ex.facing === "E" ? roomD.rect.x1 : roomD.rect.x0;
+          deepWayOn = Math.abs(line - own) < 1e-6 && Math.abs(fcD.wall_line - own) > 1e-6;
+        }
+      } catch { /* no plan, no exemption */ }
+      if (!hole && deepWayOn) {
+        /* the exit is the facing itself; nothing to place in the frame */
+      } else if (!hole) {
         findings.push(`world.json: exit "${exId}" via "${ex.via}" names no entity, and ${fs2}'s meta carries no opening, threshold or flight for it — an exit through nothing the building holds [row21:exit.via_unfilled]`);
       } else if (hole.x + hole.w <= 0 || hole.x >= CANVAS_W ||
                  hole.y + hole.h <= 0 || hole.y >= CANVAS_H) {
