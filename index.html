@@ -126,6 +126,13 @@
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
   #whereami .sep { padding: 0 0.4em; opacity: 0.7; }
+  /* [Row 45] The wall is on its way. Dimmer than the place and the aspect,
+     because it is about the picture and they are about where you stand; its
+     separator is drawn here rather than marked up, since it appears and goes
+     with the note and is decoration either way. */
+  #whereami-painting { opacity: 0.55; font-style: italic; }
+  #whereami-painting::before { content: "·"; padding: 0 0.4em; opacity: 0.7; font-style: normal; }
+  #whereami-painting[hidden] { display: none; }
   /* Row 10, entity/doorway keyboard controls: invisible, pointer-events:none
      so a mouse click passes straight through to the canvas beneath — the
      existing resolve()/hitTest() pointer path is untouched by construction.
@@ -261,10 +268,11 @@
 </style>
 </head>
 <body>
-  <!-- [Row 21] Where the baked paintings are decoded. They are in the document
-       so the browser's load event waits for them and the first frame is of the
-       painting rather than of a grid that flips a frame later; they are hidden
-       because the canvas is the only picture. -->
+  <!-- [Row 45] Where the paintings are decoded — the ones the page has asked
+       for: the wall in front of you, then the walls one turn or one step away.
+       They are in the document (hidden; the canvas is the only picture) so the
+       browser owns their decoding and its `load` event means the wall you are
+       looking at is in. Only that one is ever asked for before load. -->
   <div id="backdrop-store" hidden aria-hidden="true"></div>
   <div id="stage">
     <canvas id="scene" width="1536" height="1024" role="img" aria-label="what you see"></canvas>
@@ -289,7 +297,7 @@
          fullscreen, then #entity-controls") is a claim about where the
          focusable things are. Where it PAINTS is decided by z-index, not by
          this position. -->
-    <div id="whereami" class="chrome" role="status" aria-label="where you stand" hidden><span id="whereami-place"></span><span class="sep" aria-hidden="true">·</span><span id="whereami-facing"></span></div>
+    <div id="whereami" class="chrome" role="status" aria-label="where you stand" hidden><span id="whereami-place"></span><span class="sep" aria-hidden="true">·</span><span id="whereami-facing"></span><span id="whereami-painting" aria-hidden="true" hidden>painting loading…</span></div>
   </div>
   <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.affordance{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
   <div id="inventory" class="chrome" role="group" aria-label="what you are carrying"></div>
@@ -457,6 +465,7 @@
     var whereamiEl = document.getElementById("whereami");
     var whereamiPlace = document.getElementById("whereami-place");
     var whereamiFacing = document.getElementById("whereami-facing");
+    var whereamiPainting = document.getElementById("whereami-painting");
     /* [Row 42] Everything the first frame has to wait for, in ONE list —
        the promoted paintings AND the ingested sprites. Declared before the
        library is built because the sprite bake fills it: a leaf drawn from an
@@ -479,35 +488,131 @@
         backdrops[mk] = { meta: bakedMetas[mk] };
       }
     }
-    /* [Row 21] And the IMAGE half, from `backdrops/baked.js` — the paintings
-       promoted into `backdrops/<location>/<facing>.png`, embedded as data:
-       URIs because a file:// page drawing a file:// image taints the canvas
-       and every hash test reads it back.
-
+    /* [Row 45] And the IMAGE half — BY URL, one wall at a time.
        A painting belongs to the BUILDING, not to a fixture: any world standing
        in this manor's study looking north sees the same north wall, so the map
        is filled from the promoted set and not from whichever world booted. A
        facing this world does not name gets no entry, and a facing with no
        painting keeps its meta and draws the grid — which is the materialization
        fiction doing exactly what it says: space that has not been established
-       yet is drawn as the holodeck's own scaffold. */
-    var bakedImages = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.images) || {};
+       yet is drawn as the holodeck's own scaffold.
+
+       WHAT CHANGED, and why. Until this row `backdrops/baked.js` carried every
+       painting in the building as a `data:` URI: 71 walls, 44 MB, a blocking
+       <script> after the UI's own scripts. The UI came up and then the page sat
+       there — Kabe, from the live site: "Sometimes loading hangs on first
+       launch. UI is present but then hangs without images loading." Nothing
+       hung. The first wall was waiting on the download, parse and decode of
+       every other wall in every other world.
+
+       So the page asks for the wall it is looking at, by URL, and for nothing
+       else on the way in. The manifest (`backdrops/baked.js`, now ~14 kB) says
+       which facings have a painting and what each one is called; §12.2
+       determinism is a claim about the DOCUMENT, which is baked and synchronous
+       as it always was, and a picture arriving a moment later is presentation. */
+    var manifest = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.paintings) || {};
+    var paintingDir = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.dir) || "backdrops/served/";
     var imageStore = document.getElementById("backdrop-store");
-    for (var ik in bakedImages) {
-      if (!Object.prototype.hasOwnProperty.call(bakedImages, ik)) continue;
-      if (!backdrops[ik]) continue;
+    var requested = {};   // "loc/facing" -> the Image asked for: in flight, or in
+    var prefetching = false;   // armed at load: neighbours are never on the way in
+    var lastWarmed = null;     // the facing warm() last ran for; a move clears failures
+    var repaints = 0;          // presentation repaints — NOT paints; see paintFrame()
+
+    function keyOf(vs) { return vs.location + "/" + vs.facing; }
+
+    /* Ask for one wall. It returns nothing, because what it does is arrange for
+       a picture to arrive later; the page's answer to "not yet" is the grid and
+       the readout's own note, and neither of them is a lie about the room. */
+    function requestPainting(key) {
+      if (!manifest[key] || !backdrops[key]) return;  // no painting, or not a facing this world holds
+      if (requested[key]) return;                     // asked already: in flight, or in
       var img = new Image();
       img.alt = "";
-      img.dataset.facing = ik;
-      /* In the document, so the browser's own load event waits for it: the
-         first paint must be of the painting, never of a grid that flips to a
-         painting a frame later. The element is hidden and the canvas is what
-         anyone sees. */
+      img.dataset.facing = key;
+      requested[key] = img;
+      img.addEventListener("load", function () {
+        backdrops[key].image = img;
+        /* The wall you are standing in front of repaints the moment it lands.
+           A neighbour just waits in the register, which is the whole point of
+           having asked for it early. */
+        if (harness.viewstate && keyOf(harness.viewstate) === key) presentPainting();
+      });
+      img.addEventListener("error", function () {
+        console.error("BACKDROP ERROR: " + paintingDir + manifest[key].file +
+          " did not arrive — " + key + " draws the grid until it does. If it is " +
+          "missing from the tree, re-run: node tools/bake-backdrops.mjs");
+        /* MARKED, not forgotten — and the difference is a fetch loop. A wall
+           that failed is still a wall that was asked for, so nothing asks
+           again while you stand in front of it (the repaint below runs through
+           warm(), which would otherwise re-request the thing that just failed,
+           for ever). It is cleared when the view MOVES: the page cannot tell a
+           wall that will never come from a publish that has not finished
+           landing, and "not here yet" is the honest reading of both, so coming
+           back to this facing asks again and a page left open across a deploy
+           heals itself instead of holding a grid for ever. */
+        requested[key].failed = true;
+        if (backdrops[key]) delete backdrops[key].image;
+        if (harness.viewstate && keyOf(harness.viewstate) === key) presentPainting();
+      });
+      /* In the document. Only ONE image is ever asked for before the load event
+         — the wall in front of you — so `load` still means "the first wall is
+         in", which is what every spec that opens this page and reads the canvas
+         back is entitled to assume. The neighbours are asked for after it, so
+         they cost the first frame nothing. */
       if (imageStore) imageStore.appendChild(img);
-      img.src = bakedImages[ik].src;
-      backdrops[ik].image = img;
-      if (!img.complete) pendingImages.push(img);
+      img.src = paintingDir + manifest[key].file;
     }
+
+    /* One turn or one step away: the three other facings of the room you are
+       standing in, and the facing each of its exits arrives on. That is the
+       whole set of walls the next input can put in front of you. */
+    function neighbourKeys(vs) {
+      var out = [], locs = (harness.world && harness.world.locations) || [], held = null, i;
+      for (i = 0; i < locs.length; i++) if (locs[i].id === vs.location) held = locs[i];
+      if (!held) return out;
+      var fs = held.facings || [];
+      for (i = 0; i < fs.length; i++) if (fs[i] !== vs.facing) out.push(vs.location + "/" + fs[i]);
+      var ex = held.exits || [];
+      for (i = 0; i < ex.length; i++) {
+        if (ex[i] && ex[i].to && ex[i].arrive_facing) out.push(ex[i].to + "/" + ex[i].arrive_facing);
+      }
+      return out;
+    }
+
+    /* Every view change runs through here, because every view change runs
+       through paint(): the wall you arrived at first, then its neighbours. */
+    function warm(vs) {
+      if (!vs) return;
+      /* A view change is when a wall that did not arrive is worth asking for
+         again — a slow publish lands, a flaky link comes back — and standing
+         still is when it is not. */
+      var k = keyOf(vs);
+      if (k !== lastWarmed) {
+        lastWarmed = k;
+        for (var f in requested) {
+          if (Object.prototype.hasOwnProperty.call(requested, f) && requested[f].failed) {
+            delete requested[f];
+          }
+        }
+      }
+      requestPainting(keyOf(vs));
+      if (!prefetching) return;
+      var ns = neighbourKeys(vs);
+      for (var i = 0; i < ns.length; i++) requestPainting(ns[i]);
+    }
+
+    /* A repaint the WORLD did not ask for. It is not a harness event and it is
+       not counted as one: `paints` is the tally of the subscriber's own
+       invocations and a refusal case reads it across two ticks, so a painting
+       landing mid-case must not move it. What arrived is a picture; the
+       document it is a picture of has not changed. */
+    function presentPainting() {
+      if (halted) return;
+      repaints += 1;
+      if (window.HOLO_APP) window.HOLO_APP.repaints = repaints;
+      paintFrame(harness.viewstate, true);
+    }
+
     function metaFor(vs) {
       var e = backdrops[vs.location + "/" + vs.facing];
       return (e && e.meta) ? e.meta : window.HOLO.renderer.GRID_META;
@@ -585,7 +690,16 @@
       }
     }
 
-    function paint(viewstate) {
+    /* The harness's ONE subscriber. Everything below it is shared with the
+       presentation repaint a painting's arrival asks for; the difference is
+       the tally, and the tally is what a refusal case reads. */
+    function paint(viewstate) { paintFrame(viewstate, false); }
+
+    function paintFrame(viewstate, presentation) {
+      /* [Row 45] Ask for the wall this frame is of before drawing it: at boot
+         this is the one image on the critical path, and on a turn or a travel
+         it is the wall the prefetch has usually already got in. */
+      warm(viewstate);
       try {
         window.HOLO.renderer.render(
           scene, harness.world, harness.staging, library, backdrops, viewstate, {});
@@ -612,8 +726,10 @@
          moved again. Row 10's focus outline goes through the same
          paintOverlay(), so a keyboard user's outline survives a repaint the
          same way the mouse's already did. */
-      paints += 1;
-      window.HOLO_APP.paints = paints;
+      if (!presentation) {
+        paints += 1;
+        window.HOLO_APP.paints = paints;
+      }
       scene.style.cursor = "";
       /* The readout follows the picture, and only a picture that painted:
          paint() is the harness's ONE subscriber, so every view change — a
@@ -660,6 +776,19 @@
       whereamiPlace.textContent = real ? vs.location : "";
       whereamiFacing.textContent = real ? vs.facing : "";
       whereamiEl.hidden = !real;
+      /* [Row 45] And whether the picture is still on its way. The document
+         holds a painting for this facing and the page does not have it yet:
+         what is on screen is the grid, honestly, and this says why rather than
+         leaving a visitor to read an unestablished room as a finished one.
+         It goes as soon as the wall lands — the arrival repaints through here.
+
+         `aria-hidden`: the readout's spoken half is where you stand, and a
+         visitor who cannot see the painting is not waiting for it. Announcing
+         "painting loading" out of a role="status" on every turn would be noise
+         about the one thing that reader cannot use. */
+      var k = keyOf(vs);
+      whereamiPainting.hidden =
+        !(real && manifest[k] && !(backdrops[k] && backdrops[k].image));
     }
 
     /* Show as many WHOLE lines as the pane holds, newest at the bottom, with
@@ -1860,6 +1989,11 @@
          because helpers use the difference between them to find a point that
          means travel, but a test that reaches for `hitAtPoint` expecting the
          page's routing will assert the wrong thing. */
+      /* [Row 45] The delivery, for the cases that are about it: which walls
+         have been asked for, how many repaints a picture's arrival has caused,
+         and the manifest the page booted from. */
+      requested: requested, manifest: manifest, repaints: 0,
+      requestPainting: requestPainting, neighbourKeys: neighbourKeys,
       hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve,
       /* [Row 15] The whole aperture list, so a test can ask where every way
          through this facing is drawn and put a real click in the middle of
@@ -1876,6 +2010,15 @@
       harness.subscribe(paint);
       harness.redraw();
       updateChrome(null);
+      /* [Row 45] THE NEIGHBOURS ARE ASKED FOR AFTER THE LOAD EVENT, never
+         before it. The first frame is already up by then; what this buys is
+         that a turn or a step lands on a picture that is already in, and what
+         it costs the visitor's first wall is nothing — one request stands
+         between them and a painted room, and the browser's own `load` still
+         means exactly that one wall is in. */
+      var arm = function () { prefetching = true; warm(harness.viewstate); };
+      if (document.readyState === "complete") setTimeout(arm, 0);
+      else window.addEventListener("load", function () { setTimeout(arm, 0); });
       /* After the first paint, so a page that faulted on the way up shows its
          own fault line last rather than this one. `halted` is set by fault(). */
       if (bootFault && !halted) {
@@ -1885,14 +2028,15 @@
     if (pendingImages.length === 0) {
       bootPaint();
     } else {
-      /* The first frame waits for the paintings, and only for them. A painting
-         that will not decode is a corrupt bake, and what the page does then is
-         drop it and draw the grid: the room reads as unestablished, which is
-         the one honest thing a picture can say when it cannot show what the
-         document holds, and the developer detail goes to the console. The
-         accepted deviation is that a visitor cannot tell that from an
-         intentionally unpainted wall — the same shape as the stale-bake
-         deviation, and the same mitigation: the suite, before a push. */
+      /* [Row 45] The first frame waits for the SPRITES, and only for them.
+         They are `data:` URIs in a 0.58 MB script that is already parsed by
+         the time this runs — no network, no wire, microseconds — and a leaf
+         drawn from an undecoded PNG is a hole in a doorway rather than a wall
+         that has not arrived yet.
+         The paintings are no longer in this list at all: waiting for one is
+         what made the page sit there, and a wall that is not in yet has an
+         honest picture of its own (the grid) and a note in the readout that
+         says so. */
       var left = pendingImages.length;
       var settle = function (ev) {
         if (ev && ev.type === "error") {
@@ -1909,10 +2053,8 @@
             console.error("SPRITE ERROR: the baked sprite " + ds.sprite +
               " did not decode — it will draw as nothing. Re-run: node tools/bake-library.mjs");
           } else {
-            var key = ds.facing != null ? ds.facing : "?";
-            console.error("BACKDROP ERROR: the baked painting for " + key +
-              " did not decode — that facing falls back to the grid. Re-run: node tools/bake-backdrops.mjs");
-            if (backdrops[key]) delete backdrops[key].image;
+            console.error("IMAGE ERROR: an image the first frame waited for did " +
+              "not decode:", ev.target && ev.target.src && ev.target.src.slice(0, 64));
           }
         }
         if (--left === 0) bootPaint();

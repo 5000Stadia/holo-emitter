@@ -299,6 +299,34 @@ test.describe("fixtures", () => {
       expect(readFileSync(out).equals(readFileSync(join(repoRoot, "backdrops", "baked.js"))),
         "stale backdrop bake — run: node tools/bake-backdrops.mjs")
         .toBe(true);
+      /* [Row 45] AND THE PIXELS, which is now where they live. The manifest
+         above no longer carries a single byte of any painting — it is 14 kB of
+         names — so a case that compared only the manifest would let a flipped,
+         stale or hand-edited wall through the exact hole this test was written
+         to close. Same rule, one directory over: every file the page can ask
+         for is a fresh encode of the promoted PNG, and nothing else is in
+         there (a demoted wall must leave the served tree too). */
+      const walk = (base) => {
+        const found = [];
+        const rec = (rel) => {
+          for (const e of readdirSync(join(base, rel), { withFileTypes: true }).sort(
+            (a, b) => (a.name < b.name ? -1 : 1))) {
+            const next = rel ? join(rel, e.name) : e.name;
+            if (e.isDirectory()) rec(next); else found.push(next);
+          }
+        };
+        rec("");
+        return found;
+      };
+      const freshDir = join(scratch, "served");
+      const liveDir = join(repoRoot, "backdrops", "served");
+      const fresh = walk(freshDir), live = walk(liveDir);
+      expect(live, "the served tree holds exactly the walls a fresh bake writes — " +
+        "run: node tools/bake-backdrops.mjs").toEqual(fresh);
+      for (const f of fresh) {
+        expect(readFileSync(join(liveDir, f)).equals(readFileSync(join(freshDir, f))),
+          `stale served painting ${f} — run: node tools/bake-backdrops.mjs`).toBe(true);
+      }
     } finally {
       rmSync(scratch, { recursive: true, force: true });
     }

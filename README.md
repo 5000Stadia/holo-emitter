@@ -132,9 +132,12 @@ node tools/bake-fixtures.mjs                                   # the furnished w
 node tools/bake-fixtures.mjs --fixture-dir fixtures/nav-manor   # the painted one
 ```
 
-The paintings themselves are baked the same way and for the same reason:
-`backdrops/<room>/<facing>.png` is the picture, and `node tools/bake-backdrops.mjs` embeds the
-promoted ones into `backdrops/baked.js` so the page can draw them with nothing to fetch. A wall
+The paintings are bake-adjacent rather than baked in: `backdrops/<room>/<facing>.png` is the
+picture, and `node tools/bake-backdrops.mjs` encodes each promoted one to
+`backdrops/served/<room>/<facing>.jpg` (q92, ~0.5 MB a wall) and writes the manifest of what
+exists to `backdrops/baked.js` (~14 kB, no pixels). The page fetches by URL: the wall you are
+looking at first, then the walls one turn or one step away — so a visitor waits for ONE painting
+rather than for all 71, which is what they used to do. A wall
 only gets there once it has been measured and admitted — `python3
 design/plan-draft/measured/measure.py` measures the candidates, `gate.py` prints the verdict, and
 `node tools/promote-backdrop.mjs --facing study/N --candidate <png>` refuses any candidate the gate
