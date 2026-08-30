@@ -417,12 +417,12 @@
         "kind": "promoted"
       },
       "style_image": {
-        "file": "style-platform.png",
-        "rel": "backdrops/platform/W.png",
-        "room": "platform",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
+        "file": "same-wall-platform_far-E.png",
+        "rel": "backdrops/platform_far/E.png",
+        "room": "platform_far",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "promoted-same-wall"
       },
       "rolls": [
         {
@@ -525,7 +525,7 @@
         "neighbour_edge": "right",
         "source": "backdrops/platform_far/S.png",
         "source_kind": "promoted",
-        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
         "alternatives": [
           {
             "side": "right",
@@ -539,7 +539,7 @@
         "order_position": 0,
         "depends_on": null,
         "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
-        "image_index": 2,
+        "image_index": 3,
         "file": "design/batches/underground-2/platform_far-W/edge-seed-left.png",
         "width_px": 154,
         "height_px": 1024,
@@ -557,7 +557,14 @@
       "continues": null,
       "order_position": 0,
       "lead_image": null,
-      "style_image": null,
+      "style_image": {
+        "file": "same-wall-platform-W.png",
+        "rel": "backdrops/platform/W.png",
+        "room": "platform",
+        "facing": "W",
+        "lead": false,
+        "source_kind": "promoted-same-wall"
+      },
       "rolls": [
         {
           "roll": 1,
