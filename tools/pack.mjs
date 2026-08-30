@@ -62,7 +62,6 @@ export function activePackName(argv = process.argv, env = process.env) {
   if (i >= 0 && argv[i + 1] && !argv[i + 1].startsWith("--")) return argv[i + 1];
   const eq = argv.find((a) => typeof a === "string" && a.startsWith("--pack="));
   if (eq) return eq.slice("--pack=".length);
-  if (env && env.HOLO_PACK) return env.HOLO_PACK;
   /* A FIXTURE KNOWS ITS PACK. `derive-world.mjs` writes `<fixture>/pack.ref`;
    * a tool given `--fixture-dir` (the bake, the plan validator, the suite's
    * staleness cases, none of which are told a pack) is working on that pack. */
@@ -73,6 +72,7 @@ export function activePackName(argv = process.argv, env = process.env) {
       if (ref) return ref;
     } catch (ignored) { /* no pack.ref: the default stands */ }
   }
+  if (env && env.HOLO_PACK) return env.HOLO_PACK;
   return DEFAULT_PACK;
 }
 
