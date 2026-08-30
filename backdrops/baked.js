@@ -75,8 +75,8 @@
 //   noodle_bar/W: 2.52 MB of PNG -> 495 kB of JPEG (q92); channels move by 1.6273 on average, 17 at worst, of 255.
 //   privy_garden/N: 2.81 MB of PNG -> 538 kB of JPEG (q92); channels move by 1.9158 on average, 23 at worst, of 255.
 //   privy_garden/S: 3.11 MB of PNG -> 567 kB of JPEG (q92); channels move by 2.0468 on average, 20 at worst, of 255.
-//   reception/E: 1.56 MB of PNG -> 217 kB of JPEG (q92); channels move by 0.9179 on average, 11 at worst, of 255.
-//   reception/N: 1.53 MB of PNG -> 222 kB of JPEG (q92); channels move by 0.894 on average, 12 at worst, of 255.
+//   reception/E: 1.58 MB of PNG -> 222 kB of JPEG (q92); channels move by 0.9467 on average, 12 at worst, of 255.
+//   reception/N: 1.56 MB of PNG -> 228 kB of JPEG (q92); channels move by 0.9229 on average, 12 at worst, of 255.
 //   reception/S: 2.27 MB of PNG -> 267 kB of JPEG (q92); channels move by 1.3194 on average, 14 at worst, of 255.
 //   reception/W: 2.10 MB of PNG -> 233 kB of JPEG (q92); channels move by 1.1619 on average, 15 at worst, of 255.
 //   servants_hall/E: 3.14 MB of PNG -> 550 kB of JPEG (q92); channels move by 1.9944 on average, 22 at worst, of 255.
@@ -100,7 +100,7 @@
 //   ward/S: 2.08 MB of PNG -> 243 kB of JPEG (q92); channels move by 1.1536 on average, 13 at worst, of 255.
 //   ward/W: 1.52 MB of PNG -> 209 kB of JPEG (q92); channels move by 0.8841 on average, 12 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "fbce1164",
+  fp: "456af533",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -162,8 +162,8 @@ window.HOLO_BACKDROPS = {
   "noodle_bar/W": { file: "noodle_bar/W.jpg", bytes: 494703 },
   "privy_garden/N": { file: "privy_garden/N.jpg", bytes: 537646 },
   "privy_garden/S": { file: "privy_garden/S.jpg", bytes: 566540 },
-  "reception/E": { file: "reception/E.jpg", bytes: 216778 },
-  "reception/N": { file: "reception/N.jpg", bytes: 221866 },
+  "reception/E": { file: "reception/E.jpg", bytes: 222395 },
+  "reception/N": { file: "reception/N.jpg", bytes: 228086 },
   "reception/S": { file: "reception/S.jpg", bytes: 267317 },
   "reception/W": { file: "reception/W.jpg", bytes: 232888 },
   "servants_hall/E": { file: "servants_hall/E.jpg", bytes: 549616 },

@@ -25,6 +25,7 @@
   "camera_id": "measured:backdrops/source-warped/treatment_room-S/warped.png",
   "camera_reference": "ruled",
   "measured_round": "meshwarp",
+  "instrument": "7991604bcb26",
   "camera_source": "declared",
   "declared_fields": [
     "horizon_y",

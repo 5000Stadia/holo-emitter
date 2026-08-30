@@ -25,6 +25,7 @@
   "camera_id": "measured:backdrops/source/ward-N/row23-72a53369.png",
   "camera_reference": "ruled",
   "measured_round": "manor",
+  "instrument": "7991604bcb26",
   "provisional": false,
   "measured": true,
   "backdrop": "wall",

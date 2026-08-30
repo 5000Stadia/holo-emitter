@@ -1,0 +1,312 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 761,
+    "chair_rail_y_px": 571,
+    "dado_rail_above_floor_px": 190,
+    "floor_read": {
+      "minimum": 761,
+      "rule": "foot",
+      "saturated": true,
+      "foot": 761
+    },
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      760,
+      801
+    ],
+    "rail": [
+      571,
+      602
+    ],
+    "ceiling": [
+      82,
+      186
+    ],
+    "columns": [
+      [
+        78,
+        638
+      ],
+      [
+        898,
+        1457
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 638.65,
+      "asked_x1": 897.35,
+      "ruled_m": 1.2,
+      "window": [
+        379,
+        1156
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 635..900 (3 px from the ask) and another admissible pair sits 900..1141 (252 px from the ask), which disagree by more than the 21 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 211.111,
+  "implied_focal_px": 1002.8,
+  "eye_height_m": 1.1127,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 635..900 (3 px from the ask) and another admissible pair sits 900..1141 (252 px from the ask), which disagree by more than the 21 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 99,
+    "ceiling_candidates": [
+      {
+        "y": 100,
+        "strength": 26.19,
+        "horiz": 0.805,
+        "cv": 0.781
+      },
+      {
+        "y": 43,
+        "strength": 12.25,
+        "horiz": 0.748,
+        "cv": 0.83
+      },
+      {
+        "y": 49,
+        "strength": 4.98,
+        "horiz": 0.744,
+        "cv": 1.072
+      },
+      {
+        "y": 14,
+        "strength": 4.5,
+        "horiz": 0.743,
+        "cv": 1.127
+      },
+      {
+        "y": 22,
+        "strength": 4.48,
+        "horiz": 0.773,
+        "cv": 1.015
+      },
+      {
+        "y": 83,
+        "strength": 4.3,
+        "horiz": 0.756,
+        "cv": 1.07
+      },
+      {
+        "y": 61,
+        "strength": 4.3,
+        "horiz": 0.773,
+        "cv": 1.118
+      },
+      {
+        "y": 75,
+        "strength": 4.26,
+        "horiz": 0.771,
+        "cv": 1.045
+      },
+      {
+        "y": 30,
+        "strength": 4.22,
+        "horiz": 0.717,
+        "cv": 1.185
+      },
+      {
+        "y": 69,
+        "strength": 4.21,
+        "horiz": 0.74,
+        "cv": 1.097
+      },
+      {
+        "y": 89,
+        "strength": 4.18,
+        "horiz": 0.745,
+        "cv": 1.056
+      },
+      {
+        "y": 55,
+        "strength": 4.11,
+        "horiz": 0.735,
+        "cv": 1.123
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 99,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 42,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 48,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 13,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 21,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 82,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 60,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 74,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 29,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 68,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 88,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 54,
+        "admissible": true,
+        "sigma_y_px": 2.46,
+        "horizon_y_px": 540.1,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 155,
+    "corner_x1_px": 1352,
+    "corner_evidence": {
+      "left_fit_r2": 0.8019,
+      "right_fit_r2": 0.777,
+      "block_px": 16,
+      "excluded": [
+        [
+          638,
+          897
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 20.4,
+    "ramp": {
+      "x": 752.1,
+      "y": 540.1,
+      "left_slope": 0.7363,
+      "right_slope": -0.7293,
+      "left_n": 60,
+      "left_resid_px": 0.72,
+      "right_n": 61,
+      "right_resid_px": 0.75,
+      "sigma_y_px": 2.46
+    },
+    "votes": {
+      "floor": {
+        "x": 992,
+        "y": 609,
+        "edge_px": 28698
+      },
+      "ceiling": {
+        "x": 774,
+        "y": 508,
+        "edge_px": 9660
+      },
+      "side_walls": {
+        "x": 722,
+        "y": 345,
+        "edge_px": 11311
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 586,
+      "key_dir_brightest_y": 428,
+      "key_tint": "#c8c2b9",
+      "key_tint_patch": [
+        386,
+        786,
+        29,
+        91
+      ],
+      "key_tint_patch_mean_rgb": [
+        168.66,
+        163.55,
+        155.86
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8c3bc",
+        "floor_bottom_strip": "#c8c3be",
+        "mid_wall_right": "#c8c3bb",
+        "mid_wall_left": "#c8c3bc",
+        "brightest_21x21_patch": "#c8c5c1"
+      },
+      "brightest_21x21_patch_centre_px": [
+        586,
+        428
+      ],
+      "sobel_bright_side_deg_whole_frame": 103.51,
+      "sobel_bright_side_deg_wall_band": 100.01,
+      "left_third_minus_right_third_luminance_whole_frame": 3.236,
+      "left_third_minus_right_third_luminance_wall_band": 2.756
+    },
+    "storey_height_m": 3.1358,
+    "implied_wall_width_m": 5.67,
+    "eye_height_m": 1.0464,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -2.07,
+  "delta_eye_pct": -5.94,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "d1a7cbe0",
+  "candidate": "backdrops/source/treatment_room-W/row23-d1a7cbe0.png",
+  "instrument": "7991604bcb26"
+}

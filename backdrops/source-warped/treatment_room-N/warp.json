@@ -9,6 +9,7 @@
  "verdict": "warped",
  "why": null,
  "sha256": "497faf289824d8a6f01d21c959d2c26370ae103116ccd7f6cf3b2c444a46e4cb",
+ "instrument": "7991604bcb26",
  "reading_cache": null,
  "before": {
   "camera_verdict": "PASS",
@@ -152,7 +153,7 @@
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 5.81,
+ "seconds": 5.82,
  "warped_image": "backdrops/source-warped/treatment_room-N/warped.png",
  "asked_from": "backdrops/source/treatment_room-N/row23-7cae834a.prompt.txt",
  "warped_sha256": "a53a3d3c875c04db412f1f94dce0fb9fe46d491ef4c11b28bd66638e3f0723f5",

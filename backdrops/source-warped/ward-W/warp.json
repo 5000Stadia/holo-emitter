@@ -9,6 +9,7 @@
  "verdict": "warped",
  "why": null,
  "sha256": "dac3be4148823571be5b9cdc5969f520a184bb7e175d80fcf8db32e93036de68",
+ "instrument": "7991604bcb26",
  "reading_cache": null,
  "before": {
   "camera_verdict": "FAIL",
@@ -190,7 +191,7 @@
  "seam_blend_px": 24,
  "column_count": 4,
  "row_count": 3,
- "seconds": 5.95,
+ "seconds": 6.0,
  "warped_image": "backdrops/source-warped/ward-W/warped.png",
  "asked_from": "backdrops/source/ward-W/row23-647d9ce1.prompt.txt",
  "warped_sha256": "bb4084bb9b7ae3d955ae6960822808706e46ddd5c8a49e5e49b76c2e13c995d4",
