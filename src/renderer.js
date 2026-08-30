@@ -1964,9 +1964,15 @@
        the same picture twice is still the same picture (section 12.2), and
        nothing is written outside the band. */
     var seamStyle = (options && options.seam_style) || SEAM_STYLE;
+    /* ONE band geometry for every treatment. [Kabe] "the blur didn't cover the
+       whole dither": the two blocks rounded the band's top differently (round
+       vs floor), so the blur could sit a row off the dither and leave its
+       bottom row raw. Computed once; the blur writes one row beyond each edge
+       of the dither so it always covers it whole. */
+    var seamTop = Math.max(0, Math.round(sillTop - SEAM_MIX_PX / 2));
     if ((seamStyle === "dither" || seamStyle === "soft") && sillBottom - sillTop > 0.5 && floorHere < H) {
       var bandH = SEAM_MIX_PX;
-      var bandTop = Math.max(0, Math.round(sillTop - bandH / 2));
+      var bandTop = seamTop;
       var bx0 = Math.max(0, Math.floor(a.x - 1));
       var bx1 = Math.min(W, Math.ceil(a.x + a.w + 1));
       var bw = bx1 - bx0;
@@ -2017,16 +2023,17 @@
          exactly that band inside the aperture; the copy carries feed rows so
          the filter has both floors to sample, and the write cannot leave the
          band. */
-      var blTop = Math.max(0, Math.floor(sillTop - SEAM_MIX_PX / 2));
+      var blTop = Math.max(0, seamTop - 1);
+      var blH = SEAM_MIX_PX + 2;
       var blFeed = 4;
-      var blStrip = makeCanvas(doc, W, SEAM_MIX_PX + 2 * blFeed);
-      blStrip.getContext("2d").drawImage(ctx.canvas, 0, blTop - blFeed, W, SEAM_MIX_PX + 2 * blFeed, 0, 0, W, SEAM_MIX_PX + 2 * blFeed);
+      var blStrip = makeCanvas(doc, W, blH + 2 * blFeed);
+      blStrip.getContext("2d").drawImage(ctx.canvas, 0, blTop - blFeed, W, blH + 2 * blFeed, 0, 0, W, blH + 2 * blFeed);
       ctx.save();
       ctx.beginPath();
       apertureClipPath(ctx, a);
       ctx.clip();
       ctx.beginPath();
-      ctx.rect(a.x - 1, blTop, a.w + 2, SEAM_MIX_PX);
+      ctx.rect(a.x - 1, blTop, a.w + 2, blH);
       ctx.clip();
       ctx.filter = "blur(1.5px)";
       ctx.drawImage(blStrip, 0, blTop - blFeed);
