@@ -1,83 +1,71 @@
-# Row 45 — the paintings arrive by URL, one wall at a time
+# Row 43 — the aperture is the inside edge of its frame, and it is traced
 
-## What Kabe saw
+## What Kabe ruled
 
-> "Sometimes loading hangs on first launch. UI is present but then hangs
-> without images loading. It's consistent enough in multiple browsers and
-> different refreshes that it seems like it is an issue."
+> "use the rectangle detection to identify the approximate door thresholds for a
+> following tracing step, where the inside edge of the door is then traced and
+> is allowed to veer off of the path of the detected rectangle as long as it
+> returns and produces a closed loop."
 
-Nothing hung. `backdrops/baked.js` was 44 MB of base64 — all 71 promoted walls,
-every world's, as `data:` URIs — loaded as a blocking `<script>` after the UI's
-own scripts, and the page held its first frame until every one of them had
-downloaded, parsed and decoded. The UI came up because the UI is cheap. The room
-did not, because the room was carrying the whole manor.
+> "these need to be pretty algorithmic and quick whatever it looks like."
+
+With the frame that proves it (`design/audit/door-corner-inside-edge-2026-08-29.jpg`):
+the detected corner (blue) sat inside the dark void ~55 px left of the frame's
+actual inside corner (pink).
 
 ## The rule
 
-**A wall is fetched, not carried.** `bake-backdrops.mjs` still encodes each
-promoted PNG at q92 — the row-21 number, unchanged, 2.6 MB of PNG to ~0.5 MB of
-JPEG for a mean channel move of 1.7 of 255 — but it writes one file per wall to
-`backdrops/served/<loc>/<F>.jpg` and leaves `backdrops/baked.js` holding the
-manifest alone: which facings have a painting, what each is called, what it
-weighs. 44,310,116 bytes → 14,037.
+**The rectangle is a prior, not an answer.** `door_measure.py` reads the void —
+the maximally stable dark run — and the void's edge is where the paint stops
+being black, which on any door with a reveal is short of the jamb. So its
+rectangle is now the STARTING GUESS for a tracing pass, and the aperture is what
+the pass finds: the jamb's inner edge where it meets the head and the threshold.
 
-The page asks for the wall in front of it and nothing else on the way in. That
-one `<img>` is in the document before the load event, so `load` still means "the
-wall you are looking at is in" and every case that opens the page and reads the
-canvas back is entitled to what it always assumed. After load it arms the
-prefetch: the room's other three facings and each exit's arrival facing — the
-whole set of walls the next input can put in front of you — so a turn or a step
-lands on a picture that is already in.
+**One cyclic dynamic-programming pass, and the loop closes by construction.**
+`design/plan-draft/measured/aperture_trace.py` samples the prior's perimeter into
+256 points; at each it reads the picture along the outward normal within ±band
+(60 px by default) and scores every offset by three things in units of the wall's
+own void-to-frame contrast — the size of the step across it (`W_EDGE`), whether
+what lies INSIDE the step is the void rather than stone (`W_DARK`, which is what
+keeps the loop off the frame's outer arris), and how far it stands from the prior
+(`W_PRIOR`, which is the ruling's "nearest the prior"). A single cyclic pass with
+an L1 smoothness cost on the offset between neighbouring samples then chooses all
+256 offsets at once, with sample 0's offset pinned and paid for at the closure, so
+"veer off and return" is the shape of the search and not a hope about the output.
+The L1 min-convolution is two prefix scans, which is what makes a 121-offset band
+cost 26 ms on a 1536×1024 wall rather than a second.
 
-**A wall that is not in yet has a picture of its own.** The grid, which is what
-this product already draws for space that has not been established, plus
-`painting loading…` in the readout, which is the difference between "not yet"
-and "hangs". §12.2 determinism is a claim about the DOCUMENT — baked, synchronous,
-unmoved; a picture arriving a moment later is presentation, and it repaints
-through a path that deliberately does not count as a harness paint (a refusal
-case reads `paints` across two ticks).
+**The corners are geometry, not samples.** The loop is cut into four by the
+prior's own sides; each side gets a total-least-squares line with one rejection
+pass. Where both of a corner's sides are straight the corner is their
+INTERSECTION — the point the ruling names, which no sample sits on. Where one
+side curves, a circle is fitted through the curve and everything its neighbours
+have bent into, and the corner is where the straight side touches that arc: on a
+half-round head, the springing. `head_kind` is `straight` or `arched` off the
+head's sagitta about its own chord, and an arched head carries its fitted centre
+and radius.
 
-**A wall that fails is marked, not forgotten.** Re-asking on the repaint the
-failure itself triggers is an endless fetch loop; forgetting it means a page left
-open across a publish holds a grid for ever. So the mark is cleared when the view
-moves: turn away and back and it asks again.
+**Nothing is wired in.** Not promotion, not the warp, not the renderer — by
+ruling, until the numbers below are read.
 
-## What it cost, measured
+## The numbers
 
-| | critical path to the first painted wall, `?world=cyberpunk-2` |
-|---|---|
-| before | **45,279,701 B (45.3 MB)** — page + scripts + fixture + `library/baked.js` + all 71 paintings |
-| after | **1,438,313 B (1.44 MB)** — the same, with `noodle_bar/N.jpg` (454,691 B) and a 14 kB manifest in place of the bundle |
+Synthetic (`test_aperture_trace.py`, all pass): a rectangular void with a lit
+reveal reproduces its four corners to 0.00 px and reads `straight`; a half-round
+head is followed to 0.99 px over the arc (4.34 px at the two grazing samples on
+the springing itself, where the arc runs parallel to the search ray) and reads
+`arched` at sagitta 0.328 of width; a prior displaced 40 px in each of six
+directions recovers the true corners to 1.41 px worst; the same pixels give the
+same polygon twice, in 25 ms (40 ms at a 110 px band).
 
-31x. Of the 1.44 MB, 0.58 MB is `library/baked.js` (the ingested sprites, left
-baked: it is under the 1 MB bar and it is `data:` URIs already parsed by the time
-the first frame runs) and 0.45 MB is the wall itself.
+The store: 31 promoted door walls, 26 ms median, 36 ms worst. `buttery_pantry/S`
+is Kabe's frame, found in this corpus: the void's run stopped at x 413 and the
+trace moved the right jamb out to 463 — 50 px onto the actual reveal.
 
-The published tree shrinks with it: `publish-site.sh` ships `backdrops/served/`
-(33 MB) and the manifest instead of the 44 MB bundle and 4.7 MB of study PNGs,
-and refuses above 500 MB — the 2026-08-22 incident was a Pages build that could
-not cope and served a stale site in silence.
-
-## What holds it
-
-- `tests/playwright/delivery.spec.mjs` — one wall on the way in (counted at the
-  load event, against 71 in the manifest); the neighbours fetched after the first
-  frame and no further; and a tree where **only** `study/N.jpg` exists and the
-  other 70 walls 404: the first frame is still the painting, the turn into the
-  hole draws the grid with `painting loading…` beside the place and the aspect,
-  nothing apologises, nothing throws, and returning re-asks.
-- `fixtures.spec.mjs` backdrop staleness now byte-compares **the served tree**,
-  not only the manifest. The manifest holds no pixels, so a case that compared
-  only it would have left the flipped-wall hole the row-21 case was written to
-  close standing wide open.
-- `playwright.config.mjs` passes `--allow-file-access-from-files` to Chromium.
-  A `file://` page drawing a `file://` image taints the canvas there and every
-  hash case reads it back — that is a browser default about local files, not a
-  fact about the product (the live site serves same-origin over https and taints
-  nothing). It was the last thing the `data:` bake was buying, and it cost 44 MB.
-
-## Known red, not this row's
-
-`fixtures.spec.mjs` "promotion staleness" is red on `main` as well — the plan
-holds no facing `back_office/E`, from the loop in flight. Verified by stashing
-this row's diff and running it against HEAD.
+**Where it is not yet good enough, said plainly.** The threshold is the weak
+side: at the foot of a doorway the room beyond is lit, the dark-inside cue
+inverts, and the loop follows the floor patch instead of the sill on most walls.
+And on the dark panelled manor doors (`muniment_room/E`, `closet_chamber/S`) the
+loop wanders onto neighbouring mouldings for a hundred px and comes back, and
+the confidence — which is normalised by the wall's own contrast — does not fall
+when it does. A confidence that cannot see that is the next thing to fix.
