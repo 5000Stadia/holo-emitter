@@ -50,7 +50,7 @@ writeFileSync(join(STAGE, "src", "renderer.js"),
   execFileSync("git", ["show", "HEAD:src/renderer.js"], { cwd: ROOT, encoding: "utf8" }));
 
 async function shoot(root, tag) {
-  const b = await chromium.launch();
+  const b = await chromium.launch({ args: ["--allow-file-access-from-files"] });
   const p = await b.newPage({ viewport: { width: 1536, height: 1200 } });
   const errs = [];
   p.on("console", (m) => { if (m.type() === "error") errs.push(m.text()); });
