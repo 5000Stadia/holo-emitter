@@ -324,6 +324,8 @@ const META_KEYS = [
   // ...and which measurement ROUND produced it, so the promotion can be
   // re-derived from the meta alone once rounds have their own directories
   "measured_round",
+  /* [instrument.py, 2026-08-30] which reader's reading this wall stands on */
+  "instrument",
   // [row 32, the Captain's tolerance ruling] ...and whether its camera was
   // MEASURED off the painting or DECLARED from the page's own derived camera,
   // with the flag that says why and the ruling that admits it. All four are
