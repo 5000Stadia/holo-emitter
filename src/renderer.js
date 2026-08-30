@@ -1706,6 +1706,17 @@
        differ by the gap, a smaller lie than any invented floor. When the far
        frame already reaches the foot, nothing moves. */
     var dw = W * k, dh = H * k;
+    /* [Kabe, 2026-08-29] NO GAP AT THE HEAD OR THE FOOT. "If those gaps exist,
+       the image needs to scale larger without skewing to align with the top and
+       bottom edge." A far frame shorter than the opening is scaled UP uniformly
+       until it spans the opening's height exactly; the sides overflow into the
+       clip. The pinhole scale k is kept where it already fills the height. */
+    if (dh < a.h) {
+      var kFill = a.h / H;
+      dx = W / 2 + kFill * ((a.beyond_offset_m || 0) * sDest - W / 2);
+      dy = a.y;
+      k = kFill; dw = W * k; dh = H * k;
+    }
     var footHere = a.y + a.h;
     if (dy + dh < footHere) dy = footHere - dh;
     ctx.save();
