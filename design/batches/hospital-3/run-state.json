@@ -2,52 +2,7 @@
  "walls": {
   "reception/N": {
    "attempts": 1,
-   "status": "waiting",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..corner_right",
-     "scale": 1.056,
-     "target_px": 1280.0,
-     "source_px": 1212.0
-    },
-    "revealed_px": 32256,
-    "revealed_fraction": 0.02051,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/reception-N/row23-18cde1b6.png"
-   },
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/reception-N/row23-18cde1b6.png",
-    "exit": "warped",
-    "at": "2026-08-30T02:10:43"
-   }
+   "status": "waiting"
   },
   "reception/S": {
    "attempts": 1,
@@ -55,64 +10,7 @@
   },
   "reception/E": {
    "attempts": 1,
-   "status": "waiting",
-   "warp": {
-    "pins": 7,
-    "columns": 4,
-    "rows": 3,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "door:door01:left",
-       0.0
-      ],
-      [
-       "door:door01:right",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "door:door01:head",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..door:door01:left",
-     "scale": 1.112,
-     "target_px": 591.6,
-     "source_px": 532.0
-    },
-    "revealed_px": 124416,
-    "revealed_fraction": 0.0791,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/reception-E/row23-89d98c96.png"
-   },
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/reception-E/row23-89d98c96.png",
-    "exit": "warped",
-    "at": "2026-08-30T02:13:44"
-   }
+   "status": "waiting"
   },
   "reception/W": {
    "attempts": 1,
@@ -120,162 +18,15 @@
   },
   "treatment_room/N": {
    "attempts": 1,
-   "status": "waiting",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..corner_right",
-     "scale": 0.938,
-     "target_px": 1109.3,
-     "source_px": 1183.0
-    },
-    "revealed_px": 160401,
-    "revealed_fraction": 0.10198,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/treatment_room-N/row23-7cae834a.png"
-   },
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/treatment_room-N/row23-7cae834a.png",
-    "exit": "warped",
-    "at": "2026-08-30T02:15:44"
-   }
+   "status": "waiting"
   },
   "treatment_room/S": {
    "attempts": 1,
-   "status": "waiting",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 0.88,
-     "target_px": 640.0,
-     "source_px": 727.0
-    },
-    "revealed_px": 177745,
-    "revealed_fraction": 0.11301,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/treatment_room-S/row23-8bcadcb4.png"
-   },
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/treatment_room-S/row23-8bcadcb4.png",
-    "exit": "warped",
-    "at": "2026-08-30T02:16:00"
-   }
+   "status": "waiting"
   },
   "treatment_room/E": {
    "attempts": 1,
-   "status": "waiting",
-   "warp": {
-    "pins": 7,
-    "columns": 4,
-    "rows": 3,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "door:door02:left",
-       0.0
-      ],
-      [
-       "door:door02:right",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "door:door02:head",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "x",
-     "name": "door:door02:right..corner_right",
-     "scale": 1.277,
-     "target_px": 560.5,
-     "source_px": 439.0
-    },
-    "revealed_px": 99840,
-    "revealed_fraction": 0.06348,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/treatment_room-E/row23-b9551bf5.png"
-   },
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/treatment_room-E/row23-b9551bf5.png",
-    "exit": "warped",
-    "at": "2026-08-30T02:10:59"
-   }
+   "status": "waiting"
   },
   "treatment_room/W": {
    "attempts": 1,

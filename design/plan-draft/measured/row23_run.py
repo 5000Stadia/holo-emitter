@@ -138,6 +138,17 @@ def refresh_retries():
         _RETRIES_MTIME = m
         print("  retries.json moved - worklist reloaded (%d walls)" % len(RETRIES))
 OUT = _PACK.paths["readings_dir"]
+#: The instrument's identity: a digest of the two files a reading is a function
+#: of. A cached reading taken by a different instrument is not this reading.
+def _instrument_id():
+    import hashlib
+    h = hashlib.sha256()
+    for _f in ("measure.py", "row23_lib.py", "door_measure.py", "aperture_trace.py"):
+        _p = os.path.join(os.path.dirname(os.path.abspath(__file__)), _f)
+        if os.path.exists(_p):
+            h.update(open(_p, "rb").read())
+    return h.hexdigest()[:12]
+INSTRUMENT_ID = _instrument_id()
 
 PLAN = _PACK.paths["plan"]
 _PLAN_CACHE = {}
@@ -377,7 +388,14 @@ def measure_roll(key, r, side, cfg, ref, picks):
     _t = time.time()                                              # [row 33]
     _cached = os.path.join(OUT, "%s.json" % r["id"])
     if os.path.exists(_cached) and not REMEASURE:
-        return json.load(open(_cached))
+        _old = json.load(open(_cached))
+        # [Kabe, 2026-08-30] A READING IS A FUNCTION OF THE BYTES *AND THE
+        # INSTRUMENT*. The floor rule changed (foot, not shadow) and a pass
+        # re-promoted twelve walls on their cached readings — the old rows,
+        # to the pixel. A reading names the instrument it was taken with, and
+        # one taken by another is taken again.
+        if _old.get("instrument") == INSTRUMENT_ID:
+            return _old
     try:
         d = row23_lib.measure_candidate(os.path.join(ROOT, r["candidate"]),
                                         side, cfg, ref, picks)
@@ -399,6 +417,7 @@ def measure_roll(key, r, side, cfg, ref, picks):
                    {"roll_id": r["id"], "candidate": r["candidate"],
                     "verdict": d.get("verdict"), "kind": d.get("kind")})
     d["id"], d["candidate"] = r["id"], r["candidate"]
+    d["instrument"] = INSTRUMENT_ID
     os.makedirs(OUT, exist_ok=True)
     json.dump(d, open(_cached, "w"), indent=2)
     return d
@@ -775,13 +794,16 @@ def _record_exit(st, name, reason, cand_rel=None):
     st["exit"] = name
     st["exit_reason"] = reason
     if cand_rel is not None:
-        st["exit_attempt"] = {"candidate": cand_rel, "exit": name,
+        st["exit_attempt"] = {"candidate": cand_rel, "exit": name, "instrument": INSTRUMENT_ID,
                               "at": time.strftime("%Y-%m-%dT%H:%M:%S")}
 
 
 def _exit_tried(st, cand_rel):
     """Has this wall already been routed on THIS candidate? See SNAP_ROUND above."""
-    return (st.get("exit_attempt") or {}).get("candidate") == cand_rel
+    # [Kabe, 2026-08-30] ...on this candidate BY THIS INSTRUMENT. A changed
+    # reader is a new routing, or a wall holds forever on a reading nobody takes.
+    _a = st.get("exit_attempt") or {}
+    return _a.get("candidate") == cand_rel and _a.get("instrument") == INSTRUMENT_ID
 
 
 def _snapped_frame(key):
