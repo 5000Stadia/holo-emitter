@@ -1556,6 +1556,7 @@
   /* ...and the seam row itself is darkened to say THRESHOLD: "darken that one
    * line row to emphasize the transitional seam and I think we'll have it." */
   var SEAM_LINE_SHADE = 0.18;   // [Kabe] "less darkening"
+  var SEAM_LINE_BLUR_PX = 0.4;  // [Kabe] "way less blur, only a tiny bit"
   /* HOW the band is treated — a look decision awaiting Kabe's pick from the
    * comparison batch, made by a constant like THROUGH_DIM:
    *   "hard"   the crisp seam alone
@@ -2088,7 +2089,7 @@
           ctx.beginPath();
           ctx.rect(a.x - 1, lbTop, a.w + 2, lbH);
           ctx.clip();
-          ctx.filter = "blur(1px)";
+          ctx.filter = "blur(" + SEAM_LINE_BLUR_PX + "px)";
           ctx.drawImage(lbStrip, 0, lbTop - lbFeed);
           ctx.filter = "none";
         }
