@@ -153,7 +153,7 @@ class WarpExit(unittest.TestCase):
         shutil.rmtree(self.tmp, ignore_errors=True)
 
     def _warps(self, rec=None, refusal=None):
-        def warp_wall(key, candidate, mode="plane", plan_path=None):
+        def warp_wall(key, candidate, mode="plane", plan_path=None, **kw):
             self.calls["warp"].append((key, candidate))
             if refusal is not None:
                 return None, dict(facing=key, candidate=candidate,

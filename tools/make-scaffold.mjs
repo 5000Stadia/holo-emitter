@@ -2468,6 +2468,15 @@ async function emitManor(outDir, opts) {
    * wall nobody noticed. */
   const state = existsSync(join(outDir, "run-state.json"))
     ? JSON.parse(readFileSync(join(outDir, "run-state.json"), "utf8")) : { walls: {} };
+  /* The previous standing order, so a skip preserves a wall's entry (below). */
+  const priorEntries = {};
+  if (existsSync(join(outDir, "manifest.json"))) {
+    try {
+      for (const pe of JSON.parse(readFileSync(join(outDir, "manifest.json"), "utf8")).entries || []) {
+        if (pe && pe.key && !(pe.key in priorEntries)) priorEntries[pe.key] = pe;
+      }
+    } catch { /* an unreadable prior manifest preserves nothing */ }
+  }
   /* [row 42] WHERE EVERY WALL'S PICTURE IS, resolved once for the whole pass —
    * promoted painting, else the candidate the sweep is working from. This is
    * what the room order, the edge seed and Image 1 all read, so a lead that
@@ -2729,7 +2738,19 @@ async function emitManor(outDir, opts) {
     emitted: entries.filter((e) => !e.skipped).length,
     skipped: skipped.length,
     skipped_entries: skipped,
-    entries: entries.concat(skipped)
+    /* [Kabe, "first-time success", 2026-08-30] A SKIP MUST NOT GUT THE STANDING
+       ORDER. A partial re-emit used to write each skipped wall as a stub with
+       no geometry — the sweep then could not SEE those walls (it skips
+       `skipped` entries), their retry rolls sat unmeasured, and a probe of the
+       manifest raised KeyError px_per_m_at_wall. A wall the previous manifest
+       carried in full keeps its full entry; the skip and its reason live in
+       `skipped_entries` above, which is the report. */
+    entries: entries.concat(skipped.map((x) => {
+      const prior = priorEntries[x.key];
+      return prior && prior.px_per_m_at_wall != null
+        ? { ...prior, promoted: x.promoted ?? prior.promoted }
+        : x;
+    }))
   };
   const mp = join(outDir, "manifest.json");
   writeFileSync(mp, JSON.stringify(manifest, null, 2) + "\n");
@@ -3630,7 +3651,23 @@ export function styleImageFor(plan, key, opts = {}) {
   if (opts.imageOf && lead && lead !== f) {
     const img = opts.imageOf(`${loc}/${lead}`);
     if (img && img.kind === "candidate") {
-      const ok = leadAskIsRuling(plan, loc, lead, root, img.rel);
+      /* [Kabe, "we want first-time success", 2026-08-30] A SEED MUST PASS THE
+         INSTRUMENT BEFORE IT MAY TEACH. platform_far's three followers took
+         Image 1 from their lead's unjudged candidate - a scale-broken frame -
+         and all three painted 10-15 % small; re-rolled with NO image and the
+         same words, all three passed. One wrong picture outweighs every
+         sentence, so a candidate seeds nothing until its own reading is a
+         camera PASS. */
+      const cid = (img.rel.match(/row23-([0-9a-f]+)\.png$/) || [])[1];
+      const readingFile = cid && PACK.paths.readings_dir
+        ? join(PACK.paths.readings_dir, `${cid}.json`) : null;
+      let candPass = false;
+      if (readingFile && existsSync(readingFile)) {
+        try { candPass = JSON.parse(readFileSync(readingFile, "utf8")).verdict === "PASS"; }
+        catch { candPass = false; }
+      }
+      const ok = candPass ? leadAskIsRuling(plan, loc, lead, root, img.rel)
+        : { ok: false, why: "the lead's candidate has no camera-PASS reading yet - an unjudged frame seeds nothing" };
       if (ok.ok) {
         return say(lead, img.rel,
           `${loc}/${lead} LEADS this room [row 42] and is painted but not promoted yet; its own ` +

@@ -1328,7 +1328,7 @@ def sha256(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
 
 
-def warp_wall(key, candidate, mode="plane", plan_path=None):
+def warp_wall(key, candidate, mode="plane", plan_path=None, reading=None):
     """Warp one manor facing. Returns `(rgb_or_None, record)`.
 
     Three refusals and no others: a landmark that cannot be read, an aperture
@@ -1364,7 +1364,14 @@ def warp_wall(key, candidate, mode="plane", plan_path=None):
             % (declared.get("facing_type") or "open")))
         return None, rec
 
-    reading = reading_for(candidate, key, side, cfg, ref)
+    # [Kabe, "we want first-time success"] ONE READING, ONE INSTRUMENT. The
+    # sweep hands its own reading in; the warp re-measures only when routed
+    # from a path that has none. Three scale-missed walls were declined here
+    # with KeyError 'px_per_m_at_wall' because the warp's OWN snap reading of
+    # the same frame came back shaped differently than the sweep's — the
+    # second instrument this file exists to avoid.
+    if reading is None:
+        reading = reading_for(candidate, key, side, cfg, ref)
     rec["reading_cache"] = reading.get("_cache")
     rec["before"] = dict(camera_verdict=reading.get("verdict"),
                          delta_focal_pct=reading.get("delta_focal_pct"),
@@ -1379,6 +1386,10 @@ def warp_wall(key, candidate, mode="plane", plan_path=None):
         return None, rec
     rec["source_notes"] = notes
 
+    if reading.get("px_per_m_at_wall") is None:
+        rec.update(verdict="refused", clause=LANDMARK_REFUSAL,
+                   why="the reading carries no px_per_m_at_wall - no scale to pin the plan's lines to")
+        return None, rec
     tgt_box, tnotes, why = target_box_from_plan(
         declared, src_box, reading["px_per_m_at_wall"])
     if tgt_box is None:

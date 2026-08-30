@@ -1,407 +1,471 @@
 {
- "walls": {
-  "booking_hall/N": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+  "walls": {
+    "booking_hall/N": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.106,
+          "target_px": 725.3,
+          "source_px": 656.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/booking_hall-N/row23-2f60265e.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.196x larger: 213.3 px/m at the wall plane, not 178.3",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.106, 0 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:12"
+      }
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.106,
-     "target_px": 725.3,
-     "source_px": 656.0
+    "booking_hall/S": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.044,
+          "target_px": 725.3,
+          "source_px": 695.0
+        },
+        "revealed_px": 20,
+        "revealed_fraction": 1e-05,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/booking_hall-S/row23-5fc9fd07.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.191x larger: 213.3 px/m at the wall plane, not 179.2",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.044, 20 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:26"
+      }
     },
-    "revealed_px": 0,
-    "revealed_fraction": 0.0,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/booking_hall-N/row23-2f60265e.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.196x larger: 213.3 px/m at the wall plane, not 178.3",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.106, 0 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:12"
-   }
-  },
-  "booking_hall/S": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "booking_hall/E": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-E/row23-9828f287.png",
+      "exit": "measured",
+      "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.044,
-     "target_px": 725.3,
-     "source_px": 695.0
+    "booking_hall/W": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.104,
+          "target_px": 725.3,
+          "source_px": 657.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/booking_hall-W/row23-f1727b12.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-W/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.104, 0 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:40"
+      }
     },
-    "revealed_px": 20,
-    "revealed_fraction": 1e-05,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/booking_hall-S/row23-5fc9fd07.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.191x larger: 213.3 px/m at the wall plane, not 179.2",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.044, 20 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:26"
-   }
-  },
-  "booking_hall/E": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-E/row23-9828f287.png",
-   "exit": "measured",
-   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
-  },
-  "booking_hall/W": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform/N": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-N/row23-ab082589.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "corner_left..corner_right",
+          "scale": 1.176,
+          "target_px": 1365.3,
+          "source_px": 1161.0
+        },
+        "revealed_px": 71984,
+        "revealed_fraction": 0.04577,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-N/row23-ab082589.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.158x larger: 213.3 px/m at the wall plane, not 184.2",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.176, 71984 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-N/row23-ab082589.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:53"
+      }
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.104,
-     "target_px": 725.3,
-     "source_px": 657.0
+    "platform/S": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-S/row23-614418d6.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "corner_left..corner_right",
+          "scale": 1.169,
+          "target_px": 1365.3,
+          "source_px": 1168.0
+        },
+        "revealed_px": 40002,
+        "revealed_fraction": 0.02543,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-S/row23-614418d6.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.180x larger: 213.3 px/m at the wall plane, not 180.8",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.169, 40002 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-S/row23-614418d6.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:42:07"
+      }
     },
-    "revealed_px": 0,
-    "revealed_fraction": 0.0,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/booking_hall-W/row23-f1727b12.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "unfitted-horizon",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-W/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.104, 0 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:40"
-   }
-  },
-  "platform/N": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform-N/row23-ab082589.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform/E": {
+      "attempts": 1,
+      "status": "promoted",
+      "why": "art already in the store; this loop read it rather than remaking it"
     },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..corner_right",
-     "scale": 1.176,
-     "target_px": 1365.3,
-     "source_px": 1161.0
+    "platform/W": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
+      "warp": {
+        "pins": 7,
+        "columns": 4,
+        "rows": 3,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "door:door01:left",
+              0.0
+            ],
+            [
+              "door:door01:right",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "door:door01:head",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..door:door01:head",
+          "scale": 1.26,
+          "target_px": 298.7,
+          "source_px": 237.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-W/row23-4c9f614b.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.153x larger: 213.3 px/m at the wall plane, not 185.0",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-W/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment ceiling_line..door:door01:head x1.260, 0 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:39:01"
+      }
     },
-    "revealed_px": 71984,
-    "revealed_fraction": 0.04577,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-N/row23-ab082589.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.158x larger: 213.3 px/m at the wall plane, not 184.2",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.176, 71984 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-N/row23-ab082589.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:53"
-   }
-  },
-  "platform/S": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform-S/row23-614418d6.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform_far/N": {
+      "attempts": 1,
+      "status": "retry",
+      "correction": "draw 1.148x larger: 213.3 px/m at the wall plane, not 185.8",
+      "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
+      "hold_family": "camera-miss",
+      "exit": "grid",
+      "exit_reason": "the warp could not carry this wall: the warp raised on this frame: 'px_per_m_at_wall'",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
+        "exit": "grid",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:43:57"
+      }
     },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..corner_right",
-     "scale": 1.169,
-     "target_px": 1365.3,
-     "source_px": 1168.0
+    "platform_far/S": {
+      "attempts": 1,
+      "status": "retry",
+      "correction": "draw 1.133x larger: 213.3 px/m at the wall plane, not 188.3",
+      "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
+      "hold_family": "camera-miss",
+      "exit": "grid",
+      "exit_reason": "the warp could not carry this wall: the warp raised on this frame: 'px_per_m_at_wall'",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
+        "exit": "grid",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:44:00"
+      }
     },
-    "revealed_px": 40002,
-    "revealed_fraction": 0.02543,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-S/row23-614418d6.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.180x larger: 213.3 px/m at the wall plane, not 180.8",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.169, 40002 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-S/row23-614418d6.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:42:07"
-   }
-  },
-  "platform/E": {
-   "attempts": 1,
-   "status": "promoted",
-   "why": "art already in the store; this loop read it rather than remaking it"
-  },
-  "platform/W": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
-   "warp": {
-    "pins": 7,
-    "columns": 4,
-    "rows": 3,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "door:door01:left",
-       0.0
-      ],
-      [
-       "door:door01:right",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "door:door01:head",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform_far/E": {
+      "attempts": 1,
+      "status": "retry",
+      "correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2",
+      "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
+      "hold_family": "camera-miss",
+      "exit": "grid",
+      "exit_reason": "the warp could not carry this wall: the warp raised on this frame: 'px_per_m_at_wall'",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
+        "exit": "grid",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:44:04"
+      }
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..door:door01:head",
-     "scale": 1.26,
-     "target_px": 298.7,
-     "source_px": 237.0
-    },
-    "revealed_px": 0,
-    "revealed_fraction": 0.0,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-W/row23-4c9f614b.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.153x larger: 213.3 px/m at the wall plane, not 185.0",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-W/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment ceiling_line..door:door01:head x1.260, 0 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:39:01"
-   }
-  },
-  "platform_far/N": {
-   "attempts": 1,
-   "status": "retry",
-   "correction": "draw 1.148x larger: 213.3 px/m at the wall plane, not 185.8",
-   "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
-   "hold_family": "camera-miss",
-   "exit": "grid",
-   "exit_reason": "the warp could not carry this wall: the warp raised on this frame: 'px_per_m_at_wall'",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
-    "exit": "grid",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:43:57"
-   }
-  },
-  "platform_far/S": {
-   "attempts": 1,
-   "status": "retry",
-   "correction": "draw 1.133x larger: 213.3 px/m at the wall plane, not 188.3",
-   "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
-   "hold_family": "camera-miss",
-   "exit": "grid",
-   "exit_reason": "the warp could not carry this wall: the warp raised on this frame: 'px_per_m_at_wall'",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
-    "exit": "grid",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:44:00"
-   }
-  },
-  "platform_far/E": {
-   "attempts": 1,
-   "status": "retry",
-   "correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2",
-   "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
-   "hold_family": "camera-miss",
-   "exit": "grid",
-   "exit_reason": "the warp could not carry this wall: the warp raised on this frame: 'px_per_m_at_wall'",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
-    "exit": "grid",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:44:04"
-   }
-  },
-  "platform_far/W": {
-   "attempts": 1,
-   "status": "waiting"
+    "platform_far/W": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
+      "warp": {
+        "pins": 7,
+        "columns": 4,
+        "rows": 3,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "door:door01:left",
+              0.0
+            ],
+            [
+              "door:door01:right",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "door:door01:head",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "door:door01:left..door:door01:right",
+          "scale": 0.606,
+          "target_px": 109.7,
+          "source_px": 181.0
+        },
+        "revealed_px": 524585,
+        "revealed_fraction": 0.33352,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform_far-W/row23-a6a27b21.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-W/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment door:door01:left..door:door01:right x0.606, 524585 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
+        "exit": "warped",
+        "instrument": "ccaf6aa6df07",
+        "candidate_sha256": "912cf3ec78d024892e672478174ee125e24e1553e1a17afb0a8f1dae43c1e23c",
+        "at": "2026-08-30T15:52:18"
+      }
+    }
   }
- }
 }

@@ -1316,7 +1316,7 @@ def _warp_document(key, warped_rel, reading_after, side, ref, rec):
     return doc_out, None
 
 
-def _exit_warp(key, e, st, cand_rel, side, ref, fam):
+def _exit_warp(key, e, st, cand_rel, side, ref, fam, reading=None):
     """THE correction step. Returns `(ok, reason, record, clause)`.
 
     `clause` is non-null only on one of the warp's own three refusals, and that
@@ -1328,7 +1328,7 @@ def _exit_warp(key, e, st, cand_rel, side, ref, fam):
     _t = time.time()
     import mesh_warp
     try:
-        out, rec = mesh_warp.warp_wall(key, cand_rel)
+        out, rec = mesh_warp.warp_wall(key, cand_rel, reading=reading)
     except (Exception, SystemExit) as ex:          # ONE BAD WALL IS ONE ROW - a snap refusal raises SystemExit and must not end the sweep.
         timings.record("exit.warp", _t, time.time(), key,
                        {"candidate": cand_rel, "warped": False,
@@ -1460,7 +1460,7 @@ def route_exit(key, e, st, cand_rel, reading, side, ref, fam,
         # keyed by WALL and a newer roll of an already-promoted wall would
         # otherwise overwrite the picture the store was measured on.
         _warp_stash = _stash_warped(key)
-        ok, reason, rec, clause = _exit_warp(key, e, st, cand_rel, side, ref, fam)
+        ok, reason, rec, clause = _exit_warp(key, e, st, cand_rel, side, ref, fam, reading=reading)
         if ok:
             if rec is not None:
                 st["warp"] = _warp_block(rec)
