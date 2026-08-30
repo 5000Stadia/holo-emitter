@@ -1,0 +1,370 @@
+{
+ "candidate_id": "81a0fbeb",
+ "cells": [
+  "platform",
+  "platform_far"
+ ],
+ "crossed_edges": [
+  13.4
+ ],
+ "derivation": "deep_view/1",
+ "extended_fraction": 0.3206,
+ "extended_px": 504255,
+ "facing": "platform/E",
+ "fallbacks": [
+  {
+   "fill": "plane_recession",
+   "pixels": 33067,
+   "source": [
+    "c0.left"
+   ],
+   "surface": "platform.ceiling.left"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 33013,
+   "source": [
+    "c0.right"
+   ],
+   "surface": "platform.ceiling.right"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 84941,
+   "source": [
+    "c0.left"
+   ],
+   "surface": "platform.floor.left"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 84644,
+   "source": [
+    "c0.right"
+   ],
+   "surface": "platform.floor.right"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 108169,
+   "source": [
+    "c1.left",
+    "far"
+   ],
+   "surface": "platform_far.ceiling.left"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 107913,
+   "source": [
+    "c1.right",
+    "far"
+   ],
+   "surface": "platform_far.ceiling.right"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 26252,
+   "source": [
+    "c1.left",
+    "far"
+   ],
+   "surface": "platform_far.floor.left"
+  },
+  {
+   "fill": "plane_recession",
+   "pixels": 26256,
+   "source": [
+    "c1.right",
+    "far"
+   ],
+   "surface": "platform_far.floor.right"
+  }
+ ],
+ "far_cell": "platform_far",
+ "geometry": {
+  "camera_wall_m": 11.2,
+  "edge_depth_m": 4.800000000000001,
+  "eye_m": 1.183,
+  "focal_px": 1024.0,
+  "horizon_y": 0.51377,
+  "standpoint": [
+   8.6,
+   3.6
+  ],
+  "standpoint_stand_back_m": 0.25,
+  "storey_height_m": 3.4,
+  "t_edge": 0.42857142857142866,
+  "t_near": 0.022321428571428572,
+  "wall_line": 19.8
+ },
+ "inputs": [
+  {
+   "facing": "platform_far/E",
+   "meta": "backdrops/platform_far/E.meta.json",
+   "meta_sha256": "2598b2a63e2988791ce38ff23f0659700fcebae4b1856d8793608ce2adfbc1dc",
+   "png": "backdrops/platform_far/E.png",
+   "png_sha256": "bf21975adf484e4061937fa0d05d561392a67b485349380ab675fa0b8732c470",
+   "role": "far"
+  },
+  {
+   "facing": "platform/N",
+   "meta": "backdrops/platform/N.meta.json",
+   "meta_sha256": "5da0e4baadb1cf22755ca77ef5cc96ab77299d4453580b8bbaa269b0340034bd",
+   "png": "backdrops/platform/N.png",
+   "png_sha256": "91cf8448da3d010931fce5d8fa3f643e04e8403bb93565e9b21ae5a43aa8d604",
+   "role": "c0.left"
+  },
+  {
+   "facing": "platform/S",
+   "meta": "backdrops/platform/S.meta.json",
+   "meta_sha256": "da6a772b66971aa607aba4d3842dbcd7bff1f5a075ead5193f4ebd89f57962d4",
+   "png": "backdrops/platform/S.png",
+   "png_sha256": "704c70b0b1a72876d0aceef28cc37404b808ca1813c217b664271674677e300f",
+   "role": "c0.right"
+  },
+  {
+   "facing": "platform_far/N",
+   "meta": "backdrops/platform_far/N.meta.json",
+   "meta_sha256": "d86e1e9ef1ac31ff8632181fb9f17d3d250ec1dba66630359ede5c76f549df07",
+   "png": "backdrops/platform_far/N.png",
+   "png_sha256": "70ea07443ea1733bf1e5abf19c3700abf8e663dbe6536bb3848740fa87905193",
+   "role": "c1.left"
+  },
+  {
+   "facing": "platform_far/S",
+   "meta": "backdrops/platform_far/S.meta.json",
+   "meta_sha256": "02a4302ea04d38253f182cf86a0d89244d8f8cb3dc903f26a170882ae147a35f",
+   "png": "backdrops/platform_far/S.png",
+   "png_sha256": "bbcad055fecf580f03c52ae5908ffc173e00ace8e06495dd68916f37edf3287b",
+   "role": "c1.right"
+  }
+ ],
+ "k_camera": 0.4285714285714286,
+ "k_corners": 0.5489145001340124,
+ "kind": "derived_deep_view",
+ "missing_sources": [],
+ "painted_fraction": 0.6794,
+ "png": "backdrops/source/platform-E/row23-deep81a0fbeb.png",
+ "quads": {
+  "ceiling": [
+   [
+    -12339.199999999999,
+    -8554.731520000001
+   ],
+   [
+    85.33333333333348,
+    53.140480000000025
+   ],
+   [
+    1450.6666666666667,
+    53.140480000000025
+   ],
+   [
+    13875.200000000004,
+    -8554.731520000001
+   ]
+  ],
+  "crossed_edge": {
+   "bl": [
+    85.33333333333348,
+    778.4738133333332
+   ],
+   "br": [
+    1450.6666666666667,
+    778.4738133333332
+   ],
+   "tl": [
+    85.33333333333348,
+    53.140480000000025
+   ],
+   "tr": [
+    1450.6666666666667,
+    53.140480000000025
+   ]
+  },
+  "floor": [
+   [
+    -12339.199999999999,
+    5371.668479999998
+   ],
+   [
+    85.33333333333348,
+    778.4738133333332
+   ],
+   [
+    1450.6666666666667,
+    778.4738133333332
+   ],
+   [
+    13875.200000000004,
+    5371.668479999998
+   ]
+  ],
+  "left": [
+   [
+    -12339.199999999999,
+    -8554.731520000001
+   ],
+   [
+    85.33333333333348,
+    53.140480000000025
+   ],
+   [
+    85.33333333333348,
+    778.4738133333332
+   ],
+   [
+    -12339.199999999999,
+    5371.668479999998
+   ]
+  ],
+  "near_plane": {
+   "bl": [
+    -12339.199999999999,
+    5371.668479999998
+   ],
+   "br": [
+    13875.200000000004,
+    5371.668479999998
+   ],
+   "tl": [
+    -12339.199999999999,
+    -8554.731520000001
+   ],
+   "tr": [
+    13875.200000000004,
+    -8554.731520000001
+   ]
+  },
+  "right": [
+   [
+    13875.200000000004,
+    -8554.731520000001
+   ],
+   [
+    1450.6666666666667,
+    53.140480000000025
+   ],
+   [
+    1450.6666666666667,
+    778.4738133333332
+   ],
+   [
+    13875.200000000004,
+    5371.668479999998
+   ]
+  ],
+  "wall": {
+   "bl": [
+    475.42857142857144,
+    634.2604799999999
+   ],
+   "br": [
+    1060.5714285714287,
+    634.2604799999999
+   ],
+   "tl": [
+    475.42857142857144,
+    323.4033371428571
+   ],
+   "tr": [
+    1060.5714285714287,
+    323.4033371428571
+   ]
+  }
+ },
+ "seam": {
+  "feather_px": 0,
+  "join": "crossed_edge_rect"
+ },
+ "sources": [
+  {
+   "camera_wall_m": 4.8,
+   "eye_m": 1.183,
+   "facing": "platform/N",
+   "ppm_h": 213.3333,
+   "ppm_v": 213.333,
+   "role": "c0.left"
+  },
+  {
+   "camera_wall_m": 4.8,
+   "eye_m": 1.183,
+   "facing": "platform/S",
+   "ppm_h": 213.3333,
+   "ppm_v": 213.333,
+   "role": "c0.right"
+  },
+  {
+   "camera_wall_m": 4.8,
+   "eye_m": 1.183,
+   "facing": "platform_far/N",
+   "ppm_h": 213.3333,
+   "ppm_v": 213.333,
+   "role": "c1.left"
+  },
+  {
+   "camera_wall_m": 4.8,
+   "eye_m": 1.183,
+   "facing": "platform_far/S",
+   "ppm_h": 213.3333,
+   "ppm_v": 213.333,
+   "role": "c1.right"
+  },
+  {
+   "camera_wall_m": 4.8,
+   "eye_m": 1.044,
+   "facing": "platform_far/E",
+   "ppm_h": 166.5625,
+   "ppm_v": 197.5,
+   "role": "far"
+  }
+ ],
+ "surfaces": {
+  "platform.ceiling.left": [
+   "c0.left"
+  ],
+  "platform.ceiling.right": [
+   "c0.right"
+  ],
+  "platform.floor.left": [
+   "c0.left"
+  ],
+  "platform.floor.right": [
+   "c0.right"
+  ],
+  "platform.left": [
+   "c0.left"
+  ],
+  "platform.right": [
+   "c0.right"
+  ],
+  "platform_far.ceiling.left": [
+   "c1.left",
+   "far"
+  ],
+  "platform_far.ceiling.right": [
+   "c1.right",
+   "far"
+  ],
+  "platform_far.floor.left": [
+   "c1.left",
+   "far"
+  ],
+  "platform_far.floor.right": [
+   "c1.right",
+   "far"
+  ],
+  "platform_far.left": [
+   "c1.left"
+  ],
+  "platform_far.right": [
+   "c1.right"
+  ],
+  "wall": [
+   "far"
+  ]
+ },
+ "tool": "design/plan-draft/measured/deep_view.py",
+ "unassigned_px": 0
+}
