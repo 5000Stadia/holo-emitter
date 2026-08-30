@@ -1751,17 +1751,29 @@
        bottom edge." A far frame shorter than the opening is scaled UP uniformly
        until it spans the opening's height exactly; the sides overflow into the
        clip. The pinhole scale k is kept where it already fills the height. */
-    if (dh < a.h) {
-      var kFill = a.h / H;
+    var openH = Math.min(a.y + a.h, meta.floor_line_y * meta.image_h_px) - a.y;   // the opening ends at the wall's floor line
+    if (dh < openH) {
+      var kFill = openH / H;
       dx = W / 2 + kFill * ((a.beyond_offset_m || 0) * sDest - W / 2);
       dy = a.y;
       k = kFill; dw = W * k; dh = H * k;
     }
-    var footHere = a.y + a.h;
+    /* [Kabe, 2026-08-30] NEVER BELOW THE WALL'S OWN FLOOR LINE. "There needs to
+       be a bottom threshold the background room image is never allowed to go
+       below, in line with the foreground room's horizontal line where the back
+       wall meets the floor's back edge. Otherwise it's fundamentally
+       nonsensical." A far room is seen THROUGH the wall plane; the wall plane
+       ends at its floor line; so the composite ends there whatever the door's
+       rectangle or trace says about the threshold. */
+    var wallFloorY = meta.floor_line_y * meta.image_h_px;
+    var footHere = Math.min(a.y + a.h, wallFloorY);
     if (dy + dh < footHere) dy = footHere - dh;
     ctx.save();
     ctx.beginPath();
     apertureClipPath(ctx, a);
+    ctx.clip();
+    ctx.beginPath();
+    ctx.rect(0, 0, W, wallFloorY);          // and nothing below the wall's floor line
     ctx.clip();
     /* The far room is smaller than the hole it is seen through, so its frame
      * does not cover the opening — and the strip left over is the floor at
