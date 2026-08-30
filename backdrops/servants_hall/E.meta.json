@@ -81,6 +81,7 @@
     }
   ],
   "window_evidence": {
+    "unpainted": 0,
     "read_by": "design/plan-draft/measured/window_measure.py",
     "ruled": 1,
     "painted": 1,

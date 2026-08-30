@@ -72,42 +72,40 @@
     "horizon_y_px": 526.1,
     "openings": [
       {
-        "x0_px": 296,
+        "x0_px": 300,
         "x1_px": 426,
         "y0_px": 350,
         "y1_px": 728,
-        "width_px": 130,
-        "width_m": 0.762,
-        "centre_px": 361.2,
-        "head_m": 2.217,
+        "width_px": 126,
+        "width_m": 0.738,
+        "centre_px": 363.0,
+        "head_m": 2.215,
         "void_luminance": 1.86,
-        "wall_luminance": 69.89,
-        "threshold": 37,
+        "wall_luminance": 69.88,
+        "threshold": 35,
         "threshold_span": [
-          33,
-          40
+          32,
+          38
         ],
-        "stability": 8,
-        "_snap": "transformed through the facing wall's own map"
+        "stability": 7
       },
       {
-        "x0_px": 731,
-        "x1_px": 917,
+        "x0_px": 732,
+        "x1_px": 916,
         "y0_px": 350,
         "y1_px": 728,
-        "width_px": 185,
-        "width_m": 1.085,
+        "width_px": 184,
+        "width_m": 1.078,
         "centre_px": 824.0,
-        "head_m": 2.217,
+        "head_m": 2.215,
         "void_luminance": 2.07,
-        "wall_luminance": 69.89,
-        "threshold": 52,
+        "wall_luminance": 69.88,
+        "threshold": 44,
         "threshold_span": [
-          34,
+          18,
           70
         ],
-        "stability": 37,
-        "_snap": "transformed through the facing wall's own map"
+        "stability": 53
       }
     ]
   },
@@ -211,19 +209,18 @@
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      447,
-      686
+      438,
+      677
     ],
     "wall_band_px": [
-      122,
+      121,
       1414
     ],
-    "wall_median_luminance": 69.89,
+    "wall_median_luminance": 69.88,
     "min_enumerated_px": 68,
     "min_head_m": 1.4,
     "storey_m": 2.8,
-    "candidates_before_head_test": 3,
-    "_snap": "read off the pre-snap frame and carried through the warp; --acceptance re-reads it"
+    "candidates_before_head_test": 3
   },
   "_snap": {
     "_what_this_is": "the row-35 snap of servants_hall/W: a five-plane planar rectification of backdrops/source/servants_hall-W/row23-ee63b93c.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",

@@ -285,7 +285,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_office-N/row23-7c95225a.png",
         "exit": "warped",
-        "at": "2026-08-29T09:48:54"
+        "at": "2026-08-29T19:38:25"
       }
     },
     "back_office/E": {
@@ -341,7 +341,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_office-E/row23-bac80793.png",
         "exit": "warped",
-        "at": "2026-08-29T09:49:04"
+        "at": "2026-08-29T19:38:36"
       }
     },
     "back_office/S": {
@@ -396,7 +396,7 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_office-S/row23-7fc68c04.png",
         "exit": "warped",
-        "at": "2026-08-29T09:49:16"
+        "at": "2026-08-29T19:38:46"
       }
     },
     "back_office/W": {

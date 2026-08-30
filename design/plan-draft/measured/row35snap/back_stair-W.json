@@ -74,21 +74,20 @@
       {
         "x0_px": 770,
         "x1_px": 981,
-        "y0_px": 262,
+        "y0_px": 261,
         "y1_px": 822,
         "width_px": 211,
-        "width_m": 0.841,
-        "centre_px": 875.6,
-        "head_m": 2.239,
-        "void_luminance": 2.34,
-        "wall_luminance": 28.62,
+        "width_m": 0.843,
+        "centre_px": 875.5,
+        "head_m": 2.241,
+        "void_luminance": 2.43,
+        "wall_luminance": 28.63,
         "threshold": 17,
         "threshold_span": [
           4,
           29
         ],
-        "stability": 26,
-        "_snap": "transformed through the facing wall's own map"
+        "stability": 26
       }
     ]
   },
@@ -178,19 +177,18 @@
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      431,
-      741
+      396,
+      747
     ],
     "wall_band_px": [
-      56,
+      55,
       1480
     ],
-    "wall_median_luminance": 28.62,
-    "min_enumerated_px": 88,
+    "wall_median_luminance": 28.63,
+    "min_enumerated_px": 100,
     "min_head_m": 1.4,
     "storey_m": 2.8,
-    "candidates_before_head_test": 2,
-    "_snap": "read off the pre-snap frame and carried through the warp; --acceptance re-reads it"
+    "candidates_before_head_test": 2
   },
   "_snap": {
     "_what_this_is": "the row-35 snap of back_stair/W: a five-plane planar rectification of backdrops/source/back_stair-W/row23-7d7caa79.png onto the camera its own scaffold declares. Deterministic, no model in the loop. The source box is the reading the row-23 gate took of this same frame; the target box is that camera with the painted room's own proportions carried across.",

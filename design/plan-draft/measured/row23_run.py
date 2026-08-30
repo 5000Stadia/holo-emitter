@@ -474,7 +474,7 @@ def door_reading(doc_path, cand_rel, loc):
     loud.
     """
     import door_measure
-    plan = json.load(open(os.path.join(ROOT, "fixtures", "demo-study", "plan.json")))
+    plan = json.load(open(PLAN))
     return door_measure.patch(doc_path, os.path.join(ROOT, cand_rel), loc, plan)
 
 
@@ -489,7 +489,7 @@ def window_reading(doc_path, cand_rel, loc):
     on carries one.
     """
     import window_measure
-    plan = json.load(open(os.path.join(ROOT, "fixtures", "demo-study", "plan.json")))
+    plan = json.load(open(PLAN))
     return window_measure.patch(doc_path, os.path.join(ROOT, cand_rel), loc, plan)
 
 
@@ -553,7 +553,7 @@ def _do_promote(key, cand_rel, e, side, ref, reading, tolerance=False):
     if path is None:
         return False, why
     r = subprocess.run(
-        ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
+        ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"), "--pack", _PACK.name,
          "--facing", key, "--candidate", cand_rel, "--round", "manor",
          # The wall answers to the camera its own meta commands: manor walls
          # are scaffolded and derived at the ruled 1024 px lens.
@@ -869,7 +869,7 @@ def promote_document(key, cand_rel, round_dir, camera_source=None):
     """
     _t = time.time()
     r = subprocess.run(
-        ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
+        ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"), "--pack", _PACK.name,
          "--facing", key, "--candidate", cand_rel, "--round", round_dir,
          "--reference", "ruled"]
         # THE CAMERA THE HORIZON COMES FROM, named only where the frame was
@@ -2664,7 +2664,10 @@ def recheck_doors(state):
     It is idempotent: a wall that passes is re-derived to the same bytes.
     """
     walls = []
+    _rooms = {r["id"] for r in _PACK.plan.get("rooms", [])}
     for loc in sorted(os.listdir(os.path.join(ROOT, "backdrops"))):
+        if loc not in _rooms:
+            continue                       # [row 44] another pack's room is not this pack's to re-decide
         d = os.path.join(ROOT, "backdrops", loc)
         if loc == "source" or not os.path.isdir(d):
             continue
@@ -2700,7 +2703,7 @@ def recheck_doors(state):
         if any(o.get("kind") == "door" for o in meta.get("openings", [])):
             found, _note = door_reading(doc, cand, loc)
         r = subprocess.run(
-            ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"),
+            ["node", os.path.join(ROOT, "tools", "promote-backdrop.mjs"), "--pack", _PACK.name,
              "--facing", key, "--candidate", cand]
             + (["--round", rnd] if rnd else [])
             + (["--reference", meta["camera_reference"]] if meta.get("camera_reference") else [])

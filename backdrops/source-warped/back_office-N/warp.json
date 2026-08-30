@@ -156,7 +156,7 @@
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 6.54,
+ "seconds": 6.21,
  "warped_image": "backdrops/source-warped/back_office-N/warped.png",
  "asked_from": "backdrops/source/back_office-N/row23-7c95225a.prompt.txt",
  "warped_sha256": "abccd19aa0d46005649785e4274cf6df83eb1b5c33450fba8802ea6a9651c67b",

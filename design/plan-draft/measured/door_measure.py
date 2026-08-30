@@ -273,13 +273,19 @@ def patch(doc_path, png_path, loc, plan):
     return found, note
 
 
+def _pack_plan():
+    """[row 44] The plan is the active pack's, never a fixture path in code."""
+    import pack as _pack
+    return _pack.load_pack().paths["plan"]
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--facing", required=True, help="<loc>/<F>")
     ap.add_argument("--round", default="", help="the measurement round's directory")
     ap.add_argument("--candidate", default="",
                     help="the png; taken off the doc's own header when omitted")
-    ap.add_argument("--plan", default=os.path.join(ROOT, "fixtures", "demo-study", "plan.json"))
+    ap.add_argument("--plan", default=_pack_plan())
     ap.add_argument("--doc", default="",
                     help="write the reading into THIS document instead of the "
                          "round's own — a caller measuring against a copy, so "
