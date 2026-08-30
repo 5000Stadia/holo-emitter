@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| Q-DOOR-EDGE | queued (after B-DELIVERY): rectangle as prior → closed-loop inside-edge trace (perimeter samples, normal-band edge search, cyclic DP with smoothness); rectangular doors reproduce the rectangle, arches follow the arc; same tracer cuts asset mattes | queued |
+| B-TRACE | aperture inside-edge tracer: rectangle prior → normal-band edge search → cyclic DP closed loop; corners reproduce a rectangular door, arches follow the arc; < 1 s/wall, deterministic — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
 ## Recently landed (for "issue with…" back-reference)
