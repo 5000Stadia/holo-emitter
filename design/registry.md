@@ -21,7 +21,7 @@ keeps it current at every board change; reports cite these handles.
 
 | handle | task | state |
 |---|---|---|
-| B-TRACE | aperture inside-edge tracer: rectangle prior → normal-band edge search → cyclic DP closed loop; corners reproduce a rectangular door, arches follow the arc; < 1 s/wall, deterministic — capped | building |
+| B-TRACE | tracer landed (aperture_trace.py, 26 ms/wall, corners as line intersections, buttery_pantry/S corrected 50 px); follow-up capped: the threshold is the floor line (geometry, not paint), low-contrast excursions bounded, confidence that sees failure | building (2) |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
 ## Recently landed (for "issue with…" back-reference)
