@@ -1550,6 +1550,9 @@
    * `depth_m` from this room's face: the far room is seen to that plane, this
    * room's floor runs to it. Half, by Kabe's ruling above. */
   var PASSAGE_SHARE = 0.5;
+  /* How tall the softened band at the threshold seam is, in rows — half on
+   * each floor. [Kabe] "4-6 pixels ... 2-3 on each floor." */
+  var SEAM_BLUR_PX = 6;
   /* [Kabe, 2026-08-30] "The door frame in the background room isn't showing
    * the room two rooms back." How many rooms deep a through-view looks: 2 is
    * this room's doorway showing the next room AND that room's doorway showing
@@ -1939,6 +1942,33 @@
       ctx.translate(0, 2 * floorHere);
       ctx.scale(1, -1);
       ctx.drawImage(ctx.canvas, 0, sy, W, sh, 0, sy, W, sh);
+      ctx.restore();
+    }
+    /* [Kabe, 2026-08-30] AND THE SEAM ITSELF IS SOFTENED, BY A HAIR. "A blur
+       over 4-6 pixels on the combined background floor and foreground floor —
+       2-3 pixels on each — but only for those rows: no blurring spilling out
+       into either room. My theory is it will make an ambiguous divider line
+       that looks like a divider." So: the band SEAM_BLUR_PX tall centred on
+       the seam is redrawn through a small blur, clipped to exactly that band
+       inside the aperture; the copy carries a few extra rows so the filter has
+       both floors to sample, and the write cannot leave the band. */
+    if (sillBottom - sillTop > 0.5 && floorHere < H && typeof ctx.filter === "string") {
+      var bandTop = Math.max(0, Math.floor(sillTop - SEAM_BLUR_PX / 2));
+      var bandH = SEAM_BLUR_PX;
+      var feed = 4;
+      var strip = makeCanvas(doc, W, bandH + 2 * feed);
+      var sc = strip.getContext("2d");
+      sc.drawImage(ctx.canvas, 0, bandTop - feed, W, bandH + 2 * feed, 0, 0, W, bandH + 2 * feed);
+      ctx.save();
+      ctx.beginPath();
+      apertureClipPath(ctx, a);
+      ctx.clip();
+      ctx.beginPath();
+      ctx.rect(a.x - 1, bandTop, a.w + 2, bandH);
+      ctx.clip();
+      ctx.filter = "blur(1.5px)";
+      ctx.drawImage(strip, 0, bandTop - feed);
+      ctx.filter = "none";
       ctx.restore();
     }
     return true;

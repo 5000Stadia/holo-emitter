@@ -469,10 +469,12 @@ test("the room beyond stops at the far side of the wall's thickness, never below
   });
   expect(r.deep.depth_m, "the aperture carries the plan's depth").toBe(0.6);
   expect(Math.abs(r.flush.last_far_row - r.floorY),
-    `with no depth the far room reaches the floor line (${r.flush.last_far_row} vs ${r.floorY})`).toBeLessThanOrEqual(2);
+    `with no depth the far room reaches the floor line (${r.flush.last_far_row} vs ${r.floorY})`).toBeLessThanOrEqual(5);
   /* [Kabe] a SOLID seam at the leaf's plane: the far room ends there, to the
      row, and this room's floor stands below it. */
+  /* +/-2 for the geometry, +3 more for the seam's own softened band
+     (SEAM_BLUR_PX / 2): the last PURE far row sits just above the blur. */
   expect(Math.abs(r.deep.last_far_row - r.expected),
-    `0.6 m deep the far room ends at the leaf's plane (${r.deep.last_far_row} vs ${r.expected.toFixed(1)}, floor line ${r.floorY.toFixed(1)}, camera ${r.dHere} m)`).toBeLessThanOrEqual(2);
+    `0.6 m deep the far room ends at the leaf's plane (${r.deep.last_far_row} vs ${r.expected.toFixed(1)}, floor line ${r.floorY.toFixed(1)}, camera ${r.dHere} m)`).toBeLessThanOrEqual(5);
   expect(r.floorY - r.deep.last_far_row, "which is a visible step above the floor line").toBeGreaterThan(4);
 });
