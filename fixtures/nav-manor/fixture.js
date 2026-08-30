@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["nav-manor"] = {
   id: "nav-manor",
-  fp: "00a6aef9",
+  fp: "9e458fa1",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -984,7 +984,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 200.29339853300735,
         "h": 500.73349633251837,
         "beyond_m": 8.6,
-        "beyond_offset_m": -4.55
+        "beyond_offset_m": -4.55,
+        "depth_m": 0.6
       }
     ],
     "stairs": [
@@ -6635,7 +6636,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.4396,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.35
       }
     ],
     "stairs": [
@@ -8427,7 +8429,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 250.36674816625919,
         "h": 500.73349633251837,
         "beyond_m": 8.6,
-        "beyond_offset_m": 4.075
+        "beyond_offset_m": 4.075,
+        "depth_m": 0.6
       }
     ],
     "stairs": [
@@ -11842,7 +11845,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 250.36674816625919,
         "h": 500.73349633251837,
         "beyond_m": 14.95,
-        "beyond_offset_m": -2.575
+        "beyond_offset_m": -2.575,
+        "depth_m": 0.35
       }
     ],
     "stairs": [
@@ -13948,7 +13952,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.5162,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -15123,7 +15128,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.6892,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -16464,7 +16470,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.1273,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.35
       }
     ],
     "windows": [],
@@ -17647,7 +17654,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.3762,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.35
       }
     ]
   },
@@ -18766,7 +18774,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.2293,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.6
       }
     ]
   },
@@ -19092,7 +19101,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 191.6257309941521,
         "h": 239.53216374269005,
         "beyond_m": 9.9,
-        "beyond_offset_m": -2.9
+        "beyond_offset_m": -2.9,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -20218,7 +20228,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.987,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -20325,7 +20336,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 66.92810457516339,
         "h": 133.8562091503268,
         "beyond_m": 9.4,
-        "beyond_offset_m": -0.1
+        "beyond_offset_m": -0.1,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -21507,7 +21519,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.2274,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.6
       }
     ]
   },
@@ -22689,7 +22702,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.1799,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.35
       }
     ],
     "windows": [],
@@ -23895,7 +23909,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.4866,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.6
       }
     ]
   },
@@ -23938,7 +23953,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 93.51598173515981,
         "h": 187.03196347031965,
         "beyond_m": 5.8,
-        "beyond_offset_m": -2.575
+        "beyond_offset_m": -2.575,
+        "depth_m": 0.35
       }
     ],
     "stairs": []
@@ -25120,7 +25136,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.3454,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.6
       }
     ]
   },
@@ -25163,7 +25180,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 93.51598173515987,
         "h": 187.03196347031965,
         "beyond_m": 9.4,
-        "beyond_offset_m": -2.875
+        "beyond_offset_m": -2.875,
+        "depth_m": 0.6
       },
       {
         "id": "op05",
@@ -25174,7 +25192,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 93.51598173515981,
         "h": 187.03196347031965,
         "beyond_m": 9.4,
-        "beyond_offset_m": 3.525
+        "beyond_offset_m": 3.525,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -25218,7 +25237,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 196.92307692307702,
         "h": 393.8461538461538,
         "beyond_m": 6.8,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0,
+        "depth_m": 0.35
       }
     ],
     "stairs": [
@@ -28645,7 +28665,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.6035,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -28688,7 +28709,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 196.9230769230769,
         "h": 393.8461538461538,
         "beyond_m": 7.95,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0,
+        "depth_m": 0.35
       }
     ],
     "stairs": [
@@ -34580,7 +34602,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.8613,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -35754,7 +35777,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.5763,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -35868,7 +35892,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 5.3,
-        "beyond_offset_m": -0.93
+        "beyond_offset_m": -0.93,
+        "depth_m": 0.35
       }
     ],
     "stairs": []
@@ -35945,7 +35970,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 476.279069767442,
         "h": 952.5581395348837,
         "beyond_m": 9,
-        "beyond_offset_m": -1.43
+        "beyond_offset_m": -1.43,
+        "depth_m": 0.35
       }
     ],
     "stairs": []
@@ -35989,7 +36015,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 170.66666666666674,
         "h": 341.3333333333333,
         "beyond_m": 6.05,
-        "beyond_offset_m": 1.1
+        "beyond_offset_m": 1.1,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -36033,7 +36060,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 157.78120184899848,
         "h": 315.5624036979969,
         "beyond_m": 2.95,
-        "beyond_offset_m": 0.93
+        "beyond_offset_m": 0.93,
+        "depth_m": 0.35
       }
     ],
     "stairs": []
@@ -37285,7 +37313,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.8125,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -38410,7 +38439,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.7042,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -39529,7 +39559,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.7398,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -39572,7 +39603,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 170.66666666666674,
         "h": 341.3333333333333,
         "beyond_m": 6,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0,
+        "depth_m": 0.35
       }
     ],
     "stairs": []
@@ -39922,7 +39954,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 135.6291390728477,
         "h": 271.2582781456954,
         "beyond_m": 6.05,
-        "beyond_offset_m": -0.75
+        "beyond_offset_m": -0.75,
+        "depth_m": 0.6
       },
       {
         "id": "op24",
@@ -39933,7 +39966,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 135.62913907284747,
         "h": 271.2582781456954,
         "beyond_m": 6.05,
-        "beyond_offset_m": 4.075
+        "beyond_offset_m": 4.075,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -41067,7 +41101,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.5359,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -42444,7 +42479,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.2672,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.6
       }
     ]
   },
@@ -43633,7 +43669,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.7307,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -43717,7 +43754,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 66.9281045751635,
         "h": 133.8562091503268,
         "beyond_m": 8.6,
-        "beyond_offset_m": 0.9
+        "beyond_offset_m": 0.9,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -44857,7 +44895,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.4848,
-        "polygon_used": false
+        "polygon_used": false,
+        "depth_m": 0.6
       }
     ]
   },
@@ -44900,7 +44939,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 66.92810457516339,
         "h": 133.8562091503268,
         "beyond_m": 9.4,
-        "beyond_offset_m": 0.85
+        "beyond_offset_m": 0.85,
+        "depth_m": 0.6
       }
     ],
     "stairs": []
@@ -46173,7 +46213,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.9635,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -47309,7 +47350,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.9688,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       },
       {
         "id": "op17",
@@ -48368,7 +48410,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.9821,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -49588,7 +49631,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.8795,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       },
       {
         "id": "op22",
@@ -50647,7 +50691,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.6327,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ]
   },
@@ -51870,7 +51915,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.8338,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -53016,7 +53062,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.6205,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.35
       }
     ],
     "stairs": [
@@ -55732,7 +55779,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.5407,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.6
       }
     ]
   },
@@ -55775,7 +55823,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 196.9230769230769,
         "h": 393.8461538461538,
         "beyond_m": 7.95,
-        "beyond_offset_m": 0
+        "beyond_offset_m": 0,
+        "depth_m": 0.35
       }
     ],
     "stairs": [
@@ -60016,7 +60065,8 @@ window.HOLO_FIXTURES["nav-manor"] = {
         "w": 250.36674816625919,
         "h": 500.73349633251837,
         "beyond_m": 8.6,
-        "beyond_offset_m": 1.1
+        "beyond_offset_m": 1.1,
+        "depth_m": 0.6
       }
     ],
     "stairs": []

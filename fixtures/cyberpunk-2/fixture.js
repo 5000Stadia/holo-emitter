@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["cyberpunk-2"] = {
   id: "cyberpunk-2",
-  fp: "a578939e",
+  fp: "acd2fd76",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -1366,7 +1366,8 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.9569,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.2
       }
     ],
     "windows": [],
@@ -3116,7 +3117,8 @@ window.HOLO_FIXTURES["cyberpunk-2"] = {
         ],
         "head_kind": "straight",
         "trace_confidence": 0.7186,
-        "polygon_used": true
+        "polygon_used": true,
+        "depth_m": 0.2
       }
     ],
     "windows": [],
