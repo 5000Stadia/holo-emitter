@@ -233,3 +233,164 @@ test.describe("row 43 — the far floor meets the threshold", () => {
     expect(VIEW.repeat).toEqual(VIEW.at_threshold);
   });
 });
+
+/* [Row 43] AND THE HOLE IS THE TRACED APERTURE, NOT ITS BOX.
+ *
+ * Everything above is about what is drawn INSIDE the opening. This is about
+ * where the opening ends. `aperture_trace.py` traces the frame's inside edge
+ * off the paint and the promotion writes it as `polygon`, with `x/y/w/h` its
+ * bounding box — so a clip that keeps using the rectangle paints the room
+ * beyond onto whatever the paint put in the corners of that box: an arched
+ * head's two spandrels, a leaning jamb's wedge, `buttery_pantry/S`'s 49 px of
+ * reveal. Far floor standing on this room's wall is the same defect as a click
+ * landing on plaster and reads worse, because a player can see it.
+ *
+ * The case is a DIFFERENCE, and deliberately: one render with the rectangle,
+ * one with a polygon whose bounding box is that same rectangle, and the far
+ * room's own colour sampled at the same two points in both. The control point
+ * says the through-view still draws; the notch says the clip moved with the
+ * polygon. Nothing here depends on which walls in the store carry a traced
+ * head — what is under test is the rule.
+ */
+async function notchedClip(page, root) {
+  await page.goto(navUrl(root));
+  await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
+  return await page.evaluate((OPENING) => {
+    const A = window.HOLO_APP, R = window.HOLO.renderer;
+    const vs = { location: "study", facing: "E" };
+    const H = 1024, W = 1536;
+
+    /* THE FAR ROOM IS ONE COLOUR NOTHING ELSE IN THIS PICTURE IS. The
+       through-view's own edge extension is that colour too — it is the mean of
+       the destination's own edge band — so "is this pixel the room beyond" is
+       one comparison and not a shape-matching argument. */
+    const FAR = [255, 0, 200];
+    const img = document.createElement("canvas");
+    img.width = W; img.height = H;
+    const ic = img.getContext("2d");
+    ic.fillStyle = "rgb(" + FAR.join(",") + ")";
+    ic.fillRect(0, 0, W, H);
+
+    const shoot = (poly) => {
+      const meta = JSON.parse(JSON.stringify(A.metaFor(vs)));
+      Object.assign(meta.openings[0], OPENING);
+      if (poly) {
+        meta.openings[0].polygon = poly;
+        meta.openings[0].polygon_used = true;
+      }
+      const dvs = { location: null, facing: null };
+      const bd = {};
+      for (const k of Object.keys(A.backdrops)) bd[k] = { meta: A.backdrops[k].meta };
+      bd[vs.location + "/" + vs.facing] = { meta };
+      const ap = R.apertures(A.harness.world, A.harness.staging, A.library, meta, vs)[0];
+      dvs.location = ap.to; dvs.facing = ap.arrive_facing;
+      const destMeta = JSON.parse(JSON.stringify(A.metaFor(dvs)));
+      destMeta.openings = [];
+      bd[dvs.location + "/" + dvs.facing] = { meta: destMeta, image: img };
+      const c = document.createElement("canvas");
+      c.width = W; c.height = H;
+      R.render(c, A.harness.world, A.harness.staging, A.library, bd, vs,
+        { backdrop_only: true });
+      return { ap: ap, ctx: c.getContext("2d") };
+    };
+
+    const plain = shoot(null);
+    const a = plain.ap;
+    const x = a.x, y = a.y, w = a.w, h = a.h;
+    const at = (g, p) => {
+      const d = g.getImageData(Math.round(p.x), Math.round(p.y), 1, 1).data;
+      return [d[0], d[1], d[2]];
+    };
+
+    /* WHERE THE ROOM BEYOND ACTUALLY SHOWS, found rather than assumed. The
+       opening's own soffit and jambs are drawn OVER the through-view — the
+       frame stands proud of the leaf, which is row 21's clause and not this
+       one — so the top of the rectangle is timber and not the far room. The
+       centre column is scanned for the band that IS the far room, and the two
+       probes are placed a quarter and three quarters down it: a case that
+       assumed a fraction of the height would be measuring the frame's width. */
+    const far = [];
+    for (let yy = Math.ceil(y); yy < Math.floor(y + h); yy++) {
+      const px = at(plain.ctx, { x: x + w * 0.5, y: yy });
+      if (px[0] - px[1] > 40 && px[2] - px[1] > 30) far.push(yy);
+    }
+    const y0 = far.length ? far[0] : y;
+    const y1 = far.length ? far[far.length - 1] : y + h;
+    const notch = { x: x + w * 0.5, y: y0 + (y1 - y0) * 0.25 };
+    const control = { x: x + w * 0.5, y: y0 + (y1 - y0) * 0.75 };
+
+    /* A U: the top middle third of the opening, down past the notch and well
+       clear of the control, is not the aperture. Its bounding box is the
+       rectangle, exactly as a promoted polygon's is. */
+    const cutY = y0 + (y1 - y0) * 0.45;
+    const poly = [[x, y], [x + w * 0.34, y], [x + w * 0.34, cutY],
+      [x + w * 0.66, cutY], [x + w * 0.66, y], [x + w, y],
+      [x + w, y + h], [x, y + h]];
+    const cut = shoot(poly);
+    return {
+      far: FAR,
+      box: { x: x, y: y, w: w, h: h },
+      poly_box: (() => {
+        const xs = poly.map((q) => q[0]), ys = poly.map((q) => q[1]);
+        return { x: Math.min(...xs), y: Math.min(...ys),
+          w: Math.max(...xs) - Math.min(...xs), h: Math.max(...ys) - Math.min(...ys) };
+      })(),
+      poly_carried: cut.ap.poly,
+      notch: notch, control: control,
+      plain_notch: at(plain.ctx, notch), cut_notch: at(cut.ctx, notch),
+      plain_control: at(plain.ctx, control), cut_control: at(cut.ctx, control)
+    };
+  }, OPENING);
+}
+
+let CUT = null;
+test.beforeAll(async ({ browser }) => {
+  const page = await browser.newPage();
+  CUT = await notchedClip(page, repoRoot);
+  await page.close();
+});
+
+test.describe("row 43 — the through-view is clipped to the traced aperture", () => {
+  /* THE ROOM BEYOND IS RECOGNISED BY ITS HUE, NOT ITS VALUE. What is drawn
+     through an opening is the destination's pixels under this room's own
+     lighting, so the far room's rgb(255, 0, 200) arrives at rgb(148, 0, 116) —
+     a third darker and the same colour. Matching the literal triple would make
+     this case a test of the light pass. Green stays the smallest channel by a
+     mile, which nothing else in this picture does. */
+  const isFar = (px) => px[0] - px[1] > 40 && px[2] - px[1] > 30;
+
+  test("the polygon's bounding box IS the rectangle, so nothing else moved", () => {
+    for (const k of ["x", "y", "w", "h"]) {
+      expect(Math.abs(CUT.poly_box[k] - CUT.box[k]),
+        `the doctored polygon's ${k} is not the opening's`).toBeLessThan(0.5);
+    }
+    expect(CUT.poly_carried, "the aperture carries the loop to the renderer").toBeTruthy();
+  });
+
+  test("with no polygon the far room fills the box, corner to corner", () => {
+    expect(isFar(CUT.plain_notch),
+      `the rectangle's own top middle is the room beyond (${CUT.plain_notch})`).toBe(true);
+    expect(isFar(CUT.plain_control),
+      `and so is the middle of the opening (${CUT.plain_control})`).toBe(true);
+  });
+
+  test("with one, the room beyond stops at the polygon", () => {
+    expect(isFar(CUT.cut_control),
+      `inside the traced aperture the room beyond is still drawn (${CUT.cut_control})`)
+      .toBe(true);
+    expect(isFar(CUT.cut_notch),
+      `inside the bounding box but outside the traced aperture it is not (${CUT.cut_notch})`)
+      .toBe(false);
+  });
+
+  test("and the polygon changes only what is outside it", () => {
+    /* The two renders differ at the notch and nowhere the aperture still
+       covers — which is the whole claim, stated without a colour model:
+       clipping to the loop must not move the picture inside the loop. */
+    expect(CUT.cut_control,
+      "the pixel inside the traced aperture is the same in both renders")
+      .toEqual(CUT.plain_control);
+    expect(CUT.cut_notch,
+      "the pixel outside it is not").not.toEqual(CUT.plain_notch);
+  });
+});

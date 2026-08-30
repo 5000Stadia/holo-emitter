@@ -18,6 +18,7 @@ through the v1 thin-plate spline beside it, which is what bowed
 `closet_chamber-S`'s left jamb, and the two deviations are printed together.
 """
 
+import math
 import os
 import sys
 
@@ -500,6 +501,78 @@ def test_pairing_is_nearest_centre():
     check("nothing is left unpaired when the counts match", up == [] and us == [])
 
 
+def test_the_traced_corners_are_the_source_pins():
+    """[row 43] The pins come off the TRACED aperture, and an arch survives them.
+
+    `door_measure` reads the void's bounding box; `aperture_trace` reads the
+    frame's inside edge with that box for a prior. Where the trace was used, the
+    warp must pin the traced corners — pinning the void's box drags the jamb's
+    paint onto the plan's line and leaves the frame's own edge bowed beside it.
+
+    And the arch is not flattened. The plan draws every head straight, so a
+    target head taken literally off it would pull a half-round down onto a line;
+    each head sample's target is the plan's straight head lifted by that
+    sample's own measured rise, and the rise is recorded as the pin's residual.
+    """
+    plan = dict(id="op01", x=400.0, y=560.0, w=200.0, h=240.0)
+    # A void box inset 12 px inside a traced aperture, which is the defect: the
+    # dark run stops short of the jamb by the reveal.
+    box = dict(x0_px=712.0, y0_px=572.0, x1_px=888.0, y1_px=800.0, width_px=176)
+    tl, tr = (700.0, 560.0), (900.0, 560.0)
+    br, bl = (900.0, 800.0), (700.0, 800.0)
+    # A 256-sample loop whose top side is a half-round of sagitta 40 px.
+    n, sag = 256, 40.0
+    head = [(tl[0] + (tr[0] - tl[0]) * i / 63.0,
+             tl[1] - sag * math.sin(math.pi * i / 63.0)) for i in range(64)]
+    poly = head + [br, bl]
+    while len(poly) < n:
+        poly.append(bl)
+    trace = dict(polygon=[[p[0], p[1]] for p in poly],
+                 corners=[list(tl), list(tr), list(br), list(bl)],
+                 corner_samples=[0, 63, 64, 65],
+                 head_kind="arched", polygon_used=True,
+                 wall_confidence=0.9)
+
+    plain = mw.aperture_pins([dict(kind="door", measured=dict(box), plan=plan)])
+    got = {p["name"].rsplit(":", 1)[1]: p["source"] for p in plain}
+    check("with no trace the source corners are the measured box's",
+          got["tl"] == [712.0, 572.0] and got["br"] == [888.0, 800.0], str(got["tl"]))
+
+    m = dict(box)
+    m["trace"] = trace
+    pins = mw.aperture_pins([dict(kind="door", measured=m, plan=plan)])
+    src = {p["name"].rsplit(":", 1)[1]: p["source"] for p in pins}
+    tgt = {p["name"].rsplit(":", 1)[1]: p["target"] for p in pins}
+    check("the traced corners are the source pins, not the void's box",
+          src["tl"] == [700.0, 560.0] and src["br"] == [900.0, 800.0], str(src["tl"]))
+    check("the targets are still the plan's rectangle",
+          tgt["tl"] == [400.0, 560.0] and tgt["br"] == [600.0, 800.0], str(tgt["tl"]))
+
+    heads = [p for p in pins if ":head+" in p["name"]]
+    check("an arched head lays its own pins", len(heads) == mw.APERTURE_HEAD_SAMPLES,
+          "%d pins" % len(heads))
+    rises = [p["residual_px"] for p in heads]
+    check("every head pin records its rise as a residual",
+          all(r > 0 for r in rises) and abs(max(rises) - sag) <= 2.0,
+          "max %.1f of a %.0f px sagitta" % (max(rises), sag))
+    # The paint is NOT flattened: each head target stands off the plan's own
+    # straight head by the rise its source stands off the traced chord.
+    flat = [p for p in heads if abs((plan["y"] - p["target"][1]) - p["residual_px"]) > 0.01]
+    check("no head pin pulls the arch down onto the plan's straight head",
+          not flat, "%d flattened" % len(flat))
+    check("and every head target sits between the springings",
+          all(plan["x"] < p["target"][0] < plan["x"] + plan["w"] for p in heads))
+
+    # A trace the promotion did not use is carried and NOT pinned.
+    m2 = dict(box)
+    m2["trace"] = dict(trace, polygon_used=False)
+    low = mw.aperture_pins([dict(kind="door", measured=m2, plan=plan)])
+    got2 = {p["name"].rsplit(":", 1)[1]: p["source"] for p in low}
+    check("a trace below the confidence floor leaves the box pinned",
+          got2["tl"] == [712.0, 572.0] and not [p for p in low if ":head+" in p["name"]],
+          str(got2["tl"]))
+
+
 def test_mirror_fold_never_hits_a_hard_edge():
     c = np.array([-60.0, -24.0, -1.0, 0.0, 5.0, 100.0, 120.0, 143.0], float)
     out, depth = mw.mirror_fold(c, 0.0, 100.0, band=24)
@@ -696,7 +769,9 @@ def main():
               test_crossed_pins_are_refused_by_name,
               test_the_seams_are_continuous,
               test_the_reveal_continues_the_return,
-              test_pairing_is_nearest_centre, test_mirror_fold_never_hits_a_hard_edge,
+              test_pairing_is_nearest_centre,
+              test_the_traced_corners_are_the_source_pins,
+              test_mirror_fold_never_hits_a_hard_edge,
               test_mls_modes_interpolate_exactly):
         print(t.__name__)
         t()

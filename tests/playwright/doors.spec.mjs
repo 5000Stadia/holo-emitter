@@ -209,5 +209,67 @@ test.describe("row 27 — the painted door governs", () => {
         "a click in the middle of the door the library paints walks through it")
         .toBe("great_hall");
     });
+
+    test("[row 43] the go target is the traced polygon, not its bounding box", async ({ page }) => {
+      /* THE RECTANGLE IS THE BOUNDING BOX OF THE APERTURE, NOT THE APERTURE.
+         `aperture_trace.py` traces the frame's inside edge and the promotion
+         writes it as `polygon` with `polygon_used: true`; `x/y/w/h` are then
+         that loop's box, so every reader that only knows a rectangle keeps
+         working — and the page's `go` target must not be one of them. On
+         `buttery_pantry/S` the box comes out 49 px wider than the void
+         `door_measure` read, and that width is real wall on the reveal side.
+
+         The polygon is doctored onto the page rather than taken from the
+         store, because a case that depends on which walls happen to carry a
+         traced excursion goes quiet the day one is re-promoted. What is under
+         test is the RULE, and the shape is chosen so the two answers cannot
+         agree: a bite out of the top middle of the opening, well inside the
+         bounding box and well outside the aperture. */
+      const { vs } = await stand(page, await boot(page), "library", "E");
+      expect(`${vs.location}/${vs.facing}`).toBe("library/E");
+      const probe = await page.evaluate(() => {
+        const A = window.HOLO_APP;
+        const meta = A.backdrops["library/E"].meta;
+        const op = meta.openings.find((o) => o.kind === "door");
+        const x = op.x, y = op.y, w = op.w, h = op.h;
+        /* A U: the top middle third, down to 40 % of the height, is not the
+           aperture. Its bounding box is the rectangle, exactly as a promoted
+           polygon's is. */
+        op.polygon = [[x, y], [x + w * 0.34, y], [x + w * 0.34, y + h * 0.40],
+          [x + w * 0.66, y + h * 0.40], [x + w * 0.66, y], [x + w, y],
+          [x + w, y + h], [x, y + h]];
+        op.polygon_used = true;
+        const inside = { x: x + w * 0.5, y: y + h * 0.75 };
+        const notch = { x: x + w * 0.5, y: y + h * 0.15 };
+        const a = A.apertureList().find((z) => z.via === op.id || z.via === op.via);
+        const at = (p) => (A.apertureAt(p) ? A.apertureAt(p).exit : null);
+        return {
+          inside: inside, notch: notch,
+          poly: a ? a.poly : null, polys: a ? a.polys : null,
+          box: a ? { x: a.x, y: a.y, w: a.w, h: a.h } : null,
+          at_inside: at(inside), at_notch: at(notch)
+        };
+      });
+      expect(probe.poly, "the aperture carries the traced loop").toBeTruthy();
+      expect(probe.poly.length).toBe(8);
+      expect(probe.polys, "and the hit region IS that loop").toEqual([probe.poly]);
+      expect(probe.at_inside,
+        "a point inside the traced aperture is a way through").toBeTruthy();
+      expect(probe.at_notch,
+        "a point inside the bounding box but outside the traced aperture is wall")
+        .toBeNull();
+      /* AND THE REAL CLICK AGREES WITH THE RESOLVER. The two have diverged
+         before — row 21's plank stood in void because the leaf, the opening,
+         the hit region and the keyboard control were four readings of one
+         document — so the pointer is put on both points and the page is asked
+         where it now stands. */
+      await page.locator("#scene").click({ position: probe.notch });
+      expect((await page.evaluate(() => window.HOLO_APP.harness.viewstate)).location,
+        "a click on the bounding box outside the aperture does not travel")
+        .toBe("library");
+      await page.locator("#scene").click({ position: probe.inside });
+      expect((await page.evaluate(() => window.HOLO_APP.harness.viewstate)).location,
+        "a click inside the traced aperture does").toBe("great_hall");
+    });
   });
 });

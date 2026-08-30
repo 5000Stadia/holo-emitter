@@ -29,8 +29,10 @@
  * something the code decides from the measurement, never something an operator
  * decides by running the promotion.
  */
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, mkdirSync, mkdtempSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { tmpdir } from "node:os";
+import { spawnSync } from "node:child_process";
 import { join, dirname } from "node:path";
 import { activePack } from "./pack.mjs";
 import { fileURLToPath } from "node:url";
@@ -875,8 +877,74 @@ for (const [id, cand] of assigned) {
     refusals.push(`${facingArg}: the way through the painting shows for "${id}" is ${cand.width_px} px — ${ratio.toFixed(2)}× the ${ruledPx.toFixed(1)} px the plan's own ${ownM.toFixed(2)} m opening spans at this wall's corner scale (${apertureScale.toFixed(1)} px/m; its ruler reads ${ppm.toFixed(1)}), outside ${DOORWAY_BAND[0]}–${DOORWAY_BAND[1]}× — that is not a doorway, whatever else it is [row27:door.painted_width]`);
   }
 }
+/* ------------------------------------------------------------------ */
+/* [row 43] THE APERTURE IS THE TRACED LOOP, NOT THE VOID'S BOX          */
+/* ------------------------------------------------------------------ */
+/* `door_measure` reads the VOID — the maximally stable dark run — and that is
+ * the right evidence and the wrong answer: a void's dark run stops where the
+ * paint stops being black, which on any door with a reveal is short of the
+ * jamb. [HUMAN, 2026-08-29, verbatim] "What I want is INSIDE EDGE of door
+ * corners detection, then geometry lines connecting all 4 corners. Not all
+ * image gen is going to make a perfect rectangle."
+ *
+ * So the measured rectangle is DEMOTED TO A PRIOR and
+ * `design/plan-draft/measured/aperture_trace.py` traces the inside edge off the
+ * same pixels, with this wall's own floor line for the threshold (the bottom of
+ * an aperture in a wall is where that wall meets its floor; there is no paint
+ * there to trace). What comes back is written onto the opening whatever it
+ * says — the polygon, its four corners, the head's verdict and the trace's own
+ * confidence.
+ *
+ * AND THE RECTANGLE IS THE FALLBACK, BY NAME. Below TRACE_MIN_CONFIDENCE the
+ * loop is recorded and NOT used: `polygon_used: false` says the aperture this
+ * meta ships is still the measured box, and the polygon is there for a person
+ * to look at. A promotion that refused the wall instead would send back a
+ * painting whose door the old instrument reads perfectly well, which is a
+ * refusal nobody asked for.
+ *
+ * WHERE IT IS USED, x/y/w/h ARE THE POLYGON'S BOUNDING BOX. Every reader that
+ * has only ever known the rectangle — the leaf's sprite fit, the overlap gate,
+ * the plan-projection comparison, the page's fallback hit test — keeps reading
+ * a rectangle, and it is now the rectangle the traced aperture actually spans.
+ */
+const APERTURE_TRACE_PY = join(root, "design", "plan-draft", "measured", "aperture_trace.py");
+const TRACE_MIN_CONFIDENCE = 0.5;
+/* The trace needs the floor line in image px, which is exactly what this meta
+ * already carries as `floor_line_y x image_h_px`. Null where the wall has no
+ * floor line: the tracer then says so in its own `threshold` record rather
+ * than being handed a guess. */
+const traceFloorY = (floorLineY != null && imageH > 0) ? floorLineY * imageH : null;
+function traceAperture(x0, y0, x1, y1) {
+  const out = join(mkdtempSync(join(tmpdir(), "holo-aperture-trace-")), "trace.json");
+  const argv = [APERTURE_TRACE_PY, "--image", candidate,
+    "--rect", [x0, y0, x1, y1].map((v) => round(v, 2)).join(","),
+    "--json", out];
+  if (traceFloorY != null) argv.push("--floor-line-y", String(round(traceFloorY, 2)));
+  const r = spawnSync("python3", argv, { cwd: root, encoding: "utf8" });
+  if (r.status !== 0 || !existsSync(out)) {
+    /* NOT A REFUSAL, AND NOT A SILENCE EITHER. The trace is an instrument that
+     * needs numpy and Pillow; where it cannot run, the promotion still writes
+     * the rectangle every reader already understood, and says on stderr that
+     * this wall shipped without a traced loop. */
+    console.error(`promote note: aperture_trace could not read ${candidate} (${((r.stderr || "").trim().split("\n").pop() || `exit ${r.status}`)}) — this opening ships its measured rectangle and no polygon`);
+    return null;
+  }
+  try { return JSON.parse(readFileSync(out, "utf8")); } catch { return null; }
+}
+function polygonBox(poly) {
+  const xs = poly.map((q) => q[0]), ys = poly.map((q) => q[1]);
+  const x0 = Math.min(...xs), y0 = Math.min(...ys);
+  return { x: x0, y: y0, w: Math.max(...xs) - x0, h: Math.max(...ys) - y0 };
+}
 for (const p of planned) {
   const cand = assigned.get(p.id) || null;
+  /* Only a MEASURED opening is traced. A projected rectangle is the plan's
+   * drawing, and running an edge tracer over the paint under it would answer a
+   * question about the painting with a prior nobody measured off it. */
+  const traced = (cand && p.kind === "door")
+    ? traceAperture(cand.x0_px, cand.y0_px, cand.x1_px, cand.y1_px) : null;
+  const box = (traced && traced.wall_confidence >= TRACE_MIN_CONFIDENCE
+    && (traced.polygon || []).length >= 3) ? polygonBox(traced.polygon) : null;
   meta.openings.push({
     id: p.id,
     /* [Standing-eye wave] THE KIND COMES ACROSS TOO, and until this row nothing
@@ -890,13 +958,23 @@ for (const p of planned) {
      * it: what a way through IS is a fact about the building. */
     kind: p.kind,
     via: p.via,
-    x: round(cand ? cand.x0_px : p.x, 2),
-    y: round(cand ? cand.y0_px : p.y, 2),
-    w: round(cand ? cand.width_px : p.w, 2),
-    h: round(cand ? (cand.y1_px - cand.y0_px) : p.h, 2),
+    x: round(box ? box.x : (cand ? cand.x0_px : p.x), 2),
+    y: round(box ? box.y : (cand ? cand.y0_px : p.y), 2),
+    w: round(box ? box.w : (cand ? cand.width_px : p.w), 2),
+    h: round(box ? box.h : (cand ? (cand.y1_px - cand.y0_px) : p.h), 2),
     beyond_m: p.beyond_m,
     beyond_offset_m: p.beyond_offset_m,
-    measured: !!cand
+    measured: !!cand,
+    /* [row 43] The traced loop, its four corners, what the head is and how much
+     * of it the evidence licensed — written whether or not it is USED, because
+     * a trace nobody can see is a trace nobody can check. */
+    ...(traced ? {
+      polygon: traced.polygon,
+      corners: traced.corners,
+      head_kind: traced.head_kind,
+      trace_confidence: round(traced.wall_confidence, 4),
+      polygon_used: !!box
+    } : {})
   });
 }
 /* AND NO TWO WAYS THROUGH ARE THE SAME PIXELS. Two rectangles that overlap are
