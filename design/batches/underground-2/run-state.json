@@ -296,8 +296,8 @@
   },
   "platform/E": {
    "attempts": 2,
-   "status": "waiting",
-   "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
+   "status": "promoted",
+   "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
    "warp": {
     "pins": 4,
     "columns": 2,
@@ -340,8 +340,15 @@
    "camera_source": "declared",
    "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 578.3, which puts the viewer's eye 0.602 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
    "snapped_from_family": "unfitted-horizon",
-   "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "why": "the tolerance promotion was refused: promote refused: platform/E: it was painted from an ask that never named this room's ruled walls or overhead or underfoot. The `platform_vault` voice rules walls = \"cream crackle-glazed rectangular wa"
+   "correction": "draw 1.193x larger: 91.4 px/m at the wall plane, not 76.7",
+   "why": "the retry cap is spent; the wall stays grid and the run continues",
+   "exit_attempt": {
+    "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
+    "exit": "grid",
+    "instrument": "57236a09a2ea",
+    "candidate_sha256": null,
+    "at": "2026-08-31T09:27:05"
+   }
   },
   "platform/W": {
    "attempts": 1,
