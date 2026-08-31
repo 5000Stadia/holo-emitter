@@ -437,6 +437,62 @@ def compose(args):
                       "wall_px": int(on_wall.sum()), "side_px": int(side.sum()),
                       "floor_px": int(floorp.sum()), "ceil_px": int(ceilp.sum())}))
 
+
+def grow(args):
+    """[Kabe, 2026-08-31] "First build a 1x1 room image. Then cut the back
+    faced wall out, fit the rest of the room, side walls, ceiling and floor
+    into the front half of the wire frame of a 2x1. Fit the generated back
+    faced wall into the back wall of the wire frame. This will leave a wire
+    frame gap between the back wall and the front box... Pass this to the
+    painter with the goal of seamlessly filling in the assets between the
+    front and the back."
+
+    THE GROW STEP, and why it is elegant: only the two shape-safe transforms
+    ever touch a pixel. The 1x1's shell keeps its own painted angles (the
+    camera relationship is identical - no reprojection at all); the back wall
+    is fronto-parallel, so its move is ONE uniform shrink (a circle stays a
+    circle). Everything angle-dependent lands in the wireframe gap ring - the
+    painter's territory, generated at the correct perspective rather than
+    reprojected. A back-wall door rides the cutout; a side-box door is drawn
+    into the ring as outline (and named in the ask) - see args["ring_doors"].
+    A 3x1 chains the same step again."""
+    import numpy as np
+    from PIL import ImageDraw
+    base = Image.open(args["base_png"]).convert("RGB")
+    a = np.asarray(base).astype(np.uint8).copy()
+    bb = args["base_box"]           # the 1x1's own back-wall box, px
+    db = args["deep_box"]           # the declared far box of the long room, px
+    GROUND = (208, 202, 192)
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    y0, y1 = int(round(bb["yc"])), int(round(bb["yf"]))
+    cut = a[y0:y1, x0:x1].copy()
+    a[y0:y1, x0:x1] = GROUND
+    out = Image.fromarray(a)
+    # the back wall, ONE uniform shrink, ruler-anchored (dado, floor and
+    # cornice land true), centred in the deep box
+    k = (db["yf"] - db["yc"]) / (y1 - y0)
+    cw, ch = max(1, round((x1 - x0) * k)), max(1, round((y1 - y0) * k))
+    wall = Image.fromarray(cut).resize((cw, ch), Image.LANCZOS)
+    wx = int(round((db["x0"] + db["x1"]) / 2 - cw / 2))
+    wy = int(round(db["yf"] - ch))
+    out.paste(wall, (wx, wy))
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24); lw = 3
+    # the wireframe of the gap: the mid-plane hole's corners run to the far
+    # box's corners, and the ceiling, floor and dado lines continue through
+    for (hx, hy, tx, ty) in ((x0, y0, wx, wy), (x1, y0, wx + cw, wy),
+                             (x0, y1, wx, wy + ch), (x1, y1, wx + cw, wy + ch)):
+        d.line([(hx, hy), (tx, ty)], fill=INK, width=lw)
+    dado = args.get("dado_frac")
+    if dado is not None:
+        d.line([(x0, y1 - (y1 - y0) * dado), (wx, wy + ch - ch * dado)], fill=INK, width=lw)
+        d.line([(x1, y1 - (y1 - y0) * dado), (wx + cw, wy + ch - ch * dado)], fill=INK, width=lw)
+    for door in args.get("ring_doors", []):
+        d.rectangle([door["x0"], door["y0"], door["x1"], door["y1"]], outline=INK, width=lw)
+    out.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "grow", "k": round(k, 4),
+                      "wall_at": [wx, wy, wx + cw, wy + ch]}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -449,6 +505,8 @@ def main():
         return chop(args)
     if args.get("mode") == "compose":
         return compose(args)
+    if args.get("mode") == "grow":
+        return grow(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)

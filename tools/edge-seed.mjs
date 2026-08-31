@@ -719,6 +719,9 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
    same wall shrunk true, or the derived seed. One phrase, decided here, so the
    attach line and the paragraph cannot disagree. */
 function styleAttachPhrase(style) {
+  if (style.grow_draft) {
+    return `\`${style.file}\` as **Image 1** (the room part-painted: near half and far wall finished, the middle a wireframe ring to paint)`;
+  }
   if (style.composed_enhance) {
     return `\`${style.file}\` as **Image 1** (this exact view, mechanically composed from the room's own promoted paintings)`;
   }
@@ -754,6 +757,14 @@ export function stylePacketNote(style) {
       `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
       `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
       `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
+  if (style.same_wall && style.grow_draft) {
+    return `**Image 1 IS THE GROW DRAFT** — \`${style.file}\`: the room's own 1x1 painting with its ` +
+      `back wall cut out and refitted at the far box (one uniform shrink), the shell kept at its own ` +
+      `painted angles, and the middle left as a wireframe ring for the painter to fill [Kabe's grow ` +
+      `step, 2026-08-31].
 
 `;
   }

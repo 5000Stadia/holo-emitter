@@ -2605,7 +2605,19 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = (style && style.minimal_ask && style.composed_enhance)
+    const text = (style && style.minimal_ask && style.grow_draft)
+      ? (`Image 1 is this room part-painted: the near half and the far wall are FINISHED painting ` +
+         `- nothing in them may change in any way - and the pale ring between them is the middle ` +
+         `of this long room, drawn only as wireframe. PAINT THE MIDDLE: continue the side walls, ` +
+         `the dado band, the ceiling with its run of lamps, and the floor seamlessly from the near ` +
+         `half back to the far wall, exactly along the drawn lines, so the whole reads as one ` +
+         `room. A circle stays a circle; no drawn line remains visible; do not enlarge, crop or ` +
+         `recompose anything.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere.\n` +
+         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
+         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask && style.composed_enhance)
       ? (`Image 1 is this exact view, assembled mechanically from finished paintings of this same ` +
          `room: every wall, the floor and the ceiling are real painted material projected to the ` +
          `correct geometry. ENHANCE IT: repaint this picture so it looks naturally and consistently ` +
@@ -3651,6 +3663,28 @@ export function attachStyle(plan, key, dir, opts = {}) {
        output is geometry-exact with only its objects ovalled - so once a warp
        round exists, Image 1 is the WARPED PAINTING ITSELF and the ask inverts:
        architecture exactly as shown, objects in their TRUE shape. */
+    /* [Kabe, 2026-08-31, THE GROW STEP] "first build a 1x1 room image. Then
+       cut the back faced wall out, fit the rest of the room... into the front
+       half of the wire frame of a 2x1. Fit the generated back faced wall into
+       the back wall of the wire frame. This will leave a wire frame gap...
+       Pass this to the painter with the goal of seamlessly filling in the
+       assets between the front and the back." Only the two shape-safe
+       transforms touch a pixel: the 1x1 shell keeps its own painted angles,
+       the fronto-parallel back wall shrinks uniformly; everything
+       angle-dependent is the ring, which the painter GENERATES at correct
+       perspective. Built by the grow driver into backdrops/grown/<key>.png;
+       a 3x1 chains the same step. Ships when present - ahead of the composed
+       frame, whose reprojection this supersedes. */
+    {
+      const grownPng = join(root, "backdrops", "grown", `${key.replace("/", "-")}.png`);
+      if (existsSync(grownPng)) {
+        const fileG = `grown-${key.replace("/", "-")}.png`;
+        copyFileSync(grownPng, join(dir, fileG));
+        return { ...style, file: fileG, derived: true, grow_draft: true,
+          minimal_ask: true, derived_from: relative(root, grownPng),
+          role_sentence: null };
+      }
+    }
     /* [Kabe, 2026-08-31, the composed enhance] "cut out the floors and the
        walls and the ceilings that have been produced at both locations...
        geometrically and deterministically take those cut outs and skew them
