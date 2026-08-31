@@ -200,6 +200,81 @@ def true_shape(args):
                       "blurred_px": int(m.sum()), "blurred_pct": round(float(m.mean()) * 100, 1)}))
 
 
+
+def chop(args):
+    """[Kabe, 2026-08-30] "We have the geometry we want to put it in (floor,
+    face, side wall, ceiling) so lets chop it up to fit those spaces but
+    shrunk down the % we step back. It may not fill the spaces... for each
+    side, we do the edge blur to fill it out then we tell the painter to
+    enhance it so the fill blur matches the surrounding."
+
+    THE CLOSE-UP, CHOPPED BY PLANE AND RE-PROJECTED for the stepped-back
+    camera. Every deep-frame pixel is classified onto its surface (the face
+    wall, a side wall, the floor, the ceiling), its distance z along the deep
+    camera's ray computed from the DECLARED geometry, and the same physical
+    point looked up in the close painting through the close camera's OWN
+    measured numbers at z_c = z - step_back. The face wall rides ONE uniform
+    scale (the ruler ratio - a circle stays a circle, L-ENVELOPE); each sweep
+    forehortens along its true recession. Where the close-up holds no paint
+    (the near ring the deep camera alone sees), sampling clamps to the
+    close frame's edge and the result is BLURRED there - Kabe's edge-blur
+    fill, for the painter to enhance."""
+    import numpy as np
+    from PIL import ImageFilter
+    close = np.asarray(Image.open(args["close_png"]).convert("RGB")).astype(np.float32)
+    Hc_img, Wc_img = close.shape[:2]
+    d = args["deep"]      # declared: f, vx, vy, eye_m, half_w_m, ceil_m, z_wall, box{x0,x1,yc,yf}
+    c = args["close"]     # measured: f, vx, vy, eye_m, ceil_m
+    dz = float(args["step_back_m"])
+    f, vx, vy = d["f"], d["vx"], d["vy"]
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    dx, dy = xs - vx, ys - vy
+    eps = 1e-6
+    zw = d["z_wall"]
+    # distance along the ray to each candidate surface
+    z_floor = np.where(dy > eps, d["eye_m"] * f / np.maximum(dy, eps), np.inf)
+    z_ceil  = np.where(dy < -eps, d["ceil_m"] * f / np.maximum(-dy, eps), np.inf)
+    z_side  = np.where(np.abs(dx) > eps, d["half_w_m"] * f / np.maximum(np.abs(dx), eps), np.inf)
+    z = np.minimum.reduce([z_floor, z_ceil, z_side, np.full_like(dx, zw)])
+    b = d["box"]
+    on_wall = (z >= zw - eps)
+    # the face wall: ONE uniform scale (ruler ratio) anchored on the declared
+    # floor line and the wall's centre
+    u = float(args["wall_scale"])
+    cw = args["close_wall"]         # {cx (centre col), floor_row}
+    wall_cc = cw["cx"] + (xs - (b["x0"] + b["x1"]) / 2.0) / u
+    wall_cr = cw["floor_row"] - (b["yf"] - ys) / u
+    # the sweeps: same physical point through the close camera at z_c = z - dz
+    zc = np.maximum(z - dz, 0.35)
+    sweep_cc = c["vx"] + dx * (z * c["f"]) / (f * zc)
+    fl = ys > vy
+    sweep_cr = np.where(fl, c["vy"] + c["eye_m"] * c["f"] / zc,
+                            c["vy"] - c["ceil_m"] * c["f"] / zc)
+    side = (z_side < np.minimum(z_floor, z_ceil)) & ~on_wall
+    side_Y = dy * z / f            # metres below the deep eye, on the side wall
+    side_cr = c["vy"] + side_Y * c["f"] / zc
+    cc = np.where(on_wall, wall_cc, np.where(side, sweep_cc, sweep_cc))
+    cr = np.where(on_wall, wall_cr, np.where(side, side_cr, sweep_cr))
+    valid = ((cc >= 0) & (cc <= Wc_img - 1) & (cr >= 0) & (cr <= Hc_img - 1)
+             & (on_wall | (z - dz > 0.35)))
+    ccl = np.clip(cc, 0, Wc_img - 1.001); crl = np.clip(cr, 0, Hc_img - 1.001)
+    x0i = ccl.astype(int); y0i = crl.astype(int)
+    fx2 = (ccl - x0i)[..., None]; fy2 = (crl - y0i)[..., None]
+    p00 = close[y0i, x0i]; p01 = close[y0i, np.minimum(x0i + 1, Wc_img - 1)]
+    p10 = close[np.minimum(y0i + 1, Hc_img - 1), x0i]
+    p11 = close[np.minimum(y0i + 1, Hc_img - 1), np.minimum(x0i + 1, Wc_img - 1)]
+    out = (p00 * (1 - fx2) * (1 - fy2) + p01 * fx2 * (1 - fy2)
+           + p10 * (1 - fx2) * fy2 + p11 * fx2 * fy2)
+    img = Image.fromarray(out.clip(0, 255).astype(np.uint8))
+    blurred = img.filter(ImageFilter.GaussianBlur(30))
+    a = np.asarray(img).copy(); bl = np.asarray(blurred)
+    gap = ~valid
+    a[gap] = bl[gap]
+    Image.fromarray(a).save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "chop",
+                      "filled_pct": round(float(valid.mean()) * 100, 1),
+                      "gap_pct": round(float(gap.mean()) * 100, 1)}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -208,6 +283,8 @@ def main():
         return frame(args)
     if args.get("mode") == "true_shape":
         return true_shape(args)
+    if args.get("mode") == "chop":
+        return chop(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)

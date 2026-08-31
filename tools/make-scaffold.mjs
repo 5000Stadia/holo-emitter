@@ -3618,6 +3618,59 @@ export function attachStyle(plan, key, dir, opts = {}) {
        output is geometry-exact with only its objects ovalled - so once a warp
        round exists, Image 1 is the WARPED PAINTING ITSELF and the ask inverts:
        architecture exactly as shown, objects in their TRUE shape. */
+    /* [Kabe, 2026-08-30, the chop] "We have the geometry we want to put it
+       in (floor, face, side wall, ceiling) so lets chop it up to fit those
+       spaces but shrunk down the % we step back... for each side, we do the
+       edge blur to fill it out then we tell the painter to enhance it so the
+       fill blur matches the surrounding." THE CLOSE-UP, CHOPPED BY PLANE AND
+       RE-PROJECTED for the stepped-back camera: the face wall at ONE uniform
+       ruler-ratio scale (a circle stays a circle), each sweep along its true
+       recession, the near ring the close camera never saw filled with edge
+       blur for the painter to enhance. deep-draft.py mode "chop". */
+    {
+      const cm = JSON.parse(readFileSync(join(root, "backdrops", style.room, `${style.facing}.meta.json`), "utf8"));
+      const dm = deriveMeta(plan, key.split("/")[0], key.split("/")[1]);
+      if (Number.isFinite(cm.camera_wall_m) && Number.isFinite(dm.camera_wall_m)) {
+        const ihC = cm.image_h_px || 1024, ihD = dm.image_h_px || 1024;
+        const vyC = cm.horizon_y * ihC, floorC = cm.floor_line_y * ihC;
+        const fC = cm.px_per_m_at_wall * cm.camera_wall_m;
+        const eyeC = (floorC - vyC) * cm.camera_wall_m / fC;
+        const vyD = dm.horizon_y * ihD, floorD = dm.floor_line_y * ihD;
+        const fD = dm.px_per_m_at_wall * dm.camera_wall_m;
+        const eyeD = (floorD - vyD) * dm.camera_wall_m / fD;
+        const draftC = `deep-chop-${style.room}-${style.facing}.png`;
+        const argsC = join(dir, `.deep-draft-args.json`);
+        writeFileSync(argsC, JSON.stringify({
+          mode: "chop", close_png: join(root, style.rel),
+          step_back_m: dm.camera_wall_m - cm.camera_wall_m,
+          wall_scale: dm.px_per_m_at_wall / cm.px_per_m_at_wall,
+          close_wall: { cx: (cm.corner_x0_px + cm.corner_x1_px) / 2, floor_row: floorC },
+          deep: { f: fD, vx: 768.0, vy: vyD, eye_m: eyeD,
+                  half_w_m: dm.wall_width_m / 2, ceil_m: dm.storey_height_m - eyeD,
+                  z_wall: dm.camera_wall_m,
+                  box: { x0: dm.corner_x0_px, x1: dm.corner_x1_px,
+                         yc: floorD - dm.storey_height_m * dm.px_per_m_at_wall, yf: floorD } },
+          close: { f: fC, vx: 768.0, vy: vyC, eye_m: eyeC, ceil_m: cm.storey_height_m - eyeC },
+          out: join(dir, draftC)
+        }));
+        const outC2 = execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsC], { encoding: "utf8" });
+        rmSync(argsC, { force: true });
+        return { ...style, file: draftC, derived: true, draft: true, chop_draft: true,
+          derived_by: "tools/deep-draft.py --chop (the close-up chopped by plane, re-projected)",
+          derived_from: style.rel, draft_geometry: JSON.parse(outC2),
+          role_sentence:
+            `Image 1 is THIS EXACT VIEW, partly painted: its sharp centre is the true picture ` +
+            `of this wall and room, correctly projected for where you stand - the wall square-on ` +
+            `at its exact size, the side walls, ceiling and floor receding at their exact angles, ` +
+            `every fixture and mark in place, every shape true (a circle stays a circle). Nothing ` +
+            `inside the sharp centre may change in any way. Everything OUTSIDE the sharp centre ` +
+            `is soft blurred fill standing where the rest of the room belongs: ENHANCE IT - paint ` +
+            `the same room continuing outward from the sharp centre to every edge of the picture, ` +
+            `in the same materials and light, every straight line carried straight onward, until ` +
+            `the whole picture is as sharp and real as the centre. The room does not change size: ` +
+            `the sharp centre stays exactly where it is and at exactly its scale.` };
+      }
+    }
     const warpedPng = join(warpDir2, "warped.png");
     if (existsSync(warpedPng) && existsSync(join(warpDir2, "warp.json"))) {
       const fileT = `true-shape-${dLoc}-${dF}.png`;

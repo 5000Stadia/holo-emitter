@@ -425,7 +425,7 @@
         "kind": "promoted"
       },
       "style_image": {
-        "file": "true-shape-platform-E.png",
+        "file": "deep-chop-platform_far-E.png",
         "rel": "backdrops/platform_far/E.png",
         "room": "platform_far",
         "facing": "E",
@@ -580,7 +580,7 @@
       "order_position": 0,
       "lead_image": null,
       "style_image": {
-        "file": "true-shape-platform_far-W.png",
+        "file": "deep-chop-platform-W.png",
         "rel": "backdrops/platform/W.png",
         "room": "platform",
         "facing": "W",

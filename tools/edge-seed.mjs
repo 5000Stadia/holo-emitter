@@ -721,6 +721,8 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
 function styleAttachPhrase(style) {
   const what = style.corrected_previous
     ? `the previous painting of this very view, geometry-corrected for repainting`
+    : style.chop_draft
+      ? `the close-up chopped by plane and re-projected, blur ring to enhance outward`
     : style.true_shape_recreate
       ? `the warp's geometry-exact output of this very view, objects to be redrawn true`
     : style.frame_draft
@@ -745,6 +747,17 @@ export function stylePacketNote(style) {
       `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
       `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
       `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
+  if (style.same_wall && style.chop_draft) {
+    return `**Image 1 IS THE CLOSE-UP, CHOPPED BY PLANE** — \`${style.file}\`, built by ` +
+      `\`tools/deep-draft.py\` (mode chop) from \`${style.derived_from}\`: each surface of the ` +
+      `promoted close painting (face wall, side walls, floor, ceiling) re-projected for the ` +
+      `stepped-back camera - the face at ONE uniform ruler-ratio scale (a circle stays a circle), ` +
+      `each sweep along its true recession - and the near ring the close camera never saw filled ` +
+      `with edge blur [Kabe's chop, 2026-08-30]. The prompt asks for the blur to be ENHANCED: the ` +
+      `room painted continuing outward from the sharp centre, which does not change.
 
 `;
   }
