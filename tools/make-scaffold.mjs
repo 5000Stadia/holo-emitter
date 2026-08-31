@@ -3562,41 +3562,37 @@ export function attachStyle(plan, key, dir, opts = {}) {
        still reference valid without skew"). The fuzz is for the painter to
        clean; the correction only ever touches a reference, never finished
        art. Falls through to the close-up draft when no round document exists. */
-    const [dLoc, dF] = key.split("/");
-    const warpDir = join(root, "backdrops", "source-warped", `${dLoc}-${dF}`);
-    const warpFile = join(warpDir, "warp.json");
-    if (existsSync(warpFile)) {
-      const wr = JSON.parse(readFileSync(warpFile, "utf8"));
-      /* THE PREVIOUS PAINTING LIVES WITH ITS ROUND DOCUMENT: the emitter's
-         reuse rule skips any wall with candidates in backdrops/source/, so a
-         wall being re-asked through this route archives its old painting as
-         `previous.png` beside warp.json - part of the round's own record - and
-         the source dir is cleared for the fresh roll. */
-      const prevPng = join(warpDir, "previous.png");
-      const candPng = existsSync(prevPng) ? prevPng : join(root, wr.candidate);
-      if (existsSync(candPng) && wr.source_size && wr.declared_frame) {
-        const [sw2, sh2] = wr.source_size;
-        const [tw2, th2] = wr.declared_frame;
-        const xPins = [[0, 0], ...(wr.columns || []).map((c) => [c.source, c.target]), [sw2, tw2]];
-        const yPins = [[0, 0], ...(wr.rows || []).map((r) => [r.source, r.target]), [sh2, th2]];
-        const argsFileC = join(dir, `.deep-draft-args.json`);
-        const draftFileC = `deep-draft-${style.room}-${style.facing}.png`;
-        writeFileSync(argsFileC, JSON.stringify({
-          mode: "correct", src_png: candPng, x_pins: xPins, y_pins: yPins,
-          out: join(dir, draftFileC)
-        }));
-        const outC = execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsFileC], { encoding: "utf8" });
-        rmSync(argsFileC, { force: true });
-        return { ...style, file: draftFileC, derived: true, draft: true, corrected_previous: true,
-          derived_by: "tools/deep-draft.py --correct", derived_from: wr.candidate,
-          draft_geometry: JSON.parse(outC),
-          role_sentence:
-            `Image 1 is the previous painting of THIS EXACT VIEW, mechanically adjusted to the ` +
-            `correct geometry; the adjustment leaves fine stutter lines through the picture. ` +
-            `REPAINT THE WHOLE PICTURE exactly as Image 1 shows it - same walls, same fixtures, ` +
-            `same marks, same materials and light, everything at exactly the position and ` +
-            `proportion Image 1 gives it (a circle stays a circle) - and clean away the stutter. ` +
-            `Change nothing else: this is the same picture, repainted cleanly.` };
+    /* [Kabe, 2026-08-30, third gesture - "doesn't my approach also skew a
+       circle? It does"] THE CORRECTED-PREVIOUS REFERENCE IS RETIRED, by
+       measurement: the repaint-clean pass copied the reference disc 63x74 ->
+       63x75 - perfect obedience - which is exactly why the oval survived,
+       because insertion moves a shape's ENVELOPE as surely as resampling; only
+       the texture of the skew differs. And the previous painting is SELF-
+       INCONSISTENT (room 33% too wide, objects round), so no whole-image
+       mapping can pin its walls and keep its circles. What the round document
+       is still good for is WORDS: the measured miss rides the re-ask as a
+       correction sentence - the lever the reroll research proved (words fixed
+       scale where seeds broke it). The reference stays the shape-true uniform
+       draft below. */
+    let missSentence = "";
+    {
+      const [dLoc, dF] = key.split("/");
+      const warpFile = join(root, "backdrops", "source-warped", `${dLoc}-${dF}`, "warp.json");
+      if (existsSync(warpFile)) {
+        const wr = JSON.parse(readFileSync(warpFile, "utf8"));
+        const st = wr.stretch || {};
+        const sx = ((st.x_scale_min || 1) + (st.x_scale_max || 1)) / 2;
+        const sy = ((st.y_scale_min || 1) + (st.y_scale_max || 1)) / 2;
+        const wide = Math.round((1 / sx - 1) * 100), tall = Math.round((1 / sy - 1) * 100);
+        if (Math.abs(wide) >= 3 || Math.abs(tall) >= 3) {
+          const word = (n, w) => n === 0 ? "" :
+            `${Math.abs(n)}% too ${n > 0 ? w[0] : w[1]}`;
+          const parts = [word(wide, ["wide", "narrow"]), word(tall, ["tall", "short"])].filter(Boolean);
+          missSentence = ` A previous painting of this exact view came back with the wall ` +
+            `${parts.join(" and ")} against the declared lines. Do not repeat that: the corner, ` +
+            `floor and ceiling lines are exact - hold the wall to them precisely, and keep every ` +
+            `object's true shape (a circle stays a circle).`;
+        }
       }
     }
     /* [Kabe, 2026-08-30] THE DEEP DRAFT: the close painting shrunk UNIFORMLY
@@ -3618,7 +3614,8 @@ export function attachStyle(plan, key, dir, opts = {}) {
     const outTxt = execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsFile], { encoding: "utf8" });
     rmSync(argsFile, { force: true });
     return { ...style, file: draftFile, derived: true, draft: true,
-      derived_by: "tools/deep-draft.py", draft_geometry: JSON.parse(outTxt) };
+      derived_by: "tools/deep-draft.py", draft_geometry: JSON.parse(outTxt),
+      role_sentence: style.role_sentence + missSentence };
   }
   const seed = deriveStyleSeed(plan, `${style.room}/${style.facing}`, {
     root, rel: style.rel, source_kind: style.source_kind, metaFromReading
