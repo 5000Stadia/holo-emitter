@@ -12883,3 +12883,32 @@
 {"ts_start":1788201592.486,"ts_end":1788201592.681,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
 {"detail":{"action":"bake","files":0,"note":"fixtures/underground-2: 1. meta platform_far/W: unknown \u00a75 field \"composed_from\" \u2014 a meta the renderer reads has a fixed vocabulary, and a misspelling of a field it reads would otherwise ride through in silence [row11:meta.unknown_key]\nbake refused: 1 validator finding(s)","refused":true,"wrote":[]},"key":"baked","step":"derive.regen","ts_end":1788201592.819055,"ts_start":1788201566.368497}
 {"detail":{"files":2,"notes":["promoted_metas: python3 design/plan-draft/measured/row23_run.py --derive-check names the wall; the promotion itself is t","baked: fixtures/underground-2: 1. meta platform_far/W: unknown \u00a75 field \"composed_from\" \u2014 a meta the renderer reads has ","promoted_metas: python3 design/plan-draft/measured/row23_run.py --derive-check names the wall; the promotion itself is t"],"reason":"sweep","stale":["promoted_metas","material_provenance","material_legacy","room_consistency","room_consistency_readme","window_calibration","baked"]},"key":null,"step":"derive.sweep","ts_end":1788201597.218342,"ts_start":1788201540.136639}
+{"ts_start":1788201628.36,"ts_end":1788201628.399,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788201628.49,"ts_end":1788201628.562,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788201628.66,"ts_end":1788201628.703,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788201628.794,"ts_end":1788201628.989,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788201629.299,"ts_end":1788201629.339,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788201629.432,"ts_end":1788201629.508,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788201629.605,"ts_end":1788201629.65,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788201629.734,"ts_end":1788201629.929,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788201644.535,"ts_end":1788201644.549,"step":"promote.backdrop","key":"great_hall/W","detail":{"candidate":"backdrops/source/great_hall-W/row23-bc41649a.png","exit_code":1,"refused":true}}
+{"ts_start":1788201644.906,"ts_end":1788201645.219,"step":"promote.backdrop","key":"kitchen/N","detail":{"candidate":"backdrops/source/kitchen-N/row23-71e8ae4a.png","exit_code":1,"refused":true}}
+{"ts_start":1788201645.556,"ts_end":1788201645.576,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-a58332e0.png","exit_code":1,"refused":true}}
+{"ts_start":1788201645.886,"ts_end":1788201645.9,"step":"promote.backdrop","key":"library/S","detail":{"candidate":"backdrops/source/library-S/row23-4a2e1e8a.png","exit_code":1,"refused":true}}
+{"ts_start":1788201646.215,"ts_end":1788201646.232,"step":"promote.backdrop","key":"privy_garden/W","detail":{"candidate":"backdrops/source/privy_garden-W/row23-d92a997c.png","exit_code":1,"refused":true}}
+{"ts_start":1788201646.565,"ts_end":1788201646.879,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-0f79ba13.png","exit_code":1,"refused":true}}
+{"ts_start":1788201647.218,"ts_end":1788201647.235,"step":"promote.backdrop","key":"long_gallery/W","detail":{"candidate":"backdrops/source/long_gallery-W/row23-e0cd4754.png","exit_code":1,"refused":true}}
+{"ts_start":1788201647.582,"ts_end":1788201647.601,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-572c742a.png","exit_code":1,"refused":true}}
+{"detail":{"files":0,"notes":["promoted_metas: python3 design/plan-draft/measured/row23_run.py --derive-check names the wall; the promotion itself is t"],"reason":"sweep","stale":["promoted_metas"]},"key":null,"step":"derive.sweep","ts_end":1788201650.769235,"ts_start":1788201647.613674}
+{"ts_start":1788201661.987,"ts_end":1788201662.026,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788201662.133,"ts_end":1788201662.212,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788201662.306,"ts_end":1788201662.352,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788201662.456,"ts_end":1788201662.654,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788201662.772,"ts_end":1788201662.816,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"64f2aefc","out_bytes":67337,"facings":12,"locations":3}}
+{"ts_start":1788201662.972,"ts_end":1788201663.012,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788201663.122,"ts_end":1788201663.194,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788201663.295,"ts_end":1788201663.346,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788201663.447,"ts_end":1788201663.646,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788201663.779,"ts_end":1788201663.825,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"64f2aefc","out_bytes":67337,"facings":12,"locations":3}}
+{"detail":{"ids":80,"polls":1,"served":true},"key":null,"step":"publish.verify","ts_end":1788201692.374432,"ts_start":1788201676.540829}
+{"detail":{"exit_code":0,"head":"4226a33"},"key":null,"step":"publish.site","ts_end":1788201692.457143,"ts_start":1788201667.01482}

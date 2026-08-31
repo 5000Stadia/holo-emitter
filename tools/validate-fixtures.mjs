@@ -328,7 +328,7 @@ const META_KEYS = [
   "instrument",
   /* [Kabe, 2026-08-30, the long room] the full run a side wall belongs to, in
    * metres, when it continues across open edges beyond this cell's corners */
-  "wall_run_m",
+  "wall_run_m", "composed_from",
   // [row 32, the Captain's tolerance ruling] ...and whether its camera was
   // MEASURED off the painting or DECLARED from the page's own derived camera,
   // with the flag that says why and the ruling that admits it. All four are
