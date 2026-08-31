@@ -15543,3 +15543,16 @@
 {"ts_start":1788215628.135,"ts_end":1788215628.496,"step":"emit.facing","key":"platform_far/S","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
 {"ts_start":1788215628.497,"ts_end":1788215628.499,"step":"emit.packet","key":"platform_far/S","detail":{"rolls":2,"roll_ids":["0fa71f22","7c97c880"],"prompt_chars":3396,"retry_cap":2}}
 {"ts_start":1788215626.532,"ts_end":1788215628.57,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":6,"skipped":6,"facings_in_plan":12,"technique":"t2"}}
+{"ts_start":1788215665.894,"ts_end":1788215666.028,"step":"emit.facing","key":"platform/N","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788215666.029,"ts_end":1788215666.033,"step":"emit.packet","key":"platform/N","detail":{"rolls":2,"roll_ids":["ab082589","cefe9913"],"prompt_chars":3279,"retry_cap":2}}
+{"ts_start":1788215666.037,"ts_end":1788215666.13,"step":"emit.facing","key":"platform/S","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788215666.13,"ts_end":1788215666.131,"step":"emit.packet","key":"platform/S","detail":{"rolls":2,"roll_ids":["614418d6","e2703ce7"],"prompt_chars":3279,"retry_cap":2}}
+{"ts_start":1788215666.134,"ts_end":1788215666.237,"step":"emit.facing","key":"platform/E","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788215666.237,"ts_end":1788215666.238,"step":"emit.packet","key":"platform/E","detail":{"rolls":2,"roll_ids":["a73c3062","d3cc96ec"],"prompt_chars":1529,"retry_cap":2}}
+{"ts_start":1788215666.241,"ts_end":1788215666.324,"step":"emit.facing","key":"platform/W","detail":{"carriers":1,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788215666.325,"ts_end":1788215666.328,"step":"emit.packet","key":"platform/W","detail":{"rolls":2,"roll_ids":["4c9f614b","57c45766"],"prompt_chars":3295,"retry_cap":2}}
+{"ts_start":1788215666.333,"ts_end":1788215666.67,"step":"emit.facing","key":"platform_far/N","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788215666.67,"ts_end":1788215666.672,"step":"emit.packet","key":"platform_far/N","detail":{"rolls":2,"roll_ids":["de93168c","73569b43"],"prompt_chars":3395,"retry_cap":2}}
+{"ts_start":1788215666.675,"ts_end":1788215667.012,"step":"emit.facing","key":"platform_far/S","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788215667.012,"ts_end":1788215667.014,"step":"emit.packet","key":"platform_far/S","detail":{"rolls":2,"roll_ids":["0fa71f22","7c97c880"],"prompt_chars":3396,"retry_cap":2}}
+{"ts_start":1788215665.009,"ts_end":1788215667.069,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":6,"skipped":6,"facings_in_plan":12,"technique":"t2"}}

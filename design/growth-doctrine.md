@@ -110,5 +110,6 @@ are next re-seeded.
 [Kabe]: "Establish wireframe perspective off 1x1s structure." The ring's rays
 run in the BASE'S OWN measured perspective: the painted junction lines are
 edge-fit outside the wall box and intersected for the base's true vanishing
-point; the declared vp is only the fallback for a degenerate fit. With a
-warped (geometry-exact) base the two coincide - which is the verification.
+point; the declared vp is only the fallback for a degenerate fit. A warped (geometry-exact) base KEEPS the declared vp outright - the fit's
+edge noise must not steer a chain whose structure is exact by construction;
+the measured-vp path is for raw painted bases.
