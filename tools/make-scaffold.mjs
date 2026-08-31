@@ -2643,7 +2643,9 @@ async function emitManor(outDir, opts) {
          `at exactly its size. A circle stays a circle. Do not enlarge, crop or recompose.\n` +
          `Image 2 is a line drawing of this same geometry on paper: its lines are where surfaces ` +
          `meet; nothing in it is a colour or a material to paint.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
+         `warm, as if by lamps that are out of frame.\n` +
          `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
          `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
          (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
@@ -3614,8 +3616,10 @@ export function attachStyle(plan, key, dir, opts = {}) {
       return { rel: relative(opts.root || ROOT, grownPng0), file: fileG0,
         room: gl, facing: gf, same_wall: true, lead: false,
         facing_word: { N: "north", E: "east", S: "south", W: "west" }[gf],
-        source_kind: "grown-draft", derived: true, grow_draft: true,
-        reverse_draft: gmode0 === "reverse", minimal_ask: true,
+        source_kind: "grown-draft", derived: true,
+        grow_draft: gmode0 !== "enhance",
+        reverse_draft: gmode0 === "reverse",
+        composed_enhance: gmode0 === "enhance", minimal_ask: true,
         derived_from: relative(opts.root || ROOT, grownPng0),
         why: `the grown lane: phase-${gmode0 === "reverse" ? "3 reverse" : "1 grow"} draft on disk`,
         role_sentence: null };

@@ -78,7 +78,7 @@
           "origin": true,
           "lead_key": "platform/W",
           "carriers": 1,
-          "has_image": false,
+          "has_image": true,
           "painted": false,
           "continues": null,
           "depends_on": null
@@ -94,7 +94,7 @@
           "has_image": false,
           "painted": false,
           "continues": "platform/W",
-          "depends_on": "platform/W"
+          "depends_on": null
         },
         {
           "facing": "E",
@@ -107,7 +107,7 @@
           "has_image": true,
           "painted": true,
           "continues": "platform/W",
-          "depends_on": "platform/W"
+          "depends_on": null
         },
         {
           "facing": "S",
@@ -120,7 +120,7 @@
           "has_image": false,
           "painted": false,
           "continues": "platform/W",
-          "depends_on": "platform/W"
+          "depends_on": null
         }
       ]
     },
@@ -164,7 +164,7 @@
           "origin": false,
           "lead_key": "platform_far/W",
           "carriers": 0,
-          "has_image": true,
+          "has_image": false,
           "painted": false,
           "continues": "platform_far/W",
           "depends_on": null
@@ -252,20 +252,20 @@
       "skipped": "exists: backdrops/platform/E.png"
     },
     {
-      "key": "platform_far/E",
-      "room": "platform_far",
-      "facing": "E",
+      "key": "platform/W",
+      "room": "platform",
+      "facing": "W",
       "floor": "below",
       "type": "enclosed",
       "promoted": false,
       "fenced": null,
-      "carriers": [],
-      "skipped": "returned, unmeasured: 4 candidate(s) on disk",
+      "carriers": [
+        "door"
+      ],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
       "returns": [
-        "backdrops/source/platform_far-E/row23-6d3f2346.png",
-        "backdrops/source/platform_far-E/row23-e23c4ed5.png",
-        "backdrops/source/platform_far-E/row23-e7aa5c51.png",
-        "backdrops/source/platform_far-E/row23-ee5bee25.png"
+        "backdrops/source/platform-W/row23-4c9f614b.png",
+        "backdrops/source/platform-W/row23-57c45766.png"
       ],
       "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
     },
@@ -357,43 +357,47 @@
         "location_type": "indoor",
         "policy": "opportunistic",
         "fraction": 0.1,
-        "side": "right",
-        "neighbour": "platform/E",
-        "neighbour_edge": "left",
-        "source": "backdrops/platform/E.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "side": "left",
+        "neighbour": "platform/W",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/platform-W/row23-4c9f614b.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
         "alternatives": [
           {
-            "side": "left",
-            "neighbour": "platform/W",
-            "painted": false
+            "side": "right",
+            "neighbour": "platform/E",
+            "painted": true
           }
         ],
         "lead": "platform/W",
         "is_lead": false,
         "continues": "platform/W",
         "order_position": 1,
-        "depends_on": "platform/W",
-        "why": "this facing continues `platform/W`, which has no picture yet, so the ask waits for it. [row 42] Every location paints its LEAD wall first and the rest follow it; indoors the other three all follow the lead directly",
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
         "image_index": 2,
-        "file": "design/batches/underground-2/platform-N/edge-seed-right.png",
+        "file": "design/batches/underground-2/platform-N/edge-seed-left.png",
         "width_px": 154,
         "height_px": 1024,
         "columns": [
-          0,
-          154
+          1382,
+          1536
         ],
-        "sha256": "361a4ccb50ca948e8519b122907b648bcdf844abab7e1f353ebad7d1b4f54d12",
-        "source_sha256": "057f53711c30d22ed919af1df8f253f268b791b93cb78b71240ead673ed6aad6"
+        "sha256": "e4e2161bc82556dba21787dd5e75ce72525de9c4e0355b6f857d5a84f7c35361",
+        "source_sha256": "89d66c7e0b2267754b3696d5e8ed8d84620c77f730c812bac25ae452af368fc4"
       },
       "seed_policy": "opportunistic",
-      "depends_on": "platform/W",
+      "depends_on": null,
       "lead": "platform/W",
       "is_lead": false,
       "continues": "platform/W",
       "order_position": 1,
-      "lead_image": null,
+      "lead_image": {
+        "rel": "backdrops/source/platform-W/row23-4c9f614b.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
       "style_image": null,
       "rolls": [
         {
@@ -501,8 +505,8 @@
         "is_lead": false,
         "continues": "platform/W",
         "order_position": 3,
-        "depends_on": "platform/W",
-        "why": "this facing continues `platform/W`, which has no picture yet, so the ask waits for it. [row 42] Every location paints its LEAD wall first and the rest follow it; indoors the other three all follow the lead directly",
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
         "image_index": 2,
         "file": "design/batches/underground-2/platform-S/edge-seed-left.png",
         "width_px": 154,
@@ -515,12 +519,16 @@
         "source_sha256": "057f53711c30d22ed919af1df8f253f268b791b93cb78b71240ead673ed6aad6"
       },
       "seed_policy": "opportunistic",
-      "depends_on": "platform/W",
+      "depends_on": null,
       "lead": "platform/W",
       "is_lead": false,
       "continues": "platform/W",
       "order_position": 3,
-      "lead_image": null,
+      "lead_image": {
+        "rel": "backdrops/source/platform-W/row23-4c9f614b.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
       "style_image": null,
       "rolls": [
         {
@@ -534,117 +542,6 @@
           "id": "e2703ce7",
           "candidate": "backdrops/source/platform-S/row23-e2703ce7.png",
           "prompt": "backdrops/source/platform-S/row23-e2703ce7.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
-      "key": "platform/W",
-      "room": "platform",
-      "facing": "W",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [
-        "door"
-      ],
-      "packet": "design/batches/underground-2/platform-W",
-      "register": "g5-noappendix",
-      "situations": [
-        "enclosed",
-        "lead",
-        "door",
-        "no-window"
-      ],
-      "scaffold_sha256": "d831cc3101d837cbd50e662b5241bc09073f8bf554281d86aaa6e8f7b262138e",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 213.33333333333334,
-      "camera_wall_m": 4.8,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.7602278645833334,
-      "horizon_y": 0.51376953125,
-      "corner_x0_px": 85.33333333333326,
-      "corner_x1_px": 1450.6666666666667,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 778.4733333333334,
-          "half_width": 20.19,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 522.4733333333334,
-          "half_width": 20.48,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 53.139999999999986,
-          "half_width": 58.03,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [
-          {
-            "kind": "door",
-            "id": "door01",
-            "x0": 384,
-            "x1": 1152,
-            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
-          }
-        ],
-        "carrier_tolerance_px": 256,
-        "rail_columns": [
-          [
-            85.33333333333326,
-            640
-          ],
-          [
-            896,
-            1450.6666666666667
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [
-        {
-          "kind": "door",
-          "x0": 640,
-          "x1": 896
-        }
-      ],
-      "flights": [],
-      "chair_rail_y": 522.47,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": null,
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform/W",
-      "is_lead": true,
-      "continues": null,
-      "order_position": 0,
-      "lead_image": null,
-      "style_image": null,
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "4c9f614b",
-          "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
-          "prompt": "backdrops/source/platform-W/row23-4c9f614b.prompt.txt"
-        },
-        {
-          "roll": 2,
-          "id": "57c45766",
-          "candidate": "backdrops/source/platform-W/row23-57c45766.png",
-          "prompt": "backdrops/source/platform-W/row23-57c45766.prompt.txt"
         }
       ],
       "retry_cap": 2
@@ -919,6 +816,107 @@
           "id": "7c97c880",
           "candidate": "backdrops/source/platform_far-S/row23-7c97c880.png",
           "prompt": "backdrops/source/platform_far-S/row23-7c97c880.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "platform_far/E",
+      "room": "platform_far",
+      "facing": "E",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform_far-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform_far/W",
+      "is_lead": false,
+      "continues": "platform_far/W",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/platform_far/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-platform_far-E.png",
+        "rel": "backdrops/grown/platform_far-E.png",
+        "room": "platform_far",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ee5bee25",
+          "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
+          "prompt": "backdrops/source/platform_far-E/row23-ee5bee25.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "6d3f2346",
+          "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+          "prompt": "backdrops/source/platform_far-E/row23-6d3f2346.prompt.txt"
         }
       ],
       "retry_cap": 2
@@ -1360,23 +1358,25 @@
       "retry_cap": 2
     },
     {
-      "key": "platform_far/E",
-      "room": "platform_far",
-      "facing": "E",
+      "key": "platform/W",
+      "room": "platform",
+      "facing": "W",
       "floor": "below",
       "type": "enclosed",
       "promoted": false,
       "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform_far-E",
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/underground-2/platform-W",
       "register": "g5-noappendix",
       "situations": [
         "enclosed",
-        "follower",
-        "no-window",
-        "blank"
+        "lead",
+        "door",
+        "no-window"
       ],
-      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
+      "scaffold_sha256": "d831cc3101d837cbd50e662b5241bc09073f8bf554281d86aaa6e8f7b262138e",
       "scaffold_style": "ink-on-paper-v2",
       "px_per_m_at_wall": 213.33333333333334,
       "camera_wall_m": 4.8,
@@ -1406,17 +1406,35 @@
           "half_width": 58.03,
           "from": "+/-8 % of the ceiling-to-floor span"
         },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 384,
+            "x1": 1152,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 256,
         "rail_columns": [
           [
             85.33333333333326,
+            640
+          ],
+          [
+            896,
             1450.6666666666667
           ]
         ]
       },
       "implied_focal_px": 1024,
-      "stamped": [],
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 640,
+          "x1": 896
+        }
+      ],
       "flights": [],
       "chair_rail_y": 522.47,
       "voice": {
@@ -1428,34 +1446,24 @@
       "edge_seed": null,
       "seed_policy": "opportunistic",
       "depends_on": null,
-      "lead": "platform_far/W",
-      "is_lead": false,
-      "continues": "platform_far/W",
-      "order_position": 2,
-      "lead_image": {
-        "rel": "backdrops/platform_far/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "style-platform_far.png",
-        "rel": "backdrops/platform_far/W.png",
-        "room": "platform_far",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
-      },
+      "lead": "platform/W",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
       "rolls": [
         {
           "roll": 1,
-          "id": "ee5bee25",
-          "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
-          "prompt": "backdrops/source/platform_far-E/row23-ee5bee25.prompt.txt"
+          "id": "4c9f614b",
+          "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
+          "prompt": "backdrops/source/platform-W/row23-4c9f614b.prompt.txt"
         },
         {
           "roll": 2,
-          "id": "6d3f2346",
-          "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
-          "prompt": "backdrops/source/platform_far-E/row23-6d3f2346.prompt.txt"
+          "id": "57c45766",
+          "candidate": "backdrops/source/platform-W/row23-57c45766.png",
+          "prompt": "backdrops/source/platform-W/row23-57c45766.prompt.txt"
         }
       ],
       "retry_cap": 2
