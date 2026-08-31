@@ -3643,7 +3643,17 @@ export function attachStyle(plan, key, dir, opts = {}) {
         writeFileSync(argsC, JSON.stringify({
           mode: "chop", close_png: join(root, style.rel),
           step_back_m: dm.camera_wall_m - cm.camera_wall_m,
-          wall_scale: dm.px_per_m_at_wall / cm.px_per_m_at_wall,
+          /* [round 7b's asymmetry] THE CORE SITS ON THE WIREFRAME: the wall's
+             uniform scale is anchored to the DECLARED corner span over the
+             close painting's own corner span, so the sharp core's corners
+             land exactly on the drawn guide verticals - far-W, whose source
+             was self-consistent and whose core coincided with the lines,
+             produced the closest box of all seven rounds (16% vs the
+             constant ~30%); E, whose ruler-anchored core sat 46 px inside
+             its lines, split the difference outward. One scale, both axes -
+             a circle stays a circle; a source's internal ruler-vs-corner
+             disagreement rides as reference-only. */
+          wall_scale: (dm.corner_x1_px - dm.corner_x0_px) / (cm.corner_x1_px - cm.corner_x0_px),
           close_wall: { cx: (cm.corner_x0_px + cm.corner_x1_px) / 2, floor_row: floorC },
           deep: { f: fD, vx: 768.0, vy: vyD, eye_m: eyeD,
                   half_w_m: dm.wall_width_m / 2, ceil_m: dm.storey_height_m - eyeD,
