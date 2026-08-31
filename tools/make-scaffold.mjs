@@ -2586,7 +2586,9 @@ async function emitManor(outDir, opts) {
      * row 42's and decides WHETHER there is a strip (a lead still in the
      * measurement loop is followed); `style` is row 43's and decides what INDEX
      * the strip is given, because with no Image 1 the scaffold is Image 1. */
-    const { seed, plan: seedPlan } = attachSeed(plan, fac.key, dir, { imageOf }, { style });
+    const { seed, plan: seedPlan } = (style && style.perspective_pair)
+      ? { seed: null, plan: {} }   /* seed bookkeeping reads fields; absent, not null */
+      : attachSeed(plan, fac.key, dir, { imageOf }, { style });
     timings.record("emit.facing", t_facing, Date.now() / 1000, fac.key,   // [row 33]
       { carriers: rects.length, voice: voice.id, technique: opts.technique || "t2" });
 
@@ -2603,14 +2605,24 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = manorPrompt(plan, fac.key, meta, rects, null, seed, { style, scaffoldStyle: sheetStyle });
+    const text = (style && style.minimal_ask)
+      ? (`Image 1 is a finished painting: the ${style.facing_word} wall of this room, seen from up close.\n` +
+         `Image 3 is the line drawing Image 1 was painted from - the same scene as bare geometry.\n` +
+         `Image 2 is the same room's geometry drawn from further back: this picture's own camera.\n` +
+         `Do Image 1's art, but from Image 2's perspective: the same wall and room, the same ` +
+         `materials, light and every mark, seen from where Image 2 stands. Follow Image 2's lines ` +
+         `exactly. A circle stays a circle.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text ` +
+         `anywhere. Images 2 and 3 are ink line drawings on paper: their lines are where surfaces ` +
+         `meet; nothing in them is a colour, a material or an opening to paint.\n`)
+      : manorPrompt(plan, fac.key, meta, rects, null, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
     for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
     writeFileSync(join(dir, "PACKET.md"),
       `# ${fac.key} — technique t2 (labelled scaffold)\n\n` +
       stylePacketNote(style) +
-      packetNote(seed, seedPlan) +
+      (seed ? packetNote(seed, seedPlan) : "") +
       `${attachLine(seed, style)}\n` +
       `order, then send \`prompt.txt\` verbatim. Generate ${ids.length} images and save them to the\n` +
       `exact paths below — the measurement runs the moment a file appears at one of them.\n\n` +
@@ -2700,7 +2712,7 @@ async function emitManor(outDir, opts) {
        * change is the field's meaning — a reader routing on it still reads
        * "this ask waits" and nothing else. */
       edge_seed: seed,
-      seed_policy: seedPlan.policy,
+      seed_policy: (seedPlan ? seedPlan.policy : null),
       depends_on: seedPlan.depends_on,
       /* [row 42] THE ORDER THIS ENTRY STANDS IN, so a reader never has to
        * recompute it: which wall leads this room, what this facing continues
@@ -2981,7 +2993,7 @@ async function emitRetries(outDir, opts) {
        * [row 42] ...and the same order block, so a re-ask entry and a first-ask
        * entry are read by one rule. */
       edge_seed: seed,
-      seed_policy: seedPlan.policy,
+      seed_policy: (seedPlan ? seedPlan.policy : null),
       depends_on: seedPlan.depends_on,
       lead: seedPlan.lead,
       is_lead: seedPlan.is_lead,
@@ -3618,6 +3630,28 @@ export function attachStyle(plan, key, dir, opts = {}) {
        output is geometry-exact with only its objects ovalled - so once a warp
        round exists, Image 1 is the WARPED PAINTING ITSELF and the ask inverts:
        architecture exactly as shown, objects in their TRUE shape. */
+    /* [Kabe, 2026-08-31, the perspective pair] "send the two images of the
+       up close art and the hollow deck it was built off of. Then send the
+       hollow deck as it looks when we are stepped back and just say make the
+       same art, but changed to be this perspective... Instead of tell what
+       art to do just point to the close-up picture and say do this, but from
+       this perspective." THREE EXHIBITS, WORDS ONLY POINT: Image 1 the close
+       painting, Image 3 the very scaffold it was painted from (its own
+       packet's sheet), Image 2 this packet's stepped-back scaffold. The
+       prompt collapses to the analogy; the register's material prose sits
+       out (minimal_ask). Falls through to the chop when the close packet's
+       sheet is missing. */
+    {
+      const closeScaf = join(dir, "..", `${style.room}-${style.facing}`, "scaffold.png");
+      if (existsSync(closeScaf)) {
+        const artFile = `close-art-${style.room}-${style.facing}.png`;
+        copyFileSync(join(root, style.rel), join(dir, artFile));
+        copyFileSync(closeScaf, join(dir, "close-scaffold.png"));
+        return { ...style, file: artFile, derived: false, perspective_pair: true,
+          minimal_ask: true, derived_from: style.rel,
+          role_sentence: null };
+      }
+    }
     /* [Kabe, 2026-08-30, the chop] "We have the geometry we want to put it
        in (floor, face, side wall, ceiling) so lets chop it up to fit those
        spaces but shrunk down the % we step back... for each side, we do the

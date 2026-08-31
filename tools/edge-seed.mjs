@@ -719,6 +719,10 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
    same wall shrunk true, or the derived seed. One phrase, decided here, so the
    attach line and the paragraph cannot disagree. */
 function styleAttachPhrase(style) {
+  if (style.perspective_pair) {
+    return `\`${style.file}\` as **Image 1** (the finished close-up painting of this very wall) ` +
+      `and \`close-scaffold.png\` as **Image 3** (the line drawing Image 1 was painted from)`;
+  }
   const what = style.corrected_previous
     ? `the previous painting of this very view, geometry-corrected for repainting`
     : style.chop_draft
@@ -747,6 +751,15 @@ export function stylePacketNote(style) {
       `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
       `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
       `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
+  if (style.same_wall && style.perspective_pair) {
+    return `**Image 1 IS THE CLOSE-UP PAINTING ITSELF, and the words only point** — \`${style.file}\` ` +
+      `is the promoted close painting of this very wall; \`close-scaffold.png\` (Image 3) is the ` +
+      `scaffold sheet it was painted from, taken from its own packet; \`scaffold.png\` (Image 2) is ` +
+      `the same geometry stepped back. The prompt is the analogy, nothing more: do Image 1's art, ` +
+      `but from Image 2's perspective [Kabe's perspective pair, 2026-08-31].
 
 `;
   }
