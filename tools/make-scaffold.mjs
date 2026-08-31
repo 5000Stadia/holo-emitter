@@ -2627,6 +2627,8 @@ async function emitManor(outDir, opts) {
          `room. A circle stays a circle; no drawn line remains visible; do not enlarge, crop or ` +
          `recompose anything.\n` +
          `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
+         `warm, as if by lamps that are out of frame. Any small blurred patches near the picture's edges are damage: repaint them naturally in the same materials. ` +
          `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
          `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
          `For the record, this room's fabric (already what the painted parts show): its walls are ` +

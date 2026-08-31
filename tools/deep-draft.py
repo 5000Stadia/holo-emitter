@@ -467,6 +467,17 @@ def grow(args):
     y0, y1 = int(round(bb["yc"])), int(round(bb["yf"]))
     cut = a[y0:y1, x0:x1].copy()
     a[y0:y1, x0:x1] = GROUND
+    # [Kabe, 2026-08-31] "that updated picture skewed the ground weird": when
+    # the base is a WARPED frame, its reveal-fill (frame-edge smear, the floor
+    # band especially) rides into the draft - melted in place via the base's
+    # own revealed.png mask, and the ask names the blurred patches as damage.
+    if args.get("reveal_png"):
+        from PIL import ImageFilter as _IFR
+        rm = np.asarray(Image.open(args["reveal_png"]).convert("L")
+                        .filter(_IFR.MaxFilter(25))) > 127
+        rm[y0:y1, x0:x1] = False
+        blur_src = np.asarray(Image.fromarray(a).filter(_IFR.GaussianBlur(12)))
+        a[rm] = blur_src[rm]
     # [Kabe, 2026-08-31] "Ceiling needs to be notably clean and artifact free
     # on the edge of box 1": lamp rods crossing the cut leave dark stubs on
     # the shell's ceiling band - wiped deterministically: within the hole's
