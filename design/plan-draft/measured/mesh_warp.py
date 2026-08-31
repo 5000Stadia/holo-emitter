@@ -197,7 +197,11 @@ W, H = snap.W, snap.H
 MANOR = snap.MANOR
 STATE = snap.STATE
 PLAN = snap.PLAN
-READINGS = os.path.join(HERE, "manor")
+#: [row 44, clause 8] THE READINGS ARE THE PACK'S. Same directory for the
+#: manor (`pack.load_pack()` resolves `manor` to this very path); a second map
+#: keeps its readings under its own name and the warp must look there or it
+#: re-measures every frame the sweep already read.
+READINGS = snap._P.paths["readings_dir"]
 #: THE SWEEP'S EVIDENCE, and it is not a round directory. `row23_run.py`'s warp
 #: exit writes the document a PROMOTION reads into `meshwarp/` — a round, whose
 #: name matches `promote-backdrop.mjs`'s `^[a-z0-9]+$` — and this sweep writes
