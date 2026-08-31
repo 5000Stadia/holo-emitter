@@ -518,9 +518,9 @@
       "why": "the retry cap is spent; the wall stays grid and the run continues"
     },
     "platform_far/W": {
-      "attempts": 0,
-      "status": "waiting",
-      "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
       "warp": {
         "pins": 7,
         "columns": 4,
@@ -583,7 +583,9 @@
         "clause": "meshwarp.aperture_order",
         "why": "the row pins cross: floor_line is at target 628.0 from source 638.0 and door:door01:sill at target 634.3 from source 638.0, so the painting puts them in the opposite order along the wall from the one the plan rules - an aperture-order content miss, not a warp this instrument can pay for",
         "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png"
-      }
+      },
+      "exit": "measured",
+      "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
     }
   }
 }

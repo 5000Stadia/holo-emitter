@@ -15741,3 +15741,16 @@
 {"ts_start":1788216317.348,"ts_end":1788216317.394,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"e825c097","out_bytes":57364,"facings":12,"locations":3}}
 {"detail":{"action":"bake","files":2,"note":null,"refused":false,"wrote":["backdrops/baked.js","fixtures/underground-2/fixture.js"]},"key":"baked","step":"derive.regen","ts_end":1788216317.409077,"ts_start":1788216292.246397}
 {"detail":{"files":21,"notes":["style_seeds: style-seed refused for at least one wall: stair_landing/E -> backdrops/style-seeds/stair_landing-E.png \u2014 1 "],"reason":"sweep","stale":["style_seeds","material_provenance","material_legacy","room_consistency","room_consistency_readme","window_calibration","baked"]},"key":null,"step":"derive.sweep","ts_end":1788216320.514574,"ts_start":1788216220.70315}
+{"ts_start":1788216302.352,"ts_end":1788216326.517,"step":"bake.backdrops","key":null,"detail":{"paintings":89,"out_bytes":17242,"fp":"9d69ac7e","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":209454708,"jpeg_bytes":38046690}}
+{"ts_start":1788216326.602,"ts_end":1788216326.641,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788216326.707,"ts_end":1788216326.781,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788216326.859,"ts_end":1788216326.905,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788216326.979,"ts_end":1788216327.187,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788216327.278,"ts_end":1788216327.324,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"e825c097","out_bytes":57364,"facings":12,"locations":3}}
+{"ts_start":1788216322.584,"ts_end":1788216346.555,"step":"bake.backdrops","key":null,"detail":{"paintings":89,"out_bytes":17242,"fp":"9d69ac7e","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":209454708,"jpeg_bytes":38046690}}
+{"ts_start":1788216346.635,"ts_end":1788216346.676,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788216346.746,"ts_end":1788216346.819,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788216346.899,"ts_end":1788216346.945,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788216347.015,"ts_end":1788216347.211,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788216347.306,"ts_end":1788216347.351,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"e825c097","out_bytes":57364,"facings":12,"locations":3}}
+{"detail":{"failed":0,"parked":1,"promote_enabled":true,"promoted":1,"waiting":5},"key":null,"step":"sweep.pass","ts_end":1788216347.36253,"ts_start":1788216208.839747}
