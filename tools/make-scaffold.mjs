@@ -3724,8 +3724,9 @@ export function attachStyle(plan, key, dir, opts = {}) {
            the back wall the outlined gap). */
         let gmode = null;
         try { gmode = readFileSync(grownPng + ".mode", "utf8").trim(); } catch (e) { gmode = null; }
-        return { ...style, file: fileG, derived: true, grow_draft: true,
+        return { ...style, file: fileG, derived: true, grow_draft: gmode !== "enhance",
           reverse_draft: gmode === "reverse",
+          composed_enhance: gmode === "enhance",
           minimal_ask: true, derived_from: relative(root, grownPng),
           role_sentence: null };
       }
