@@ -89,3 +89,12 @@ wall is itself an id the whole pipeline resolves.
 ## Restart discipline
 
 A host restart kills tmux and the session cron. Recovery is one command (`tools/services.sh up`) plus resuming in-flight builders by handle; merged builders' worktrees are pruned so nothing loose survives a restart unowned. 2026-08-24: 13 merged worktrees pruned, 3 in-flight kept. Second restart the same day: two builders' transcripts lost but their branches held 15 and 8 commits — continuation builders took the branches over; the rule is COMMIT SMALL, the branch is the memory.
+
+## L-ENVELOPE (2026-08-30)
+An anisotropic mapping ovals round-drawn objects no matter how it is achieved — smooth resample and evenly-distributed blended-line insertion move the shape's envelope identically; only the texture of the skew differs. Measured: reference disc 63x74 copied to 63x75 by the painter (perfect obedience), oval preserved. Therefore no shape-bearing reference is ever mapped anisotropically; corrections to geometry ride as drawn guide lines and words, never as pixel mappings. Supersedes nothing; closes the oval investigation of L-DEEPDRAFT.
+
+## L-FRAME (2026-08-30)
+Kabe's frame recipe, verbatim: "It should just shrink while maintaining aspect ratio then simulate the geometry to the edges and ask to fill in the gaps. Maybe cut off the corner edges in the original and just overlay the correct corner geometry as reference lines to fix." Content and geometry never mixed in one mapping: content at ONE uniform scale (a circle stays a circle), the source's wrong-camera junctions cut off, the DECLARED geometry drawn as ink guide lines to the frame edges, the painter completes. `tools/deep-draft.py --frame`; wired as the deep facing's Image 1 in `attachStyle`. First round: four complete rooms, discs 0.96–0.99; span still painted wide (the zoom-in bias) — the measured miss now rides re-asks as words.
+
+## B-SWEEPORDER (owed, 2026-08-30)
+The sweep exits a wall on its first routable roll by index; a warp-exit roll 1 beats an unread camera-PASS roll 2 (platform_far/W measured case). Owed: measure every arrival for the wall, prefer a measured PASS over any warp exit, warp only when no roll passes.

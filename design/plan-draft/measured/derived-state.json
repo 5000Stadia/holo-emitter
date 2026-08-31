@@ -3,43 +3,43 @@
   "artifacts": {
     "baked": {
       "artifacts": {
-        "backdrops/baked.js": "28f0890555a421bfe16efce9bc3d6a8da17349c1886a5f9a0bb13f17d7b03319"
+        "backdrops/baked.js": "018f22878de68a74c74ebc11bdfbfdefbd7b386eb34af492678f797cd60c31ca"
       },
-      "at": "2026-08-30T19:35:17",
-      "input_digest": "39d6cb0ee4443b6e5b13bc856d29cb4dbf820058f4c766bf6dc449628cd0e316",
-      "inputs": 198
+      "at": "2026-08-30T19:44:45",
+      "input_digest": "a01de37b28b2cd6cbf3a5aaa0d5c0daee9b716df09d3faebe42b8e9b4b42850a",
+      "inputs": 202
     },
     "material_legacy": {
       "artifacts": {
         "design/plan-draft/measured/material_legacy.json": "0dc5ec296d9920c04d91c6edd7de5bc5d2992f2a458da2c3b00e4fc253ccde6b"
       },
-      "at": "2026-08-30T19:35:16",
-      "input_digest": "791246d0f6455d2131161a3261b7ff7dfbd0ae14319ca8a221a75d87829e7023",
-      "inputs": 802
+      "at": "2026-08-30T19:44:45",
+      "input_digest": "ce21883bf486448a43dcec0d3d1e6daacf4af4d1c0c55c555d8fc3b276555902",
+      "inputs": 805
     },
     "material_provenance": {
       "artifacts": {
         "design/plan-draft/measured/material_provenance.json": "94eded1d8161469e7dbf713eed11a87e9f66e28086b16bc3d5dfb3befaa51c27"
       },
-      "at": "2026-08-30T19:35:16",
-      "input_digest": "791246d0f6455d2131161a3261b7ff7dfbd0ae14319ca8a221a75d87829e7023",
-      "inputs": 802
+      "at": "2026-08-30T19:44:44",
+      "input_digest": "ce21883bf486448a43dcec0d3d1e6daacf4af4d1c0c55c555d8fc3b276555902",
+      "inputs": 805
     },
     "room_consistency": {
       "artifacts": {
-        "design/plan-draft/measured/room_consistency.json": "6c475e592a96bf18e5d7707910f820012aa64b4346ccb1050911651bcd14e024"
+        "design/plan-draft/measured/room_consistency.json": "3821f3ef1530b61c8e74dabc9f9818b3b144cb50688398e6611f15e4e6d24f7e"
       },
-      "at": "2026-08-30T19:35:16",
-      "input_digest": "afa01b4da69a7fefe1aaf95dfe8d50dd27fb9966ce55fc2d8fd55613ad4dd0fd",
-      "inputs": 188
+      "at": "2026-08-30T19:44:45",
+      "input_digest": "34626c821b271ad1eac19837dc1fae20b178bca88feee7103581d717a19ebd11",
+      "inputs": 192
     },
     "room_consistency_readme": {
       "artifacts": {
-        "design/batches/row40-consistency/README.md": "d6c45afc206b121682a374ee966abfdfe2a28008ab1d04c02369314ebbb070a0"
+        "design/batches/row40-consistency/README.md": "9de43932a788501ca470585bec251a64fbdd40d0b3e9f8d4a89cd1cc9cbfa483"
       },
-      "at": "2026-08-30T19:35:16",
-      "input_digest": "afa01b4da69a7fefe1aaf95dfe8d50dd27fb9966ce55fc2d8fd55613ad4dd0fd",
-      "inputs": 188
+      "at": "2026-08-30T19:44:45",
+      "input_digest": "34626c821b271ad1eac19837dc1fae20b178bca88feee7103581d717a19ebd11",
+      "inputs": 192
     },
     "texture_library": {
       "artifacts": {
@@ -54,9 +54,9 @@
       "artifacts": {
         "design/plan-draft/measured/window_calibration.json": "fcad0f81339a51c7bc315c5eb5d4ecab2a3ee2bd2d3ef55b1bb6df82b96d2c2c"
       },
-      "at": "2026-08-30T19:35:16",
-      "input_digest": "3cb894b28534696a95e4c2eb082a5eb4fd8aefa5f2a004498a280d205c0d9c16",
-      "inputs": 189
+      "at": "2026-08-30T19:44:45",
+      "input_digest": "9aa2bfe20dda457854df1bd932d3f823dcd460971702c50eed40623d6c76ba74",
+      "inputs": 193
     }
   }
 }

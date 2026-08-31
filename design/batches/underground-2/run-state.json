@@ -1,621 +1,621 @@
 {
- "walls": {
-  "booking_hall/N": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+  "walls": {
+    "booking_hall/N": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.106,
+          "target_px": 725.3,
+          "source_px": 656.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/booking_hall-N/row23-2f60265e.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.196x larger: 213.3 px/m at the wall plane, not 178.3",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.106, 0 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:12"
+      }
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.106,
-     "target_px": 725.3,
-     "source_px": 656.0
+    "booking_hall/S": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.044,
+          "target_px": 725.3,
+          "source_px": 695.0
+        },
+        "revealed_px": 20,
+        "revealed_fraction": 1e-05,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/booking_hall-S/row23-5fc9fd07.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.191x larger: 213.3 px/m at the wall plane, not 179.2",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.044, 20 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:26"
+      }
     },
-    "revealed_px": 0,
-    "revealed_fraction": 0.0,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/booking_hall-N/row23-2f60265e.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.196x larger: 213.3 px/m at the wall plane, not 178.3",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.106, 0 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/booking_hall-N/row23-2f60265e.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:12"
-   }
-  },
-  "booking_hall/S": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "booking_hall/E": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-E/row23-9828f287.png",
+      "exit": "measured",
+      "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.044,
-     "target_px": 725.3,
-     "source_px": 695.0
+    "booking_hall/W": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.104,
+          "target_px": 725.3,
+          "source_px": 657.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/booking_hall-W/row23-f1727b12.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-W/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.104, 0 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:41:40"
+      }
     },
-    "revealed_px": 20,
-    "revealed_fraction": 1e-05,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/booking_hall-S/row23-5fc9fd07.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.191x larger: 213.3 px/m at the wall plane, not 179.2",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.044, 20 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/booking_hall-S/row23-5fc9fd07.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:26"
-   }
-  },
-  "booking_hall/E": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-E/row23-9828f287.png",
-   "exit": "measured",
-   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
-  },
-  "booking_hall/W": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform/N": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-N/row23-ab082589.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "run_end_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.075,
+          "target_px": 725.3,
+          "source_px": 675.0
+        },
+        "revealed_px": 4872,
+        "revealed_fraction": 0.0031,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-N/row23-ab082589.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-N/row23-ab082589.png",
+        "exit": "warped",
+        "instrument": "da5967ad854c",
+        "candidate_sha256": "61e9338c2039a710b30175f236a0afb4dfecaed66340fe8e4d122e4d57f46adc",
+        "at": "2026-08-30T17:09:34"
+      },
+      "warp_refusal": {
+        "clause": "meshwarp.landmark_unreadable",
+        "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs 843.3..2058.0 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
+        "candidate": "backdrops/source/platform-N/row23-ab082589.png"
+      },
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.075, 4872 px revealed) \u2014 the correction is recorded, not waived"
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.104,
-     "target_px": 725.3,
-     "source_px": 657.0
+    "platform/S": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-S/row23-614418d6.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "run_end_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "run_end_left..corner_right",
+          "scale": 1.169,
+          "target_px": 1450.7,
+          "source_px": 1241.0
+        },
+        "revealed_px": 43246,
+        "revealed_fraction": 0.0275,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-S/row23-614418d6.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.169x larger: 213.3 px/m at the wall plane, not 182.5",
+      "snapped_from_family": "camera-miss",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-S/row23-614418d6.png",
+        "exit": "warped",
+        "instrument": "da5967ad854c",
+        "candidate_sha256": "ad1000c2f230c2c28f10a1dd9e5d9de7e5f7641983da82cafebf474a72c1784c",
+        "at": "2026-08-30T17:09:44"
+      },
+      "warp_refusal": {
+        "clause": "meshwarp.landmark_unreadable",
+        "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs -323.2..493.9 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
+        "candidate": "backdrops/source/platform-S/row23-614418d6.png"
+      },
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment run_end_left..corner_right x1.169, 43246 px revealed) \u2014 the correction is recorded, not waived"
     },
-    "revealed_px": 0,
-    "revealed_fraction": 0.0,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/booking_hall-W/row23-f1727b12.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "unfitted-horizon",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/booking_hall-W/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.104, 0 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:41:40"
-   }
-  },
-  "platform/N": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform-N/row23-ab082589.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "run_end_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform/E": {
+      "attempts": 2,
+      "status": "waiting",
+      "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "corner_left..corner_right",
+          "scale": 0.731,
+          "target_px": 585.1,
+          "source_px": 800.0
+        },
+        "revealed_px": 559487,
+        "revealed_fraction": 0.35571,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-E/row23-a73c3062.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 561.8, which puts the viewer's eye 0.760 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "suspect-painting",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
+        "exit": "warped",
+        "instrument": "da5967ad854c",
+        "candidate_sha256": "188e50abc5518225fd7790559f18b2bc82767ab293e5e34f2889ac6dcc42f422",
+        "at": "2026-08-30T19:39:46"
+      }
     },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.075,
-     "target_px": 725.3,
-     "source_px": 675.0
+    "platform/W": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
+      "warp": {
+        "pins": 7,
+        "columns": 4,
+        "rows": 3,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "door:door01:left",
+              0.0
+            ],
+            [
+              "door:door01:right",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "door:door01:head",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..door:door01:head",
+          "scale": 1.26,
+          "target_px": 298.7,
+          "source_px": 237.0
+        },
+        "revealed_px": 0,
+        "revealed_fraction": 0.0,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform-W/row23-4c9f614b.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.153x larger: 213.3 px/m at the wall plane, not 185.0",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-W/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment ceiling_line..door:door01:head x1.260, 0 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
+        "exit": "warped",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:39:01"
+      }
     },
-    "revealed_px": 4872,
-    "revealed_fraction": 0.0031,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-N/row23-ab082589.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-N/row23-ab082589.png",
-    "exit": "warped",
-    "instrument": "da5967ad854c",
-    "candidate_sha256": "61e9338c2039a710b30175f236a0afb4dfecaed66340fe8e4d122e4d57f46adc",
-    "at": "2026-08-30T17:09:34"
-   },
-   "warp_refusal": {
-    "clause": "meshwarp.landmark_unreadable",
-    "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs 843.3..2058.0 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
-    "candidate": "backdrops/source/platform-N/row23-ab082589.png"
-   },
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.075, 4872 px revealed) \u2014 the correction is recorded, not waived"
-  },
-  "platform/S": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform-S/row23-614418d6.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "run_end_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform_far/N": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "run_end_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.097,
+          "target_px": 725.3,
+          "source_px": 661.0
+        },
+        "revealed_px": 39544,
+        "revealed_fraction": 0.02514,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform_far-N/row23-de93168c.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "the left and right returns of this wall converge at y 221.0, which puts the viewer's eye 2.517 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "suspect-painting",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
+        "exit": "warped",
+        "instrument": "da5967ad854c",
+        "candidate_sha256": "aabd303ae9f72da17b776abc2be682a022ba72df108af5ee2663b0414170b06c",
+        "at": "2026-08-30T17:09:55"
+      },
+      "warp_refusal": {
+        "clause": "meshwarp.landmark_unreadable",
+        "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs -252.8..423.5 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
+        "candidate": "backdrops/source/platform_far-N/row23-de93168c.png"
+      },
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.097, 39544 px revealed) \u2014 the correction is recorded, not waived"
     },
-    "worst_segment": {
-     "axis": "x",
-     "name": "run_end_left..corner_right",
-     "scale": 1.169,
-     "target_px": 1450.7,
-     "source_px": 1241.0
+    "platform_far/S": {
+      "attempts": 1,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "run_end_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "x",
+          "name": "corner_left..run_end_right",
+          "scale": 1.067,
+          "target_px": 1449.7,
+          "source_px": 1359.1
+        },
+        "revealed_px": 1023,
+        "revealed_fraction": 0.00065,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform_far-S/row23-0fa71f22.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
+        "exit": "warped",
+        "instrument": "da5967ad854c",
+        "candidate_sha256": "26624cb8b62c6d87a1bccd0d4b6003373268761ab0e5589c5749aa584c290858",
+        "at": "2026-08-30T17:10:05"
+      },
+      "warp_refusal": {
+        "clause": "meshwarp.landmark_unreadable",
+        "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs 1102.4..1798.9 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
+        "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png"
+      },
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..run_end_right x1.067, 1023 px revealed) \u2014 the correction is recorded, not waived"
     },
-    "revealed_px": 43246,
-    "revealed_fraction": 0.0275,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-S/row23-614418d6.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.169x larger: 213.3 px/m at the wall plane, not 182.5",
-   "snapped_from_family": "camera-miss",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-S/row23-614418d6.png",
-    "exit": "warped",
-    "instrument": "da5967ad854c",
-    "candidate_sha256": "ad1000c2f230c2c28f10a1dd9e5d9de7e5f7641983da82cafebf474a72c1784c",
-    "at": "2026-08-30T17:09:44"
-   },
-   "warp_refusal": {
-    "clause": "meshwarp.landmark_unreadable",
-    "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs -323.2..493.9 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
-    "candidate": "backdrops/source/platform-S/row23-614418d6.png"
-   },
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment run_end_left..corner_right x1.169, 43246 px revealed) \u2014 the correction is recorded, not waived"
-  },
-  "platform/E": {
-   "attempts": 1,
-   "status": "waiting",
-   "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
+    "platform_far/E": {
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform_far-E/row23-e23c4ed5.png",
+      "exit": "measured",
+      "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
+        "exit": "grid",
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T15:44:04"
+      },
+      "answered_correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2"
     },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..corner_right",
-     "scale": 0.962,
-     "target_px": 585.1,
-     "source_px": 608.0
-    },
-    "revealed_px": 59392,
-    "revealed_fraction": 0.03776,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-E/row23-a73c3062.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
-    "exit": "warped",
-    "instrument": "da5967ad854c",
-    "candidate_sha256": "d9d29443161d781a04084cb06fdf7f69bb71f8b8998a1a0e9f8f45052b0f8e3f",
-    "at": "2026-08-30T19:25:27"
-   }
-  },
-  "platform/W": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
-   "warp": {
-    "pins": 7,
-    "columns": 4,
-    "rows": 3,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "door:door01:left",
-       0.0
-      ],
-      [
-       "door:door01:right",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "door:door01:head",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..door:door01:head",
-     "scale": 1.26,
-     "target_px": 298.7,
-     "source_px": 237.0
-    },
-    "revealed_px": 0,
-    "revealed_fraction": 0.0,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-W/row23-4c9f614b.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.153x larger: 213.3 px/m at the wall plane, not 185.0",
-   "snapped_from_family": "camera-miss",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-W/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment ceiling_line..door:door01:head x1.260, 0 px revealed) \u2014 the correction is recorded, not waived",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
-    "exit": "warped",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:39:01"
-   }
-  },
-  "platform_far/N": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "run_end_left",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "y",
-     "name": "ceiling_line..floor_line",
-     "scale": 1.097,
-     "target_px": 725.3,
-     "source_px": 661.0
-    },
-    "revealed_px": 39544,
-    "revealed_fraction": 0.02514,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform_far-N/row23-de93168c.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "the left and right returns of this wall converge at y 221.0, which puts the viewer's eye 2.517 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "suspect-painting",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-N/row23-de93168c.png",
-    "exit": "warped",
-    "instrument": "da5967ad854c",
-    "candidate_sha256": "aabd303ae9f72da17b776abc2be682a022ba72df108af5ee2663b0414170b06c",
-    "at": "2026-08-30T17:09:55"
-   },
-   "warp_refusal": {
-    "clause": "meshwarp.landmark_unreadable",
-    "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs -252.8..423.5 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
-    "candidate": "backdrops/source/platform_far-N/row23-de93168c.png"
-   },
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-N/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.097, 39544 px revealed) \u2014 the correction is recorded, not waived"
-  },
-  "platform_far/S": {
-   "attempts": 1,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
-   "warp": {
-    "pins": 4,
-    "columns": 2,
-    "rows": 2,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "run_end_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..run_end_right",
-     "scale": 1.067,
-     "target_px": 1449.7,
-     "source_px": 1359.1
-    },
-    "revealed_px": 1023,
-    "revealed_fraction": 0.00065,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform_far-S/row23-0fa71f22.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "unfitted-horizon",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
-    "exit": "warped",
-    "instrument": "da5967ad854c",
-    "candidate_sha256": "26624cb8b62c6d87a1bccd0d4b6003373268761ab0e5589c5749aa584c290858",
-    "at": "2026-08-30T17:10:05"
-   },
-   "warp_refusal": {
-    "clause": "meshwarp.landmark_unreadable",
-    "why": "the declared camera does not see this room: the convergence sits at x 768.0 and this frame's wall runs 1102.4..1798.9 \u2014 a level camera's principal point is between its own corners, so there is no five-plane box here",
-    "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png"
-   },
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-S/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..run_end_right x1.067, 1023 px revealed) \u2014 the correction is recorded, not waived"
-  },
-  "platform_far/E": {
-   "attempts": 2,
-   "status": "promoted",
-   "candidate": "backdrops/source/platform_far-E/row23-e23c4ed5.png",
-   "exit": "measured",
-   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
-    "exit": "grid",
-    "instrument": "7991604bcb26",
-    "at": "2026-08-30T15:44:04"
-   },
-   "answered_correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2"
-  },
-  "platform_far/W": {
-   "attempts": 1,
-   "status": "waiting",
-   "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
-   "warp": {
-    "pins": 7,
-    "columns": 4,
-    "rows": 3,
-    "residuals": {
-     "max_px": 0.0,
-     "column_px": [
-      [
-       "corner_left",
-       0.0
-      ],
-      [
-       "door:door01:left",
-       0.0
-      ],
-      [
-       "door:door01:right",
-       0.0
-      ],
-      [
-       "corner_right",
-       0.0
-      ]
-     ],
-     "row_px": [
-      [
-       "ceiling_line",
-       0.0
-      ],
-      [
-       "door:door01:head",
-       0.0
-      ],
-      [
-       "floor_line",
-       0.0
-      ]
-     ]
-    },
-    "worst_segment": {
-     "axis": "x",
-     "name": "corner_left..door:door01:left",
-     "scale": 0.817,
-     "target_px": 237.7,
-     "source_px": 291.0
-    },
-    "revealed_px": 373014,
-    "revealed_fraction": 0.23716,
-    "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform_far-W/row23-a6a27b21.png"
-   },
-   "camera_source": "declared",
-   "answered_correction": "draw 1.261x larger: 91.4 px/m at the wall plane, not 72.5",
-   "snapped_from_family": "camera-miss",
-   "exit_attempt": {
-    "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
-    "exit": "warped",
-    "instrument": "da5967ad854c",
-    "candidate_sha256": "140438a116c360ca1d9177aea219c9763d7ef641d8d318f563d9dc2c69abc1ec",
-    "at": "2026-08-30T19:25:40"
-   }
+    "platform_far/W": {
+      "attempts": 2,
+      "status": "waiting",
+      "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+      "warp": {
+        "pins": 7,
+        "columns": 4,
+        "rows": 3,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "door:door01:left",
+              0.0
+            ],
+            [
+              "door:door01:right",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "door:door01:head",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..door:door01:head",
+          "scale": 0.66,
+          "target_px": 128.0,
+          "source_px": 194.0
+        },
+        "revealed_px": 445638,
+        "revealed_fraction": 0.28333,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform_far-W/row23-95cdd884.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "snapped_from_family": "unfitted-horizon",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+        "exit": "warped",
+        "instrument": "da5967ad854c",
+        "candidate_sha256": "1f1f8b039ce3690abd3634578d674286fb5485b9e14e6bc264f923906cc04f70",
+        "at": "2026-08-30T19:43:52"
+      }
+    }
   }
- }
 }
