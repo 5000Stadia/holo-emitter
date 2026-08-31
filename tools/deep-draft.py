@@ -503,7 +503,12 @@ def grow(args):
     INK = (42, 33, 24); lw = 3
     # the wireframe of the gap: the mid-plane hole's corners run to the far
     # box's corners, and the ceiling, floor and dado lines continue through
-    for (hx, hy, tx, ty) in ((x0, y0, wx, wy), (x1, y0, wx + cw, wy),
+    # [Kabe, 2026-08-31] the TOP diagonals launch from the PAINTED junction
+    # (the molding's bottom corner, severed at the hole's side edge) - the
+    # drawn line starts exactly where the painted cornice line ends, while
+    # the cut itself stays at the molding's top so the molding rides the wall.
+    jr = int(round(args.get("junction_row", y0)))
+    for (hx, hy, tx, ty) in ((x0, jr, wx, wy), (x1, jr, wx + cw, wy),
                              (x0, y1, wx, wy + ch), (x1, y1, wx + cw, wy + ch)):
         d.line([(hx, hy), (tx, ty)], fill=INK, width=lw)
     # [Kabe, 2026-08-31] NO DADO LINES IN THE RING: "I worry it biases the
