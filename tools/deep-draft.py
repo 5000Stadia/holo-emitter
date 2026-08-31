@@ -495,10 +495,15 @@ def grow(args):
             half = max(2.0, (wm/2.0) * (yy - vy_l) / eye_l)
             wide = max(45.0, 8.0*half)   # the bent original wanders; consume it fully
             c0, c1 = int(vx_l - wide), int(vx_l + wide)
-            row = a[yy, max(0,c0):c1].astype(np.float32)
-            med = np.median(np.concatenate([a[yy, max(0,c0-40):max(1,c0)],
-                                            a[yy, c1:c1+40]]).astype(np.float32), axis=0)
-            a[yy, max(0,c0):c1] = med.astype(np.uint8)
+            # REAL texture, not a flat median: the corridor takes the floor
+            # from a lateral offset strip (true grain), rather than a smooth
+            # band that reads as pavement.
+            span = c1 - max(0, c0)
+            src0 = max(0, c0) - (span + 60)
+            if src0 < 0: src0 = c1 + 60
+            patch = a[yy, src0:src0 + span]
+            if patch.shape[0] == span:
+                a[yy, max(0, c0):c1] = patch
             d0, d1 = int(round(vx_l - half)), int(round(vx_l + half))
             a[yy, d0:d1] = line_col
     # [Kabe, 2026-08-31] "Ceiling needs to be notably clean and artifact free
