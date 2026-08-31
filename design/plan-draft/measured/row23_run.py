@@ -1344,6 +1344,12 @@ def _exit_warp(key, e, st, cand_rel, side, ref, fam, reading=None):
 
     png, rec_path = _warped_frame(key)
     mesh_warp.write_png(png, out)
+    rec.pop("revealed_mask", None)
+    _mask = getattr(mesh_warp, "LAST_REVEALED_MASK", None)
+    if _mask is not None:
+        _np = mesh_warp.np
+        mesh_warp.write_png(os.path.join(os.path.dirname(png), "revealed.png"),
+                            _np.dstack([_mask.astype(_np.uint8) * 255] * 3))
     warped_rel = os.path.relpath(png, ROOT)
     # THE ASK GOES WITH THE PICTURE. [row39:stair.ask_unreadable] attaches a
     # flight to a promoted meta only from a candidate that can be SHOWN to have
@@ -1374,6 +1380,29 @@ def _exit_warp(key, e, st, cand_rel, side, ref, fam, reading=None):
                         hold_family=(reading_after.get("_promotion") or {})
                         .get("hold_family"))
     mesh_warp._emit(rec_path, rec)
+
+    # [Kabe, 2026-08-30, verbatim] "the smear should not need to be done to
+    # that extent after the image generation. Before is fine for reference but
+    # after it hopefully is geometrically CLOSE." THE WARP IS A REFERENCE-
+    # MAKER, NOT A FINISHER: it may finish a painting only inside a small
+    # budget; beyond it the warped frame and its revealed mask stay on disk to
+    # teach the NEXT ask, and the wall keeps its grid.
+    _st = rec.get("stretch") or {}
+    _scales = [v for v in (_st.get("x_scale_min"), _st.get("x_scale_max"),
+                           _st.get("y_scale_min"), _st.get("y_scale_max"))
+               if isinstance(v, (int, float))]
+    _rev = rec.get("revealed_fraction") or 0.0
+    if (_scales and (min(_scales) < 0.93 or max(_scales) > 1.075)) or _rev > 0.08:
+        timings.record("exit.warp", _t, time.time(), key,
+                       {"candidate": cand_rel, "warped": True, "promoted": False,
+                        "why": "not geometrically close",
+                        "revealed_fraction": _rev})
+        return False, ("geometrically not close (stretch %.3f..%.3f, %.0f%% "
+                       "revealed): the warp only teaches here — its frame and "
+                       "mask stand as the next ask's reference [Kabe: before "
+                       "is fine for reference; after must be CLOSE]"
+                       % ((min(_scales) if _scales else 1.0),
+                          (max(_scales) if _scales else 1.0), _rev * 100)), rec, None
 
     doc_out, why = _warp_document(key, warped_rel, reading_after, side, ref, rec)
     if doc_out is None:

@@ -434,6 +434,11 @@ def resample(rgb, sx, sy, band=MIRROR_BAND_PX):
     fx, dx = mirror_fold(sx, 0.0, w - 1.0, band)
     fy, dy = mirror_fold(sy, 0.0, h - 1.0, band)
     revealed = (dx > 0) | (dy > 0)
+    # [Kabe, 2026-08-30] the one choke point every warp path passes through:
+    # the mask of revealed (fill-smeared) pixels is stashed for the round
+    # document, whichever mode asked for the resample.
+    global LAST_REVEALED_MASK
+    LAST_REVEALED_MASK = revealed
     return _bilinear(rgb, fx, fy), revealed
 
 
@@ -964,6 +969,11 @@ def warp_with_pins(rgb, pins, mode="tps", band=MIRROR_BAND_PX):
                                                 b - p["source"][1])), 3)
         p["ask_px"] = round(float(np.hypot(p["source"][0] - p["target"][0],
                                            p["source"][1] - p["target"][1])), 1)
+    # [Kabe, 2026-08-30] THE MASK IS PART OF THE DOCUMENT: the exact pixels
+    # the warp revealed and smear-filled, kept so the NEXT ask can cut them
+    # out of its reference instead of copying the smear as material.
+    global LAST_REVEALED_MASK
+    LAST_REVEALED_MASK = revealed
     report = dict(local_stretch=local_stretch(sx, sy),
                   revealed_px=int(revealed.sum()),
                   revealed_fraction=round(float(revealed.mean()), 5),
@@ -972,6 +982,9 @@ def warp_with_pins(rgb, pins, mode="tps", band=MIRROR_BAND_PX):
 
 
 # ------------------------------------------------- THE SEPARABLE WALL PLANE
+
+LAST_REVEALED_MASK = None
+
 
 def smoothstep(u):
     """The C1 ease, clamped: 0 at 0, 1 at 1, flat at both ends."""
@@ -1319,6 +1332,11 @@ def warp_with_axes(rgb, src_box, tgt_box, cols, rows, offset=(0.0, 0.0),
         fade=fade)
     revealed = ((sx < extent[0]) | (sx > extent[1])
                 | (sy < extent[2]) | (sy > extent[3]))
+    # [Kabe, 2026-08-30] the plane path's own mask, stashed for the round
+    # document: the exact fill-smeared pixels, so the NEXT ask cuts them out
+    # of its reference instead of copying the smear as material.
+    global LAST_REVEALED_MASK
+    LAST_REVEALED_MASK = revealed
     painted = resample_clamped(rgb, sx + ox, sy + oy)
     extended = resample_clamped(rgb, ex + ox, ey + oy)
     out = painted + (extended - painted) * np.asarray(wfill)[..., None]

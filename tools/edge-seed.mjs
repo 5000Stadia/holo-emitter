@@ -751,8 +751,9 @@ export function stylePacketNote(style) {
   if (style.same_wall && style.true_shape_recreate) {
     return `**Image 1 IS THE WARP'S OWN OUTPUT for this very view** — \`${style.file}\`, copied from ` +
       `\`${style.derived_from}\`: architecture geometry-exact and full-frame, objects ovalled by the ` +
-      `per-axis correction. The prompt inverts the usual ask: keep every line of architecture and the ` +
-      `framing exactly, redraw every OBJECT in its true shape (a circle stays a circle) [true-shape ` +
+      `per-axis correction, and every zone the warp's fill had smeared CUT to plain ground with the ` +
+      `declared geometry drawn through (the revealed mask decides the cut). The prompt asks: keep every line of architecture and the ` +
+      `framing exactly, complete the cut margins naturally, redraw every OBJECT in its true shape (a circle stays a circle) [true-shape ` +
       `recreate, 2026-08-30 — the painter re-normalizes shapes unless ordered to copy, and a full-frame ` +
       `reference leaves nothing to zoom into].
 

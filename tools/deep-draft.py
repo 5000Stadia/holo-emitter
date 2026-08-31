@@ -169,12 +169,53 @@ def frame(args):
                       "x_exact": x_exact, "y_exact": y_exact,
                       "content_kept": [round(kx0), round(ky0), round(kx1), round(ky1)]}))
 
+
+def true_shape(args):
+    """[Kabe, 2026-08-30] "Before is fine for reference but after it hopefully
+    is geometrically CLOSE." The warp only teaches now, and this builds what it
+    teaches WITH: its geometry-exact frame, minus its own smear — every pixel
+    the warp revealed and fill-smeared is CUT to plain ground (nothing to
+    copy), the declared geometry drawn through the cut, the true content kept
+    exactly. The painter regenerates: architecture and framing exactly, cut
+    margins completed naturally, objects in their true shape."""
+    import numpy as np
+    from PIL import ImageFilter, ImageDraw
+    src = Image.open(args["warped_png"]).convert("RGB")
+    mask = Image.open(args["revealed_png"]).convert("L")
+    grow = int(args.get("grow_px", 32))     # the fill fade (24) + a seam margin
+    mask = mask.filter(ImageFilter.MaxFilter(grow * 2 + 1))
+    m = np.asarray(mask) > 127
+    t = args["target_box"]
+    a = np.asarray(src).astype(np.uint8).copy()
+    # never cut inside the declared wall box - the content there is the point
+    yy, xx = np.mgrid[0:a.shape[0], 0:a.shape[1]]
+    inside = ((xx >= t["x0"]) & (xx <= t["x1"]) & (yy >= t["yc"]) & (yy <= t["yf"]))
+    m = m & ~inside
+    a[m] = (201, 197, 189)
+    out = Image.fromarray(a)
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24); lw = 3
+    tx0, tx1, tyc, tyf = t["x0"], t["x1"], t["yc"], t["yf"]
+    d.line([(tx0, tyc), (tx1, tyc)], fill=INK, width=lw)
+    d.line([(tx0, tyf), (tx1, tyf)], fill=INK, width=lw)
+    d.line([(tx0, tyc), (tx0, tyf)], fill=INK, width=lw)
+    d.line([(tx1, tyc), (tx1, tyf)], fill=INK, width=lw)
+    d.line([(0, 0), (tx0, tyc)], fill=INK, width=lw)
+    d.line([(W, 0), (tx1, tyc)], fill=INK, width=lw)
+    d.line([(0, H), (tx0, tyf)], fill=INK, width=lw)
+    d.line([(W, H), (tx1, tyf)], fill=INK, width=lw)
+    out.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "true_shape",
+                      "cut_px": int(m.sum()), "cut_pct": round(float(m.mean()) * 100, 1)}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
         return correct(args)
     if args.get("mode") == "frame":
         return frame(args)
+    if args.get("mode") == "true_shape":
+        return true_shape(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)

@@ -3621,9 +3621,31 @@ export function attachStyle(plan, key, dir, opts = {}) {
     const warpedPng = join(warpDir2, "warped.png");
     if (existsSync(warpedPng) && existsSync(join(warpDir2, "warp.json"))) {
       const fileT = `true-shape-${dLoc}-${dF}.png`;
-      copyFileSync(warpedPng, join(dir, fileT));
+      /* [Kabe, 2026-08-30] "Before is fine for reference but after it
+         hopefully is geometrically CLOSE." The reference is the warp's frame
+         MINUS the warp's own smear: the revealed mask's pixels are cut to
+         plain ground with the declared geometry drawn through, so the painter
+         has nothing to copy where the fill smeared. Raw copy only where no
+         mask exists (older rounds). */
+      const revealedPng = join(warpDir2, "revealed.png");
+      if (existsSync(revealedPng)) {
+        const dm = deriveMeta(plan, dLoc, dF);
+        const ihT = dm.image_h_px || 1024;
+        const tyfT = dm.floor_line_y * ihT;
+        const argsT = join(dir, `.deep-draft-args.json`);
+        writeFileSync(argsT, JSON.stringify({
+          mode: "true_shape", warped_png: warpedPng, revealed_png: revealedPng,
+          target_box: { x0: dm.corner_x0_px, x1: dm.corner_x1_px,
+                        yc: tyfT - dm.storey_height_m * dm.px_per_m_at_wall, yf: tyfT },
+          out: join(dir, fileT)
+        }));
+        execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsT], { encoding: "utf8" });
+        rmSync(argsT, { force: true });
+      } else {
+        copyFileSync(warpedPng, join(dir, fileT));
+      }
       return { ...style, file: fileT, derived: true, draft: true, true_shape_recreate: true,
-        derived_by: "the warp's own output (backdrops/source-warped)", derived_from: relative(root, warpedPng),
+        derived_by: "tools/deep-draft.py --true_shape (warp frame minus its smear)", derived_from: relative(root, warpedPng),
         role_sentence:
           `Image 1 is THIS EXACT VIEW with its architecture at exactly the correct geometry - ` +
           `every corner, the ceiling and floor lines, the walls' recession and every opening ` +
@@ -3632,8 +3654,12 @@ export function attachStyle(plan, key, dir, opts = {}) {
           `shows as an oval). REPAINT THE WHOLE PICTURE: keep every line of architecture and ` +
           `every material exactly as Image 1 has them, at exactly Image 1's scale and framing - ` +
           `do not enlarge, crop or recompose anything - and draw every OBJECT in its true, ` +
-          `undistorted shape: a circle stays a circle, the mirror is perfectly round. Same room, ` +
-          `same light, same everything, only the distortion healed.` };
+          `undistorted shape: a circle stays a circle, the mirror is perfectly round. Near the ` +
+          `picture's edges, zones the correction had smeared are CUT AWAY to plain ground, with ` +
+          `dark drawn GUIDE LINES giving the exact geometry through them: complete those margins ` +
+          `naturally along the drawn lines - straight tile courses, even plaster, clean floor - ` +
+          `in the same materials and light, and leave no drawn line visible. Same room, same ` +
+          `light, same everything, only the damage healed.` };
     }
     const deepMeta = deriveMeta(plan, key.split("/")[0], key.split("/")[1]);
     const ihD = deepMeta.image_h_px || 1024;
