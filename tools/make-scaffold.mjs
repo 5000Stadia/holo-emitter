@@ -109,6 +109,13 @@ import { attachSeeds, packetNoteAll, attachLineAll } from "./edge-seed.mjs";
 
 /* [row 44] The location, as data. See `tools/pack.mjs`. */
 import { activePack } from "./pack.mjs";
+/* [Kabe, 2026-08-30] WHICH INSTRUCTION SETS COMPOSED THIS ASK. The index, not a
+ * new instruction: `situationsOf` reads the branches that already ran, and the
+ * packet carries their names so a return is attributable to them. It imports
+ * `deepViewOf` from here, which is a cycle — both bindings are hoisted function
+ * declarations and neither module calls the other at load, so it resolves; said
+ * out loud because the next reader will wonder. */
+import { situationsOf } from "./playbook.mjs";
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -2611,6 +2618,12 @@ async function emitManor(outDir, opts) {
       `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      /* [Kabe, 2026-08-30] THE INSTRUCTION SETS THIS ASK COMPOSED, named. Not a
+         new instruction and not a change to one — the index of the branches
+         that already ran, so a reader of a packet, or of a return, can see
+         which sets overlaid here. `design/playbook-facings.md` is the table. */
+      `Situations: ${situationsOf(plan, `${loc}/${f}`).join(", ")} ` +
+      "(see `design/playbook-facings.md`).\n" +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
       `Register: **${PRODUCTION_REGISTER}** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every\n` +
       `roll below is attributable to it: the reading of a return joins to this line through the roll id.\n` +
@@ -2630,6 +2643,13 @@ async function emitManor(outDir, opts) {
        * register if the packet record says which one went out. The reading
        * documents join to this entry through the roll ids below. */
       register: PRODUCTION_REGISTER,
+      /* [Kabe, 2026-08-30] WHICH INSTRUCTION SETS COMPOSED THIS ASK. Beside the
+       * register for the same reason it is: a reading joins to this entry
+       * through the roll ids, and "which sets overlaid on this wall" is a
+       * question a measurement has to be able to answer without re-deriving it.
+       * The vocabulary and its meanings are `TAGS` in `tools/playbook.mjs`;
+       * `design/playbook-facings.md` is the index. */
+      situations: situationsOf(plan, fac.key),
       scaffold_sha256: sha256File(join(dir, "scaffold.png")),
       scaffold_style: sheetStyle,
       px_per_m_at_wall: meta.px_per_m_at_wall,
@@ -2921,6 +2941,12 @@ async function emitRetries(outDir, opts) {
       `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      /* [Kabe, 2026-08-30] THE INSTRUCTION SETS THIS ASK COMPOSED, named. Not a
+         new instruction and not a change to one — the index of the branches
+         that already ran, so a reader of a packet, or of a return, can see
+         which sets overlaid here. `design/playbook-facings.md` is the table. */
+      `Situations: ${situationsOf(plan, `${loc}/${f}`).join(", ")} ` +
+      "(see `design/playbook-facings.md`).\n" +
       (flights.length
         ? `Stairs in this view: ${flights.map((s) => `**${s.id}** (${s.treads} treads, ` +
             `${s.width_m.toFixed(2)} m wide, ${s.climb ? CLIMB_STAMP[s.climb].toLowerCase() : "no tread in frame"})`).join(", ")}. ` +
@@ -2939,6 +2965,7 @@ async function emitRetries(outDir, opts) {
     emitted.push({
       key: w.key, attempt, packet: dir.slice(ROOT.length + 1),
       register: PRODUCTION_REGISTER,                                     // [row 43]
+      situations: situationsOf(plan, w.key),                              // [2026-08-30]
       correction: w.correction,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       px_per_m_at_wall: meta.px_per_m_at_wall,
@@ -4093,6 +4120,12 @@ async function emitConsistency(outDir, opts) {
       `\n\nThe prompt files are already on disk beside them. Do not rewrite them.\n\n` +
       `This wall: ${meta.px_per_m_at_wall.toFixed(1)} px per metre at the wall plane, ` +
       `${rects.length ? rects.map((r) => r.kind).join(" + ") : `no carrier — ${voice.blank}`}.\n` +
+      /* [Kabe, 2026-08-30] THE INSTRUCTION SETS THIS ASK COMPOSED, named. Not a
+         new instruction and not a change to one — the index of the branches
+         that already ran, so a reader of a packet, or of a return, can see
+         which sets overlaid here. `design/playbook-facings.md` is the table. */
+      `Situations: ${situationsOf(plan, `${loc}/${f}`).join(", ")} ` +
+      "(see `design/playbook-facings.md`).\n" +
       `Voice: **${voice.id}** (${via}); gate anchor **${anchor.line}**, ${CHAIR_RAIL_M.toFixed(2)} m.\n` +
       `Register: **${PRODUCTION_REGISTER}** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every\n` +
       `roll below is attributable to it: the reading of a return joins to this line through the roll id.\n` +
@@ -4106,6 +4139,7 @@ async function emitConsistency(outDir, opts) {
     emitted.push({
       key: w.key, attempt, packet: dir.slice(ROOT.length + 1),
       register: PRODUCTION_REGISTER,                                     // [row 43]
+      situations: situationsOf(plan, w.key),                              // [2026-08-30]
       correction,
       voice: { id: voice.id, via, outdoor: !!voice.outdoor, anchor: anchor.id },
       px_per_m_at_wall: meta.px_per_m_at_wall,

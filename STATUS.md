@@ -1,88 +1,82 @@
-# `deep-view-derived` — a deep facing is assembled, not painted
+# `facing-playbook` — every location in every direction, and what it prompts
+
+## The ruling this answers
+
+[HUMAN, Kabe, 2026-08-30, verbatim] "Because different angles and different room
+types, prompt, different orientations, and styles. We should have a playbook of
+different instructions for room, image generation, depending on which direction
+and room piece type we are working on. When the map schematic is initially
+generated, every location in every direction should prompt the appropriate set
+of instructions. And some may overlay — for example, an up-close wall facing with
+a corner on the right hand side and the wall extending off of the picture to the
+left is one set of instructions for long rooms in that corner spot, but also
+another set of instructions is prompted if there is a door. If there is no door,
+we skip that processing of course."
 
 ## What is here
 
-`design/plan-draft/measured/deep_view.py` and `test_deep_view.py`, plus the two
-candidates the module derived for `packs/underground-2`.
+Every situation the ruling names was ALREADY BUILT, as a branch, scattered
+across `plan-projection.mjs`, `make-scaffold.mjs`, `edge-seed.mjs` and the g5
+register in `frame-language.mjs`. What did not exist was the INDEX. This branch
+adds one and changes no prompt text.
 
-A DEEP FACING — one whose declared `wall_line` is not its own room's edge, which
-is `tools/validate-plan.mjs`'s `throughLine` law and the whole of the detection
-— is no longer painted on its own roll. Its 1536x1024 frame is assembled from
-the promoted paintings of the cells the view crosses:
+* `tools/playbook.mjs` — `situationsOf(plan, key)` returns a facing's ordered
+  situation tags, read off the same functions the emitter reads (`facingCarriers`,
+  `deriveMeta`, `runSpanOf`, `leadFacing`, `deepViewOf`), so a tag cannot drift
+  from the sentence it stands for. `TAGS` is the vocabulary with a line each;
+  `EMITTED_BY` and `GIST` are the doc's other two columns. `node tools/playbook.mjs
+  --pack <name>` prints every `loc/F` with its tags (`--json` for tooling).
+* `design/playbook-facings.md` — the table, generated from those three exports.
+  The code is the authority; the file is the index.
+* `tools/make-scaffold.mjs` — two wire-ins and nothing else: every `PACKET.md`
+  gains one `Situations:` line and every manifest entry a `situations` array, so
+  a return is attributable to the instruction sets that composed its ask.
+* `tests/playwright/playbook.spec.mjs` — 17 node-side cases in the Playwright
+  runner. Green.
 
-* the wall it views is the FAR cell's painting of that same wall, projected
-  from the deep standpoint (`platform_far/E` for `platform/E`);
-* each cell the walk crosses owns a DEPTH BAND of the view, and inside its band
-  the side walls, the floor and the ceiling are that cell's own `N` and `S`
-  paintings, mapped plane by plane;
-* where no promoted painting shows a surface, the last painted texel is
-  extended along that surface's own receding lines — `mesh_warp`'s fill — and
-  the record names the surface and counts the pixels.
+## The vocabulary
 
-`row35_snap`'s five-plane box (`box`, `assign`) answers "which surface is this
-output pixel"; `mesh_warp`'s `ray_exit`, `resample_clamped`, `write_png` and
-`sha256` do the sampling, the fill and the io. No second projective
-implementation was written.
+17 tags. Type (`enclosed` | `open-facing`), painting order (`lead` | `follower`),
+frame shape (`run-wall:corner-left` | `run-wall:corner-right`, `deep-view`,
+`same-wall-image`, `open-side`), and what stands in it (`door`, `door:N`,
+`window`, `window:N`, `no-window`, `fireplace`, `stairs`, `blank`).
 
-Determinism: no clock, no randomness, no host in the pixels or the record. The
-candidate id is `sha256` over `DERIVATION` + the input paintings' bytes + the
-geometry that placed them, so a rerun that changes nothing rewrites the same
-file, and a change to the assembly is a NEW candidate rather than the same id
-with different pixels behind it.
+**Overlay is the mechanism.** `underground-2` `platform_far/W` returns
+`enclosed, lead, deep-view, same-wall-image, door, no-window` — six sets on one
+wall. **An absence yields no tag**: there is no `no-door`, because "if there is
+no door, we skip that processing of course". `no-window` is not an exception —
+the register SAYS "there is no window" out loud, because a wall that does not say
+it gets one painted into it. A said absence is an instruction; an unsaid one is
+not.
 
-## Run it
+## Found, and NOT fixed here
 
-    python3 design/plan-draft/measured/deep_view.py --pack underground-2 --list
-    python3 design/plan-draft/measured/deep_view.py --pack underground-2 --facing platform/E
-    python3 design/plan-draft/measured/deep_view.py --pack underground-2 --all
-    cd design/plan-draft/measured && python3 -m unittest test_deep_view   # 18 OK
+`deepViewOf(plan, "entrance_court/S")` (manor) matches `entrance_approach/S`.
+Both are `open` facings, which carry `camera_far_m` and no `camera_wall_m`, so it
+returns `{close_cam: undefined, deep_cam: undefined, back_m: null}`. That
+backdrop and its meta are both on disk, so `sameWallImageFor` passes its own
+existence guard and throws:
 
-## What it produced
+    TypeError: Cannot read properties of undefined (reading 'toFixed')
+      at sameWallImageFor (tools/make-scaffold.mjs:3682)
 
-| facing | candidate | paint | far cell |
-|---|---|---|---|
-| `platform/E` | `backdrops/source/platform-E/row23-deep81a0fbeb.png` | 67.9 % | `platform_far` |
-| `platform_far/W` | `backdrops/source/platform_far-W/row23-deep807c6d39.png` | 67.7 % | `platform` |
+Re-emitting that packet would crash in `attachStyle`. This branch is an index,
+not a repair: `situationsOf` refuses to claim `same-wall-image` there and says
+why in a comment, and the defect is written down here and in the document rather
+than patched under cover of an unrelated row. The fix is a `close_cam == null`
+guard in `deepViewOf` or `sameWallImageFor`, and it is a behaviour change that
+wants its own row.
 
-Each has its `.deep.json` beside it: inputs and their sha256s, `k_camera` and
-`k_corners`, the quads, every fallback, `missing_sources`, `extended_px`.
-Both read five promoted rolls and invent no wall: **every pixel of every side
-wall in both frames is paint.**
+## Undone
 
-## Known limits, in the order they matter
-
-1. **32 % of each frame is recession fill, all of it floor and ceiling.** The
-   floor immediately in front of the standpoint and the ceiling directly
-   overhead are outside every existing painting's frame — a 6.4 m room at
-   4.8 m on a 1536 px canvas simply does not contain them. The side walls take
-   none of this fill. If it needs to come down, the next source to add is each
-   cell's BACK facing (`platform/W` for `platform/E`): it is an exact source
-   for those planes, and the only rule is that a facing which is itself deep
-   may never be a source.
-2. **`platform_far/E`'s meta disagrees with itself**: `px_per_m_at_wall` 197.5
-   against corner columns that give 166.6 over the ruled 6.4 m, and an eye at
-   1.044 m against the drawing's 1.183. The assembly follows the CORNERS and
-   the plan's metres horizontally and the meta's `px_per_m_at_wall` vertically,
-   so the far wall lands on the plan's declared corners; the disagreement is
-   reported as `k_camera` 0.4286 vs `k_corners` 0.5489 and `sources[*].eye_m`
-   rather than split silently. `platform_far/W` has no such gap (both 0.4286).
-3. **The floor and ceiling are cut down the view axis**, left half from the
-   cell's left painting and right half from its right one. The cut is crisp and
-   where the geometry puts it, but the two rolls differ in exposure, so the
-   join is visible on the near floor. A brightness match at the seam is not
-   attempted here.
-4. **The tone steps at the crossed edge** where one cell's rolls give way to
-   the next's. That is the corpus disagreeing with itself, not the assembly;
-   the seam is a cut with no feather, as ruled.
-
-## Not done
-
-* The candidates were written in THIS WORKTREE only. Nothing was copied into
-  the live store, no `run-state` was touched, no tmux loop was restarted, and
-  no promoted file was modified or deleted. To put them in front of the loop,
-  copy the two `backdrops/source/<loc>-<F>/` directories into the main
-  checkout; they are ordinary candidates from there on.
-* No measure or promote pass was run against them, so nothing here says the
-  gate accepts them.
-* Only `underground-2` was exercised. `--all` walks any pack's deep facings and
-  refuses, by name, a facing whose far cell is not promoted.
+* The retry and consistency packet writers get the `Situations:` line and the
+  `situations` array, but their manifests were not re-emitted — no emit was run,
+  because an emit dispatches asks.
+* `run-wall:corner-*` reads `deriveMeta`'s corner pixels, which is the plan's
+  derived meta. The live emit resolves the PAGE's meta, and a measured backdrop
+  meta supersedes the derived one; on a facing whose measured corners differ in
+  sign from the derived ones the tag and the sentence could part company. No such
+  facing exists today (no painted facing in any pack is a run wall).
+* `situationsOf` is not called by `frame-language.mjs`. It indexes the register's
+  branches; it does not drive them. Making the register read the tags — one
+  instruction block per tag, in one table — is the row this one makes possible.
