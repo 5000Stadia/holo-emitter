@@ -136,6 +136,49 @@ def room_of(plan, rid):
     return None
 
 
+
+def run_span_of(plan, room, f):
+    """The RUN a side wall belongs to, in world coordinates along the span axis.
+
+    Mirrors `tools/plan-projection.mjs` `runSpanOf`: extend across full-width
+    `open_edge`s on the cell's side edges while the neighbour continues the
+    same wall line. Returns (lo, hi); equals the cell's own span when the wall
+    is no run — which is what keeps every non-run source byte-identical.
+    """
+    ax = "x" if f in ("N", "S") else "y"
+    nx = "y" if ax == "x" else "x"
+    wall_line = facing_edge(room["rect"], f)
+    lo, hi = across_span(room["rect"], f)
+    d0, d1 = (room["rect"][nx + "0"], room["rect"][nx + "1"])
+    for direction in (-1, 1):
+        cell = room
+        for _ in range(8):
+            edge = cell["rect"][ax + ("0" if direction < 0 else "1")]
+            found = None
+            for o in plan.get("openings", []):
+                r = o.get("rect")
+                if (o.get("kind") != "open_edge" or o.get("floor") != cell.get("floor")
+                        or not r or cell["id"] not in (o.get("joins") or [])):
+                    continue
+                if abs(r[ax + "0"] - edge) > 1e-6 or abs(r[ax + "1"] - edge) > 1e-6:
+                    continue
+                if r[nx + "0"] > d0 + 1e-6 or r[nx + "1"] < d1 - 1e-6:
+                    continue
+                found = o
+                break
+            if not found:
+                break
+            nid = next((j for j in found.get("joins", []) if j != cell["id"]), None)
+            nxt = next((r2 for r2 in plan.get("rooms", []) if r2["id"] == nid), None)
+            if not nxt or abs(facing_edge(nxt["rect"], f) - wall_line) > 1e-6:
+                break
+            cell = nxt
+            if direction < 0:
+                lo = cell["rect"][ax + "0"]
+            else:
+                hi = cell["rect"][ax + "1"]
+    return lo, hi
+
 def walk_open_edges(plan, room, f, max_hops=8):
     """The `throughLine` walk, returning the cells crossed and the lines.
 
@@ -289,7 +332,13 @@ def source_camera(plan, room, f, meta):
     width_m = float(fc.get("wall_width_m") or abs(
         across_span(room["rect"], f)[1] - across_span(room["rect"], f)[0]))
     x0, x1 = float(meta["corner_x0_px"]), float(meta["corner_x1_px"])
-    ppm_h = (x1 - x0) / width_m
+    # [2026-08-30] A RUN WALL'S CORNERS SPAN THE RUN, not the cell: divide by
+    # the run's metres or the horizontal scale doubles and every band misses
+    # (the regenerated deep frames came back 79 % fill on run-cornered
+    # sources). Equal spans reproduce the old arithmetic exactly.
+    run_lo, run_hi = run_span_of(plan, room, f)
+    span_m = (run_hi - run_lo) if (run_hi - run_lo) > width_m + 1e-6 else width_m
+    ppm_h = (x1 - x0) / span_m
     ppm_v = float(meta["px_per_m_at_wall"])
     wall_m = float(fc["camera_wall_m"])
     vy = float(meta["horizon_y"]) * ih
@@ -299,8 +348,7 @@ def source_camera(plan, room, f, meta):
     # `x0` is the LEFT column, so it belongs to whichever end of the wall has
     # the smaller lateral offset. Nothing here assumes the camera stands on
     # the room's axis; `vx` is solved for, not assumed to be the frame centre.
-    lo, hi = across_span(room["rect"], f)
-    cam.vx = x0 - ppm_h * min(cam.wall_lateral(lo), cam.wall_lateral(hi))
+    cam.vx = x0 - ppm_h * min(cam.wall_lateral(run_lo), cam.wall_lateral(run_hi))
     return cam
 
 

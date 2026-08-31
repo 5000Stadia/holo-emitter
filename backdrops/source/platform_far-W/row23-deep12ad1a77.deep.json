@@ -8,13 +8,13 @@
   13.4
  ],
  "derivation": "deep_view/1",
- "extended_fraction": 0.7955,
- "extended_px": 1251217,
+ "extended_fraction": 0.32302,
+ "extended_px": 508070,
  "facing": "platform_far/W",
  "fallbacks": [
   {
    "fill": "plane_recession",
-   "pixels": 124672,
+   "pixels": 109482,
    "source": [
     "c1.left",
     "far"
@@ -23,7 +23,7 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 124411,
+   "pixels": 109221,
    "source": [
     "c1.right",
     "far"
@@ -32,7 +32,7 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 55647,
+   "pixels": 26778,
    "source": [
     "c1.left",
     "far"
@@ -41,7 +41,7 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 55756,
+   "pixels": 26924,
    "source": [
     "c1.right",
     "far"
@@ -50,23 +50,7 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 153523,
-   "source": [
-    "c1.left"
-   ],
-   "surface": "platform.left"
-  },
-  {
-   "fill": "plane_recession",
-   "pixels": 153969,
-   "source": [
-    "c1.right"
-   ],
-   "surface": "platform.right"
-  },
-  {
-   "fill": "plane_recession",
-   "pixels": 38967,
+   "pixels": 33067,
    "source": [
     "c0.left"
    ],
@@ -74,7 +58,7 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 38913,
+   "pixels": 33013,
    "source": [
     "c0.right"
    ],
@@ -82,7 +66,7 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 186821,
+   "pixels": 84744,
    "source": [
     "c0.left"
    ],
@@ -90,27 +74,11 @@
   },
   {
    "fill": "plane_recession",
-   "pixels": 186813,
+   "pixels": 84841,
    "source": [
     "c0.right"
    ],
    "surface": "platform_far.floor.right"
-  },
-  {
-   "fill": "plane_recession",
-   "pixels": 66268,
-   "source": [
-    "c0.left"
-   ],
-   "surface": "platform_far.left"
-  },
-  {
-   "fill": "plane_recession",
-   "pixels": 65457,
-   "source": [
-    "c0.right"
-   ],
-   "surface": "platform_far.right"
   }
  ],
  "far_cell": "platform",
@@ -176,7 +144,7 @@
  "k_corners": 0.42857142857142855,
  "kind": "derived_deep_view",
  "missing_sources": [],
- "painted_fraction": 0.2045,
+ "painted_fraction": 0.67698,
  "png": "backdrops/source/platform_far-W/row23-deep12ad1a77.png",
  "quads": {
   "ceiling": [
@@ -315,7 +283,7 @@
    "camera_wall_m": 4.8,
    "eye_m": 1.183,
    "facing": "platform_far/S",
-   "ppm_h": 426.6667,
+   "ppm_h": 213.3333,
    "ppm_v": 213.333,
    "role": "c0.left"
   },
@@ -323,7 +291,7 @@
    "camera_wall_m": 4.8,
    "eye_m": 1.183,
    "facing": "platform_far/N",
-   "ppm_h": 426.6667,
+   "ppm_h": 213.3333,
    "ppm_v": 213.333,
    "role": "c0.right"
   },
@@ -331,7 +299,7 @@
    "camera_wall_m": 4.8,
    "eye_m": 1.183,
    "facing": "platform/S",
-   "ppm_h": 426.6667,
+   "ppm_h": 213.3333,
    "ppm_v": 213.333,
    "role": "c1.left"
   },
@@ -339,7 +307,7 @@
    "camera_wall_m": 4.8,
    "eye_m": 1.183,
    "facing": "platform/N",
-   "ppm_h": 426.6667,
+   "ppm_h": 213.3333,
    "ppm_v": 213.333,
    "role": "c1.right"
   },
