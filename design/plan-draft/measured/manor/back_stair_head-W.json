@@ -99,7 +99,8 @@
         ],
         "stability": 27
       }
-    ]
+    ],
+    "windows": []
   },
   "_windows": {
     "floor": [
@@ -199,5 +200,82 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 1
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+    "body_rows": [
+      344,
+      548
+    ],
+    "wall_band_px": [
+      241,
+      1310
+    ],
+    "window_band_px": [
+      300,
+      592
+    ],
+    "wall_median_luminance": 88.62,
+    "min_enumerated_px": 53,
+    "lattice_min": 0.2,
+    "lattice_support": 0.12,
+    "edge_min": 12.0,
+    "frame_min": 0.34,
+    "contrast_min": 0.3,
+    "light_min_l": 90.0,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 1,
+    "candidates_after_merge": 1,
+    "rejected": [
+      {
+        "x0_px": 378,
+        "x1_px": 553,
+        "y0_px": 280,
+        "y1_px": 560,
+        "head_m": 2.077,
+        "sill_m": 1.022,
+        "vertical": "measured",
+        "width_px": 175,
+        "width_m": 0.66,
+        "centre_px": 465.5,
+        "height_m": 1.055,
+        "lights": [
+          [
+            378,
+            553
+          ]
+        ],
+        "light_luminance": 146.35,
+        "wall_luminance": 88.62,
+        "lift": 57.73,
+        "threshold": 123,
+        "threshold_span": [
+          120,
+          126
+        ],
+        "stability": 7,
+        "lattice": {
+          "score": 0.3005,
+          "x": 0.1675,
+          "y": 0.4335,
+          "pitch_x_m": 0.166,
+          "pitch_y_m": 0.045,
+          "edge_energy": 6.53
+        },
+        "frame": 0.6914,
+        "contrast": 0.8614,
+        "boundaries": {
+          "left": 0.507,
+          "right": 1.0,
+          "head": 0.259,
+          "sill": 1.0,
+          "interior_l": 140.46,
+          "ring_l": 75.46
+        },
+        "rejected": "bright, but there is no glazing in it: a lattice scoring 0.300 (0.12 asked) over 6.5 of fine edge (12 asked), which is a panel catching the light and not a leaded window"
+      }
+    ]
   }
 }

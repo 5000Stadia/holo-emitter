@@ -467,6 +467,19 @@ def grow(args):
     y0, y1 = int(round(bb["yc"])), int(round(bb["yf"]))
     cut = a[y0:y1, x0:x1].copy()
     a[y0:y1, x0:x1] = GROUND
+    # [Kabe, 2026-08-31] "Ceiling needs to be notably clean and artifact free
+    # on the edge of box 1": lamp rods crossing the cut leave dark stubs on
+    # the shell's ceiling band - wiped deterministically: within the hole's
+    # span, for a band above the cut, dark outliers take their row's own
+    # ceiling median.
+    band_top = max(0, y0 - 90)
+    band = a[band_top:y0, x0:x1]
+    lum = band.astype(np.float32).mean(axis=2)
+    med = np.median(lum, axis=1, keepdims=True)
+    dark = lum < (med - 32)
+    row_med = np.median(band.reshape(band.shape[0], -1, 3), axis=1).astype(np.uint8)
+    band[dark] = np.repeat(row_med[:, None, :], band.shape[1], axis=1)[dark]
+    a[band_top:y0, x0:x1] = band
     out = Image.fromarray(a)
     # [Kabe, 2026-08-31] "your room corners in the wireframe dont line up
     # with the example image... fix that in the example before you pass to

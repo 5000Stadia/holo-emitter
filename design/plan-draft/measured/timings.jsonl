@@ -13804,3 +13804,17 @@
 {"ts_start":1788207353.356,"ts_end":1788207353.359,"step":"emit.packet","key":"platform_far/W","detail":{"rolls":2,"roll_ids":["a6a27b21","95cdd884"],"prompt_chars":1167,"retry_cap":2}}
 {"ts_start":1788207351.818,"ts_end":1788207353.408,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":2,"skipped":10,"facings_in_plan":12,"technique":"t2"}}
 {"ts_start":1788207353.512,"ts_end":1788207353.528,"step":"promote.backdrop","key":"privy_garden/W","detail":{"candidate":"backdrops/source/privy_garden-W/row23-d92a997c.png","exit_code":1,"refused":true}}
+{"ts_start":1788207353.855,"ts_end":1788207354.181,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-0f79ba13.png","exit_code":1,"refused":true}}
+{"ts_start":1788207354.518,"ts_end":1788207354.535,"step":"promote.backdrop","key":"long_gallery/W","detail":{"candidate":"backdrops/source/long_gallery-W/row23-e0cd4754.png","exit_code":1,"refused":true}}
+{"ts_start":1788207354.859,"ts_end":1788207354.879,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-572c742a.png","exit_code":1,"refused":true}}
+{"ts_start":1788207359.047,"ts_end":1788207383.942,"step":"bake.backdrops","key":null,"detail":{"paintings":93,"out_bytes":17958,"fp":"c60f7c13","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":216145629,"jpeg_bytes":39338700}}
+{"ts_start":1788207384.024,"ts_end":1788207384.064,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788207384.133,"ts_end":1788207384.207,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788207384.28,"ts_end":1788207384.323,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788207384.403,"ts_end":1788207384.602,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788207384.704,"ts_end":1788207384.751,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"799201bd","out_bytes":65370,"facings":12,"locations":3}}
+{"ts_start":1788207403.129,"ts_end":1788207403.477,"step":"emit.facing","key":"platform/E","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788207403.477,"ts_end":1788207403.486,"step":"emit.packet","key":"platform/E","detail":{"rolls":2,"roll_ids":["a73c3062","d3cc96ec"],"prompt_chars":1167,"retry_cap":2}}
+{"ts_start":1788207403.496,"ts_end":1788207403.841,"step":"emit.facing","key":"platform_far/W","detail":{"carriers":1,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788207403.841,"ts_end":1788207403.843,"step":"emit.packet","key":"platform_far/W","detail":{"rolls":2,"roll_ids":["a6a27b21","95cdd884"],"prompt_chars":1167,"retry_cap":2}}
+{"ts_start":1788207402.293,"ts_end":1788207403.918,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":2,"skipped":10,"facings_in_plan":12,"technique":"t2"}}
