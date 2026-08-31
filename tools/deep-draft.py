@@ -505,19 +505,18 @@ def grow(args):
         wxL = vpx0 - cw / 2
         r_top = land(x0, jr0, wxL)
         r_bot = land(x0, y1, wxL)
-        # [Kabe, 2026-08-31] "it most certainly will produce some distortion
-        # so we need to be smart about it": the snap YIELDS to the declared
-        # instrument bands - the floor within +/-8 px of the declared row,
-        # the ceiling within its wider band - so a roll painted faithfully
-        # to this draft cannot fail its own reading. The few-px ray residual
-        # this leaves at the corners is the ring's to heal.
-        r_bot = min(max(r_bot, db["yf"] - 8), db["yf"] + 8)
-        r_top = min(max(r_top, db["yc"] - 20), db["yc"] + 20)
         k = (r_bot - r_top) / (y1 - jr0)
     cw = max(1, round((x1 - x0) * k)); ch = max(1, round((y1 - y0) * k))
     wall = Image.fromarray(cut).resize((cw, ch), Image.LANCZOS)
     wx = int(round(vpx0 - cw / 2))
     wy = int(round(r_top - (jr0 - y0) * k))
+    # [Kabe, 2026-08-31] "be smart about it": the snap solves UNCLAMPED, then
+    # a TRANSLATE-ONLY shift brings the paste's floor inside the declared
+    # instrument band (+/-8 px) - shape-safe, and a base whose rays already
+    # land true is left untouched.
+    floor_solved = wy + (y1 - y0) * k
+    floor_ok = min(max(floor_solved, db["yf"] - 8), db["yf"] + 8)
+    wy = int(round(wy + (floor_ok - floor_solved)))
     out.paste(wall, (wx, wy))
     d = ImageDraw.Draw(out)
     INK = (42, 33, 24); lw = 3

@@ -13907,3 +13907,14 @@
 {"ts_start":1788207758.727,"ts_end":1788207759.093,"step":"emit.facing","key":"platform_far/W","detail":{"carriers":1,"voice":"platform_vault","technique":"t2"}}
 {"ts_start":1788207759.093,"ts_end":1788207759.096,"step":"emit.packet","key":"platform_far/W","detail":{"rolls":2,"roll_ids":["a6a27b21","95cdd884"],"prompt_chars":1167,"retry_cap":2}}
 {"ts_start":1788207757.538,"ts_end":1788207759.159,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":2,"skipped":10,"facings_in_plan":12,"technique":"t2"}}
+{"ts_start":1788207750.114,"ts_end":1788207775.161,"step":"bake.backdrops","key":null,"detail":{"paintings":93,"out_bytes":17958,"fp":"c60f7c13","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":216145629,"jpeg_bytes":39338700}}
+{"ts_start":1788207775.244,"ts_end":1788207775.287,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788207775.36,"ts_end":1788207775.434,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788207775.504,"ts_end":1788207775.551,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788207775.623,"ts_end":1788207775.823,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788207775.924,"ts_end":1788207775.971,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"799201bd","out_bytes":65370,"facings":12,"locations":3}}
+{"ts_start":1788207806.889,"ts_end":1788207807.218,"step":"emit.facing","key":"platform/E","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788207807.219,"ts_end":1788207807.227,"step":"emit.packet","key":"platform/E","detail":{"rolls":2,"roll_ids":["a73c3062","d3cc96ec"],"prompt_chars":1167,"retry_cap":2}}
+{"ts_start":1788207807.235,"ts_end":1788207807.573,"step":"emit.facing","key":"platform_far/W","detail":{"carriers":1,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788207807.573,"ts_end":1788207807.574,"step":"emit.packet","key":"platform_far/W","detail":{"rolls":2,"roll_ids":["a6a27b21","95cdd884"],"prompt_chars":1167,"retry_cap":2}}
+{"ts_start":1788207806.027,"ts_end":1788207807.636,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":2,"skipped":10,"facings_in_plan":12,"technique":"t2"}}
