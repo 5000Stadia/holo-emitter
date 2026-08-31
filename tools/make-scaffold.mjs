@@ -3653,13 +3653,13 @@ export function attachStyle(plan, key, dir, opts = {}) {
           `correction has DISTORTED THE OBJECTS in it: shapes are squeezed (a round wall mirror ` +
           `shows as an oval). REPAINT THE WHOLE PICTURE: keep every line of architecture and ` +
           `every material exactly as Image 1 has them, at exactly Image 1's scale and framing - ` +
-          `do not enlarge, crop or recompose anything - and draw every OBJECT in its true, ` +
-          `undistorted shape: a circle stays a circle, the mirror is perfectly round. Near the ` +
-          `picture's edges, zones the correction had smeared are CUT AWAY to plain ground, with ` +
-          `dark drawn GUIDE LINES giving the exact geometry through them: complete those margins ` +
-          `naturally along the drawn lines - straight tile courses, even plaster, clean floor - ` +
-          `in the same materials and light, and leave no drawn line visible. Same room, same ` +
-          `light, same everything, only the damage healed.` };
+          `do not enlarge, crop or recompose anything - the two wall corners and the cornice ` +
+          `line stand EXACTLY where Image 1 has them and may not move outward - and draw every ` +
+          `OBJECT in its true, undistorted shape: a circle stays a circle, the mirror is ` +
+          `perfectly round. Near the picture's edges some areas are BLURRED where the correction ` +
+          `damaged them: repaint those areas sharp and natural, continuing the same surfaces ` +
+          `with straight tile courses and even plaster, in the same materials and light. Same ` +
+          `room, same light, same everything, only the damage healed.` };
     }
     const deepMeta = deriveMeta(plan, key.split("/")[0], key.split("/")[1]);
     const ihD = deepMeta.image_h_px || 1024;

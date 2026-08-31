@@ -171,42 +171,34 @@ def frame(args):
 
 
 def true_shape(args):
-    """[Kabe, 2026-08-30] "Before is fine for reference but after it hopefully
-    is geometrically CLOSE." The warp only teaches now, and this builds what it
-    teaches WITH: its geometry-exact frame, minus its own smear — every pixel
-    the warp revealed and fill-smeared is CUT to plain ground (nothing to
-    copy), the declared geometry drawn through the cut, the true content kept
-    exactly. The painter regenerates: architecture and framing exactly, cut
-    margins completed naturally, objects in their true shape."""
+    """[the five-round synthesis, 2026-08-30] THE BOX HOLDS ONLY AGAINST A
+    FULL FRAME: round 4 (raw warped reference, no margins) held the corners to
+    -1.4%; every reference with cut or empty margins invited the painter to
+    expand the room box into them by 25-35%. And streaks teach streaks, while
+    BLUR is the one artifact the generator reliably cleans (Kabe's original
+    premise, proven on every recreate pass). So the reference is the warp's
+    geometry-exact frame, complete and full-frame, with its revealed smear
+    zones BLURRED IN PLACE - no ground, no lines, nothing to expand into,
+    nothing streaky to copy - and the ask: repaint sharp, framing exact,
+    objects true."""
     import numpy as np
-    from PIL import ImageFilter, ImageDraw
+    from PIL import ImageFilter
     src = Image.open(args["warped_png"]).convert("RGB")
     mask = Image.open(args["revealed_png"]).convert("L")
-    grow = int(args.get("grow_px", 32))     # the fill fade (24) + a seam margin
+    grow = int(args.get("grow_px", 32))
     mask = mask.filter(ImageFilter.MaxFilter(grow * 2 + 1))
     m = np.asarray(mask) > 127
     t = args["target_box"]
     a = np.asarray(src).astype(np.uint8).copy()
-    # never cut inside the declared wall box - the content there is the point
     yy, xx = np.mgrid[0:a.shape[0], 0:a.shape[1]]
     inside = ((xx >= t["x0"]) & (xx <= t["x1"]) & (yy >= t["yc"]) & (yy <= t["yf"]))
     m = m & ~inside
-    a[m] = (201, 197, 189)
-    out = Image.fromarray(a)
-    d = ImageDraw.Draw(out)
-    INK = (42, 33, 24); lw = 3
-    tx0, tx1, tyc, tyf = t["x0"], t["x1"], t["yc"], t["yf"]
-    d.line([(tx0, tyc), (tx1, tyc)], fill=INK, width=lw)
-    d.line([(tx0, tyf), (tx1, tyf)], fill=INK, width=lw)
-    d.line([(tx0, tyc), (tx0, tyf)], fill=INK, width=lw)
-    d.line([(tx1, tyc), (tx1, tyf)], fill=INK, width=lw)
-    d.line([(0, 0), (tx0, tyc)], fill=INK, width=lw)
-    d.line([(W, 0), (tx1, tyc)], fill=INK, width=lw)
-    d.line([(0, H), (tx0, tyf)], fill=INK, width=lw)
-    d.line([(W, H), (tx1, tyf)], fill=INK, width=lw)
-    out.save(args["out"], "PNG")
-    print(json.dumps({"ok": True, "mode": "true_shape",
-                      "cut_px": int(m.sum()), "cut_pct": round(float(m.mean()) * 100, 1)}))
+    blurred = np.asarray(src.filter(ImageFilter.GaussianBlur(40))).astype(np.uint8)
+    a[m] = blurred[m]
+    Image.fromarray(a).save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "true_shape", "fill": "blur-in-place",
+                      "blurred_px": int(m.sum()), "blurred_pct": round(float(m.mean()) * 100, 1)}))
+
 
 def main():
     args = json.load(open(sys.argv[1]))
