@@ -508,13 +508,22 @@ def grow(args):
     # drawn line starts exactly where the painted cornice line ends, while
     # the cut itself stays at the molding's top so the molding rides the wall.
     jr = int(round(args.get("junction_row", y0)))
-    # BOTH ends of a top diagonal sit on PAINTED junctions: the shell's
-    # severed cornice at the hole edge, and the wall's own molding-bottom
-    # corner inside the paste (the junction row scaled by the same k).
-    wjr = wy + (jr - y0) * k
-    for (hx, hy, tx, ty) in ((x0, jr, wx, wjr), (x1, jr, wx + cw, wjr),
-                             (x0, y1, wx, wy + ch), (x1, y1, wx + cw, wy + ch)):
-        d.line([(hx, hy), (tx, ty)], fill=INK, width=lw)
+    # [Kabe, 2026-08-31] "subtle angle adjusting to match the proper geometry
+    # that the room should be... no weird warping that you would see in a
+    # circle." Each junction ray LAUNCHES at its painted outer junction and
+    # runs at the TRUE angle - aimed through the declared vanishing point -
+    # to the wall paste's edge column. Only drawn lines bend to the declared
+    # geometry; content is never warped, a circle stays a circle. Any few-px
+    # residual where the ray meets the paste is the ring's to heal.
+    vp = args.get("vp", [768.0, 526.1])
+    vpx, vpy = float(vp[0]), float(vp[1])
+    def ray(px, py, edge_x):
+        t = (edge_x - px) / (vpx - px) if vpx != px else 1.0
+        return edge_x, py + (vpy - py) * t
+    for (px, py, edge) in ((x0, jr, wx), (x1, jr, wx + cw),
+                           (x0, y1, wx), (x1, y1, wx + cw)):
+        tx, ty = ray(px, py, edge)
+        d.line([(px, py), (tx, ty)], fill=INK, width=lw)
     # [Kabe, 2026-08-31] NO DADO LINES IN THE RING: "I worry it biases the
     # drawing to make something wall divided there" - the band is shown in the
     # painted content at both ends and the painter interpolates bands
