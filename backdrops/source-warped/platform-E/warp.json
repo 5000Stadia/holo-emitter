@@ -8,13 +8,13 @@
  ],
  "verdict": "warped",
  "why": null,
- "sha256": "57292f231d1c4cb489a2ad401d0b6f95426ab1a9eb6477ed038765b2313efdff",
+ "sha256": "d9d29443161d781a04084cb06fdf7f69bb71f8b8998a1a0e9f8f45052b0f8e3f",
  "instrument": "da5967ad854c",
  "reading_cache": null,
  "before": {
-  "camera_verdict": "FAIL",
-  "delta_focal_pct": 4.82,
-  "delta_eye_pct": -8.35,
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -3.39,
+  "delta_eye_pct": -3.44,
   "hold_family": "unfitted-horizon"
  },
  "source_notes": {
@@ -22,22 +22,22 @@
   "corners": "measured",
   "vanishing_point": "declared-principal-point",
   "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
-  "px_per_m_at_wall": 95.833
+  "px_per_m_at_wall": 88.333
  },
  "run_wall": null,
  "target_notes": {
   "horizontal": "the declared corners, both inside the frame",
   "corners_in_frame": true,
   "run_wall": null,
-  "ppm_source": 95.833,
+  "ppm_source": 88.333,
   "ppm_target": 91.429,
-  "scale_k": 0.954
+  "scale_k": 1.035
  },
  "source_box": {
-  "x0": 381.0,
-  "x1": 1157.0,
-  "yc": 283.0,
-  "yf": 630.0,
+  "x0": 464.0,
+  "x1": 1072.0,
+  "yc": 325.0,
+  "yf": 627.0,
   "vx": 768.0,
   "vy": 526.1
  },
@@ -60,8 +60,8 @@
  "aperture_notes": {
   "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
   "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
-  "source_storey_m": 3.621,
-  "source_ppm": 95.833
+  "source_storey_m": 3.419,
+  "source_ppm": 88.333
  },
  "apertures": {
   "doors": {
@@ -85,16 +85,16 @@
    "name": "corner_left",
    "kind": "room_corner",
    "target": 475.429,
-   "source": 381.0,
-   "ask_px": 94.4,
+   "source": 464.0,
+   "ask_px": 11.4,
    "residual_px": 0.0
   },
   {
    "name": "corner_right",
    "kind": "room_corner",
    "target": 1060.571,
-   "source": 1157.0,
-   "ask_px": -96.4,
+   "source": 1072.0,
+   "ask_px": -11.4,
    "residual_px": 0.0
   }
  ],
@@ -103,61 +103,61 @@
    "name": "ceiling_line",
    "kind": "room_corner",
    "target": 323.403,
-   "source": 283.0,
-   "ask_px": 40.4,
+   "source": 325.0,
+   "ask_px": -1.6,
    "residual_px": 0.0
   },
   {
    "name": "floor_line",
    "kind": "room_corner",
    "target": 634.26,
-   "source": 630.0,
-   "ask_px": 4.3,
+   "source": 627.0,
+   "ask_px": 7.3,
    "residual_px": 0.0
   }
  ],
  "stretch": {
-  "x_scale_min": 0.754,
-  "x_scale_max": 0.754,
-  "y_scale_min": 0.896,
-  "y_scale_max": 0.896,
+  "x_scale_min": 0.962,
+  "x_scale_max": 0.962,
+  "y_scale_min": 1.029,
+  "y_scale_max": 1.029,
   "x_segments": [
    {
     "name": "corner_left..corner_right",
     "target_px": 585.1,
-    "source_px": 776.0,
-    "scale": 0.754
+    "source_px": 608.0,
+    "scale": 0.962
    }
   ],
   "y_segments": [
    {
     "name": "ceiling_line..floor_line",
     "target_px": 310.9,
-    "source_px": 347.0,
-    "scale": 0.896
+    "source_px": 302.0,
+    "scale": 1.029
    }
   ],
   "monotone": true,
   "folded_px": 0
  },
  "max_residual_px": 0.0,
- "revealed_px": 489779,
- "revealed_fraction": 0.31139,
+ "revealed_px": 59392,
+ "revealed_fraction": 0.03776,
  "revealed_fill": "plane_recession",
  "fill_fade_px": 24,
- "filled_px": 554184,
+ "filled_px": 128460,
  "mirror_band_px": 0,
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 1.67,
+ "seconds": 1.61,
  "warped_image": "backdrops/source-warped/platform-E/warped.png",
  "asked_from": "backdrops/source/platform-E/row23-a73c3062.prompt.txt",
- "warped_sha256": "ac8c673abf4e4089ec2e5f823683de5f7414069a85877ac27e79e66432970130",
+ "warped_sha256": "bb56a4302f29b20a2d8852ab2267b48af5e67b956e866b21ba3033482c7b5e56",
  "after": {
-  "camera_verdict": "PASS",
-  "delta_focal_pct": 4.82,
-  "delta_eye_pct": -4.83,
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -10.68,
+  "delta_eye_pct": 0.3,
   "hold_family": "unfitted-horizon"
  }
 }

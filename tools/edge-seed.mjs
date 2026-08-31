@@ -721,6 +721,8 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
 function styleAttachPhrase(style) {
   const what = style.corrected_previous
     ? `the previous painting of this very view, geometry-corrected for repainting`
+    : style.frame_draft
+      ? `the true picture at correct aspect, declared geometry drawn as guide lines to complete to`
     : style.same_wall
       ? `${style.room}/${style.facing}, the SAME wall promoted, shrunk true, stretched filler at the margins`
       : `${style.room}/${style.facing}, this room's own wall with its openings removed`;
@@ -741,6 +743,16 @@ export function stylePacketNote(style) {
       `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
       `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
       `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
+  if (style.same_wall && style.frame_draft) {
+    return `**Image 1 IS THE FRAME DRAFT of the very view this packet paints** — \`${style.file}\`, ` +
+      `built by \`tools/deep-draft.py\` (mode frame) from \`${style.derived_from}\`: the true picture ` +
+      `shrunk by ONE uniform factor (shapes true, a circle stays a circle), its wrong-camera junctions ` +
+      `cut off, and the DECLARED geometry drawn as ink guide lines out to the frame edges [Kabe's frame ` +
+      `recipe, 2026-08-30]. The prompt asks for the picture to be COMPLETED: centre kept exactly, the ` +
+      `room painted out to the guide lines, no line left visible.
 
 `;
   }

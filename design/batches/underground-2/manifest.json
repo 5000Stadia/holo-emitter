@@ -329,14 +329,14 @@
         "no-window",
         "blank"
       ],
-      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
+      "scaffold_sha256": "dcb20a85796f6b496b4a31463ad11b32230dc9efd234b9c23596a451bafc5e64",
       "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 91.42857142857143,
+      "px_per_m_at_wall": 91.429,
       "camera_wall_m": 11.2,
       "camera_far_m": null,
       "facing_type": "enclosed",
-      "floor_line_y": 0.61939453125,
-      "horizon_y": 0.51376953125,
+      "floor_line_y": 0.619395,
+      "horizon_y": 0.51377,
       "corner_x0_px": 475.4285714285714,
       "corner_x1_px": 1060.5714285714287,
       "storey_height_m": 3.4,
@@ -345,17 +345,17 @@
         "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
         "band": 0.08,
         "floor_window": {
-          "centre": 634.26,
+          "centre": 634.26048,
           "half_width": 8.65,
           "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
         },
         "rail_band": {
-          "centre": 524.5457142857143,
+          "centre": 524.5456800000001,
           "half_width": 8.78,
           "from": "+/-8 % of the anchor's own height above the floor line"
         },
         "ceiling_band": {
-          "centre": 323.40285714285716,
+          "centre": 323.40188,
           "half_width": 24.87,
           "from": "+/-8 % of the ceiling-to-floor span"
         },
@@ -469,14 +469,14 @@
         "door",
         "no-window"
       ],
-      "scaffold_sha256": "655df57d430ab67d26f9821e3573ce439652e78f546c214a6c294589f82704be",
+      "scaffold_sha256": "139000c75a6b57a12e064a4706e9395218982b99f0d3a33ef8357797ab993b14",
       "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 91.42857142857143,
+      "px_per_m_at_wall": 91.429,
       "camera_wall_m": 11.2,
       "camera_far_m": null,
       "facing_type": "enclosed",
-      "floor_line_y": 0.61939453125,
-      "horizon_y": 0.51376953125,
+      "floor_line_y": 0.619395,
+      "horizon_y": 0.51377,
       "corner_x0_px": 475.4285714285714,
       "corner_x1_px": 1060.5714285714287,
       "storey_height_m": 3.4,
@@ -485,17 +485,17 @@
         "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
         "band": 0.08,
         "floor_window": {
-          "centre": 634.26,
+          "centre": 634.26048,
           "half_width": 8.65,
           "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
         },
         "rail_band": {
-          "centre": 524.5457142857143,
+          "centre": 524.5456800000001,
           "half_width": 8.78,
           "from": "+/-8 % of the anchor's own height above the floor line"
         },
         "ceiling_band": {
-          "centre": 323.40285714285716,
+          "centre": 323.40188,
           "half_width": 24.87,
           "from": "+/-8 % of the ceiling-to-floor span"
         },

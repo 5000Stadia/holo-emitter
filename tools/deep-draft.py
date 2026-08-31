@@ -114,10 +114,67 @@ def correct(args):
                       "x_bands": len(xp) - 1, "y_bands": len(yp) - 1,
                       "size": list(img.size)}))
 
+
+def frame(args):
+    """[Kabe, 2026-08-30, verbatim] "It should just shrink while maintaining
+    aspect ratio then simulate the geometry to the edges and ask to fill in
+    the gaps. Maybe cut off the corner edges in the original and just overlay
+    the correct corner geometry as reference lines to fix."
+
+    CONTENT AND GEOMETRY, NEVER MIXED IN ONE MAPPING. The source picture is
+    shrunk by ONE uniform factor (a circle stays a circle) and placed so the
+    axis that fits exactly lands pin-on-pin; in the short axis the source's own
+    painted junctions - drawn for the wrong camera - are CUT OFF so they cannot
+    teach, and the DECLARED geometry is drawn instead: corner verticals,
+    ceiling and floor lines, and the side walls' recession to the frame
+    corners, as ink guide lines over a plain ground. The ask is to complete
+    the picture out to the lines. Nothing anisotropic ever touches a pixel."""
+    src = Image.open(args["src_png"]).convert("RGB")
+    c, t = args["content_box"], args["target_box"]
+    sxs, sys_ = c["x1"] - c["x0"], c["yf"] - c["yc"]
+    txs, tys = t["x1"] - t["x0"], t["yf"] - t["yc"]
+    ux, uy = txs / sxs, tys / sys_
+    u = min(ux, uy)
+    scaled = src.resize((max(1, round(src.width * u)), max(1, round(src.height * u))),
+                        Image.LANCZOS)
+    x_exact = abs(u - ux) < 1e-9
+    y_exact = abs(u - uy) < 1e-9
+    dx = (t["x0"] - c["x0"] * u) if x_exact else          ((t["x0"] + t["x1"]) / 2 - (c["x0"] + c["x1"]) / 2 * u)
+    dy = (t["yc"] - c["yc"] * u) if y_exact else          ((t["yc"] + t["yf"]) / 2 - (c["yc"] + c["yf"]) / 2 * u)
+    GROUND = (201, 197, 189)
+    CUT = 10   # px cut inside a junction drawn for the wrong camera
+    out = Image.new("RGB", (W, H), GROUND)
+    bx0, bx1 = dx + c["x0"] * u, dx + c["x1"] * u
+    by0, by1 = dy + c["yc"] * u, dy + c["yf"] * u
+    kx0, kx1 = (bx0, bx1) if x_exact else (bx0 + CUT, bx1 - CUT)
+    ky0, ky1 = (by0, by1) if y_exact else (by0 + CUT, by1 - CUT)
+    region = scaled.crop((round(kx0 - dx), round(ky0 - dy),
+                          round(kx1 - dx), round(ky1 - dy)))
+    out.paste(region, (round(kx0), round(ky0)))
+    from PIL import ImageDraw
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24)
+    lw = 3
+    tx0, tx1, tyc, tyf = t["x0"], t["x1"], t["yc"], t["yf"]
+    d.line([(tx0, tyc), (tx1, tyc)], fill=INK, width=lw)   # ceiling line
+    d.line([(tx0, tyf), (tx1, tyf)], fill=INK, width=lw)   # floor line
+    d.line([(tx0, tyc), (tx0, tyf)], fill=INK, width=lw)   # left corner
+    d.line([(tx1, tyc), (tx1, tyf)], fill=INK, width=lw)   # right corner
+    d.line([(0, 0), (tx0, tyc)], fill=INK, width=lw)       # recession, 4 ways
+    d.line([(W, 0), (tx1, tyc)], fill=INK, width=lw)
+    d.line([(0, H), (tx0, tyf)], fill=INK, width=lw)
+    d.line([(W, H), (tx1, tyf)], fill=INK, width=lw)
+    out.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "frame", "u": round(u, 4),
+                      "x_exact": x_exact, "y_exact": y_exact,
+                      "content_kept": [round(kx0), round(ky0), round(kx1), round(ky1)]}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
         return correct(args)
+    if args.get("mode") == "frame":
+        return frame(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)

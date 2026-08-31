@@ -3574,10 +3574,24 @@ export function attachStyle(plan, key, dir, opts = {}) {
        correction sentence - the lever the reroll research proved (words fixed
        scale where seeds broke it). The reference stays the shape-true uniform
        draft below. */
+    /* [Kabe, 2026-08-30, verbatim, the frame recipe] "It should just shrink
+       while maintaining aspect ratio then simulate the geometry to the edges
+       and ask to fill in the gaps. Maybe cut off the corner edges in the
+       original and just overlay the correct corner geometry as reference
+       lines to fix." CONTENT AND GEOMETRY, NEVER MIXED IN ONE MAPPING: the
+       content (the previous painting of this view where one is archived
+       beside its round document, else the promoted close painting of this
+       same wall) rides shape-true at ONE uniform scale; the DECLARED geometry
+       rides as drawn guide lines out to the frame edges; the source's own
+       junctions, drawn for the wrong camera, are cut off so they cannot
+       teach; and the painter fills the gaps. Nothing anisotropic ever touches
+       a pixel - the corrected-previous route died of that (disc copied 63x74
+       -> 63x75: perfect obedience, envelope still ovalled). */
     let missSentence = "";
+    const [dLoc, dF] = key.split("/");
+    const warpDir2 = join(root, "backdrops", "source-warped", `${dLoc}-${dF}`);
     {
-      const [dLoc, dF] = key.split("/");
-      const warpFile = join(root, "backdrops", "source-warped", `${dLoc}-${dF}`, "warp.json");
+      const warpFile = join(warpDir2, "warp.json");
       if (existsSync(warpFile)) {
         const wr = JSON.parse(readFileSync(warpFile, "utf8"));
         const st = wr.stretch || {};
@@ -3585,37 +3599,58 @@ export function attachStyle(plan, key, dir, opts = {}) {
         const sy = ((st.y_scale_min || 1) + (st.y_scale_max || 1)) / 2;
         const wide = Math.round((1 / sx - 1) * 100), tall = Math.round((1 / sy - 1) * 100);
         if (Math.abs(wide) >= 3 || Math.abs(tall) >= 3) {
-          const word = (n, w) => n === 0 ? "" :
-            `${Math.abs(n)}% too ${n > 0 ? w[0] : w[1]}`;
+          const word = (n, w) => n === 0 ? "" : `${Math.abs(n)}% too ${n > 0 ? w[0] : w[1]}`;
           const parts = [word(wide, ["wide", "narrow"]), word(tall, ["tall", "short"])].filter(Boolean);
           missSentence = ` A previous painting of this exact view came back with the wall ` +
-            `${parts.join(" and ")} against the declared lines. Do not repeat that: the corner, ` +
-            `floor and ceiling lines are exact - hold the wall to them precisely, and keep every ` +
-            `object's true shape (a circle stays a circle).`;
+            `${parts.join(" and ")} against the declared lines. Do not repeat that: the guide ` +
+            `lines are exact - hold the wall to them precisely, and keep every object's true ` +
+            `shape (a circle stays a circle).`;
         }
       }
     }
-    /* [Kabe, 2026-08-30] THE DEEP DRAFT: the close painting shrunk UNIFORMLY
-       to the correct proportion (a circle stays a circle), margins the edge
-       pixels stretched outward - and the ask tells the painter to recreate
-       the picture, keeping the true centre and replacing the filler. Built by
-       tools/deep-draft.py, deterministic. */
-    const closeMeta = JSON.parse(readFileSync(join(root, "backdrops", style.room, `${style.facing}.meta.json`), "utf8"));
     const deepMeta = deriveMeta(plan, key.split("/")[0], key.split("/")[1]);
-    const ihC = closeMeta.image_h_px || 1024;
-    const k2 = deepMeta.px_per_m_at_wall / closeMeta.px_per_m_at_wall;
-    const dx2 = CANVAS_W / 2 - (CANVAS_W / 2) * k2;
-    const dy2 = deepMeta.horizon_y * (deepMeta.image_h_px || 1024) - closeMeta.horizon_y * ihC * k2;
+    const ihD = deepMeta.image_h_px || 1024;
+    const tyf = deepMeta.floor_line_y * ihD;
+    const target_box = { x0: deepMeta.corner_x0_px, x1: deepMeta.corner_x1_px,
+                         yc: tyf - deepMeta.storey_height_m * deepMeta.px_per_m_at_wall, yf: tyf };
+    let srcPng, content_box, srcDesc;
+    const prevPng = join(warpDir2, "previous.png");
+    const prevJson = join(warpDir2, "previous.json");
+    if (existsSync(prevPng) && existsSync(prevJson)) {
+      srcPng = prevPng;
+      content_box = JSON.parse(readFileSync(prevJson, "utf8")).content_box;
+      srcDesc = "the previous painting of this very view";
+    } else {
+      const closeMeta = JSON.parse(readFileSync(join(root, "backdrops", style.room, `${style.facing}.meta.json`), "utf8"));
+      const ihC = closeMeta.image_h_px || 1024;
+      const cyf = closeMeta.floor_line_y * ihC;
+      srcPng = join(root, style.rel);
+      content_box = { x0: closeMeta.corner_x0_px, x1: closeMeta.corner_x1_px,
+                      yc: cyf - closeMeta.storey_height_m * closeMeta.px_per_m_at_wall, yf: cyf };
+      srcDesc = `the promoted close painting of this same wall`;
+    }
     const argsFile = join(dir, `.deep-draft-args.json`);
     const draftFile = `deep-draft-${style.room}-${style.facing}.png`;
     writeFileSync(argsFile, JSON.stringify({
-      close_png: join(root, style.rel), k: k2, dx: dx2, dy: dy2, out: join(dir, draftFile)
+      mode: "frame", src_png: srcPng, content_box, target_box, out: join(dir, draftFile)
     }));
     const outTxt = execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsFile], { encoding: "utf8" });
     rmSync(argsFile, { force: true });
-    return { ...style, file: draftFile, derived: true, draft: true,
-      derived_by: "tools/deep-draft.py", draft_geometry: JSON.parse(outTxt),
-      role_sentence: style.role_sentence + missSentence };
+    return { ...style, file: draftFile, derived: true, draft: true, frame_draft: true,
+      derived_by: "tools/deep-draft.py --frame", derived_from: relative(root, srcPng),
+      draft_geometry: JSON.parse(outTxt),
+      role_sentence:
+        `Image 1 is THIS EXACT VIEW under construction: its centre holds the true picture of ` +
+        `this wall and room at the correct aspect - taken from ${srcDesc} and shrunk uniformly, ` +
+        `so every shape in it is true (a circle stays a circle). Nothing in that centre may ` +
+        `change: same wall, same fixtures, same marks. Around the centre the picture is cut ` +
+        `away, and dark drawn GUIDE LINES give the exact geometry: the wall's two corner ` +
+        `verticals, its ceiling and floor lines, and the four receding lines where the side ` +
+        `walls, ceiling and floor run out to the picture's edges. COMPLETE THE PICTURE: keep ` +
+        `the centre exactly, and paint this room's own side walls, ceiling and floor from the ` +
+        `centre out to the edges in the same materials and light - the drawn lines are exactly ` +
+        `where the architecture stands, and no drawn line remains visible in the finished ` +
+        `painting.` + missSentence };
   }
   const seed = deriveStyleSeed(plan, `${style.room}/${style.facing}`, {
     root, rel: style.rel, source_kind: style.source_kind, metaFromReading
