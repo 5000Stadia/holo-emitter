@@ -164,7 +164,7 @@
           "origin": false,
           "lead_key": "platform_far/W",
           "carriers": 0,
-          "has_image": false,
+          "has_image": true,
           "painted": false,
           "continues": "platform_far/W",
           "depends_on": null
@@ -191,8 +191,8 @@
   "_register": "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
   "_generated": "2026-08-31",
   "facings_in_plan": 12,
-  "emitted": 7,
-  "skipped": 5,
+  "emitted": 6,
+  "skipped": 6,
   "skipped_entries": [
     {
       "key": "booking_hall/N",
@@ -239,6 +239,24 @@
       "fenced": null,
       "carriers": [],
       "skipped": "exists: backdrops/booking_hall/W.png"
+    },
+    {
+      "key": "platform_far/E",
+      "room": "platform_far",
+      "facing": "E",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "skipped": "returned, unmeasured: 4 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/platform_far-E/row23-6d3f2346.png",
+        "backdrops/source/platform_far-E/row23-e23c4ed5.png",
+        "backdrops/source/platform_far-E/row23-e7aa5c51.png",
+        "backdrops/source/platform_far-E/row23-ee5bee25.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
     },
     {
       "key": "platform_far/W",
@@ -458,49 +476,49 @@
         "no-window",
         "blank"
       ],
-      "scaffold_sha256": "082389d9038aa536d9da9cc9c9dfddd821ec7d9e7f2dda2f49ce0d67a93fb74e",
+      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
       "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 91.667,
+      "px_per_m_at_wall": 91.42857142857143,
       "camera_wall_m": 11.2,
       "camera_far_m": null,
       "facing_type": "enclosed",
-      "floor_line_y": 0.617188,
-      "horizon_y": 0.51377,
-      "corner_x0_px": 530,
-      "corner_x1_px": 1005,
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285714,
+      "corner_x1_px": 1060.5714285714287,
       "storey_height_m": 3.4,
       "wall_width_m": 6.4,
       "brackets": {
         "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
         "band": 0.08,
         "floor_window": {
-          "centre": 632.000512,
-          "half_width": 8.47,
+          "centre": 634.26,
+          "half_width": 8.65,
           "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
         },
         "rail_band": {
-          "centre": 522.000112,
-          "half_width": 8.8,
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
           "from": "+/-8 % of the anchor's own height above the floor line"
         },
         "ceiling_band": {
-          "centre": 320.33271199999996,
-          "half_width": 24.93,
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
           "from": "+/-8 % of the ceiling-to-floor span"
         },
         "carrier_windows": [],
         "carrier_tolerance_px": 0,
         "rail_columns": [
           [
-            530,
-            1005
+            475.4285714285714,
+            1060.5714285714287
           ]
         ]
       },
-      "implied_focal_px": 1026.7,
+      "implied_focal_px": 1024,
       "stamped": [],
       "flights": [],
-      "chair_rail_y": 522,
+      "chair_rail_y": 524.55,
       "voice": {
         "id": "platform_vault",
         "via": "room id",
@@ -918,107 +936,6 @@
       "retry_cap": 2
     },
     {
-      "key": "platform_far/E",
-      "room": "platform_far",
-      "facing": "E",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": false,
-      "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform_far-E",
-      "register": "g5-noappendix",
-      "situations": [
-        "enclosed",
-        "follower",
-        "no-window",
-        "blank"
-      ],
-      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 213.33333333333334,
-      "camera_wall_m": 4.8,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.7602278645833334,
-      "horizon_y": 0.51376953125,
-      "corner_x0_px": 85.33333333333326,
-      "corner_x1_px": 1450.6666666666667,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 778.4733333333334,
-          "half_width": 20.19,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 522.4733333333334,
-          "half_width": 20.48,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 53.139999999999986,
-          "half_width": 58.03,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
-        "rail_columns": [
-          [
-            85.33333333333326,
-            1450.6666666666667
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [],
-      "flights": [],
-      "chair_rail_y": 522.47,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": null,
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform_far/W",
-      "is_lead": false,
-      "continues": "platform_far/W",
-      "order_position": 2,
-      "lead_image": {
-        "rel": "backdrops/platform_far/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "style-platform_far.png",
-        "rel": "backdrops/platform_far/W.png",
-        "room": "platform_far",
-        "facing": "W",
-        "lead": true,
-        "source_kind": "promoted"
-      },
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "ee5bee25",
-          "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
-          "prompt": "backdrops/source/platform_far-E/row23-ee5bee25.prompt.txt"
-        },
-        {
-          "roll": 2,
-          "id": "6d3f2346",
-          "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
-          "prompt": "backdrops/source/platform_far-E/row23-6d3f2346.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
       "key": "booking_hall/N",
       "room": "booking_hall",
       "facing": "N",
@@ -1350,6 +1267,107 @@
           "id": "f1727b12",
           "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
           "prompt": "backdrops/source/booking_hall-W/row23-f1727b12.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "platform_far/E",
+      "room": "platform_far",
+      "facing": "E",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform_far-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ce89b8d8e9a2c1bd61ac9574cc1dd12758dfb2db1cf6dc1cf85e4eeb1bafee1e",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform_far/W",
+      "is_lead": false,
+      "continues": "platform_far/W",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/platform_far/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "style-platform_far.png",
+        "rel": "backdrops/platform_far/W.png",
+        "room": "platform_far",
+        "facing": "W",
+        "lead": true,
+        "source_kind": "promoted"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ee5bee25",
+          "candidate": "backdrops/source/platform_far-E/row23-ee5bee25.png",
+          "prompt": "backdrops/source/platform_far-E/row23-ee5bee25.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "6d3f2346",
+          "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+          "prompt": "backdrops/source/platform_far-E/row23-6d3f2346.prompt.txt"
         }
       ],
       "retry_cap": 2

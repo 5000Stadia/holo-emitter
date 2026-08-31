@@ -9,7 +9,7 @@ exact paths below — the measurement runs the moment a file appears at one of t
 
 The prompt files are already on disk beside them. Do not rewrite them.
 
-This wall: 91.7 px per metre at the wall plane, no carrier — unbroken cream crackle-glazed tiling above the dado band with dark bottle-green glazed tiles below.
+This wall: 91.4 px per metre at the wall plane, no carrier — unbroken cream crackle-glazed tiling above the dado band with dark bottle-green glazed tiles below.
 Situations: enclosed, follower, deep-view, same-wall-image, no-window, blank (see `design/playbook-facings.md`).
 Voice: **platform_vault** (room id); gate anchor **the tiled dado band's top edge above the floor**, 1.20 m.
 Register: **g5-noappendix** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every

@@ -491,20 +491,20 @@
       }
     },
     "platform_far/E": {
-      "attempts": 2,
+      "attempts": 4,
       "status": "parked",
-      "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+      "candidate": "backdrops/source/platform_far-E/row23-e7aa5c51.png",
       "answered_correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2",
-      "correction": "draw 1.123x larger: 213.3 px/m at the wall plane, not 190.0",
+      "correction": "draw 1.158x larger: 213.3 px/m at the wall plane, not 184.2",
       "hold_family": "camera-miss",
       "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 1.000..1.166, 3% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
+      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 1.009..1.231, 2% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
       "exit_attempt": {
-        "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+        "candidate": "backdrops/source/platform_far-E/row23-e7aa5c51.png",
         "exit": "grid",
         "instrument": "57236a09a2ea",
         "candidate_sha256": null,
-        "at": "2026-08-31T15:17:27"
+        "at": "2026-08-31T15:23:48"
       },
       "why": "the retry cap is spent; the wall stays grid and the run continues"
     },

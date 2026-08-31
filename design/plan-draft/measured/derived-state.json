@@ -13,17 +13,17 @@
       "artifacts": {
         "design/plan-draft/measured/material_legacy.json": "0dc5ec296d9920c04d91c6edd7de5bc5d2992f2a458da2c3b00e4fc253ccde6b"
       },
-      "at": "2026-08-31T15:15:12",
-      "input_digest": "94f57b1292745bea33c186e73f6bdc6375ddc8d5f46964c1d7c404bea3560fdd",
-      "inputs": 795
+      "at": "2026-08-31T15:21:39",
+      "input_digest": "6f92939e6c6f4e15f1cde35968bf6214945aeb63d3eae22c44d3191c52ab5d3b",
+      "inputs": 797
     },
     "material_provenance": {
       "artifacts": {
         "design/plan-draft/measured/material_provenance.json": "94eded1d8161469e7dbf713eed11a87e9f66e28086b16bc3d5dfb3befaa51c27"
       },
-      "at": "2026-08-31T15:15:12",
-      "input_digest": "94f57b1292745bea33c186e73f6bdc6375ddc8d5f46964c1d7c404bea3560fdd",
-      "inputs": 795
+      "at": "2026-08-31T15:21:39",
+      "input_digest": "6f92939e6c6f4e15f1cde35968bf6214945aeb63d3eae22c44d3191c52ab5d3b",
+      "inputs": 797
     },
     "room_consistency": {
       "artifacts": {
