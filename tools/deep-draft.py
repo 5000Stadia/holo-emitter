@@ -295,6 +295,118 @@ def chop(args):
                       "filled_pct": round(float(valid.mean()) * 100, 1),
                       "gap_pct": round(float(gap.mean()) * 100, 1)}))
 
+
+def compose(args):
+    """[Kabe, 2026-08-31] "This is a long room. Geometrically it needs to look
+    correct... 3x1, 3x2 - all of these geometries need to execute flawlessly."
+    THE COMPOSED STANDPOINT: paint decides texture ONCE (the close, 1x1 regime
+    the painter reliably nails); geometry is computed for every other
+    standpoint. Each deep-frame pixel is classified onto its surface by the
+    declared camera's ray, then sampled from that surface's OWN promoted art:
+    the face wall from the close painting at ONE uniform ruler scale (a circle
+    stays a circle), each side sweep from that side wall's painting by
+    along-run position (sources hand off at the cell seam), floor and ceiling
+    from the close art carried down the recession (wrapped - a run of lamps
+    repeats, which for a long room is the truth). Exact by construction, and
+    any NxM room is just another declared camera into the same math."""
+    import numpy as np
+    d = args["deep"]           # f, vx, vy, eye_m, half_w_m, ceil_m, z_wall, box
+    f, vx, vy = d["f"], d["vx"], d["vy"]
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    dx, dy = xs - vx, ys - vy
+    eps = 1e-6
+    zw = d["z_wall"]
+    z_floor = np.where(dy > eps, d["eye_m"] * f / np.maximum(dy, eps), np.inf)
+    z_ceil  = np.where(dy < -eps, d["ceil_m"] * f / np.maximum(-dy, eps), np.inf)
+    z_side  = np.where(np.abs(dx) > eps, d["half_w_m"] * f / np.maximum(np.abs(dx), eps), np.inf)
+    z = np.minimum.reduce([z_floor, z_ceil, z_side, np.full_like(dx, zw)])
+    on_wall = z >= zw - eps
+    side    = (~on_wall) & (z_side <= np.minimum(z_floor, z_ceil))
+    floorp  = (~on_wall) & (~side) & (dy > 0)
+    ceilp   = (~on_wall) & (~side) & (dy < 0)
+
+    srcs = {k: np.asarray(Image.open(v["png"]).convert("RGB")).astype(np.float32)
+            for k, v in args["sources"].items()}
+    out = np.zeros((H, W, 3), np.float32)
+
+    _written = {}
+    def sample(name, cc, cr, mask):
+        _written[name] = _written.get(name, 0) + int(mask.sum())
+        img = srcs[name]
+        hgt, wid = img.shape[:2]
+        ccl = np.clip(cc, 0, wid - 1.001); crl = np.clip(cr, 0, hgt - 1.001)
+        x0 = ccl.astype(int); y0 = crl.astype(int)
+        fx2 = (ccl - x0)[..., None]; fy2 = (crl - y0)[..., None]
+        v = (img[y0, x0] * (1 - fx2) * (1 - fy2) + img[y0, np.minimum(x0 + 1, wid - 1)] * fx2 * (1 - fy2)
+             + img[np.minimum(y0 + 1, hgt - 1), x0] * (1 - fx2) * fy2
+             + img[np.minimum(y0 + 1, hgt - 1), np.minimum(x0 + 1, wid - 1)] * fx2 * fy2)
+        out[mask] = v[mask]
+
+    # FACE WALL: lateral by the art's own corner box centre, both axes at the
+    # ruler scale (uniform - the disc stays round); the ruler-vs-corner
+    # disagreement of a source shows as a thin clamped band at the box edge.
+    cw = args["sources"]["face"]
+    X = dx * zw / f                       # metres from centre, on the wall plane
+    hgt_m = d["eye_m"] - dy * zw / f      # metres above the floor
+    face_cc = cw["cx"] + X * cw["ppm"]
+    face_cr = cw["floor_row"] - hgt_m * cw["ppm"]
+    sample("face", face_cc, face_cr, on_wall)
+
+    # SIDE SWEEPS: along-run position picks the source cell's art.
+    a_along = args["along0_m"] + z * np.sign(args.get("along_dir", 1.0))  # metres along the run toward the wall
+    h_side = d["eye_m"] - dy * z / f
+    for nm in ("side_n", "side_s"):
+        sd = args["sources"].get(nm)
+        if not sd: continue
+        m = side & ((dx < 0) if sd["on_left"] else (dx > 0))
+        # ppm_h is SIGNED (a south-facing art maps the run right-to-left);
+        # ppm_v is the positive vertical scale. One field doing both jobs put
+        # the south sweep's rows below its own floor - the beige-wall bug.
+        cc = sd["col0"] + (a_along - sd["a0"]) * sd["ppm_h"]
+        cr = sd["floor_row"] - h_side * sd["ppm_v"]
+        hold = m & (cc >= -0.5) & (cc <= srcs[nm].shape[1] - 0.5)
+        sample(nm, cc, cr, hold)
+        m2 = m & ~hold
+        sib = args["sources"].get(sd["sibling"])
+        if sib is not None:
+            cc2 = sib["col0"] + (a_along - sib["a0"]) * sib["ppm_h"]
+            cr2 = sib["floor_row"] - h_side * sib["ppm_v"]
+            sample(sd["sibling"], cc2, cr2, m2)
+
+    # FLOOR / CEILING: the close art's own bands, carried down the recession by
+    # wrapping the covered depth band (a run of lamps repeats - truthfully).
+    for mask, plane_h in ((floorp, None), (ceilp, d["ceil_m"])):
+        zc = z - args["step_back_m"]
+        band_lo, band_hi = args["band_m"]
+        span = band_hi - band_lo
+        # MIRROR-WRAP the depth (ping-pong): a plain wrap put the art's edge
+        # discontinuity down the room as repeated stripes.
+        t = np.mod(zc - band_lo, 2 * span)
+        zc = band_lo + (span - np.abs(t - span))
+        zc = np.maximum(zc, band_lo + 0.05)
+        cr = (cw["vy"] + cw["eye_f"] / zc) if plane_h is None else (cw["vy"] - cw["ceil_f"] / zc)
+        # LATERAL WRAP into the band the close art actually covers at zc -
+        # the clamp-streak fan on the ceiling was the art running out sideways.
+        X = dx * z / f
+        L = 0.72 * zc
+        Xw = np.mod(X + L, 2 * L) - L
+        cc = cw["vx"] + Xw * (cw["f"] / zc)
+        sample("face", cc, cr, mask)
+
+    # THE CEILING MELTS ITS WRAP SEAMS: the lateral mirror-wrap leaves zigzag
+    # joins in a surface that is low-information plaster - a strong blur
+    # restricted to the ceiling sweep turns them into soft plaster and lamp
+    # glow, which is what a ceiling at this light actually reads as.
+    from PIL import ImageFilter as _IF
+    img_out = Image.fromarray(out.clip(0, 255).astype(np.uint8))
+    blurred_ceil = np.asarray(img_out.filter(_IF.GaussianBlur(14))).astype(np.uint8)
+    a_out = np.asarray(img_out).copy()
+    a_out[ceilp] = blurred_ceil[ceilp]
+    Image.fromarray(a_out).save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "compose", "written": _written,
+                      "wall_px": int(on_wall.sum()), "side_px": int(side.sum()),
+                      "floor_px": int(floorp.sum()), "ceil_px": int(ceilp.sum())}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -305,6 +417,8 @@ def main():
         return true_shape(args)
     if args.get("mode") == "chop":
         return chop(args)
+    if args.get("mode") == "compose":
+        return compose(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)

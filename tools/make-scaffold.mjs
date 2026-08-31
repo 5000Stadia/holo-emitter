@@ -2605,7 +2605,20 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = (style && style.minimal_ask)
+    const text = (style && style.minimal_ask && style.composed_enhance)
+      ? (`Image 1 is this exact view, assembled mechanically from finished paintings of this same ` +
+         `room: every wall, the floor and the ceiling are real painted material projected to the ` +
+         `correct geometry. ENHANCE IT: repaint this picture so it looks naturally and consistently ` +
+         `painted - melt the mechanical seams, even out the light - while changing NOTHING about ` +
+         `its geometry or content: every line, corner, fixture and mark stays exactly where it is, ` +
+         `at exactly its size. A circle stays a circle. Do not enlarge, crop or recompose.\n` +
+         `Image 2 is a line drawing of this same geometry on paper: its lines are where surfaces ` +
+         `meet; nothing in it is a colour or a material to paint.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere.\n` +
+         `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
+         `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask)
       ? (`Image 1 is a finished painting: the ${style.facing_word} wall of this room, seen from up close.\n` +
          /* [row 29's provenance law meets the minimal ask] The ruled fabric is
             NAMED, in the voice's own sentences — the one thing the pair may
@@ -3638,6 +3651,27 @@ export function attachStyle(plan, key, dir, opts = {}) {
        output is geometry-exact with only its objects ovalled - so once a warp
        round exists, Image 1 is the WARPED PAINTING ITSELF and the ask inverts:
        architecture exactly as shown, objects in their TRUE shape. */
+    /* [Kabe, 2026-08-31, the composed enhance] "cut out the floors and the
+       walls and the ceilings that have been produced at both locations...
+       geometrically and deterministically take those cut outs and skew them
+       to the proper geometry for the wire frame we already created. THEN send
+       that to the painter and basically go enhance this so it looks good."
+       Image 1 is the COMPOSED FRAME - every plane cut from the promoted close
+       art of both cells and projected onto the declared geometry by
+       deep-draft.py mode "compose" (corners land within 1 px; a circle stays
+       a circle by construction). The ask: enhance, change nothing. Built by
+       the composer driver into backdrops/composed/<loc>-<f>.png; this branch
+       ships it when present. */
+    {
+      const composedPng = join(root, "backdrops", "composed", `${key.replace("/", "-")}.png`);
+      if (existsSync(composedPng)) {
+        const fileC3 = `composed-${key.replace("/", "-")}.png`;
+        copyFileSync(composedPng, join(dir, fileC3));
+        return { ...style, file: fileC3, derived: true, composed_enhance: true,
+          minimal_ask: true, derived_from: relative(root, composedPng),
+          role_sentence: null };
+      }
+    }
     /* [Kabe, 2026-08-31, the perspective pair] "send the two images of the
        up close art and the hollow deck it was built off of. Then send the
        hollow deck as it looks when we are stepped back and just say make the

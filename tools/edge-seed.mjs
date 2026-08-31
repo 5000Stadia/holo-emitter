@@ -719,6 +719,9 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
    same wall shrunk true, or the derived seed. One phrase, decided here, so the
    attach line and the paragraph cannot disagree. */
 function styleAttachPhrase(style) {
+  if (style.composed_enhance) {
+    return `\`${style.file}\` as **Image 1** (this exact view, mechanically composed from the room's own promoted paintings)`;
+  }
   if (style.perspective_pair) {
     return `\`${style.file}\` as **Image 1** (the finished close-up painting of this very wall) ` +
       `and \`close-scaffold.png\` as **Image 3** (the line drawing Image 1 was painted from)`;
@@ -751,6 +754,15 @@ export function stylePacketNote(style) {
       `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
       `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
       `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
+  if (style.same_wall && style.composed_enhance) {
+    return `**Image 1 IS THE COMPOSED FRAME** — \`${style.file}\`, every plane cut from the promoted ` +
+      `close art of both cells and projected onto the declared geometry (\`deep-draft.py\` mode compose; ` +
+      `corners land within 1 px, a circle stays a circle by construction). The prompt asks for an ` +
+      `ENHANCE: repaint so it looks naturally painted, changing nothing about geometry or content ` +
+      `[Kabe's composed enhance, 2026-08-31].
 
 `;
   }

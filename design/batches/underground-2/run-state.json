@@ -296,7 +296,7 @@
     },
     "platform/E": {
       "attempts": 2,
-      "status": "promoted",
+      "status": "waiting",
       "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
       "warp": {
         "pins": 4,
@@ -341,14 +341,7 @@
       "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 578.3, which puts the viewer's eye 0.602 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "snapped_from_family": "unfitted-horizon",
       "correction": "draw 1.193x larger: 91.4 px/m at the wall plane, not 76.7",
-      "why": "the retry cap is spent; the wall stays grid and the run continues",
-      "exit_attempt": {
-        "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
-        "exit": "grid",
-        "instrument": "57236a09a2ea",
-        "candidate_sha256": null,
-        "at": "2026-08-31T09:27:05"
-      }
+      "why": "the retry cap is spent; the wall stays grid and the run continues"
     },
     "platform/W": {
       "attempts": 1,
@@ -555,7 +548,7 @@
     },
     "platform_far/W": {
       "attempts": 2,
-      "status": "promoted",
+      "status": "waiting",
       "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
       "warp": {
         "pins": 7,
@@ -612,16 +605,6 @@
       "answered_correction": "draw 0.899x larger: 91.4 px/m at the wall plane, not 101.7",
       "snapped_from_family": "camera-miss",
       "why": "the retry cap is spent; the wall stays grid and the run continues",
-      "hold_family": "unfitted-horizon",
-      "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.694..0.905, 35% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
-      "exit_attempt": {
-        "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
-        "exit": "grid",
-        "instrument": "57236a09a2ea",
-        "candidate_sha256": null,
-        "at": "2026-08-31T01:48:57"
-      },
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"

@@ -1,12 +1,12 @@
 # platform_far/W — technique t2 (labelled scaffold)
 
-**Image 1 IS THE CLOSE-UP, CHOPPED BY PLANE** — `deep-chop-platform-W.png`, built by `tools/deep-draft.py` (mode chop) from `backdrops/platform/W.png`: each surface of the promoted close painting (face wall, side walls, floor, ceiling) re-projected for the stepped-back camera - the face at ONE uniform ruler-ratio scale (a circle stays a circle), each sweep along its true recession - and the near ring the close camera never saw filled with edge blur [Kabe's chop, 2026-08-30]. The prompt asks for the blur to be ENHANCED: the room painted continuing outward from the sharp centre, which does not change.
+**Image 1 IS THE COMPOSED FRAME** — `composed-platform_far-W.png`, every plane cut from the promoted close art of both cells and projected onto the declared geometry (`deep-draft.py` mode compose; corners land within 1 px, a circle stays a circle by construction). The prompt asks for an ENHANCE: repaint so it looks naturally painted, changing nothing about geometry or content [Kabe's composed enhance, 2026-08-31].
 
 **Image 3 is this wall's edge seed.** `edge-seed-left.png` is the 10 % of `backdrops/platform_far/S.png` that abuts this picture — its right-hand 154 columns, full frame height, cut by `tools/crop-edge-seed.py` (sha256 `c9fee6194405` from a painting at `c0ced8b80f93`). The prompt names its role in words: _Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly._
 
 Seeding here is **opportunistic** — an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted).
 
-Attach `deep-chop-platform-W.png` as **Image 1** (the close-up chopped by plane and re-projected, blur ring to enhance outward), `scaffold.png` as **Image 2** and `edge-seed-left.png` as **Image 3**, in that
+Attach `composed-platform_far-W.png` as **Image 1** (this exact view, mechanically composed from the room's own promoted paintings), `scaffold.png` as **Image 2** and `edge-seed-left.png` as **Image 3**, in that
 order, then send `prompt.txt` verbatim. Generate 2 images and save them to the
 exact paths below — the measurement runs the moment a file appears at one of them.
 
@@ -15,7 +15,7 @@ exact paths below — the measurement runs the moment a file appears at one of t
 
 The prompt files are already on disk beside them. Do not rewrite them.
 
-This wall: 91.4 px per metre at the wall plane, door.
+This wall: 84.2 px per metre at the wall plane, door.
 Situations: enclosed, lead, deep-view, same-wall-image, door, no-window (see `design/playbook-facings.md`).
 Voice: **platform_vault** (room id); gate anchor **the tiled dado band's top edge above the floor**, 1.20 m.
 Register: **g5-noappendix** — the register this ask was composed in (tools/frame-language.mjs, row 43). Every
