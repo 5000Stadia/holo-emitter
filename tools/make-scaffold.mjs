@@ -3594,6 +3594,28 @@ export function materialProvenance(plan, opts = {}) {
  *  Returns what `manorPrompt` must be told, so the picture in the packet and
  *  the sentence beside it can never disagree about what Image 1 is. */
 export function attachStyle(plan, key, dir, opts = {}) {
+  /* [phase 3, 2026-08-31] THE GROWN LANE OUTRANKS THE LADDER: a draft in
+     backdrops/grown/<key>.png ships regardless of what else is promoted -
+     the doctrine chains references from the axis's completed LONG view, not
+     from the close wall, so a wiped room can still cut its phase-3 packet. */
+  {
+    const grownPng0 = join(opts.root || ROOT, "backdrops", "grown", `${key.replace("/", "-")}.png`);
+    if (existsSync(grownPng0)) {
+      const [gl, gf] = key.split("/");
+      const fileG0 = `grown-${key.replace("/", "-")}.png`;
+      copyFileSync(grownPng0, join(dir, fileG0));
+      let gmode0 = null;
+      try { gmode0 = readFileSync(grownPng0 + ".mode", "utf8").trim(); } catch (e) { gmode0 = null; }
+      return { rel: relative(opts.root || ROOT, grownPng0), file: fileG0,
+        room: gl, facing: gf, same_wall: true, lead: false,
+        facing_word: { N: "north", E: "east", S: "south", W: "west" }[gf],
+        source_kind: "grown-draft", derived: true, grow_draft: true,
+        reverse_draft: gmode0 === "reverse", minimal_ask: true,
+        derived_from: relative(opts.root || ROOT, grownPng0),
+        why: `the grown lane: phase-${gmode0 === "reverse" ? "3 reverse" : "1 grow"} draft on disk`,
+        role_sentence: null };
+    }
+  }
   const style = styleImageFor(plan, key, opts);
   if (!style) return null;
   /* WHAT IS COPIED IS THE DERIVED SEED AND NEVER THE WALL ITSELF [2026-08-25].

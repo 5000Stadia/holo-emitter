@@ -989,7 +989,14 @@
       "continues": null,
       "order_position": 0,
       "lead_image": null,
-      "style_image": null,
+      "style_image": {
+        "file": "grown-platform_far-W.png",
+        "rel": "backdrops/grown/platform_far-W.png",
+        "room": "platform_far",
+        "facing": "W",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
       "rolls": [
         {
           "roll": 1,
