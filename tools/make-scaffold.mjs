@@ -2607,9 +2607,8 @@ async function emitManor(outDir, opts) {
        entry is complete where it stands. */
     const text = (style && style.minimal_ask && style.reverse_draft)
       ? (`Image 1 is this long room seen from its far end, looking back the way you came: the side ` +
-         `walls, the ceiling and the floor are real painted material carried in reverse - some ` +
-         `details may be stretched or smeared by that reversal; repaint them naturally, keeping ` +
-         `every surface where it stands. The outlined box at the centre is the near wall you are ` +
+         `walls, the ceiling and the floor are finished painting and may not change in any way. ` +
+         `The outlined box at the centre is the near wall you are ` +
          `facing, NOT yet painted: paint it, with an open doorway exactly in the drawn outline - ` +
          `the doorway stands empty, deep unlit shadow beyond, no lit room and no far wall visible. ` +
          `A circle stays a circle; no drawn line remains visible; do not enlarge, crop or recompose.\n` +

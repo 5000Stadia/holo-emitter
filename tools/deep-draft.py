@@ -614,6 +614,30 @@ def reverse(args):
                       "gap": [bx0, by0, bx1, by1],
                       "doors": len(args.get("ring_doors", []))}))
 
+
+def cutback(args):
+    """[Kabe, 2026-08-31, phase 3 v2] "we should not flip but simply skew the
+    corners to the right location" - the flip turned ceiling content upside
+    down. V2: the completed long view stays EXACTLY as painted - no flip, no
+    depth remap, clean sweeps - and only the wall box is cut to the gap,
+    snapped to the painting's own corners, with the doorway outlined for the
+    painter to fill."""
+    from PIL import ImageDraw
+    import numpy as np
+    img = Image.open(args["long_png"]).convert("RGB")
+    a = np.asarray(img).astype(np.uint8).copy()
+    b = args["gap_box"]
+    bx0, bx1, by0, by1 = int(round(b["x0"])), int(round(b["x1"])), int(round(b["yc"])), int(round(b["yf"]))
+    a[by0:by1, bx0:bx1] = (208, 202, 192)
+    out = Image.fromarray(a)
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24); lw = 3
+    d.rectangle([bx0, by0, bx1, by1], outline=INK, width=lw)
+    for door in args.get("ring_doors", []):
+        d.rectangle([door["x0"], door["y0"], door["x1"], door["y1"]], outline=INK, width=lw)
+    out.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "cutback", "gap": [bx0, by0, bx1, by1]}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -630,6 +654,8 @@ def main():
         return grow(args)
     if args.get("mode") == "reverse":
         return reverse(args)
+    if args.get("mode") == "cutback":
+        return cutback(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)
