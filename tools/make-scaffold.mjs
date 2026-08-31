@@ -53,7 +53,7 @@
 const chromium = {
   async launch(...a) { return (await import("playwright")).chromium.launch(...a); }
 };
-import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, copyFileSync, readdirSync, statSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname, resolve, relative } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -3552,10 +3552,26 @@ export function attachStyle(plan, key, dir, opts = {}) {
    * why a room with four painted walls shows none of them. */
   const root = opts.root || ROOT;
   if (style.same_wall) {
-    /* The SAME-WALL reference rides RAW - its content is the point; filling
-       its openings would erase the very identity the ask asserts. */
-    copyFileSync(join(root, style.rel), join(dir, style.file));
-    return { ...style, derived: false };
+    /* [Kabe, 2026-08-30] THE DEEP DRAFT: the close painting shrunk UNIFORMLY
+       to the correct proportion (a circle stays a circle), margins the edge
+       pixels stretched outward - and the ask tells the painter to recreate
+       the picture, keeping the true centre and replacing the filler. Built by
+       tools/deep-draft.py, deterministic. */
+    const closeMeta = JSON.parse(readFileSync(join(root, "backdrops", style.room, `${style.facing}.meta.json`), "utf8"));
+    const deepMeta = deriveMeta(plan, key.split("/")[0], key.split("/")[1]);
+    const ihC = closeMeta.image_h_px || 1024;
+    const k2 = deepMeta.px_per_m_at_wall / closeMeta.px_per_m_at_wall;
+    const dx2 = CANVAS_W / 2 - (CANVAS_W / 2) * k2;
+    const dy2 = deepMeta.horizon_y * (deepMeta.image_h_px || 1024) - closeMeta.horizon_y * ihC * k2;
+    const argsFile = join(dir, `.deep-draft-args.json`);
+    const draftFile = `deep-draft-${style.room}-${style.facing}.png`;
+    writeFileSync(argsFile, JSON.stringify({
+      close_png: join(root, style.rel), k: k2, dx: dx2, dy: dy2, out: join(dir, draftFile)
+    }));
+    const outTxt = execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsFile], { encoding: "utf8" });
+    rmSync(argsFile, { force: true });
+    return { ...style, file: draftFile, derived: true, draft: true,
+      derived_by: "tools/deep-draft.py", draft_geometry: JSON.parse(outTxt) };
   }
   const seed = deriveStyleSeed(plan, `${style.room}/${style.facing}`, {
     root, rel: style.rel, source_kind: style.source_kind, metaFromReading
@@ -3711,13 +3727,14 @@ export function sameWallImageFor(plan, key, opts = {}) {
     facing_word: { N: "north", E: "east", S: "south", W: "west" }[cF],
     why: `${dv.close_key} is THIS SAME WALL promoted at ${dv.close_cam} m; this facing views it from ${dv.deep_cam} m`,
     role_sentence:
-      `Image 1 IS THIS VERY WALL AND THIS VERY ROOM, photographed from ${dv.close_cam.toFixed(1)} m away. ` +
-      `This picture is based directly on Image 1: paint the identical wall with everything on it - every ` +
-      `fixture, lamp, disc, mark and line exactly as Image 1 shows them, nothing added and nothing removed - ` +
-      `but from ${dv.back_m.toFixed(1)} m further back, so the camera now stands ${dv.deep_cam.toFixed(1)} m ` +
-      `from that wall. At this distance the wall spans ${fracWord} of the picture's width, and the room's own ` +
-      `side walls, ceiling and floor - the same surfaces visible at the edges of Image 1 - continue toward ` +
-      `you and fill the rest of the frame. Change the camera distance and nothing else.`
+      `Image 1 is THIS EXACT VIEW, assembled mechanically: its centre region is the true picture ` +
+      `of this wall and room at the correct proportion, taken from the promoted painting of the ` +
+      `${dv.close_key.split("/")[0].replace(/_/g, " ")}'s ${ { N: "north", E: "east", S: "south", W: "west" }[dv.close_key.split("/")[1]] } wall ` +
+      `(${dv.close_cam.toFixed(1)} m away) and shrunk uniformly for a camera ${dv.deep_cam.toFixed(1)} m away - ` +
+      `nothing in that centre region may change: same wall, same fixtures, same marks, same scale, a circle ` +
+      `stays a circle. The margins around it are mechanically stretched filler. RECREATE THE WHOLE PICTURE: ` +
+      `keep the centre exactly as Image 1 shows it, and replace the stretched margins with this room's own ` +
+      `side walls, ceiling and floor continuing naturally toward the viewer, in the same materials and light.`
   };
 }
 

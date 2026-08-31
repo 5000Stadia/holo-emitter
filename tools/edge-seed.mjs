@@ -721,10 +721,11 @@ export function stylePacketNote(style) {
      the point — and says so, instead of the derived-seed paragraph whose every
      claim ("no architecture at all") would be false of it. */
   if (style.same_wall) {
-    return `**Image 1 IS THE WALL THIS PACKET PAINTS.** \`${style.file}\` is \`${style.rel}\` — ` +
-      `the promoted painting of ${style.room}/${style.facing}, the SAME wall this ask repaints ` +
-      `from further back. It rides RAW (nothing filled, nothing removed); the prompt's own Image 1 ` +
-      `sentence carries the identity and the camera move. Nothing in it is another room.
+    return `**Image 1 IS THE DEEP DRAFT of the very view this packet paints** — \`${style.file}\`, ` +
+      `built mechanically by \`tools/deep-draft.py\` from the promoted \`${style.rel}\` ` +
+      `(${style.room}/${style.facing}, the SAME wall): the true picture shrunk uniformly to the correct ` +
+      `proportion at the centre, mechanically stretched filler at the margins. The prompt asks for the ` +
+      `picture to be RECREATED: centre kept exactly, filler replaced with the room continuing.
 
 `;
   }
