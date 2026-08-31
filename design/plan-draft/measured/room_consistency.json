@@ -1,6 +1,6 @@
 {
   "instrument": "design/plan-draft/measured/room_consistency.py",
-  "promoted_facings": 93,
+  "promoted_facings": 94,
   "target_ppm": 150.0,
   "tile_m": 0.3,
   "weights": {
@@ -7272,6 +7272,7 @@
     {
       "room": "platform",
       "facings": [
+        "E",
         "N",
         "S",
         "W"
@@ -7284,18 +7285,48 @@
       ],
       "bands": {
         "ceiling": {
-          "facings": [],
+          "facings": [
+            "E"
+          ],
           "spread": null,
           "why": "fewer than two facings show this band"
         },
         "wall_upper": {
           "facings": [
+            "E",
             "N",
             "S",
             "W"
           ],
-          "spread": 1.827,
+          "spread": 5.282,
           "pairwise": [
+            {
+              "dLum": 0.7489,
+              "dChroma": 0.0215,
+              "dH": 0.5885,
+              "dT": 1.502,
+              "D": 3.758,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.0666,
+              "dChroma": 0.0863,
+              "dH": 0.4115,
+              "dT": 1.748,
+              "D": 4.412,
+              "a": "E",
+              "b": "S"
+            },
+            {
+              "dLum": 0.5897,
+              "dChroma": 0.1485,
+              "dH": 0.6667,
+              "dT": 2.07,
+              "D": 5.282,
+              "a": "E",
+              "b": "W"
+            },
             {
               "dLum": 0.6823,
               "dChroma": 0.1021,
@@ -7325,47 +7356,60 @@
             }
           ],
           "deviation": {
+            "E": {
+              "dLum": 0.3281,
+              "dChroma": 0.0431,
+              "dH": 0.4562,
+              "dT": 1.63,
+              "D": 4.087
+            },
             "N": {
-              "dLum": 0.1592,
-              "dChroma": 0.1021,
-              "dH": 0.0699,
-              "dT": 0.246,
-              "D": 0.953
+              "dLum": 0.4208,
+              "dChroma": 0.0598,
+              "dH": 0.185,
+              "dT": 0.128,
+              "D": 0.534
             },
             "S": {
-              "dLum": 0.5231,
-              "dChroma": 0.0,
-              "dH": 0.3346,
-              "dT": 0.0,
-              "D": 0.0
+              "dLum": 0.2615,
+              "dChroma": 0.0432,
+              "dH": 0.2056,
+              "dT": 0.118,
+              "D": 0.426
             },
             "W": {
-              "dLum": 0.0,
-              "dChroma": 0.0653,
-              "dH": 0.1111,
-              "dT": 0.322,
-              "D": 0.931
+              "dLum": 0.2616,
+              "dChroma": 0.1063,
+              "dH": 0.2105,
+              "dT": 0.44,
+              "D": 1.336
             }
           },
           "median": {
-            "lum": 0.3752,
+            "lum": 0.1136,
             "chroma": [
-              0.5636,
-              -0.9263
+              0.59,
+              -0.9605
             ],
-            "tex": 0.47382
+            "tex": 0.43672
           },
           "tex": {
+            "E": 0.1411,
             "N": 0.39961,
             "S": 0.47382,
             "W": 0.59239
           },
           "lum": {
+            "E": -0.2145,
             "N": 0.5344,
             "S": -0.1479,
             "W": 0.3752
           },
           "chroma": {
+            "E": [
+              0.6164,
+              -0.9946
+            ],
             "N": [
               0.6378,
               -0.9964
@@ -7380,6 +7424,11 @@
             ]
           },
           "srgb": {
+            "E": [
+              128,
+              96,
+              59
+            ],
             "N": [
               101,
               74,
@@ -7399,12 +7448,40 @@
         },
         "wall_lower": {
           "facings": [
+            "E",
             "N",
             "S",
             "W"
           ],
-          "spread": 1.369,
+          "spread": 6.711,
           "pairwise": [
+            {
+              "dLum": 2.9549,
+              "dChroma": 0.5681,
+              "dH": 0.75,
+              "dT": 2.138,
+              "D": 6.711,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 1.7348,
+              "dChroma": 0.469,
+              "dH": 0.6198,
+              "dT": 1.997,
+              "D": 6.013,
+              "a": "E",
+              "b": "S"
+            },
+            {
+              "dLum": 2.1411,
+              "dChroma": 0.4636,
+              "dH": 0.7143,
+              "dT": 2.312,
+              "D": 6.662,
+              "a": "E",
+              "b": "W"
+            },
             {
               "dLum": 1.2201,
               "dChroma": 0.1255,
@@ -7434,47 +7511,60 @@
             }
           ],
           "deviation": {
+            "E": {
+              "dLum": 1.938,
+              "dChroma": 0.4597,
+              "dH": 0.6003,
+              "dT": 2.07,
+              "D": 6.128
+            },
             "N": {
-              "dLum": 0.8138,
-              "dChroma": 0.1068,
-              "dH": 0.0,
-              "dT": 0.0,
-              "D": 0.763
+              "dLum": 1.0169,
+              "dChroma": 0.1086,
+              "dH": 0.1497,
+              "dT": 0.069,
+              "D": 0.795
             },
             "S": {
-              "dLum": 0.4063,
-              "dChroma": 0.0659,
-              "dH": 0.3125,
-              "dT": 0.141,
-              "D": 0.588
+              "dLum": 0.2032,
+              "dChroma": 0.0763,
+              "dH": 0.3093,
+              "dT": 0.072,
+              "D": 0.574
             },
             "W": {
-              "dLum": 0.0,
-              "dChroma": 0.0909,
-              "dH": 0.1875,
-              "dT": 0.174,
-              "D": 0.781
+              "dLum": 0.2031,
+              "dChroma": 0.0805,
+              "dH": 0.2408,
+              "dT": 0.242,
+              "D": 0.836
             }
           },
           "median": {
-            "lum": -1.3185,
+            "lum": -1.1154,
             "chroma": [
-              -0.0398,
-              -0.8251
+              -0.0385,
+              -0.8147
             ],
-            "tex": 1.11517
+            "tex": 1.06325
           },
           "tex": {
+            "E": 0.2533,
             "N": 1.11517,
             "S": 1.01133,
             "W": 1.25786
           },
           "lum": {
+            "E": 0.8226,
             "N": -2.1323,
             "S": -0.9122,
             "W": -1.3185
           },
           "chroma": {
+            "E": [
+              0.4211,
+              -0.8043
+            ],
             "N": [
               -0.1466,
               -0.8251
@@ -7489,6 +7579,11 @@
             ]
           },
           "srgb": {
+            "E": [
+              120,
+              99,
+              67
+            ],
             "N": [
               76,
               82,
@@ -7508,11 +7603,30 @@
         },
         "floor": {
           "facings": [
+            "E",
             "N",
             "S"
           ],
-          "spread": 0.734,
+          "spread": 1.113,
           "pairwise": [
+            {
+              "dLum": 0.3911,
+              "dChroma": 0.047,
+              "dH": 0.2986,
+              "dT": 0.424,
+              "D": 1.113,
+              "a": "E",
+              "b": "N"
+            },
+            {
+              "dLum": 0.5575,
+              "dChroma": 0.0551,
+              "dH": 0.4861,
+              "dT": 0.133,
+              "D": 0.515,
+              "a": "E",
+              "b": "S"
+            },
             {
               "dLum": 0.1664,
               "dChroma": 0.0122,
@@ -7524,38 +7638,51 @@
             }
           ],
           "deviation": {
+            "E": {
+              "dLum": 0.3911,
+              "dChroma": 0.0455,
+              "dH": 0.2986,
+              "dT": 0.133,
+              "D": 0.465
+            },
             "N": {
-              "dLum": 0.0832,
-              "dChroma": 0.0061,
-              "dH": 0.0938,
-              "dT": 0.138,
-              "D": 0.349
+              "dLum": 0.0,
+              "dChroma": 0.0075,
+              "dH": 0.0,
+              "dT": 0.292,
+              "D": 0.731
             },
             "S": {
-              "dLum": 0.0832,
-              "dChroma": 0.0061,
-              "dH": 0.0938,
-              "dT": 0.153,
-              "D": 0.385
+              "dLum": 0.1664,
+              "dChroma": 0.0096,
+              "dH": 0.1875,
+              "dT": 0.0,
+              "D": 0.069
             }
           },
           "median": {
-            "lum": 0.6106,
+            "lum": 0.5274,
             "chroma": [
-              0.5079,
-              -0.7144
+              0.5041,
+              -0.7192
             ],
-            "tex": 0.31157
+            "tex": 0.28019
           },
           "tex": {
+            "E": 0.25557,
             "N": 0.34295,
             "S": 0.28019
           },
           "lum": {
+            "E": 0.1363,
             "N": 0.5274,
             "S": 0.6938
           },
           "chroma": {
+            "E": [
+              0.4986,
+              -0.7644
+            ],
             "N": [
               0.5116,
               -0.7192
@@ -7566,6 +7693,11 @@
             ]
           },
           "srgb": {
+            "E": [
+              123,
+              98,
+              67
+            ],
             "N": [
               97,
               75,
@@ -7580,27 +7712,33 @@
         }
       },
       "wall_split": {
+        "E": 2.872,
         "N": 6.826,
         "S": 5.111,
         "W": 5.067
       },
       "reference_log_luma": {
+        "E": -2.017,
         "N": -2.5442,
         "S": -2.6648,
         "W": -3.1402
       },
-      "worst_band": "wall_upper",
-      "score": 1.827,
+      "worst_band": "wall_lower",
+      "score": 6.711,
       "outlier_deviation": {
-        "N": 0.953,
-        "W": 0.931,
-        "S": 0.0
+        "E": 6.128,
+        "W": 0.836,
+        "N": 0.795,
+        "S": 0.574
       },
       "clusters": [
         [
           "N",
           "S",
           "W"
+        ],
+        [
+          "E"
         ]
       ],
       "majority": [
@@ -7608,11 +7746,13 @@
         "S",
         "W"
       ],
-      "outliers": [],
+      "outliers": [
+        "E"
+      ],
       "no_majority": false,
-      "wall_split_spread": 1.759,
-      "verdict": "consistent-incomplete",
-      "why": "wall_upper disagrees most: worst pair N/W at D=1.83 (colour 0.161, contrast x1.48; brightness x1.17 and spread 0.130 reported, not counted). no facing stands outside the rest."
+      "wall_split_spread": 3.954,
+      "verdict": "mismatched",
+      "why": "wall_lower disagrees most: worst pair E/N at D=6.71 (colour 0.568, contrast x4.40; brightness x19.20 and spread 0.750 reported, not counted). NSW agree; E stands outside them."
     },
     {
       "room": "platform_far",
@@ -11301,8 +11441,18 @@
       "wall_upper"
     ],
     [
+      6.711,
+      "platform",
+      "wall_lower"
+    ],
+    [
       5.668,
       "closet_chamber",
+      "wall_upper"
+    ],
+    [
+      5.282,
+      "platform",
       "wall_upper"
     ],
     [
@@ -11531,11 +11681,6 @@
       "floor"
     ],
     [
-      1.827,
-      "platform",
-      "wall_upper"
-    ],
-    [
       1.756,
       "long_gallery",
       "ceiling"
@@ -11626,11 +11771,6 @@
       "wall_upper"
     ],
     [
-      1.369,
-      "platform",
-      "wall_lower"
-    ],
-    [
       1.311,
       "stair_landing",
       "wall_lower"
@@ -11644,6 +11784,11 @@
       1.122,
       "buttery_pantry",
       "wall_upper"
+    ],
+    [
+      1.113,
+      "platform",
+      "floor"
     ],
     [
       1.066,
@@ -11674,11 +11819,6 @@
       0.805,
       "library",
       "wall_lower"
-    ],
-    [
-      0.734,
-      "platform",
-      "floor"
     ],
     [
       0.732,

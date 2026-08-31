@@ -296,8 +296,8 @@
     },
     "platform/E": {
       "attempts": 2,
-      "status": "waiting",
-      "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
+      "status": "promoted",
+      "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
       "warp": {
         "pins": 4,
         "columns": 2,
@@ -343,7 +343,17 @@
       "why": "the retry cap is spent; the wall stays grid and the run continues",
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
-      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
+      "hold_family": "unfitted-horizon",
+      "exit": "grid",
+      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.909..1.232, 7% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
+        "exit": "grid",
+        "instrument": "57236a09a2ea",
+        "candidate_sha256": null,
+        "at": "2026-08-31T13:27:07"
+      }
     },
     "platform/W": {
       "attempts": 1,
@@ -550,7 +560,7 @@
     },
     "platform_far/W": {
       "attempts": 2,
-      "status": "waiting",
+      "status": "promoted",
       "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
       "warp": {
         "pins": 7,
@@ -606,15 +616,22 @@
       "camera_source": "declared",
       "answered_correction": "draw 0.899x larger: 91.4 px/m at the wall plane, not 101.7",
       "snapped_from_family": "camera-miss",
-      "why": "composed frame stands (Kabe's composed doctrine); painter rolls failed the camera band",
+      "why": "the composed frame stands (deterministic fallback); grow rolls failed the camera band",
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
-      "correction": "draw 1.045x larger: 91.4 px/m at the wall plane, not 87.5",
+      "correction": "draw 1.338x larger: 91.4 px/m at the wall plane, not 68.3",
       "warp_refusal": {
         "clause": "meshwarp.aperture_order",
         "why": "the row pins cross: floor_line is at target 628.0 from source 638.0 and door:door01:sill at target 634.3 from source 638.0, so the painting puts them in the opposite order along the wall from the one the plan rules - an aperture-order content miss, not a warp this instrument can pay for",
         "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png"
+      },
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+        "exit": "grid",
+        "instrument": "57236a09a2ea",
+        "candidate_sha256": null,
+        "at": "2026-08-31T13:27:25"
       }
     }
   }
