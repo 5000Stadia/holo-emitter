@@ -507,7 +507,7 @@
       "answered_correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2"
     },
     "platform_far/W": {
-      "attempts": 2,
+      "attempts": 0,
       "status": "promoted",
       "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
       "warp": {
@@ -564,7 +564,7 @@
       "camera_source": "declared",
       "answered_correction": "draw 1.120x larger: 91.4 px/m at the wall plane, not 81.7",
       "snapped_from_family": "camera-miss",
-      "why": "the composed frame stands (deterministic fallback); grow rolls failed the camera band",
+      "why": "art already in the store; this loop read it rather than remaking it",
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
@@ -572,15 +572,6 @@
         "clause": "meshwarp.aperture_order",
         "why": "the row pins cross: floor_line is at target 628.0 from source 638.0 and door:door01:sill at target 634.3 from source 638.0, so the painting puts them in the opposite order along the wall from the one the plan rules - an aperture-order content miss, not a warp this instrument can pay for",
         "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png"
-      },
-      "exit": "warped",
-      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-W/warped.png on the declared camera (7 pins, worst residual 0.00 px, worst segment ceiling_line..door:door01:head x1.067, 3492 px revealed) \u2014 the correction is recorded, not waived",
-      "exit_attempt": {
-        "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
-        "exit": "warped",
-        "instrument": "57236a09a2ea",
-        "candidate_sha256": "97fbeea9623d343ee0bf24bc0e93e894f9ecbac402d571e56a9ef4fd71cfb78c",
-        "at": "2026-08-31T15:08:15"
       }
     }
   }

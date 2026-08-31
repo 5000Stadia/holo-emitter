@@ -2612,7 +2612,9 @@ async function emitManor(outDir, opts) {
          `facing, NOT yet painted: paint it, with an open doorway exactly in the drawn outline - ` +
          `the doorway stands empty, deep unlit shadow beyond, no lit room and no far wall visible. ` +
          `A circle stays a circle; no drawn line remains visible; do not enlarge, crop or recompose.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
+         `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
          `For the record, this room's fabric (already what the painted parts show): its walls are ` +
          `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
          (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
@@ -2624,7 +2626,9 @@ async function emitManor(outDir, opts) {
          `half back to the far wall, exactly along the drawn lines, so the whole reads as one ` +
          `room. A circle stays a circle; no drawn line remains visible; do not enlarge, crop or ` +
          `recompose anything.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
+         `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
          `For the record, this room's fabric (already what the painted parts show): its walls are ` +
          `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
          (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)

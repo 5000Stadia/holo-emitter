@@ -92,3 +92,16 @@ builds it yet.
 [Kabe]: "first look the direction of the longest distance" - longest axis,
 then its reverse, then the remaining axes in falling length; every step's
 reference is finished, judged work from an earlier step.
+
+## Amendment (2026-08-31): lights are after-assets
+[Kabe]: "make sure that all image generation does not include light fixtures.
+It may be smarter to only think of light fixtures as an after asset... the
+original plan does still make the most sense. We just need to make sure we
+have no ceiling or floor objects, such as light fixtures, or fans or whatever
+- or else this process will upside down them."
+No generation carries ceiling- or floor-mounted objects; rooms are lit evenly
+as if by out-of-frame lamps; fixtures are placed later as assets (the entity
+layer). This is the prerequisite that makes phase 3's flip clean - the flip's
+only real casualty was fixture orientation. Voices amended; the constraint
+rides every minimal ask; the register's material composer follows when rooms
+are next re-seeded.

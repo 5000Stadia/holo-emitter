@@ -2,6 +2,457 @@
   "_what_this_is": "[row 40 - the ORIGIN] The paintings that were already promoted when promote-backdrop.mjs's row40:material.voice_stale clause landed. Each was made from an ask that does not name the materials this plan rules for its room, because the manor's 85 packets went out at 2026-08-23 03:54 under a composer that keyed materials on room.archetype and row 29's voice table landed at 11:03 and re-emitted only thirteen walls. This file is a LEDGER, not an exemption: an entry admits one facing from one exact candidate, a re-ask produces a new candidate id that is not in here, and the list can only shrink. Delete an entry in the same commit that re-asks its wall.",
   "_sealed": "2026-08-25",
   "_closes_with": "node tools/make-scaffold.mjs --emit-consistency --from-ask",
-  "open": 0,
-  "admitted": {}
+  "open": 30,
+  "admitted": {
+    "great_hall/N": {
+      "candidate": "backdrops/source-doors/great_hall-N/doored.png",
+      "voice": "hall_state",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
+      "ruled": {
+        "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+        "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
+        "underfoot": "a broad worn stone flagstone floor",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall great_hall/N"
+    },
+    "great_hall/S": {
+      "candidate": "backdrops/source/great_hall-S/row23-0bc11e98.png",
+      "voice": "hall_state",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
+      "ruled": {
+        "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+        "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
+        "underfoot": "a broad worn stone flagstone floor",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall great_hall/S"
+    },
+    "study/N": {
+      "candidate": "backdrops/source/study-N/cand-5-reference.png",
+      "voice": "parlour_wainscot",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, pale carved stone Tudor fireplace surround, brick-lined firebox, and a small lively lit wood fire. Preserve restrained seventeenth-century English manor construction and the established material grain.",
+      "ruled": {
+        "walls": "dark hand-finished oak wall panelling",
+        "overhead": "an aged parchment-toned plaster ceiling",
+        "underfoot": "wide worn oak floorboards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall study/N"
+    },
+    "study/W": {
+      "candidate": "backdrops/source/study-W/cand-6.png",
+      "voice": "parlour_wainscot",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "Match Image 1 exactly: dark hand-finished oak paneling, aged parchment-toned plaster ceiling, wide worn oak floorboards, fine oil realism, tactile material grain, restrained cool ambient light with subtle warm falloff, and calm seventeenth-century atmosphere.",
+      "ruled": {
+        "walls": "dark hand-finished oak wall panelling",
+        "overhead": "an aged parchment-toned plaster ceiling",
+        "underfoot": "wide worn oak floorboards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall study/W"
+    },
+    "back_stair/N": {
+      "candidate": "backdrops/source/back_stair-N/row23-98d329eb.png",
+      "voice": "back_stair",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
+      "ruled": {
+        "walls": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
+        "overhead": "a plain plastered soffit",
+        "underfoot": "plain scrubbed oak treads and boards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall back_stair/N"
+    },
+    "kitchen/E": {
+      "candidate": "backdrops/source/kitchen-E/row23-94a463ee.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall kitchen/E"
+    },
+    "kitchen/S": {
+      "candidate": "backdrops/source/kitchen-S/row23-7de99c6d.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall kitchen/S"
+    },
+    "kitchen/W": {
+      "candidate": "backdrops/source/kitchen-W/row23-3da016f1.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall kitchen/W"
+    },
+    "buttery_pantry/N": {
+      "candidate": "backdrops/source/buttery_pantry-N/row23-27fc2560.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall buttery_pantry/N"
+    },
+    "buttery_pantry/E": {
+      "candidate": "backdrops/source/buttery_pantry-E/row23-7c019f47.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall buttery_pantry/E"
+    },
+    "buttery_pantry/S": {
+      "candidate": "backdrops/source/buttery_pantry-S/row23-7f7836f8.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall buttery_pantry/S"
+    },
+    "buttery_pantry/W": {
+      "candidate": "backdrops/source/buttery_pantry-W/row23-f538206d.png",
+      "voice": "service",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "rough limewashed plaster over stone, carried straight down to the floor unbroken by any timber lining, joinery or moulding",
+        "overhead": "heavy smoke-darkened oak ceiling joists with plain boards between them",
+        "underfoot": "large worn stone flags",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall buttery_pantry/W"
+    },
+    "servants_hall/N": {
+      "candidate": "backdrops/source/servants_hall-N/row23-e7912869.png",
+      "voice": "servants_hall",
+      "class": "refined",
+      "vouched": true,
+      "why": "the ask this painting was made from names this room's ruled underfoot in WORDING that has since been refined — the same material (floor/red-brick-on-edge), declared in room-voices.mjs SAID_BEFORE. The wall is vouched; this line stays open only because the store's bytes predate the refined words",
+      "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
+      "ruled": {
+        "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+        "overhead": "plain exposed oak joists with boards between them",
+        "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --refined-too --wall servants_hall/N"
+    },
+    "servants_hall/S": {
+      "candidate": "backdrops/source/servants_hall-S/row23-aa3b7fd3.png",
+      "voice": "servants_hall",
+      "class": "refined",
+      "vouched": true,
+      "why": "the ask this painting was made from names this room's ruled underfoot in WORDING that has since been refined — the same material (floor/red-brick-on-edge), declared in room-voices.mjs SAID_BEFORE. The wall is vouched; this line stays open only because the store's bytes predate the refined words",
+      "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
+      "ruled": {
+        "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+        "overhead": "plain exposed oak joists with boards between them",
+        "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --refined-too --wall servants_hall/S"
+    },
+    "servants_hall/W": {
+      "candidate": "backdrops/source-snapped/servants_hall-W/snapped.png",
+      "voice": "servants_hall",
+      "class": "refined",
+      "vouched": true,
+      "why": "the ask this painting was made from names this room's ruled underfoot in WORDING that has since been refined — the same material (floor/red-brick-on-edge), declared in room-voices.mjs SAID_BEFORE. The wall is vouched; this line stays open only because the store's bytes predate the refined words",
+      "asked": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding. Overhead: plain exposed oak joists with boards between them. a floor of worn red brick laid on edge.",
+      "ruled": {
+        "walls": "plain limewashed plaster carried straight down to the floor, unbroken by any timber lining, joinery or moulding",
+        "overhead": "plain exposed oak joists with boards between them",
+        "underfoot": "a floor of worn red brick laid on edge in straight courses running away from you, every brick a long narrow rectangle end-on, no square pavers and no herringbone",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --refined-too --wall servants_hall/W"
+    },
+    "entrance_court/S": {
+      "candidate": "backdrops/source/entrance_court-S/row23-e117db11.png",
+      "voice": "outdoors_open",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "no wall at all on this side: open ground running out through the open side and on to the horizon, with only the low stone piers at its two ends, under open sky. Underfoot: raked gravel and worn turf running to the bottom edge of frame.",
+      "ruled": {
+        "walls": "no building wall at all: the view runs out over open ground, closed only by a low coursed-stone boundary wall running across the far side of it, under open sky",
+        "overhead": null,
+        "underfoot": "raked gravel and worn turf running to the bottom edge of frame",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall entrance_court/S"
+    },
+    "privy_garden/N": {
+      "candidate": "backdrops/source/privy_garden-N/row23-11d58c22.png",
+      "voice": "outdoors_walled",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot.",
+      "ruled": {
+        "walls": "a garden wall of weathered red brick in English bond on a coursed stone plinth, open sky above it",
+        "overhead": null,
+        "underfoot": "raked gravel paths between low clipped box and turf",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall privy_garden/N"
+    },
+    "privy_garden/S": {
+      "candidate": "backdrops/source/privy_garden-S/row23-506337da.png",
+      "voice": "outdoors_walled",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "weathered ashlar and brick, open sky above, packed earth and stone paving underfoot.",
+      "ruled": {
+        "walls": "the manor's own exterior elevation of weathered red brick in English bond, with dressed stone quoins, moulded stone window surrounds and a coursed stone plinth, open sky above the roofline",
+        "overhead": null,
+        "underfoot": "raked gravel paths between low clipped box and turf",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall privy_garden/S"
+    },
+    "solar/N": {
+      "candidate": "backdrops/source/solar-N/row23-0d155462.png",
+      "voice": "great_chamber",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
+      "ruled": {
+        "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+        "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
+        "underfoot": "wide oak floorboards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall solar/N"
+    },
+    "solar/E": {
+      "candidate": "backdrops/source/solar-E/row23-5e45b619.png",
+      "voice": "great_chamber",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
+      "ruled": {
+        "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+        "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
+        "underfoot": "wide oak floorboards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall solar/E"
+    },
+    "solar/S": {
+      "candidate": "backdrops/source/solar-S/row23-0d788619.png",
+      "voice": "great_chamber",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
+      "ruled": {
+        "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+        "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
+        "underfoot": "wide oak floorboards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall solar/S"
+    },
+    "solar/W": {
+      "candidate": "backdrops/source/solar-W/row23-2a1561fb.png",
+      "voice": "great_chamber",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark oak wall panelling with a carved frieze, lime-plastered ceiling, broad flagstone floor.",
+      "ruled": {
+        "walls": "dark oak wall panelling in fielded bays with a carved frieze above it, lime-plastered wall head",
+        "overhead": "a flat lime-plastered ceiling with moulded plaster ribs",
+        "underfoot": "wide oak floorboards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall solar/W"
+    },
+    "back_stair_head/N": {
+      "candidate": "backdrops/source/back_stair_head-N/row23-c08999db.png",
+      "voice": "back_stair",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
+      "ruled": {
+        "walls": "limewashed plaster above a plain boarded oak dado of square-edged boards, with no mouldings and no fielded joinery",
+        "overhead": "a plain plastered soffit",
+        "underfoot": "plain scrubbed oak treads and boards",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall back_stair_head/N"
+    },
+    "long_gallery/N": {
+      "candidate": "backdrops/source/long_gallery-N/row23-59887309.png",
+      "voice": "long_gallery",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
+      "ruled": {
+        "walls": "plain oak wainscot below limewashed plaster, with a moulded oak cornice at the wall head",
+        "overhead": "a flat lime-plastered ceiling",
+        "underfoot": "long wide oak floorboards running the length of the gallery",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall long_gallery/N"
+    },
+    "long_gallery/E": {
+      "candidate": "backdrops/source/long_gallery-E/row23-670a301b.png",
+      "voice": "long_gallery",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
+      "ruled": {
+        "walls": "plain oak wainscot below limewashed plaster, with a moulded oak cornice at the wall head",
+        "overhead": "a flat lime-plastered ceiling",
+        "underfoot": "long wide oak floorboards running the length of the gallery",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall long_gallery/E"
+    },
+    "long_gallery/S": {
+      "candidate": "backdrops/source/long_gallery-S/row23-1d39131d.png",
+      "voice": "long_gallery",
+      "class": "stale-material",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "plain oak wainscot below limewashed plaster, boarded ceiling, worn oak floorboards.",
+      "ruled": {
+        "walls": "plain oak wainscot below limewashed plaster, with a moulded oak cornice at the wall head",
+        "overhead": "a flat lime-plastered ceiling",
+        "underfoot": "long wide oak floorboards running the length of the gallery",
+        "hangings": null
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall long_gallery/S"
+    },
+    "guest_chamber/N": {
+      "candidate": "backdrops/source/guest_chamber-N/row23-96eb20b1.png",
+      "voice": "bedchamber",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot or hangings this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "oak wainscot to chair height with wall hangings above it",
+        "overhead": "a plain lime-plastered ceiling",
+        "underfoot": "wide oak floorboards",
+        "hangings": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping"
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall guest_chamber/N"
+    },
+    "guest_chamber/E": {
+      "candidate": "backdrops/source-snapped/guest_chamber-E/snapped.png",
+      "voice": "bedchamber",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot or hangings this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "oak wainscot to chair height with wall hangings above it",
+        "overhead": "a plain lime-plastered ceiling",
+        "underfoot": "wide oak floorboards",
+        "hangings": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping"
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall guest_chamber/E"
+    },
+    "guest_chamber/W": {
+      "candidate": "backdrops/source/guest_chamber-W/row23-686d6ba6.png",
+      "voice": "bedchamber",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot or hangings this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "oak wainscot to chair height with wall hangings above it",
+        "overhead": "a plain lime-plastered ceiling",
+        "underfoot": "wide oak floorboards",
+        "hangings": "hangings of dull red worsted say, hung from a rail below the ceiling and falling to the wainscot capping"
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall guest_chamber/W"
+    },
+    "closet_chamber/W": {
+      "candidate": "backdrops/source/closet_chamber-W/row23-fc09b6a5.png",
+      "voice": "bedchamber",
+      "class": "split-ask",
+      "vouched": false,
+      "why": "the ask this painting was made from names no walls or overhead or underfoot or hangings this plan rules for the room; it predates the voice the room now speaks",
+      "asked": "dark hand-finished oak wall panelling, aged parchment-toned plaster ceiling, wide worn oak floorboards.",
+      "ruled": {
+        "walls": "oak wainscot to chair height with wall hangings above it",
+        "overhead": "a plain lime-plastered ceiling",
+        "underfoot": "wide oak floorboards",
+        "hangings": "plain hangings of undyed wool serge, hung from a rail below the ceiling and falling to the wainscot capping"
+      },
+      "closes_when": "node tools/make-scaffold.mjs --emit-consistency --from-ask --wall closet_chamber/W"
+    }
+  }
 }
