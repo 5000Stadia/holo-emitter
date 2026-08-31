@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 88 painting(s), 37.8 MB served in total,
+// 89 painting(s), 38.1 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -77,6 +77,7 @@
 //   noodle_bar/N: 2.31 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.4597 on average, 14 at worst, of 255.
 //   noodle_bar/S: 2.00 MB of PNG -> 393 kB of JPEG (q92); channels move by 1.1475 on average, 13 at worst, of 255.
 //   noodle_bar/W: 2.52 MB of PNG -> 495 kB of JPEG (q92); channels move by 1.6273 on average, 17 at worst, of 255.
+//   platform/E: 1.48 MB of PNG -> 258 kB of JPEG (q92); channels move by 0.8388 on average, 17 at worst, of 255.
 //   platform_far/W: 1.58 MB of PNG -> 279 kB of JPEG (q92); channels move by 0.8596 on average, 16 at worst, of 255.
 //   privy_garden/N: 2.81 MB of PNG -> 538 kB of JPEG (q92); channels move by 1.9158 on average, 23 at worst, of 255.
 //   privy_garden/S: 3.11 MB of PNG -> 567 kB of JPEG (q92); channels move by 2.0468 on average, 20 at worst, of 255.
@@ -105,7 +106,7 @@
 //   ward/S: 2.08 MB of PNG -> 243 kB of JPEG (q92); channels move by 1.1536 on average, 13 at worst, of 255.
 //   ward/W: 1.52 MB of PNG -> 209 kB of JPEG (q92); channels move by 0.8841 on average, 12 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "9e7fdd97",
+  fp: "e9990291",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -169,6 +170,7 @@ window.HOLO_BACKDROPS = {
   "noodle_bar/N": { file: "noodle_bar/N.jpg", bytes: 454691 },
   "noodle_bar/S": { file: "noodle_bar/S.jpg", bytes: 392725 },
   "noodle_bar/W": { file: "noodle_bar/W.jpg", bytes: 494703 },
+  "platform/E": { file: "platform/E.jpg", bytes: 257898 },
   "platform_far/W": { file: "platform_far/W.jpg", bytes: 278577 },
   "privy_garden/N": { file: "privy_garden/N.jpg", bytes: 537646 },
   "privy_garden/S": { file: "privy_garden/S.jpg", bytes: 566540 },

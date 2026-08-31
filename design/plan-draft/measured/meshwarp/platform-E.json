@@ -1,30 +1,30 @@
 {
-  "_source_sha256": "42c1889e37e2876fe3b0d38fe4bf0d06bb9e3e5a146cb6f747ab4b8c06b37418",
-  "_what_this_is": "The MESH-WARPED reading for platform/E. backdrops/source/platform-E/row23-a73c3062.png was warped onto this facing's DECLARED camera by design/plan-draft/measured/mesh_warp.py \u2014 the painting's own room corners, floor and ceiling lines and aperture edges pinned onto the plan's, separable and piecewise-linear on the wall plane so no straight line bends \u2014 and this document is the row-23 instrument's reading of the RESULT, measured off backdrops/source-warped/platform-E/warped.png and off nothing else. What the correction cost is in `_warp`: it is recorded and nothing here is gated on it.",
+  "_source_sha256": "057f53711c30d22ed919af1df8f253f268b791b93cb78b71240ead673ed6aad6",
+  "_what_this_is": "The MESH-WARPED reading for platform/E. backdrops/source/platform-E/row23-d3cc96ec.png was warped onto this facing's DECLARED camera by design/plan-draft/measured/mesh_warp.py \u2014 the painting's own room corners, floor and ceiling lines and aperture edges pinned onto the plan's, separable and piecewise-linear on the wall plane so no straight line bends \u2014 and this document is the row-23 instrument's reading of the RESULT, measured off backdrops/source-warped/platform-E/warped.png and off nothing else. What the correction cost is in `_warp`: it is recorded and nothing here is gated on it.",
   "_role": "manor production wall, measured against the camera its own manifest entry declares",
-  "verdict": "FAIL",
+  "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.619141,
-  "horizon_y": null,
-  "px_per_m_at_wall": 99.167,
-  "px_per_m_at_bottom": null,
-  "implied_focal_px": 1110.7,
-  "eye_height_m": null,
-  "storey_height_m": 3.0252,
+  "floor_line_y": 0.614258,
+  "horizon_y": 0.521973,
+  "px_per_m_at_wall": 91.667,
+  "px_per_m_at_bottom": 474.83,
+  "implied_focal_px": 1026.7,
+  "eye_height_m": 1.0309,
+  "storey_height_m": 3.5345,
   "drawn_standpoint_m": 11.2,
-  "delta_focal_pct": 8.46,
-  "delta_eye_pct": -8.03,
+  "delta_focal_pct": -0.0,
+  "delta_eye_pct": -5.11,
   "band_pct": 8.0,
-  "wall_width_m": 5.9092,
+  "wall_width_m": 6.4036,
   "camera_wall_m": 11.2,
   "camera_far_m": null,
-  "corner_x0_px": 475,
+  "corner_x0_px": 474,
   "corner_x1_px": 1061,
-  "key_tint": "#c89454",
-  "key_dir": "C-NO-HORIZON",
+  "key_tint": "#c89c67",
+  "key_dir": "C-BELOW",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 119,
+  "calibration_px": 110,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
@@ -35,42 +35,52 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 760,
-        "y": 549,
+        "x": 834,
+        "y": 485,
         "edge_px": 30000
       },
       "ceiling": {
-        "x": 762,
-        "y": 516,
+        "x": 770,
+        "y": 509,
         "edge_px": 30000
       },
       "side_walls": {
-        "x": 758,
-        "y": 573,
-        "edge_px": 10055
+        "x": 778,
+        "y": 517,
+        "edge_px": 21640
       }
     },
-    "adopted_y": null,
+    "adopted_y": 534.5,
     "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
-    "ceiling_ramp_intersection": null,
+    "ceiling_ramp_intersection": {
+      "x": 760.5,
+      "y": 534.5,
+      "left_slope": 0.3748,
+      "right_slope": -0.3496,
+      "left_n": 59,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.32,
+      "sigma_y_px": 0.54
+    },
     "far_line_ruler": null
   },
   "_measured_px": {
-    "wall_floor_line_y_px": 634,
-    "chair_rail_y_px": 515,
-    "dado_rail_above_floor_px": 119,
+    "wall_floor_line_y_px": 629,
+    "chair_rail_y_px": 519,
+    "dado_rail_above_floor_px": 110,
     "floor_read": {
-      "minimum": 637,
+      "minimum": 627,
       "rule": "foot",
       "saturated": false,
-      "foot": 634
+      "foot": 629
     },
     "capping_above_floor_px": null,
-    "wall_ceiling_line_y_px": 334,
-    "corner_x0_px": 475,
+    "wall_ceiling_line_y_px": 305,
+    "corner_x0_px": 474,
     "corner_x1_px": 1061,
-    "horizon_y_px": null,
+    "horizon_y_px": 534.5,
     "openings": [],
     "windows": []
   },
@@ -98,47 +108,45 @@
   "_carriers": [],
   "_light": {
     "key_dir_measured": "C",
-    "key_dir_brightest_x": 782,
-    "key_dir_brightest_y": 466,
-    "key_tint": "#c89454",
+    "key_dir_brightest_x": 734,
+    "key_dir_brightest_y": 880,
+    "key_tint": "#c89c67",
     "key_tint_patch": [
-      582,
-      982,
-      264,
-      326
+      534,
+      934,
+      235,
+      297
     ],
     "key_tint_patch_mean_rgb": [
-      95.94,
-      70.81,
-      40.11
+      176.75,
+      137.45,
+      90.68
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c8a864",
-      "floor_bottom_strip": "#c89a66",
-      "mid_wall_right": "#c8965d",
-      "mid_wall_left": "#c8955c",
-      "brightest_21x21_patch": "#c8b399"
+      "floor_under_brightest": "#c8a276",
+      "floor_bottom_strip": "#c89f70",
+      "mid_wall_right": "#c89657",
+      "mid_wall_left": "#c89657",
+      "brightest_21x21_patch": "#c8b49f"
     },
     "brightest_21x21_patch_centre_px": [
-      782,
-      466
+      734,
+      880
     ],
-    "sobel_bright_side_deg_whole_frame": 90.07,
-    "sobel_bright_side_deg_wall_band": 89.38,
-    "left_third_minus_right_third_luminance_whole_frame": -5.596,
-    "left_third_minus_right_third_luminance_wall_band": -5.467
+    "sobel_bright_side_deg_whole_frame": 94.41,
+    "sobel_bright_side_deg_wall_band": 90.65,
+    "left_third_minus_right_third_luminance_whole_frame": 2.37,
+    "left_third_minus_right_third_luminance_wall_band": -0.27
   },
   "_derived": {
-    "eye_height_m": null,
-    "storey_height_m": 3.0252,
-    "implied_wall_width_m": 5.9092,
-    "px_per_m_at_bottom": null,
-    "implied_camera_wall_m": 10.326
+    "eye_height_m": 1.0309,
+    "storey_height_m": 3.5345,
+    "implied_wall_width_m": 6.4036,
+    "px_per_m_at_bottom": 474.8278,
+    "implied_camera_wall_m": 11.1709
   },
-  "_withheld_because": [
-    "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 542.0 but only to +/-10.9 px, and the standing licence on the horizon row is +/-8.7 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
-  ],
-  "_hold_family": "unfitted-horizon",
+  "_withheld_because": [],
+  "_hold_family": null,
   "_round": "meshwarp",
   "_warp": {
     "pins": 4,
@@ -168,51 +176,51 @@
       ]
     },
     "worst_segment": {
-      "axis": "y",
-      "name": "ceiling_line..floor_line",
-      "scale": 0.873,
-      "target_px": 310.9,
-      "source_px": 356.0
+      "axis": "x",
+      "name": "corner_left..corner_right",
+      "scale": 1.072,
+      "target_px": 585.1,
+      "source_px": 546.0
     },
-    "revealed_px": 176094,
-    "revealed_fraction": 0.11196,
+    "revealed_px": 88195,
+    "revealed_fraction": 0.05607,
     "warp_mode": "plane",
-    "warped_from": "backdrops/source/platform-E/row23-a73c3062.png",
+    "warped_from": "backdrops/source/platform-E/row23-d3cc96ec.png",
     "tool": "design/plan-draft/measured/mesh_warp.py"
   },
-  "instrument": "da5967ad854c",
+  "instrument": "57236a09a2ea",
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      465,
-      604
+      473,
+      601
     ],
     "wall_band_px": [
-      475,
+      474,
       1061
     ],
-    "wall_median_luminance": 132.14,
-    "min_enumerated_px": 40,
+    "wall_median_luminance": 154.35,
+    "min_enumerated_px": 37,
     "min_head_m": 1.4,
     "storey_m": 3.4,
-    "candidates_before_head_test": 1
+    "candidates_before_head_test": 2
   },
   "_windows_read": {
     "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
     "body_rows": [
-      452,
-      528
+      461,
+      531
     ],
     "wall_band_px": [
-      475,
+      474,
       1061
     ],
     "window_band_px": [
-      436,
-      545
+      446,
+      546
     ],
-    "wall_median_luminance": 134.68,
-    "min_enumerated_px": 20,
+    "wall_median_luminance": 144.85,
+    "min_enumerated_px": 18,
     "lattice_min": 0.2,
     "lattice_support": 0.12,
     "edge_min": 12.0,
@@ -222,8 +230,56 @@
     "admit_lift": 60.0,
     "sweep_lift": 12.0,
     "mullion_max_m": 0.25,
-    "lights_before_merge": 0,
-    "candidates_after_merge": 0,
-    "rejected": []
+    "lights_before_merge": 1,
+    "candidates_after_merge": 1,
+    "rejected": [
+      {
+        "x0_px": 750,
+        "x1_px": 790,
+        "y0_px": 477,
+        "y1_px": 573,
+        "head_m": 1.658,
+        "sill_m": 0.611,
+        "vertical": "measured",
+        "width_px": 40,
+        "width_m": 0.436,
+        "centre_px": 770.0,
+        "height_m": 1.047,
+        "lights": [
+          [
+            750,
+            790
+          ]
+        ],
+        "light_luminance": 166.88,
+        "wall_luminance": 144.85,
+        "lift": 22.03,
+        "threshold": 160,
+        "threshold_span": [
+          157,
+          162
+        ],
+        "stability": 6,
+        "lattice": {
+          "score": 0.5722,
+          "x": 0.5757,
+          "y": 0.5688,
+          "pitch_x_m": 0.033,
+          "pitch_y_m": 0.033,
+          "edge_energy": 8.26
+        },
+        "frame": 0.4467,
+        "contrast": 0.082,
+        "boundaries": {
+          "left": 0.017,
+          "right": 0.098,
+          "head": 0.672,
+          "sill": 1.0,
+          "interior_l": 174.03,
+          "ring_l": 160.84
+        },
+        "rejected": "bright, but there is no glazing in it: a lattice scoring 0.572 (0.12 asked) over 8.3 of fine edge (12 asked), which is a panel catching the light and not a leaded window; and no rectangle encloses it: its four boundaries support 0.45 (0.34 asked) and it stands 0.08 clear of the wall around it (0.30 asked)"
+      }
+    ]
   }
 }

@@ -2,7 +2,7 @@
 
 [HUMAN, 2026-08-24, verbatim]: "Still getting rooms with wall/ceiling mismatches" — "Mismatches as in different from other walls".
 
-Rows 36 and 38 cure this by construction for walls painted from here on. The 88 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
+Rows 36 and 38 cure this by construction for walls painted from here on. The 89 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
 
 Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two declared corners are ceiling above the one and floor below the other, so four bands - ceiling, upper wall, lower wall, floor - cut out with no perspective bookkeeping. Each band is resampled to 150 px/m, cut into 0.30 m tiles of WORLD, and described by the MEDIAN tile, so a window or a doorway cannot decide that a wall changed; the columns a carrier is declared on are dropped outright first.
 
@@ -45,6 +45,7 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | entrance_approach | 0 promoted facing(s) with usable geometry — nothing to compare against |
 | entrance_court | 0 promoted facing(s) with usable geometry — nothing to compare against |
 | great_stair_hall | 1 promoted facing(s) with usable geometry — nothing to compare against |
+| platform | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | platform_far | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | privy_garden | 0 promoted facing(s) with usable geometry — nothing to compare against |
 
