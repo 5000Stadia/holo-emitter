@@ -3646,16 +3646,14 @@ export function attachStyle(plan, key, dir, opts = {}) {
            the declared geometry. One factor for the whole scene - core,
            sweeps and wireframe shrink coherently, a circle stays a circle -
            and each wall calibrates itself from its own last miss. */
-        let comp = 1.0;
-        {
-          const wf2 = join(warpDir2, "warp.json");
-          if (existsSync(wf2)) {
-            const st2 = (JSON.parse(readFileSync(wf2, "utf8")).stretch) || {};
-            const vals = [st2.x_scale_min, st2.x_scale_max, st2.y_scale_min, st2.y_scale_max]
-              .filter((v) => Number.isFinite(v));
-            if (vals.length) comp = Math.min(1.0, Math.max(0.75, vals.reduce((a, b) => a + b) / vals.length));
-          }
-        }
+        /* [round 9-10, measured NEGATIVE and retired] Pre-compensation fed
+           back the wall's last overshoot as a smaller reference. Round 9:
+           spans GREW (925/879 vs round 8's 655) - the painter's zoom bias is
+           an ATTRACTOR (it re-normalizes any reference toward its preferred
+           composition), not an offset to aim against. Round 10: far-W's
+           0.832-compensated reference pushed the paint SMALL (focal -15/-20).
+           comp stays 1.0; the code above this comment is the tombstone. */
+        const comp = 1.0;
         const zD = dm.camera_wall_m / comp;
         const ppmD = fD / zD;
         const floorD = vyD + eyeD * fD / zD;

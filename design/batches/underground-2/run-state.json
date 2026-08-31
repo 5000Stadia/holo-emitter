@@ -549,7 +549,7 @@
   "platform_far/W": {
    "attempts": 2,
    "status": "waiting",
-   "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
+   "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
    "warp": {
     "pins": 7,
     "columns": 4,
@@ -604,7 +604,7 @@
    "camera_source": "declared",
    "answered_correction": "draw 0.899x larger: 91.4 px/m at the wall plane, not 101.7",
    "snapped_from_family": "camera-miss",
-   "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+   "correction": "draw 1.180x larger: 91.4 px/m at the wall plane, not 77.5",
    "why": "the retry cap is spent; the wall stays grid and the run continues"
   }
  }
