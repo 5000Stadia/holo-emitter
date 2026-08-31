@@ -1,6 +1,8 @@
 # platform/E — technique t2 (labelled scaffold)
 
-There is NO Image 1 in this packet and none is to be found elsewhere — the medium is in the prompt's own words. Attach `scaffold.png` as **Image 1**, in that
+**Image 1 IS THE GROW DRAFT** — `grown-platform-E.png`: the room's own 1x1 painting with its back wall cut out and refitted at the far box (one uniform shrink), the shell kept at its own painted angles, and the middle left as a wireframe ring for the painter to fill [Kabe's grow step, 2026-08-31].
+
+Attach `grown-platform-E.png` as **Image 1** (the room part-painted: near half and far wall finished, the middle a wireframe ring to paint) and `scaffold.png` as **Image 2**, in that
 order, then send `prompt.txt` verbatim. Generate 2 images and save them to the
 exact paths below — the measurement runs the moment a file appears at one of them.
 

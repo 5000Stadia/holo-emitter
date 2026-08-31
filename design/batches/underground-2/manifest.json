@@ -533,7 +533,14 @@
       "continues": "platform/W",
       "order_position": 2,
       "lead_image": null,
-      "style_image": null,
+      "style_image": {
+        "file": "grown-platform-E.png",
+        "rel": "backdrops/grown/platform-E.png",
+        "room": "platform",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
       "rolls": [
         {
           "roll": 1,
