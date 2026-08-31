@@ -6,8 +6,8 @@
   "_register": "[row 43] Every entry names the REGISTER its prompt was composed in; an entry with no `register` key predates the 2026-08-25 ruling and is `g4`. `timings_report.py --monitor` joins each reading to its packet record through the roll id and reports the camera pass rate per register.",
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-08-31",
-  "emitted": 0,
-  "carried": 3,
+  "emitted": 1,
+  "carried": 2,
   "refused": 0,
   "entries": [
     {
@@ -15,7 +15,13 @@
       "attempt": 2,
       "packet": "design/batches/underground-2/platform_far-E/retry-2",
       "register": "g5-noappendix",
-      "correction": "draw 1.099x larger: 213.3 px/m at the wall plane, not 194.2",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "correction": "draw 1.123x larger: 213.3 px/m at the wall plane, not 190.0",
       "voice": {
         "id": "platform_vault",
         "via": "room id",
@@ -34,17 +40,29 @@
       "continues": "platform_far/W",
       "order_position": 2,
       "lead_image": {
-        "rel": "backdrops/source/platform_far-W/row23-a6a27b21.png",
-        "kind": "candidate",
-        "via": "the newest roll on disk; the sweep has not recorded one for this wall yet"
+        "rel": "backdrops/platform_far/W.png",
+        "kind": "promoted"
       },
-      "style_image": null,
+      "style_image": {
+        "file": "style-platform_far.png",
+        "rel": "backdrops/platform_far/W.png",
+        "room": "platform_far",
+        "facing": "W",
+        "lead": true,
+        "source_kind": "promoted"
+      },
       "rolls": [
         {
           "roll": 1,
           "id": "e23c4ed5",
           "candidate": "backdrops/source/platform_far-E/row23-e23c4ed5.png",
           "prompt": "backdrops/source/platform_far-E/row23-e23c4ed5.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "e7aa5c51",
+          "candidate": "backdrops/source/platform_far-E/row23-e7aa5c51.png",
+          "prompt": "backdrops/source/platform_far-E/row23-e7aa5c51.prompt.txt"
         }
       ]
     },
