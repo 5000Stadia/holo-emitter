@@ -1,6 +1,6 @@
 {
   "instrument": "design/plan-draft/measured/room_consistency.py",
-  "promoted_facings": 89,
+  "promoted_facings": 88,
   "target_ppm": 150.0,
   "tile_m": 0.3,
   "weights": {
@@ -7268,25 +7268,6 @@
       "wall_split_spread": 2.753,
       "verdict": "consistent-incomplete",
       "why": "wall_upper disagrees most: worst pair S/W at D=2.14 (colour 0.189, contrast x1.59; brightness x4.50 and spread 0.708 reported, not counted). no facing stands outside the rest."
-    },
-    {
-      "room": "platform",
-      "facings": [
-        "E"
-      ],
-      "notes": [],
-      "bands": {},
-      "wall_split": {
-        "E": 2.872
-      },
-      "reference_log_luma": {
-        "E": -2.017
-      },
-      "verdict": "insufficient",
-      "score": null,
-      "worst_band": null,
-      "outliers": [],
-      "why": "1 promoted facing(s) with usable geometry \u2014 nothing to compare against"
     },
     {
       "room": "platform_far",

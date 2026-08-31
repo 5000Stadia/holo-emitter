@@ -1135,7 +1135,12 @@ export function g5NothingElseLines(ctx) {
   const { out } = words(ctx);
   return [
     `Constraints: the ${ctx.room_name} is completely empty — no furniture, nobody in it, no ` +
-      `animals and no loose props of any kind${out ? ", and nothing grown crosses the wall plane" : ""}.`,
+      `animals and no loose props of any kind${out ? ", and nothing grown crosses the wall plane" : ""}. ` +
+      /* [Kabe, 2026-08-31] lights are AFTER-ASSETS: no generation carries
+         ceiling- or floor-mounted objects — the flip and every projection
+         step would upend or smear them. */
+      `No light fixtures, fans or any ceiling- or floor-mounted objects anywhere: the room is lit ` +
+      `evenly and warm, as if by lamps that are out of frame.`,
     sheetOf(ctx) === "grid-v1"
       ? `  ${surfacesSentence(ctx)}, and ${scaffoldImage(ctx)}'s ` +
         `${SCAFFOLD_IS_INSTRUCTIONS}.`
