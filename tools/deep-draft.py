@@ -468,13 +468,23 @@ def grow(args):
     cut = a[y0:y1, x0:x1].copy()
     a[y0:y1, x0:x1] = GROUND
     out = Image.fromarray(a)
-    # the back wall, ONE uniform shrink, ruler-anchored (dado, floor and
-    # cornice land true), centred in the deep box
-    k = (db["yf"] - db["yc"]) / (y1 - y0)
+    # [Kabe, 2026-08-31] "your room corners in the wireframe dont line up
+    # with the example image... fix that in the example before you pass to
+    # the painter." THE WALL ANCHORS TO THE DECLARED CORNERS (round 8's own
+    # lesson): ONE uniform shrink from the corner span, floor-anchored; a
+    # source whose ruler and corners disagree overflows at the top and the
+    # cornice strip is cropped - the ring's lines and the wall's corners can
+    # never disagree again.
+    k = (db["x1"] - db["x0"]) / (x1 - x0)
     cw, ch = max(1, round((x1 - x0) * k)), max(1, round((y1 - y0) * k))
     wall = Image.fromarray(cut).resize((cw, ch), Image.LANCZOS)
-    wx = int(round((db["x0"] + db["x1"]) / 2 - cw / 2))
+    wx = int(round(db["x0"]))
     wy = int(round(db["yf"] - ch))
+    box_top = int(round(db["yc"]))
+    if wy < box_top:
+        wall = wall.crop((0, box_top - wy, cw, ch))
+        wy = box_top
+        ch = wall.size[1]
     out.paste(wall, (wx, wy))
     d = ImageDraw.Draw(out)
     INK = (42, 33, 24); lw = 3

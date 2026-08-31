@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["underground-2"] = {
   id: "underground-2",
-  fp: "64f2aefc",
+  fp: "799201bd",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -1657,19 +1657,20 @@ window.HOLO_FIXTURES["underground-2"] = {
     }
   },
   "platform/E": {
-    "floor_line_y": 0.614258,
-    "px_per_m_at_wall": 94.167,
-    "px_per_m_at_bottom": 455.64,
+    "floor_line_y": 0.61939453125,
+    "px_per_m_at_wall": 91.42857142857143,
+    "px_per_m_at_bottom": 420.8791208791208,
     "wall_width_m": 6.4,
-    "key_tint": "#c89e6c",
+    "key_tint": "#c8b489",
     "image_h_px": 1024,
-    "horizon_y": 0.51377,
-    "key_dir": "C-ABOVE",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 113,
-    "camera_wall_m": 11.2,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 91.42857142857143,
     "facing_type": "enclosed",
-    "wall_continuous": true,
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
     "wall_segments": [
       {
         "from_m": 0,
@@ -1677,41 +1678,15 @@ window.HOLO_FIXTURES["underground-2"] = {
         "kind": "wall"
       }
     ],
-    "corner_x0_px": 522,
-    "corner_x1_px": 1013,
+    "wall_continuous": true,
+    "corner_x0_px": 475.4285714285714,
+    "corner_x1_px": 1060.5714285714287,
+    "focal_px": 1024,
     "storey_height_m": 3.4,
-    "camera_id": "measured:backdrops/source/platform-E/row23-a73c3062.png",
-    "camera_reference": "ruled",
-    "measured_round": "manor",
-    "instrument": "57236a09a2ea",
-    "camera_source": "declared",
-    "suspect_perspective": true,
-    "tolerance_ruling": "design/approvals.log 2026-08-24, suspect-painting tolerance [HUMAN]: \"I think its pretty close and we can accept a tolerance for drift here\"",
-    "declared_fields": [
-      "horizon_y"
-    ],
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 1054.7,
-    "nearest_floor_m": 2.3147,
-    "measured_room": {
-      "storey_height_m": 3.791,
-      "wall_width_m": 5.214,
-      "ruled_storey_height_m": 3.4,
-      "ruled_wall_width_m": 6.4,
-      "carriers": []
-    },
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 11.2,
     "openings": [],
-    "windows": [],
-    "window_evidence": {
-      "unpainted": 0,
-      "read_by": "design/plan-draft/measured/window_measure.py",
-      "ruled": 0,
-      "painted": 0,
-      "unruled": [],
-      "note": "every glazed opening the painting shows answers to a window the plan rules"
-    }
+    "stairs": []
   },
   "platform/S": {
     "floor_line_y": 0.760228,
@@ -3275,8 +3250,8 @@ window.HOLO_FIXTURES["underground-2"] = {
     "calibration_ref": "wall grid module, 1.0 m at the wall plane",
     "calibration_px": 91.42857142857143,
     "facing_type": "enclosed",
-    "camera_id": "composed:tools/deep-draft.py mode compose (declared camera)",
-    "provisional": false,
+    "camera_id": "grid",
+    "provisional": true,
     "backdrop": "wall",
     "wall_segments": [
       {
@@ -3306,23 +3281,7 @@ window.HOLO_FIXTURES["underground-2"] = {
         "depth_m": 0.2
       }
     ],
-    "stairs": [],
-    "measured": false,
-    "camera_reference": "declared",
-    "composed_from": {
-      "tool": "tools/deep-draft.py --compose",
-      "args": "backdrops/composed/platform_far-W.args.json",
-      "sha256": "a18ed61aa8e28df648b023bd3af023d4ca8df12a5e9965ea75847d701b7f2251",
-      "sources": {
-        "platform/W": "b8d9efefdd5b",
-        "platform/N": "5e86e2b712a5",
-        "platform/S": "391ae070744b",
-        "platform_far/N": "973cd42e0aad",
-        "platform_far/S": "c0ced8b80f93"
-      },
-      "why": "[Kabe, 2026-08-31] 'cut out the floors and the walls and the ceilings... geometrically and deterministically... skew them to the proper geometry for the wire frame' - every plane projected from the promoted close art of both cells; corners land within 1 px; no painter pass survived the instruments for this facing, so the composed frame stands"
-    },
-    "instrument": "composed"
+    "stairs": []
   }
 }
 };

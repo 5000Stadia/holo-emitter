@@ -329,49 +329,49 @@
         "no-window",
         "blank"
       ],
-      "scaffold_sha256": "12246d5c37c5fb0c462573e56fb2957ab494788794f1dccace5589423588dd6e",
+      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
       "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 94.167,
+      "px_per_m_at_wall": 91.42857142857143,
       "camera_wall_m": 11.2,
       "camera_far_m": null,
       "facing_type": "enclosed",
-      "floor_line_y": 0.614258,
-      "horizon_y": 0.51377,
-      "corner_x0_px": 522,
-      "corner_x1_px": 1013,
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285714,
+      "corner_x1_px": 1060.5714285714287,
       "storey_height_m": 3.4,
       "wall_width_m": 6.4,
       "brackets": {
         "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
         "band": 0.08,
         "floor_window": {
-          "centre": 629.000192,
-          "half_width": 8.23,
+          "centre": 634.26,
+          "half_width": 8.65,
           "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
         },
         "rail_band": {
-          "centre": 515.999792,
-          "half_width": 9.04,
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
           "from": "+/-8 % of the anchor's own height above the floor line"
         },
         "ceiling_band": {
-          "centre": 308.83239199999997,
-          "half_width": 25.61,
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
           "from": "+/-8 % of the ceiling-to-floor span"
         },
         "carrier_windows": [],
         "carrier_tolerance_px": 0,
         "rail_columns": [
           [
-            522,
-            1013
+            475.4285714285714,
+            1060.5714285714287
           ]
         ]
       },
-      "implied_focal_px": 1054.7,
+      "implied_focal_px": 1024,
       "stamped": [],
       "flights": [],
-      "chair_rail_y": 516,
+      "chair_rail_y": 524.55,
       "voice": {
         "id": "platform_vault",
         "via": "room id",

@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 95 painting(s), 39.9 MB served in total,
+// 93 painting(s), 39.3 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -77,14 +77,12 @@
 //   noodle_bar/N: 2.31 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.4597 on average, 14 at worst, of 255.
 //   noodle_bar/S: 2.00 MB of PNG -> 393 kB of JPEG (q92); channels move by 1.1475 on average, 13 at worst, of 255.
 //   noodle_bar/W: 2.52 MB of PNG -> 495 kB of JPEG (q92); channels move by 1.6273 on average, 17 at worst, of 255.
-//   platform/E: 2.00 MB of PNG -> 302 kB of JPEG (q92); channels move by 1.0951 on average, 18 at worst, of 255.
 //   platform/N: 1.40 MB of PNG -> 271 kB of JPEG (q92); channels move by 0.8195 on average, 13 at worst, of 255.
 //   platform/S: 1.38 MB of PNG -> 256 kB of JPEG (q92); channels move by 0.8162 on average, 13 at worst, of 255.
 //   platform/W: 1.61 MB of PNG -> 307 kB of JPEG (q92); channels move by 0.9843 on average, 16 at worst, of 255.
 //   platform_far/E: 2.54 MB of PNG -> 418 kB of JPEG (q92); channels move by 1.6302 on average, 20 at worst, of 255.
 //   platform_far/N: 1.43 MB of PNG -> 258 kB of JPEG (q92); channels move by 0.8548 on average, 13 at worst, of 255.
 //   platform_far/S: 1.47 MB of PNG -> 262 kB of JPEG (q92); channels move by 0.8546 on average, 13 at worst, of 255.
-//   platform_far/W: 1.47 MB of PNG -> 279 kB of JPEG (q92); channels move by 0.9656 on average, 26 at worst, of 255.
 //   privy_garden/N: 2.81 MB of PNG -> 538 kB of JPEG (q92); channels move by 1.9158 on average, 23 at worst, of 255.
 //   privy_garden/S: 3.11 MB of PNG -> 567 kB of JPEG (q92); channels move by 2.0468 on average, 20 at worst, of 255.
 //   reception/E: 1.58 MB of PNG -> 222 kB of JPEG (q92); channels move by 0.9467 on average, 12 at worst, of 255.
@@ -112,7 +110,7 @@
 //   ward/S: 2.08 MB of PNG -> 243 kB of JPEG (q92); channels move by 1.1536 on average, 13 at worst, of 255.
 //   ward/W: 1.52 MB of PNG -> 209 kB of JPEG (q92); channels move by 0.8841 on average, 12 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "e07a1140",
+  fp: "c60f7c13",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -176,14 +174,12 @@ window.HOLO_BACKDROPS = {
   "noodle_bar/N": { file: "noodle_bar/N.jpg", bytes: 454691 },
   "noodle_bar/S": { file: "noodle_bar/S.jpg", bytes: 392725 },
   "noodle_bar/W": { file: "noodle_bar/W.jpg", bytes: 494703 },
-  "platform/E": { file: "platform/E.jpg", bytes: 301753 },
   "platform/N": { file: "platform/N.jpg", bytes: 271412 },
   "platform/S": { file: "platform/S.jpg", bytes: 255707 },
   "platform/W": { file: "platform/W.jpg", bytes: 307423 },
   "platform_far/E": { file: "platform_far/E.jpg", bytes: 418360 },
   "platform_far/N": { file: "platform_far/N.jpg", bytes: 257897 },
   "platform_far/S": { file: "platform_far/S.jpg", bytes: 262106 },
-  "platform_far/W": { file: "platform_far/W.jpg", bytes: 278650 },
   "privy_garden/N": { file: "privy_garden/N.jpg", bytes: 537646 },
   "privy_garden/S": { file: "privy_garden/S.jpg", bytes: 566540 },
   "reception/E": { file: "reception/E.jpg", bytes: 222395 },
