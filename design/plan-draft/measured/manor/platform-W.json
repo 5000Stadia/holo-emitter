@@ -1,0 +1,321 @@
+{
+  "_source_sha256": "89d66c7e0b2267754b3696d5e8ed8d84620c77f730c812bac25ae452af368fc4",
+  "_what_this_is": "The manor production reading for platform/W, measured off backdrops/source/platform-W/row23-4c9f614b.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in ../../batches/underground-2/manifest.json before any candidate existed.",
+  "_role": "manor production wall, measured against the camera its own manifest entry declares",
+  "verdict": "PASS",
+  "facing_type": "enclosed",
+  "image_h_px": 1024,
+  "floor_line_y": 0.75293,
+  "horizon_y": null,
+  "px_per_m_at_wall": 204.167,
+  "px_per_m_at_bottom": null,
+  "implied_focal_px": 980.0,
+  "eye_height_m": null,
+  "storey_height_m": 3.3306,
+  "drawn_standpoint_m": 4.8,
+  "delta_focal_pct": -4.3,
+  "delta_eye_pct": 1.4,
+  "band_pct": 8.0,
+  "wall_width_m": 6.191,
+  "camera_wall_m": 4.8,
+  "camera_far_m": null,
+  "corner_x0_px": 126,
+  "corner_x1_px": 1390,
+  "key_tint": "#c8a97e",
+  "key_dir": "C-NO-HORIZON",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 245,
+  "calibration_tier": 1,
+  "_ruler_policy": {
+    "adopted": "chair_rail",
+    "ruled_m": 1.2,
+    "rule": "ONE RULER, AND IT IS THE ONE THE SCAFFOLD DECLARES. The camera verdict, the calibration feature and this document's scale are all the same chair-rail reading inside the same +/-8 % bracket, taken once. There is no second window and no second pass."
+  },
+  "_which_horizon": "THE CEILING-RAMP INTERSECTION, which the Navigator ruled at row 20 over the vanishing-point vote. The two side-wall/ceiling junctions run parallel to the view axis and must converge on the horizon; they are fitted outside this frame's own measured corners and intersected. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero. Row 32 left that ruling where it stood and changed only what the ramps are given: corners read off where the wall stops being square to the camera rather than off a plaster step, the junction row chosen from pick_ceiling's own candidates by which one the side walls converge on most sharply, and an error bar on the intersection measured against the standing licence for the horizon row (see corner_evidence, ceiling_rows_tried and horizon_bracket_px in _measured_px's siblings on the reading).",
+  "_horizon_votes": {
+    "per_region": {
+      "floor": {
+        "x": 1028,
+        "y": 627,
+        "edge_px": 20780
+      },
+      "ceiling": {
+        "x": 736,
+        "y": 564,
+        "edge_px": 12160
+      },
+      "side_walls": {
+        "x": 768,
+        "y": 536,
+        "edge_px": 8988
+      }
+    },
+    "adopted_y": null,
+    "adopted_instrument": "ceiling-ramp",
+    "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
+    "ceiling_ramp_intersection": null,
+    "far_line_ruler": null
+  },
+  "_measured_px": {
+    "wall_floor_line_y_px": 771,
+    "chair_rail_y_px": 526,
+    "dado_rail_above_floor_px": 245,
+    "floor_read": {
+      "minimum": 770,
+      "rule": "foot",
+      "saturated": false,
+      "foot": 771
+    },
+    "capping_above_floor_px": null,
+    "wall_ceiling_line_y_px": 91,
+    "corner_x0_px": 126,
+    "corner_x1_px": 1390,
+    "horizon_y_px": null,
+    "openings": [
+      {
+        "x0_px": 630,
+        "x1_px": 888,
+        "y0_px": 307,
+        "y1_px": 771,
+        "width_px": 258,
+        "width_m": 1.264,
+        "centre_px": 759.0,
+        "head_m": 2.273,
+        "void_luminance": 2.07,
+        "wall_luminance": 33.31,
+        "threshold": 18,
+        "threshold_span": [
+          3,
+          33
+        ],
+        "stability": 31
+      }
+    ],
+    "windows": []
+  },
+  "_windows": {
+    "floor": [
+      758,
+      798
+    ],
+    "rail": [
+      501,
+      542
+    ],
+    "ceiling": [
+      0,
+      111
+    ],
+    "columns": [
+      [
+        85,
+        640
+      ],
+      [
+        896,
+        1450
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "_carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 640,
+      "asked_x1": 896,
+      "ruled_m": 1.2,
+      "window": [
+        384,
+        1152
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 623..895 (9 px from the ask) and another admissible pair sits 895..1115 (237 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "_light": {
+    "key_dir_measured": "C",
+    "key_dir_brightest_x": 702,
+    "key_dir_brightest_y": 275,
+    "key_tint": "#c8a97e",
+    "key_tint_patch": [
+      502,
+      902,
+      21,
+      83
+    ],
+    "key_tint_patch_mean_rgb": [
+      151.08,
+      127.61,
+      94.97
+    ],
+    "key_tint_alternates": {
+      "floor_under_brightest": "#c8a980",
+      "floor_bottom_strip": "#c8a579",
+      "mid_wall_right": "#c8a779",
+      "mid_wall_left": "#c8aa7f",
+      "brightest_21x21_patch": "#c8b495"
+    },
+    "brightest_21x21_patch_centre_px": [
+      702,
+      275
+    ],
+    "sobel_bright_side_deg_whole_frame": 93.36,
+    "sobel_bright_side_deg_wall_band": 91.11,
+    "left_third_minus_right_third_luminance_whole_frame": 4.381,
+    "left_third_minus_right_third_luminance_wall_band": 3.692
+  },
+  "_derived": {
+    "eye_height_m": null,
+    "storey_height_m": 3.3306,
+    "implied_wall_width_m": 6.191,
+    "px_per_m_at_bottom": null,
+    "implied_camera_wall_m": 5.0155
+  },
+  "_withheld_because": [
+    "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 73.9 but only to +/-226.1 px, and the standing licence on the horizon row is +/-20.2 px. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
+  ],
+  "_hold_family": "unfitted-horizon",
+  "_round": "manor",
+  "instrument": "57236a09a2ea",
+  "_openings_read": {
+    "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+    "body_rows": [
+      424,
+      710
+    ],
+    "wall_band_px": [
+      126,
+      1390
+    ],
+    "wall_median_luminance": 33.31,
+    "min_enumerated_px": 82,
+    "min_head_m": 1.4,
+    "storey_m": 3.4,
+    "candidates_before_head_test": 1
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+    "body_rows": [
+      396,
+      554
+    ],
+    "wall_band_px": [
+      126,
+      1390
+    ],
+    "window_band_px": [
+      363,
+      587
+    ],
+    "wall_median_luminance": 168.14,
+    "min_enumerated_px": 41,
+    "lattice_min": 0.2,
+    "lattice_support": 0.12,
+    "edge_min": 12.0,
+    "frame_min": 0.34,
+    "contrast_min": 0.3,
+    "light_min_l": 90.0,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 2,
+    "candidates_after_merge": 2,
+    "rejected": [
+      {
+        "x0_px": 440,
+        "x1_px": 604,
+        "y0_px": 262,
+        "y1_px": 551,
+        "head_m": 2.493,
+        "sill_m": 1.078,
+        "vertical": "measured",
+        "width_px": 164,
+        "width_m": 0.803,
+        "centre_px": 522.0,
+        "height_m": 1.415,
+        "lights": [
+          [
+            440,
+            604
+          ]
+        ],
+        "light_luminance": 199.09,
+        "wall_luminance": 168.14,
+        "lift": 30.95,
+        "threshold": 187,
+        "threshold_span": [
+          186,
+          188
+        ],
+        "stability": 3,
+        "lattice": {
+          "score": 0.548,
+          "x": 0.4636,
+          "y": 0.6323,
+          "pitch_x_m": 0.113,
+          "pitch_y_m": 0.127,
+          "edge_energy": 9.41
+        },
+        "frame": 0.4283,
+        "contrast": 0.0705,
+        "boundaries": {
+          "left": 0.017,
+          "right": 0.425,
+          "head": 0.272,
+          "sill": 1.0,
+          "interior_l": 197.58,
+          "ring_l": 184.56
+        },
+        "rejected": "bright, but there is no glazing in it: a lattice scoring 0.548 (0.12 asked) over 9.4 of fine edge (12 asked), which is a panel catching the light and not a leaded window; and no rectangle encloses it: its four boundaries support 0.43 (0.34 asked) and it stands 0.07 clear of the wall around it (0.30 asked)"
+      },
+      {
+        "x0_px": 956,
+        "x1_px": 999,
+        "y0_px": 260,
+        "y1_px": 551,
+        "head_m": 2.503,
+        "sill_m": 1.078,
+        "vertical": "measured",
+        "width_px": 43,
+        "width_m": 0.211,
+        "centre_px": 977.5,
+        "height_m": 1.425,
+        "lights": [
+          [
+            956,
+            999
+          ]
+        ],
+        "light_luminance": 198.0,
+        "wall_luminance": 168.14,
+        "lift": 29.87,
+        "threshold": 185,
+        "threshold_span": [
+          180,
+          189
+        ],
+        "stability": 10,
+        "lattice": {
+          "score": 0.4116,
+          "x": 0.1611,
+          "y": 0.6621,
+          "pitch_x_m": 0.093,
+          "pitch_y_m": 0.127,
+          "edge_energy": 8.36
+        },
+        "frame": 0.3651,
+        "contrast": 0.0491,
+        "boundaries": {
+          "left": 0.0,
+          "right": 0.096,
+          "head": 0.365,
+          "sill": 1.0,
+          "interior_l": 196.79,
+          "ring_l": 187.57
+        },
+        "rejected": "bright, but there is no glazing in it: a lattice scoring 0.412 (0.12 asked) over 8.4 of fine edge (12 asked), which is a panel catching the light and not a leaded window; and no rectangle encloses it: its four boundaries support 0.37 (0.34 asked) and it stands 0.05 clear of the wall around it (0.30 asked)"
+      }
+    ]
+  }
+}

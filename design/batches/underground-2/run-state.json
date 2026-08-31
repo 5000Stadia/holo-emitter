@@ -337,8 +337,8 @@
       }
     },
     "platform/W": {
-      "attempts": 0,
-      "status": "waiting",
+      "attempts": 2,
+      "status": "promoted",
       "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
       "warp": {
         "pins": 7,
@@ -393,7 +393,20 @@
       },
       "camera_source": "declared",
       "answered_correction": "draw 1.153x larger: 213.3 px/m at the wall plane, not 185.0",
-      "snapped_from_family": "camera-miss"
+      "snapped_from_family": "camera-miss",
+      "hold_family": "unfitted-horizon",
+      "exit": "grid",
+      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.920..1.383, 0% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform-W/row23-4c9f614b.png",
+        "exit": "grid",
+        "instrument": "57236a09a2ea",
+        "candidate_sha256": null,
+        "at": "2026-08-31T15:58:45"
+      },
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "platform_far/N": {
       "attempts": 0,
@@ -500,10 +513,61 @@
       }
     },
     "platform_far/E": {
-      "attempts": 0,
-      "status": "waiting",
-      "candidate": "backdrops/source/platform_far-E/row23-e7aa5c51.png",
-      "why": "the retry cap is spent; the wall stays grid and the run continues"
+      "attempts": 2,
+      "status": "promoted",
+      "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+      "why": "the retry cap is spent; the wall stays grid and the run continues",
+      "warp": {
+        "pins": 4,
+        "columns": 2,
+        "rows": 2,
+        "residuals": {
+          "max_px": 0.0,
+          "column_px": [
+            [
+              "corner_left",
+              0.0
+            ],
+            [
+              "corner_right",
+              0.0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0.0
+            ],
+            [
+              "floor_line",
+              0.0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.036,
+          "target_px": 725.3,
+          "source_px": 700.0
+        },
+        "revealed_px": 35733,
+        "revealed_fraction": 0.02272,
+        "warp_mode": "plane",
+        "warped_from": "backdrops/source/platform_far-E/row23-6d3f2346.png"
+      },
+      "camera_source": "declared",
+      "answered_correction": "draw 1.191x larger: 213.3 px/m at the wall plane, not 179.2",
+      "snapped_from_family": "camera-miss",
+      "exit": "warped",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform_far-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment ceiling_line..floor_line x1.036, 35733 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_attempt": {
+        "candidate": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+        "exit": "warped",
+        "instrument": "57236a09a2ea",
+        "candidate_sha256": "9fb04b53baba34af30f725f70faff66faacfb6bb23074a662f23f40757aa9bc4",
+        "at": "2026-08-31T16:00:28"
+      }
     },
     "platform_far/W": {
       "attempts": 2,

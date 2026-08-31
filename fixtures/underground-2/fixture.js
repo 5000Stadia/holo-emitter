@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["underground-2"] = {
   id: "underground-2",
-  fp: "e825c097",
+  fp: "ea5aa639",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -1723,20 +1723,19 @@ window.HOLO_FIXTURES["underground-2"] = {
     "stairs": []
   },
   "platform/W": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.75293,
+    "px_per_m_at_wall": 204.167,
+    "px_per_m_at_bottom": 415.09,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8a97e",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.51377,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 245,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -1744,28 +1743,1120 @@ window.HOLO_FIXTURES["underground-2"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 85.33333333333326,
-    "corner_x1_px": 1450.6666666666667,
-    "focal_px": 1024,
+    "corner_x0_px": 126,
+    "corner_x1_px": 1390,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/platform-W/row23-4c9f614b.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "57236a09a2ea",
+    "camera_source": "declared",
+    "suspect_perspective": true,
+    "tolerance_ruling": "design/approvals.log 2026-08-24, suspect-painting tolerance [HUMAN]: \"I think its pretty close and we can accept a tolerance for drift here\"",
+    "declared_fields": [
+      "horizon_y"
+    ],
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 980,
+    "nearest_floor_m": 2.3609,
+    "measured_room": {
+      "storey_height_m": 3.331,
+      "wall_width_m": 6.191,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": [
+        {
+          "kind": "door",
+          "id": "door01",
+          "plan_px": [
+            645.5,
+            890.5
+          ],
+          "plan_centre_px": 768,
+          "painted_px": [
+            630,
+            888
+          ],
+          "painted_centre_px": 759,
+          "centre_delta_px": -9,
+          "centre_delta_m": -0.044,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        }
+      ]
+    },
     "openings": [
       {
         "id": "door01",
         "kind": "door",
         "via": null,
-        "x": 640,
-        "y": 351.8066666666667,
-        "w": 255.9999999999999,
-        "h": 426.6666666666667,
+        "x": 623,
+        "y": 307,
+        "w": 272,
+        "h": 464,
         "beyond_m": 6.6,
         "beyond_offset_m": 0,
-        "depth_m": 0.2
+        "depth_m": 0.2,
+        "measured": true,
+        "polygon": [
+          [
+            632.82,
+            307
+          ],
+          [
+            638.46,
+            307
+          ],
+          [
+            644.1,
+            307
+          ],
+          [
+            649.74,
+            307
+          ],
+          [
+            655.38,
+            307
+          ],
+          [
+            661.02,
+            307
+          ],
+          [
+            666.66,
+            307
+          ],
+          [
+            672.3,
+            307
+          ],
+          [
+            677.95,
+            307
+          ],
+          [
+            683.59,
+            307
+          ],
+          [
+            689.23,
+            307
+          ],
+          [
+            694.87,
+            307
+          ],
+          [
+            700.51,
+            307
+          ],
+          [
+            706.15,
+            307
+          ],
+          [
+            711.79,
+            307
+          ],
+          [
+            717.43,
+            307
+          ],
+          [
+            723.07,
+            307
+          ],
+          [
+            728.71,
+            307
+          ],
+          [
+            734.35,
+            307
+          ],
+          [
+            739.99,
+            307
+          ],
+          [
+            745.63,
+            307
+          ],
+          [
+            751.27,
+            307
+          ],
+          [
+            756.91,
+            307
+          ],
+          [
+            762.55,
+            307
+          ],
+          [
+            768.2,
+            307
+          ],
+          [
+            773.84,
+            307
+          ],
+          [
+            779.48,
+            307
+          ],
+          [
+            785.12,
+            307
+          ],
+          [
+            790.76,
+            307
+          ],
+          [
+            796.4,
+            307
+          ],
+          [
+            802.04,
+            307
+          ],
+          [
+            807.68,
+            307
+          ],
+          [
+            813.32,
+            307
+          ],
+          [
+            818.96,
+            307
+          ],
+          [
+            824.6,
+            307
+          ],
+          [
+            830.24,
+            307
+          ],
+          [
+            835.88,
+            307
+          ],
+          [
+            841.52,
+            307
+          ],
+          [
+            847.16,
+            307
+          ],
+          [
+            852.8,
+            307
+          ],
+          [
+            858.45,
+            307
+          ],
+          [
+            864.09,
+            307
+          ],
+          [
+            869.73,
+            307
+          ],
+          [
+            875.37,
+            307
+          ],
+          [
+            881.01,
+            307
+          ],
+          [
+            886.65,
+            307
+          ],
+          [
+            895,
+            311.29
+          ],
+          [
+            893,
+            316.93
+          ],
+          [
+            892,
+            322.57
+          ],
+          [
+            892,
+            328.21
+          ],
+          [
+            892,
+            333.85
+          ],
+          [
+            892,
+            339.49
+          ],
+          [
+            892,
+            345.13
+          ],
+          [
+            892,
+            350.77
+          ],
+          [
+            892,
+            356.41
+          ],
+          [
+            892,
+            362.05
+          ],
+          [
+            892,
+            367.7
+          ],
+          [
+            892,
+            373.34
+          ],
+          [
+            892,
+            378.98
+          ],
+          [
+            892,
+            384.62
+          ],
+          [
+            892,
+            390.26
+          ],
+          [
+            892,
+            395.9
+          ],
+          [
+            892,
+            401.54
+          ],
+          [
+            892,
+            407.18
+          ],
+          [
+            892,
+            412.82
+          ],
+          [
+            892,
+            418.46
+          ],
+          [
+            892,
+            424.1
+          ],
+          [
+            892,
+            429.74
+          ],
+          [
+            892,
+            435.38
+          ],
+          [
+            892,
+            441.02
+          ],
+          [
+            892,
+            446.66
+          ],
+          [
+            892,
+            452.3
+          ],
+          [
+            891,
+            457.95
+          ],
+          [
+            891,
+            463.59
+          ],
+          [
+            891,
+            469.23
+          ],
+          [
+            891,
+            474.87
+          ],
+          [
+            891,
+            480.51
+          ],
+          [
+            891,
+            486.15
+          ],
+          [
+            891,
+            491.79
+          ],
+          [
+            891,
+            497.43
+          ],
+          [
+            891,
+            503.07
+          ],
+          [
+            891,
+            508.71
+          ],
+          [
+            891,
+            514.35
+          ],
+          [
+            891,
+            519.99
+          ],
+          [
+            889,
+            525.63
+          ],
+          [
+            889,
+            531.27
+          ],
+          [
+            889,
+            536.91
+          ],
+          [
+            889,
+            542.55
+          ],
+          [
+            889,
+            548.2
+          ],
+          [
+            889,
+            553.84
+          ],
+          [
+            889,
+            559.48
+          ],
+          [
+            889,
+            565.12
+          ],
+          [
+            890,
+            570.76
+          ],
+          [
+            890,
+            576.4
+          ],
+          [
+            890,
+            582.04
+          ],
+          [
+            890,
+            587.68
+          ],
+          [
+            890,
+            593.32
+          ],
+          [
+            890,
+            598.96
+          ],
+          [
+            890,
+            604.6
+          ],
+          [
+            890,
+            610.24
+          ],
+          [
+            890,
+            615.88
+          ],
+          [
+            890,
+            621.52
+          ],
+          [
+            890,
+            627.16
+          ],
+          [
+            890,
+            632.8
+          ],
+          [
+            890,
+            638.45
+          ],
+          [
+            890,
+            644.09
+          ],
+          [
+            890,
+            649.73
+          ],
+          [
+            890,
+            655.37
+          ],
+          [
+            890,
+            661.01
+          ],
+          [
+            890,
+            666.65
+          ],
+          [
+            890,
+            672.29
+          ],
+          [
+            890,
+            677.93
+          ],
+          [
+            890,
+            683.57
+          ],
+          [
+            890,
+            689.21
+          ],
+          [
+            890,
+            694.85
+          ],
+          [
+            890,
+            700.49
+          ],
+          [
+            890,
+            706.13
+          ],
+          [
+            890,
+            711.77
+          ],
+          [
+            890,
+            717.41
+          ],
+          [
+            890,
+            723.05
+          ],
+          [
+            890,
+            728.7
+          ],
+          [
+            890,
+            734.34
+          ],
+          [
+            890,
+            739.98
+          ],
+          [
+            890,
+            745.62
+          ],
+          [
+            890,
+            751.26
+          ],
+          [
+            890,
+            756.9
+          ],
+          [
+            890,
+            762.54
+          ],
+          [
+            890,
+            768.18
+          ],
+          [
+            885.18,
+            771
+          ],
+          [
+            879.54,
+            771
+          ],
+          [
+            873.9,
+            771
+          ],
+          [
+            868.26,
+            771
+          ],
+          [
+            862.62,
+            771
+          ],
+          [
+            856.98,
+            771
+          ],
+          [
+            851.34,
+            771
+          ],
+          [
+            845.7,
+            771
+          ],
+          [
+            840.05,
+            771
+          ],
+          [
+            834.41,
+            771
+          ],
+          [
+            828.77,
+            771
+          ],
+          [
+            823.13,
+            771
+          ],
+          [
+            817.49,
+            771
+          ],
+          [
+            811.85,
+            771
+          ],
+          [
+            806.21,
+            771
+          ],
+          [
+            800.57,
+            771
+          ],
+          [
+            794.93,
+            771
+          ],
+          [
+            789.29,
+            771
+          ],
+          [
+            783.65,
+            771
+          ],
+          [
+            778.01,
+            771
+          ],
+          [
+            772.37,
+            771
+          ],
+          [
+            766.73,
+            771
+          ],
+          [
+            761.09,
+            771
+          ],
+          [
+            755.45,
+            771
+          ],
+          [
+            749.8,
+            771
+          ],
+          [
+            744.16,
+            771
+          ],
+          [
+            738.52,
+            771
+          ],
+          [
+            732.88,
+            771
+          ],
+          [
+            727.24,
+            771
+          ],
+          [
+            721.6,
+            771
+          ],
+          [
+            715.96,
+            771
+          ],
+          [
+            710.32,
+            771
+          ],
+          [
+            704.68,
+            771
+          ],
+          [
+            699.04,
+            771
+          ],
+          [
+            693.4,
+            771
+          ],
+          [
+            687.76,
+            771
+          ],
+          [
+            682.12,
+            771
+          ],
+          [
+            676.48,
+            771
+          ],
+          [
+            670.84,
+            771
+          ],
+          [
+            665.2,
+            771
+          ],
+          [
+            659.55,
+            771
+          ],
+          [
+            653.91,
+            771
+          ],
+          [
+            648.27,
+            771
+          ],
+          [
+            642.63,
+            771
+          ],
+          [
+            636.99,
+            771
+          ],
+          [
+            631.35,
+            771
+          ],
+          [
+            627,
+            766.71
+          ],
+          [
+            627,
+            761.07
+          ],
+          [
+            627,
+            755.43
+          ],
+          [
+            627,
+            749.79
+          ],
+          [
+            627,
+            744.15
+          ],
+          [
+            627,
+            738.51
+          ],
+          [
+            627,
+            732.87
+          ],
+          [
+            627,
+            727.23
+          ],
+          [
+            627,
+            721.59
+          ],
+          [
+            627,
+            715.95
+          ],
+          [
+            627,
+            710.3
+          ],
+          [
+            627,
+            704.66
+          ],
+          [
+            627,
+            699.02
+          ],
+          [
+            627,
+            693.38
+          ],
+          [
+            627,
+            687.74
+          ],
+          [
+            627,
+            682.1
+          ],
+          [
+            627,
+            676.46
+          ],
+          [
+            627,
+            670.82
+          ],
+          [
+            627,
+            665.18
+          ],
+          [
+            627,
+            659.54
+          ],
+          [
+            627,
+            653.9
+          ],
+          [
+            627,
+            648.26
+          ],
+          [
+            627,
+            642.62
+          ],
+          [
+            627,
+            636.98
+          ],
+          [
+            627,
+            631.34
+          ],
+          [
+            627,
+            625.7
+          ],
+          [
+            627,
+            620.05
+          ],
+          [
+            627,
+            614.41
+          ],
+          [
+            627,
+            608.77
+          ],
+          [
+            627,
+            603.13
+          ],
+          [
+            627,
+            597.49
+          ],
+          [
+            627,
+            591.85
+          ],
+          [
+            627,
+            586.21
+          ],
+          [
+            627,
+            580.57
+          ],
+          [
+            627,
+            574.93
+          ],
+          [
+            627,
+            569.29
+          ],
+          [
+            627,
+            563.65
+          ],
+          [
+            627,
+            558.01
+          ],
+          [
+            627,
+            552.37
+          ],
+          [
+            627,
+            546.73
+          ],
+          [
+            625,
+            541.09
+          ],
+          [
+            625,
+            535.45
+          ],
+          [
+            625,
+            529.8
+          ],
+          [
+            625,
+            524.16
+          ],
+          [
+            625,
+            518.52
+          ],
+          [
+            625,
+            512.88
+          ],
+          [
+            625,
+            507.24
+          ],
+          [
+            625,
+            501.6
+          ],
+          [
+            625,
+            495.96
+          ],
+          [
+            625,
+            490.32
+          ],
+          [
+            625,
+            484.68
+          ],
+          [
+            625,
+            479.04
+          ],
+          [
+            625,
+            473.4
+          ],
+          [
+            625,
+            467.76
+          ],
+          [
+            625,
+            462.12
+          ],
+          [
+            625,
+            456.48
+          ],
+          [
+            625,
+            450.84
+          ],
+          [
+            625,
+            445.2
+          ],
+          [
+            625,
+            439.55
+          ],
+          [
+            625,
+            433.91
+          ],
+          [
+            625,
+            428.27
+          ],
+          [
+            625,
+            422.63
+          ],
+          [
+            625,
+            416.99
+          ],
+          [
+            625,
+            411.35
+          ],
+          [
+            625,
+            405.71
+          ],
+          [
+            625,
+            400.07
+          ],
+          [
+            625,
+            394.43
+          ],
+          [
+            625,
+            388.79
+          ],
+          [
+            625,
+            383.15
+          ],
+          [
+            625,
+            377.51
+          ],
+          [
+            625,
+            371.87
+          ],
+          [
+            625,
+            366.23
+          ],
+          [
+            625,
+            360.59
+          ],
+          [
+            625,
+            354.95
+          ],
+          [
+            625,
+            349.3
+          ],
+          [
+            625,
+            343.66
+          ],
+          [
+            625,
+            338.02
+          ],
+          [
+            625,
+            332.38
+          ],
+          [
+            625,
+            326.74
+          ],
+          [
+            625,
+            321.1
+          ],
+          [
+            624,
+            315.46
+          ],
+          [
+            623,
+            309.82
+          ]
+        ],
+        "corners": [
+          [
+            623.5,
+            307
+          ],
+          [
+            892.52,
+            307
+          ],
+          [
+            888.45,
+            771
+          ],
+          [
+            628.43,
+            771
+          ]
+        ],
+        "head_kind": "straight",
+        "trace_confidence": 0.9492,
+        "polygon_used": true
       }
     ],
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "platform_far/N": {
     "floor_line_y": 0.7602278645833334,
@@ -1801,20 +2892,19 @@ window.HOLO_FIXTURES["underground-2"] = {
     "stairs": []
   },
   "platform_far/E": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.760228,
+    "px_per_m_at_wall": 213.333,
+    "px_per_m_at_bottom": 420.88,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8a479",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.51377,
+    "key_dir": "C-BELOW",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 274,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -1822,15 +2912,86 @@ window.HOLO_FIXTURES["underground-2"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
     "corner_x0_px": 85.33333333333326,
     "corner_x1_px": 1450.6666666666667,
-    "focal_px": 1024,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source-warped/platform_far-E/warped.png",
+    "camera_reference": "ruled",
+    "measured_round": "meshwarp",
+    "instrument": "57236a09a2ea",
+    "camera_source": "declared",
+    "declared_fields": [
+      "horizon_y",
+      "px_per_m_at_wall",
+      "floor_line_y",
+      "corner_x0_px",
+      "corner_x1_px"
+    ],
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1096,
+    "nearest_floor_m": 2.433,
+    "measured_room": {
+      "storey_height_m": 3.145,
+      "wall_width_m": 5.983,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "warp": {
+        "pins": 4,
+        "residuals": {
+          "max_px": 0,
+          "column_px": [
+            [
+              "corner_left",
+              0
+            ],
+            [
+              "corner_right",
+              0
+            ]
+          ],
+          "row_px": [
+            [
+              "ceiling_line",
+              0
+            ],
+            [
+              "floor_line",
+              0
+            ]
+          ]
+        },
+        "worst_segment": {
+          "axis": "y",
+          "name": "ceiling_line..floor_line",
+          "scale": 1.036,
+          "target_px": 725.3,
+          "source_px": 700
+        },
+        "revealed_px": 35733,
+        "remeasured": {
+          "px_per_m_at_wall": 228.333,
+          "floor_line_y": 0.760742,
+          "corner_x0_px": 85,
+          "corner_x1_px": 1451,
+          "corner_scale_px_per_m": 213.438
+        },
+        "warped_from": "backdrops/source/platform_far-E/row23-6d3f2346.png",
+        "tool": "design/plan-draft/measured/mesh_warp.py"
+      },
+      "carriers": []
+    },
     "openings": [],
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "platform_far/S": {
     "floor_line_y": 0.7602278645833334,

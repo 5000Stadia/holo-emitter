@@ -1,6 +1,6 @@
 {
   "instrument": "design/plan-draft/measured/room_consistency.py",
-  "promoted_facings": 89,
+  "promoted_facings": 91,
   "target_ppm": 150.0,
   "tile_m": 0.3,
   "weights": {
@@ -7272,40 +7272,468 @@
     {
       "room": "platform",
       "facings": [
-        "E"
+        "E",
+        "W"
       ],
-      "notes": [],
-      "bands": {},
+      "notes": [
+        "platform/W: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe",
+        "platform/W: floor band gave 7 tiles of 0.30 m (needs 8) - too little material to describe"
+      ],
+      "bands": {
+        "ceiling": {
+          "facings": [
+            "E"
+          ],
+          "spread": null,
+          "why": "fewer than two facings show this band"
+        },
+        "wall_upper": {
+          "facings": [
+            "E",
+            "W"
+          ],
+          "spread": 4.418,
+          "pairwise": [
+            {
+              "dLum": 1.0529,
+              "dChroma": 0.2067,
+              "dH": 0.6607,
+              "dT": 1.666,
+              "D": 4.418,
+              "a": "E",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.5264,
+              "dChroma": 0.1034,
+              "dH": 0.3304,
+              "dT": 1.061,
+              "D": 2.753
+            },
+            "W": {
+              "dLum": 0.5265,
+              "dChroma": 0.1034,
+              "dH": 0.3304,
+              "dT": 0.605,
+              "D": 1.682
+            }
+          },
+          "median": {
+            "lum": 0.0472,
+            "chroma": [
+              0.5016,
+              -0.8753
+            ],
+            "tex": 0.50345
+          },
+          "tex": {
+            "E": 0.24133,
+            "W": 0.76558
+          },
+          "lum": {
+            "E": -0.4792,
+            "W": 0.5737
+          },
+          "chroma": {
+            "E": [
+              0.5722,
+              -0.9508
+            ],
+            "W": [
+              0.431,
+              -0.7998
+            ]
+          },
+          "srgb": {
+            "E": [
+              176,
+              136,
+              87
+            ],
+            "W": [
+              122,
+              100,
+              68
+            ]
+          }
+        },
+        "wall_lower": {
+          "facings": [
+            "E",
+            "W"
+          ],
+          "spread": 6.754,
+          "pairwise": [
+            {
+              "dLum": 1.6788,
+              "dChroma": 0.6007,
+              "dH": 0.75,
+              "dT": 2.086,
+              "D": 6.754,
+              "a": "E",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.8394,
+              "dChroma": 0.3004,
+              "dH": 0.375,
+              "dT": 1.391,
+              "D": 4.087
+            },
+            "W": {
+              "dLum": 0.8394,
+              "dChroma": 0.3003,
+              "dH": 0.375,
+              "dT": 0.695,
+              "D": 2.761
+            }
+          },
+          "median": {
+            "lum": -0.5466,
+            "chroma": [
+              0.2081,
+              -0.6928
+            ],
+            "tex": 1.05171
+          },
+          "tex": {
+            "E": 0.40089,
+            "W": 1.70254
+          },
+          "lum": {
+            "E": 0.2928,
+            "W": -1.386
+          },
+          "chroma": {
+            "E": [
+              0.4845,
+              -0.8104
+            ],
+            "W": [
+              -0.0683,
+              -0.5753
+            ]
+          },
+          "srgb": {
+            "E": [
+              171,
+              137,
+              94
+            ],
+            "W": [
+              102,
+              106,
+              80
+            ]
+          }
+        },
+        "floor": {
+          "facings": [
+            "E"
+          ],
+          "spread": null,
+          "why": "fewer than two facings show this band"
+        }
+      },
       "wall_split": {
-        "E": 2.179
+        "E": 2.179,
+        "W": 4.858
       },
       "reference_log_luma": {
-        "E": -1.2932
+        "E": -1.2932,
+        "W": -1.9929
       },
-      "verdict": "insufficient",
-      "score": null,
-      "worst_band": null,
-      "outliers": [],
-      "why": "1 promoted facing(s) with usable geometry \u2014 nothing to compare against"
+      "worst_band": "wall_lower",
+      "score": 6.754,
+      "outlier_deviation": {
+        "E": 4.087,
+        "W": 2.761
+      },
+      "clusters": [
+        [
+          "E"
+        ],
+        [
+          "W"
+        ]
+      ],
+      "majority": [],
+      "outliers": [
+        "E",
+        "W"
+      ],
+      "no_majority": true,
+      "wall_split_spread": 2.679,
+      "verdict": "mismatched",
+      "why": "wall_lower disagrees most: worst pair E/W at D=6.75 (colour 0.601, contrast x4.25; brightness x5.36 and spread 0.750 reported, not counted). The room has NO majority - it splits E vs W - so every facing is returned and the ruling must come from the room's voice."
     },
     {
       "room": "platform_far",
       "facings": [
+        "E",
         "W"
       ],
-      "notes": [],
-      "bands": {},
+      "notes": [
+        "platform_far/E: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe"
+      ],
+      "bands": {
+        "ceiling": {
+          "facings": [
+            "W"
+          ],
+          "spread": null,
+          "why": "fewer than two facings show this band"
+        },
+        "wall_upper": {
+          "facings": [
+            "E",
+            "W"
+          ],
+          "spread": 1.991,
+          "pairwise": [
+            {
+              "dLum": 0.3762,
+              "dChroma": 0.1862,
+              "dH": 0.4286,
+              "dT": 0.593,
+              "D": 1.991,
+              "a": "E",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.1881,
+              "dChroma": 0.093,
+              "dH": 0.2143,
+              "dT": 0.266,
+              "D": 0.94
+            },
+            "W": {
+              "dLum": 0.1881,
+              "dChroma": 0.0931,
+              "dH": 0.2143,
+              "dT": 0.327,
+              "D": 1.054
+            }
+          },
+          "median": {
+            "lum": -0.295,
+            "chroma": [
+              0.4984,
+              -0.8006
+            ],
+            "tex": 0.14463
+          },
+          "tex": {
+            "E": 0.17393,
+            "W": 0.11532
+          },
+          "lum": {
+            "E": -0.1069,
+            "W": -0.4831
+          },
+          "chroma": {
+            "E": [
+              0.4833,
+              -0.7088
+            ],
+            "W": [
+              0.5136,
+              -0.8925
+            ]
+          },
+          "srgb": {
+            "E": [
+              199,
+              160,
+              116
+            ],
+            "W": [
+              169,
+              133,
+              88
+            ]
+          }
+        },
+        "wall_lower": {
+          "facings": [
+            "E",
+            "W"
+          ],
+          "spread": 1.435,
+          "pairwise": [
+            {
+              "dLum": 0.038,
+              "dChroma": 0.1162,
+              "dH": 0.2857,
+              "dT": 0.468,
+              "D": 1.435,
+              "a": "E",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.019,
+              "dChroma": 0.0581,
+              "dH": 0.1429,
+              "dT": 0.215,
+              "D": 0.679
+            },
+            "W": {
+              "dLum": 0.019,
+              "dChroma": 0.0581,
+              "dH": 0.1429,
+              "dT": 0.253,
+              "D": 0.757
+            }
+          },
+          "median": {
+            "lum": 0.2281,
+            "chroma": [
+              0.4316,
+              -0.7513
+            ],
+            "tex": 0.16922
+          },
+          "tex": {
+            "E": 0.19645,
+            "W": 0.14198
+          },
+          "lum": {
+            "E": 0.2471,
+            "W": 0.2091
+          },
+          "chroma": {
+            "E": [
+              0.4105,
+              -0.6972
+            ],
+            "W": [
+              0.4528,
+              -0.8054
+            ]
+          },
+          "srgb": {
+            "E": [
+              195,
+              162,
+              118
+            ],
+            "W": [
+              165,
+              134,
+              92
+            ]
+          }
+        },
+        "floor": {
+          "facings": [
+            "E",
+            "W"
+          ],
+          "spread": 2.927,
+          "pairwise": [
+            {
+              "dLum": 0.5329,
+              "dChroma": 0.1406,
+              "dH": 0.5,
+              "dT": 1.1,
+              "D": 2.927,
+              "a": "E",
+              "b": "W"
+            }
+          ],
+          "deviation": {
+            "E": {
+              "dLum": 0.2664,
+              "dChroma": 0.0703,
+              "dH": 0.25,
+              "dT": 0.447,
+              "D": 1.226
+            },
+            "W": {
+              "dLum": 0.2665,
+              "dChroma": 0.0703,
+              "dH": 0.25,
+              "dT": 0.652,
+              "D": 1.706
+            }
+          },
+          "median": {
+            "lum": -0.3306,
+            "chroma": [
+              0.4696,
+              -0.7168
+            ],
+            "tex": 0.19768
+          },
+          "tex": {
+            "E": 0.26956,
+            "W": 0.12579
+          },
+          "lum": {
+            "E": -0.597,
+            "W": -0.0641
+          },
+          "chroma": {
+            "E": [
+              0.4379,
+              -0.6541
+            ],
+            "W": [
+              0.5013,
+              -0.7796
+            ]
+          },
+          "srgb": {
+            "E": [
+              196,
+              161,
+              119
+            ],
+            "W": [
+              168,
+              133,
+              93
+            ]
+          }
+        }
+      },
       "wall_split": {
+        "E": 0.686,
         "W": 1.067
       },
       "reference_log_luma": {
+        "E": -0.9487,
         "W": -1.3474
       },
-      "verdict": "insufficient",
-      "score": null,
-      "worst_band": null,
+      "worst_band": "floor",
+      "score": 2.927,
+      "outlier_deviation": {
+        "W": 1.706,
+        "E": 1.226
+      },
+      "clusters": [
+        [
+          "E",
+          "W"
+        ]
+      ],
+      "majority": [
+        "E",
+        "W"
+      ],
       "outliers": [],
-      "why": "1 promoted facing(s) with usable geometry \u2014 nothing to compare against"
+      "no_majority": false,
+      "wall_split_spread": 0.381,
+      "verdict": "consistent-incomplete",
+      "why": "floor disagrees most: worst pair E/W at D=2.93 (colour 0.141, contrast x2.14; brightness x1.70 and spread 0.500 reported, not counted). no facing stands outside the rest."
     },
     {
       "room": "privy_garden",
@@ -10613,6 +11041,11 @@
       "wall_upper"
     ],
     [
+      6.754,
+      "platform",
+      "wall_lower"
+    ],
+    [
       5.668,
       "closet_chamber",
       "wall_upper"
@@ -10625,6 +11058,11 @@
     [
       4.427,
       "reception",
+      "wall_upper"
+    ],
+    [
+      4.418,
+      "platform",
       "wall_upper"
     ],
     [
@@ -10686,6 +11124,11 @@
       2.929,
       "reception",
       "wall_lower"
+    ],
+    [
+      2.927,
+      "platform_far",
+      "floor"
     ],
     [
       2.871,
@@ -10818,6 +11261,11 @@
       "wall_lower"
     ],
     [
+      1.991,
+      "platform_far",
+      "wall_upper"
+    ],
+    [
       1.938,
       "library",
       "ceiling"
@@ -10900,6 +11348,11 @@
     [
       1.44,
       "back_stair",
+      "wall_lower"
+    ],
+    [
+      1.435,
+      "platform_far",
       "wall_lower"
     ],
     [
