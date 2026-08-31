@@ -558,7 +558,7 @@
     "platform_far/W": {
       "attempts": 2,
       "status": "held",
-      "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+      "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
       "warp": {
         "pins": 7,
         "columns": 4,
@@ -614,16 +614,16 @@
       "answered_correction": "draw 0.899x larger: 91.4 px/m at the wall plane, not 101.7",
       "snapped_from_family": "camera-miss",
       "exit_attempt": {
-        "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+        "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
         "exit": "grid",
         "instrument": "57236a09a2ea",
         "candidate_sha256": null,
-        "at": "2026-08-30T20:22:37"
+        "at": "2026-08-30T20:34:20"
       },
       "hold_family": "unfitted-horizon",
       "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.734..0.777, 38% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]"
+      "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.435..0.723, 59% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]"
     }
   }
 }
