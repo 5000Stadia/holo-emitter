@@ -26,7 +26,7 @@
     ],
     "columns": [
       [
-        85,
+        0,
         1450
       ]
     ],
@@ -42,75 +42,75 @@
     "ceiling_candidates": [
       {
         "y": 66,
-        "strength": 2.5,
-        "horiz": 0.695,
-        "cv": 3.349
+        "strength": 2.42,
+        "horiz": 0.697,
+        "cv": 3.366
       },
       {
         "y": 97,
-        "strength": 1.38,
-        "horiz": 0.707,
-        "cv": 2.166
+        "strength": 1.33,
+        "horiz": 0.7,
+        "cv": 2.174
       },
       {
         "y": 56,
-        "strength": 1.31,
-        "horiz": 0.74,
-        "cv": 1.339
+        "strength": 1.28,
+        "horiz": 0.737,
+        "cv": 1.334
       },
       {
         "y": 42,
-        "strength": 1.27,
-        "horiz": 0.699,
-        "cv": 2.267
+        "strength": 1.25,
+        "horiz": 0.701,
+        "cv": 2.232
       },
       {
         "y": 16,
-        "strength": 1.21,
-        "horiz": 0.69,
-        "cv": 2.67
+        "strength": 1.18,
+        "horiz": 0.682,
+        "cv": 2.667
       },
       {
         "y": 81,
-        "strength": 1.18,
-        "horiz": 0.707,
-        "cv": 1.596
+        "strength": 1.15,
+        "horiz": 0.7,
+        "cv": 1.593
       },
       {
         "y": 72,
-        "strength": 1.17,
-        "horiz": 0.679,
-        "cv": 2.25
+        "strength": 1.15,
+        "horiz": 0.68,
+        "cv": 2.217
       },
       {
         "y": 36,
-        "strength": 1.1,
-        "horiz": 0.691,
-        "cv": 1.676
+        "strength": 1.07,
+        "horiz": 0.684,
+        "cv": 1.674
       },
       {
         "y": 105,
-        "strength": 1.09,
-        "horiz": 0.725,
-        "cv": 0.838
+        "strength": 1.07,
+        "horiz": 0.72,
+        "cv": 0.844
       },
       {
         "y": 48,
-        "strength": 1.08,
-        "horiz": 0.668,
-        "cv": 1.898
+        "strength": 1.07,
+        "horiz": 0.669,
+        "cv": 1.868
       },
       {
         "y": 111,
-        "strength": 1.08,
-        "horiz": 0.716,
-        "cv": 0.865
+        "strength": 1.06,
+        "horiz": 0.713,
+        "cv": 0.864
       },
       {
         "y": 88,
-        "strength": 1.06,
-        "horiz": 0.7,
-        "cv": 1.208
+        "strength": 1.05,
+        "horiz": 0.697,
+        "cv": 1.198
       }
     ],
     "ceiling_rows_tried": [
@@ -286,5 +286,5 @@
   "id": "614418d6",
   "candidate": "backdrops/source/platform-S/row23-614418d6.png",
   "candidate_sha256": "ad1000c2f230c2c28f10a1dd9e5d9de7e5f7641983da82cafebf474a72c1784c",
-  "instrument": "06f0bf598473"
+  "instrument": "da5967ad854c"
 }

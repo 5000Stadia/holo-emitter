@@ -27,7 +27,7 @@
     "columns": [
       [
         85,
-        1450
+        1535
       ]
     ],
     "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
@@ -42,75 +42,75 @@
     "ceiling_candidates": [
       {
         "y": 70,
-        "strength": 3.03,
-        "horiz": 0.72,
-        "cv": 3.533
+        "strength": 2.91,
+        "horiz": 0.717,
+        "cv": 3.576
       },
       {
         "y": 104,
-        "strength": 2.01,
-        "horiz": 0.734,
-        "cv": 2.871
+        "strength": 1.95,
+        "horiz": 0.73,
+        "cv": 2.882
       },
       {
         "y": 76,
-        "strength": 1.64,
-        "horiz": 0.701,
-        "cv": 3.567
+        "strength": 1.59,
+        "horiz": 0.699,
+        "cv": 3.564
       },
       {
         "y": 96,
-        "strength": 1.32,
-        "horiz": 0.717,
-        "cv": 2.286
+        "strength": 1.29,
+        "horiz": 0.715,
+        "cv": 2.27
       },
       {
         "y": 64,
-        "strength": 1.28,
-        "horiz": 0.733,
-        "cv": 1.199
+        "strength": 1.27,
+        "horiz": 0.729,
+        "cv": 1.187
       },
       {
         "y": 111,
-        "strength": 1.27,
-        "horiz": 0.721,
-        "cv": 1.103
+        "strength": 1.24,
+        "horiz": 0.71,
+        "cv": 1.114
       },
       {
         "y": 84,
-        "strength": 1.21,
-        "horiz": 0.723,
-        "cv": 1.673
+        "strength": 1.2,
+        "horiz": 0.719,
+        "cv": 1.648
       },
       {
-        "y": 56,
-        "strength": 1.14,
-        "horiz": 0.73,
-        "cv": 0.961
+        "y": 58,
+        "strength": 1.13,
+        "horiz": 0.721,
+        "cv": 0.962
       },
       {
         "y": 90,
-        "strength": 1.12,
-        "horiz": 0.699,
-        "cv": 1.199
+        "strength": 1.11,
+        "horiz": 0.697,
+        "cv": 1.185
       },
       {
         "y": 50,
         "strength": 1.11,
-        "horiz": 0.741,
-        "cv": 1.169
+        "horiz": 0.728,
+        "cv": 1.149
       },
       {
         "y": 44,
-        "strength": 1.1,
-        "horiz": 0.695,
-        "cv": 1.47
+        "strength": 1.09,
+        "horiz": 0.697,
+        "cv": 1.447
       },
       {
         "y": 16,
-        "strength": 1.05,
-        "horiz": 0.714,
-        "cv": 0.983
+        "strength": 1.04,
+        "horiz": 0.711,
+        "cv": 0.976
       }
     ],
     "ceiling_rows_tried": [
@@ -164,11 +164,11 @@
         "why": "the two side-wall junctions converge at y 648.5 but only to +/-26.5 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
-        "ceiling_y_px": 55,
+        "ceiling_y_px": 57,
         "admissible": false,
-        "sigma_y_px": 62.01,
-        "horizon_y_px": 310.1,
-        "why": "the two side-wall junctions converge at y 310.1 but only to +/-62.0 px, and the standing licence on the horizon row is +/-20.2 px"
+        "sigma_y_px": null,
+        "horizon_y_px": null,
+        "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
         "ceiling_y_px": 89,
@@ -276,5 +276,5 @@
   "id": "0fa71f22",
   "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
   "candidate_sha256": "26624cb8b62c6d87a1bccd0d4b6003373268761ab0e5589c5749aa584c290858",
-  "instrument": "06f0bf598473"
+  "instrument": "da5967ad854c"
 }
