@@ -11432,3 +11432,16 @@
 {"ts_start":1788193940.319,"ts_end":1788193940.335,"step":"promote.backdrop","key":"library/S","detail":{"candidate":"backdrops/source/library-S/row23-4a2e1e8a.png","exit_code":1,"refused":true}}
 {"ts_start":1788193940.646,"ts_end":1788193940.662,"step":"promote.backdrop","key":"privy_garden/W","detail":{"candidate":"backdrops/source/privy_garden-W/row23-d92a997c.png","exit_code":1,"refused":true}}
 {"ts_start":1788193940.985,"ts_end":1788193941.324,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-0f79ba13.png","exit_code":1,"refused":true}}
+{"ts_start":1788193941.525,"ts_end":1788193941.565,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788193941.669,"ts_end":1788193941.687,"step":"promote.backdrop","key":"long_gallery/W","detail":{"candidate":"backdrops/source/long_gallery-W/row23-e0cd4754.png","exit_code":1,"refused":true}}
+{"ts_start":1788193941.662,"ts_end":1788193941.745,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788193941.844,"ts_end":1788193941.889,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788193942.036,"ts_end":1788193942.056,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-572c742a.png","exit_code":1,"refused":true}}
+{"ts_start":1788193941.987,"ts_end":1788193942.192,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788193942.306,"ts_end":1788193942.356,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"9cc5aeab","out_bytes":83607,"facings":12,"locations":3}}
+{"detail":{"files":0,"notes":["promoted_metas: python3 design/plan-draft/measured/row23_run.py --derive-check names the wall; the promotion itself is t"],"reason":"sweep","stale":["promoted_metas"]},"key":null,"step":"derive.sweep","ts_end":1788193945.281437,"ts_start":1788193942.067774}
+{"ts_start":1788193945.756,"ts_end":1788193945.796,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788193945.885,"ts_end":1788193945.96,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788193946.064,"ts_end":1788193946.109,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788193946.207,"ts_end":1788193946.4,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788193946.514,"ts_end":1788193946.56,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"9cc5aeab","out_bytes":83607,"facings":12,"locations":3}}
