@@ -3608,6 +3608,33 @@ export function attachStyle(plan, key, dir, opts = {}) {
         }
       }
     }
+    /* [2026-08-30, the true-shape recreate] Three rounds measured: every deep
+       recreate from a small-wall draft comes back 26-53 % WIDE whatever the
+       reference (uniform draft, corrected-previous, frame lines, frame lines +
+       measured-miss words) - the zoom-in bias is compositional and words do
+       not reach it. But two behaviours ARE proven: the painter re-normalizes
+       object shapes unless ordered to copy exactly (round 1 drew the disc
+       round), and a full-frame reference leaves nothing to zoom into. The warp
+       output is geometry-exact with only its objects ovalled - so once a warp
+       round exists, Image 1 is the WARPED PAINTING ITSELF and the ask inverts:
+       architecture exactly as shown, objects in their TRUE shape. */
+    const warpedPng = join(warpDir2, "warped.png");
+    if (existsSync(warpedPng) && existsSync(join(warpDir2, "warp.json"))) {
+      const fileT = `true-shape-${dLoc}-${dF}.png`;
+      copyFileSync(warpedPng, join(dir, fileT));
+      return { ...style, file: fileT, derived: true, draft: true, true_shape_recreate: true,
+        derived_by: "the warp's own output (backdrops/source-warped)", derived_from: relative(root, warpedPng),
+        role_sentence:
+          `Image 1 is THIS EXACT VIEW with its architecture at exactly the correct geometry - ` +
+          `every corner, the ceiling and floor lines, the walls' recession and every opening ` +
+          `stand precisely where they belong and fill the frame completely. But a mechanical ` +
+          `correction has DISTORTED THE OBJECTS in it: shapes are squeezed (a round wall mirror ` +
+          `shows as an oval). REPAINT THE WHOLE PICTURE: keep every line of architecture and ` +
+          `every material exactly as Image 1 has them, at exactly Image 1's scale and framing - ` +
+          `do not enlarge, crop or recompose anything - and draw every OBJECT in its true, ` +
+          `undistorted shape: a circle stays a circle, the mirror is perfectly round. Same room, ` +
+          `same light, same everything, only the distortion healed.` };
+    }
     const deepMeta = deriveMeta(plan, key.split("/")[0], key.split("/")[1]);
     const ihD = deepMeta.image_h_px || 1024;
     const tyf = deepMeta.floor_line_y * ihD;

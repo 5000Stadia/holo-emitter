@@ -721,6 +721,8 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
 function styleAttachPhrase(style) {
   const what = style.corrected_previous
     ? `the previous painting of this very view, geometry-corrected for repainting`
+    : style.true_shape_recreate
+      ? `the warp's geometry-exact output of this very view, objects to be redrawn true`
     : style.frame_draft
       ? `the true picture at correct aspect, declared geometry drawn as guide lines to complete to`
     : style.same_wall
@@ -743,6 +745,16 @@ export function stylePacketNote(style) {
       `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
       `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
       `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
+  if (style.same_wall && style.true_shape_recreate) {
+    return `**Image 1 IS THE WARP'S OWN OUTPUT for this very view** — \`${style.file}\`, copied from ` +
+      `\`${style.derived_from}\`: architecture geometry-exact and full-frame, objects ovalled by the ` +
+      `per-axis correction. The prompt inverts the usual ask: keep every line of architecture and the ` +
+      `framing exactly, redraw every OBJECT in its true shape (a circle stays a circle) [true-shape ` +
+      `recreate, 2026-08-30 — the painter re-normalizes shapes unless ordered to copy, and a full-frame ` +
+      `reference leaves nothing to zoom into].
 
 `;
   }

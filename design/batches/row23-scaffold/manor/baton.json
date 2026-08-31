@@ -1,8 +1,8 @@
 {
- "ts": 1788144199.0587535,
+ "ts": 1788144799.3013165,
  "baton": "publish",
  "active": "waiting-on-navigator",
  "nudged": "no",
  "detail": "2 promoted wall(s) newer than the last publish - Navigator's publish-site.sh is owed",
- "loop_pass_age_s": 65
+ "loop_pass_age_s": 1
 }
