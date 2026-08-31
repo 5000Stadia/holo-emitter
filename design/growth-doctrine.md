@@ -105,3 +105,10 @@ layer). This is the prerequisite that makes phase 3's flip clean - the flip's
 only real casualty was fixture orientation. Voices amended; the constraint
 rides every minimal ask; the register's material composer follows when rooms
 are next re-seeded.
+
+## Amendment (2026-08-31): the wireframe's perspective comes from the 1x1
+[Kabe]: "Establish wireframe perspective off 1x1s structure." The ring's rays
+run in the BASE'S OWN measured perspective: the painted junction lines are
+edge-fit outside the wall box and intersected for the base's true vanishing
+point; the declared vp is only the fallback for a degenerate fit. With a
+warped (geometry-exact) base the two coincide - which is the verification.
