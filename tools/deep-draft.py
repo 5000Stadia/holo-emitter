@@ -488,16 +488,28 @@ def grow(args):
     # source whose ruler and corners disagree overflows at the top and the
     # cornice strip is cropped - the ring's lines and the wall's corners can
     # never disagree again.
+    # [Kabe, 2026-08-31] "safe to adjust the image to snap properly to our
+    # edge lines in the initial image's corners": the paste's uniform scale
+    # and position are SOLVED so its painted junctions land exactly on the
+    # vp-true rays from the base's own junctions - uniform + translate only,
+    # no warp a circle could feel. Zero corner residual by construction.
+    vp0 = args.get("vp", [768.0, 526.1])
+    vpx0, vpy0 = float(vp0[0]), float(vp0[1])
+    jr0 = float(args.get("junction_row", y0))
+    def land(px, py, ex):
+        t = (ex - px) / (vpx0 - px) if vpx0 != px else 1.0
+        return py + (vpy0 - py) * t
     k = (db["x1"] - db["x0"]) / (x1 - x0)
-    cw, ch = max(1, round((x1 - x0) * k)), max(1, round((y1 - y0) * k))
+    for _ in range(4):
+        cw = (x1 - x0) * k
+        wxL = vpx0 - cw / 2
+        r_top = land(x0, jr0, wxL)
+        r_bot = land(x0, y1, wxL)
+        k = (r_bot - r_top) / (y1 - jr0)
+    cw = max(1, round((x1 - x0) * k)); ch = max(1, round((y1 - y0) * k))
     wall = Image.fromarray(cut).resize((cw, ch), Image.LANCZOS)
-    wx = int(round(db["x0"]))
-    wy = int(round(db["yf"] - ch))
-    box_top = int(round(db["yc"]))
-    if wy < box_top:
-        wall = wall.crop((0, box_top - wy, cw, ch))
-        wy = box_top
-        ch = wall.size[1]
+    wx = int(round(vpx0 - cw / 2))
+    wy = int(round(r_top - (jr0 - y0) * k))
     out.paste(wall, (wx, wy))
     d = ImageDraw.Draw(out)
     INK = (42, 33, 24); lw = 3
