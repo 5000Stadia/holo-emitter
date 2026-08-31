@@ -11415,3 +11415,20 @@
 {"ts_start":1788193887.105,"ts_end":1788193887.153,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"9cc5aeab","out_bytes":83607,"facings":12,"locations":3}}
 {"detail":{"action":"bake","files":1,"note":null,"refused":false,"wrote":["backdrops/baked.js"]},"key":"baked","step":"derive.regen","ts_end":1788193887.164884,"ts_start":1788193860.312031}
 {"detail":{"files":5,"notes":["promoted_metas: python3 design/plan-draft/measured/row23_run.py --derive-check names the wall; the promotion itself is t","promoted_metas: python3 design/plan-draft/measured/row23_run.py --derive-check names the wall; the promotion itself is t"],"reason":"sweep","stale":["promoted_metas","material_provenance","material_legacy","room_consistency","room_consistency_readme","window_calibration","baked"]},"key":null,"step":"derive.sweep","ts_end":1788193891.604553,"ts_start":1788193833.406914}
+{"ts_start":1788193894.486,"ts_end":1788193894.53,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788193894.611,"ts_end":1788193894.688,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788193894.773,"ts_end":1788193894.817,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788193894.9,"ts_end":1788193895.096,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788193895.225,"ts_end":1788193895.27,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"9cc5aeab","out_bytes":83607,"facings":12,"locations":3}}
+{"ts_start":1788193898.56,"ts_end":1788193898.601,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788193898.709,"ts_end":1788193898.783,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788193898.864,"ts_end":1788193898.908,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788193899.014,"ts_end":1788193899.223,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788193899.315,"ts_end":1788193899.36,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"9cc5aeab","out_bytes":83607,"facings":12,"locations":3}}
+{"detail":{"action":"materials","files":2,"note":null,"refused":false,"wrote":["design/plan-draft/measured/material_provenance.json","design/plan-draft/measured/material_legacy.json"]},"key":"material_provenance","step":"derive.regen","ts_end":1788193931.344816,"ts_start":1788193931.226845}
+{"ts_start":1788193938.943,"ts_end":1788193938.957,"step":"promote.backdrop","key":"great_hall/W","detail":{"candidate":"backdrops/source/great_hall-W/row23-bc41649a.png","exit_code":1,"refused":true}}
+{"ts_start":1788193939.303,"ts_end":1788193939.628,"step":"promote.backdrop","key":"kitchen/N","detail":{"candidate":"backdrops/source/kitchen-N/row23-71e8ae4a.png","exit_code":1,"refused":true}}
+{"ts_start":1788193939.964,"ts_end":1788193939.984,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-a58332e0.png","exit_code":1,"refused":true}}
+{"ts_start":1788193940.319,"ts_end":1788193940.335,"step":"promote.backdrop","key":"library/S","detail":{"candidate":"backdrops/source/library-S/row23-4a2e1e8a.png","exit_code":1,"refused":true}}
+{"ts_start":1788193940.646,"ts_end":1788193940.662,"step":"promote.backdrop","key":"privy_garden/W","detail":{"candidate":"backdrops/source/privy_garden-W/row23-d92a997c.png","exit_code":1,"refused":true}}
+{"ts_start":1788193940.985,"ts_end":1788193941.324,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-0f79ba13.png","exit_code":1,"refused":true}}

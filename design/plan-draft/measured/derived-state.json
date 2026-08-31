@@ -11,19 +11,19 @@
     },
     "material_legacy": {
       "artifacts": {
-        "design/plan-draft/measured/material_legacy.json": "0dc5ec296d9920c04d91c6edd7de5bc5d2992f2a458da2c3b00e4fc253ccde6b"
+        "design/plan-draft/measured/material_legacy.json": "cc549f20cf20a70473e830109dbda97f20f7569586c6ce927b65f34dd84206e6"
       },
-      "at": "2026-08-31T09:31:24",
-      "input_digest": "8c95affee4db42e9305ea78ffdac0de56aac89db30acbf34830f048d6070959d",
-      "inputs": 804
+      "at": "2026-08-31T09:32:12",
+      "input_digest": "73e1f4bac6bca2f301f7d5882e4456066ec1837940ddf86c2fca3fb9935884cf",
+      "inputs": 805
     },
     "material_provenance": {
       "artifacts": {
-        "design/plan-draft/measured/material_provenance.json": "94eded1d8161469e7dbf713eed11a87e9f66e28086b16bc3d5dfb3befaa51c27"
+        "design/plan-draft/measured/material_provenance.json": "5d9212ec869c5b46d237a518f1192fced235cae05f1759371157a54e403c5f73"
       },
-      "at": "2026-08-31T09:31:24",
-      "input_digest": "8c95affee4db42e9305ea78ffdac0de56aac89db30acbf34830f048d6070959d",
-      "inputs": 804
+      "at": "2026-08-31T09:32:11",
+      "input_digest": "73e1f4bac6bca2f301f7d5882e4456066ec1837940ddf86c2fca3fb9935884cf",
+      "inputs": 805
     },
     "room_consistency": {
       "artifacts": {
