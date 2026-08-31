@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 94 painting(s), 39.7 MB served in total,
+// 95 painting(s), 39.9 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -83,6 +83,7 @@
 //   platform/W: 2.55 MB of PNG -> 425 kB of JPEG (q92); channels move by 1.6499 on average, 19 at worst, of 255.
 //   platform_far/E: 1.30 MB of PNG -> 245 kB of JPEG (q92); channels move by 0.7812 on average, 16 at worst, of 255.
 //   platform_far/N: 1.46 MB of PNG -> 251 kB of JPEG (q92); channels move by 0.8401 on average, 15 at worst, of 255.
+//   platform_far/S: 1.72 MB of PNG -> 225 kB of JPEG (q92); channels move by 0.8504 on average, 12 at worst, of 255.
 //   platform_far/W: 1.66 MB of PNG -> 223 kB of JPEG (q92); channels move by 0.7902 on average, 20 at worst, of 255.
 //   privy_garden/N: 2.81 MB of PNG -> 538 kB of JPEG (q92); channels move by 1.9158 on average, 23 at worst, of 255.
 //   privy_garden/S: 3.11 MB of PNG -> 567 kB of JPEG (q92); channels move by 2.0468 on average, 20 at worst, of 255.
@@ -111,7 +112,7 @@
 //   ward/S: 2.08 MB of PNG -> 243 kB of JPEG (q92); channels move by 1.1536 on average, 13 at worst, of 255.
 //   ward/W: 1.52 MB of PNG -> 209 kB of JPEG (q92); channels move by 0.8841 on average, 12 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "b71dc100",
+  fp: "2baca5a9",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -181,6 +182,7 @@ window.HOLO_BACKDROPS = {
   "platform/W": { file: "platform/W.jpg", bytes: 424905 },
   "platform_far/E": { file: "platform_far/E.jpg", bytes: 244851 },
   "platform_far/N": { file: "platform_far/N.jpg", bytes: 251394 },
+  "platform_far/S": { file: "platform_far/S.jpg", bytes: 224996 },
   "platform_far/W": { file: "platform_far/W.jpg", bytes: 222997 },
   "privy_garden/N": { file: "privy_garden/N.jpg", bytes: 537646 },
   "privy_garden/S": { file: "privy_garden/S.jpg", bytes: 566540 },

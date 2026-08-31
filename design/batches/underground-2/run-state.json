@@ -489,7 +489,7 @@
     },
     "platform_far/S": {
       "attempts": 2,
-      "status": "held",
+      "status": "promoted",
       "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png",
       "warp": {
         "pins": 4,
@@ -539,7 +539,6 @@
         "candidate": "backdrops/source/platform_far-S/row23-0fa71f22.png"
       },
       "hold_family": "unfitted-horizon",
-      "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "exit": "grid",
       "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 1.028..1.084, 2% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
       "exit_attempt": {
@@ -548,7 +547,10 @@
         "instrument": "57236a09a2ea",
         "candidate_sha256": null,
         "at": "2026-08-31T16:09:27"
-      }
+      },
+      "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+      "suspect_perspective": true,
+      "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)"
     },
     "platform_far/E": {
       "attempts": 2,
