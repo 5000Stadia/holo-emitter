@@ -13894,3 +13894,16 @@
 {"ts_start":1788207713.425,"ts_end":1788207713.795,"step":"emit.facing","key":"platform_far/W","detail":{"carriers":1,"voice":"platform_vault","technique":"t2"}}
 {"ts_start":1788207713.795,"ts_end":1788207713.796,"step":"emit.packet","key":"platform_far/W","detail":{"rolls":2,"roll_ids":["a6a27b21","95cdd884"],"prompt_chars":1167,"retry_cap":2}}
 {"ts_start":1788207712.199,"ts_end":1788207713.854,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":2,"skipped":10,"facings_in_plan":12,"technique":"t2"}}
+{"ts_start":1788207742.956,"ts_end":1788207742.97,"step":"promote.backdrop","key":"great_hall/W","detail":{"candidate":"backdrops/source/great_hall-W/row23-bc41649a.png","exit_code":1,"refused":true}}
+{"ts_start":1788207743.32,"ts_end":1788207743.641,"step":"promote.backdrop","key":"kitchen/N","detail":{"candidate":"backdrops/source/kitchen-N/row23-71e8ae4a.png","exit_code":1,"refused":true}}
+{"ts_start":1788207743.987,"ts_end":1788207744.008,"step":"promote.backdrop","key":"great_stair_hall/W","detail":{"candidate":"backdrops/source/great_stair_hall-W/row23-a58332e0.png","exit_code":1,"refused":true}}
+{"ts_start":1788207744.32,"ts_end":1788207744.334,"step":"promote.backdrop","key":"library/S","detail":{"candidate":"backdrops/source/library-S/row23-4a2e1e8a.png","exit_code":1,"refused":true}}
+{"ts_start":1788207744.639,"ts_end":1788207744.654,"step":"promote.backdrop","key":"privy_garden/W","detail":{"candidate":"backdrops/source/privy_garden-W/row23-d92a997c.png","exit_code":1,"refused":true}}
+{"ts_start":1788207744.985,"ts_end":1788207745.307,"step":"promote.backdrop","key":"back_stair_head/W","detail":{"candidate":"backdrops/source/back_stair_head-W/row23-0f79ba13.png","exit_code":1,"refused":true}}
+{"ts_start":1788207745.629,"ts_end":1788207745.646,"step":"promote.backdrop","key":"long_gallery/W","detail":{"candidate":"backdrops/source/long_gallery-W/row23-e0cd4754.png","exit_code":1,"refused":true}}
+{"ts_start":1788207745.975,"ts_end":1788207745.995,"step":"promote.backdrop","key":"stair_landing/W","detail":{"candidate":"backdrops/source/stair_landing-W/row23-572c742a.png","exit_code":1,"refused":true}}
+{"ts_start":1788207758.378,"ts_end":1788207758.711,"step":"emit.facing","key":"platform/E","detail":{"carriers":0,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788207758.712,"ts_end":1788207758.72,"step":"emit.packet","key":"platform/E","detail":{"rolls":2,"roll_ids":["a73c3062","d3cc96ec"],"prompt_chars":1167,"retry_cap":2}}
+{"ts_start":1788207758.727,"ts_end":1788207759.093,"step":"emit.facing","key":"platform_far/W","detail":{"carriers":1,"voice":"platform_vault","technique":"t2"}}
+{"ts_start":1788207759.093,"ts_end":1788207759.096,"step":"emit.packet","key":"platform_far/W","detail":{"rolls":2,"roll_ids":["a6a27b21","95cdd884"],"prompt_chars":1167,"retry_cap":2}}
+{"ts_start":1788207757.538,"ts_end":1788207759.159,"step":"emit.run","key":null,"detail":{"mode":"manor","emitted":2,"skipped":10,"facings_in_plan":12,"technique":"t2"}}
