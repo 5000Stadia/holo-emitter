@@ -3682,6 +3682,11 @@ export function deepViewOf(plan, key) {
     if (Math.abs(line - fc.wall_line) < 1e-6) {
       const cfc = cell.facings && cell.facings[F];
       if (!cfc) return null;
+      /* [facing-playbook's finding] An OPEN facing carries camera_far_m and no
+         camera_wall_m: a deep-view record with undefined cameras crashed the
+         re-emit of entrance_court/S. No wall camera on either side - no deep
+         view; the court stays the court. */
+      if (!Number.isFinite(cfc.camera_wall_m) || !Number.isFinite(fc.camera_wall_m)) return null;
       return { close_key: `${cell.id}/${F}`, close_cam: cfc.camera_wall_m,
                deep_cam: fc.camera_wall_m, back_m: fc.camera_wall_m - cfc.camera_wall_m };
     }
