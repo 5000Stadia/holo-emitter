@@ -99,7 +99,8 @@
         ],
         "stability": 7
       }
-    ]
+    ],
+    "windows": []
   },
   "_windows": {
     "floor": [
@@ -199,5 +200,133 @@
     "min_head_m": 1.4,
     "storey_m": 2.8,
     "candidates_before_head_test": 3
+  },
+  "_windows_read": {
+    "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+    "body_rows": [
+      422,
+      550
+    ],
+    "wall_band_px": [
+      123,
+      1450
+    ],
+    "window_band_px": [
+      394,
+      577
+    ],
+    "wall_median_luminance": 24.31,
+    "min_enumerated_px": 33,
+    "lattice_min": 0.2,
+    "lattice_support": 0.12,
+    "edge_min": 12.0,
+    "frame_min": 0.34,
+    "contrast_min": 0.3,
+    "light_min_l": 90.0,
+    "admit_lift": 60.0,
+    "sweep_lift": 12.0,
+    "mullion_max_m": 0.25,
+    "lights_before_merge": 2,
+    "candidates_after_merge": 2,
+    "rejected": [
+      {
+        "x0_px": 208,
+        "x1_px": 242,
+        "y0_px": 316,
+        "y1_px": 616,
+        "head_m": 2.471,
+        "sill_m": 0.667,
+        "vertical": "measured",
+        "width_px": 34,
+        "width_m": 0.204,
+        "centre_px": 225.0,
+        "height_m": 1.804,
+        "lights": [
+          [
+            208,
+            242
+          ]
+        ],
+        "light_luminance": 54.11,
+        "wall_luminance": 24.31,
+        "lift": 29.8,
+        "threshold": 39,
+        "threshold_span": [
+          37,
+          40
+        ],
+        "stability": 4,
+        "lattice": {
+          "score": 0.1762,
+          "x": 0.2129,
+          "y": 0.1394,
+          "pitch_x_m": 0.036,
+          "pitch_y_m": 0.072,
+          "edge_energy": 11.1
+        },
+        "frame": 0.1943,
+        "contrast": 0.4217,
+        "boundaries": {
+          "left": 0.53,
+          "right": 0.0,
+          "head": 0.248,
+          "sill": 0.0,
+          "interior_l": 46.39,
+          "ring_l": 32.63
+        },
+        "rejected": "bright, but its light stands only 29.8 above a 24.3 wall and reads 46 absolute, under the 90 daylight shows through glass at; and there is no glazing in it: a lattice scoring 0.176 (0.12 asked) over 11.1 of fine edge (12 asked), which is a panel catching the light and not a leaded window; and no rectangle encloses it: its four boundaries support 0.19 (0.34 asked) and it stands 0.42 clear of the wall around it (0.30 asked)"
+      },
+      {
+        "x0_px": 477,
+        "x1_px": 687,
+        "y0_px": 394,
+        "y1_px": 577,
+        "head_m": 2.0,
+        "sill_m": 0.9,
+        "vertical": "the plan's ruled band; this light's own head and sill could not be walked out of it",
+        "width_px": 210,
+        "width_m": 1.263,
+        "centre_px": 582.0,
+        "height_m": 1.1,
+        "lights": [
+          [
+            477,
+            585
+          ],
+          [
+            622,
+            687
+          ]
+        ],
+        "light_luminance": 65.33,
+        "wall_luminance": 24.31,
+        "lift": 41.02,
+        "threshold": 39,
+        "threshold_span": [
+          36,
+          55
+        ],
+        "stability": 20,
+        "lattice": {
+          "score": 0.1605,
+          "x": 0.2832,
+          "y": 0.0378,
+          "pitch_x_m": 0.156,
+          "pitch_y_m": 0.204,
+          "edge_energy": 15.15
+        },
+        "frame": 0.3043,
+        "contrast": 0.3767,
+        "boundaries": {
+          "left": 1.0,
+          "right": 0.006,
+          "head": 0.0,
+          "sill": 0.211,
+          "interior_l": 59.52,
+          "ring_l": 43.23
+        },
+        "rejected": "bright, but its light stands only 41.0 above a 24.3 wall and reads 60 absolute, under the 90 daylight shows through glass at; and no rectangle encloses it: its four boundaries support 0.30 (0.34 asked) and it stands 0.38 clear of the wall around it (0.30 asked)"
+      }
+    ]
   }
 }
