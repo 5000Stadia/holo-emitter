@@ -2,7 +2,7 @@
 
 [HUMAN, 2026-08-24, verbatim]: "Still getting rooms with wall/ceiling mismatches" — "Mismatches as in different from other walls".
 
-Rows 36 and 38 cure this by construction for walls painted from here on. The 94 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
+Rows 36 and 38 cure this by construction for walls painted from here on. The 95 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
 
 Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two declared corners are ceiling above the one and floor below the other, so four bands - ceiling, upper wall, lower wall, floor - cut out with no perspective bookkeeping. Each band is resampled to 150 px/m, cut into 0.30 m tiles of WORLD, and described by the MEDIAN tile, so a window or a doorway cannot decide that a wall changed; the columns a carrier is declared on are dropped outright first.
 
@@ -31,7 +31,7 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | 15 | solar | ENSW | wall_lower | **2.68** | N-W | x1.29 | 0.185 | 0.533 | x1.91 | — | consistent |
 | 16 | noodle_bar | ENSW | wall_upper | **2.14** | S-W | x4.50 | 0.189 | 0.708 | x1.59 | — | consistent-incomplete |
 | 17 | ward | ENSW | floor | **2.12** | E-W | x1.12 | 0.265 | 1.000 | x1.31 | — | consistent-incomplete |
-| 18 | platform_far | ENS | wall_upper | **2.07** | N-S | x1.34 | 0.089 | 0.266 | x1.73 | — | consistent-incomplete |
+| 18 | platform_far | ENSW | wall_upper | **2.07** | N-S | x1.34 | 0.089 | 0.266 | x1.73 | — | consistent-incomplete |
 | 19 | buttery_pantry | ENSW | ceiling | **2.07** | S-W | x1.18 | 0.057 | 0.154 | x1.75 | — | consistent-incomplete |
 | 20 | library | EN | ceiling | **1.94** | E-N | x4.55 | 0.271 | 0.667 | x1.03 | — | consistent-incomplete |
 | 21 | back_stair_head | NS | wall_upper | **1.72** | N-S | x1.20 | 0.158 | 0.678 | x1.43 | — | consistent-incomplete |

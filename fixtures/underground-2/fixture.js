@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["underground-2"] = {
   id: "underground-2",
-  fp: "9cd43060",
+  fp: "8168d3be",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -3275,8 +3275,8 @@ window.HOLO_FIXTURES["underground-2"] = {
     "calibration_ref": "wall grid module, 1.0 m at the wall plane",
     "calibration_px": 91.42857142857143,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
+    "camera_id": "composed:tools/deep-draft.py mode compose (declared camera)",
+    "provisional": false,
     "backdrop": "wall",
     "wall_segments": [
       {
@@ -3306,7 +3306,23 @@ window.HOLO_FIXTURES["underground-2"] = {
         "depth_m": 0.2
       }
     ],
-    "stairs": []
+    "stairs": [],
+    "measured": false,
+    "camera_reference": "declared",
+    "composed_from": {
+      "tool": "tools/deep-draft.py --compose",
+      "args": "backdrops/composed/platform_far-W.args.json",
+      "sha256": "a18ed61aa8e28df648b023bd3af023d4ca8df12a5e9965ea75847d701b7f2251",
+      "sources": {
+        "platform/W": "b8d9efefdd5b",
+        "platform/N": "5e86e2b712a5",
+        "platform/S": "391ae070744b",
+        "platform_far/N": "973cd42e0aad",
+        "platform_far/S": "c0ced8b80f93"
+      },
+      "why": "[Kabe, 2026-08-31] 'cut out the floors and the walls and the ceilings... geometrically and deterministically... skew them to the proper geometry for the wire frame' - every plane projected from the promoted close art of both cells; corners land within 1 px; no painter pass survived the instruments for this facing, so the composed frame stands"
+    },
+    "instrument": "composed"
   }
 }
 };
