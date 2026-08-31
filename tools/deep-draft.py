@@ -478,6 +478,28 @@ def grow(args):
         rm[y0:y1, x0:x1] = False
         blur_src = np.asarray(Image.fromarray(a).filter(_IFR.GaussianBlur(12)))
         a[rm] = blur_src[rm]
+    # [Kabe, 2026-08-31] "The line isnt strait anymore": the base floor's
+    # guidance line is a PLAN feature (centred, fixed width) - its correct
+    # shape is computable. The bent painted line is erased (rows take their
+    # own floor median) and redrawn straight, perspective-tapered, in the
+    # line's own sampled colour.
+    if args.get("floor_line"):
+        fl = args["floor_line"]
+        vx_l, vy_l = float(fl["vx"]), float(fl["vy"])
+        eye_l, f_l, wm = float(fl["eye_m"]), float(fl["f"]), float(fl["width_m"])
+        ys0 = int(max(y1, vy_l + 8)); H2 = a.shape[0]
+        samp = a[H2-60:H2-10, int(vx_l)-20:int(vx_l)+20].reshape(-1,3)
+        lum = samp.astype(np.float32).mean(axis=1)
+        line_col = samp[lum > np.percentile(lum, 80)].mean(axis=0).astype(np.uint8)
+        for yy in range(ys0, H2):
+            half = max(2.0, (wm/2.0) * (yy - vy_l) / eye_l)
+            c0, c1 = int(vx_l - 3.2*half), int(vx_l + 3.2*half)
+            row = a[yy, max(0,c0):c1].astype(np.float32)
+            med = np.median(np.concatenate([a[yy, max(0,c0-40):max(1,c0)],
+                                            a[yy, c1:c1+40]]).astype(np.float32), axis=0)
+            a[yy, max(0,c0):c1] = med.astype(np.uint8)
+            d0, d1 = int(round(vx_l - half)), int(round(vx_l + half))
+            a[yy, d0:d1] = line_col
     # [Kabe, 2026-08-31] "Ceiling needs to be notably clean and artifact free
     # on the edge of box 1": lamp rods crossing the cut leave dark stubs on
     # the shell's ceiling band - wiped deterministically: within the hole's
