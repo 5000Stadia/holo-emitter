@@ -3635,14 +3635,36 @@ export function attachStyle(plan, key, dir, opts = {}) {
         const vyC = cm.horizon_y * ihC, floorC = cm.floor_line_y * ihC;
         const fC = cm.px_per_m_at_wall * cm.camera_wall_m;
         const eyeC = (floorC - vyC) * cm.camera_wall_m / fC;
-        const vyD = dm.horizon_y * ihD, floorD = dm.floor_line_y * ihD;
+        const vyD = dm.horizon_y * ihD, floorD0 = dm.floor_line_y * ihD;
         const fD = dm.px_per_m_at_wall * dm.camera_wall_m;
-        const eyeD = (floorD - vyD) * dm.camera_wall_m / fD;
+        const eyeD = (floorD0 - vyD) * dm.camera_wall_m / fD;
+        /* [Kabe, 2026-08-31] "If the output overshoots by 12% can you
+           undershoot the reference by about 12%?" PRE-COMPENSATION, uniform:
+           the reference is built as if the camera stood FURTHER BACK by the
+           wall's own measured overshoot (its last round document's mean
+           stretch ask), so the painter's habitual zoom-in lands the room on
+           the declared geometry. One factor for the whole scene - core,
+           sweeps and wireframe shrink coherently, a circle stays a circle -
+           and each wall calibrates itself from its own last miss. */
+        let comp = 1.0;
+        {
+          const wf2 = join(warpDir2, "warp.json");
+          if (existsSync(wf2)) {
+            const st2 = (JSON.parse(readFileSync(wf2, "utf8")).stretch) || {};
+            const vals = [st2.x_scale_min, st2.x_scale_max, st2.y_scale_min, st2.y_scale_max]
+              .filter((v) => Number.isFinite(v));
+            if (vals.length) comp = Math.min(1.0, Math.max(0.75, vals.reduce((a, b) => a + b) / vals.length));
+          }
+        }
+        const zD = dm.camera_wall_m / comp;
+        const ppmD = fD / zD;
+        const floorD = vyD + eyeD * fD / zD;
+        const halfW = dm.wall_width_m / 2;
         const draftC = `deep-chop-${style.room}-${style.facing}.png`;
         const argsC = join(dir, `.deep-draft-args.json`);
         writeFileSync(argsC, JSON.stringify({
           mode: "chop", close_png: join(root, style.rel),
-          step_back_m: dm.camera_wall_m - cm.camera_wall_m,
+          step_back_m: zD - cm.camera_wall_m,
           /* [round 7b's asymmetry] THE CORE SITS ON THE WIREFRAME: the wall's
              uniform scale is anchored to the DECLARED corner span over the
              close painting's own corner span, so the sharp core's corners
@@ -3653,13 +3675,13 @@ export function attachStyle(plan, key, dir, opts = {}) {
              its lines, split the difference outward. One scale, both axes -
              a circle stays a circle; a source's internal ruler-vs-corner
              disagreement rides as reference-only. */
-          wall_scale: (dm.corner_x1_px - dm.corner_x0_px) / (cm.corner_x1_px - cm.corner_x0_px),
+          wall_scale: (2 * halfW * ppmD) / (cm.corner_x1_px - cm.corner_x0_px),
           close_wall: { cx: (cm.corner_x0_px + cm.corner_x1_px) / 2, floor_row: floorC },
           deep: { f: fD, vx: 768.0, vy: vyD, eye_m: eyeD,
-                  half_w_m: dm.wall_width_m / 2, ceil_m: dm.storey_height_m - eyeD,
-                  z_wall: dm.camera_wall_m,
-                  box: { x0: dm.corner_x0_px, x1: dm.corner_x1_px,
-                         yc: floorD - dm.storey_height_m * dm.px_per_m_at_wall, yf: floorD } },
+                  half_w_m: halfW, ceil_m: dm.storey_height_m - eyeD,
+                  z_wall: zD,
+                  box: { x0: 768.0 - halfW * ppmD, x1: 768.0 + halfW * ppmD,
+                         yc: floorD - dm.storey_height_m * ppmD, yf: floorD } },
           close: { f: fC, vx: 768.0, vy: vyC, eye_m: eyeC, ceil_m: cm.storey_height_m - eyeC },
           out: join(dir, draftC)
         }));
