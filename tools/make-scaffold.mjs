@@ -2607,6 +2607,11 @@ async function emitManor(outDir, opts) {
        entry is complete where it stands. */
     const text = (style && style.minimal_ask)
       ? (`Image 1 is a finished painting: the ${style.facing_word} wall of this room, seen from up close.\n` +
+         /* [row 29's provenance law meets the minimal ask] The ruled fabric is
+            NAMED, in the voice's own sentences — the one thing the pair may
+            not leave unsaid: a promoted wall must come from an ask that named
+            its room's ruled walls, overhead and underfoot. Three sentences of
+            record; the analogy still does the teaching. */
          `Image 3 is the line drawing Image 1 was painted from - the same scene as bare geometry.\n` +
          `Image 2 is the same room's geometry drawn from further back: this picture's own camera.\n` +
          `Do Image 1's art, but from Image 2's perspective: the same wall and room, the same ` +
@@ -2614,7 +2619,10 @@ async function emitManor(outDir, opts) {
          `exactly. A circle stays a circle.\n` +
          `The room is completely empty - no furniture, nobody, no loose props. No legible text ` +
          `anywhere. Images 2 and 3 are ink line drawings on paper: their lines are where surfaces ` +
-         `meet; nothing in them is a colour, a material or an opening to paint.\n`)
+         `meet; nothing in them is a colour, a material or an opening to paint.\n` +
+         `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
+         `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
       : manorPrompt(plan, fac.key, meta, rects, null, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
