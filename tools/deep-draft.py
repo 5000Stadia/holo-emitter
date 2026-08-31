@@ -493,7 +493,8 @@ def grow(args):
         line_col = samp[lum > np.percentile(lum, 80)].mean(axis=0).astype(np.uint8)
         for yy in range(ys0, H2):
             half = max(2.0, (wm/2.0) * (yy - vy_l) / eye_l)
-            c0, c1 = int(vx_l - 3.2*half), int(vx_l + 3.2*half)
+            wide = max(45.0, 8.0*half)   # the bent original wanders; consume it fully
+            c0, c1 = int(vx_l - wide), int(vx_l + wide)
             row = a[yy, max(0,c0):c1].astype(np.float32)
             med = np.median(np.concatenate([a[yy, max(0,c0-40):max(1,c0)],
                                             a[yy, c1:c1+40]]).astype(np.float32), axis=0)
