@@ -594,7 +594,13 @@
          back is entitled to assume. The neighbours are asked for after it, so
          they cost the first frame nothing. */
       if (imageStore) imageStore.appendChild(img);
-      img.src = paintingDir + manifest[key].file;
+      /* [Kabe, 2026-08-30] "Not seeing any difference in the live demo" — the
+         paintings travel at stable URLs behind a 10-minute cache, so a
+         repainted wall showed its old self long after a publish (the same
+         mask the scripts wore before the sha stamp). The manifest's byte
+         count names this exact painting: the URL changes when the painting
+         does and never otherwise. */
+      img.src = paintingDir + manifest[key].file + "?v=" + (manifest[key].bytes || 0);
     }
 
     /* One turn or one step away: the three other facings of the room you are
