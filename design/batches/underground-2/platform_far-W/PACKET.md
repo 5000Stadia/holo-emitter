@@ -1,12 +1,6 @@
 # platform_far/W — technique t2 (labelled scaffold)
 
-**Image 1 IS THE GROW DRAFT** — `grown-platform_far-W.png`: the room's own 1x1 painting with its back wall cut out and refitted at the far box (one uniform shrink), the shell kept at its own painted angles, and the middle left as a wireframe ring for the painter to fill [Kabe's grow step, 2026-08-31].
-
-**Image 3 is this wall's edge seed.** `edge-seed-left.png` is the 10 % of `backdrops/platform_far/S.png` that abuts this picture — its right-hand 154 columns, full frame height, cut by `tools/crop-edge-seed.py` (sha256 `c9fee6194405` from a painting at `c0ced8b80f93`). The prompt names its role in words: _Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly._
-
-Seeding here is **opportunistic** — an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted).
-
-Attach `grown-platform_far-W.png` as **Image 1** (the room part-painted: near half and far wall finished, the middle a wireframe ring to paint), `scaffold.png` as **Image 2** and `edge-seed-left.png` as **Image 3**, in that
+There is NO Image 1 in this packet and none is to be found elsewhere — the medium is in the prompt's own words. Attach `scaffold.png` as **Image 1**, in that
 order, then send `prompt.txt` verbatim. Generate 2 images and save them to the
 exact paths below — the measurement runs the moment a file appears at one of them.
 

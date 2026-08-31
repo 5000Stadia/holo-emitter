@@ -553,6 +553,67 @@ def grow(args):
     print(json.dumps({"ok": True, "mode": "grow", "k": round(k, 4),
                       "wall_at": [wx, wy, wx + cw, wy + ch]}))
 
+
+def reverse(args):
+    """[Kabe, 2026-08-31, phase 3 verbatim] "from the immediate perspective of
+    the far side of that direction turned around. Because for reference you
+    can have almost everything but back wall. Horizontal flip the image first.
+    Then pull the end of the ceiling inside details to the front and the front
+    to the back, which stretches and skews it in reverse. Do the same to the
+    side walls and floor. Then thats the reference image looking back for the
+    enhance and fill the gap on the back wall."
+
+    THE REVERSE VIEW: the completed long view of the same axis, flipped, and
+    each sweep plane depth-reversed along its own recession (far content to
+    the front, front to the back - the deliberate reverse skew, sweeps only).
+    The back wall was behind the original camera and is the GAP: an outlined
+    box with its doorway drawn and named, for the painter to fill."""
+    import numpy as np
+    from PIL import ImageDraw
+    src = Image.open(args["long_png"]).convert("RGB").transpose(Image.FLIP_LEFT_RIGHT)
+    sa = np.asarray(src).astype(np.float32)
+    d0 = args["deep"]
+    f, vx, vy = d0["f"], d0["vx"], d0["vy"]
+    zw = d0["z_wall"]
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    dx, dy = xs - vx, ys - vy
+    eps = 1e-6
+    z_floor = np.where(dy > eps, d0["eye_m"] * f / np.maximum(dy, eps), np.inf)
+    z_ceil  = np.where(dy < -eps, d0["ceil_m"] * f / np.maximum(-dy, eps), np.inf)
+    z_side  = np.where(np.abs(dx) > eps, d0["half_w_m"] * f / np.maximum(np.abs(dx), eps), np.inf)
+    z = np.minimum.reduce([z_floor, z_ceil, z_side, np.full_like(dx, zw)])
+    on_wall = z >= zw - eps
+    # per-plane nearest visible depth (at the frame edge), for the reversal span
+    zmin_floor = d0["eye_m"] * f / (H - vy)
+    zmin_ceil  = d0["ceil_m"] * f / vy
+    zmin_side  = d0["half_w_m"] * f / (W - vx)
+    zmin = np.where(z_side <= np.minimum(z_floor, z_ceil), zmin_side,
+                    np.where(dy > 0, zmin_floor, zmin_ceil))
+    zr = np.clip(zmin + zw - z, zmin * 1.001, zw * 0.999)   # far <-> near
+    # the same plane point (lateral / height preserved) at the reversed depth
+    cc = vx + dx * z / zr
+    cr = vy + dy * z / zr
+    ccl = np.clip(cc, 0, W - 1.001); crl = np.clip(cr, 0, H - 1.001)
+    x0i = ccl.astype(int); y0i = crl.astype(int)
+    fx2 = (ccl - x0i)[..., None]; fy2 = (crl - y0i)[..., None]
+    out = (sa[y0i, x0i] * (1 - fx2) * (1 - fy2) + sa[y0i, np.minimum(x0i + 1, W - 1)] * fx2 * (1 - fy2)
+           + sa[np.minimum(y0i + 1, H - 1), x0i] * (1 - fx2) * fy2
+           + sa[np.minimum(y0i + 1, H - 1), np.minimum(x0i + 1, W - 1)] * fx2 * fy2)
+    GROUND = (208, 202, 192)
+    b = args["gap_box"]
+    bx0, bx1, by0, by1 = int(round(b["x0"])), int(round(b["x1"])), int(round(b["yc"])), int(round(b["yf"]))
+    out[by0:by1, bx0:bx1] = GROUND
+    img = Image.fromarray(out.clip(0, 255).astype(np.uint8))
+    d = ImageDraw.Draw(img)
+    INK = (42, 33, 24); lw = 3
+    d.rectangle([bx0, by0, bx1, by1], outline=INK, width=lw)
+    for door in args.get("ring_doors", []):
+        d.rectangle([door["x0"], door["y0"], door["x1"], door["y1"]], outline=INK, width=lw)
+    img.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "reverse",
+                      "gap": [bx0, by0, bx1, by1],
+                      "doors": len(args.get("ring_doors", []))}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -567,6 +628,8 @@ def main():
         return compose(args)
     if args.get("mode") == "grow":
         return grow(args)
+    if args.get("mode") == "reverse":
+        return reverse(args)
     close = Image.open(args["close_png"]).convert("RGB")
     k = float(args["k"])
     dw, dh = round(close.width * k), round(close.height * k)

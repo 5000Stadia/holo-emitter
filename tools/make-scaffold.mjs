@@ -2605,7 +2605,19 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = (style && style.minimal_ask && style.grow_draft)
+    const text = (style && style.minimal_ask && style.reverse_draft)
+      ? (`Image 1 is this long room seen from its far end, looking back the way you came: the side ` +
+         `walls, the ceiling and the floor are real painted material carried in reverse - some ` +
+         `details may be stretched or smeared by that reversal; repaint them naturally, keeping ` +
+         `every surface where it stands. The outlined box at the centre is the near wall you are ` +
+         `facing, NOT yet painted: paint it, with an open doorway exactly in the drawn outline - ` +
+         `the doorway stands empty, deep unlit shadow beyond, no lit room and no far wall visible. ` +
+         `A circle stays a circle; no drawn line remains visible; do not enlarge, crop or recompose.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere.\n` +
+         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
+         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask && style.grow_draft)
       ? (`Image 1 is this room part-painted: the near half and the far wall are FINISHED painting ` +
          `- nothing in them may change in any way - and the pale ring between them is the middle ` +
          `of this long room, drawn only as wireframe. PAINT THE MIDDLE: continue the side walls, ` +
@@ -3680,7 +3692,13 @@ export function attachStyle(plan, key, dir, opts = {}) {
       if (existsSync(grownPng)) {
         const fileG = `grown-${key.replace("/", "-")}.png`;
         copyFileSync(grownPng, join(dir, fileG));
+        /* [phase 3] a .mode file beside the draft names which ask it takes:
+           "reverse" = Kabe's far-end look-back (flip + depth-reversed sweeps,
+           the back wall the outlined gap). */
+        let gmode = null;
+        try { gmode = readFileSync(grownPng + ".mode", "utf8").trim(); } catch (e) { gmode = null; }
         return { ...style, file: fileG, derived: true, grow_draft: true,
+          reverse_draft: gmode === "reverse",
           minimal_ask: true, derived_from: relative(root, grownPng),
           role_sentence: null };
       }

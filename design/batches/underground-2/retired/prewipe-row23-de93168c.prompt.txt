@@ -1,18 +1,19 @@
 Use case: location-study, interior
-Asset type: gameplay backdrop for the south wall of the platform, circa-1931 London Underground station, below street level
+Asset type: gameplay backdrop for the north wall of the platform, circa-1931 London Underground station, below street level
 Gate anchor: the tiled dado band's top edge above the floor, 1.20 m.
-Primary request: Paint the south wall of the platform of a circa-1931 London Underground station, below street level.
+Primary request: Paint the north wall of the platform of a circa-1931 London Underground station, below street level.
   Its walls are cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall.
   Overhead: a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.
   A clearly legible dark bottle-green glazed tiled dado band runs corner to corner on every exposed wall surface including the side-wall returns, its top edge at exactly 1.20 m above the floor, interrupted only by the doorway.
 On this wall: nothing stands on it: this wall carries no opening and no built feature at all. The fabric named above runs across the whole of it, unbroken corner to corner, and the anchor named above is the one ruled feature in it.
   There is no window: this wall carries no glazed opening of any kind.
 Composition/framing: a 1536 by 1024 landscape picture, seen from the eye of someone standing on the floor in this room.
-  The wall you face is square on and is LONGER than the picture: its left corner stands about a tenth of the way in from the picture's left edge, and from that corner a side wall runs toward you and leaves the picture through that edge. On the right there is NO corner and NO return wall: the flat wall simply continues and leaves the picture through the right edge, still face-on.
-  Seen from where you stand, the whole 6.4 m of the wall spans about nine tenths of the picture's width — no closer and no larger than that; the wall does not crowd the frame.
+  The wall you face is square on and is LONGER than the picture: its right corner stands about a tenth of the way in from the picture's right edge, and from that corner a side wall runs toward you and leaves the picture through that edge. On the left there is NO corner and NO return wall: the flat wall simply continues and leaves the picture through the left edge, still face-on.
+  Seen from where you stand, the wall is 12.8 m long and wider than the picture: about 7.2 m of it are in view, at one unbroken scale.
   The floor is visible and reaches the bottom of the picture, and the eye line sits a little above the middle of the picture's height — that is where those receding lines would meet if they were carried back into the distance.
-  Image 1 draws these lines exactly; follow it.
+  Image 2 draws these lines exactly; follow it.
+  Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.
 Style/medium: a high-realism digital painting in the manner of a hand-tinted period architectural record photograph — glazed reflective tiling, warm incandescent light pooling from the lamps with gentle falloff, no visible light source beyond them, no daylight
-  The layout diagram is a black-and-white line drawing on paper and holds no colour of its own: the picture is this painting, in the materials named above.
+  Image 1 shows this room's materials, palette and light on another of its walls, with its openings removed: match those, and take no architecture from it.
 Constraints: the platform is completely empty — no furniture, nobody in it, no animals and no loose props of any kind.
-  Every surface carries only what its materials say: the enamel disc is blank, the tiling is plain — no legible text, no signage copy, no station names, no logos, no posters, no route diagrams, and Image 1 is a line drawing in ink on paper: its lines are where surfaces meet and its outlined boxes are where the named features stand; nothing in it is a colour, a material or an opening to paint.
+  Every surface carries only what its materials say: the enamel disc is blank, the tiling is plain — no legible text, no signage copy, no station names, no logos, no posters, no route diagrams, and Image 2 is a line drawing in ink on paper: its lines are where surfaces meet and its outlined boxes are where the named features stand; nothing in it is a colour, a material or an opening to paint.
