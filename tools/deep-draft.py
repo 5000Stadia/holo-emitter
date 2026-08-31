@@ -493,10 +493,10 @@ def grow(args):
     for (hx, hy, tx, ty) in ((x0, y0, wx, wy), (x1, y0, wx + cw, wy),
                              (x0, y1, wx, wy + ch), (x1, y1, wx + cw, wy + ch)):
         d.line([(hx, hy), (tx, ty)], fill=INK, width=lw)
-    dado = args.get("dado_frac")
-    if dado is not None:
-        d.line([(x0, y1 - (y1 - y0) * dado), (wx, wy + ch - ch * dado)], fill=INK, width=lw)
-        d.line([(x1, y1 - (y1 - y0) * dado), (wx + cw, wy + ch - ch * dado)], fill=INK, width=lw)
+    # [Kabe, 2026-08-31] NO DADO LINES IN THE RING: "I worry it biases the
+    # drawing to make something wall divided there" - the band is shown in the
+    # painted content at both ends and the painter interpolates bands
+    # reliably; only the four REAL junctions (the corner diagonals) are drawn.
     for door in args.get("ring_doors", []):
         d.rectangle([door["x0"], door["y0"], door["x1"], door["y1"]], outline=INK, width=lw)
     out.save(args["out"], "PNG")
