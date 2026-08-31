@@ -2750,7 +2750,22 @@
 
     // Step 1: backdrop or grid (row 1, unchanged).
     if (!options.no_backdrop) {
-      if (entry && entry.image) {
+      /* [Kabe, 2026-08-31, "maybe there isn't even a close"] THE ONE-WALL
+         WALK, prototyped behind ?onewall=1: a long room keeps ONE painting
+         per facing (the far one - the distance the painter reliably paints),
+         and the near standpoint is this same painting zoomed UNIFORMLY about
+         the principal point by the declared stride (11.2/4.8). Same pixels,
+         so a circle stays a circle and the step forward is a true geometric
+         stride instead of a second painting at the painter's same attractor
+         distance. */
+      var ow = options.onewall && options.onewall[key];
+      var owSrc = ow && backdrops ? backdrops[ow.from] : null;
+      if (ow && owSrc && owSrc.image) {
+        var s2 = ow.scale, vx2 = 768, vy2 = 526.1;
+        ctx.drawImage(owSrc.image,
+          vx2 - vx2 / s2, vy2 - vy2 / s2, W / s2, H / s2,
+          0, 0, W, H);
+      } else if (entry && entry.image) {
         ctx.drawImage(entry.image, 0, 0, W, H);
         /* [Row 21] A painted facing paints its own doorway, its own jamb and
          * its own reveals — §11 requires the painted opening to coincide with

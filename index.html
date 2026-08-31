@@ -652,6 +652,7 @@
         }
       }
       requestPainting(keyOf(vs));
+      if (ONEWALL && ONEWALL[keyOf(vs)]) requestPainting(ONEWALL[keyOf(vs)].from);
       if (!prefetching) return;
       var ns = neighbourKeys(vs);
       for (var i = 0; i < ns.length; i++) requestPainting(ns[i]);
@@ -669,6 +670,11 @@
       paintFrame(harness.viewstate, true);
     }
 
+    /* [Kabe, 2026-08-31] the one-wall walk experiment table, on only with
+       ?onewall=1 in the URL; the E pair of the platform is the testbed. */
+    var ONEWALL = /[?&]onewall=1/.test(window.location.search || "")
+      ? { "platform_far/E": { from: "platform/E", scale: 11.2 / 4.8 } }
+      : null;
     function metaFor(vs) {
       var e = backdrops[vs.location + "/" + vs.facing];
       return (e && e.meta) ? e.meta : window.HOLO.renderer.GRID_META;
@@ -758,7 +764,8 @@
       warm(viewstate);
       try {
         window.HOLO.renderer.render(
-          scene, harness.world, harness.staging, library, backdrops, viewstate, {});
+          scene, harness.world, harness.staging, library, backdrops, viewstate,
+          ONEWALL ? { onewall: ONEWALL } : {});
         currentLayout = window.HOLO.renderer.layout(
           harness.world, harness.staging, library, metaFor(viewstate), viewstate);
       } catch (err) {
