@@ -270,8 +270,28 @@ def chop(args):
     a = np.asarray(img).copy(); bl = np.asarray(blurred)
     gap = ~valid
     a[gap] = bl[gap]
-    Image.fromarray(a).save(args["out"], "PNG")
-    print(json.dumps({"ok": True, "mode": "chop",
+    out_img = Image.fromarray(a)
+    # [Kabe, 2026-08-30] "after the zoom down for perspective have dark lines
+    # outlining the corners on the reference image. We have that reference
+    # deterministically and wireframe it already - incorporate it so it
+    # understands." The declared geometry, drawn dark ON the reference: the
+    # wall's corner verticals, its ceiling and floor lines, and the four
+    # receding junction lines out to the frame corners.
+    from PIL import ImageDraw
+    dline = ImageDraw.Draw(out_img)
+    INK = (42, 33, 24); lw = 3
+    bx = args["deep"]["box"]
+    tx0, tx1, tyc, tyf = bx["x0"], bx["x1"], bx["yc"], bx["yf"]
+    dline.line([(tx0, tyc), (tx1, tyc)], fill=INK, width=lw)
+    dline.line([(tx0, tyf), (tx1, tyf)], fill=INK, width=lw)
+    dline.line([(tx0, tyc), (tx0, tyf)], fill=INK, width=lw)
+    dline.line([(tx1, tyc), (tx1, tyf)], fill=INK, width=lw)
+    dline.line([(0, 0), (tx0, tyc)], fill=INK, width=lw)
+    dline.line([(W, 0), (tx1, tyc)], fill=INK, width=lw)
+    dline.line([(0, H), (tx0, tyf)], fill=INK, width=lw)
+    dline.line([(W, H), (tx1, tyf)], fill=INK, width=lw)
+    out_img.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "chop", "wireframe": True,
                       "filled_pct": round(float(valid.mean()) * 100, 1),
                       "gap_pct": round(float(gap.mean()) * 100, 1)}))
 

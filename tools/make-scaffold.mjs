@@ -3668,7 +3668,12 @@ export function attachStyle(plan, key, dir, opts = {}) {
             `the same room continuing outward from the sharp centre to every edge of the picture, ` +
             `in the same materials and light, every straight line carried straight onward, until ` +
             `the whole picture is as sharp and real as the centre. The room does not change size: ` +
-            `the sharp centre stays exactly where it is and at exactly its scale.` };
+            `the sharp centre stays exactly where it is and at exactly its scale. DARK GUIDE ` +
+            `LINES are drawn over the picture marking exactly where the architecture runs: the ` +
+            `wall's two corner verticals, its ceiling and floor lines, and the receding junction ` +
+            `lines out to the picture's corners. Paint the architecture ON those lines - corners, ` +
+            `cornice, floor meeting the walls exactly along them - and leave no drawn line visible ` +
+            `in the finished painting.` };
       }
     }
     const warpedPng = join(warpDir2, "warped.png");

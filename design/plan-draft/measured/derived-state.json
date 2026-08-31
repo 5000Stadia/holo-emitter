@@ -13,16 +13,16 @@
       "artifacts": {
         "design/plan-draft/measured/material_legacy.json": "0dc5ec296d9920c04d91c6edd7de5bc5d2992f2a458da2c3b00e4fc253ccde6b"
       },
-      "at": "2026-08-30T20:30:02",
-      "input_digest": "ce9a84e7abe25b62022533c5e2704f7f0512c698f74740337cda55d6046109ba",
+      "at": "2026-08-30T21:44:00",
+      "input_digest": "d20eef60170661d7d03a6dcec2e3add48d113f119114ea0fa12e6b0d9ba2b866",
       "inputs": 802
     },
     "material_provenance": {
       "artifacts": {
         "design/plan-draft/measured/material_provenance.json": "94eded1d8161469e7dbf713eed11a87e9f66e28086b16bc3d5dfb3befaa51c27"
       },
-      "at": "2026-08-30T20:30:02",
-      "input_digest": "ce9a84e7abe25b62022533c5e2704f7f0512c698f74740337cda55d6046109ba",
+      "at": "2026-08-30T21:44:00",
+      "input_digest": "d20eef60170661d7d03a6dcec2e3add48d113f119114ea0fa12e6b0d9ba2b866",
       "inputs": 802
     },
     "room_consistency": {
@@ -46,8 +46,8 @@
         "backdrops/textures/facings.json": "d30cf98a13616a52ee1f1ec0443179a6321582d5490f1a8bbe1127669ba9d9d6",
         "backdrops/textures/materials.json": "89d68328a0162faa639a7f25fafdfc07b8bfcfbd76dba8c7935aedf586b65bdf"
       },
-      "at": "2026-08-30T20:30:02",
-      "input_digest": "2bc67bdcdf0027a318054204876c97002b95486c3b2f4ab54cea88e188258430",
+      "at": "2026-08-30T21:43:59",
+      "input_digest": "9f0965d9a575a6bc6b35634805e4eaa2310a264d798b37714544ae6da35d1ee2",
       "inputs": 4
     },
     "window_calibration": {
