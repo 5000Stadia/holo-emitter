@@ -3552,6 +3552,53 @@ export function attachStyle(plan, key, dir, opts = {}) {
    * why a room with four painted walls shows none of them. */
   const root = opts.root || ROOT;
   if (style.same_wall) {
+    /* [Kabe, 2026-08-30, second gesture] THE CORRECTED PREVIOUS: where this
+       wall has ALREADY been painted once and the warp's round document records
+       exactly how that recreation missed its pins, the better reference is not
+       the close-up re-shrunk - it is that recreation itself, mechanically
+       corrected: ONE uniform scale (shapes true, "force maintaining the aspect
+       ratio of anything we shrink"), then evenly-distributed blended-line
+       insertion per band until every pin lands ("a bit of a fuzzy image but
+       still reference valid without skew"). The fuzz is for the painter to
+       clean; the correction only ever touches a reference, never finished
+       art. Falls through to the close-up draft when no round document exists. */
+    const [dLoc, dF] = key.split("/");
+    const warpDir = join(root, "backdrops", "source-warped", `${dLoc}-${dF}`);
+    const warpFile = join(warpDir, "warp.json");
+    if (existsSync(warpFile)) {
+      const wr = JSON.parse(readFileSync(warpFile, "utf8"));
+      /* THE PREVIOUS PAINTING LIVES WITH ITS ROUND DOCUMENT: the emitter's
+         reuse rule skips any wall with candidates in backdrops/source/, so a
+         wall being re-asked through this route archives its old painting as
+         `previous.png` beside warp.json - part of the round's own record - and
+         the source dir is cleared for the fresh roll. */
+      const prevPng = join(warpDir, "previous.png");
+      const candPng = existsSync(prevPng) ? prevPng : join(root, wr.candidate);
+      if (existsSync(candPng) && wr.source_size && wr.declared_frame) {
+        const [sw2, sh2] = wr.source_size;
+        const [tw2, th2] = wr.declared_frame;
+        const xPins = [[0, 0], ...(wr.columns || []).map((c) => [c.source, c.target]), [sw2, tw2]];
+        const yPins = [[0, 0], ...(wr.rows || []).map((r) => [r.source, r.target]), [sh2, th2]];
+        const argsFileC = join(dir, `.deep-draft-args.json`);
+        const draftFileC = `deep-draft-${style.room}-${style.facing}.png`;
+        writeFileSync(argsFileC, JSON.stringify({
+          mode: "correct", src_png: candPng, x_pins: xPins, y_pins: yPins,
+          out: join(dir, draftFileC)
+        }));
+        const outC = execFileSync("python3", [join(root, "tools", "deep-draft.py"), argsFileC], { encoding: "utf8" });
+        rmSync(argsFileC, { force: true });
+        return { ...style, file: draftFileC, derived: true, draft: true, corrected_previous: true,
+          derived_by: "tools/deep-draft.py --correct", derived_from: wr.candidate,
+          draft_geometry: JSON.parse(outC),
+          role_sentence:
+            `Image 1 is the previous painting of THIS EXACT VIEW, mechanically adjusted to the ` +
+            `correct geometry; the adjustment leaves fine stutter lines through the picture. ` +
+            `REPAINT THE WHOLE PICTURE exactly as Image 1 shows it - same walls, same fixtures, ` +
+            `same marks, same materials and light, everything at exactly the position and ` +
+            `proportion Image 1 gives it (a circle stays a circle) - and clean away the stutter. ` +
+            `Change nothing else: this is the same picture, repainted cleanly.` };
+      }
+    }
     /* [Kabe, 2026-08-30] THE DEEP DRAFT: the close painting shrunk UNIFORMLY
        to the correct proportion (a circle stays a circle), margins the edge
        pixels stretched outward - and the ask tells the painter to recreate

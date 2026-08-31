@@ -1,16 +1,17 @@
 # platform_far/W — technique t2 (labelled scaffold)
 
-**Image 1 IS THE DEEP DRAFT of the very view this packet paints** — `deep-draft-platform-W.png`, built mechanically by `tools/deep-draft.py` from the promoted `backdrops/platform/W.png` (platform/W, the SAME wall): the true picture shrunk uniformly to the correct proportion at the centre, mechanically stretched filler at the margins. The prompt asks for the picture to be RECREATED: centre kept exactly, filler replaced with the room continuing.
+**Image 1 IS THE PREVIOUS PAINTING OF THIS VERY VIEW, GEOMETRY-CORRECTED** — `deep-draft-platform-W.png`, built by `tools/deep-draft.py --correct` from `backdrops/source/platform_far-W/row23-a6a27b21.png` (archived as `previous.png` beside its round document): ONE uniform scale, so every shape keeps its aspect, then evenly-distributed blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED CLEAN: everything exactly where Image 1 puts it, the stutter gone.
 
 **Image 3 is this wall's edge seed.** `edge-seed-left.png` is the 10 % of `backdrops/platform_far/S.png` that abuts this picture — its right-hand 154 columns, full frame height, cut by `tools/crop-edge-seed.py` (sha256 `c9fee6194405` from a painting at `c0ced8b80f93`). The prompt names its role in words: _Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly._
 
 Seeding here is **opportunistic** — an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted).
 
-Attach `deep-draft-platform-W.png` as **Image 1** (platform/W, this room's own wall with its openings removed), `scaffold.png` as **Image 2** and `edge-seed-left.png` as **Image 3**, in that
-order, then send `prompt.txt` verbatim. Generate 1 images and save them to the
+Attach `deep-draft-platform-W.png` as **Image 1** (the previous painting of this very view, geometry-corrected for repainting), `scaffold.png` as **Image 2** and `edge-seed-left.png` as **Image 3**, in that
+order, then send `prompt.txt` verbatim. Generate 2 images and save them to the
 exact paths below — the measurement runs the moment a file appears at one of them.
 
 | roll 1 | `backdrops/source/platform_far-W/row23-a6a27b21.png` |
+| roll 2 | `backdrops/source/platform_far-W/row23-95cdd884.png` |
 
 The prompt files are already on disk beside them. Do not rewrite them.
 

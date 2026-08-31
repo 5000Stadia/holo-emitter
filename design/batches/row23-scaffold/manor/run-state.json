@@ -39,11 +39,12 @@
       "hold_family": "camera-miss",
       "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
       "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_hall/E draws its wall-foot line at 627.0 px, which against the declared horizon at 526.1 px and this painting's own 76.84 px/m puts the eye 1.313 m \u2014 11.0% from the 1.183 m this project draws at, outside the \u00b18% band. The tolerance ruling accepts drift in what this frame's PERSPECTIVE says; it accepts none in what its ruler says, and the floor line is the ruler's [row32:tolerance.eye_band]",
+      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promoted, and taken back out because the validator refused: validate-fixtures: 1 finding(s) in /home/k/Projects/holo-emitter/fixtures/demo-study meta great_hall/E",
       "exit_attempt": {
         "candidate": "backdrops/source/great_hall-E/row23-b5c56d45.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:25"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:05:55"
       }
     },
     "great_hall/S": {
@@ -124,16 +125,17 @@
       "hold_family": "camera-miss",
       "candidate": "backdrops/source/study-S/row23-08cd55d1.png",
       "warp_refusal": {
-        "clause": "meshwarp.aperture_count",
-        "why": "content miss: the plan rules window win02, window win01 on study/S and the painting shows none of them (doors 2/0, windows 0/2) \u2014 no motion of pixels puts an aperture where nothing was painted",
+        "clause": "meshwarp.aperture_order",
+        "why": "the row pins cross: window:win01:head is at target 308.8 from source 221.0 and window:win02:head at target 308.8 from source 181.0, so the painting puts them in the opposite order along the wall from the one the plan rules - an aperture-order content miss, not a warp this instrument can pay for",
         "candidate": "backdrops/source/study-S/row23-08cd55d1.png"
       },
       "exit": "grid",
-      "exit_reason": "the warp refused this frame and it is a content miss, so it re-asks: [meshwarp.aperture_count] content miss: the plan rules window win02, window win01 on study/S and the painting shows none of them (doors 2/0, windows 0/2) \u2014 no motion of pixels puts an aperture where nothing was painted",
+      "exit_reason": "the warp refused this frame and it is a content miss, so it re-asks: [meshwarp.aperture_order] the row pins cross: window:win01:head is at target 308.8 from source 221.0 and window:win02:head at target 308.8 from source 181.0, so the painting puts them in the opposite order along the wall from the one the plan rules - an aperture-order content miss, not a warp this instrument can pay for",
       "exit_attempt": {
         "candidate": "backdrops/source/study-S/row23-08cd55d1.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:50"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:06:32"
       }
     },
     "back_stair/N": {
@@ -178,7 +180,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair-E/row23-34d13ff2.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:32"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:07:00"
       }
     },
     "back_stair/S": {
@@ -193,7 +196,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair-S/row23-0476d1f5.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:32"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:07:17"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -668,11 +672,12 @@
       "hold_family": "unfitted-horizon",
       "why": "the tolerance promotion was refused: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 213 px \u2014 1.70\u00d7 the 125.3 px blueprint \u00a711's 1.00 m opening spans at this wall's corner scale (125.3 px/m; its rule",
       "exit": "grid",
-      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_stair_hall/N: the way through the painting shows for \"op07\" is 197 px \u2014 1.60\u00d7 the 122.8 px the plan's own 1.00 m opening spans at this wall's corner scale (122.8 px/m; its ruler reads 183.2), outside 0.5\u20131.5\u00d7 \u2014 that is not a doorway, whatever else it is [row27:door.painted_width]",
+      "exit_reason": "the warp could not carry this wall: the warped frame re-measures and the promotion refused it: promote refused: great_stair_hall/N: the plan draws 1 flight(s) in this view (great_stair) and the ask backdrops/source-warped/great_stair_hall-N/warped.png was painted from never named a staircase (backdrops/source-warped/great_stair_hall-N/warped.prompt.txt, read beside the candidate) \u2014 this roll was asked for before the flight language existed, so the picture cannot be shown to hold the staircase the room holds, and promoting it leaves a player looking at the place a stair used to be. Its own re-ask under the flight paragraph is the candidate for this wall [row32:stair.painted_flight_lost]",
       "exit_attempt": {
         "candidate": "backdrops/source/great_stair_hall-N/row23-6c1f59ca.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:39"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:08:18"
       }
     },
     "great_stair_hall/E": {
@@ -694,7 +699,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/great_stair_hall-S/row23-f674d22f.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:45"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:08:44"
       }
     },
     "great_stair_hall/W": {
@@ -864,7 +870,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/entrance_court-N/row23-eadcd36b.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:57"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:09:37"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -934,7 +941,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/entrance_court-W/row23-b8c72828.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:57"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:10:04"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -1001,7 +1009,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/privy_garden-E/row23-1f56f4bc.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:58"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:10:35"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -1117,7 +1126,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/entrance_approach-N/row23-272b11ba.png",
         "exit": "grid",
-        "at": "2026-08-29T00:39:58"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:11:31"
       },
       "warp_refusal": {
         "clause": "meshwarp.landmark_unreadable",
@@ -1329,7 +1339,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/back_stair_head-E/row23-89ae5671.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:04"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:12:00"
       }
     },
     "back_stair_head/S": {
@@ -1841,7 +1852,8 @@
       "exit_attempt": {
         "candidate": "backdrops/source/stair_landing-S/row23-9976389d.png",
         "exit": "grid",
-        "at": "2026-08-29T00:40:17"
+        "instrument": "7991604bcb26",
+        "at": "2026-08-30T11:12:59"
       }
     },
     "stair_landing/W": {

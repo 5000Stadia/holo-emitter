@@ -438,6 +438,12 @@
           "id": "a73c3062",
           "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
           "prompt": "backdrops/source/platform-E/row23-a73c3062.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "d3cc96ec",
+          "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
+          "prompt": "backdrops/source/platform-E/row23-d3cc96ec.prompt.txt"
         }
       ],
       "retry_cap": 2
@@ -587,6 +593,12 @@
           "id": "a6a27b21",
           "candidate": "backdrops/source/platform_far-W/row23-a6a27b21.png",
           "prompt": "backdrops/source/platform_far-W/row23-a6a27b21.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "95cdd884",
+          "candidate": "backdrops/source/platform_far-W/row23-95cdd884.png",
+          "prompt": "backdrops/source/platform_far-W/row23-95cdd884.prompt.txt"
         }
       ],
       "retry_cap": 2

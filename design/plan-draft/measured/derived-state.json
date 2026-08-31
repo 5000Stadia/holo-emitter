@@ -3,60 +3,60 @@
   "artifacts": {
     "baked": {
       "artifacts": {
-        "backdrops/baked.js": "38b81fed6ec44ff328430bef4419a440165d7b82dbf684cca86715224cf60643"
+        "backdrops/baked.js": "28f0890555a421bfe16efce9bc3d6a8da17349c1886a5f9a0bb13f17d7b03319"
       },
-      "at": "2026-08-30T16:40:59",
-      "input_digest": "c7cb5ae69f33ba882426c7e8e52098c30909bfa93050346abe85bbfc40e961cb",
-      "inputs": 194
+      "at": "2026-08-30T19:19:04",
+      "input_digest": "39d6cb0ee4443b6e5b13bc856d29cb4dbf820058f4c766bf6dc449628cd0e316",
+      "inputs": 198
     },
     "material_legacy": {
       "artifacts": {
-        "design/plan-draft/measured/material_legacy.json": "cc549f20cf20a70473e830109dbda97f20f7569586c6ce927b65f34dd84206e6"
+        "design/plan-draft/measured/material_legacy.json": "0dc5ec296d9920c04d91c6edd7de5bc5d2992f2a458da2c3b00e4fc253ccde6b"
       },
-      "at": "2026-08-30T16:43:53",
-      "input_digest": "9b6f4f33499b26aac54b96b4c9db5ddb33b4ac91a59eca7dd622ed4ae34fdc0e",
-      "inputs": 792
+      "at": "2026-08-30T19:19:03",
+      "input_digest": "d4d043860a2de83373469dafc1c2b14e60be00340eaa5a41c98c369f57d75b08",
+      "inputs": 802
     },
     "material_provenance": {
       "artifacts": {
-        "design/plan-draft/measured/material_provenance.json": "210d09dbc811653fb4d11b5cb0f0100f4d73390f8de55519990071a16beffcca"
+        "design/plan-draft/measured/material_provenance.json": "94eded1d8161469e7dbf713eed11a87e9f66e28086b16bc3d5dfb3befaa51c27"
       },
-      "at": "2026-08-30T16:43:52",
-      "input_digest": "9b6f4f33499b26aac54b96b4c9db5ddb33b4ac91a59eca7dd622ed4ae34fdc0e",
-      "inputs": 792
+      "at": "2026-08-30T19:19:03",
+      "input_digest": "d4d043860a2de83373469dafc1c2b14e60be00340eaa5a41c98c369f57d75b08",
+      "inputs": 802
     },
     "room_consistency": {
       "artifacts": {
-        "design/plan-draft/measured/room_consistency.json": "abc6a4e851115621098e06be920eb6981ee1000ffff1f91df9185e5ace18e58b"
+        "design/plan-draft/measured/room_consistency.json": "6c475e592a96bf18e5d7707910f820012aa64b4346ccb1050911651bcd14e024"
       },
-      "at": "2026-08-30T16:40:59",
-      "input_digest": "00b65d0f89ce9f6733f155e82124f1859e2c6b9d8cd518912e9178120a824377",
-      "inputs": 184
+      "at": "2026-08-30T19:19:04",
+      "input_digest": "afa01b4da69a7fefe1aaf95dfe8d50dd27fb9966ce55fc2d8fd55613ad4dd0fd",
+      "inputs": 188
     },
     "room_consistency_readme": {
       "artifacts": {
-        "design/batches/row40-consistency/README.md": "432a665ec3cca9b284a5c747570fec25e244fd10ef5d6c2a8fbb089477609d49"
+        "design/batches/row40-consistency/README.md": "d6c45afc206b121682a374ee966abfdfe2a28008ab1d04c02369314ebbb070a0"
       },
-      "at": "2026-08-30T16:40:59",
-      "input_digest": "00b65d0f89ce9f6733f155e82124f1859e2c6b9d8cd518912e9178120a824377",
-      "inputs": 184
+      "at": "2026-08-30T19:19:04",
+      "input_digest": "afa01b4da69a7fefe1aaf95dfe8d50dd27fb9966ce55fc2d8fd55613ad4dd0fd",
+      "inputs": 188
     },
     "texture_library": {
       "artifacts": {
         "backdrops/textures/facings.json": "d30cf98a13616a52ee1f1ec0443179a6321582d5490f1a8bbe1127669ba9d9d6",
         "backdrops/textures/materials.json": "89d68328a0162faa639a7f25fafdfc07b8bfcfbd76dba8c7935aedf586b65bdf"
       },
-      "at": "2026-08-30T16:43:49",
-      "input_digest": "f882fd784562918b257662cc9d1d9b21d8547c487a4353a3267538991901a4f6",
+      "at": "2026-08-30T19:19:03",
+      "input_digest": "3ece57c69d4405cbb9ea41e09baade115c60af7b345ccc35b73fcf88be119072",
       "inputs": 4
     },
     "window_calibration": {
       "artifacts": {
         "design/plan-draft/measured/window_calibration.json": "fcad0f81339a51c7bc315c5eb5d4ecab2a3ee2bd2d3ef55b1bb6df82b96d2c2c"
       },
-      "at": "2026-08-30T16:40:59",
-      "input_digest": "f0c41abb5079961184bcff1273db6893ab69afcd259e523eee5785d551e92481",
-      "inputs": 185
+      "at": "2026-08-30T19:19:04",
+      "input_digest": "3cb894b28534696a95e4c2eb082a5eb4fd8aefa5f2a004498a280d205c0d9c16",
+      "inputs": 189
     }
   }
 }

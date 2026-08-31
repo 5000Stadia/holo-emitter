@@ -604,7 +604,7 @@ export function packetNote(seed, plan_) {
  *  directory will go and find one. */
 export function attachLine(seed, style) {
   const one = style
-    ? `\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall with its openings removed)`
+    ? styleAttachPhrase(style)
     : null;
   const two = `\`scaffold.png\` as **Image ${scaffoldImageIndex(style)}**`;
   const three = seed
@@ -713,6 +713,20 @@ export function attachSeeds(plan, key, packetDir, opts = {}) {
  * picture with a story attached. `attachStyle` is what fills these fields, and a
  * packet with no Image 1 gets no paragraph — `attachLine` already says so.
  */
+
+/* [Kabe, 2026-08-30] THE ATTACH LINE SAYS WHAT IMAGE 1 ACTUALLY IS, in the same
+   three cases `stylePacketNote` speaks: the corrected previous painting, the
+   same wall shrunk true, or the derived seed. One phrase, decided here, so the
+   attach line and the paragraph cannot disagree. */
+function styleAttachPhrase(style) {
+  const what = style.corrected_previous
+    ? `the previous painting of this very view, geometry-corrected for repainting`
+    : style.same_wall
+      ? `${style.room}/${style.facing}, the SAME wall promoted, shrunk true, stretched filler at the margins`
+      : `${style.room}/${style.facing}, this room's own wall with its openings removed`;
+  return `\`${style.file}\` as **Image 1** (${what})`;
+}
+
 export function stylePacketNote(style) {
   if (!style) return "";
   const s12 = (h) => (h ? String(h).slice(0, 12) : "unrecorded");
@@ -720,6 +734,16 @@ export function stylePacketNote(style) {
      room's deep ask carries the promoted CLOSE painting raw — its content is
      the point — and says so, instead of the derived-seed paragraph whose every
      claim ("no architecture at all") would be false of it. */
+  if (style.same_wall && style.corrected_previous) {
+    return `**Image 1 IS THE PREVIOUS PAINTING OF THIS VERY VIEW, GEOMETRY-CORRECTED** — \`${style.file}\`, ` +
+      `built by \`tools/deep-draft.py --correct\` from \`${style.derived_from}\` (archived as \`previous.png\` ` +
+      `beside its round document): ONE uniform scale, so every shape keeps its aspect, then evenly-distributed ` +
+      `blended-line insertion per band until every pin of the warp's round document lands exactly — geometrically ` +
+      `true, slightly stuttered [Kabe's mechanism, 2026-08-30]. The prompt asks for the picture to be REPAINTED ` +
+      `CLEAN: everything exactly where Image 1 puts it, the stutter gone.
+
+`;
+  }
   if (style.same_wall) {
     return `**Image 1 IS THE DEEP DRAFT of the very view this packet paints** — \`${style.file}\`, ` +
       `built mechanically by \`tools/deep-draft.py\` from the promoted \`${style.rel}\` ` +
@@ -769,7 +793,7 @@ export function packetNoteAll(seeds, plans) {
 /** The attach line for a list of strips — the plural of `attachLine`. */
 export function attachLineAll(seeds, style) {
   const parts = (style
-    ? [`\`${style.file}\` as **Image 1** (${style.room}/${style.facing}, this room's own wall with its openings removed)`]
+    ? [styleAttachPhrase(style)]
     : [])
     .concat([`\`scaffold.png\` as **Image ${scaffoldImageIndex(style)}**`])
     .concat(seeds.map((s) => `\`${seedFileName(s.side)}\` as **Image ${s.image_index}**`));
