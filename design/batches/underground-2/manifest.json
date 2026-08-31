@@ -104,8 +104,8 @@
           "origin": false,
           "lead_key": "platform/W",
           "carriers": 0,
-          "has_image": true,
-          "painted": true,
+          "has_image": false,
+          "painted": false,
           "continues": "platform/W",
           "depends_on": "platform/W"
         },
@@ -191,8 +191,8 @@
   "_register": "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
   "_generated": "2026-08-31",
   "facings_in_plan": 12,
-  "emitted": 6,
-  "skipped": 6,
+  "emitted": 7,
+  "skipped": 5,
   "skipped_entries": [
     {
       "key": "booking_hall/N",
@@ -239,17 +239,6 @@
       "fenced": null,
       "carriers": [],
       "skipped": "exists: backdrops/booking_hall/W.png"
-    },
-    {
-      "key": "platform/E",
-      "room": "platform",
-      "facing": "E",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": true,
-      "fenced": null,
-      "carriers": [],
-      "skipped": "exists: backdrops/platform/E.png"
     },
     {
       "key": "platform_far/W",
@@ -333,42 +322,7 @@
         "outdoor": false,
         "anchor": "dado_band"
       },
-      "edge_seed": {
-        "key": "platform/N",
-        "location": "platform",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "right",
-        "neighbour": "platform/E",
-        "neighbour_edge": "left",
-        "source": "backdrops/platform/E.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "left",
-            "neighbour": "platform/W",
-            "painted": false
-          }
-        ],
-        "lead": "platform/W",
-        "is_lead": false,
-        "continues": "platform/W",
-        "order_position": 1,
-        "depends_on": "platform/W",
-        "why": "this facing continues `platform/W`, which has no picture yet, so the ask waits for it. [row 42] Every location paints its LEAD wall first and the rest follow it; indoors the other three all follow the lead directly",
-        "image_index": 2,
-        "file": "design/batches/underground-2/platform-N/edge-seed-right.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          0,
-          154
-        ],
-        "sha256": "caf7c54ed88217f15ae6c5508c3d2a22aa9ece3b91e14cbcc57cbc7308abb9dd",
-        "source_sha256": "ae86700aa213bc4b5e60d09621b6d8f3d6e4390c115b0b2a16ded678c48b8b0a"
-      },
+      "edge_seed": null,
       "seed_policy": "opportunistic",
       "depends_on": "platform/W",
       "lead": "platform/W",
@@ -460,42 +414,7 @@
         "outdoor": false,
         "anchor": "dado_band"
       },
-      "edge_seed": {
-        "key": "platform/S",
-        "location": "platform",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "left",
-        "neighbour": "platform/E",
-        "neighbour_edge": "right",
-        "source": "backdrops/platform/E.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "right",
-            "neighbour": "platform/W",
-            "painted": false
-          }
-        ],
-        "lead": "platform/W",
-        "is_lead": false,
-        "continues": "platform/W",
-        "order_position": 3,
-        "depends_on": "platform/W",
-        "why": "this facing continues `platform/W`, which has no picture yet, so the ask waits for it. [row 42] Every location paints its LEAD wall first and the rest follow it; indoors the other three all follow the lead directly",
-        "image_index": 2,
-        "file": "design/batches/underground-2/platform-S/edge-seed-left.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          1382,
-          1536
-        ],
-        "sha256": "e080e14a9fba276b84850dd42dd541276afec9ea509a9a71cddc97f96c2ee494",
-        "source_sha256": "ae86700aa213bc4b5e60d09621b6d8f3d6e4390c115b0b2a16ded678c48b8b0a"
-      },
+      "edge_seed": null,
       "seed_policy": "opportunistic",
       "depends_on": "platform/W",
       "lead": "platform/W",
@@ -516,6 +435,99 @@
           "id": "e2703ce7",
           "candidate": "backdrops/source/platform-S/row23-e2703ce7.png",
           "prompt": "backdrops/source/platform-S/row23-e2703ce7.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "platform/E",
+      "room": "platform",
+      "facing": "E",
+      "floor": "below",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/underground-2/platform-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "082389d9038aa536d9da9cc9c9dfddd821ec7d9e7f2dda2f49ce0d67a93fb74e",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.667,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.617188,
+      "horizon_y": 0.51377,
+      "corner_x0_px": 530,
+      "corner_x1_px": 1005,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 632.000512,
+          "half_width": 8.47,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.000112,
+          "half_width": 8.8,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 320.33271199999996,
+          "half_width": 24.93,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            530,
+            1005
+          ]
+        ]
+      },
+      "implied_focal_px": 1026.7,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522,
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": "platform/W",
+      "lead": "platform/W",
+      "is_lead": false,
+      "continues": "platform/W",
+      "order_position": 2,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "a73c3062",
+          "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
+          "prompt": "backdrops/source/platform-E/row23-a73c3062.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "d3cc96ec",
+          "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
+          "prompt": "backdrops/source/platform-E/row23-d3cc96ec.prompt.txt"
         }
       ],
       "retry_cap": 2
@@ -1338,144 +1350,6 @@
           "id": "f1727b12",
           "candidate": "backdrops/source/booking_hall-W/row23-f1727b12.png",
           "prompt": "backdrops/source/booking_hall-W/row23-f1727b12.prompt.txt"
-        }
-      ],
-      "retry_cap": 2
-    },
-    {
-      "key": "platform/E",
-      "room": "platform",
-      "facing": "E",
-      "floor": "below",
-      "type": "enclosed",
-      "promoted": true,
-      "fenced": null,
-      "carriers": [],
-      "packet": "design/batches/underground-2/platform-E",
-      "register": "g5-noappendix",
-      "situations": [
-        "enclosed",
-        "follower",
-        "deep-view",
-        "same-wall-image",
-        "no-window",
-        "blank"
-      ],
-      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
-      "scaffold_style": "ink-on-paper-v2",
-      "px_per_m_at_wall": 91.42857142857143,
-      "camera_wall_m": 11.2,
-      "camera_far_m": null,
-      "facing_type": "enclosed",
-      "floor_line_y": 0.61939453125,
-      "horizon_y": 0.51376953125,
-      "corner_x0_px": 475.4285714285714,
-      "corner_x1_px": 1060.5714285714287,
-      "storey_height_m": 3.4,
-      "wall_width_m": 6.4,
-      "brackets": {
-        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
-        "band": 0.08,
-        "floor_window": {
-          "centre": 634.26,
-          "half_width": 8.65,
-          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
-        },
-        "rail_band": {
-          "centre": 524.5457142857143,
-          "half_width": 8.78,
-          "from": "+/-8 % of the anchor's own height above the floor line"
-        },
-        "ceiling_band": {
-          "centre": 323.40285714285716,
-          "half_width": 24.87,
-          "from": "+/-8 % of the ceiling-to-floor span"
-        },
-        "carrier_windows": [],
-        "carrier_tolerance_px": 0,
-        "rail_columns": [
-          [
-            475.4285714285714,
-            1060.5714285714287
-          ]
-        ]
-      },
-      "implied_focal_px": 1024,
-      "stamped": [],
-      "flights": [],
-      "chair_rail_y": 524.55,
-      "voice": {
-        "id": "platform_vault",
-        "via": "room id",
-        "outdoor": false,
-        "anchor": "dado_band"
-      },
-      "edge_seed": {
-        "key": "platform/E",
-        "location": "platform",
-        "location_type": "indoor",
-        "policy": "opportunistic",
-        "fraction": 0.1,
-        "side": "left",
-        "neighbour": "platform/N",
-        "neighbour_edge": "right",
-        "source": "backdrops/platform/N.png",
-        "source_kind": "promoted",
-        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
-        "alternatives": [
-          {
-            "side": "right",
-            "neighbour": "platform/S",
-            "painted": true
-          }
-        ],
-        "lead": "platform/W",
-        "is_lead": false,
-        "continues": "platform/W",
-        "order_position": 2,
-        "depends_on": null,
-        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
-        "image_index": 3,
-        "file": "design/batches/underground-2/platform-E/edge-seed-left.png",
-        "width_px": 154,
-        "height_px": 1024,
-        "columns": [
-          1382,
-          1536
-        ],
-        "sha256": "ec114dd43eedbf904851f826a1025eedccae2e0b4286cba93c5984cb4c8ddd76",
-        "source_sha256": "5e86e2b712a59809b7702c214be6094160bbc5c634c6b6b341223121b7c6a134"
-      },
-      "seed_policy": "opportunistic",
-      "depends_on": null,
-      "lead": "platform/W",
-      "is_lead": false,
-      "continues": "platform/W",
-      "order_position": 2,
-      "lead_image": {
-        "rel": "backdrops/platform/W.png",
-        "kind": "promoted"
-      },
-      "style_image": {
-        "file": "grown-platform-E.png",
-        "rel": "backdrops/platform_far/E.png",
-        "room": "platform_far",
-        "facing": "E",
-        "lead": false,
-        "source_kind": "promoted-same-wall"
-      },
-      "rolls": [
-        {
-          "roll": 1,
-          "id": "a73c3062",
-          "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
-          "prompt": "backdrops/source/platform-E/row23-a73c3062.prompt.txt"
-        },
-        {
-          "roll": 2,
-          "id": "d3cc96ec",
-          "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
-          "prompt": "backdrops/source/platform-E/row23-d3cc96ec.prompt.txt"
         }
       ],
       "retry_cap": 2

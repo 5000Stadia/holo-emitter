@@ -3,7 +3,7 @@ Asset type: gameplay backdrop for the west wall of the platform, circa-1931 Lond
 Gate anchor: the tiled dado band's top edge above the floor, 1.20 m.
 Primary request: Paint the west wall of the platform of a circa-1931 London Underground station, below street level.
   Its walls are cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall.
-  Overhead: a broad flat-painted concrete soffit springing from a moulded cornice line, carrying a run of shaded pendant lamps down its centre. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.
+  Overhead: a broad flat-painted concrete soffit springing from a moulded cornice line. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.
   A clearly legible dark bottle-green glazed tiled dado band runs corner to corner on every exposed wall surface including the side-wall returns, its top edge at exactly 1.20 m above the floor, interrupted only by the doorway.
 On this wall: the door opening stands at the centre, exactly 1.20 m wide and exactly 2.00 m high at the wall plane.
   It stands empty with no leaf hung in it, and the space beyond it is deep unlit shadow — no lit room, no visible far wall and no light source behind it.
