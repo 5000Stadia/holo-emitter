@@ -197,7 +197,11 @@ W, H = snap.W, snap.H
 MANOR = snap.MANOR
 STATE = snap.STATE
 PLAN = snap.PLAN
-READINGS = os.path.join(HERE, "manor")
+#: [row 44, clause 8] THE READINGS ARE THE PACK'S. Same directory for the
+#: manor (`pack.load_pack()` resolves `manor` to this very path); a second map
+#: keeps its readings under its own name and the warp must look there or it
+#: re-measures every frame the sweep already read.
+READINGS = snap._P.paths["readings_dir"]
 #: THE SWEEP'S EVIDENCE, and it is not a round directory. `row23_run.py`'s warp
 #: exit writes the document a PROMOTION reads into `meshwarp/` — a round, whose
 #: name matches `promote-backdrop.mjs`'s `^[a-z0-9]+$` — and this sweep writes
@@ -839,7 +843,27 @@ def target_box_from_plan(declared, src_box, ppm_source):
     cx0, cx1 = declared.get("corner_x0"), declared.get("corner_x1")
     seen = (cx0 is not None and cx1 is not None
             and 0.0 <= cx0 <= W - 1.0 and 0.0 <= cx1 <= W - 1.0)
-    if seen:
+    run = snap.run_wall(declared)
+    if run is not None:
+        # A RUN WALL HAS ONE CORNER AND THE FRAME EDGE. The declared corner on
+        # the closed side is a real corner and is held to exactly as a
+        # two-corner wall's is. The other declared corner is the RUN's far end,
+        # metres outside the frame, and is not a landmark: nothing was painted
+        # there and no pixel of this target comes from it. So the open side of
+        # the box is CLAMPED TO THE FRAME EDGE, which is the same physical
+        # place the source box's open edge names (`run_visible_m` crossed at
+        # each frame's own scale) — the wall map through the two is the one the
+        # off-frame corners would have given, with no pin outside the picture.
+        x0 = cx0 if run["closed"] == "x0" else 0.0
+        x1 = cx1 if run["closed"] == "x1" else W - 1.0
+        how = ("a run wall: the %s corner at %.0f is this room's only one and "
+               "%.2f m of run leaves the frame on the %s, where the declared "
+               "corner sits at %.0f — so the box ends at the frame edge"
+               % ("left" if run["closed"] == "x0" else "right",
+                  run["corner_declared"], run["run_visible_m"],
+                  "right" if run["closed"] == "x0" else "left",
+                  cx1 if run["closed"] == "x0" else cx0))
+    elif seen:
         x0, x1, how = cx0, cx1, "the declared corners, both inside the frame"
     else:
         k = ppm / ppm_source
@@ -855,6 +879,7 @@ def target_box_from_plan(declared, src_box, ppm_source):
     if bad:
         return None, None, "the declared camera does not see this room: " + bad
     return b, dict(horizontal=how, corners_in_frame=bool(seen),
+                   run_wall=(dict(run) if run is not None else None),
                    ppm_source=round(float(ppm_source), 3),
                    ppm_target=round(float(ppm), 3),
                    scale_k=round(float(ppm / ppm_source), 4)), None
@@ -971,7 +996,7 @@ def _place(kept, cand, min_sep=PIN_MIN_SEP_PX):
     return kept, dropped
 
 
-def wall_axis_pins(src_box, tgt_box, pairs):
+def wall_axis_pins(src_box, tgt_box, pairs, names=("corner_left", "corner_right")):
     """The pinned COLUMNS and ROWS of the faced wall's plane.
 
     Columns: the left corner, each paired aperture's left and right edge, the
@@ -981,9 +1006,14 @@ def wall_axis_pins(src_box, tgt_box, pairs):
     reading. The shell's four go in first so that a duplicate drops the
     aperture's copy and never the room's own line.
     """
-    cols = [dict(name="corner_left", kind="room_corner",
+    # `names` is how a RUN WALL says which of the two is a corner: its open end
+    # is the frame edge ruled off the anchor, not a room corner, and the record
+    # says `run_end_*` so that no reader of it thinks a corner was found there.
+    cols = [dict(name=names[0],
+                 kind="room_corner" if names[0].startswith("corner") else "run_end",
                  target=float(tgt_box["x0"]), source=float(src_box["x0"])),
-            dict(name="corner_right", kind="room_corner",
+            dict(name=names[1],
+                 kind="room_corner" if names[1].startswith("corner") else "run_end",
                  target=float(tgt_box["x1"]), source=float(src_box["x1"]))]
     rows = [dict(name="ceiling_line", kind="room_corner",
                  target=float(tgt_box["yc"]), source=float(src_box["yc"])),
@@ -1403,14 +1433,27 @@ def warp_wall(key, candidate, mode="plane", plan_path=None, reading=None):
     # magnification of a strip and calls it a room. A span this far from the one
     # the declared camera draws is not the room's corners, so the landmark has
     # not been found and this refuses by that name rather than shipping a smear.
+    run = snap.run_wall(declared)
+    rec["run_wall"] = (dict(run) if run is not None else None)
     span_s = float(src_box["x1"] - src_box["x0"])
     span_t = float(tgt_box["x1"] - tgt_box["x0"])
     if span_t > 0 and not (1.0 / CORNER_SPAN_RATIO <= span_s / span_t <= CORNER_SPAN_RATIO):
+        # ON A RUN WALL THIS SPAN IS THE SCALE AND NOTHING ELSE: both boxes
+        # carry the same run_visible_m, each at its own frame's px-per-metre,
+        # so their ratio IS ppm_source/ppm_target. It is still the number to
+        # refuse on — a wall painted at half the ruled scale is not a wall this
+        # tool may stretch — but it is not a corner disagreement and is not
+        # reported as one.
         rec.update(verdict="refused", clause=LANDMARK_REFUSAL, why=(
-            "the painted corners span %.0f px where the declared camera draws "
-            "%.0f (%.2fx, outside the %.1fx a corner reading may differ by), so "
-            "what was read is a recession break and not this room's corners"
-            % (span_s, span_t, span_s / span_t, CORNER_SPAN_RATIO)))
+            ("the run's %.2f m spans %.0f px in the painting where the declared "
+             "camera draws %.0f (%.2fx, outside the %.1fx a reading may differ "
+             "by), so the painting's ruled scale is not this room's"
+             % (run["run_visible_m"], span_s, span_t, span_s / span_t,
+                CORNER_SPAN_RATIO)) if run is not None else
+            ("the painted corners span %.0f px where the declared camera draws "
+             "%.0f (%.2fx, outside the %.1fx a corner reading may differ by), so "
+             "what was read is a recession break and not this room's corners"
+             % (span_s, span_t, span_s / span_t, CORNER_SPAN_RATIO))))
         return None, rec
     rec["target_notes"] = tnotes
     rec["source_box"] = {k: round(float(v), 2) for k, v in src_box.items()}
@@ -1455,7 +1498,12 @@ def warp_wall(key, candidate, mode="plane", plan_path=None, reading=None):
         return None, rec
 
     if mode == "plane":
-        cols, rows, dropped = wall_axis_pins(src_box, tgt_box, dpairs + wpairs)
+        names = ("corner_left", "corner_right")
+        if run is not None:
+            names = (("corner_left", "run_end_right") if run["closed"] == "x0"
+                     else ("run_end_left", "corner_right"))
+        cols, rows, dropped = wall_axis_pins(src_box, tgt_box, dpairs + wpairs,
+                                             names=names)
         rec["pins_dropped_as_duplicate"] = dropped
         why = axis_refusal("column", cols) or axis_refusal("row", rows)
         if why:

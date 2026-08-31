@@ -1,0 +1,182 @@
+{
+ "facing": "platform/N",
+ "candidate": "backdrops/source/platform-N/row23-ab082589.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "61e9338c2039a710b30175f236a0afb4dfecaed66340fe8e4d122e4d57f46adc",
+ "instrument": "da5967ad854c",
+ "reading_cache": "design/plan-draft/measured/underground-2/ab082589.json",
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": -6.64,
+  "delta_eye_pct": 7.76,
+  "hold_family": "unfitted-horizon"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured on the closed side only: a run wall has one corner and the open end is ruled",
+  "run_wall": {
+   "closed": "x0",
+   "run_m": 12.8,
+   "run_m_from": "the declared corner span at the declared scale",
+   "run_visible_m": 6.795,
+   "corner_source_px": 101,
+   "corner_declared_px": 85.33,
+   "corner_ask_px": -15.7
+  },
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "this frame fits no ceiling-ramp horizon at all",
+  "px_per_m_at_wall": 199.167
+ },
+ "run_wall": {
+  "closed": "x0",
+  "open": "x1",
+  "corner_declared": 85.33333333333348,
+  "edge_px": 1535.0,
+  "run_m": 12.8,
+  "run_m_from": "the declared corner span at the declared scale",
+  "width_m": 6.4,
+  "run_visible_m": 6.795312499999999
+ },
+ "target_notes": {
+  "horizontal": "a run wall: the left corner at 85 is this room's only one and 6.80 m of run leaves the frame on the right, where the declared corner sits at 2816 \u2014 so the box ends at the frame edge",
+  "corners_in_frame": false,
+  "run_wall": {
+   "closed": "x0",
+   "open": "x1",
+   "corner_declared": 85.33333333333348,
+   "edge_px": 1535.0,
+   "run_m": 12.8,
+   "run_m_from": "the declared corner span at the declared scale",
+   "width_m": 6.4,
+   "run_visible_m": 6.795312499999999
+  },
+  "ppm_source": 199.167,
+  "ppm_target": 213.333,
+  "scale_k": 1.0711
+ },
+ "source_box": {
+  "x0": 101.0,
+  "x1": 1454.4,
+  "yc": 105.0,
+  "yf": 780.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 85.33,
+  "x1": 1535.0,
+  "yc": 53.14,
+  "yf": 778.47,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+  "source_storey_m": 3.389,
+  "source_ppm": 199.167
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 85.333,
+   "source": 101.0,
+   "ask_px": -15.7,
+   "residual_px": 0.0
+  },
+  {
+   "name": "run_end_right",
+   "kind": "run_end",
+   "target": 1535.0,
+   "source": 1454.402,
+   "ask_px": 80.6,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 53.14,
+   "source": 105.0,
+   "ask_px": -51.9,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 778.473,
+   "source": 780.0,
+   "ask_px": -1.5,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.071,
+  "x_scale_max": 1.071,
+  "y_scale_min": 1.075,
+  "y_scale_max": 1.075,
+  "x_segments": [
+   {
+    "name": "corner_left..run_end_right",
+    "target_px": 1449.7,
+    "source_px": 1353.4,
+    "scale": 1.071
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..floor_line",
+    "target_px": 725.3,
+    "source_px": 675.0,
+    "scale": 1.075
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 4872,
+ "revealed_fraction": 0.0031,
+ "revealed_fill": "plane_recession",
+ "fill_fade_px": 24,
+ "filled_px": 37334,
+ "mirror_band_px": 0,
+ "seam_blend_px": 24,
+ "column_count": 2,
+ "row_count": 2,
+ "seconds": 2.61,
+ "out_png": "meshwarp-runwall/platform-N-ab082589.png"
+}

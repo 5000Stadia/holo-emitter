@@ -377,6 +377,88 @@ def map_points(src, tgt, x, y):
 
 # ------------------------------------------------------------ reading the box
 
+#: A RUN WALL'S MARKER, AND IT IS A SHAPE AND NOT A THRESHOLD. A wall whose
+#: declared corner span is this many times its own drawn width is not a wall
+#: the camera sees both ends of: it is a RUN — `tools/plan-projection.mjs`
+#: `runSpanOf` extends the corners to the ends of the room's long side, and
+#: `wall_run_m` is the metres it wrote there. The ratio is only the fallback
+#: for a manifest that predates that field; a run is 2x its bay's width on the
+#: underground map and nothing legitimate sits between 1.0 and 1.25.
+RUN_WALL_MIN_RATIO = 1.25
+
+
+def run_wall(declared):
+    """This facing's RUN, or None if it is an ordinary two-corner wall.
+
+    A run wall is a long room's side wall. The painting legitimately shows ONE
+    corner — the closed end — and the flat wall running off the other frame
+    edge: no second corner, no second return, and beyond the open side the
+    ceiling line goes on HORIZONTAL because there is no return to ramp. The
+    scaffold declares exactly this: one of `corner_x0_px`/`corner_x1_px` is the
+    room's real corner and the other is the run's far end, off the frame.
+
+    Returns `dict(closed, open, corner_declared, run_m, run_visible_m,
+    edge_px, ...)`. `run_visible_m` is the metres of the run BETWEEN the corner
+    and the frame edge on the open side — the whole of what the declared camera
+    shows of it, which is what a source box has to span to be the same wall.
+
+    None is returned for every wall this corpus has warped so far, and that is
+    the guarantee: the run branch fires on a run meta or not at all.
+    """
+    cx0, cx1 = declared.get("corner_x0"), declared.get("corner_x1")
+    ppm = declared.get("ppm")
+    if cx0 is None or cx1 is None or not ppm or declared.get("storey_m") is None:
+        return None
+    in0 = 0.0 <= cx0 <= W - 1.0
+    in1 = 0.0 <= cx1 <= W - 1.0
+    if in0 == in1:                      # both corners seen, or neither
+        return None
+    run_m = declared.get("wall_run_m")
+    how = "the scaffold's own wall_run_m"
+    if run_m is None:
+        run_m = (cx1 - cx0) / ppm
+        how = "the declared corner span at the declared scale"
+    width_m = declared.get("wall_width_m")
+    if declared.get("wall_run_m") is None and (
+            not width_m or run_m < RUN_WALL_MIN_RATIO * width_m):
+        # One corner off the frame is not by itself a run: `solar/N` declares
+        # -77 and 1613 on a wall 6.0 m wide and is simply wider than its lens.
+        return None
+    closed, opn = ("x0", "x1") if in0 else ("x1", "x0")
+    corner = cx0 if in0 else cx1
+    edge = (W - 1.0) if in0 else 0.0
+    return dict(closed=closed, open=opn, corner_declared=float(corner),
+                edge_px=float(edge), run_m=float(run_m), run_m_from=how,
+                width_m=width_m,
+                run_visible_m=abs(edge - float(corner)) / float(ppm))
+
+
+def run_source_corners(promotion, run, ppm):
+    """The run's `(x0, x1)` in the PAINTING, from its one corner and the ruler.
+
+    THE SECOND CORNER IS NOT NEEDED AND IS NOT LOOKED FOR. A two-corner wall
+    gets its px-per-metre from the span between its corners; a run gets it from
+    the RULED ANCHOR — `px_per_m_at_wall` is `dado_rail_above_floor_px /
+    RULER_M` and nothing else (see `row23_lib`) — so the open end of the box is
+    the corner plus the metres of run the declared camera shows, crossed at the
+    painting's own scale. The open edge may land off the frame either way and
+    that is not clamped here: the TARGET is what is clamped to the frame (see
+    `mesh_warp.target_box_from_plan`), and the source edge is wherever the
+    ruler puts the same physical place.
+    """
+    c = promotion.get("corner_%s_px" % run["closed"])
+    if c is None:
+        return None, None, (
+            "this is a run wall — %.2f m of wall (%s) with its only corner on "
+            "the %s, the run leaving the frame at x %.0f — and the frame gives "
+            "no corner on that side, so there is nothing to place the run from"
+            % (run["run_m"], run["run_m_from"],
+               "left" if run["closed"] == "x0" else "right", run["edge_px"]))
+    span = run["run_visible_m"] * ppm
+    c = float(c)
+    return (c, c + span, None) if run["closed"] == "x0" else (c - span, c, None)
+
+
 def source_box(reading, declared, vp_mode):
     """The box the PAINTING drew, out of the reading the gate already took.
 
@@ -402,11 +484,26 @@ def source_box(reading, declared, vp_mode):
         notes["ceiling"] = "measured"
     yc = float(ceil)
 
-    cx0, cx1 = p.get("corner_x0_px"), p.get("corner_x1_px")
-    if cx0 is None or cx1 is None:
+    run = run_wall(declared)
+    if run is not None:
+        cx0, cx1, why_run = run_source_corners(p, run, ppm)
+        if cx0 is None:
+            return None, None, why_run
+        notes["corners"] = ("measured on the closed side only: a run wall has "
+                            "one corner and the open end is ruled")
+        notes["run_wall"] = dict(
+            closed=run["closed"], run_m=round(run["run_m"], 3),
+            run_m_from=run["run_m_from"],
+            run_visible_m=round(run["run_visible_m"], 3),
+            corner_source_px=round(p.get("corner_%s_px" % run["closed"]), 2),
+            corner_declared_px=round(run["corner_declared"], 2),
+            corner_ask_px=round(run["corner_declared"]
+                                - p.get("corner_%s_px" % run["closed"]), 1))
+    elif p.get("corner_x0_px") is None or p.get("corner_x1_px") is None:
         cx0, cx1 = declared["corner_x0"], declared["corner_x1"]
         notes["corners"] = "declared: the frame gives no corner on one side or both"
     else:
+        cx0, cx1 = p.get("corner_x0_px"), p.get("corner_x1_px")
         notes["corners"] = "measured"
 
     vx, vy = declared["principal_x"], declared["horizon_px"]
@@ -695,7 +792,15 @@ def wall_context(key):
         wall_centre_x=(0.5 * (cx0 + cx1)
                        if (cx0 is not None and cx1 is not None) else W / 2.0),
         storey_m=m.get("storey_height_m"),
-        wall_width_m=m.get("wall_width_m"))
+        wall_width_m=m.get("wall_width_m"),
+        # THE RUN, WHERE THE SCAFFOLD DECLARES ONE. `plan-projection.mjs`
+        # writes `wall_run_m` on a long room's side wall, where the corners it
+        # also writes are the ends of the RUN and not of the drawn bay. The
+        # manifest is the newer of the two carriers, so it is asked first; a
+        # batch that predates the field leaves this None and `run_wall` falls
+        # back to the corner span, which is the same number.
+        wall_run_m=(e.get("wall_run_m") if e.get("wall_run_m") is not None
+                    else m.get("wall_run_m")))
     return e, side, cfg, ref, declared
 
 
