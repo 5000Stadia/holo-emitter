@@ -393,6 +393,36 @@ def compose(args):
         cc = cw["vx"] + Xw * (cw["f"] / zc)
         sample("face", cc, cr, mask)
 
+    # [Kabe, 2026-08-31, verbatim] "almost guaranteed you're going to want an
+    # edge blur between continuing walls and floors, and ceilings connected by
+    # continuing locations because the separate image generation is going to
+    # create a line of artifact." THE JUNCTION FEATHER: label every pixel by
+    # the source that painted it (plane and cell); wherever the label changes
+    # - wall meets floor, sweep meets ceiling, cell hands off to cell - a
+    # narrow band is blended, so no seam line of two generations' disagreement
+    # survives raw.
+    label = np.zeros((H, W), np.int16)
+    label[on_wall] = 1
+    label[side & (dx < 0)] = 2
+    label[side & (dx > 0)] = 3
+    label[floorp] = 4
+    label[ceilp] = 5
+    seam_a = 6.4    # the cell handoff, metres along the run
+    handoff = side & (np.abs(a_along - seam_a) * 213.333 < 2)
+    label[handoff] = 6
+    edge = np.zeros((H, W), bool)
+    edge[1:, :] |= label[1:, :] != label[:-1, :]
+    edge[:, 1:] |= label[:, 1:] != label[:, :-1]
+    for _ in range(3):
+        e2 = edge.copy()
+        e2[1:, :] |= edge[:-1, :]; e2[:-1, :] |= edge[1:, :]
+        e2[:, 1:] |= edge[:, :-1]; e2[:, :-1] |= edge[:, 1:]
+        edge = e2
+    from PIL import ImageFilter as _IFJ
+    _img_j = Image.fromarray(out.clip(0, 255).astype(np.uint8))
+    _blur_j = np.asarray(_img_j.filter(_IFJ.GaussianBlur(3))).astype(np.float32)
+    out[edge] = _blur_j[edge]
+
     # THE CEILING MELTS ITS WRAP SEAMS: the lateral mirror-wrap leaves zigzag
     # joins in a surface that is low-information plaster - a strong blur
     # restricted to the ceiling sweep turns them into soft plaster and lamp
