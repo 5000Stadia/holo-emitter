@@ -7296,10 +7296,10 @@
       "notes": [],
       "bands": {},
       "wall_split": {
-        "W": 5.028
+        "W": 1.067
       },
       "reference_log_luma": {
-        "W": -1.6913
+        "W": -1.3474
       },
       "verdict": "insufficient",
       "score": null,
