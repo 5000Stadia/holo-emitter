@@ -16,15 +16,15 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 |---|------|---------|-----------|---|-----------|------------|--------|--------|------------|---------|---------|
 | 1 | guest_chamber | ENSW | wall_upper | **8.96** | S-W | x4.33 | 1.095 | 1.000 | x3.36 | SW | mismatched |
 | 2 | closet_chamber | ENSW | wall_upper | **5.67** | S-W | x1.08 | 0.342 | 0.572 | x4.13 | W | mismatched |
-| 3 | treatment_room | ENSW | wall_lower | **4.98** | N-S | x1.02 | 0.024 | 0.250 | x3.97 | S | mismatched |
-| 4 | reception | ENSW | wall_upper | **4.43** | E-W | x1.14 | 0.054 | 0.545 | x3.40 | E | mismatched |
-| 5 | back_office | ENSW | wall_upper | **4.34** | E-S | x1.40 | 0.165 | 0.111 | x3.18 | S | mismatched |
-| 6 | booking_hall | ENSW | wall_upper | **4.15** | E-S | x1.28 | 0.059 | 0.312 | x3.14 | S | mismatched |
-| 7 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
-| 8 | platform | ENSW | wall_lower | **3.94** | E-N | x9.01 | 0.357 | 0.250 | x2.30 | E | mismatched |
-| 9 | garden_room | ENSW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
-| 10 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
-| 11 | platform_far | ENSW | wall_upper | **3.62** | N-W | x1.06 | 0.416 | 0.132 | x1.77 | — | consistent-incomplete |
+| 3 | platform_far | ENSW | floor | **5.23** | S-W | x14.16 | 0.731 | 1.000 | x1.11 | W | mismatched |
+| 4 | platform | ENSW | wall_lower | **5.02** | E-W | x4.42 | 0.275 | 0.339 | x3.61 | E | mismatched |
+| 5 | treatment_room | ENSW | wall_lower | **4.98** | N-S | x1.02 | 0.024 | 0.250 | x3.97 | S | mismatched |
+| 6 | reception | ENSW | wall_upper | **4.43** | E-W | x1.14 | 0.054 | 0.545 | x3.40 | E | mismatched |
+| 7 | back_office | ENSW | wall_upper | **4.34** | E-S | x1.40 | 0.165 | 0.111 | x3.18 | S | mismatched |
+| 8 | booking_hall | ENSW | wall_upper | **4.15** | E-S | x1.28 | 0.059 | 0.312 | x3.14 | S | mismatched |
+| 9 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
+| 10 | garden_room | ENSW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
+| 11 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
 | 12 | dining_parlour | ENSW | ceiling | **3.28** | N-W | x10.51 | 0.448 | 0.558 | x1.22 | — | consistent |
 | 13 | kitchen | ESW | ceiling | **2.87** | S-W | x1.29 | 0.380 | 0.333 | x1.30 | — | consistent-incomplete |
 | 14 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
@@ -74,20 +74,22 @@ Every (room, band) spread in the store, worst first:
 ```
   8.96  guest_chamber        wall_upper
   5.67  closet_chamber       wall_upper
+  5.23  platform_far         floor
+  5.02  platform             wall_lower
   4.98  treatment_room       wall_lower
   4.43  reception            wall_upper
   4.34  back_office          wall_upper
   4.15  booking_hall         wall_upper
   4.14  master_bedchamber    ceiling
-  3.94  platform             wall_lower
   3.90  garden_room          wall_lower
+  3.85  platform             wall_upper
+  3.73  platform_far         wall_upper
   3.62  long_gallery         floor
-  3.62  platform_far         wall_upper
   3.56  master_bedchamber    wall_upper
   3.35  closet_chamber       wall_lower
   3.28  dining_parlour       ceiling
-  3.27  platform             wall_upper
   3.27  back_office          wall_lower
+  3.00  platform_far         wall_lower
   2.98  long_gallery         wall_upper
   2.97  garden_room          floor
   2.93  reception            wall_lower
@@ -100,7 +102,6 @@ Every (room, band) spread in the store, worst first:
   2.72  garden_room          ceiling
   2.69  back_office          floor
   2.69  master_bedchamber    floor
-  2.68  platform_far         wall_lower
   2.68  solar                wall_lower
   2.67  long_gallery         wall_lower
   2.55  dining_parlour       wall_lower
@@ -119,7 +120,6 @@ Every (room, band) spread in the store, worst first:
   2.00  ward                 wall_upper
   1.99  servants_hall        wall_lower
   1.94  library              ceiling
-  1.91  platform_far         floor
   1.88  booking_hall         floor
   1.76  long_gallery         ceiling
   1.75  dining_parlour       floor
@@ -129,6 +129,7 @@ Every (room, band) spread in the store, worst first:
   1.68  back_stair           wall_upper
   1.68  study                wall_upper
   1.66  guest_chamber        floor
+  1.65  platform             floor
   1.62  guest_chamber        wall_lower
   1.59  solar                floor
   1.57  solar                ceiling
@@ -142,7 +143,6 @@ Every (room, band) spread in the store, worst first:
   1.31  stair_landing        wall_lower
   1.17  muniment_room        wall_lower
   1.12  buttery_pantry       wall_upper
-  1.08  platform             floor
   1.07  kitchen              wall_lower
   1.04  noodle_bar           floor
   1.02  servants_hall        floor

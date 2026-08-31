@@ -98,3 +98,6 @@ Kabe's frame recipe, verbatim: "It should just shrink while maintaining aspect r
 
 ## B-SWEEPORDER (owed, 2026-08-30)
 The sweep exits a wall on its first routable roll by index; a warp-exit roll 1 beats an unread camera-PASS roll 2 (platform_far/W measured case). Owed: measure every arrival for the wall, prefer a measured PASS over any warp exit, warp only when no roll passes.
+
+## L-TRUESHAPE (2026-08-30)
+Once a deep wall has a warp round, the next ask's Image 1 is the warp's own output — architecture geometry-exact and full-frame — and the ask inverts: keep every line of architecture and the framing exactly, redraw every OBJECT in its true shape (a circle stays a circle). Composes the day's two proven behaviours: the painter re-normalizes shapes unless ordered to copy exactly, and a full-frame reference leaves nothing to zoom into. Measured: platform/E held span to −1.4% and its live disc healed to 0.939 round. Scope note on the reroll research: the words lever fixes material scale, not composition — the measured-miss sentence left span at 51–53% wide.

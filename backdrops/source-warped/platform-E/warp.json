@@ -1,6 +1,6 @@
 {
  "facing": "platform/E",
- "candidate": "backdrops/source/platform-E/row23-d3cc96ec.png",
+ "candidate": "backdrops/source/platform-E/row23-a73c3062.png",
  "warp_mode": "plane",
  "declared_frame": [
   1536,
@@ -8,7 +8,7 @@
  ],
  "verdict": "warped",
  "why": null,
- "sha256": "41001ed14c24d3c96b50e3ffe13ba3af4ac90502a5afe2633f8c7277dd974329",
+ "sha256": "f4b4f079faf3dd0c8d4093ba1c205690b95833443419f48c4be01d499343a30e",
  "instrument": "da5967ad854c",
  "reading_cache": null,
  "before": {
@@ -34,9 +34,9 @@
   "scale_k": 0.9974
  },
  "source_box": {
-  "x0": 321.0,
-  "x1": 1203.0,
-  "yc": 275.0,
+  "x0": 470.0,
+  "x1": 1047.0,
+  "yc": 274.0,
   "yf": 630.0,
   "vx": 768.0,
   "vy": 526.1
@@ -60,7 +60,7 @@
  "aperture_notes": {
   "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
   "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
-  "source_storey_m": 3.873,
+  "source_storey_m": 3.884,
   "source_ppm": 91.667
  },
  "apertures": {
@@ -85,16 +85,16 @@
    "name": "corner_left",
    "kind": "room_corner",
    "target": 475.429,
-   "source": 321.0,
-   "ask_px": 154.4,
+   "source": 470.0,
+   "ask_px": 5.4,
    "residual_px": 0.0
   },
   {
    "name": "corner_right",
    "kind": "room_corner",
    "target": 1060.571,
-   "source": 1203.0,
-   "ask_px": -142.4,
+   "source": 1047.0,
+   "ask_px": 13.6,
    "residual_px": 0.0
   }
  ],
@@ -103,8 +103,8 @@
    "name": "ceiling_line",
    "kind": "room_corner",
    "target": 323.403,
-   "source": 275.0,
-   "ask_px": 48.4,
+   "source": 274.0,
+   "ask_px": 49.4,
    "residual_px": 0.0
   },
   {
@@ -117,47 +117,47 @@
   }
  ],
  "stretch": {
-  "x_scale_min": 0.663,
-  "x_scale_max": 0.663,
-  "y_scale_min": 0.876,
-  "y_scale_max": 0.876,
+  "x_scale_min": 1.014,
+  "x_scale_max": 1.014,
+  "y_scale_min": 0.873,
+  "y_scale_max": 0.873,
   "x_segments": [
    {
     "name": "corner_left..corner_right",
     "target_px": 585.1,
-    "source_px": 882.0,
-    "scale": 0.663
+    "source_px": 577.0,
+    "scale": 1.014
    }
   ],
   "y_segments": [
    {
     "name": "ceiling_line..floor_line",
     "target_px": 310.9,
-    "source_px": 355.0,
-    "scale": 0.876
+    "source_px": 356.0,
+    "scale": 0.873
    }
   ],
   "monotone": true,
   "folded_px": 0
  },
  "max_residual_px": 0.0,
- "revealed_px": 634129,
- "revealed_fraction": 0.40317,
+ "revealed_px": 176094,
+ "revealed_fraction": 0.11196,
  "revealed_fill": "plane_recession",
  "fill_fade_px": 24,
- "filled_px": 694910,
+ "filled_px": 225595,
  "mirror_band_px": 0,
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 1.71,
+ "seconds": 1.74,
  "warped_image": "backdrops/source-warped/platform-E/warped.png",
- "asked_from": "backdrops/source/platform-E/row23-d3cc96ec.prompt.txt",
- "warped_sha256": "8dbefdda5f939dafae7df7ceb0093560a128bc9d66eaf153495feeb4fee32806",
+ "asked_from": "backdrops/source/platform-E/row23-a73c3062.prompt.txt",
+ "warped_sha256": "42c1889e37e2876fe3b0d38fe4bf0d06bb9e3e5a146cb6f747ab4b8c06b37418",
  "after": {
   "camera_verdict": "FAIL",
-  "delta_focal_pct": -11.59,
-  "delta_eye_pct": 1.33,
+  "delta_focal_pct": 8.46,
+  "delta_eye_pct": -8.03,
   "hold_family": "unfitted-horizon"
  }
 }
