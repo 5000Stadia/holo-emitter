@@ -352,6 +352,20 @@ def witness_promoted_metas():
     """
     bad = []
     for w in promoted_walls():
+        # [Kabe, 2026-08-31] A COMPOSED WALL HAS NO CANDIDATE - its provenance
+        # is the derivation: camera_id "composed:", and the honest equivalent
+        # of the byte check is that composed_from.sha256 still matches the
+        # store's own bytes.
+        try:
+            import json as _j
+            _m = _j.load(open(os.path.join(ROOT, w["meta"])))
+        except Exception:
+            _m = {}
+        if str(_m.get("camera_id", "")).startswith("composed:"):
+            _cf = _m.get("composed_from") or {}
+            if _cf.get("sha256") != sha(os.path.join(ROOT, w["png"])):
+                bad.append((w["png"], "a composed wall whose store bytes moved from its derivation record"))
+            continue
         if not w["candidate"]:
             bad.append((w["meta"], "the meta names no candidate at all"))
             continue
