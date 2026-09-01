@@ -190,3 +190,16 @@ itself: a circle stays a circle, always; residual mismatch surfaces as reveal
 margins for the enhance pass, and the instruments judge the uniform
 compromise as-is. (mesh_warp.py plane mode; platform/E re-promoted at
 isotropic 1.0137, reveal 7.7%.)
+
+
+## THE STANDARD, adopted (2026-09-01, Kabe's ruling)
+
+[Kabe]: "We did a test to find the best method and one stood out - we need to
+adopt that as standard and run at those locations."
+
+The deep-view standard is VARIANT C of the depth-slider experiment: the grow4
+full-prefill guide (every plane pre-filled, physical seams, locked far-wall
+asset, mid-artifact guard) + the seat's plane-locked spec ask, shipped via the
+grown lane's ask-override. Rolls are judged by the standing instruments and
+exits (uniform-only warp within CLOSE where it helps); roll until a pass.
+Hand-invented chains outside this standard are retired.
