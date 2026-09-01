@@ -3002,9 +3002,22 @@ async function emitRetries(outDir, opts) {
     const askOverride = style && style.derived_from
       ? join(ROOT, style.derived_from + ".ask.txt") : null;
     const minimal = minimalAskText(style, voice);
-    const text = (askOverride && existsSync(askOverride))
+    /* [Kabe, 2026-09-01] STRUCTURAL COMPLIANCE: the engine may never emit an
+       ask that row 29 would refuse. The voice's three ruled sentences ride
+       every override ask automatically - compliance is construction, not
+       driver discipline. */
+    const voiceRecord = `\n\nFor the record, this room's fabric (already what ` +
+      `the painted parts show): its walls are ${voice.walls}. Overhead: ` +
+      `${voice.ceiling}. Underfoot: ${voice.floor}.` +
+      (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`;
+    const overrideText = (askOverride && existsSync(askOverride))
+      ? (() => { const t = readFileSync(askOverride, "utf8");
+                 return t.includes("For the record, this room's fabric")
+                   ? t : t.replace(/\n*$/, "") + voiceRecord; })()
+      : null;
+    const text = overrideText
       ? `Correction on a previous attempt at this exact wall: ${w.correction}\n`
-        + readFileSync(askOverride, "utf8")
+        + overrideText
       : minimal
       ? `Correction on a previous attempt at this exact wall: ${w.correction}\n` + minimal
       : manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style, scaffoldStyle: sheetStyle });
