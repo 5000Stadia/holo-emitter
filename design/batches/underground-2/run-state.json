@@ -295,9 +295,9 @@
    }
   },
   "platform/E": {
-   "attempts": 15,
+   "attempts": 17,
    "status": "retry",
-   "candidate": "backdrops/source/platform-E/exp-c1.png",
+   "candidate": "backdrops/source/platform-E/row23-f59db8ab.png",
    "warp": {
     "pins": 4,
     "columns": 2,
@@ -340,7 +340,7 @@
    "camera_source": "declared",
    "answered_correction": "draw 1.219x larger: 91.4 px/m at the wall plane, not 75.0",
    "snapped_from_family": "camera-miss",
-   "why": "THE STANDARD (Kabe's ruling 2026-09-01): variant C adopted; roll until a pass under the standing instruments",
+   "why": "THE STANDARD, ask amended for row-29 provenance (voice's ruled sentences appended - round-13 precedent); camera PASS already proven on f59db8ab",
    "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
    "suspect_perspective": true,
    "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
@@ -354,7 +354,7 @@
     "at": "2026-09-01T09:38:19"
    },
    "correction": "constrained surface completion: hold the fixed far-wall corners and the 11.2 m depth exactly as Image 1 draws them; nothing finished may change",
-   "hold_family": "camera-miss"
+   "hold_family": "promotion-refused"
   },
   "platform/W": {
    "attempts": 2,
