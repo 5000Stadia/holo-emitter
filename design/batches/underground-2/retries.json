@@ -5,9 +5,9 @@
   "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
   "_register": "[row 43] Every entry names the REGISTER its prompt was composed in; an entry with no `register` key predates the 2026-08-25 ruling and is `g4`. `timings_report.py --monitor` joins each reading to its packet record through the roll id and reports the camera pass rate per register.",
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
-  "_generated": "2026-08-31",
+  "_generated": "2026-09-01",
   "emitted": 1,
-  "carried": 2,
+  "carried": 6,
   "refused": 0,
   "entries": [
     {
@@ -209,6 +209,379 @@
           "id": "d9721d31",
           "candidate": "backdrops/source/platform_far-S/row23-d9721d31.png",
           "prompt": "backdrops/source/platform_far-S/row23-d9721d31.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "platform_far/W",
+      "attempt": 3,
+      "packet": "design/batches/underground-2/platform_far-W/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "deep-view",
+        "same-wall-image",
+        "door",
+        "no-window"
+      ],
+      "correction": "continue the finished near section and far wall through the pale band exactly along the drawn corner lines; nothing already painted may change",
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 98.333,
+      "flights": [],
+      "scaffold_sha256": "6783316070d7f907ec6dc6649443fd5716cea477b32c07347bfb4fbbd4798280",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "platform_far/W",
+        "location": "platform_far",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform_far/S",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform_far/S.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform_far/N",
+            "painted": true
+          }
+        ],
+        "lead": "platform_far/W",
+        "is_lead": true,
+        "continues": null,
+        "order_position": 0,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform_far-W/retry-3/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "f62d237dd821f0f8d16bbc8e0675750cf778f972dd7bf41e26500162e2d8bd4b",
+        "source_sha256": "12c4d6cb07dc31dfdc6ee9d4f262e1829640715aeb57b10f14ed50b7ff1144ee"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform_far/W",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/platform_far-W/row23-a6a27b21.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-platform_far-W.png",
+        "rel": "backdrops/grown/platform_far-W.png",
+        "room": "platform_far",
+        "facing": "W",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "1262ad29",
+          "candidate": "backdrops/source/platform_far-W/row23-1262ad29.png",
+          "prompt": "backdrops/source/platform_far-W/row23-1262ad29.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "20e1e020",
+          "candidate": "backdrops/source/platform_far-W/row23-20e1e020.png",
+          "prompt": "backdrops/source/platform_far-W/row23-20e1e020.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "platform/E",
+      "attempt": 3,
+      "packet": "design/batches/underground-2/platform-E/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "correction": "continue the finished near section and far wall through the pale band exactly along the drawn corner lines; nothing already painted may change",
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 91.42857142857143,
+      "flights": [],
+      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "platform/E",
+        "location": "platform",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform/S",
+            "painted": true
+          }
+        ],
+        "lead": "platform/W",
+        "is_lead": false,
+        "continues": "platform/W",
+        "order_position": 2,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform-E/retry-3/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "35d0edb5aea320f69ab4728859d4f2c6e49107e952febdcd2cbc0ebd43237212",
+        "source_sha256": "7d53a440580495c6e05478289126ceec650d3d0b857e7695416405c678c0e69a"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform/W",
+      "is_lead": false,
+      "continues": "platform/W",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/platform/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-platform-E.png",
+        "rel": "backdrops/grown/platform-E.png",
+        "room": "platform",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "5c87fd2f",
+          "candidate": "backdrops/source/platform-E/row23-5c87fd2f.png",
+          "prompt": "backdrops/source/platform-E/row23-5c87fd2f.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "02bfb911",
+          "candidate": "backdrops/source/platform-E/row23-02bfb911.png",
+          "prompt": "backdrops/source/platform-E/row23-02bfb911.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "platform/E",
+      "attempt": 5,
+      "packet": "design/batches/underground-2/platform-E/retry-5",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "correction": "continue the finished near section and far wall through the pale band exactly along the drawn corner lines; nothing already painted may change",
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 91.42857142857143,
+      "flights": [],
+      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "platform/E",
+        "location": "platform",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform/S",
+            "painted": true
+          }
+        ],
+        "lead": "platform/W",
+        "is_lead": false,
+        "continues": "platform/W",
+        "order_position": 2,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform-E/retry-5/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "35d0edb5aea320f69ab4728859d4f2c6e49107e952febdcd2cbc0ebd43237212",
+        "source_sha256": "7d53a440580495c6e05478289126ceec650d3d0b857e7695416405c678c0e69a"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform/W",
+      "is_lead": false,
+      "continues": "platform/W",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/platform/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-platform-E.png",
+        "rel": "backdrops/grown/platform-E.png",
+        "room": "platform",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "25f95c8e",
+          "candidate": "backdrops/source/platform-E/row23-25f95c8e.png",
+          "prompt": "backdrops/source/platform-E/row23-25f95c8e.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "5ad648b9",
+          "candidate": "backdrops/source/platform-E/row23-5ad648b9.png",
+          "prompt": "backdrops/source/platform-E/row23-5ad648b9.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "platform/E",
+      "attempt": 7,
+      "packet": "design/batches/underground-2/platform-E/retry-7",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "correction": "continue the finished near section and far wall through the pale band exactly along the drawn corner lines; nothing already painted may change",
+      "voice": {
+        "id": "platform_vault",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 91.42857142857143,
+      "flights": [],
+      "scaffold_sha256": "a8a550475ffcd5c5290da37f455dbb8399e8baf93e4ecf19576e004c714bcf7c",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "platform/E",
+        "location": "platform",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "platform/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/platform/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "platform/S",
+            "painted": true
+          }
+        ],
+        "lead": "platform/W",
+        "is_lead": false,
+        "continues": "platform/W",
+        "order_position": 2,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/underground-2/platform-E/retry-7/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "35d0edb5aea320f69ab4728859d4f2c6e49107e952febdcd2cbc0ebd43237212",
+        "source_sha256": "7d53a440580495c6e05478289126ceec650d3d0b857e7695416405c678c0e69a"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "platform/W",
+      "is_lead": false,
+      "continues": "platform/W",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/platform/W.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-platform-E.png",
+        "rel": "backdrops/grown/platform-E.png",
+        "room": "platform",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e879644c",
+          "candidate": "backdrops/source/platform-E/row23-e879644c.png",
+          "prompt": "backdrops/source/platform-E/row23-e879644c.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "70e81c7b",
+          "candidate": "backdrops/source/platform-E/row23-70e81c7b.png",
+          "prompt": "backdrops/source/platform-E/row23-70e81c7b.prompt.txt"
         }
       ]
     }
