@@ -295,7 +295,7 @@
    }
   },
   "platform/E": {
-   "attempts": 17,
+   "attempts": 23,
    "status": "retry",
    "candidate": "backdrops/source/platform-E/row23-f59db8ab.png",
    "warp": {
