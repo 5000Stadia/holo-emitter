@@ -216,3 +216,16 @@ re-select. platform/E landed from a roll already on disk: 7ac3b327 at
 0.9955/1.6%, zero additional rolls after selection. Rolling-until-pass,
 measured corrections against the attractor, and mechanical pre-fill are
 retired as losing steps.
+
+
+## VERIFIER-RAW — the no-warp acceptance (2026-09-01, Kabe's ruling)
+
+[Kabe, verbatim]: "I need you to intelligently work with the best process we
+have without warping and finding the wins to minimize retries."
+
+The warp may MEASURE, never move pixels. When the uniform verifier reads a
+roll within 2% scale and 3% reveal of declared, the RAW candidate promotes as
+painted, verifier record attached (platform/E landed this way: store bytes ==
+roll 7ac3b327 bytes, sha-identical). The warped-pixel promotions are retired.
+Acceptance dials are the Captain's: at 2%/3%, tonight's 18-roll sample yields
+1 raw-true roll (~18/wall); at 2%/5%, 3 rolls (~6/wall).

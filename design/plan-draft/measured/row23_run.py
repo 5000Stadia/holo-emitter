@@ -1342,6 +1342,41 @@ def _exit_warp(key, e, st, cand_rel, side, ref, fam, reading=None):
                         "clause": rec.get("clause"), "why": (rec.get("why") or "")[:300]})
         return False, (rec.get("why") or "the warp refused this frame"), rec, clause
 
+    # [Kabe, 2026-09-01, verbatim ruling] "work with the best process we have
+    # WITHOUT WARPING and finding the wins" - THE VERIFIER-RAW CLAUSE: when the
+    # uniform measurement reads this roll within a hair of declared (scale
+    # within 2%, reveal <= 3%), the RAW, UNTOUCHED candidate promotes with the
+    # verifier record attached. The warp math measured; no pixel moved. The
+    # painting the room shows is exactly the painting the painter made.
+    _u = rec.get("uniform") or {}
+    _us = _u.get("scale")
+    _urev = rec.get("revealed_fraction") or 0.0
+    if isinstance(_us, (int, float)) and abs(_us - 1.0) <= 0.02 and _urev <= 0.03:
+        import row35_snap as _snap_raw
+        _e2, _side2, _cfg2, _ref2, _decl2 = _snap_raw.wall_context(key)
+        reading_raw = _snap_raw.measure(os.path.join(ROOT, cand_rel), side, _cfg2, ref)
+        rec["verifier_raw"] = dict(scale=_us, revealed_fraction=_urev)
+        rec["after"] = dict(camera_verdict=reading_raw.get("verdict"),
+                            delta_focal_pct=reading_raw.get("delta_focal_pct"),
+                            delta_eye_pct=reading_raw.get("delta_eye_pct"),
+                            hold_family=(reading_raw.get("_promotion") or {})
+                            .get("hold_family"))
+        _png_raw, _rec_path_raw = _warped_frame(key)
+        mesh_warp._emit(_rec_path_raw, rec)
+        doc_raw, why_raw = _warp_document(key, cand_rel, reading_raw, side, ref, rec)
+        if doc_raw is not None:
+            ok_raw, why_raw2 = promote_document(key, cand_rel, WARP_ROUND,
+                                                camera_source="declared")
+            timings.record("exit.warp", _t, time.time(), key,
+                           {"candidate": cand_rel, "warped": False,
+                            "verifier_raw": True, "promoted": ok_raw,
+                            "why": (why_raw2 or "")[:300] or None})
+            if ok_raw:
+                return True, ("verifier-raw: the untouched roll reads %.4f "
+                              "scale, %.1f%% reveal - promoted as painted"
+                              % (_us, _urev * 100)), rec, None
+        # a document refusal falls through to the ordinary warp path below
+
     png, rec_path = _warped_frame(key)
     mesh_warp.write_png(png, out)
     rec.pop("revealed_mask", None)

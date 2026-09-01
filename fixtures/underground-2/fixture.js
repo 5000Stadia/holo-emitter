@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["underground-2"] = {
   id: "underground-2",
-  fp: "1e830f95",
+  fp: "84015222",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -1680,7 +1680,7 @@ window.HOLO_FIXTURES["underground-2"] = {
     "corner_x0_px": 475.4285714285714,
     "corner_x1_px": 1060.5714285714287,
     "storey_height_m": 3.4,
-    "camera_id": "measured:backdrops/source-warped/platform-E/warped.png",
+    "camera_id": "measured:backdrops/source/platform-E/row23-7ac3b327.png",
     "camera_reference": "ruled",
     "measured_round": "meshwarp",
     "instrument": "c3208bf9b05d",
@@ -1698,8 +1698,8 @@ window.HOLO_FIXTURES["underground-2"] = {
     "focal_px": 849.3,
     "nearest_floor_m": 2.433,
     "measured_room": {
-      "storey_height_m": 3.798,
-      "wall_width_m": 7.859,
+      "storey_height_m": 3.811,
+      "wall_width_m": 7.899,
       "ruled_storey_height_m": 3.4,
       "ruled_wall_width_m": 6.4,
       "warp": {
@@ -1737,10 +1737,10 @@ window.HOLO_FIXTURES["underground-2"] = {
         "revealed_px": 24956,
         "remeasured": {
           "px_per_m_at_wall": 75.833,
-          "floor_line_y": 0.608398,
-          "corner_x0_px": 470,
-          "corner_x1_px": 1066,
-          "corner_scale_px_per_m": 93.125
+          "floor_line_y": 0.605469,
+          "corner_x0_px": 468,
+          "corner_x1_px": 1067,
+          "corner_scale_px_per_m": 93.594
         },
         "warped_from": "backdrops/source/platform-E/row23-7ac3b327.png",
         "tool": "design/plan-draft/measured/mesh_warp.py"

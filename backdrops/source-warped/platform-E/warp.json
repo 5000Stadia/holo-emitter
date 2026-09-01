@@ -165,14 +165,15 @@
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 1.62,
- "warped_image": "backdrops/source-warped/platform-E/warped.png",
- "asked_from": "backdrops/source/platform-E/row23-7ac3b327.prompt.txt",
- "warped_sha256": "4b58fb4244af2e7c22e1cb8abfb6c2bbd5f1f579f73001da1e5e3d774c938851",
+ "seconds": 1.6,
+ "verifier_raw": {
+  "scale": 0.9955,
+  "revealed_fraction": 0.01587
+ },
  "after": {
   "camera_verdict": "FAIL",
   "delta_focal_pct": -17.06,
-  "delta_eye_pct": 8.01,
+  "delta_eye_pct": 4.67,
   "hold_family": "unfitted-horizon"
  }
 }

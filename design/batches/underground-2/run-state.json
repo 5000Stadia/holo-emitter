@@ -339,21 +339,21 @@
       },
       "camera_source": "declared",
       "answered_correction": "draw 1.322x larger: 91.4 px/m at the wall plane, not 69.2",
-      "snapped_from_family": "camera-miss",
+      "snapped_from_family": null,
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
       "exit": "warped",
-      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x0.996, 24956 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_reason": "verifier-raw: the untouched roll reads 0.9955 scale, 1.6% reveal - promoted as painted",
       "exit_attempt": {
         "candidate": "backdrops/source/platform-E/row23-7ac3b327.png",
         "exit": "warped",
         "instrument": "c3208bf9b05d",
         "candidate_sha256": null,
-        "at": "2026-09-01T10:27:20"
+        "at": "2026-09-01T12:00:56"
       },
       "cap_extension": 99,
-      "why": "CONVERGENCE EXIT (deterministic selection, 2026-09-01): min uniform misfit of 18 rolls - 7ac3b327 at 0.9955/1.6%, inside CLOSE; the uniform warp finishes"
+      "why": "VERIFIER-RAW (Kabe: without warping): the warped-pixel promotion retired; 7ac3b327 promotes as painted, verifier 0.9955/1.6%"
     },
     "platform/W": {
       "attempts": 2,
