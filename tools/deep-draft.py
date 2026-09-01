@@ -466,7 +466,6 @@ def grow(args):
     x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
     y0, y1 = int(round(bb["yc"])), int(round(bb["yf"]))
     cut = a[y0:y1, x0:x1].copy()
-    a[y0:y1, x0:x1] = GROUND
     # [Kabe, 2026-08-31] "that updated picture skewed the ground weird": when
     # the base is a WARPED frame, its reveal-fill (frame-edge smear, the floor
     # band especially) rides into the draft - melted in place via the base's
@@ -679,55 +678,34 @@ def cutback(args):
 
 
 def grow2(args):
-    """[Kabe, 2026-08-31, the image-led grow] "let the image generation
-    produce the corner lines - that's exact angle is determined by the image
-    itself - and we match in our wire frame section to the distance where we
-    estimate the far wall to be, and then we stop those corner lines at an
-    average estimated depth... then the back wall cut out we just set in the
-    averaged, approximate area and scale, such that the corners are as close
-    to the back corner wire frame pieces as can be."
+    """[Kabe, 2026-08-31, the image-led grow — FINAL form] "start with corner
+    detection on the image itself and have the corner edges extend off of the
+    image section and into our wire frame. It will be easier for you to simply
+    align the two generated lines over each other."
 
-    No vp forcing, no per-scene pins: each of the four corner lines runs at
-    the IMAGE'S OWN measured angle from its painted junction, stops at the
-    estimated depth (pure scale toward the image's own centre by the declared
-    depth ratio), and the cutout settles by least-squares UNIFORM scale +
-    translation onto those four stops. The generation reconciles the rest."""
+    IMAGE-FIRST: the four corner lines are detected on the raw painting alone —
+    no box, no measured priors, a wide joint scan per mirrored pair, scored by
+    edge energy x cross-line fabric contrast. The wireframe corner lines ARE
+    the detected lines extended inward to the estimated depth; the gap quad's
+    corners are the detected lines' crossings at the panel edges; the back-wall
+    cut rows derive from the detected lines. The cutout settles by
+    least-squares uniform scale + translation onto the four stops, and the
+    generation reconciles the rest."""
     import numpy as np
     from PIL import ImageDraw
     base = Image.open(args["base_png"]).convert("RGB")
     a = np.asarray(base).astype(np.uint8).copy()
-    bb = args["base_box"]; jr = float(args["junction_row"])
+    bb = args["base_box"]
     x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
-    y0, y1 = int(round(bb["yc"])), int(round(bb["yf"]))
     GROUND = (208, 202, 192)
-    cut = a[y0:y1, x0:x1].copy()
-    a[y0:y1, x0:x1] = GROUND
-    if args.get("reveal_png"):
-        from PIL import ImageFilter as _IFR
-        rm = np.asarray(Image.open(args["reveal_png"]).convert("L")
-                        .filter(_IFR.MaxFilter(25))) > 127
-        rm[y0:y1, x0:x1] = False
-        blur_src = np.asarray(Image.fromarray(a).filter(_IFR.GaussianBlur(12)))
-        a[rm] = blur_src[rm]
-    out = Image.fromarray(a)
-    d = ImageDraw.Draw(out)
-    INK = (42, 33, 24); lw = 3
-    # [Kabe, 2026-08-31]: "one pixel WIDE ... it's a long line coming out of
-    # the gray wire frame section and we position its height and a width so
-    # that it pretty seamlessly overlaps the image corners" — line-overlap
-    # registration: each corner line EXTENDS out of the panel across the shell
-    # as a 1px probe; the vision system scans its launch height and slope and
-    # keeps the placement whose extended segment best overlaps the painted
-    # junction line (max mean vertical-gradient energy along the probe).
-    import itertools
     gray = np.asarray(base.convert("L")).astype(float)
     Gy = np.abs(np.diff(gray, axis=0))
     Himg, Wimg = Gy.shape
     rgb = np.asarray(base).astype(float)
     def line_score(xs, ys):
-        """A corner line SEPARATES fabrics: score = edge energy x cross-line
-        colour contrast, so a grout seam or masonry course (same fabric both
-        sides) loses to the true wall/floor or wall/ceiling junction."""
+        """A corner line SEPARATES fabrics: edge energy x cross-line colour
+        contrast, so a grout seam or masonry course (same fabric both sides)
+        loses to the true junction."""
         good = (ys >= 7) & (ys <= Himg - 8)
         if good.sum() < 10:
             return -1.0
@@ -735,135 +713,290 @@ def grow2(args):
         g = float(Gy[yi, xi].mean())
         c = float(np.abs(rgb[yi - 6, xi] - rgb[yi + 6, xi]).sum(axis=1).mean())
         return g * (c + 8.0)
-    def register_line(x_edge, py0, m0, direction, fm_lo=0.6, fm_hi=1.6):
+    def sliver_cols(x_edge, direction):
         span = (x_edge - 2) if direction < 0 else (Wimg - x_edge - 3)
-        ts = np.arange(2, max(10, span))
-        xs = (int(x_edge) + direction * ts).clip(0, Wimg - 1)
-        best = (None, float(py0), float(m0))
-        for dy, fm in itertools.product(np.arange(-12, 12.5, 0.5),
-                                        np.linspace(fm_lo, fm_hi, 26)):
-            ya = py0 + dy; m = m0 * fm
-            ys = ya + m * (xs - x_edge)
-            s = line_score(xs, ys)
-            if s < 0:
-                continue
-            if best[0] is None or s > best[0]:
-                best = (s, float(ya), float(m))
-        return best[1], best[2], best[0] or 0.0
-    # probes come OUT of the panel's own corners: the panel is already cut at
-    # the measured ceiling edge (y0) and floor (y1), so those corners ARE the
-    # measured priors; the registration only refines within a tight band.
-    corners = [(x0, float(y0), -1), (x1, float(y0), +1),
-               (x0, float(y1), -1), (x1, float(y1), +1)]
-    # [Kabe, 2026-08-31]: "have a corner line detector overlaid on the image
-    # generated and extending into the wire frame, and then you were just
-    # lining up the two generated lines" — detect the painted corner line as
-    # its own line (robust fit over per-column edge candidates), then the
-    # wireframe line IS that line extended into the panel: aligned by
-    # construction. The grid-scan registration remains the fallback.
-    def detect_line(x_edge, py0, m0, direction, fm_lo=0.6, fm_hi=1.6):
-        span = (x_edge - 2) if direction < 0 else (Wimg - x_edge - 3)
-        cols = int(x_edge) + direction * np.arange(2, max(10, span))
-        cols = cols[(cols > 0) & (cols < Wimg - 1)]
-        xs, ys = [], []
-        for x in cols:
-            yp = py0 + m0 * (x - x_edge)
-            lo, hi = int(max(1, yp - 16)), int(min(Himg - 1, yp + 16))
+        return (int(x_edge) + direction * np.arange(2, max(10, span))).clip(0, Wimg - 1)
+    def best_ya(x_edge, m, direction, ylo, yhi):
+        xs = sliver_cols(x_edge, direction)
+        best = (-1.0, ylo)
+        for ya in np.arange(ylo, yhi, 2.0):
+            s = line_score(xs, ya + m * (xs - x_edge))
+            if s > best[0]:
+                best = (s, float(ya))
+        return best
+    def refine(x_edge, ya0, m0, direction):
+        """Per-column edge samples near the scan winner, robust straight fit,
+        then a seam-weighted refit so the LAUNCH hugs the paint exactly where
+        the wireframe meets it (painted junctions curve a little)."""
+        xs_, ys_ = [], []
+        for x in sliver_cols(x_edge, direction):
+            yp = ya0 + m0 * (x - x_edge)
+            lo, hi = int(max(1, yp - 10)), int(min(Himg - 1, yp + 10))
             if hi - lo < 4:
                 continue
             g = Gy[lo:hi, x]
             if g.max() < 6:
                 continue
-            xs.append(float(x)); ys.append(float(lo + int(np.argmax(g))))
-        xs = np.array(xs); ys = np.array(ys)
-        fit = None
-        if len(xs) >= 12:
-            fit = np.polyfit(xs, ys, 1)
-            for _ in range(3):                  # iterative outlier rejection
-                r = np.abs(np.polyval(fit, xs) - ys)
-                keep = r <= max(4.0, np.percentile(r, 70))
-                if keep.sum() < 12:
-                    fit = None; break
-                xs, ys = xs[keep], ys[keep]
-                fit = np.polyfit(xs, ys, 1)
-        span2 = (x_edge - 2) if direction < 0 else (Wimg - x_edge - 3)
-        pxs = (int(x_edge) + direction * np.arange(2, max(10, span2))).clip(0, Wimg - 1)
-        def ok(mf, ya):
-            return (mf * m0 > 0 and abs(ya - py0) <= 14
-                    and fm_lo * 0.7 <= abs(mf) / abs(m0) <= fm_hi * 1.3)
-        cands = []
-        if fit is not None:
-            mf = float(fit[0]); ya = float(np.polyval(fit, x_edge))
-            if ok(mf, ya):
-                cands.append((line_score(pxs, ya + mf * (pxs - x_edge)), ya, mf))
-        ya_r, mf_r, s_r = register_line(x_edge, py0, m0, direction, fm_lo, fm_hi)
-        if ok(mf_r, ya_r):
-            cands.append((s_r, ya_r, mf_r))
-        if not cands:
-            return float(py0), float(m0), 0.0
-        s, ya, mf = max(cands)
-        return ya, mf, s
-    slopes0 = args["corner_slopes"]             # priors: detector aim only
-    # joint mirrored-pair registration: the two sides of one junction share a
-    # magnitude scan and the score is the SUM of both sides' best placements,
-    # so a one-sided high-contrast impostor (a shadow edge, a wall corner)
-    # cannot outvote two true junction lines. Each side then refines
-    # independently (+/-15%) so the paint still rules the exact angle.
-    def side_best(x_edge, py0, m, direction):
-        span = (x_edge - 2) if direction < 0 else (Wimg - x_edge - 3)
-        xs = (int(x_edge) + direction * np.arange(2, max(10, span))).clip(0, Wimg - 1)
-        best = (-1.0, 0.0)
-        for dy in np.arange(-12, 12.5, 0.5):
-            s = line_score(xs, (py0 + dy) + m * (xs - x_edge))
-            if s > best[0]:
-                best = (s, float(dy))
-        return best
-    det = [None] * 4
-    for i, j in ((0, 1), (2, 3)):
-        xi, pyi, di = corners[i]; xj, pyj, dj = corners[j]
-        m0i, m0j = slopes0[i], slopes0[j]
-        best = (-1.0, 1.0)
-        for fm in np.linspace(0.6, 1.6, 26):
-            si, _ = side_best(xi, pyi, m0i * fm, di)
-            sj, _ = side_best(xj, pyj, m0j * fm, dj)
-            if si + sj > best[0]:
-                best = (si + sj, float(fm))
-        fm = best[1]
-        det[i] = list(detect_line(xi, pyi, m0i * fm, di, 0.85, 1.15))
-        det[j] = list(detect_line(xj, pyj, m0j * fm, dj, 0.85, 1.15))
-    P, slopes, anchors = [], [], []
-    for (x_edge, py0, direction), (ya, mf, sc) in zip(corners, det):
-        P.append((float(x_edge), ya)); slopes.append(mf)
-        anchors.append({"x": x_edge, "y": round(ya, 1),
-                        "slope": round(mf, 4), "overlap": round(sc, 1)})
-    k_est = float(args["depth_ratio"])          # z_near / z_far
+            xs_.append(float(x)); ys_.append(float(lo + int(np.argmax(g))))
+        xs_ = np.array(xs_); ys_ = np.array(ys_)
+        if len(xs_) < 12:
+            return float(ya0), float(m0)
+        fit = np.polyfit(xs_, ys_, 1)
+        for _ in range(3):
+            r = np.abs(np.polyval(fit, xs_) - ys_)
+            keep = r <= max(3.0, np.percentile(r, 70))
+            if keep.sum() < 12:
+                break
+            xs_, ys_ = xs_[keep], ys_[keep]
+            fit = np.polyfit(xs_, ys_, 1)
+        dist = np.abs(xs_ - x_edge); near = dist <= 60
+        if near.sum() >= 8:
+            fit = np.polyfit(xs_[near], ys_[near], 1,
+                             w=1.0 / (1.0 + dist[near] / 20.0))
+        return float(np.polyval(fit, x_edge)), float(fit[0])
+    def misfit(x_edge, ya, m, direction):
+        """Verification, not eyeball: mean px deviation of the paint's own
+        edge from the chosen line, over the 40 columns nearest the seam."""
+        ds = []
+        for step in range(2, 42):
+            x = int(x_edge) + direction * step
+            if x < 1 or x > Wimg - 2:
+                break
+            yp = ya + m * (x - x_edge)
+            lo, hi = int(max(1, yp - 8)), int(min(Himg - 1, yp + 8))
+            if hi - lo < 4:
+                continue
+            g = Gy[lo:hi, x]
+            if g.max() < 6:
+                continue
+            ds.append(abs(lo + int(np.argmax(g)) - yp))
+        return float(np.mean(ds)) if ds else -1.0
+    # TL, TR, BL, BR: panel edge, sliver direction, slope sign (dy/dx)
+    corners = [(x0, -1, +1), (x1, +1, -1), (x0, -1, -1), (x1, +1, +1)]
     cx = (x0 + x1) / 2.0
+    # CANDIDATES, THEN SELECTION [Kabe, 2026-08-31]: score the whole
+    # (slope x height) grid per corner, keep every strong straight-line peak
+    # (verified: a real painted line hugs its fit, misfit <= 3px; and it
+    # separates two notable colours - the contrast term), then SELECT: the
+    # corner lines are the EXTREME junctions - above the ceiling line there is
+    # only ceiling, below the floor line only floor - so among strong
+    # candidates the top pair is the highest and the bottom pair the lowest,
+    # pairs mirror-matched in slope and both pairs converging to one eye row.
+    MAGS = np.linspace(0.15, 1.3, 24)
+    def side_candidates(x_edge, d, sgn, ylo, yhi):
+        xs = sliver_cols(x_edge, d)
+        yas = np.arange(ylo, yhi, 2.0)
+        S = np.full((len(MAGS), len(yas)), -1.0)
+        for mi, mag in enumerate(MAGS):
+            for yi, ya in enumerate(yas):
+                S[mi, yi] = line_score(xs, ya + sgn * mag * (xs - x_edge))
+        peaks = []
+        smax = S.max()
+        if smax <= 0:
+            return peaks
+        for mi in range(len(MAGS)):
+            for yi in range(len(yas)):
+                s = S[mi, yi]
+                if s < 0.05 * smax:
+                    continue
+                lo_m, hi_m = max(0, mi - 1), min(len(MAGS), mi + 2)
+                lo_y, hi_y = max(0, yi - 10), min(len(yas), yi + 11)
+                if s < S[lo_m:hi_m, lo_y:hi_y].max():
+                    continue
+                ya_r, m_r = refine(x_edge, float(yas[yi]), sgn * MAGS[mi], d)
+                if abs(m_r) < 0.15 or m_r * sgn < 0:
+                    continue
+                mf = misfit(x_edge, ya_r, m_r, d)
+                if mf < 0 or mf > 3.0:
+                    continue
+                if any(abs(p["ya"] - ya_r) < 14 and abs(p["m"] - m_r) < 0.12
+                       for p in peaks):
+                    continue
+                peaks.append({"ya": ya_r, "m": m_r, "s": float(s), "mf": mf})
+        peaks.sort(key=lambda p: -p["s"])
+        return peaks[:6]
+    # the search BANDS come from the view's own measured rows (the same
+    # readings the pipeline takes on every wall): the ceiling row yc and the
+    # floor row yf, +/-70px. Detection stays on the image; the band only says
+    # where a corner line can launch for this camera.
+    yc_m = float(bb.get("yc", Himg * 0.2)); yf_m = float(bb.get("yf", Himg * 0.73))
+    cand = [side_candidates(x_edge, d, sgn,
+                            *((max(10.0, yc_m - 70), min(Himg * 0.6, yc_m + 70)) if k < 2
+                              else (max(Himg * 0.42, yf_m - 70), min(Himg - 10.0, yf_m + 70))))
+            for k, (x_edge, d, sgn) in enumerate(corners)]
+    def pair_combos(ci, cj, xi, xj):
+        out = []
+        for a_ in ci:
+            for b_ in cj:
+                r = abs(a_["m"] / b_["m"]) if b_["m"] else 99
+                if not (1 / 1.6 <= r <= 1.6):
+                    continue
+                vp = (a_["ya"] + a_["m"] * (cx - xi)
+                      + b_["ya"] + b_["m"] * (cx - xj)) / 2.0
+                out.append({"a": a_, "b": b_, "vp": vp,
+                            "mid": (a_["ya"] + b_["ya"]) / 2.0,
+                            "s": a_["s"] + b_["s"]})
+        return out
+    tops = pair_combos(cand[0], cand[1], corners[0][0], corners[1][0])
+    bots = pair_combos(cand[2], cand[3], corners[2][0], corners[3][0])
+    best = None
+    for t in tops:
+        for b in bots:
+            if abs(t["vp"] - b["vp"]) > 70:
+                continue
+            if b["mid"] - t["mid"] <= 0:
+                continue
+            key = t["s"] + b["s"]
+            if best is None or key > best[0]:
+                best = (key, t, b)
+    if best is None and tops and bots:      # no converging combo: strongest
+        t = max(tops, key=lambda c: c["s"]); b = max(bots, key=lambda c: c["s"])
+        best = (None, t, b)
+    if best is None:
+        raise SystemExit(json.dumps({"ok": False, "mode": "grow2",
+                                     "error": "no corner-line candidates survived verification"}))
+    _, t, b = best
+    det = [[t["a"]["ya"], t["a"]["m"], t["a"]["s"]],
+           [t["b"]["ya"], t["b"]["m"], t["b"]["s"]],
+           [b["a"]["ya"], b["a"]["m"], b["a"]["s"]],
+           [b["b"]["ya"], b["b"]["m"], b["b"]["s"]]]
+    P = [(float(c[0]), d[0]) for c, d in zip(corners, det)]
+    slopes = [d[1] for d in det]
+    anchors = [{"x": c[0], "y": round(d[0], 1), "slope": round(d[1], 4),
+                "overlap": round(d[2], 1),
+                "misfit_px": round(misfit(c[0], d[0], d[1], c[1]), 2)}
+               for c, d in zip(corners, det)]
+    # back-wall cut rows come from the detected lines, not a measured box
+    y0c = int(round(min(det[0][0], det[1][0])))
+    y1c = int(round(max(det[2][0], det[3][0])))
+    y0c = max(0, y0c); y1c = min(Himg, y1c)
+    cut = a[y0c:y1c, x0:x1].copy()
+    if args.get("reveal_png"):
+        from PIL import ImageFilter as _IFR
+        rm = np.asarray(Image.open(args["reveal_png"]).convert("L")
+                        .filter(_IFR.MaxFilter(25))) > 127
+        rm[y0c:y1c, x0:x1] = False
+        blur_src = np.asarray(Image.fromarray(a).filter(_IFR.GaussianBlur(12)))
+        a[rm] = blur_src[rm]
+    out = Image.fromarray(a)
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24); lw = 3
+    # the gap quad's corners ARE the detected launch points
+    d.polygon([(x0, P[0][1]), (x1, P[1][1]), (x1, P[3][1]), (x0, P[2][1])],
+              fill=GROUND)
+    k_est = float(args["depth_ratio"])          # z_near / z_far
     ends = []
-    for (px, py), m, (x_edge, py0, direction) in zip(P, slopes, corners):
+    for (px, py), m, (x_edge, direction, sgn) in zip(P, slopes, corners):
         ex = cx + (px - cx) * k_est             # stop column: pure scale toward centre
-        ey = py + m * (ex - px)                 # follow the image's own angle
+        ey = py + m * (ex - px)                 # the detected line, extended inward
         ends.append((ex, ey))
         d.line([(px, py), (ex, ey)], fill=INK, width=lw)
         ox = px + (direction * (Wimg - 1 - px) if direction > 0 else -(px - 1))
         d.line([(px, py), (ox, py + m * (ox - px))], fill=INK, width=1)
-    # the cutout's own corners (junction row and floor, full width)
-    C = np.array([(0.0, 0.0), (float(x1 - x0), 0.0),
-                  (0.0, y1 - y0), (float(x1 - x0), float(y1 - y0))])
+    # the cutout's own corners, in cut-local rows, per detected side
+    C = np.array([(0.0, det[0][0] - y0c), (float(x1 - x0), det[1][0] - y0c),
+                  (0.0, det[2][0] - y0c), (float(x1 - x0), det[3][0] - y0c)])
     E = np.array(ends)
     cbar = C.mean(axis=0); ebar = E.mean(axis=0)
     Cc = C - cbar; Ec = E - ebar
     k_fit = float((Ec * Cc).sum() / (Cc * Cc).sum())
     k_fit = max(0.05, min(1.0, k_fit))   # a garbage line set must not flip or explode the wall
     t = ebar - k_fit * cbar
-    cw = max(1, round((x1 - x0) * k_fit)); ch = max(1, round((y1 - y0) * k_fit))
+    cw = max(1, round((x1 - x0) * k_fit)); ch = max(1, round((y1c - y0c) * k_fit))
     wall = Image.fromarray(cut).resize((cw, ch), Image.LANCZOS)
     wx = int(round(t[0])); wy = int(round(t[1]))
     out.paste(wall, (wx, wy))
     out.save(args["out"], "PNG")
     print(json.dumps({"ok": True, "mode": "grow2", "k_fit": round(k_fit, 4),
                       "ends": [[round(e[0]), round(e[1])] for e in ends],
-                      "anchors": anchors,
+                      "anchors": anchors, "cut_rows": [y0c, y1c],
                       "wall_at": [wx, wy, wx + cw, wy + ch]}))
+
+
+def reverse(args):
+    """[Kabe, 2026-08-31, phase 3 verbatim] "from the immediate perspective of
+    the far side of that direction turned around. Because for reference you
+    can have almost everything but back wall. Horizontal flip the image first.
+    Then pull the end of the ceiling inside details to the front and the front
+    to the back, which stretches and skews it in reverse. Do the same to the
+    side walls and floor. Then thats the reference image looking back for the
+    enhance and fill the gap on the back wall."
+
+    THE REVERSE VIEW: the completed long view of the same axis, flipped, and
+    each sweep plane depth-reversed along its own recession (far content to
+    the front, front to the back - the deliberate reverse skew, sweeps only).
+    The back wall was behind the original camera and is the GAP: an outlined
+    box with its doorway drawn and named, for the painter to fill."""
+    import numpy as np
+    from PIL import ImageDraw
+    src = Image.open(args["long_png"]).convert("RGB").transpose(Image.FLIP_LEFT_RIGHT)
+    sa = np.asarray(src).astype(np.float32)
+    d0 = args["deep"]
+    f, vx, vy = d0["f"], d0["vx"], d0["vy"]
+    zw = d0["z_wall"]
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    dx, dy = xs - vx, ys - vy
+    eps = 1e-6
+    z_floor = np.where(dy > eps, d0["eye_m"] * f / np.maximum(dy, eps), np.inf)
+    z_ceil  = np.where(dy < -eps, d0["ceil_m"] * f / np.maximum(-dy, eps), np.inf)
+    z_side  = np.where(np.abs(dx) > eps, d0["half_w_m"] * f / np.maximum(np.abs(dx), eps), np.inf)
+    z = np.minimum.reduce([z_floor, z_ceil, z_side, np.full_like(dx, zw)])
+    on_wall = z >= zw - eps
+    # per-plane nearest visible depth (at the frame edge), for the reversal span
+    zmin_floor = d0["eye_m"] * f / (H - vy)
+    zmin_ceil  = d0["ceil_m"] * f / vy
+    zmin_side  = d0["half_w_m"] * f / (W - vx)
+    zmin = np.where(z_side <= np.minimum(z_floor, z_ceil), zmin_side,
+                    np.where(dy > 0, zmin_floor, zmin_ceil))
+    zr = np.clip(zmin + zw - z, zmin * 1.001, zw * 0.999)   # far <-> near
+    # the same plane point (lateral / height preserved) at the reversed depth
+    cc = vx + dx * z / zr
+    cr = vy + dy * z / zr
+    ccl = np.clip(cc, 0, W - 1.001); crl = np.clip(cr, 0, H - 1.001)
+    x0i = ccl.astype(int); y0i = crl.astype(int)
+    fx2 = (ccl - x0i)[..., None]; fy2 = (crl - y0i)[..., None]
+    out = (sa[y0i, x0i] * (1 - fx2) * (1 - fy2) + sa[y0i, np.minimum(x0i + 1, W - 1)] * fx2 * (1 - fy2)
+           + sa[np.minimum(y0i + 1, H - 1), x0i] * (1 - fx2) * fy2
+           + sa[np.minimum(y0i + 1, H - 1), np.minimum(x0i + 1, W - 1)] * fx2 * fy2)
+    GROUND = (208, 202, 192)
+    b = args["gap_box"]
+    bx0, bx1, by0, by1 = int(round(b["x0"])), int(round(b["x1"])), int(round(b["yc"])), int(round(b["yf"]))
+    out[by0:by1, bx0:bx1] = GROUND
+    img = Image.fromarray(out.clip(0, 255).astype(np.uint8))
+    d = ImageDraw.Draw(img)
+    INK = (42, 33, 24); lw = 3
+    d.rectangle([bx0, by0, bx1, by1], outline=INK, width=lw)
+    for door in args.get("ring_doors", []):
+        d.rectangle([door["x0"], door["y0"], door["x1"], door["y1"]], outline=INK, width=lw)
+    img.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "reverse",
+                      "gap": [bx0, by0, bx1, by1],
+                      "doors": len(args.get("ring_doors", []))}))
+
+
+def cutback(args):
+    """[Kabe, 2026-08-31, phase 3 v2] "we should not flip but simply skew the
+    corners to the right location" - the flip turned ceiling content upside
+    down. V2: the completed long view stays EXACTLY as painted - no flip, no
+    depth remap, clean sweeps - and only the wall box is cut to the gap,
+    snapped to the painting's own corners, with the doorway outlined for the
+    painter to fill."""
+    from PIL import ImageDraw
+    import numpy as np
+    img = Image.open(args["long_png"]).convert("RGB")
+    a = np.asarray(img).astype(np.uint8).copy()
+    b = args["gap_box"]
+    bx0, bx1, by0, by1 = int(round(b["x0"])), int(round(b["x1"])), int(round(b["yc"])), int(round(b["yf"]))
+    a[by0:by1, bx0:bx1] = (208, 202, 192)
+    out = Image.fromarray(a)
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24); lw = 3
+    d.rectangle([bx0, by0, bx1, by1], outline=INK, width=lw)
+    for door in args.get("ring_doors", []):
+        d.rectangle([door["x0"], door["y0"], door["x1"], door["y1"]], outline=INK, width=lw)
+    out.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "cutback", "gap": [bx0, by0, bx1, by1]}))
+
 
 def main():
     args = json.load(open(sys.argv[1]))
