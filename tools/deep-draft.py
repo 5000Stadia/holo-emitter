@@ -1113,6 +1113,101 @@ def grow3(args):
                       "deep_corners": [[round(d[0], 1), round(d[1], 1)] for d in D],
                       "elements": report}))
 
+def reverse3(args):
+    """[Kabe, 2026-08-31]: "lets get back to the flip and redraw from far
+    backward perspective" - phase 3 under G-PREP. The finished 2x1 is
+    FLIPPED; its corner lines are detected on the flipped painting; the
+    middle-band plane strips (the far half, real painted material) are cut
+    along those lines and cover-fit (locked scale, cropped at our corrected
+    lines) into the backward view's FRONT footprint; the middle ring stays
+    pale wireframe gap with the corner lines drawn; the far back wall - never
+    seen by the original camera - is an outlined gap box."""
+    import numpy as np
+    from PIL import ImageDraw, ImageOps
+    base0 = Image.open(args["base_png"]).convert("RGB")
+    base = ImageOps.mirror(base0)
+    W, H = base.size
+    bb = args["base_box"]
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    det, corners, _mis = _detect_corner_lines(
+        base, x0, x1, float(bb.get("yc")) if "yc" in bb else None,
+        float(bb.get("yf")) if "yf" in bb else None)
+    vx, vy = args.get("vp", [768.0, 526.1])
+    k = float(args["depth_ratio"])
+    C = [(float(x0), det[0][0]), (float(x1), det[1][0]),
+         (float(x0), det[2][0]), (float(x1), det[3][0])]
+    D = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in C]
+    def tline(i, x):
+        m = (vy - C[i][1]) / (vx - C[i][0])
+        return C[i][1] + m * (x - C[i][0])
+    GROUND = (208, 202, 192); INK = (42, 33, 24)
+    canvas = Image.new("RGB", (W, H), GROUND)
+    report = {}
+    def cover(name, sbox, tpoly, tbox, anchor):
+        sx0, sy0, sx1, sy1 = [int(round(v)) for v in sbox]
+        sx0 = max(0, sx0); sy0 = max(0, sy0); sx1 = min(W, sx1); sy1 = min(H, sy1)
+        sw, sh = max(1, sx1 - sx0), max(1, sy1 - sy0)
+        tx0, ty0, tx1, ty1 = tbox
+        tw, th = max(1.0, tx1 - tx0), max(1.0, ty1 - ty0)
+        s = max(tw / sw, th / sh)
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = base.crop((sx0, sy0, sx1, sy1)).resize((pw, ph), Image.LANCZOS)
+        if anchor == "top":
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty0
+        elif anchor == "bottom":
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty1 - ph
+        elif anchor == "left":
+            px, py = tx0, (ty0 + ty1) / 2.0 - ph / 2.0
+        elif anchor == "right":
+            px, py = tx1 - pw, (ty0 + ty1) / 2.0 - ph / 2.0
+        else:
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, (ty0 + ty1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), GROUND)
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).polygon([(float(a_), float(b_)) for a_, b_ in tpoly], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report[name] = {"scale": round(s, 4), "src": [sx0, sy0, sx1, sy1],
+                        "at": [round(px), round(py)]}
+    # SOURCES are the middle-band strips of the flipped finished view - real
+    # painted material of the room's far half; TARGETS are the backward
+    # front footprints (same construction as grow3's).
+    cover("ceiling",
+          (x0, min(C[0][1], C[1][1]), x1, max(D[0][1], D[1][1])),
+          [(0, 0), (W, 0), (W, tline(1, W)), C[1], C[0], (0, tline(0, 0))],
+          (0, 0, W, max(tline(0, 0), tline(1, W), C[0][1], C[1][1])), "top")
+    cover("floor",
+          (x0, min(D[2][1], D[3][1]), x1, max(C[2][1], C[3][1])),
+          [(0, H), (W, H), (W, tline(3, W)), C[3], C[2], (0, tline(2, 0))],
+          (0, min(tline(2, 0), tline(3, W), C[2][1], C[3][1]), W, H), "bottom")
+    cover("left_wall",
+          (x0, min(C[0][1], D[0][1]), D[0][0], max(C[2][1], D[2][1])),
+          [(0, tline(0, 0)), C[0], C[2], (0, tline(2, 0))],
+          (0, min(tline(0, 0), C[0][1]), C[0][0], max(tline(2, 0), C[2][1])), "left")
+    cover("right_wall",
+          (D[1][0], min(C[1][1], D[1][1]), x1, max(C[3][1], D[3][1])),
+          [(W, tline(1, W)), C[1], C[3], (W, tline(3, W))],
+          (C[1][0], min(tline(1, W), C[1][1]), W, max(tline(3, W), C[3][1])), "right")
+    dd = ImageDraw.Draw(canvas)
+    for ci, di in zip(C, D):
+        dd.line([ci, di], fill=INK, width=3)
+    # the far back wall was never seen: an OUTLINED GAP box at the deep rect
+    bx0, by0 = min(D[0][0], D[2][0]), min(D[0][1], D[1][1])
+    bx1, by1 = max(D[1][0], D[3][0]), max(D[2][1], D[3][1])
+    dd.rectangle([bx0, by0, bx1, by1], fill=GROUND, outline=INK, width=3)
+    if args.get("door"):
+        dw, dh = args["door"]                 # metres
+        ppm = (bx1 - bx0) / float(args.get("wall_w_m", 6.4))
+        dwp, dhp = dw * ppm, dh * ppm
+        dcx = (bx0 + bx1) / 2.0
+        dd.rectangle([dcx - dwp / 2.0, by1 - dhp, dcx + dwp / 2.0, by1],
+                     outline=INK, width=3)
+    canvas.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "reverse3",
+                      "close_corners": [[round(c[0]), round(c[1], 1)] for c in C],
+                      "deep_corners": [[round(d[0], 1), round(d[1], 1)] for d in D],
+                      "elements": report}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -1133,6 +1228,8 @@ def main():
         return grow2(args)
     if args.get("mode") == "grow3":
         return grow3(args)
+    if args.get("mode") == "reverse3":
+        return reverse3(args)
     if args.get("mode") == "cutback":
         return cutback(args)
     close = Image.open(args["close_png"]).convert("RGB")
