@@ -203,3 +203,16 @@ asset, mid-artifact guard) + the seat's plane-locked spec ask, shipped via the
 grown lane's ask-override. Rolls are judged by the standing instruments and
 exits (uniform-only warp within CLOSE where it helps); roll until a pass.
 Hand-invented chains outside this standard are retired.
+
+
+## Amendment to G-CHAIN — deterministic selection (2026-09-01, proven)
+
+[Kabe]: "Assume each step that doesn't produce the best result is probably
+not the best way." Applied: the engine keeps only winners. PAINT with the
+standard (C) guide+ask; SELECT deterministically - uniform-warp every clean
+roll on disk, score |log s| + reveal, take the minimum; FINISH through the
+uniform warp when the winner sits inside CLOSE, else one enhance pass and
+re-select. platform/E landed from a roll already on disk: 7ac3b327 at
+0.9955/1.6%, zero additional rolls after selection. Rolling-until-pass,
+measured corrections against the attractor, and mechanical pre-fill are
+retired as losing steps.
