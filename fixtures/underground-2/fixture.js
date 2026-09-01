@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["underground-2"] = {
   id: "underground-2",
-  fp: "8e602b3b",
+  fp: "2d54c598",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -1657,19 +1657,20 @@ window.HOLO_FIXTURES["underground-2"] = {
     }
   },
   "platform/E": {
-    "floor_line_y": 0.619395,
-    "px_per_m_at_wall": 91.429,
-    "px_per_m_at_bottom": 420.88,
+    "floor_line_y": 0.61939453125,
+    "px_per_m_at_wall": 91.42857142857143,
+    "px_per_m_at_bottom": 420.8791208791208,
     "wall_width_m": 6.4,
-    "key_tint": "#c89c67",
+    "key_tint": "#c8b489",
     "image_h_px": 1024,
-    "horizon_y": 0.51377,
-    "key_dir": "C-BELOW",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 110,
-    "camera_wall_m": 11.2,
+    "horizon_y": 0.51376953125,
+    "key_dir": "UL",
+    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
+    "calibration_px": 91.42857142857143,
     "facing_type": "enclosed",
-    "wall_continuous": true,
+    "camera_id": "grid",
+    "provisional": true,
+    "backdrop": "wall",
     "wall_segments": [
       {
         "from_m": 0,
@@ -1677,86 +1678,15 @@ window.HOLO_FIXTURES["underground-2"] = {
         "kind": "wall"
       }
     ],
+    "wall_continuous": true,
     "corner_x0_px": 475.4285714285714,
     "corner_x1_px": 1060.5714285714287,
+    "focal_px": 1024,
     "storey_height_m": 3.4,
-    "camera_id": "measured:backdrops/source-warped/platform-E/warped.png",
-    "camera_reference": "ruled",
-    "measured_round": "meshwarp",
-    "instrument": "57236a09a2ea",
-    "camera_source": "declared",
-    "declared_fields": [
-      "horizon_y",
-      "px_per_m_at_wall",
-      "floor_line_y",
-      "corner_x0_px",
-      "corner_x1_px"
-    ],
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 1026.7,
-    "nearest_floor_m": 2.433,
-    "measured_room": {
-      "storey_height_m": 3.535,
-      "wall_width_m": 6.404,
-      "ruled_storey_height_m": 3.4,
-      "ruled_wall_width_m": 6.4,
-      "warp": {
-        "pins": 4,
-        "residuals": {
-          "max_px": 0,
-          "column_px": [
-            [
-              "corner_left",
-              0
-            ],
-            [
-              "corner_right",
-              0
-            ]
-          ],
-          "row_px": [
-            [
-              "ceiling_line",
-              0
-            ],
-            [
-              "floor_line",
-              0
-            ]
-          ]
-        },
-        "worst_segment": {
-          "axis": "x",
-          "name": "corner_left..corner_right",
-          "scale": 1.072,
-          "target_px": 585.1,
-          "source_px": 546
-        },
-        "revealed_px": 88195,
-        "remeasured": {
-          "px_per_m_at_wall": 91.667,
-          "floor_line_y": 0.614258,
-          "corner_x0_px": 474,
-          "corner_x1_px": 1061,
-          "corner_scale_px_per_m": 91.719
-        },
-        "warped_from": "backdrops/source/platform-E/row23-d3cc96ec.png",
-        "tool": "design/plan-draft/measured/mesh_warp.py"
-      },
-      "carriers": []
-    },
+    "nearest_floor_m": 2.433002610966058,
+    "camera_wall_m": 11.2,
     "openings": [],
-    "windows": [],
-    "window_evidence": {
-      "unpainted": 0,
-      "read_by": "design/plan-draft/measured/window_measure.py",
-      "ruled": 0,
-      "painted": 0,
-      "unruled": [],
-      "note": "every glazed opening the painting shows answers to a window the plan rules"
-    }
+    "stairs": []
   },
   "platform/S": {
     "floor_line_y": 0.760228,

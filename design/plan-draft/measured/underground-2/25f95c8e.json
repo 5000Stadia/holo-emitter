@@ -1,0 +1,288 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 612,
+    "chair_rail_y_px": 515,
+    "dado_rail_above_floor_px": 97,
+    "floor_read": {
+      "minimum": 623,
+      "rule": "foot",
+      "saturated": true,
+      "foot": 612
+    },
+    "capping_above_floor_px": null
+  },
+  "_windows": {
+    "floor": [
+      623,
+      640
+    ],
+    "rail": [
+      513,
+      530
+    ],
+    "ceiling": [
+      295,
+      345
+    ],
+    "columns": [
+      [
+        530,
+        1005
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 80.833,
+  "implied_focal_px": 905.3,
+  "eye_height_m": 1.0627,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 331,
+    "ceiling_candidates": [
+      {
+        "y": 332,
+        "strength": 37.14,
+        "horiz": 1.0,
+        "cv": 0.146
+      },
+      {
+        "y": 323,
+        "strength": 14.73,
+        "horiz": 0.985,
+        "cv": 0.176
+      },
+      {
+        "y": 342,
+        "strength": 10.34,
+        "horiz": 0.878,
+        "cv": 0.447
+      },
+      {
+        "y": 316,
+        "strength": 9.39,
+        "horiz": 0.989,
+        "cv": 0.222
+      },
+      {
+        "y": 309,
+        "strength": 1.92,
+        "horiz": 0.786,
+        "cv": 0.51
+      },
+      {
+        "y": 301,
+        "strength": 1.56,
+        "horiz": 0.794,
+        "cv": 0.611
+      },
+      {
+        "y": 295,
+        "strength": 1.38,
+        "horiz": 0.809,
+        "cv": 0.649
+      },
+      {
+        "y": 253,
+        "strength": 1.35,
+        "horiz": 0.794,
+        "cv": 0.705
+      },
+      {
+        "y": 287,
+        "strength": 1.34,
+        "horiz": 0.782,
+        "cv": 0.696
+      },
+      {
+        "y": 271,
+        "strength": 1.29,
+        "horiz": 0.784,
+        "cv": 0.686
+      },
+      {
+        "y": 279,
+        "strength": 1.27,
+        "horiz": 0.767,
+        "cv": 0.718
+      },
+      {
+        "y": 261,
+        "strength": 1.23,
+        "horiz": 0.782,
+        "cv": 0.718
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 331,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 322,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 341,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 315,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 308,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 300,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 294,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 252,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 286,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 270,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 278,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 260,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 425,
+    "corner_x1_px": 1108,
+    "corner_evidence": {
+      "left_fit_r2": 0.5606,
+      "right_fit_r2": 0.5992,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
+    },
+    "horizon_bracket_px": 8.47,
+    "ramp": {
+      "x": 767.4,
+      "y": 465.9,
+      "left_slope": 0.392,
+      "right_slope": -0.3945,
+      "left_n": 61,
+      "left_resid_px": 0.3,
+      "right_n": 61,
+      "right_resid_px": 0.29,
+      "sigma_y_px": 0.58
+    },
+    "votes": {
+      "floor": {
+        "x": 772,
+        "y": 448,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 774,
+        "y": 444,
+        "edge_px": 30000
+      },
+      "side_walls": {
+        "x": 794,
+        "y": 421,
+        "edge_px": 11402
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 770,
+      "key_dir_brightest_y": 830,
+      "key_tint": "#c8985f",
+      "key_tint_patch": [
+        570,
+        970,
+        261,
+        323
+      ],
+      "key_tint_patch_mean_rgb": [
+        125.6,
+        95.59,
+        59.49
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8a376",
+        "floor_bottom_strip": "#c89c68",
+        "mid_wall_right": "#c89c66",
+        "mid_wall_left": "#c89d69",
+        "brightest_21x21_patch": "#c8b6a4"
+      },
+      "brightest_21x21_patch_centre_px": [
+        770,
+        830
+      ],
+      "sobel_bright_side_deg_whole_frame": 95.6,
+      "sobel_bright_side_deg_wall_band": 91.57,
+      "left_third_minus_right_third_luminance_whole_frame": 1.63,
+      "left_third_minus_right_third_luminance_wall_band": 1.461
+    },
+    "storey_height_m": 3.4763,
+    "implied_wall_width_m": 8.4495,
+    "eye_height_m": 1.8074,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -11.82,
+  "delta_eye_pct": -10.17,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "25f95c8e",
+  "candidate": "backdrops/source/platform-E/row23-25f95c8e.png",
+  "candidate_sha256": "173811531d29f04d53faa18b14cd08aaa6f429474963e7a99f0301204969d786",
+  "instrument": "57236a09a2ea"
+}
