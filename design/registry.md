@@ -135,3 +135,21 @@ vp-ray/snap construction and grow2's line-draw:
 
 Amendments to earlier constructions remain in force where they still apply:
 lights are after-assets; no dado mid-lines; molding rides the wall side.
+
+
+**Amendment to G-PREP (2026-08-31, Kabe)**: "we really need to make sure...
+we don't have any back wall top or bottom corner elements show up in the back
+of the floor or ceiling generated image in the front 1x1 portion of the guide
+image... completely eliminates the chance that there is unique horizontal
+artifacting that shows up in the middle of the room." And: "This risk also
+exists if there was bottom corner molding as well."
+
+Implementation: every element edge that abuts the removed back wall or the
+ring is CLIPPED before the cover scale — ceiling source stops 28px above the
+detected wall-top junction, floor source starts 28px below the detected floor
+junction (top and bottom molding alike), side-wall sources stop 10px short of
+the vertical corner — and the locked-scale cover-up refills the difference
+with the plane's own texture. Deterministic; no synthesis. Also: the deep
+rect is the DECLARED geometry (declared close corners scaled toward the vp),
+so the guide's far wall and the promotion instruments agree about its size;
+the ring lines run detected-launch -> declared-stop.

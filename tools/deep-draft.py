@@ -1043,7 +1043,15 @@ def grow3(args):
     k = float(args["depth_ratio"])
     C = [(float(x0), det[0][0]), (float(x1), det[1][0]),
          (float(x0), det[2][0]), (float(x1), det[3][0])]
-    D = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in C]
+    # [Kabe] the far wall stops at OUR estimated depth: the deep rect is the
+    # DECLARED geometry (declared close corners scaled toward the vp), so the
+    # instruments' ruler and the guide agree about the far wall's size. The
+    # ring lines run detected-launch -> declared-stop.
+    db = args.get("declared_box", {})
+    dyc = float(db.get("yc", bb.get("yc", C[0][1])))
+    dyf = float(db.get("yf", bb.get("yf", C[2][1])))
+    Cd = [(float(x0), dyc), (float(x1), dyc), (float(x0), dyf), (float(x1), dyf)]
+    D = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in Cd]
     def sline(i, x):                       # the image's own detected line
         return det[i][0] + det[i][1] * (x - C[i][0])
     def tline(i, x):                       # our correct geometry: through C toward vp
@@ -1082,20 +1090,29 @@ def grow3(args):
     # front section (frame edge to the close-corner plane), bounded by OUR
     # corrected lines; the middle ring stays wireframe gap; the back wall
     # cover-fits the deep rect.
+    # [Kabe, 2026-08-31]: no back-wall corner molding may ride mid-room in the
+    # front ceiling/floor: the source is CLIPPED 28px short of the junction
+    # band, and the cover scale-up fills the difference with the plane's own
+    # texture.
+    JMARGIN = 28
     cover("ceiling",
-          (0, 0, W, max(sline(0, 0), sline(1, W - 1), C[0][1], C[1][1])),
+          (0, 0, W, min(C[0][1], C[1][1]) - JMARGIN),
           [(0, 0), (W, 0), (W, tline(1, W)), C[1], C[0], (0, tline(0, 0))],
           (0, 0, W, max(tline(0, 0), tline(1, W), C[0][1], C[1][1])), "top")
     cover("floor",
-          (0, min(sline(2, 0), sline(3, W - 1), C[2][1], C[3][1]), W, H),
+          (0, max(C[2][1], C[3][1]) + JMARGIN, W, H),
           [(0, H), (W, H), (W, tline(3, W)), C[3], C[2], (0, tline(2, 0))],
           (0, min(tline(2, 0), tline(3, W), C[2][1], C[3][1]), W, H), "bottom")
+    # the same law at the vertical seam: the 1x1's own corner shadow at the
+    # panel edge must not ride the ring's front boundary - the side sources
+    # stop 10px short of it and the cover scale-up refills with wall fabric.
+    VMARGIN = 10
     cover("left_wall",
-          (0, min(sline(0, 0), C[0][1]), x0, max(sline(2, 0), C[2][1])),
+          (0, min(sline(0, 0), C[0][1]), x0 - VMARGIN, max(sline(2, 0), C[2][1])),
           [(0, tline(0, 0)), C[0], C[2], (0, tline(2, 0))],
           (0, min(tline(0, 0), C[0][1]), C[0][0], max(tline(2, 0), C[2][1])), "left")
     cover("right_wall",
-          (x1, min(sline(1, W - 1), C[1][1]), W, max(sline(3, W - 1), C[3][1])),
+          (x1 + VMARGIN, min(sline(1, W - 1), C[1][1]), W, max(sline(3, W - 1), C[3][1])),
           [(W, tline(1, W)), C[1], C[3], (W, tline(3, W))],
           (C[1][0], min(tline(1, W), C[1][1]), W, max(tline(3, W), C[3][1])), "right")
     cover("back_wall",
@@ -1172,12 +1189,13 @@ def reverse3(args):
     # SOURCES are the middle-band strips of the flipped finished view - real
     # painted material of the room's far half; TARGETS are the backward
     # front footprints (same construction as grow3's).
+    JMARGIN_R = 12
     cover("ceiling",
-          (x0, min(C[0][1], C[1][1]), x1, max(D[0][1], D[1][1])),
+          (x0, min(C[0][1], C[1][1]), x1, min(D[0][1], D[1][1]) - JMARGIN_R),
           [(0, 0), (W, 0), (W, tline(1, W)), C[1], C[0], (0, tline(0, 0))],
           (0, 0, W, max(tline(0, 0), tline(1, W), C[0][1], C[1][1])), "top")
     cover("floor",
-          (x0, min(D[2][1], D[3][1]), x1, max(C[2][1], C[3][1])),
+          (x0, max(D[2][1], D[3][1]) + JMARGIN_R, x1, max(C[2][1], C[3][1])),
           [(0, H), (W, H), (W, tline(3, W)), C[3], C[2], (0, tline(2, 0))],
           (0, min(tline(2, 0), tline(3, W), C[2][1], C[3][1]), W, H), "bottom")
     cover("left_wall",
