@@ -33,3 +33,19 @@ the first roll true on both instruments; explicit depth wording appears to
 bound the variance (D lost it in both directions); near-target rate rose from
 0/6 (all prior campaigns) to 3/8 within ~5%. The recipe is C + roll-until-pass
 with the strict gates unchanged.
+
+## Genre cross-test (waves 1-2, 2026-08-31/09-01)
+
+Wave 1 shipped contaminated prompts (curly-quote + reflow bugs): the painter
+built the PLATFORM far wall inside the manor and hospital on command -
+proof that fabric follows the ask's words with near-total fidelity.
+Wave 2 (clean prompts, v2 image-led guides): all six returns hold their own
+genre fabric and read natural. Depths: kitchen 15.28/4.89m, ward 9.38/4.84m,
+noodle 8.99/unmeasurable. Wave 1 depths: kitchen 17.48/4.95, noodle
+11.56 (hit)/14.09, ward unmeasurable.
+
+CUMULATIVE VERDICT: no guide or ask construction locks depth in any genre;
+near-target rate ~1 in 5-6 rolls everywhere. Fabric, look, plane structure
+and seam alignment are all controllable; depth alone is not. The deterministic
+path (composed reprojection of promoted close art + enhance ask, far-E's own
+promotion route) remains the only construction that guarantees depth.
