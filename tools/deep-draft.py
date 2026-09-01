@@ -1153,7 +1153,14 @@ def reverse3(args):
     k = float(args["depth_ratio"])
     C = [(float(x0), det[0][0]), (float(x1), det[1][0]),
          (float(x0), det[2][0]), (float(x1), det[3][0])]
-    D = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in C]
+    db = args.get("declared_box", {})
+    dyc = float(db.get("yc", bb.get("yc", C[0][1])))
+    dyf = float(db.get("yf", bb.get("yf", C[2][1])))
+    Cd = [(float(x0), dyc), (float(x1), dyc), (float(x0), dyf), (float(x1), dyf)]
+    D = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in Cd]
+    # source strips cut at the PAINT's own far region (detected corners
+    # vp-scaled); only the targets are declared
+    Ds = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in C]
     def tline(i, x):
         m = (vy - C[i][1]) / (vx - C[i][0])
         return C[i][1] + m * (x - C[i][0])
@@ -1191,19 +1198,19 @@ def reverse3(args):
     # front footprints (same construction as grow3's).
     JMARGIN_R = 12
     cover("ceiling",
-          (x0, min(C[0][1], C[1][1]), x1, min(D[0][1], D[1][1]) - JMARGIN_R),
+          (x0, min(C[0][1], C[1][1]), x1, min(Ds[0][1], Ds[1][1]) - JMARGIN_R),
           [(0, 0), (W, 0), (W, tline(1, W)), C[1], C[0], (0, tline(0, 0))],
           (0, 0, W, max(tline(0, 0), tline(1, W), C[0][1], C[1][1])), "top")
     cover("floor",
-          (x0, max(D[2][1], D[3][1]) + JMARGIN_R, x1, max(C[2][1], C[3][1])),
+          (x0, max(Ds[2][1], Ds[3][1]) + JMARGIN_R, x1, max(C[2][1], C[3][1])),
           [(0, H), (W, H), (W, tline(3, W)), C[3], C[2], (0, tline(2, 0))],
           (0, min(tline(2, 0), tline(3, W), C[2][1], C[3][1]), W, H), "bottom")
     cover("left_wall",
-          (x0, min(C[0][1], D[0][1]), D[0][0], max(C[2][1], D[2][1])),
+          (x0, min(C[0][1], Ds[0][1]), Ds[0][0], max(C[2][1], Ds[2][1])),
           [(0, tline(0, 0)), C[0], C[2], (0, tline(2, 0))],
           (0, min(tline(0, 0), C[0][1]), C[0][0], max(tline(2, 0), C[2][1])), "left")
     cover("right_wall",
-          (D[1][0], min(C[1][1], D[1][1]), x1, max(C[3][1], D[3][1])),
+          (Ds[1][0], min(C[1][1], Ds[1][1]), x1, max(C[3][1], Ds[3][1])),
           [(W, tline(1, W)), C[1], C[3], (W, tline(3, W))],
           (C[1][0], min(tline(1, W), C[1][1]), W, max(tline(3, W), C[3][1])), "right")
     dd = ImageDraw.Draw(canvas)
