@@ -1527,6 +1527,38 @@ def warp_wall(key, candidate, mode="plane", plan_path=None, reading=None):
         if why:
             rec.update(verdict="refused", clause=ORDER_REFUSAL, why=why)
             return None, rec
+        # [Kabe, 2026-09-01, verbatim ruling] "uniform only": the wall plane
+        # moves by ONE uniform scale and a translation - never a different
+        # stretch per axis (L-ENVELOPE at the exit; a circle stays a circle).
+        # Every pin target and the target box are refit by pooled least
+        # squares (one shared s, per-axis translation); the promotion
+        # instrument then judges the uniform compromise as-is.
+        _cs = np.array([float(pn["source"]) for pn in cols])
+        _ct = np.array([float(pn["target"]) for pn in cols])
+        _rs = np.array([float(pn["source"]) for pn in rows])
+        _rt = np.array([float(pn["target"]) for pn in rows])
+        _den = ((_cs - _cs.mean()) ** 2).sum() + ((_rs - _rs.mean()) ** 2).sum()
+        if _den > 0:
+            _s = float((((_cs - _cs.mean()) * (_ct - _ct.mean())).sum()
+                        + ((_rs - _rs.mean()) * (_rt - _rt.mean())).sum()) / _den)
+        else:
+            _s = 1.0
+        _txu = float(_ct.mean() - _s * _cs.mean())
+        _tyu = float(_rt.mean() - _s * _rs.mean())
+        for pn in cols:
+            pn["uniform_residual_px"] = round(float(pn["target"]) - (_s * float(pn["source"]) + _txu), 1)
+            pn["target"] = round(_s * float(pn["source"]) + _txu, 3)
+        for pn in rows:
+            pn["uniform_residual_px"] = round(float(pn["target"]) - (_s * float(pn["source"]) + _tyu), 1)
+            pn["target"] = round(_s * float(pn["source"]) + _tyu, 3)
+        _tb = dict(tgt_box)
+        _tb.update(x0=_s * float(src_box["x0"]) + _txu,
+                   x1=_s * float(src_box["x1"]) + _txu,
+                   yc=_s * float(src_box["yc"]) + _tyu,
+                   yf=_s * float(src_box["yf"]) + _tyu)
+        tgt_box = _tb
+        rec["uniform"] = dict(scale=round(_s, 4), tx=round(_txu, 1), ty=round(_tyu, 1),
+                              box=[round(tgt_box[k], 1) for k in ("x0", "x1", "yc", "yf")])
         out, wr = warp_with_axes(rgb, src_box, tgt_box, cols, rows,
                                  offset=(ox, oy))
         rec["columns"] = cols

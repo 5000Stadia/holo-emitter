@@ -179,3 +179,14 @@ painting's own landmarks onto the declared camera (the warp teaches);
 promotion, attempts 14). Each pass shrinks the painter's deviation until the
 gate accepts. Known cost: mild anisotropy on circular marks (the disc reads
 slightly oval).
+
+
+## Amendment — uniform-only rectification (2026-09-01, Kabe's ruling)
+
+[Kabe]: "Yes uniform only." The warp exit's wall plane moves by ONE uniform
+scale and a per-axis translation, refit by pooled least squares over every
+pin — never a different stretch per axis. L-ENVELOPE applied to the exit
+itself: a circle stays a circle, always; residual mismatch surfaces as reveal
+margins for the enhance pass, and the instruments judge the uniform
+compromise as-is. (mesh_warp.py plane mode; platform/E re-promoted at
+isotropic 1.0137, reveal 7.7%.)

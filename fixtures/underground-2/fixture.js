@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["underground-2"] = {
   id: "underground-2",
-  fp: "f365ffd4",
+  fp: "05585e7d",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -1666,7 +1666,7 @@ window.HOLO_FIXTURES["underground-2"] = {
     "horizon_y": 0.51377,
     "key_dir": "C-BELOW",
     "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 105,
+    "calibration_px": 90,
     "camera_wall_m": 11.2,
     "facing_type": "enclosed",
     "wall_continuous": true,
@@ -1683,7 +1683,7 @@ window.HOLO_FIXTURES["underground-2"] = {
     "camera_id": "measured:backdrops/source-warped/platform-E/warped.png",
     "camera_reference": "ruled",
     "measured_round": "meshwarp",
-    "instrument": "57236a09a2ea",
+    "instrument": "c3208bf9b05d",
     "camera_source": "declared",
     "declared_fields": [
       "horizon_y",
@@ -1695,11 +1695,11 @@ window.HOLO_FIXTURES["underground-2"] = {
     "provisional": false,
     "measured": true,
     "backdrop": "wall",
-    "focal_px": 980,
+    "focal_px": 840,
     "nearest_floor_m": 2.433,
     "measured_room": {
-      "storey_height_m": 3.486,
-      "wall_width_m": 6.686,
+      "storey_height_m": 3.867,
+      "wall_width_m": 7.907,
       "ruled_storey_height_m": 3.4,
       "ruled_wall_width_m": 6.4,
       "warp": {
@@ -1728,19 +1728,19 @@ window.HOLO_FIXTURES["underground-2"] = {
           ]
         },
         "worst_segment": {
-          "axis": "y",
-          "name": "ceiling_line..floor_line",
-          "scale": 1.068,
-          "target_px": 310.9,
-          "source_px": 291
+          "axis": "x",
+          "name": "corner_left..corner_right",
+          "scale": 1.014,
+          "target_px": 593,
+          "source_px": 585
         },
-        "revealed_px": 77084,
+        "revealed_px": 120642,
         "remeasured": {
-          "px_per_m_at_wall": 87.5,
-          "floor_line_y": 0.613281,
-          "corner_x0_px": 476,
-          "corner_x1_px": 1061,
-          "corner_scale_px_per_m": 91.406
+          "px_per_m_at_wall": 75,
+          "floor_line_y": 0.606445,
+          "corner_x0_px": 472,
+          "corner_x1_px": 1065,
+          "corner_scale_px_per_m": 92.656
         },
         "warped_from": "backdrops/source/platform-E/row23-a5413001.png",
         "tool": "design/plan-draft/measured/mesh_warp.py"

@@ -9,7 +9,7 @@
  "verdict": "warped",
  "why": null,
  "sha256": "41d16f0934359f4327c0d1625977fcca4ab537eeb0c55c8d0ec4617c941ff5a1",
- "instrument": "57236a09a2ea",
+ "instrument": "c3208bf9b05d",
  "reading_cache": null,
  "before": {
   "camera_verdict": "FAIL",
@@ -79,21 +79,34 @@
   }
  },
  "pins_dropped_as_duplicate": [],
+ "uniform": {
+  "scale": 1.0137,
+  "tx": -10.0,
+  "ty": 1.9,
+  "box": [
+   471.5,
+   1064.5,
+   331.3,
+   626.3
+  ]
+ },
  "columns": [
   {
    "name": "corner_left",
    "kind": "room_corner",
-   "target": 475.429,
+   "target": 471.484,
    "source": 475.0,
    "ask_px": 0.4,
+   "uniform_residual_px": 3.9,
    "residual_px": 0.0
   },
   {
    "name": "corner_right",
    "kind": "room_corner",
-   "target": 1060.571,
+   "target": 1064.516,
    "source": 1060.0,
    "ask_px": 0.6,
+   "uniform_residual_px": -3.9,
    "residual_px": 0.0
   }
  ],
@@ -101,62 +114,64 @@
   {
    "name": "ceiling_line",
    "kind": "room_corner",
-   "target": 323.403,
+   "target": 331.334,
    "source": 325.0,
    "ask_px": -1.6,
+   "uniform_residual_px": -7.9,
    "residual_px": 0.0
   },
   {
    "name": "floor_line",
    "kind": "room_corner",
-   "target": 634.26,
+   "target": 626.329,
    "source": 616.0,
    "ask_px": 18.3,
+   "uniform_residual_px": 7.9,
    "residual_px": 0.0
   }
  ],
  "stretch": {
-  "x_scale_min": 1.0,
-  "x_scale_max": 1.0,
-  "y_scale_min": 1.068,
-  "y_scale_max": 1.068,
+  "x_scale_min": 1.014,
+  "x_scale_max": 1.014,
+  "y_scale_min": 1.014,
+  "y_scale_max": 1.014,
   "x_segments": [
    {
     "name": "corner_left..corner_right",
-    "target_px": 585.1,
+    "target_px": 593.0,
     "source_px": 585.0,
-    "scale": 1.0
+    "scale": 1.014
    }
   ],
   "y_segments": [
    {
     "name": "ceiling_line..floor_line",
-    "target_px": 310.9,
+    "target_px": 295.0,
     "source_px": 291.0,
-    "scale": 1.068
+    "scale": 1.014
    }
   ],
   "monotone": true,
   "folded_px": 0
  },
  "max_residual_px": 0.0,
- "revealed_px": 77084,
- "revealed_fraction": 0.04901,
+ "revealed_px": 120642,
+ "revealed_fraction": 0.0767,
  "revealed_fill": "plane_recession",
  "fill_fade_px": 24,
- "filled_px": 127152,
+ "filled_px": 168992,
  "mirror_band_px": 0,
  "seam_blend_px": 24,
  "column_count": 2,
  "row_count": 2,
- "seconds": 1.75,
+ "seconds": 7.55,
  "warped_image": "backdrops/source-warped/platform-E/warped.png",
  "asked_from": "backdrops/source/platform-E/row23-a5413001.prompt.txt",
- "warped_sha256": "366029cc051970a4fe18b4fb9365588b56c89784b686633bfa1ee526f6c2d21b",
+ "warped_sha256": "e821f02578e2f393a08559eecbb35c08b121845ddffcbf832448a516e113db96",
  "after": {
-  "camera_verdict": "PASS",
-  "delta_focal_pct": -4.3,
-  "delta_eye_pct": -1.56,
-  "hold_family": null
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -17.97,
+  "delta_eye_pct": 6.96,
+  "hold_family": "unfitted-horizon"
  }
 }
