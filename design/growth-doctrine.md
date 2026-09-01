@@ -162,3 +162,31 @@ Battle-tested 2026-08-31 on four fabrics: booking_hall/N (floor grout
 diagonals), kitchen-N, great_hall-N (ceiling beams), back_office-N (steep
 modern drop-ceiling corners + a wall pipe): 16/16 corners on the true
 junctions, including the steep ones the vp prior underestimated.
+
+
+## Amendment — grow3, the cover-fit prep guide (2026-08-31)
+
+[Kabe, verbatim, the plan]: "Generate the 1x1 image, produce the wire frame
+geometry for the 2x1. Cut the side walls, cieling, floor, back wall. Now,
+scale while maintaining aspect ratio so that piece fully covers the wireframe
+version and cut/crop off what overlays over the wireframe line out of that
+element. No skewing or warping just locked scaling. Same with back wall...
+If the image generated element is larger then the wireframe cutout of that
+section it scales down to the exact size... that doesn't have a pixel shrink
+smaller then the wireframe section then crop off what overlapped... If the
+image generated element is smaller... it scales up to the exact size that
+closes that gap. And again crop off element outside of the corner boundry."
+Correction: "we shouldn't scale it to fully cover the 2x1, just the front 1x1
+section." And the ask law: "The fill the gap image pass should understand its
+finishing the image from our prep guide image."
+
+Mechanism (deep-draft.py grow3): the image-first corner detector finds the
+1x1's own corner lines; OUR corrected lines run through those detected close
+corners toward the declared vp, deep corners at the declared depth ratio.
+Each plane is cut along the detected lines, uniformly scaled (locked aspect —
+L-ENVELOPE by construction) to the minimal size that covers its own FRONT
+footprint bounded by the corrected lines, and cropped at those lines; the
+middle ring stays wireframe gap with the close-to-deep corner lines drawn;
+the back wall cover-fits the deep rect the same way. Coverage carries the
+angle mismatch to the crop seams, where the finishing pass reconciles. The
+ask frames Image 1 as a prep guide being FINISHED, never as a style reference.

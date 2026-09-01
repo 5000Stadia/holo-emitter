@@ -677,27 +677,11 @@ def cutback(args):
     print(json.dumps({"ok": True, "mode": "cutback", "gap": [bx0, by0, bx1, by1]}))
 
 
-def grow2(args):
-    """[Kabe, 2026-08-31, the image-led grow — FINAL form] "start with corner
-    detection on the image itself and have the corner edges extend off of the
-    image section and into our wire frame. It will be easier for you to simply
-    align the two generated lines over each other."
-
-    IMAGE-FIRST: the four corner lines are detected on the raw painting alone —
-    no box, no measured priors, a wide joint scan per mirrored pair, scored by
-    edge energy x cross-line fabric contrast. The wireframe corner lines ARE
-    the detected lines extended inward to the estimated depth; the gap quad's
-    corners are the detected lines' crossings at the panel edges; the back-wall
-    cut rows derive from the detected lines. The cutout settles by
-    least-squares uniform scale + translation onto the four stops, and the
-    generation reconciles the rest."""
+def _detect_corner_lines(base, x0, x1, yc_m0, yf_m0):
+    """The image-first corner-line detector (grow2's FINAL form), shared:
+    returns det = [[ya, slope, score] x TL,TR,BL,BR] plus the misfit fn,
+    lines launched at the panel edges x0/x1."""
     import numpy as np
-    from PIL import ImageDraw
-    base = Image.open(args["base_png"]).convert("RGB")
-    a = np.asarray(base).astype(np.uint8).copy()
-    bb = args["base_box"]
-    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
-    GROUND = (208, 202, 192)
     gray = np.asarray(base.convert("L")).astype(float)
     Gy = np.abs(np.diff(gray, axis=0))
     Himg, Wimg = Gy.shape
@@ -819,7 +803,7 @@ def grow2(args):
     # readings the pipeline takes on every wall): the ceiling row yc and the
     # floor row yf, +/-70px. Detection stays on the image; the band only says
     # where a corner line can launch for this camera.
-    yc_m = float(bb.get("yc", Himg * 0.2)); yf_m = float(bb.get("yf", Himg * 0.73))
+    yc_m = float(yc_m0 if yc_m0 is not None else Himg * 0.2); yf_m = float(yf_m0 if yf_m0 is not None else Himg * 0.73)
     cand = [side_candidates(x_edge, d, sgn,
                             *((max(10.0, yc_m - 70), min(Himg * 0.6, yc_m + 70)) if k < 2
                               else (max(Himg * 0.42, yf_m - 70), min(Himg - 10.0, yf_m + 70))))
@@ -860,6 +844,34 @@ def grow2(args):
            [t["b"]["ya"], t["b"]["m"], t["b"]["s"]],
            [b["a"]["ya"], b["a"]["m"], b["a"]["s"]],
            [b["b"]["ya"], b["b"]["m"], b["b"]["s"]]]
+    return det, corners, misfit
+
+def grow2(args):
+    """[Kabe, 2026-08-31, the image-led grow — FINAL form] "start with corner
+    detection on the image itself and have the corner edges extend off of the
+    image section and into our wire frame. It will be easier for you to simply
+    align the two generated lines over each other."
+
+    IMAGE-FIRST: the four corner lines are detected on the raw painting alone —
+    no box, no measured priors, a wide joint scan per mirrored pair, scored by
+    edge energy x cross-line fabric contrast. The wireframe corner lines ARE
+    the detected lines extended inward to the estimated depth; the gap quad's
+    corners are the detected lines' crossings at the panel edges; the back-wall
+    cut rows derive from the detected lines. The cutout settles by
+    least-squares uniform scale + translation onto the four stops, and the
+    generation reconciles the rest."""
+    import numpy as np
+    from PIL import ImageDraw
+    base = Image.open(args["base_png"]).convert("RGB")
+    a = np.asarray(base).astype(np.uint8).copy()
+    bb = args["base_box"]
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    GROUND = (208, 202, 192)
+    det, corners, misfit = _detect_corner_lines(
+        base, x0, x1, float(bb.get("yc")) if "yc" in bb else None,
+        float(bb.get("yf")) if "yf" in bb else None)
+    Himg, Wimg = a.shape[0], a.shape[1]
+    cx = (x0 + x1) / 2.0
     P = [(float(c[0]), d[0]) for c, d in zip(corners, det)]
     slopes = [d[1] for d in det]
     anchors = [{"x": c[0], "y": round(d[0], 1), "slope": round(d[1], 4),
@@ -998,6 +1010,109 @@ def cutback(args):
     print(json.dumps({"ok": True, "mode": "cutback", "gap": [bx0, by0, bx1, by1]}))
 
 
+def grow3(args):
+    """[Kabe, 2026-08-31, the cover-fit plane assembly] "Cut the side walls,
+    cieling, floor, back wall. Now, scale while maintaining aspect ratio so
+    that piece fully covers the wireframe version and cut/crop off what
+    overlays over the wireframe line... No skewing or warping just locked
+    scaling. Same with back wall... If the image generated element is larger
+    then the wireframe cutout of that section it scales down to the exact size
+    of the shrink size that doesn't have a pixel shrink smaller then the
+    wireframe section... If the image generated element is smaller... it
+    scales up to the exact size that closes that gap. And again crop off
+    element outside of the corner boundry."
+
+    Each plane of the 1x1 is cut along the image's own DETECTED corner lines,
+    uniformly scaled (locked aspect - no skew, no warp) to the minimal size
+    that fully covers its 2x1 wireframe region, and cropped at the wireframe
+    lines. The wireframe is OUR correct geometry: corner lines through the
+    detected close corners toward the declared vp, deep corners at the
+    declared depth ratio. Coverage is total; the seams carry the angle
+    mismatch and the painter reconciles."""
+    import numpy as np
+    from PIL import ImageDraw
+    base = Image.open(args["base_png"]).convert("RGB")
+    W, H = base.size
+    bb = args["base_box"]
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    a = np.asarray(base)
+    det, corners, _mis = _detect_corner_lines(
+        base, x0, x1, float(bb.get("yc")) if "yc" in bb else None,
+        float(bb.get("yf")) if "yf" in bb else None)
+    vx, vy = args.get("vp", [768.0, 526.1])
+    k = float(args["depth_ratio"])
+    C = [(float(x0), det[0][0]), (float(x1), det[1][0]),
+         (float(x0), det[2][0]), (float(x1), det[3][0])]
+    D = [(vx + (cxy[0] - vx) * k, vy + (cxy[1] - vy) * k) for cxy in C]
+    def sline(i, x):                       # the image's own detected line
+        return det[i][0] + det[i][1] * (x - C[i][0])
+    def tline(i, x):                       # our correct geometry: through C toward vp
+        m = (vy - C[i][1]) / (vx - C[i][0])
+        return C[i][1] + m * (x - C[i][0])
+    canvas = Image.new("RGB", (W, H), (208, 202, 192))   # the gap ring shows GROUND
+    report = {}
+    def cover(name, sbox, tpoly, tbox, anchor):
+        sx0, sy0, sx1, sy1 = [int(round(v)) for v in sbox]
+        sx0 = max(0, sx0); sy0 = max(0, sy0); sx1 = min(W, sx1); sy1 = min(H, sy1)
+        sw, sh = max(1, sx1 - sx0), max(1, sy1 - sy0)
+        tx0, ty0, tx1, ty1 = tbox
+        tw, th = max(1.0, tx1 - tx0), max(1.0, ty1 - ty0)
+        s = max(tw / sw, th / sh)          # the exact minimal covering scale
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = base.crop((sx0, sy0, sx1, sy1)).resize((pw, ph), Image.LANCZOS)
+        if anchor == "top":
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty0
+        elif anchor == "bottom":
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty1 - ph
+        elif anchor == "left":
+            px, py = tx0, (ty0 + ty1) / 2.0 - ph / 2.0
+        elif anchor == "right":
+            px, py = tx1 - pw, (ty0 + ty1) / 2.0 - ph / 2.0
+        else:
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, (ty0 + ty1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), (0, 0, 0))
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).polygon([(float(px_), float(py_)) for px_, py_ in tpoly], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report[name] = {"scale": round(s, 4), "src": [sx0, sy0, sx1, sy1],
+                        "at": [round(px), round(py)]}
+    # [Kabe]: "we shouldn't scale it to fully cover the 2x1, just the front
+    # 1x1 section" - each element keeps its own footprint: it covers only the
+    # front section (frame edge to the close-corner plane), bounded by OUR
+    # corrected lines; the middle ring stays wireframe gap; the back wall
+    # cover-fits the deep rect.
+    cover("ceiling",
+          (0, 0, W, max(sline(0, 0), sline(1, W - 1), C[0][1], C[1][1])),
+          [(0, 0), (W, 0), (W, tline(1, W)), C[1], C[0], (0, tline(0, 0))],
+          (0, 0, W, max(tline(0, 0), tline(1, W), C[0][1], C[1][1])), "top")
+    cover("floor",
+          (0, min(sline(2, 0), sline(3, W - 1), C[2][1], C[3][1]), W, H),
+          [(0, H), (W, H), (W, tline(3, W)), C[3], C[2], (0, tline(2, 0))],
+          (0, min(tline(2, 0), tline(3, W), C[2][1], C[3][1]), W, H), "bottom")
+    cover("left_wall",
+          (0, min(sline(0, 0), C[0][1]), x0, max(sline(2, 0), C[2][1])),
+          [(0, tline(0, 0)), C[0], C[2], (0, tline(2, 0))],
+          (0, min(tline(0, 0), C[0][1]), C[0][0], max(tline(2, 0), C[2][1])), "left")
+    cover("right_wall",
+          (x1, min(sline(1, W - 1), C[1][1]), W, max(sline(3, W - 1), C[3][1])),
+          [(W, tline(1, W)), C[1], C[3], (W, tline(3, W))],
+          (C[1][0], min(tline(1, W), C[1][1]), W, max(tline(3, W), C[3][1])), "right")
+    cover("back_wall",
+          (x0, min(C[0][1], C[1][1]), x1, max(C[2][1], C[3][1])),
+          [D[0], D[1], D[3], D[2]],
+          (min(D[0][0], D[2][0]), min(D[0][1], D[1][1]),
+           max(D[1][0], D[3][0]), max(D[2][1], D[3][1])), "center")
+    # the wireframe through the gap ring: our corner lines, close to deep
+    dd = ImageDraw.Draw(canvas)
+    for ci, di in zip(C, D):
+        dd.line([ci, di], fill=(42, 33, 24), width=3)
+    canvas.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "grow3",
+                      "close_corners": [[round(c[0]), round(c[1], 1)] for c in C],
+                      "deep_corners": [[round(d[0], 1), round(d[1], 1)] for d in D],
+                      "elements": report}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -1016,6 +1131,8 @@ def main():
         return reverse(args)
     if args.get("mode") == "grow2":
         return grow2(args)
+    if args.get("mode") == "grow3":
+        return grow3(args)
     if args.get("mode") == "cutback":
         return cutback(args)
     close = Image.open(args["close_png"]).convert("RGB")
