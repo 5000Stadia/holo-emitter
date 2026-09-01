@@ -1379,7 +1379,20 @@ def grow4(args):
     cover("ceiling", (0, 0, W, min(C[0][1], C[1][1]) - JM),
           [(0, 0), (W, 0), (W, tline(1, W)), D[1], D[0], (0, tline(0, 0))],
           (0, 0, W, max(tline(0, 0), tline(1, W), D[0][1], D[1][1])), "top")
-    cover("floor", (0, max(C[2][1], C[3][1]) + JM, W, H),
+    # the floor source must not carry a unique horizontal feature (a drain, a
+    # threshold) into the middle of the room: start below the strongest band
+    # if one dominates the strip (mid-artifact law), or where the args say.
+    fy0 = args.get("floor_src_y0")
+    if fy0 is None:
+        fy0 = max(C[2][1], C[3][1]) + JM
+        gseed0 = np.asarray(base.convert("L")).astype(float)
+        strip = np.abs(np.diff(gseed0[int(fy0):H - 8, int(x0) + 40:int(x1) - 40], axis=0)).mean(axis=1)
+        if len(strip) > 20:
+            med = float(np.median(strip)); mx = float(strip.max())
+            if mx > max(9.0, 5.0 * (med + 0.3)):
+                band = int(fy0) + int(np.argmax(strip))
+                fy0 = min(H - 60, band + 40)
+    cover("floor", (0, fy0, W, H),
           [(0, H), (W, H), (W, tline(3, W)), D[3], D[2], (0, tline(2, 0))],
           (0, min(tline(2, 0), tline(3, W), D[2][1], D[3][1]), W, H), "bottom")
     # side walls split at the CONVERGING DADO (spec rule 7: geometry stated by
@@ -1445,6 +1458,23 @@ def grow4(args):
         ImageDraw.Draw(mask).rectangle([bx0, by0, bx1, by1], fill=255)
         canvas.paste(layer, (0, 0), mask)
         report["far_wall"] = {"scale": round(s, 4), "from": "close-asset"}
+    else:
+        # no close asset: the seed's OWN wall, cut at its detected rows and
+        # cover-fit to the deep rect (never left at near scale)
+        fy0 = int(round(min(C[0][1], C[1][1])))
+        fy1 = int(round(max(C[2][1], C[3][1])))
+        fsrc = base.crop((x0, max(0, fy0), x1, min(H, fy1)))
+        sw, sh = fsrc.size
+        s = max((bx1 - bx0) / sw, (by1 - by0) / sh)
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = fsrc.resize((pw, ph), Image.LANCZOS)
+        px, py = (bx0 + bx1) / 2.0 - pw / 2.0, (by0 + by1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), (0, 0, 0))
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).rectangle([bx0, by0, bx1, by1], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report["far_wall"] = {"scale": round(s, 4), "from": "seed-cut"}
     # PERMANENT architecture on the exact geometry: soft occlusion shadow under
     # a narrow dark seam, centered on every boundary (spec rule 2)
     SHADOW = (96, 82, 68); SEAM = (58, 48, 40)
@@ -1460,8 +1490,130 @@ def grow4(args):
     seam(lw_a, lw_b); seam(rw_a, rw_b)                   # the converging dado caps
     seam((bx0, by0), (bx1, by0)); seam((bx0, by1), (bx1, by1))
     seam((bx0, by0), (bx0, by1)); seam((bx1, by0), (bx1, by1))
+    cg = np.asarray(canvas.convert("L")).astype(float)
+    def band_guard(y_lo, y_hi, name):
+        y_lo, y_hi = int(max(1, y_lo)), int(min(H - 1, y_hi))
+        if y_hi - y_lo < 6:
+            return {"band": name, "ok": True}
+        seg = cg[y_lo:y_hi, int(x0) + 40:int(x1) - 40]
+        g_ = np.abs(np.diff(seg, axis=0)).mean(axis=1)
+        med = float(np.median(g_)); mx = float(g_.max())
+        return {"band": name, "max": round(mx, 2), "median": round(med, 2),
+                "ok": bool(mx <= max(9.0, 5.0 * (med + 0.3)))}
+    guards = [band_guard(8, min(C[0][1], C[1][1]) - 8, "ceiling_front"),
+              band_guard(max(C[2][1], C[3][1]) + 8, H - 8, "floor_front")]
+    if any(not g_["ok"] for g_ in guards):
+        canvas.save(args["out"] + ".breach.png", "PNG")
+        print(json.dumps({"ok": False, "mode": "grow4",
+                          "error": "mid-room artifact guard breached", "guards": guards}))
+        return
     canvas.save(args["out"], "PNG")
-    print(json.dumps({"ok": True, "mode": "grow4", "elements": report,
+    print(json.dumps({"ok": True, "mode": "grow4", "elements": report, "guards": guards,
+                      "deep_rect": [round(bx0), round(by0), round(bx1), round(by1)]}))
+
+def grow5(args):
+    """grow4 with PERSPECTIVE-CORRECT pre-fill for ceiling and floor [Kabe,
+    2026-08-31: "those rooms look like Escher paintings" - uniform stretch
+    keeps near texture scale at depth; the spec demands diminishing scale].
+    Each band pixel samples the seed's own plane along its ray at true 1/z
+    recession, tiling in depth; sides keep the dado split; the far wall stays
+    the locked asset; seams stay physical."""
+    import numpy as np
+    args2 = dict(args)
+    out_path = args["out"]
+    args2["out"] = out_path + ".g4tmp.png"
+    grow4(args2)
+    base = Image.open(args["base_png"]).convert("RGB")
+    canvas = Image.open(args2["out"]).convert("RGB")
+    os_remove = __import__("os").remove
+    W, H = base.size
+    src_a = np.asarray(base).astype(np.float32)
+    can_a = np.asarray(canvas).astype(np.float32).copy()
+    bb = args["base_box"]
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    det, corners, _mis = _detect_corner_lines(
+        base, x0, x1, float(bb.get("yc")) if "yc" in bb else None,
+        float(bb.get("yf")) if "yf" in bb else None)
+    vx, vy = args.get("vp", [768.0, 526.1])
+    k = float(args["depth_ratio"])
+    C = [(float(x0), det[0][0]), (float(x1), det[1][0]),
+         (float(x0), det[2][0]), (float(x1), det[3][0])]
+    db = args.get("declared_box", {})
+    dyc = float(db.get("yc", bb.get("yc", C[0][1])))
+    dyf = float(db.get("yf", bb.get("yf", C[2][1])))
+    Cd = [(float(x0), dyc), (float(x1), dyc), (float(x0), dyf), (float(x1), dyf)]
+    D = [(vx + (c_[0] - vx) * k, vy + (c_[1] - vy) * k) for c_ in Cd]
+    ys, xs = np.mgrid[0:H, 0:W].astype(np.float64)
+    def persp_fill(sign):
+        """sign=-1 ceiling (above vp), +1 floor. Band: between the close
+        junction rows and the deep rect edge, full width between the corner
+        rays; sample the seed's own plane at u_s = u_t * r^n."""
+        if sign < 0:
+            band_lo = min(C[0][1], C[1][1]); band_hi = max(D[0][1], D[1][1])
+            u_src_min = vy - band_lo          # far edge of source texture
+            u_src_max = vy - 6.0              # rows near frame top
+        else:
+            band_lo = min(D[2][1], D[3][1]); band_hi = max(C[2][1], C[3][1])
+            u_src_min = band_hi - vy
+            u_src_max = (H - 6.0) - vy
+        if u_src_min <= 4 or u_src_max <= u_src_min + 4:
+            return
+        r = u_src_max / u_src_min
+        u_t = (vy - ys) if sign < 0 else (ys - vy)
+        in_band = (ys >= band_lo) & (ys <= band_hi) & (u_t > 4)
+        # inside the corner rays only (between left and right ray at this row)
+        # left ray: from C0/C2 to D0/D2
+        def ray_x(cy, c_, d_):
+            t = (ys - c_[1]) / max(d_[1] - c_[1], 1e-6) if d_[1] != c_[1] else 0
+            return c_[0] + (d_[0] - c_[0]) * np.clip(t, 0, 1)
+        if sign < 0:
+            lxr = ray_x(ys, C[0], D[0]); rxr = ray_x(ys, C[1], D[1])
+        else:
+            lxr = ray_x(ys, C[2], D[2]); rxr = ray_x(ys, C[3], D[3])
+        in_band &= (xs >= lxr) & (xs <= rxr)
+        u_s = np.where(in_band, u_t, 1.0).astype(np.float64)
+        # tile: multiply by r until inside [u_src_min, u_src_max]
+        for _ in range(12):
+            need = u_s < u_src_min
+            if not need.any():
+                break
+            u_s = np.where(need, u_s * r, u_s)
+        u_s = np.clip(u_s, u_src_min, u_src_max)
+        scale = u_s / np.maximum(u_t, 1e-6)
+        sx = vx + (xs - vx) * scale
+        sy = vy - u_s if sign < 0 else vy + u_s
+        sx = np.clip(sx, 0, W - 2); sy = np.clip(sy, 0, H - 2)
+        xi0 = sx.astype(int); yi0 = sy.astype(int)
+        fx = sx - xi0; fy = sy - yi0
+        for ch in range(3):
+            s = src_a[:, :, ch]
+            v = (s[yi0, xi0] * (1 - fx) * (1 - fy) + s[yi0, xi0 + 1] * fx * (1 - fy)
+                 + s[yi0 + 1, xi0] * (1 - fx) * fy + s[yi0 + 1, xi0 + 1] * fx * fy)
+            can_a[:, :, ch] = np.where(in_band, v, can_a[:, :, ch])
+    persp_fill(-1)
+    persp_fill(+1)
+    out = Image.fromarray(np.clip(can_a, 0, 255).astype(np.uint8))
+    # redraw the seams over the refilled bands
+    from PIL import ImageDraw
+    dd = ImageDraw.Draw(out)
+    SHADOW = (96, 82, 68); SEAM = (58, 48, 40)
+    def seam(a_, b_):
+        dd.line([a_, b_], fill=SHADOW, width=9)
+        dd.line([a_, b_], fill=SEAM, width=4)
+    def tline(i, x):
+        m = (vy - C[i][1]) / (vx - C[i][0])
+        return C[i][1] + m * (x - C[i][0])
+    edges = [(0.0, tline(0, 0)), (float(W), tline(1, W)),
+             (0.0, tline(2, 0)), (float(W), tline(3, W))]
+    for e_, d_ in zip(edges, D):
+        seam(e_, d_)
+    bx0, by0 = min(D[0][0], D[2][0]), min(D[0][1], D[1][1])
+    bx1, by1 = max(D[1][0], D[3][0]), max(D[2][1], D[3][1])
+    seam((bx0, by0), (bx1, by0)); seam((bx0, by1), (bx1, by1))
+    seam((bx0, by0), (bx0, by1)); seam((bx1, by0), (bx1, by1))
+    out.save(out_path, "PNG")
+    os_remove(args2["out"])
+    print(json.dumps({"ok": True, "mode": "grow5",
                       "deep_rect": [round(bx0), round(by0), round(bx1), round(by1)]}))
 
 def main():
@@ -1488,6 +1640,8 @@ def main():
         return reverse3(args)
     if args.get("mode") == "grow4":
         return grow4(args)
+    if args.get("mode") == "grow5":
+        return grow5(args)
     if args.get("mode") == "cutback":
         return cutback(args)
     close = Image.open(args["close_png"]).convert("RGB")
