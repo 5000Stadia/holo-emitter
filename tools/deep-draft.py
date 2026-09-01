@@ -837,7 +837,7 @@ def _detect_corner_lines(base, x0, x1, yc_m0, yf_m0):
         t = max(tops, key=lambda c: c["s"]); b = max(bots, key=lambda c: c["s"])
         best = (None, t, b)
     if best is None:
-        raise SystemExit(json.dumps({"ok": False, "mode": "grow2",
+        raise SystemExit(json.dumps({"ok": False, "mode": "detect",
                                      "error": "no corner-line candidates survived verification"}))
     _, t, b = best
     det = [[t["a"]["ya"], t["a"]["m"], t["a"]["s"]],
@@ -1115,11 +1115,47 @@ def grow3(args):
           (x1 + VMARGIN, min(sline(1, W - 1), C[1][1]), W, max(sline(3, W - 1), C[3][1])),
           [(W, tline(1, W)), C[1], C[3], (W, tline(3, W))],
           (C[1][0], min(tline(1, W), C[1][1]), W, max(tline(3, W), C[3][1])), "right")
-    cover("back_wall",
-          (x0, min(C[0][1], C[1][1]), x1, max(C[2][1], C[3][1])),
-          [D[0], D[1], D[3], D[2]],
-          (min(D[0][0], D[2][0]), min(D[0][1], D[1][1]),
-           max(D[1][0], D[3][0]), max(D[2][1], D[3][1])), "center")
+    # [Kabe, 2026-08-31]: the far wall is the CLOSE painting of the wall being
+    # faced, cover-fit to the declared deep rect - "use those generated assets
+    # in the guide image when it is being looked at from a distance". The
+    # seed's own back-wall cut is the fallback when no close asset is given.
+    fw = args.get("far_wall_png")
+    if fw:
+        far = Image.open(fw).convert("RGB")
+        try:
+            fdet, _fc, _fm = _detect_corner_lines(far, x0, x1, None, None)
+            fy0 = int(round(min(fdet[0][0], fdet[1][0])))
+            fy1 = int(round(max(fdet[2][0], fdet[3][0])))
+        except SystemExit:
+            fy0, fy1 = int(dyc), int(dyf)      # declared rows as the fallback cut
+        piece_src = far.crop((x0, max(0, fy0), x1, min(far.size[1], fy1)))
+    else:
+        piece_src = None
+    def cover_img(name, img, tpoly, tbox):
+        sw, sh = img.size
+        tx0, ty0, tx1, ty1 = tbox
+        tw, th = max(1.0, tx1 - tx0), max(1.0, ty1 - ty0)
+        s = max(tw / sw, th / sh)
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = img.resize((pw, ph), Image.LANCZOS)
+        px, py = (tx0 + tx1) / 2.0 - pw / 2.0, (ty0 + ty1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), (0, 0, 0))
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).polygon([(float(a_), float(b_)) for a_, b_ in tpoly], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report[name] = {"scale": round(s, 4), "at": [round(px), round(py)],
+                        "from": "close-asset"}
+    if piece_src is not None:
+        cover_img("back_wall", piece_src, [D[0], D[1], D[3], D[2]],
+                  (min(D[0][0], D[2][0]), min(D[0][1], D[1][1]),
+                   max(D[1][0], D[3][0]), max(D[2][1], D[3][1])))
+    else:
+        cover("back_wall",
+              (x0, min(C[0][1], C[1][1]), x1, max(C[2][1], C[3][1])),
+              [D[0], D[1], D[3], D[2]],
+              (min(D[0][0], D[2][0]), min(D[0][1], D[1][1]),
+               max(D[1][0], D[3][0]), max(D[2][1], D[3][1])), "center")
     # the wireframe through the gap ring: our corner lines, close to deep
     dd = ImageDraw.Draw(canvas)
     for ci, di in zip(C, D):
@@ -1241,10 +1277,34 @@ def reverse3(args):
     dd = ImageDraw.Draw(canvas)
     for ci, di in zip(C, D):
         dd.line([ci, di], fill=INK, width=3)
-    # the far back wall was never seen: an OUTLINED GAP box at the deep rect
     bx0, by0 = min(D[0][0], D[2][0]), min(D[0][1], D[1][1])
     bx1, by1 = max(D[1][0], D[3][0]), max(D[2][1], D[3][1])
-    dd.rectangle([bx0, by0, bx1, by1], fill=GROUND, outline=INK, width=3)
+    fw = args.get("far_wall_png")
+    if fw:
+        # [Kabe]: the far wall IS the close painting of the wall being faced,
+        # door assets included, cover-fit to the deep rect
+        far = Image.open(fw).convert("RGB")
+        try:
+            fdet, _fc, _fm = _detect_corner_lines(far, x0, x1, None, None)
+            fy0 = int(round(min(fdet[0][0], fdet[1][0])))
+            fy1 = int(round(max(fdet[2][0], fdet[3][0])))
+        except SystemExit:
+            fy0, fy1 = int(dyc), int(dyf)
+        fsrc = far.crop((x0, max(0, fy0), x1, min(far.size[1], fy1)))
+        sw, sh = fsrc.size
+        tw, th = bx1 - bx0, by1 - by0
+        s = max(tw / sw, th / sh)
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = fsrc.resize((pw, ph), Image.LANCZOS)
+        px, py = (bx0 + bx1) / 2.0 - pw / 2.0, (by0 + by1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), GROUND)
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).rectangle([bx0, by0, bx1, by1], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report["back_wall"] = {"scale": round(s, 4), "from": "close-asset"}
+    else:
+        dd.rectangle([bx0, by0, bx1, by1], fill=GROUND, outline=INK, width=3)
     if args.get("door"):
         dw, dh = args["door"]                 # metres
         ppm = (bx1 - bx0) / float(args.get("wall_w_m", 6.4))
