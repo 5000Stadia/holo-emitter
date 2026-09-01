@@ -195,3 +195,20 @@ ask frames Image 1 as a prep guide being FINISHED, never as a style reference.
 **LOCKED AS STANDARD** [Kabe, 2026-08-31]: "Let's lock this process in as the
 standard because that corner alignment was so clean on the first try." grow3
 is the standing grow construction; registry law G-PREP.
+
+
+## Amendment — phase 1 is the close set, complete (2026-08-31)
+
+[Kabe, verbatim]: "Actually, the phase that we should do before any of this
+really should be the positions that forward face the wall right in front,
+including in this room, the location looking at the door so that we can use
+those generated assets in the guide image when it is being looked at from a
+distance." And: "So the real first phase one should not include any distance
+generation, but every location you can stand facing any immediate wall."
+
+Ordering law restated: PHASE 1 = every standpoint facing an immediate wall
+(camera at the close distance), doors included, fixture-free — and NOTHING at
+distance. Deep and backward views are built only after, as G-PREP guides
+whose far-wall element is cover-fit from the CLOSE painting of the wall being
+faced (never from the seed's own back-wall cut), and whose door assets come
+from the close door-wall painting.
