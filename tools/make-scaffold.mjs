@@ -2444,6 +2444,91 @@ function tolFor(meta, rects) {
   return Math.round(widest);
 }
 
+/** The minimal ask, when Image 1 IS this view (prep / grown / reverse / composed
+ *  drafts): one source for the manor emit and the re-ask, so a retry can never
+ *  mis-frame a part-painted view as a style reference. Returns null otherwise. */
+function minimalAskText(style, voice) {
+  return (style && style.minimal_ask && style.prep_draft)
+      ? (`Image 1 is this exact room PREPARED AS A GUIDE and being finished: the near section ` +
+         `and the far wall are real painted material placed at the correct geometry - they are ` +
+         `FINISHED and nothing in them may change in any way. The pale band between them is the ` +
+         `only unpainted part of this long room. FINISH THE IMAGE: paint that band, continuing ` +
+         `the side walls, the dado band, the ceiling and the floor seamlessly from the near ` +
+         `section back to the far wall, exactly along the drawn corner lines, so the whole reads ` +
+         `as one room. Small mismatches at the band's edges are part of the preparation: resolve ` +
+         `them INTO the band, never by repainting the finished parts. A circle stays a circle; no ` +
+         `drawn line remains visible; do not enlarge, crop or recompose anything.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
+         `warm, as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
+         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
+         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask && style.reverse_draft)
+      ? (`Image 1 is this long room seen from its far end, looking back the way you came: the side ` +
+         `walls, the ceiling and the floor are finished painting and may not change in any way. ` +
+         `The outlined box at the centre is the near wall you are ` +
+         `facing, NOT yet painted: paint it, with an open doorway exactly in the drawn outline - ` +
+         `the doorway stands empty, deep unlit shadow beyond, no lit room and no far wall visible. ` +
+         `A circle stays a circle; no drawn line remains visible; do not enlarge, crop or recompose.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
+         `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
+         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
+         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask && style.grow_draft)
+      ? (`Image 1 is this room part-painted: the near half and the far wall are FINISHED painting ` +
+         `- nothing in them may change in any way - and the pale ring between them is the middle ` +
+         `of this long room, drawn only as wireframe. PAINT THE MIDDLE: continue the side walls, ` +
+         `the dado band, the ceiling, and the floor seamlessly from the near ` +
+         `half back to the far wall, exactly along the drawn lines, so the whole reads as one ` +
+         `room. A circle stays a circle; no drawn line remains visible; do not enlarge, crop or ` +
+         `recompose anything.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
+         `warm, as if by lamps that are out of frame. Any small blurred patches near the picture's edges are damage: repaint them naturally in the same materials. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
+         `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
+         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
+         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask && style.composed_enhance)
+      ? (`Image 1 is this exact view, assembled mechanically from finished paintings of this same ` +
+         `room: every wall, the floor and the ceiling are real painted material projected to the ` +
+         `correct geometry. ENHANCE IT: repaint this picture so it looks naturally and consistently ` +
+         `painted - melt the mechanical seams, even out the light - while changing NOTHING about ` +
+         `its geometry or content: every line, corner, fixture and mark stays exactly where it is, ` +
+         `at exactly its size. A circle stays a circle. Do not enlarge, crop or recompose.\n` +
+         `Image 2 is a line drawing of this same geometry on paper: its lines are where surfaces ` +
+         `meet; nothing in it is a colour or a material to paint.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
+         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
+         `warm, as if by lamps that are out of frame.\n` +
+         `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
+         `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : (style && style.minimal_ask)
+      ? (`Image 1 is a finished painting: the ${style.facing_word} wall of this room, seen from up close.\n` +
+         /* [row 29's provenance law meets the minimal ask] The ruled fabric is
+            NAMED, in the voice's own sentences — the one thing the pair may
+            not leave unsaid: a promoted wall must come from an ask that named
+            its room's ruled walls, overhead and underfoot. Three sentences of
+            record; the analogy still does the teaching. */
+         `Image 3 is the line drawing Image 1 was painted from - the same scene as bare geometry.\n` +
+         `Image 2 is the same room's geometry drawn from further back: this picture's own camera.\n` +
+         `Do Image 1's art, but from Image 2's perspective: the same wall and room, the same ` +
+         `materials, light and every mark, seen from where Image 2 stands. Follow Image 2's lines ` +
+         `exactly. A circle stays a circle.\n` +
+         `The room is completely empty - no furniture, nobody, no loose props. No legible text ` +
+         `anywhere. Images 2 and 3 are ink line drawings on paper: their lines are where surfaces ` +
+         `meet; nothing in them is a colour, a material or an opening to paint.\n` +
+         `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
+         `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
+         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
+      : null;
+}
+
 async function emitManor(outDir, opts) {
   /* [row 43(a)] WHICH SHEET THIS EMISSION DRAWS ON. `ink-on-paper-v2` by
    * default: a dark diagram is read as the picture's own look and its dark
@@ -2605,69 +2690,8 @@ async function emitManor(outDir, opts) {
     /* THE PACKET, not just the picture. A manifest entry a seat cannot paint
        from is a row in a table; what makes the run one order is that every
        entry is complete where it stands. */
-    const text = (style && style.minimal_ask && style.reverse_draft)
-      ? (`Image 1 is this long room seen from its far end, looking back the way you came: the side ` +
-         `walls, the ceiling and the floor are finished painting and may not change in any way. ` +
-         `The outlined box at the centre is the near wall you are ` +
-         `facing, NOT yet painted: paint it, with an open doorway exactly in the drawn outline - ` +
-         `the doorway stands empty, deep unlit shadow beyond, no lit room and no far wall visible. ` +
-         `A circle stays a circle; no drawn line remains visible; do not enlarge, crop or recompose.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
-         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
-         `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
-         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
-         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
-         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
-      : (style && style.minimal_ask && style.grow_draft)
-      ? (`Image 1 is this room part-painted: the near half and the far wall are FINISHED painting ` +
-         `- nothing in them may change in any way - and the pale ring between them is the middle ` +
-         `of this long room, drawn only as wireframe. PAINT THE MIDDLE: continue the side walls, ` +
-         `the dado band, the ceiling with its run of lamps, and the floor seamlessly from the near ` +
-         `half back to the far wall, exactly along the drawn lines, so the whole reads as one ` +
-         `room. A circle stays a circle; no drawn line remains visible; do not enlarge, crop or ` +
-         `recompose anything.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
-         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
-         `warm, as if by lamps that are out of frame. Any small blurred patches near the picture's edges are damage: repaint them naturally in the same materials. ` +
-         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly, warm, ` +
-         `as if by lamps that are out of frame [lights are after-assets, 2026-08-31].\n` +
-         `For the record, this room's fabric (already what the painted parts show): its walls are ` +
-         `${voice.walls}. Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
-         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
-      : (style && style.minimal_ask && style.composed_enhance)
-      ? (`Image 1 is this exact view, assembled mechanically from finished paintings of this same ` +
-         `room: every wall, the floor and the ceiling are real painted material projected to the ` +
-         `correct geometry. ENHANCE IT: repaint this picture so it looks naturally and consistently ` +
-         `painted - melt the mechanical seams, even out the light - while changing NOTHING about ` +
-         `its geometry or content: every line, corner, fixture and mark stays exactly where it is, ` +
-         `at exactly its size. A circle stays a circle. Do not enlarge, crop or recompose.\n` +
-         `Image 2 is a line drawing of this same geometry on paper: its lines are where surfaces ` +
-         `meet; nothing in it is a colour or a material to paint.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text anywhere. ` +
-         `NO light fixtures, fans or any ceiling- or floor-mounted objects: the room is lit evenly and ` +
-         `warm, as if by lamps that are out of frame.\n` +
-         `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
-         `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
-         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
-      : (style && style.minimal_ask)
-      ? (`Image 1 is a finished painting: the ${style.facing_word} wall of this room, seen from up close.\n` +
-         /* [row 29's provenance law meets the minimal ask] The ruled fabric is
-            NAMED, in the voice's own sentences — the one thing the pair may
-            not leave unsaid: a promoted wall must come from an ask that named
-            its room's ruled walls, overhead and underfoot. Three sentences of
-            record; the analogy still does the teaching. */
-         `Image 3 is the line drawing Image 1 was painted from - the same scene as bare geometry.\n` +
-         `Image 2 is the same room's geometry drawn from further back: this picture's own camera.\n` +
-         `Do Image 1's art, but from Image 2's perspective: the same wall and room, the same ` +
-         `materials, light and every mark, seen from where Image 2 stands. Follow Image 2's lines ` +
-         `exactly. A circle stays a circle.\n` +
-         `The room is completely empty - no furniture, nobody, no loose props. No legible text ` +
-         `anywhere. Images 2 and 3 are ink line drawings on paper: their lines are where surfaces ` +
-         `meet; nothing in them is a colour, a material or an opening to paint.\n` +
-         `For the record, this room's fabric (already what Image 1 shows): its walls are ${voice.walls}. ` +
-         `Overhead: ${voice.ceiling}. Underfoot: ${voice.floor}.` +
-         (voice.hangings ? ` Hangings: ${voice.hangings}.` : "") + `\n`)
-      : manorPrompt(plan, fac.key, meta, rects, null, seed, { style, scaffoldStyle: sheetStyle });
+    const text = minimalAskText(style, voice)
+      || manorPrompt(plan, fac.key, meta, rects, null, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     mkdirSync(join(ROOT, sourceDirFor(fac.key)), { recursive: true });
     for (const r of ids) writeFileSync(join(ROOT, r.prompt), text);
@@ -2972,7 +2996,10 @@ async function emitRetries(outDir, opts) {
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
     const t_packet = Date.now() / 1000;                                   // [row 33]
-    const text = manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style, scaffoldStyle: sheetStyle });
+    const minimal = minimalAskText(style, voice);
+    const text = minimal
+      ? `Correction on a previous attempt at this exact wall: ${w.correction}\n` + minimal
+      : manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
     const ids = [];
     for (let i = 1; i <= (opts.rolls || 2); i++) {
@@ -3618,6 +3645,7 @@ export function attachStyle(plan, key, dir, opts = {}) {
         facing_word: { N: "north", E: "east", S: "south", W: "west" }[gf],
         source_kind: "grown-draft", derived: true,
         grow_draft: gmode0 !== "enhance",
+        prep_draft: gmode0 === "prep",
         reverse_draft: gmode0 === "reverse",
         composed_enhance: gmode0 === "enhance", minimal_ask: true,
         derived_from: relative(opts.root || ROOT, grownPng0),

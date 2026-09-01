@@ -190,3 +190,8 @@ middle ring stays wireframe gap with the close-to-deep corner lines drawn;
 the back wall cover-fits the deep rect the same way. Coverage carries the
 angle mismatch to the crop seams, where the finishing pass reconciles. The
 ask frames Image 1 as a prep guide being FINISHED, never as a style reference.
+
+
+**LOCKED AS STANDARD** [Kabe, 2026-08-31]: "Let's lock this process in as the
+standard because that corner alignment was so clean on the first try." grow3
+is the standing grow construction; registry law G-PREP.

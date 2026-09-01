@@ -107,3 +107,31 @@ Kabe, verbatim: "the smear should not need to be done to that extent after the i
 
 ## R-DEEPBOX (2026-08-30, finding)
 Six painter rounds on the two underground deep walls falsified every reference treatment for holding the room box: uniform shrunk draft (+33%), corrected-previous (copied exactly), frame guide lines (+26-37%), measured-miss words (+51-53%), cut margins (+33%), full-frame blur-in-place (+33%/59% revealed). Constants measured across all rounds: camera/material scale reliably PASSes; object shapes are teachable (a squeezed 0.75 reference repainted at 0.95 under the object-true clause); the box recomposes by ~25-35% whenever the facing is a deep view. The residual is architectural. Two exits: (A) waive L-CLOSE for deep facings — the warp finishes them, discs land ~0.8, edges healable by one blur+regen pass; (B) deep facings stop being paintings — the renderer composes them at draw time from the promoted CLOSE wall's art inside the declared geometry, shape-true by construction, the same machinery that already draws door through-views. B kills the failure class and spends zero further rolls; the close art is already promoted and measured.
+
+
+## G-PREP — the standard grow construction (2026-08-31)
+
+[Kabe, verbatim]: "Let's lock this process in as the standard because that
+corner alignment was so clean on the first try."
+
+The straight-in grow (1x1 -> 2x1, and by extension any depth extension) is
+built as a COVER-FIT PREP GUIDE (deep-draft.py grow3), superseding grow's
+vp-ray/snap construction and grow2's line-draw:
+
+1. DETECT, image-first: the 1x1's four corner lines found on the raw painting
+   alone (candidate grid over slope x height, edge energy x cross-line fabric
+   contrast, mirrored pairs, one shared eye row, measured-row bands, seam-hug
+   launch, per-corner misfit reported).
+2. CORRECT: our wireframe lines run through the DETECTED close corners toward
+   the declared vp; deep corners at the declared depth ratio.
+3. COVER-FIT, locked scale only (L-ENVELOPE by construction): each plane cut
+   along its detected lines, uniformly scaled to the minimal size covering its
+   own FRONT footprint bounded by the corrected lines, cropped at those lines.
+   Never scaled to cover the far section. Back wall cover-fits the deep rect
+   the same way. The middle ring stays pale wireframe gap with the
+   close-to-deep corner lines drawn.
+4. ASK: the fill pass FINISHES the prep guide (minimalAskText prep branch) -
+   Image 1 is never framed as a style reference of another wall.
+
+Amendments to earlier constructions remain in force where they still apply:
+lights are after-assets; no dado mid-lines; molding rides the wall side.
