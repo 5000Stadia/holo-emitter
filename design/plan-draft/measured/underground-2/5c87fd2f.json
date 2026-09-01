@@ -1,116 +1,116 @@
 {
   "_measured_px": {
-    "wall_floor_line_y_px": 611,
-    "chair_rail_y_px": 516,
-    "dado_rail_above_floor_px": 95,
+    "wall_floor_line_y_px": 616,
+    "chair_rail_y_px": 515,
+    "dado_rail_above_floor_px": 101,
     "floor_read": {
-      "minimum": 623,
+      "minimum": 625,
       "rule": "foot",
       "saturated": true,
-      "foot": 611
+      "foot": 616
     },
     "capping_above_floor_px": null
   },
   "_windows": {
     "floor": [
-      623,
-      640
+      625,
+      642
     ],
     "rail": [
-      513,
-      530
+      515,
+      533
     ],
     "ceiling": [
-      295,
-      345
+      298,
+      348
     ],
     "columns": [
       [
-        530,
-        1005
+        475,
+        1060
       ]
     ],
     "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
   },
   "carriers": [],
-  "px_per_m_at_wall": 79.167,
-  "implied_focal_px": 886.7,
-  "eye_height_m": 1.0724,
+  "px_per_m_at_wall": 84.167,
+  "implied_focal_px": 942.7,
+  "eye_height_m": 1.0681,
   "_absent": [],
   "_promotion": {
     "ceiling_y_px": 343,
     "ceiling_candidates": [
       {
         "y": 271,
-        "strength": 1.5,
-        "horiz": 0.813,
-        "cv": 0.689
-      },
-      {
-        "y": 344,
-        "strength": 1.47,
-        "horiz": 0.796,
-        "cv": 0.713
+        "strength": 1.57,
+        "horiz": 0.805,
+        "cv": 0.672
       },
       {
         "y": 298,
-        "strength": 1.46,
-        "horiz": 0.748,
-        "cv": 0.8
+        "strength": 1.51,
+        "horiz": 0.765,
+        "cv": 0.784
       },
       {
-        "y": 287,
-        "strength": 1.44,
+        "y": 283,
+        "strength": 1.51,
+        "horiz": 0.787,
+        "cv": 0.743
+      },
+      {
+        "y": 263,
+        "strength": 1.46,
         "horiz": 0.792,
-        "cv": 0.698
+        "cv": 0.724
       },
       {
         "y": 317,
-        "strength": 1.44,
-        "horiz": 0.794,
-        "cv": 0.74
-      },
-      {
-        "y": 308,
-        "strength": 1.44,
-        "horiz": 0.746,
-        "cv": 0.812
-      },
-      {
-        "y": 280,
-        "strength": 1.43,
-        "horiz": 0.779,
-        "cv": 0.756
-      },
-      {
-        "y": 261,
-        "strength": 1.43,
-        "horiz": 0.8,
-        "cv": 0.702
+        "strength": 1.45,
+        "horiz": 0.805,
+        "cv": 0.725
       },
       {
         "y": 241,
-        "strength": 1.41,
-        "horiz": 0.777,
-        "cv": 0.741
+        "strength": 1.44,
+        "horiz": 0.775,
+        "cv": 0.733
       },
       {
         "y": 255,
+        "strength": 1.41,
+        "horiz": 0.834,
+        "cv": 0.692
+      },
+      {
+        "y": 308,
+        "strength": 1.41,
+        "horiz": 0.758,
+        "cv": 0.806
+      },
+      {
+        "y": 327,
         "strength": 1.39,
-        "horiz": 0.836,
-        "cv": 0.698
+        "horiz": 0.811,
+        "cv": 0.679
       },
       {
-        "y": 325,
-        "strength": 1.38,
-        "horiz": 0.805,
-        "cv": 0.687
+        "y": 344,
+        "strength": 1.36,
+        "horiz": 0.77,
+        "cv": 0.752
       },
       {
-        "y": 331,
-        "strength": 1.38,
-        "horiz": 0.788,
-        "cv": 0.737
+        "y": 233,
+        "strength": 1.34,
+        "horiz": 0.778,
+        "cv": 0.758
+      },
+      {
+        "y": 333,
+        "strength": 1.32,
+        "horiz": 0.775,
+        "cv": 0.713
       }
     ],
     "ceiling_rows_tried": [
@@ -122,13 +122,6 @@
         "why": null
       },
       {
-        "ceiling_y_px": 343,
-        "admissible": true,
-        "sigma_y_px": 0.6,
-        "horizon_y_px": 527.9,
-        "why": null
-      },
-      {
         "ceiling_y_px": 297,
         "admissible": true,
         "sigma_y_px": 0.61,
@@ -136,7 +129,14 @@
         "why": null
       },
       {
-        "ceiling_y_px": 286,
+        "ceiling_y_px": 282,
+        "admissible": true,
+        "sigma_y_px": 0.61,
+        "horizon_y_px": 527.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 262,
         "admissible": true,
         "sigma_y_px": 0.61,
         "horizon_y_px": 527.9,
@@ -150,32 +150,11 @@
         "why": null
       },
       {
-        "ceiling_y_px": 307,
-        "admissible": true,
-        "sigma_y_px": 0.61,
-        "horizon_y_px": 527.9,
-        "why": null
-      },
-      {
-        "ceiling_y_px": 279,
-        "admissible": true,
-        "sigma_y_px": 0.61,
-        "horizon_y_px": 527.9,
-        "why": null
-      },
-      {
-        "ceiling_y_px": 260,
-        "admissible": true,
-        "sigma_y_px": 0.61,
-        "horizon_y_px": 527.9,
-        "why": null
-      },
-      {
         "ceiling_y_px": 240,
         "admissible": false,
         "sigma_y_px": 14.89,
         "horizon_y_px": 349.4,
-        "why": "the two side-wall junctions converge at y 349.4 but only to +/-14.9 px, and the standing licence on the horizon row is +/-8.5 px"
+        "why": "the two side-wall junctions converge at y 349.4 but only to +/-14.9 px, and the standing licence on the horizon row is +/-8.7 px"
       },
       {
         "ceiling_y_px": 254,
@@ -185,14 +164,35 @@
         "why": null
       },
       {
-        "ceiling_y_px": 324,
+        "ceiling_y_px": 307,
         "admissible": true,
         "sigma_y_px": 0.61,
         "horizon_y_px": 527.9,
         "why": null
       },
       {
-        "ceiling_y_px": 330,
+        "ceiling_y_px": 326,
+        "admissible": true,
+        "sigma_y_px": 0.61,
+        "horizon_y_px": 527.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 343,
+        "admissible": true,
+        "sigma_y_px": 0.6,
+        "horizon_y_px": 527.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 232,
+        "admissible": false,
+        "sigma_y_px": 12.05,
+        "horizon_y_px": 293.4,
+        "why": "the two side-wall junctions converge at y 293.4 but only to +/-12.1 px, and the standing licence on the horizon row is +/-8.7 px"
+      },
+      {
+        "ceiling_y_px": 332,
         "admissible": true,
         "sigma_y_px": 0.61,
         "horizon_y_px": 527.9,
@@ -208,7 +208,7 @@
       "excluded": [],
       "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
     },
-    "horizon_bracket_px": 8.47,
+    "horizon_bracket_px": 8.65,
     "ramp": {
       "x": 759.9,
       "y": 527.9,
@@ -222,8 +222,8 @@
     },
     "votes": {
       "floor": {
-        "x": 748,
-        "y": 491,
+        "x": 750,
+        "y": 501,
         "edge_px": 30000
       },
       "ceiling": {
@@ -232,9 +232,9 @@
         "edge_px": 30000
       },
       "side_walls": {
-        "x": 1494,
-        "y": 193,
-        "edge_px": 10609
+        "x": 1490,
+        "y": 194,
+        "edge_px": 10795
       }
     },
     "light": {
@@ -265,24 +265,24 @@
         852
       ],
       "sobel_bright_side_deg_whole_frame": 92.31,
-      "sobel_bright_side_deg_wall_band": 90.72,
+      "sobel_bright_side_deg_wall_band": 90.68,
       "left_third_minus_right_third_luminance_whole_frame": 2.692,
-      "left_third_minus_right_third_luminance_wall_band": 3.662
+      "left_third_minus_right_third_luminance_wall_band": 3.584
     },
-    "storey_height_m": 3.3853,
-    "implied_wall_width_m": 6.7958,
-    "eye_height_m": 1.0497,
+    "storey_height_m": 3.2436,
+    "implied_wall_width_m": 6.3921,
+    "eye_height_m": 1.0467,
     "horizon_instrument": "ceiling-ramp",
     "far_line_ruler": null,
     "hold_family": null,
     "withheld_because": []
   },
-  "delta_focal_pct": -13.64,
-  "delta_eye_pct": -9.35,
+  "delta_focal_pct": -7.94,
+  "delta_eye_pct": -9.71,
   "verdict": "FAIL",
   "kind": "generation_miss",
   "id": "5c87fd2f",
   "candidate": "backdrops/source/platform-E/row23-5c87fd2f.png",
   "candidate_sha256": "9f825ea9763d35524d9791f2cee2ab61a68c5029dffb49a2595f9748c27a58dc",
-  "instrument": "57236a09a2ea"
+  "instrument": "c3208bf9b05d"
 }

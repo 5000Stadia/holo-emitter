@@ -295,9 +295,9 @@
       }
     },
     "platform/E": {
-      "attempts": 14,
+      "attempts": 15,
       "status": "promoted",
-      "candidate": "backdrops/source/platform-E/row23-a5413001.png",
+      "candidate": "backdrops/source/platform-E/row23-66450b17.png",
       "warp": {
         "pins": 4,
         "columns": 2,
@@ -328,30 +328,30 @@
         "worst_segment": {
           "axis": "x",
           "name": "corner_left..corner_right",
-          "scale": 1.014,
-          "target_px": 593.0,
-          "source_px": 585.0
+          "scale": 1.003,
+          "target_px": 594.9,
+          "source_px": 593.0
         },
-        "revealed_px": 120642,
-        "revealed_fraction": 0.0767,
+        "revealed_px": 10771,
+        "revealed_fraction": 0.00685,
         "warp_mode": "plane",
-        "warped_from": "backdrops/source/platform-E/row23-a5413001.png"
+        "warped_from": "backdrops/source/platform-E/row23-66450b17.png"
       },
       "camera_source": "declared",
-      "answered_correction": "uniform-only rectification (Kabe's ruling): one scale, one translation, a circle stays a circle",
-      "snapped_from_family": null,
-      "why": "RE-DECIDE 2026-09-01: anisotropic promotion retired (disc oval); the warp exit is now uniform-only; re-running the exit on the enhance roll",
+      "answered_correction": "draw 1.219x larger: 91.4 px/m at the wall plane, not 75.0",
+      "snapped_from_family": "camera-miss",
+      "why": "RE-DECIDE 2026-09-01: uniform promotion retired for one polish enhance roll (disc inherited the old aniso oval; 7.7% margin smear)",
       "waived_correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
       "suspect_perspective": true,
       "tolerance_ruling": "2026-08-24 | suspect-painting tolerance | \"I think its pretty close and we can accept a tolerance for drift here\" - suspect-perspective walls promote under DECLARED camera numbers with a suspect_perspective flag; drift cost is compositing-fidelity only (sprites-vs-painted-floor at depth, through-view sizing), no mechanical function affected; row 4 stages shallow on flagged walls and the flip test judges them | (this session)",
       "exit": "warped",
-      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.014, 120642 px revealed) \u2014 the correction is recorded, not waived",
+      "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/platform-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.003, 10771 px revealed) \u2014 the correction is recorded, not waived",
       "exit_attempt": {
-        "candidate": "backdrops/source/platform-E/row23-a5413001.png",
+        "candidate": "backdrops/source/platform-E/row23-66450b17.png",
         "exit": "warped",
         "instrument": "c3208bf9b05d",
-        "candidate_sha256": null,
-        "at": "2026-09-01T01:33:29"
+        "candidate_sha256": "1cbe46b105a2445a8d6771d57e3ea7d20a55c38935f00c52a17c0011599492a5",
+        "at": "2026-09-01T01:39:52"
       }
     },
     "platform/W": {

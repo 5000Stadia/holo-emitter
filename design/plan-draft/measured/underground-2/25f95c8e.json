@@ -1,116 +1,116 @@
 {
   "_measured_px": {
-    "wall_floor_line_y_px": 612,
-    "chair_rail_y_px": 515,
-    "dado_rail_above_floor_px": 97,
+    "wall_floor_line_y_px": 618,
+    "chair_rail_y_px": 533,
+    "dado_rail_above_floor_px": 85,
     "floor_read": {
-      "minimum": 623,
+      "minimum": 625,
       "rule": "foot",
       "saturated": true,
-      "foot": 612
+      "foot": 618
     },
     "capping_above_floor_px": null
   },
   "_windows": {
     "floor": [
-      623,
-      640
+      625,
+      642
     ],
     "rail": [
-      513,
-      530
+      515,
+      533
     ],
     "ceiling": [
-      295,
-      345
+      298,
+      348
     ],
     "columns": [
       [
-        530,
-        1005
+        475,
+        1060
       ]
     ],
     "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
   },
   "carriers": [],
-  "px_per_m_at_wall": 80.833,
-  "implied_focal_px": 905.3,
-  "eye_height_m": 1.0627,
+  "px_per_m_at_wall": 70.833,
+  "implied_focal_px": 793.3,
+  "eye_height_m": 1.2974,
   "_absent": [],
   "_promotion": {
     "ceiling_y_px": 331,
     "ceiling_candidates": [
       {
         "y": 332,
-        "strength": 37.14,
+        "strength": 36.73,
         "horiz": 1.0,
-        "cv": 0.146
+        "cv": 0.138
       },
       {
         "y": 323,
-        "strength": 14.73,
-        "horiz": 0.985,
-        "cv": 0.176
+        "strength": 14.17,
+        "horiz": 0.99,
+        "cv": 0.196
       },
       {
         "y": 342,
-        "strength": 10.34,
-        "horiz": 0.878,
-        "cv": 0.447
+        "strength": 9.98,
+        "horiz": 0.899,
+        "cv": 0.44
       },
       {
         "y": 316,
-        "strength": 9.39,
-        "horiz": 0.989,
-        "cv": 0.222
+        "strength": 9.17,
+        "horiz": 0.983,
+        "cv": 0.233
+      },
+      {
+        "y": 348,
+        "strength": 2.07,
+        "horiz": 0.855,
+        "cv": 0.435
       },
       {
         "y": 309,
-        "strength": 1.92,
-        "horiz": 0.786,
-        "cv": 0.51
+        "strength": 1.91,
+        "horiz": 0.797,
+        "cv": 0.521
       },
       {
         "y": 301,
-        "strength": 1.56,
-        "horiz": 0.794,
-        "cv": 0.611
+        "strength": 1.6,
+        "horiz": 0.79,
+        "cv": 0.613
       },
       {
         "y": 295,
-        "strength": 1.38,
-        "horiz": 0.809,
-        "cv": 0.649
-      },
-      {
-        "y": 253,
-        "strength": 1.35,
-        "horiz": 0.794,
-        "cv": 0.705
-      },
-      {
-        "y": 287,
-        "strength": 1.34,
-        "horiz": 0.782,
-        "cv": 0.696
+        "strength": 1.4,
+        "horiz": 0.812,
+        "cv": 0.657
       },
       {
         "y": 271,
-        "strength": 1.29,
-        "horiz": 0.784,
-        "cv": 0.686
+        "strength": 1.4,
+        "horiz": 0.802,
+        "cv": 0.674
       },
       {
-        "y": 279,
-        "strength": 1.27,
-        "horiz": 0.767,
-        "cv": 0.718
+        "y": 253,
+        "strength": 1.38,
+        "horiz": 0.8,
+        "cv": 0.701
       },
       {
-        "y": 261,
-        "strength": 1.23,
-        "horiz": 0.782,
-        "cv": 0.718
+        "y": 283,
+        "strength": 1.35,
+        "horiz": 0.78,
+        "cv": 0.707
+      },
+      {
+        "y": 263,
+        "strength": 1.28,
+        "horiz": 0.795,
+        "cv": 0.715
       }
     ],
     "ceiling_rows_tried": [
@@ -143,6 +143,13 @@
         "why": null
       },
       {
+        "ceiling_y_px": 347,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
         "ceiling_y_px": 308,
         "admissible": true,
         "sigma_y_px": 0.58,
@@ -164,20 +171,6 @@
         "why": null
       },
       {
-        "ceiling_y_px": 252,
-        "admissible": true,
-        "sigma_y_px": 0.58,
-        "horizon_y_px": 465.9,
-        "why": null
-      },
-      {
-        "ceiling_y_px": 286,
-        "admissible": true,
-        "sigma_y_px": 0.58,
-        "horizon_y_px": 465.9,
-        "why": null
-      },
-      {
         "ceiling_y_px": 270,
         "admissible": true,
         "sigma_y_px": 0.58,
@@ -185,14 +178,21 @@
         "why": null
       },
       {
-        "ceiling_y_px": 278,
+        "ceiling_y_px": 252,
         "admissible": true,
         "sigma_y_px": 0.58,
         "horizon_y_px": 465.9,
         "why": null
       },
       {
-        "ceiling_y_px": 260,
+        "ceiling_y_px": 282,
+        "admissible": true,
+        "sigma_y_px": 0.58,
+        "horizon_y_px": 465.9,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 262,
         "admissible": true,
         "sigma_y_px": 0.58,
         "horizon_y_px": 465.9,
@@ -202,13 +202,13 @@
     "corner_x0_px": 425,
     "corner_x1_px": 1108,
     "corner_evidence": {
-      "left_fit_r2": 0.5606,
-      "right_fit_r2": 0.5992,
+      "left_fit_r2": 0.657,
+      "right_fit_r2": 0.689,
       "block_px": 16,
       "excluded": [],
       "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame"
     },
-    "horizon_bracket_px": 8.47,
+    "horizon_bracket_px": 8.65,
     "ramp": {
       "x": 767.4,
       "y": 465.9,
@@ -222,8 +222,8 @@
     },
     "votes": {
       "floor": {
-        "x": 772,
-        "y": 448,
+        "x": 770,
+        "y": 450,
         "edge_px": 30000
       },
       "ceiling": {
@@ -232,9 +232,9 @@
         "edge_px": 30000
       },
       "side_walls": {
-        "x": 794,
-        "y": 421,
-        "edge_px": 11402
+        "x": 768,
+        "y": 425,
+        "edge_px": 11686
       }
     },
     "light": {
@@ -257,7 +257,7 @@
         "floor_under_brightest": "#c8a376",
         "floor_bottom_strip": "#c89c68",
         "mid_wall_right": "#c89c66",
-        "mid_wall_left": "#c89d69",
+        "mid_wall_left": "#c89e6a",
         "brightest_21x21_patch": "#c8b6a4"
       },
       "brightest_21x21_patch_centre_px": [
@@ -265,24 +265,24 @@
         830
       ],
       "sobel_bright_side_deg_whole_frame": 95.6,
-      "sobel_bright_side_deg_wall_band": 91.57,
+      "sobel_bright_side_deg_wall_band": 92.17,
       "left_third_minus_right_third_luminance_whole_frame": 1.63,
-      "left_third_minus_right_third_luminance_wall_band": 1.461
+      "left_third_minus_right_third_luminance_wall_band": 1.455
     },
-    "storey_height_m": 3.4763,
-    "implied_wall_width_m": 8.4495,
-    "eye_height_m": 1.8074,
+    "storey_height_m": 4.0518,
+    "implied_wall_width_m": 9.6424,
+    "eye_height_m": 2.1473,
     "horizon_instrument": "ceiling-ramp",
     "far_line_ruler": null,
     "hold_family": null,
     "withheld_because": []
   },
-  "delta_focal_pct": -11.82,
-  "delta_eye_pct": -10.17,
+  "delta_focal_pct": -22.53,
+  "delta_eye_pct": 9.67,
   "verdict": "FAIL",
   "kind": "generation_miss",
   "id": "25f95c8e",
   "candidate": "backdrops/source/platform-E/row23-25f95c8e.png",
   "candidate_sha256": "173811531d29f04d53faa18b14cd08aaa6f429474963e7a99f0301204969d786",
-  "instrument": "57236a09a2ea"
+  "instrument": "c3208bf9b05d"
 }
