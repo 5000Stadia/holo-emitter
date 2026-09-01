@@ -49,3 +49,13 @@ near-target rate ~1 in 5-6 rolls everywhere. Fabric, look, plane structure
 and seam alignment are all controllable; depth alone is not. The deterministic
 path (composed reprojection of promoted close art + enhance ask, far-E's own
 promotion route) remains the only construction that guarantees depth.
+
+## Arm B — reference-teaching (2026-09-01)
+
+Image 1 = the rectified frame of the best prior miss (the warp teaching
+before, touching nothing after - the Captain's original law). Four rolls:
+uniform scales 1.1346, 0.9842, 1.0474, 1.0315; reveals 0.023, 0.043, 0, 0.
+Verdict: a VARIANCE-SHRINKER - Arm A scattered 0.61..1.56; Arm B holds
+0.98..1.13 with 3/4 inside ~5%. Adopted: the standard's Image 1 becomes the
+rectified best-miss whenever one exists; selection + verifier-raw then land
+the winner.
