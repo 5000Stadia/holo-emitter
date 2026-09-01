@@ -1318,6 +1318,152 @@ def reverse3(args):
                       "deep_corners": [[round(d[0], 1), round(d[1], 1)] for d in D],
                       "elements": report}))
 
+def grow4(args):
+    """[The seat's own guidance spec, 2026-08-31, design/audit/painter-guidance-
+    spec-2026-08-31.md]: full pre-fill - every former pale pixel belongs to its
+    final plane; the wireframe is replaced by PERMANENT architecture (cornices,
+    contact seams, vertical corner seams with occlusion shadows); the far wall
+    is locked source material. 'The prepared guide should already read as a
+    complete, low-detail rendering with the correct 11.2m depth.'"""
+    import numpy as np
+    from PIL import ImageDraw
+    base = Image.open(args["base_png"]).convert("RGB")
+    W, H = base.size
+    bb = args["base_box"]
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    det, corners, _mis = _detect_corner_lines(
+        base, x0, x1, float(bb.get("yc")) if "yc" in bb else None,
+        float(bb.get("yf")) if "yf" in bb else None)
+    vx, vy = args.get("vp", [768.0, 526.1])
+    k = float(args["depth_ratio"])
+    C = [(float(x0), det[0][0]), (float(x1), det[1][0]),
+         (float(x0), det[2][0]), (float(x1), det[3][0])]
+    db = args.get("declared_box", {})
+    dyc = float(db.get("yc", bb.get("yc", C[0][1])))
+    dyf = float(db.get("yf", bb.get("yf", C[2][1])))
+    Cd = [(float(x0), dyc), (float(x1), dyc), (float(x0), dyf), (float(x1), dyf)]
+    D = [(vx + (c_[0] - vx) * k, vy + (c_[1] - vy) * k) for c_ in Cd]
+    def tline(i, x):
+        m = (vy - C[i][1]) / (vx - C[i][0])
+        return C[i][1] + m * (x - C[i][0])
+    canvas = base.copy()
+    dd = ImageDraw.Draw(canvas)
+    report = {}
+    def cover(name, sbox, tpoly, tbox, anchor):
+        sx0, sy0, sx1, sy1 = [int(round(v)) for v in sbox]
+        sx0 = max(0, sx0); sy0 = max(0, sy0); sx1 = min(W, sx1); sy1 = min(H, sy1)
+        sw, sh = max(1, sx1 - sx0), max(1, sy1 - sy0)
+        tx0, ty0, tx1, ty1 = tbox
+        tw, th = max(1.0, tx1 - tx0), max(1.0, ty1 - ty0)
+        s = max(tw / sw, th / sh)
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = base.crop((sx0, sy0, sx1, sy1)).resize((pw, ph), Image.LANCZOS)
+        if anchor == "top":
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty0
+        elif anchor == "bottom":
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty1 - ph
+        elif anchor == "left":
+            px, py = tx0, (ty0 + ty1) / 2.0 - ph / 2.0
+        elif anchor == "right":
+            px, py = tx1 - pw, (ty0 + ty1) / 2.0 - ph / 2.0
+        else:
+            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, (ty0 + ty1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), (0, 0, 0))
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).polygon([(float(a_), float(b_)) for a_, b_ in tpoly], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report[name] = {"scale": round(s, 4)}
+    JM, VM = 28, 10
+    # FULL planes: pre-fill all the way to the declared deep rect
+    cover("ceiling", (0, 0, W, min(C[0][1], C[1][1]) - JM),
+          [(0, 0), (W, 0), (W, tline(1, W)), D[1], D[0], (0, tline(0, 0))],
+          (0, 0, W, max(tline(0, 0), tline(1, W), D[0][1], D[1][1])), "top")
+    cover("floor", (0, max(C[2][1], C[3][1]) + JM, W, H),
+          [(0, H), (W, H), (W, tline(3, W)), D[3], D[2], (0, tline(2, 0))],
+          (0, min(tline(2, 0), tline(3, W), D[2][1], D[3][1]), W, H), "bottom")
+    # side walls split at the CONVERGING DADO (spec rule 7: geometry stated by
+    # several independent cues): creme above the rail, green below, each
+    # stretched within its own band, the rail itself a physical cap seam
+    # running from the close dado corner to the far wall's own dado corner.
+    import numpy as np
+    gseed = np.asarray(base.convert("L")).astype(float)
+    def dado_row_at(img_gray, xa, xb, lo=470, hi=700):
+        strip = img_gray[:, xa:xb].mean(axis=1)
+        gg = np.abs(np.diff(strip))
+        return lo + int(np.argmax(gg[lo:hi]))
+    dado_c = dado_row_at(gseed, x0 + 8, x0 + 70)         # close dado at the seed
+    fw_path = args.get("far_wall_png")
+    dado_far_frac = None
+    if fw_path:
+        gfar = np.asarray(Image.open(fw_path).convert("L")).astype(float)
+        dfr = dado_row_at(gfar, 700, 840)
+        dado_far_frac = dfr
+    # the far wall paste (below) maps its dado row into the deep rect; estimate
+    # via the same cover mapping it will use
+    def side_split(name, sx_lo, sx_hi, frame_x, Dtop, Dbot, tl, bl, anchor):
+        # dado at the frame edge and at the deep corner
+        d_far_y = (Dtop[1] + Dbot[1]) / 2.0
+        if dado_far_frac is not None:
+            d_far_y = Dtop[1] + (Dbot[1] - Dtop[1]) * 0.815
+        m = (d_far_y - dado_c) / (Dtop[0] - x0) if Dtop[0] != x0 else 0.0
+        d_frame_y = dado_c + m * (frame_x - x0)
+        # creme band
+        cover(name + "_creme", (sx_lo, tl - 4, sx_hi, dado_c),
+              [(frame_x, tl), Dtop, (Dtop[0], d_far_y), (frame_x, d_frame_y)],
+              (min(frame_x, Dtop[0]), min(tl, Dtop[1]),
+               max(frame_x, Dtop[0]), max(d_frame_y, d_far_y)), anchor)
+        # green band
+        cover(name + "_green", (sx_lo, dado_c, sx_hi, bl + 4),
+              [(frame_x, d_frame_y), (Dtop[0], d_far_y), Dbot, (frame_x, bl)],
+              (min(frame_x, Dtop[0]), min(d_frame_y, d_far_y),
+               max(frame_x, Dtop[0]), max(bl, Dbot[1])), anchor)
+        return (frame_x, d_frame_y), (Dtop[0], d_far_y)
+    lw_a, lw_b = side_split("left_wall", 0, x0 - VM, 0, D[0], D[2], tline(0, 0), tline(2, 0), "left")
+    rw_a, rw_b = side_split("right_wall", x1 + VM, W, W, D[1], D[3], tline(1, W), tline(3, W), "right")
+    # the far wall: locked source material, cover-fit to the declared rect
+    fw = args.get("far_wall_png")
+    bx0, by0 = min(D[0][0], D[2][0]), min(D[0][1], D[1][1])
+    bx1, by1 = max(D[1][0], D[3][0]), max(D[2][1], D[3][1])
+    if fw:
+        far = Image.open(fw).convert("RGB")
+        try:
+            fdet, _fc, _fm = _detect_corner_lines(far, x0, x1, None, None)
+            fy0 = int(round(min(fdet[0][0], fdet[1][0])))
+            fy1 = int(round(max(fdet[2][0], fdet[3][0])))
+        except SystemExit:
+            fy0, fy1 = int(dyc), int(dyf)
+        fsrc = far.crop((x0, max(0, fy0), x1, min(far.size[1], fy1)))
+        sw, sh = fsrc.size
+        s = max((bx1 - bx0) / sw, (by1 - by0) / sh)
+        pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
+        piece = fsrc.resize((pw, ph), Image.LANCZOS)
+        px, py = (bx0 + bx1) / 2.0 - pw / 2.0, (by0 + by1) / 2.0 - ph / 2.0
+        layer = Image.new("RGB", (W, H), (0, 0, 0))
+        layer.paste(piece, (int(round(px)), int(round(py))))
+        mask = Image.new("L", (W, H), 0)
+        ImageDraw.Draw(mask).rectangle([bx0, by0, bx1, by1], fill=255)
+        canvas.paste(layer, (0, 0), mask)
+        report["far_wall"] = {"scale": round(s, 4), "from": "close-asset"}
+    # PERMANENT architecture on the exact geometry: soft occlusion shadow under
+    # a narrow dark seam, centered on every boundary (spec rule 2)
+    SHADOW = (96, 82, 68); SEAM = (58, 48, 40)
+    def seam(a_, b_):
+        dd.line([a_, b_], fill=SHADOW, width=9)
+        dd.line([a_, b_], fill=SEAM, width=4)
+    # each cornice/contact seam runs from the FRAME EDGE through the close
+    # corner to the deep corner - no unseamed stubs (spec rule 2)
+    edges = [(0.0, tline(0, 0)), (float(W), tline(1, W)),
+             (0.0, tline(2, 0)), (float(W), tline(3, W))]
+    for e_, d_ in zip(edges, D):
+        seam(e_, d_)
+    seam(lw_a, lw_b); seam(rw_a, rw_b)                   # the converging dado caps
+    seam((bx0, by0), (bx1, by0)); seam((bx0, by1), (bx1, by1))
+    seam((bx0, by0), (bx0, by1)); seam((bx1, by0), (bx1, by1))
+    canvas.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "grow4", "elements": report,
+                      "deep_rect": [round(bx0), round(by0), round(bx1), round(by1)]}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -1340,6 +1486,8 @@ def main():
         return grow3(args)
     if args.get("mode") == "reverse3":
         return reverse3(args)
+    if args.get("mode") == "grow4":
+        return grow4(args)
     if args.get("mode") == "cutback":
         return cutback(args)
     close = Image.open(args["close_png"]).convert("RGB")
