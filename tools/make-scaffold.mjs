@@ -2996,8 +2996,16 @@ async function emitRetries(outDir, opts) {
       { carriers: rects.length, voice: voice.id, retry: attempt });
 
     const t_packet = Date.now() / 1000;                                   // [row 33]
+    /* [2026-08-31, the depth-slider ruling] A guide may carry its own FULL ask:
+       backdrops/grown/<key>.png.ask.txt beside the staged draft. Verbatim - the
+       C-recipe spec ask is authored per view by the driver, never composed here. */
+    const askOverride = style && style.derived_from
+      ? join(ROOT, style.derived_from + ".ask.txt") : null;
     const minimal = minimalAskText(style, voice);
-    const text = minimal
+    const text = (askOverride && existsSync(askOverride))
+      ? `Correction on a previous attempt at this exact wall: ${w.correction}\n`
+        + readFileSync(askOverride, "utf8")
+      : minimal
       ? `Correction on a previous attempt at this exact wall: ${w.correction}\n` + minimal
       : manorPrompt(plan, w.key, meta, rects, w.correction, seed, { style, scaffoldStyle: sheetStyle });
     writeFileSync(join(dir, "prompt.txt"), text);
