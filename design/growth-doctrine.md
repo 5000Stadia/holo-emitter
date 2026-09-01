@@ -134,3 +134,31 @@ stops. Where the image's angles disagree with declared, the image wins and
 the generation reconciles. This also removes the two corner-anchored warps
 that compounded the off-centre floor in the first long room (the diagnosis
 that led here).
+
+
+## Amendment — the corner-line detector (2026-08-31)
+
+[Kabe, verbatim]: "I think an intelligent approach is actually to have a corner
+line detector overlaid on the image generated and extending into the wire
+frame, and then you were just lining up the two generated lines." Earlier, same
+day: "one pixel wide, so actually it's a long line coming out of the gray wire
+frame section and we position its height and a width so that it pretty
+seamlessly overlaps the image corners."
+
+Mechanism (deep-draft.py grow2): detect the painted corner line in the shell as
+its own line and extend it into the wireframe — the wireframe line IS the
+detected line, aligned by construction, drawn 1px over the paint and 3px inside
+the panel. Score = edge energy x cross-line fabric contrast: a grout seam,
+masonry course or ceiling beam has the same fabric on both sides and loses to
+the true junction, which separates fabrics. Junction pairs register JOINTLY
+with mirrored magnitudes (the score is the sum of both sides), so a one-sided
+high-contrast impostor — a shadow edge, a wall corner — cannot outvote two true
+junction lines; each side then refines independently within +/-15%, so the
+paint still rules the exact angle. Priors (corner-through-declared-vp) are aim
+only; winner-by-score arbitration between pair sides was tried and failed (the
+impostor outscored the truth), which is why the pair votes as one.
+
+Battle-tested 2026-08-31 on four fabrics: booking_hall/N (floor grout
+diagonals), kitchen-N, great_hall-N (ceiling beams), back_office-N (steep
+modern drop-ceiling corners + a wall pipe): 16/16 corners on the true
+junctions, including the steep ones the vp prior underestimated.
