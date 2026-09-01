@@ -15,7 +15,7 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | # | room | facings | worst band | D | worst pair | brightness x | colour | spread | contrast x | outlier | verdict |
 |---|------|---------|-----------|---|-----------|------------|--------|--------|------------|---------|---------|
 | 1 | guest_chamber | ENSW | wall_upper | **8.96** | S-W | x4.33 | 1.095 | 1.000 | x3.36 | SW | mismatched |
-| 2 | platform | ENSW | floor | **8.48** | E-N | x2.95 | 0.361 | 1.000 | x9.39 | E | mismatched |
+| 2 | platform | ENSW | floor | **8.47** | E-N | x2.86 | 0.252 | 1.000 | x9.92 | E | mismatched |
 | 3 | platform_far | ENSW | wall_lower | **6.40** | S-W | x2.70 | 0.246 | 0.714 | x5.51 | **all** (EW/NS) | mismatched |
 | 4 | closet_chamber | ENSW | wall_upper | **5.67** | S-W | x1.08 | 0.342 | 0.572 | x4.13 | W | mismatched |
 | 5 | treatment_room | ENSW | wall_lower | **4.98** | N-S | x1.02 | 0.024 | 0.250 | x3.97 | S | mismatched |
@@ -73,8 +73,8 @@ Every (room, band) spread in the store, worst first:
 
 ```
   8.96  guest_chamber        wall_upper
-  8.48  platform             floor
-  7.47  platform             wall_upper
+  8.47  platform             floor
+  7.76  platform             wall_upper
   6.40  platform_far         wall_lower
   5.82  platform_far         wall_upper
   5.67  closet_chamber       wall_upper
@@ -83,7 +83,7 @@ Every (room, band) spread in the store, worst first:
   4.34  back_office          wall_upper
   4.15  booking_hall         wall_upper
   4.14  master_bedchamber    ceiling
-  4.10  platform             wall_lower
+  4.11  platform             wall_lower
   3.90  garden_room          wall_lower
   3.62  long_gallery         floor
   3.56  master_bedchamber    wall_upper
