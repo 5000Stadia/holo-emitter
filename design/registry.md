@@ -162,3 +162,20 @@ grow3 now refuses fail-closed any assembled guide whose front ceiling or floor
 mid-span carries a row-coherent horizontal edge band (max row gradient over
 5x the band median); a breach writes only a .breach debug copy. The clips
 prevent; the guard proves.
+
+
+## G-CHAIN — the deep-view landing chain (2026-09-01, proven on platform/E)
+
+Generation owns texture; mechanics own geometry; the mechanics run AFTER
+generation, never before (mechanical pre-fill from thin slivers manufactures
+garbage - the noodle v4 lesson, Kabe: "the ceiling isn't a ceiling").
+
+The chain: (1) PAINT free - the C-recipe prep guide coaxes a beautiful long
+room at whatever depth the painter samples; (2) RECTIFY - the warp pins the
+painting's own landmarks onto the declared camera (the warp teaches);
+(3) ENHANCE - one roll on the rectified frame re-naturalizes the surface;
+(4) the warp of the enhance roll lands inside the CLOSE budget and FINISHES
+(platform/E: stretch 1.068, reveal 4.9%, residuals 0.00px - measured-path
+promotion, attempts 14). Each pass shrinks the painter's deviation until the
+gate accepts. Known cost: mild anisotropy on circular marks (the disc reads
+slightly oval).

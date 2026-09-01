@@ -1,11 +1,11 @@
 {
   "instrument": "tools/make-scaffold.mjs materialProvenance()",
   "what": "the material sentences every promoted painting was actually asked for, against the sentences this composer writes today — and, where those differ, the MATERIALS each resolves to, which is what decides whether the wall is vouched (see `VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING` in the instrument)",
-  "promoted_facings": 11,
+  "promoted_facings": 12,
   "split_rooms": [],
   "superseded_rooms": [],
   "refined_rooms": [],
-  "vouched_facings": 11,
+  "vouched_facings": 12,
   "unrecoverable": [],
   "rooms": [
     {
@@ -193,6 +193,37 @@
           "verdict": "current",
           "asked": "a broad flat-painted concrete soffit springing from a moulded cornice line. Underfoot: smooth grey concrete, a single worn white painted guidance line running down its length.",
           "ask_key": "broad flat-painted concrete soffit springing from moulded cornice line smooth grey concrete single worn white painted guidance line running down its length",
+          "ask_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/glazed-tile-cream",
+            "overhead": "ceiling/painted-soffit",
+            "underfoot": "floor/concrete-guideline",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/painted-soffit\"],[\"underfoot\",\"floor/concrete-guideline\"],[\"walls\",\"wall/glazed-tile-cream\"]]"
+        },
+        {
+          "facing": "E",
+          "voice": "platform_vault",
+          "candidate": "backdrops/source-warped/platform-E/warped.png",
+          "ruling": {
+            "walls": "cream crackle-glazed rectangular wall tiles above the dado band, lightly sooted toward the top; below the band, dark bottle-green glazed tiles; a single blank vitreous-enamel disc mounted on the wall",
+            "overhead": "a broad flat-painted concrete soffit springing from a moulded cornice line",
+            "underfoot": "smooth grey concrete, a single worn white painted guidance line running down its length",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source-warped/platform-E/warped.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source-warped/platform-E/warped.prompt.txt)",
           "ask_materials": {
             "walls": "wall/glazed-tile-cream",
             "overhead": "ceiling/painted-soffit",
