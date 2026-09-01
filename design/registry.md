@@ -153,3 +153,12 @@ with the plane's own texture. Deterministic; no synthesis. Also: the deep
 rect is the DECLARED geometry (declared close corners scaled toward the vp),
 so the guide's far wall and the promotion instruments agree about its size;
 the ring lines run detected-launch -> declared-stop.
+
+
+**G-PREP r2 LOCKED with the mid-artifact guard (2026-08-31)** [Kabe, verbatim]:
+"Now that is quite clean, let's lock this in as the standard methodology with
+a guard to make sure we are eliminating that particular risk of mid artifact."
+grow3 now refuses fail-closed any assembled guide whose front ceiling or floor
+mid-span carries a row-coherent horizontal edge band (max row gradient over
+5x the band median); a breach writes only a .breach debug copy. The clips
+prevent; the guard proves.

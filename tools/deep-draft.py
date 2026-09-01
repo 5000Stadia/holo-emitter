@@ -1124,8 +1124,33 @@ def grow3(args):
     dd = ImageDraw.Draw(canvas)
     for ci, di in zip(C, D):
         dd.line([ci, di], fill=(42, 33, 24), width=3)
+    # [Kabe, 2026-08-31]: "lock this in as the standard methodology with a
+    # guard to make sure we are eliminating that particular risk of mid
+    # artifact" - FAIL-CLOSED: scan the front ceiling and floor mid-spans of
+    # the assembled guide for any row-coherent horizontal edge band; a breach
+    # refuses the build (only a .breach debug copy is written).
+    cg = np.asarray(canvas.convert("L")).astype(float)
+    def band_guard(y_lo, y_hi, name):
+        y_lo, y_hi = int(max(1, y_lo)), int(min(H - 1, y_hi))
+        if y_hi - y_lo < 6:
+            return {"band": name, "rows": 0, "max": 0.0, "median": 0.0, "ok": True}
+        seg = cg[y_lo:y_hi, int(x0) + 40:int(x1) - 40]
+        g = np.abs(np.diff(seg, axis=0)).mean(axis=1)
+        med = float(np.median(g)); mx = float(g.max())
+        return {"band": name, "rows": int(len(g)), "max": round(mx, 2),
+                "median": round(med, 2),
+                "ok": bool(mx <= max(9.0, 5.0 * (med + 0.3)))}
+    guards = [band_guard(8, min(C[0][1], C[1][1]) - 8, "ceiling_front"),
+              band_guard(max(C[2][1], C[3][1]) + 8, H - 8, "floor_front")]
+    breach = [g_ for g_ in guards if not g_["ok"]]
+    if breach:
+        canvas.save(args["out"] + ".breach.png", "PNG")
+        print(json.dumps({"ok": False, "mode": "grow3",
+                          "error": "mid-room artifact guard breached",
+                          "guards": guards}))
+        return
     canvas.save(args["out"], "PNG")
-    print(json.dumps({"ok": True, "mode": "grow3",
+    print(json.dumps({"ok": True, "mode": "grow3", "guards": guards,
                       "close_corners": [[round(c[0]), round(c[1], 1)] for c in C],
                       "deep_corners": [[round(d[0], 1), round(d[1], 1)] for d in D],
                       "elements": report}))
