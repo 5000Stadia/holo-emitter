@@ -677,6 +677,70 @@ def cutback(args):
     out.save(args["out"], "PNG")
     print(json.dumps({"ok": True, "mode": "cutback", "gap": [bx0, by0, bx1, by1]}))
 
+
+def grow2(args):
+    """[Kabe, 2026-08-31, the image-led grow] "let the image generation
+    produce the corner lines - that's exact angle is determined by the image
+    itself - and we match in our wire frame section to the distance where we
+    estimate the far wall to be, and then we stop those corner lines at an
+    average estimated depth... then the back wall cut out we just set in the
+    averaged, approximate area and scale, such that the corners are as close
+    to the back corner wire frame pieces as can be."
+
+    No vp forcing, no per-scene pins: each of the four corner lines runs at
+    the IMAGE'S OWN measured angle from its painted junction, stops at the
+    estimated depth (pure scale toward the image's own centre by the declared
+    depth ratio), and the cutout settles by least-squares UNIFORM scale +
+    translation onto those four stops. The generation reconciles the rest."""
+    import numpy as np
+    from PIL import ImageDraw
+    base = Image.open(args["base_png"]).convert("RGB")
+    a = np.asarray(base).astype(np.uint8).copy()
+    bb = args["base_box"]; jr = float(args["junction_row"])
+    x0, x1 = int(round(bb["x0"])), int(round(bb["x1"]))
+    y0, y1 = int(round(bb["yc"])), int(round(bb["yf"]))
+    GROUND = (208, 202, 192)
+    cut = a[y0:y1, x0:x1].copy()
+    a[y0:y1, x0:x1] = GROUND
+    if args.get("reveal_png"):
+        from PIL import ImageFilter as _IFR
+        rm = np.asarray(Image.open(args["reveal_png"]).convert("L")
+                        .filter(_IFR.MaxFilter(25))) > 127
+        rm[y0:y1, x0:x1] = False
+        blur_src = np.asarray(Image.fromarray(a).filter(_IFR.GaussianBlur(12)))
+        a[rm] = blur_src[rm]
+    out = Image.fromarray(a)
+    d = ImageDraw.Draw(out)
+    INK = (42, 33, 24); lw = 3
+    # the four painted junctions and the image's own line angles
+    P = [(x0, jr), (x1, jr), (x0, y1), (x1, y1)]
+    slopes = args["corner_slopes"]              # dy/dx per corner, measured
+    k_est = float(args["depth_ratio"])          # z_near / z_far
+    cx = (x0 + x1) / 2.0
+    ends = []
+    for (px, py), m in zip(P, slopes):
+        ex = cx + (px - cx) * k_est             # stop column: pure scale toward centre
+        ey = py + m * (ex - px)                 # follow the image's own angle
+        ends.append((ex, ey))
+        d.line([(px, py), (ex, ey)], fill=INK, width=lw)
+    # the cutout's own corners (junction row and floor, full width)
+    C = np.array([(0.0, jr - y0), (x1 - x0, jr - y0),
+                  (0.0, y1 - y0), (float(x1 - x0), float(y1 - y0))])
+    E = np.array(ends)
+    cbar = C.mean(axis=0); ebar = E.mean(axis=0)
+    Cc = C - cbar; Ec = E - ebar
+    k_fit = float((Ec * Cc).sum() / (Cc * Cc).sum())
+    k_fit = max(0.05, min(1.0, k_fit))   # a garbage line set must not flip or explode the wall
+    t = ebar - k_fit * cbar
+    cw = max(1, round((x1 - x0) * k_fit)); ch = max(1, round((y1 - y0) * k_fit))
+    wall = Image.fromarray(cut).resize((cw, ch), Image.LANCZOS)
+    wx = int(round(t[0] + 0 * k_fit)); wy = int(round(t[1] - (jr - y0) * k_fit))
+    out.paste(wall, (wx, wy))
+    out.save(args["out"], "PNG")
+    print(json.dumps({"ok": True, "mode": "grow2", "k_fit": round(k_fit, 4),
+                      "ends": [[round(e[0]), round(e[1])] for e in ends],
+                      "wall_at": [wx, wy, wx + cw, wy + ch]}))
+
 def main():
     args = json.load(open(sys.argv[1]))
     if args.get("mode") == "correct":
@@ -693,6 +757,8 @@ def main():
         return grow(args)
     if args.get("mode") == "reverse":
         return reverse(args)
+    if args.get("mode") == "grow2":
+        return grow2(args)
     if args.get("mode") == "cutback":
         return cutback(args)
     close = Image.open(args["close_png"]).convert("RGB")

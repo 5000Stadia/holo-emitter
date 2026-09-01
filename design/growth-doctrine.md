@@ -113,3 +113,24 @@ edge-fit outside the wall box and intersected for the base's true vanishing
 point; the declared vp is only the fallback for a degenerate fit. A warped (geometry-exact) base KEEPS the declared vp outright - the fit's
 edge noise must not steer a chain whose structure is exact by construction;
 the measured-vp path is for raw painted bases.
+
+## Amendment (2026-08-31): the image-led grow (grow2)
+[Kabe, verbatim]: "let the image generation produce the corner lines - that's
+exact angle is determined by the image itself - and we match in our wire frame
+section to the distance where we estimate the far wall to be, and then we stop
+those corner lines at an average estimated depth that we believe the back wall
+should exist in our wire frame, then the back wall cut out we just set in the
+averaged, approximate area and scale, such that the corners are as close to
+the back corner wire frame pieces as can be... the image generation will
+effectively fill in the gaps and maintain the correct enough visual angles."
+No vp forcing, no per-scene pins (a floor line, a dado - the setting decides
+what exists; nothing is fit to one scene). Mechanics (deep-draft mode grow2):
+each corner line is TRACKED from the paint at its painted junction (prior aim
+= corner-through-vp, the paint's own edge rules; the prior stands only where
+the sliver is too thin to track); each line stops at the estimated depth
+(pure scale toward the image's own centre by the declared depth ratio); the
+cutout settles by least-squares UNIFORM scale + translation onto the four
+stops. Where the image's angles disagree with declared, the image wins and
+the generation reconciles. This also removes the two corner-anchored warps
+that compounded the off-centre floor in the first long room (the diagnosis
+that led here).
