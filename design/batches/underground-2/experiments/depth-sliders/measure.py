@@ -39,6 +39,49 @@ def span_of(path):
     foot = 600 + int(np.argmax(gy_mid[600:700]))
     return span, foot - dtop
 
+def span_of_banded(path, yc, yf):
+    """span_of with per-view detection bands (genre rolls)."""
+    base = Image.open(path).convert("RGB")
+    g = np.asarray(base.convert("L")).astype(float)
+    Gy = np.abs(np.diff(g, axis=0)); H, W = Gy.shape
+    det, corners, _m = dd._detect_corner_lines(base, 86, 1451, yc, yf)
+    ends = []
+    for (x_edge, direction, sgn), (ya, m, sc) in zip(corners[:2], det[:2]):
+        xs, ev = [], []
+        x = int(x_edge); inward = -direction
+        while 60 < x < W - 60:
+            x += inward * 6
+            yp = ya + m * (x - x_edge)
+            lo, hi = int(max(1, yp - 5)), int(min(H - 1, yp + 5))
+            if hi - lo < 3: break
+            xs.append(x); ev.append(float(Gy[lo:hi, x].max()))
+        ev = np.array(ev); xs = np.array(xs)
+        ref = np.median(ev[:10]); endx = xs[-1]
+        for i in range(len(ev) - 2):
+            if (ev[i] < max(6.0, 0.3 * ref) and ev[i+1] < max(6.0, 0.35 * ref)
+                    and ev[i+2] < max(6.0, 0.4 * ref)):
+                endx = xs[i]; break
+        ends.append(endx)
+    return abs(ends[1] - ends[0])
+
+GENRES = [("kitchen-N", 190.0, 777.0), ("ward-N", 200.0, 741.0),
+          ("noodle_bar-N", 200.0, 780.0)]
+
+if __name__ == "__main__" and "--genre" in sys.argv:
+    d0 = os.path.join(ROOT, "backdrops/source")
+    print(f"{'roll':22} {'span':>5} {'depth':>6}   (declared: 585px / 11.2m)")
+    for loc, yc, yf in GENRES:
+        for i in "12":
+            p_ = os.path.join(d0, loc, f"exp-g{i}.png")
+            if not os.path.exists(p_):
+                print(f"{loc}/exp-g{i}   missing"); continue
+            try:
+                span = span_of_banded(p_, yc, yf)
+                print(f"{loc}/exp-g{i:1} {span:5.0f} {1024*6.4/max(span,1):5.2f}m")
+            except SystemExit:
+                print(f"{loc}/exp-g{i}   detector: no lines")
+    raise SystemExit(0)
+
 if __name__ == "__main__":
     d = os.path.join(ROOT, "backdrops/source/platform-E")
     print(f"{'roll':8} {'span':>5} {'depth':>6} {'stripe':>6}   (declared: 585px / 11.2m / 110px)")
