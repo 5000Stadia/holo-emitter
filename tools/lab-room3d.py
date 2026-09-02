@@ -83,10 +83,19 @@ def main():
         "palette": palette,
         "provenance": provenance,
     }
-    html = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world))
+    body = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world))
+    # the served page is a whole document; the artifact copy is the bare
+    # fragment (the artifact viewer wraps it in its own head and body)
+    html = ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n"
+            + body.split("<style>", 1)[0] + "<style>" + body.split("<style>", 1)[1].split("</style>", 1)[0] + "</style>\n</head>\n<body>\n"
+            + body.split("</style>", 1)[1] + "\n</body>\n</html>\n")
     os.makedirs(os.path.dirname(a.out), exist_ok=True)
     with open(a.out, "w") as fh:
         fh.write(html)
+    frag = os.path.join(os.path.dirname(a.out), "fragment.html")
+    with open(frag, "w") as fh:
+        fh.write(body)
     print(json.dumps({"ok": True, "out": os.path.relpath(a.out, ROOT), "rooms": len(world["rooms"]),
                       "openings": len(world["openings"]), "palette": palette}))
 
@@ -119,6 +128,7 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   #status .t { font-family: "Josefin Sans", "Futura", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
   #status .s { margin-top: 12px; color: var(--ink-dim); max-width: 52ch; line-height: 1.6; }
   #status .s b { color: var(--ink); font-weight: 500; }
+  #status[hidden], #gate[hidden] { display: none !important; }
   @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room { min-width: 0; padding: 8px 10px 6px; } .room .name { font-size: 16px; } .prov { display: none; } #gate { bottom: 64px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>

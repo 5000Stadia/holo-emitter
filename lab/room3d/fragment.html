@@ -1,8 +1,3 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Meridian Deck Walk</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -35,9 +30,6 @@
   @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room { min-width: 0; padding: 8px 10px 6px; } .room .name { font-size: 16px; } .prov { display: none; } #gate { bottom: 64px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-</head>
-<body>
-
 <div id="status"><div><div class="t">SS Meridian · C Deck</div><div class="s" id="statusText">loading the engine…</div></div></div>
 <div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
 <div class="hud">
@@ -242,6 +234,3 @@ function step(now) {
 }
 requestAnimationFrame(step);
 </script>
-
-</body>
-</html>
