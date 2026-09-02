@@ -1,0 +1,21 @@
+# liner-3 — step log (2026-09-01)
+
+[Kabe]: "Consider that you're a more intelligent model now I just switched you over. Let's try a new demo. With a 2x2 a 2x1 and a 1x1 you pick the setting." And the standing directive: "Do what you can along the way to try to assure a strong programatic process that produces good results. If we have to do re-rolls I would like you to assess the situation with the re-rolls because I really want to minimize the chances that the image execution is not usable."
+
+Setting picked: SS MERIDIAN 1934, an ocean liner's first-class deck — writing room (1x1), gallery + gallery_far (2x1, way01), saloon block saloon / saloon_e / saloon_n / saloon_ne (2x2, way02–way05). Burl-panelled walls over an ebony dado with a chrome capping strip (the 1.2 m ruler, `ruler.line: bright-strip`), cove-lit ceilings, patterned carpet.
+
+Phase 1 = every close wall first, fixture-free; deep facings only after, as G-PREP guides consuming the close assets.
+
+| # | step | outcome | hang-up / cause | fix (now in the tree) |
+|---|---|---|---|---|
+| 1 | pack authored, derive → validate → bake → emit; leads painted unguided | gallery/N lands after the close-guide loop (see growth-doctrine, "the close-guide landing loop") | painter shrinks unguided walls 0.76–0.93 of ruled | close-guide + roll-loop `--guide close`, Z_TARGET 0.975 |
+| 2 | gallery_far/N: four ruled-scale guided rolls FAIL −11/−13% | **instrument**: the gate's rail = darkest row of the rail band; on an ebony dado that row is anywhere; earlier −6/−7% passes were luck, saloon_n/N's +2.3% was two errors cancelling | `world.json ruler.line: "bright-strip"`; `_floor_and_rail` reads the brightest row, contrast (max−median)/median; all four re-read PASS −4.3/−6.6, earlier promotions −2..−3% |
+| 3 | writing_room/E: clean rolls held "unfitted-horizon"/"suspect" | **instrument**: the promotion half's two-return breakpoints came from a median polluted by a frame-edge trace (761/884 for corners at 104/1431) | `witness_corner` on both walls (kink fit of foot + cornice, rail blind within 40 px of the horizon, snapped to a vertical seam); 25f33033 PASS promoted, 613d2d07 correctly suspect |
+| 4 | saloon_n/N: 31e7ffbd a black slab on the left, 21e02377 a kinked strip | **guide**: close-guide took a frame-edge trace as the corner, its zoom offset left the return strip black, and the painter copies what a guide draws on a return | corner witness in close-guide; return strips clamped to the zoomed roll (RETURN_MIN_PX 24); new `void-return` family (luma ≤ 12 beside a wall ≥ 40 → re-ask with the lit-return correction, never warped) |
+| 5 | saloon_e/E 091fd1d6: a doubled corner, re-promoted via warp twice at exactly the 8% reveal budget | same black-return guide; the warp cannot see a doubled corner | roll RETIRED (`backdrops/source/saloon_e-E/retired/README.md`); saloon_e/E and saloon_n/N withdrawn from the store and re-queued behind the leads |
+| 6 | writing_room/E,S,W as followers `--from-wall writing_room/N` | each landed on its first pair (S −3.1%, W −4.3%); writing_room close set complete | — | followers cut their first guide from the promoted lead |
+| 7 | `roll-loop.py --guide deep` | built; deep-guide exercised on a stand-in store (saloon_n/S: far wall from two close paintings book-matched at the join, right wall from the shell's own return, left open) — the guide reads as one room | refuses until the shell and far cells are promoted (phase-1 law) | deeps.sh queued behind the rerolls: three passes over the ten deep facings |
+
+**Re-roll assessment so far.** Every refused roll after gallery/N traced to an instrument or guide defect, each fixed programmatically (rows 2–5); none to painter randomness. Scale is solved by the guide (rolls within ~2% of the guide); the remaining painting faults are return-side (black or doubled returns) and the instruments now name them as families rather than holding them.
+
+*(totals and the deep round appended when the run ends)*
