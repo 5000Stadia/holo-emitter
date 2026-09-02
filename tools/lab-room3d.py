@@ -111,14 +111,18 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   .keys kbd { font-family: inherit; color: var(--ink); border: 1px solid var(--line); padding: 0 5px; border-radius: 2px; }
   .prov { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); max-width: 44ch; line-height: 1.55; }
   .prov b { color: var(--ink); font-weight: 500; }
-  #gate { position: fixed; inset: 0; display: grid; place-items: center; background: rgba(20, 17, 14, 0.72); cursor: pointer; z-index: 2; }
-  #gate .card { text-align: center; border: 1px solid var(--line); padding: 28px 36px; background: var(--panel); }
-  #gate .t { font-family: "Josefin Sans", "Futura", sans-serif; font-weight: 300; font-size: 30px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
-  #gate .s { margin-top: 10px; color: var(--ink-dim); }
-  #gate:focus-visible { outline: 2px solid var(--brass); outline-offset: -6px; }
+  #gate { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
+  #gate .t { font-family: "Josefin Sans", "Futura", sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #gate .s { margin-top: 4px; color: var(--ink-dim); }
+  #gate:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #14110e; z-index: 3; text-align: center; padding: 24px; }
+  #status .t { font-family: "Josefin Sans", "Futura", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #status .s { margin-top: 12px; color: var(--ink-dim); max-width: 52ch; line-height: 1.6; }
+  #status .s b { color: var(--ink); font-weight: 500; }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-<div id="gate" tabindex="0"><div class="card"><div class="t">SS Meridian · C Deck</div><div class="s">click to walk · esc to release the mouse</div></div></div>
+<div id="status"><div><div class="t">SS Meridian · C Deck</div><div class="s" id="statusText">loading the engine…</div></div></div>
+<div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
 <div class="hud">
   <div class="top">
     <div class="room"><div class="eyebrow">you are in</div><div class="name" id="roomName">—</div></div>
@@ -130,9 +134,21 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
     <div class="prov" id="prov"></div>
   </div>
 </div>
+<script>
+  // fail loudly: a black page says nothing, a sentence says what to fix
+  window.__fail = (why) => { const s = document.getElementById("status"); s.hidden = false; s.querySelector("#statusText").innerHTML = why; };
+  window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error before the first frame: <b>" + (e.message || e.type) + "</b>"); });
+  setTimeout(() => { if (!window.THREE) window.__fail("the engine script did not arrive from cdnjs.cloudflare.com within 12 s. A content blocker or an offline tab is the usual cause; reload once it is reachable."); }, 12000);
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 const WORLD = __WORLD_JSON__;
+if (!window.THREE) throw new Error("three.js did not load");
+(function () {
+  const c = document.createElement("canvas");
+  const gl = c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl");
+  if (!gl) { window.__fail("this browser refused a WebGL context, so there is nothing to draw with. Enable hardware acceleration / WebGL, or open the page outside the embedded viewer."); throw new Error("no WebGL"); }
+})();
 const EPS = 1e-6;
 // plan: metres, north = +y.  three: y up, so plan y -> -z (north is -z, the camera's default look).
 const P = (x, y) => new THREE.Vector3(x, 0, -y);
@@ -243,14 +259,18 @@ const keys = {};
 addEventListener("keydown", e => { keys[e.code] = true; });
 addEventListener("keyup", e => { keys[e.code] = false; });
 const gate = document.getElementById("gate");
-gate.addEventListener("click", () => renderer.domElement.requestPointerLock());
-gate.addEventListener("keydown", e => { if (e.code === "Enter" || e.code === "Space") renderer.domElement.requestPointerLock(); });
+const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
+gate.addEventListener("click", lock);
+gate.addEventListener("keydown", e => { if (e.code === "Enter" || e.code === "Space") lock(); });
 document.addEventListener("pointerlockchange", () => { gate.hidden = document.pointerLockElement === renderer.domElement; });
-document.addEventListener("mousemove", e => {
-  if (document.pointerLockElement !== renderer.domElement) return;
-  yaw -= e.movementX * 0.0022; pitch -= e.movementY * 0.0022;
-  pitch = Math.max(-1.4, Math.min(1.4, pitch));
-});
+const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
+// drag to look, for viewers that refuse pointer lock (embedded frames, touch)
+let drag = null;
+renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; renderer.domElement.setPointerCapture(e.pointerId); if (document.pointerLockElement !== renderer.domElement) lock(); });
+renderer.domElement.addEventListener("pointermove", e => { if (!drag || document.pointerLockElement === renderer.domElement) return; look(e.clientX - drag.x, e.clientY - drag.y); drag = { x: e.clientX, y: e.clientY }; });
+renderer.domElement.addEventListener("pointerup", () => { drag = null; });
+renderer.domElement.addEventListener("pointercancel", () => { drag = null; });
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 const roomName = document.getElementById("roomName"), pos = document.getElementById("pos");
@@ -284,6 +304,7 @@ function step(now) {
   const hd = ((-yaw * 180 / Math.PI) % 360 + 360) % 360;
   pos.innerHTML = `x <b>${px.toFixed(1)}</b> m &nbsp; y <b>${py.toFixed(1)}</b> m<br>facing <b>${COMPASS[Math.round(hd / 45) % 8]}</b>`;
   renderer.render(scene, camera);
+  if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }
   requestAnimationFrame(step);
 }
 requestAnimationFrame(step);
