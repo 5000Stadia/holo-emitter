@@ -52,11 +52,6 @@
    "name": "the doorway's width"
   },
   {
-   "match": "chrome medallion|chrome disc",
-   "size_m": 0.9,
-   "name": "the blank brushed-chrome medallion, rim to rim"
-  },
-  {
    "match": "veneer panel|book-matched panel",
    "size_m": 0.6,
    "name": "one book-matched veneer panel's width"
@@ -69,7 +64,7 @@
   "panelling_why": "The veneers belong to the rooms that carry the dado band (the ruled anchor names it); a prompt whose room has no band must not name it.",
   "rationed_line": "^chrome medallion:[^\\n]*$",
   "entitled_to_rationed": "saloon|SALOON",
-  "rationed_why": "The blank chrome medallion is the saloon's alone; repeated in every room it becomes wallpaper.",
+  "rationed_why": "Retired 2026-09-01: the saloon's blank chrome medallion was struck from the voice (Kabe: walls very blank, surface detail only); no room is entitled to a rationed feature now and the line never fires.",
   "redacted_correction": "the previous attempt at this wall was rejected because it did not paint this ship as the materials and the anchor below describe it. Those words replace anything the earlier attempt was told.",
   "redacted_correction_why": "What replaces a correction that cannot be carried into an outside-the-ship prompt."
  },
@@ -82,6 +77,6 @@
  },
  "use_case": "location-study",
  "constraints": {
-  "surfaces": "Every surface carries only what its materials say: the chrome medallion is blank, the veneers are plain — no legible text, no signage copy, no ship names, no logos, no posters, no deck plans, no portholes"
+  "surfaces": "Every surface carries only what its materials say: the veneers are plain and the walls are blank apart from their own surface detail (veneer figure, the dado, the chrome strip) — no medallions, plaques or mounted objects, no legible text, no signage copy, no ship names, no logos, no posters, no deck plans, no portholes"
  }
 }

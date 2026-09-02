@@ -330,3 +330,4 @@ found by reading the refused roll against its reading and fixed in the tree
   from a promoted sibling in the same room (writing_room/E,S,W from N; each
   landed on its first pair): the room's own fabric at the ruled scale, no
   unguided rolls spent to seed it.
+- **A voice names surfaces, not objects.** Anything a voice's `walls` mounts (a medallion, a plaque, a clock) is painted on EVERY wall that voice speaks for, once per cell — liner-3's "single" chrome medallion appeared four-plus times across the saloon block. Kabe, 2026-09-01: walls "very blank just surface detail appropriate for the setting". When an object is struck after paintings exist, the paintings are withdrawn and their rolls retired; the re-roll's guide is the retired painting with the object erased (`tools/blank-disc.py`, roll-loop `--from`), because the painter copies what the guide draws.

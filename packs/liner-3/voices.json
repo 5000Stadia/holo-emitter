@@ -42,9 +42,9 @@
   },
   "saloon_sycamore": {
    "id": "saloon_sycamore",
-   "why": "The grand saloon is the ship's public face: pale figured sycamore, a red carpet, and one blank chrome medallion on the wall.",
+   "why": "The grand saloon is the ship's public face: pale figured sycamore, a red carpet, and walls that carry nothing but their own surface — veneer figure, dado, chrome strip. [Kabe 2026-09-01: \"very blank just surface detail appropriate for the setting\"]",
    "outdoor": false,
-   "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer; a single blank round brushed-chrome medallion mounted on the wall",
+   "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
    "ceiling": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
    "floor": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
    "blank": "unbroken pale figured sycamore veneer above the dado's chrome capping strip with dark macassar-ebony veneer below",

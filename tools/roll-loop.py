@@ -124,10 +124,12 @@ def clamp_z(z, zcap):
     return max(Z_MIN, min(Z_MAX, zcap, z))
 
 
-def build_close_guide(key, z, from_wall=None):
+def build_close_guide(key, z, from_wall=None, from_path=None):
     cmd = ["python3", "tools/close-guide.py", "--wall", key, "--precomp", f"{z:.4f}"]
     if from_wall:
         cmd += ["--from-wall", from_wall]
+    elif from_path:
+        cmd += ["--from", from_path]
     r = sh(cmd, env={**os.environ, "HOLO_PACK": PACK})
     out = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else ""
     try:
@@ -162,6 +164,9 @@ def main():
                     help="starting zoom for --guide close (default: 1/mean scale of the wall's rolls)")
     ap.add_argument("--from-wall", dest="from_wall", default=None,
                     help="cut the close guide from this wall's promoted asset (a follower from its lead)")
+    ap.add_argument("--from", dest="from_path", default=None,
+                    help="cut the close guide from this picture measured as the wall's own roll "
+                         "(a retired roll with its object erased, when the voice dropped the object)")
     a = ap.parse_args()
     key = a.wall
     loc, f = key.split("/")
@@ -188,7 +193,7 @@ def main():
             print(f"BUDGET SPENT: {key} not landed in {spent} rolls; parked for the Captain", flush=True)
             return 1
         if a.guide == "close":
-            g = build_close_guide(key, z, a.from_wall)
+            g = build_close_guide(key, z, a.from_wall, a.from_path)
             if not g:
                 return 5
             with open(GUIDE_LOG, "a") as fh:

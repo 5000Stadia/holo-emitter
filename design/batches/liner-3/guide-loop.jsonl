@@ -39,3 +39,4 @@
 {"key": "saloon/W", "step": "learn", "attempt": 3, "z_prev": 0.9703, "scales": [0.9819, 0.941], "z_next": 0.9839, "t": 1788321368.4191992}
 {"key": "saloon_ne/E", "step": "guide", "z": 0.975, "roll": "backdrops/saloon_ne/N.png", "measured": {"rail": 525.8, "foot": 758.0, "ceiling": 108.0, "corner_x0": null, "corner_x1": 1419, "scale": 0.9071, "storey_m": 3.359}, "zoom": {"s": 1.0749, "pivot": "wall-span centre", "ax": 56.5, "ay": -42.6}, "t": 1788321371.5733047}
 {"key": "saloon_ne/E", "step": "learn", "attempt": 1, "z_prev": 0.975, "scales": [1.0011, 0.9679], "z_next": 0.9656, "t": 1788321597.967538}
+{"key": "saloon/S", "step": "guide", "z": 0.975, "roll": "backdrops/source/saloon-S/retired/blank-1e52b8ef.png", "measured": {"rail": 521.0, "foot": 777.0, "ceiling": 64.0, "corner_x0": null, "corner_x1": 1434, "scale": 0.9998, "storey_m": 3.343}, "zoom": {"s": 0.975, "pivot": "right corner", "ax": 35.5, "ay": 14.6}, "t": 1788323507.256327}

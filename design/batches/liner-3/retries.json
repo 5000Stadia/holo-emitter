@@ -7,7 +7,7 @@
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-09-02",
   "emitted": 1,
-  "carried": 19,
+  "carried": 20,
   "refused": 0,
   "entries": [
     {
@@ -894,6 +894,60 @@
           "id": "2d255d01",
           "candidate": "backdrops/source/saloon-S/row23-2d255d01.png",
           "prompt": "backdrops/source/saloon-S/row23-2d255d01.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "saloon/S",
+      "attempt": 5,
+      "packet": "design/batches/liner-3/saloon-S/retry-5",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "door",
+        "no-window"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 198.333,
+      "flights": [],
+      "scaffold_sha256": "812c9bc2d79253a55bec73fcc5f3bbbd14d442c1207a94a7b93c9e71be6babde",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon/S",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": {
+        "file": "grown-saloon-S.png",
+        "rel": "backdrops/grown/saloon-S.png",
+        "room": "saloon",
+        "facing": "S",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "0556f445",
+          "candidate": "backdrops/source/saloon-S/row23-0556f445.png",
+          "prompt": "backdrops/source/saloon-S/row23-0556f445.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "f3a2cc96",
+          "candidate": "backdrops/source/saloon-S/row23-f3a2cc96.png",
+          "prompt": "backdrops/source/saloon-S/row23-f3a2cc96.prompt.txt"
         }
       ]
     },
