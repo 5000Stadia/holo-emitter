@@ -2,7 +2,7 @@
 
 [HUMAN, 2026-08-24, verbatim]: "Still getting rooms with wall/ceiling mismatches" — "Mismatches as in different from other walls".
 
-Rows 36 and 38 cure this by construction for walls painted from here on. The 121 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
+Rows 36 and 38 cure this by construction for walls painted from here on. The 122 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
 
 Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two declared corners are ceiling above the one and floor below the other, so four bands - ceiling, upper wall, lower wall, floor - cut out with no perspective bookkeeping. Each band is resampled to 150 px/m, cut into 0.30 m tiles of WORLD, and described by the MEDIAN tile, so a window or a doorway cannot decide that a wall changed; the columns a carrier is declared on are dropped outright first.
 
@@ -22,23 +22,23 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | 6 | platform | ENSW | wall_upper | **6.06** | E-W | x1.34 | 0.274 | 0.482 | x4.90 | E | mismatched |
 | 7 | closet_chamber | ENSW | wall_upper | **5.67** | S-W | x1.08 | 0.342 | 0.572 | x4.13 | W | mismatched |
 | 8 | saloon | ENSW | floor | **5.50** | E-W | x2.04 | 0.687 | 0.867 | x1.99 | E | mismatched |
-| 9 | gallery | ENSW | floor | **5.38** | E-S | x5.26 | 0.753 | 1.000 | x1.08 | E | mismatched |
-| 10 | treatment_room | ENSW | wall_lower | **4.98** | N-S | x1.02 | 0.024 | 0.250 | x3.97 | S | mismatched |
-| 11 | reception | ENSW | wall_upper | **4.43** | E-W | x1.14 | 0.054 | 0.545 | x3.40 | E | mismatched |
-| 12 | back_office | ENSW | wall_upper | **4.34** | E-S | x1.40 | 0.165 | 0.111 | x3.18 | S | mismatched |
-| 13 | booking_hall | ENSW | wall_upper | **4.15** | E-S | x1.28 | 0.059 | 0.312 | x3.14 | S | mismatched |
-| 14 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
-| 15 | garden_room | ENSW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
-| 16 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
-| 17 | dining_parlour | ENSW | ceiling | **3.28** | N-W | x10.51 | 0.448 | 0.558 | x1.22 | — | consistent |
-| 18 | writing_room | ENSW | floor | **3.10** | S-W | x1.05 | 0.178 | 0.000 | x2.19 | — | consistent-incomplete |
-| 19 | kitchen | ESW | ceiling | **2.87** | S-W | x1.29 | 0.380 | 0.333 | x1.30 | — | consistent-incomplete |
-| 20 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
-| 21 | servants_hall | NSW | wall_upper | **2.75** | N-W | x1.12 | 0.165 | 0.455 | x1.99 | — | consistent-incomplete |
-| 22 | solar | ENSW | wall_lower | **2.68** | N-W | x1.29 | 0.185 | 0.533 | x1.91 | — | consistent |
-| 23 | noodle_bar | ENSW | wall_upper | **2.14** | S-W | x4.50 | 0.189 | 0.708 | x1.59 | — | consistent-incomplete |
-| 24 | ward | ENSW | floor | **2.12** | E-W | x1.12 | 0.265 | 1.000 | x1.31 | — | consistent-incomplete |
-| 25 | saloon_ne | EN | floor | **2.10** | E-N | x1.15 | 0.274 | 0.000 | x1.23 | — | consistent-incomplete |
+| 9 | saloon_ne | ENS | wall_lower | **5.39** | N-S | x2.91 | 0.475 | 0.750 | x3.19 | S | mismatched |
+| 10 | gallery | ENSW | floor | **5.38** | E-S | x5.26 | 0.753 | 1.000 | x1.08 | E | mismatched |
+| 11 | treatment_room | ENSW | wall_lower | **4.98** | N-S | x1.02 | 0.024 | 0.250 | x3.97 | S | mismatched |
+| 12 | reception | ENSW | wall_upper | **4.43** | E-W | x1.14 | 0.054 | 0.545 | x3.40 | E | mismatched |
+| 13 | back_office | ENSW | wall_upper | **4.34** | E-S | x1.40 | 0.165 | 0.111 | x3.18 | S | mismatched |
+| 14 | booking_hall | ENSW | wall_upper | **4.15** | E-S | x1.28 | 0.059 | 0.312 | x3.14 | S | mismatched |
+| 15 | master_bedchamber | ENSW | ceiling | **4.14** | E-N | x3.31 | 0.088 | 0.528 | x3.11 | N | mismatched |
+| 16 | garden_room | ENSW | wall_lower | **3.90** | E-W | x1.62 | 0.217 | 0.375 | x2.70 | W | mismatched |
+| 17 | long_gallery | ENS | floor | **3.62** | E-S | x5.51 | 0.495 | 0.845 | x1.24 | — | consistent |
+| 18 | dining_parlour | ENSW | ceiling | **3.28** | N-W | x10.51 | 0.448 | 0.558 | x1.22 | — | consistent |
+| 19 | writing_room | ENSW | floor | **3.10** | S-W | x1.05 | 0.178 | 0.000 | x2.19 | — | consistent-incomplete |
+| 20 | kitchen | ESW | ceiling | **2.87** | S-W | x1.29 | 0.380 | 0.333 | x1.30 | — | consistent-incomplete |
+| 21 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
+| 22 | servants_hall | NSW | wall_upper | **2.75** | N-W | x1.12 | 0.165 | 0.455 | x1.99 | — | consistent-incomplete |
+| 23 | solar | ENSW | wall_lower | **2.68** | N-W | x1.29 | 0.185 | 0.533 | x1.91 | — | consistent |
+| 24 | noodle_bar | ENSW | wall_upper | **2.14** | S-W | x4.50 | 0.189 | 0.708 | x1.59 | — | consistent-incomplete |
+| 25 | ward | ENSW | floor | **2.12** | E-W | x1.12 | 0.265 | 1.000 | x1.31 | — | consistent-incomplete |
 | 26 | buttery_pantry | ENSW | ceiling | **2.07** | S-W | x1.18 | 0.057 | 0.154 | x1.75 | — | consistent-incomplete |
 | 27 | library | EN | ceiling | **1.94** | E-N | x4.55 | 0.271 | 0.667 | x1.03 | — | consistent-incomplete |
 | 28 | back_stair_head | NS | wall_upper | **1.72** | N-S | x1.20 | 0.158 | 0.678 | x1.43 | — | consistent-incomplete |
@@ -89,6 +89,7 @@ Every (room, band) spread in the store, worst first:
   5.67  closet_chamber       wall_upper
   5.50  saloon               floor
   5.41  platform             floor
+  5.39  saloon_ne            wall_lower
   5.38  gallery              floor
   5.09  gallery_far          wall_upper
   4.98  treatment_room       wall_lower
@@ -99,6 +100,7 @@ Every (room, band) spread in the store, worst first:
   4.15  booking_hall         wall_upper
   4.15  saloon_e             floor
   4.14  master_bedchamber    ceiling
+  4.14  saloon_ne            floor
   3.90  garden_room          wall_lower
   3.76  saloon_n             wall_upper
   3.71  gallery              wall_lower
@@ -139,7 +141,6 @@ Every (room, band) spread in the store, worst first:
   2.30  saloon_e             wall_upper
   2.14  noodle_bar           wall_upper
   2.12  ward                 floor
-  2.10  saloon_ne            floor
   2.07  buttery_pantry       ceiling
   2.06  guest_chamber        ceiling
   2.04  ward                 wall_lower
@@ -152,6 +153,7 @@ Every (room, band) spread in the store, worst first:
   1.88  booking_hall         floor
   1.76  long_gallery         ceiling
   1.75  dining_parlour       floor
+  1.73  saloon_ne            wall_upper
   1.72  back_stair_head      wall_upper
   1.71  great_hall           wall_lower
   1.69  servants_hall        ceiling
@@ -175,11 +177,9 @@ Every (room, band) spread in the store, worst first:
   1.07  kitchen              wall_lower
   1.04  noodle_bar           floor
   1.02  servants_hall        floor
-  0.98  saloon_ne            wall_upper
   0.94  closet_chamber       ceiling
   0.81  muniment_room        wall_upper
   0.81  library              wall_lower
-  0.79  saloon_ne            wall_lower
   0.73  stair_landing        floor
   0.63  stair_landing        ceiling
   0.59  reception            ceiling

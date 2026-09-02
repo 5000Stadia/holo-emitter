@@ -1,0 +1,132 @@
+{
+ "mode": "deep-guide",
+ "wall": "saloon_ne/W",
+ "pack": "liner-3",
+ "shell": "backdrops/saloon_n/W.png",
+ "far_cells": [
+  "saloon",
+  "saloon_n"
+ ],
+ "sides": {
+  "left": {
+   "open": true,
+   "via": [
+    "way05",
+    "way04"
+   ],
+   "u_m": -3.1999999999999993
+  },
+  "right": {
+   "open": false,
+   "via": [],
+   "u_m": 3.1999999999999993
+  }
+ },
+ "far_rect": [
+  -87.8,
+  328.5,
+  1053.3,
+  631.6
+ ],
+ "run_m": 12.799999999999999,
+ "depth_ratio": 0.4178571428571428,
+ "vp": [
+  768.0,
+  526.1
+ ],
+ "doors": [],
+ "elements": {
+  "shell": {
+   "painting": "backdrops/saloon_n/W.png",
+   "rows": {
+    "ceil": 61.0,
+    "rail": 521.5,
+    "foot": 767.0,
+    "x0": -1280.0,
+    "x1": 1429
+   },
+   "from": "measured",
+   "scale": 0.9588,
+   "door": null
+  },
+  "ceiling": {
+   "scale": 9.9536
+  },
+  "floor": {
+   "scale": 1.7137
+  },
+  "right_wall_upper": {
+   "scale": 4.9767,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_wall_lower": {
+   "scale": 4.9767,
+   "blur": 10,
+   "from": "own"
+  },
+  "far_wall_saloon": {
+   "scale": 0.4275
+  },
+  "far_wall_saloon_n": {
+   "scale": 0.4293
+  },
+  "far_wall": [
+   {
+    "cell": "saloon",
+    "from": "measured",
+    "at_px": [
+     -88,
+     483
+    ],
+    "scale": 0.9767,
+    "rows": {
+     "ceil": 63.0,
+     "rail": 522.0,
+     "foot": 772.0,
+     "x0": 105,
+     "x1": 2816.0
+    },
+    "door": null
+   },
+   {
+    "cell": "saloon_n",
+    "from": "measured",
+    "at_px": [
+     483,
+     1053
+    ],
+    "scale": 0.9588,
+    "rows": {
+     "ceil": 61.0,
+     "rail": 521.5,
+     "foot": 767.0,
+     "x0": -1280.0,
+     "x1": 1429
+    },
+    "door": null
+   }
+  ],
+  "joins_px": [
+   483
+  ],
+  "door_gaps_px": []
+ },
+ "guards": [
+  {
+   "band": "ceiling_front",
+   "max": 3.72,
+   "median": 0.06,
+   "ok": true
+  },
+  {
+   "band": "floor_front",
+   "max": 4.87,
+   "median": 3.16,
+   "ok": true
+  }
+ ],
+ "precomp": 0.975,
+ "depth_drawn_m": 11.4872,
+ "out": "backdrops/grown/saloon_ne-W.png"
+}

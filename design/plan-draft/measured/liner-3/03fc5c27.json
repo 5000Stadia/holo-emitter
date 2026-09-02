@@ -1,0 +1,341 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 634,
+    "chair_rail_y_px": 525,
+    "dado_rail_above_floor_px": 109,
+    "floor_read": {
+      "minimum": 633,
+      "rule": "skirting-base",
+      "saturated": false,
+      "foot": 634
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 531,
+      "strip": 525,
+      "strip_luma": 140.5,
+      "field_below": 34.0,
+      "contrast": 0.758
+    },
+    "capping_above_floor_px": 103,
+    "rail_dip": 0.758
+  },
+  "_windows": {
+    "floor": [
+      625,
+      642
+    ],
+    "rail": [
+      515,
+      533
+    ],
+    "ceiling": [
+      298,
+      348
+    ],
+    "columns": [
+      [
+        475,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 90.833,
+  "implied_focal_px": 1017.3,
+  "eye_height_m": 1.1879,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 330,
+    "ceiling_candidates": [
+      {
+        "y": 325,
+        "strength": 107.81,
+        "horiz": 1.0,
+        "cv": 0.032
+      },
+      {
+        "y": 331,
+        "strength": 8.26,
+        "horiz": 0.861,
+        "cv": 0.459
+      },
+      {
+        "y": 318,
+        "strength": 3.71,
+        "horiz": 1.0,
+        "cv": 0.105
+      },
+      {
+        "y": 346,
+        "strength": 3.71,
+        "horiz": 0.8,
+        "cv": 0.671
+      },
+      {
+        "y": 338,
+        "strength": 3.59,
+        "horiz": 0.807,
+        "cv": 0.602
+      },
+      {
+        "y": 310,
+        "strength": 1.66,
+        "horiz": 0.921,
+        "cv": 0.245
+      },
+      {
+        "y": 304,
+        "strength": 1.17,
+        "horiz": 0.988,
+        "cv": 0.318
+      },
+      {
+        "y": 253,
+        "strength": 0.74,
+        "horiz": 0.762,
+        "cv": 0.484
+      },
+      {
+        "y": 75,
+        "strength": 0.64,
+        "horiz": 0.67,
+        "cv": 0.609
+      },
+      {
+        "y": 103,
+        "strength": 0.64,
+        "horiz": 0.669,
+        "cv": 0.625
+      },
+      {
+        "y": 93,
+        "strength": 0.63,
+        "horiz": 0.663,
+        "cv": 0.621
+      },
+      {
+        "y": 243,
+        "strength": 0.59,
+        "horiz": 0.617,
+        "cv": 0.685
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 324,
+        "admissible": true,
+        "sigma_y_px": 3.48,
+        "horizon_y_px": 518.3,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 330,
+        "admissible": true,
+        "sigma_y_px": 2.3,
+        "horizon_y_px": 532.2,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 317,
+        "admissible": true,
+        "sigma_y_px": 4.25,
+        "horizon_y_px": 499.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 345,
+        "admissible": true,
+        "sigma_y_px": 1.35,
+        "horizon_y_px": 553.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 337,
+        "admissible": true,
+        "sigma_y_px": 1.15,
+        "horizon_y_px": 545.2,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 309,
+        "admissible": true,
+        "sigma_y_px": 1.96,
+        "horizon_y_px": 479.1,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 303,
+        "admissible": true,
+        "sigma_y_px": 3.31,
+        "horizon_y_px": 455.3,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 252,
+        "admissible": false,
+        "sigma_y_px": 10.24,
+        "horizon_y_px": 424.9,
+        "agrees_with_gate": null,
+        "why": "the two side-wall junctions converge at y 424.9 but only to +/-10.2 px, and the standing licence on the horizon row is +/-8.7 px"
+      },
+      {
+        "ceiling_y_px": 74,
+        "admissible": false,
+        "sigma_y_px": 2.79,
+        "horizon_y_px": 503.7,
+        "agrees_with_gate": null,
+        "why": "the two junctions scored 0.52 (ceiling) and 54.15 (floor): the weaker is under a seventh of the stronger, which is texture along the search line and not a junction"
+      },
+      {
+        "ceiling_y_px": 102,
+        "admissible": false,
+        "sigma_y_px": 11.09,
+        "horizon_y_px": 417.5,
+        "agrees_with_gate": null,
+        "why": "the two side-wall junctions converge at y 417.5 but only to +/-11.1 px, and the standing licence on the horizon row is +/-8.7 px"
+      },
+      {
+        "ceiling_y_px": 92,
+        "admissible": false,
+        "sigma_y_px": 6.3,
+        "horizon_y_px": 437.1,
+        "agrees_with_gate": null,
+        "why": "the two junctions scored 0.48 (ceiling) and 54.15 (floor): the weaker is under a seventh of the stronger, which is texture along the search line and not a junction"
+      },
+      {
+        "ceiling_y_px": 242,
+        "admissible": false,
+        "sigma_y_px": 6.27,
+        "horizon_y_px": 465.1,
+        "agrees_with_gate": null,
+        "why": "the two junctions scored 0.52 (ceiling) and 54.15 (floor): the weaker is under a seventh of the stronger, which is texture along the search line and not a junction"
+      }
+    ],
+    "return_luma": {
+      "left": 55.1
+    },
+    "corner_x0_px": 449,
+    "corner_x1_px": 1646,
+    "corner_evidence": {
+      "left_fit_r2": 0.3487,
+      "right_fit_r2": 0.0632,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame",
+      "open_side": "right",
+      "open_side_corner": "declared: the plan's corner stands outside the frame",
+      "return_corner": {
+        "foot": 455,
+        "foot_fit": 0.5572916666666666,
+        "rail_abstains": "level with the horizon",
+        "cornice": 463,
+        "cornice_fit": 0.6002604166666666,
+        "seams": {
+          "foot": [
+            449,
+            73.3
+          ],
+          "cornice": [
+            449,
+            73.3
+          ]
+        },
+        "agreeing": [
+          "foot"
+        ],
+        "rule": "median of the foot, capping-strip and cornice kinks on the return side",
+        "x": 449
+      }
+    },
+    "horizon_bracket_px": 8.65,
+    "ramp": {
+      "x": 700.2,
+      "y": 532.2,
+      "return_side": "left",
+      "ceiling_slope": 0.805,
+      "floor_slope": -0.405,
+      "ceiling_n": 61,
+      "ceiling_score": 44.16,
+      "floor_n": 61,
+      "floor_score": 54.15,
+      "slope_half_widths": [
+        0.0125,
+        0.0075
+      ],
+      "sigma_y_px": 2.3
+    },
+    "votes": {
+      "floor": {
+        "x": 816,
+        "y": 495,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 742,
+        "y": 524,
+        "edge_px": 25890
+      },
+      "side_walls": {
+        "x": 334,
+        "y": 197,
+        "edge_px": 3719
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 932,
+      "key_dir_brightest_y": 307,
+      "key_tint": "#c8b7a5",
+      "key_tint_patch": [
+        732,
+        1132,
+        260,
+        322
+      ],
+      "key_tint_patch_mean_rgb": [
+        248.01,
+        227.36,
+        204.16
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8340b",
+        "floor_bottom_strip": "#c83910",
+        "mid_wall_right": "#c88849",
+        "mid_wall_left": "#c88c4f",
+        "brightest_21x21_patch": "#c8baaa"
+      },
+      "brightest_21x21_patch_centre_px": [
+        932,
+        307
+      ],
+      "sobel_bright_side_deg_whole_frame": 76.01,
+      "sobel_bright_side_deg_wall_band": 95.64,
+      "left_third_minus_right_third_luminance_whole_frame": -33.929,
+      "left_third_minus_right_third_luminance_wall_band": -30.413
+    },
+    "storey_height_m": 3.3468,
+    "implied_wall_width_m": 13.178,
+    "eye_height_m": 1.1207,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -0.65,
+  "delta_eye_pct": 0.41,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "03fc5c27",
+  "candidate": "backdrops/source/saloon_ne-S/row23-03fc5c27.png",
+  "candidate_sha256": "7f6624722a4c9af167d2fd2121ff09ba53a5fd69871a03fbbd904286a9195d07",
+  "instrument": "cb3e458c6d24"
+}
