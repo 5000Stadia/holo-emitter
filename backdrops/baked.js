@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 122 painting(s), 51.0 MB served in total,
+// 123 painting(s), 51.3 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -113,6 +113,7 @@
 //   saloon_n/W: 2.22 MB of PNG -> 493 kB of JPEG (q92); channels move by 1.2966 on average, 16 at worst, of 255.
 //   saloon_ne/E: 2.11 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.1597 on average, 17 at worst, of 255.
 //   saloon_ne/N: 2.26 MB of PNG -> 447 kB of JPEG (q92); channels move by 1.293 on average, 17 at worst, of 255.
+//   saloon_ne/S: 1.97 MB of PNG -> 327 kB of JPEG (q92); channels move by 1.0593 on average, 25 at worst, of 255.
 //   saloon_ne/W: 1.92 MB of PNG -> 350 kB of JPEG (q92); channels move by 1.0345 on average, 22 at worst, of 255.
 //   servants_hall/E: 3.14 MB of PNG -> 550 kB of JPEG (q92); channels move by 1.9944 on average, 22 at worst, of 255.
 //   servants_hall/N: 3.12 MB of PNG -> 548 kB of JPEG (q92); channels move by 2.0177 on average, 19 at worst, of 255.
@@ -139,7 +140,7 @@
 //   writing_room/S: 1.92 MB of PNG -> 340 kB of JPEG (q92); channels move by 1.0399 on average, 23 at worst, of 255.
 //   writing_room/W: 2.39 MB of PNG -> 444 kB of JPEG (q92); channels move by 1.484 on average, 20 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "9775b988",
+  fp: "08ebf930",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -239,6 +240,7 @@ window.HOLO_BACKDROPS = {
   "saloon_n/W": { file: "saloon_n/W.jpg", bytes: 492543 },
   "saloon_ne/E": { file: "saloon_ne/E.jpg", bytes: 455248 },
   "saloon_ne/N": { file: "saloon_ne/N.jpg", bytes: 446732 },
+  "saloon_ne/S": { file: "saloon_ne/S.jpg", bytes: 326500 },
   "saloon_ne/W": { file: "saloon_ne/W.jpg", bytes: 350453 },
   "servants_hall/E": { file: "servants_hall/E.jpg", bytes: 549616 },
   "servants_hall/N": { file: "servants_hall/N.jpg", bytes: 548334 },
