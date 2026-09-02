@@ -93,6 +93,8 @@ mkdir -p "$S"/backdrops
 cp backdrops/baked.js "$S"/backdrops/
 cp -r backdrops/served "$S"/backdrops/served
 cp -r library "$S"/library
+# lab/: the inversion experiments (lab/room3d), static pages with no build step
+cp -r lab "$S"/lab
 # [Kabe, 2026-08-30] "Only first rooms images load for me." EVERY PAINTING THE
 # MANIFEST NAMES MUST BE IN THE TREE BEING SHIPPED — the hospital publish copied
 # `served/` while the loop's bake was rebuilding it and shipped a manifest with
