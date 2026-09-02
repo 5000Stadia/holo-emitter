@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["liner-3"] = {
   id: "liner-3",
-  fp: "4d7acab1",
+  fp: "9f9c1e24",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -7104,58 +7104,6 @@ window.HOLO_FIXTURES["liner-3"] = {
     }
   },
   "saloon_ne/S": {
-    "floor_line_y": 0.619141,
-    "px_per_m_at_wall": 90.833,
-    "px_per_m_at_bottom": 438.82,
-    "wall_width_m": 6.4,
-    "wall_run_m": 12.8,
-    "key_tint": "#c8b7a5",
-    "image_h_px": 1024,
-    "horizon_y": 0.519727,
-    "key_dir": "C-ABOVE",
-    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-    "calibration_px": 109,
-    "camera_wall_m": 11.2,
-    "facing_type": "enclosed",
-    "wall_continuous": true,
-    "wall_segments": [
-      {
-        "from_m": 0,
-        "to_m": 6.4,
-        "kind": "wall"
-      }
-    ],
-    "corner_x0_px": 449,
-    "corner_x1_px": 1646,
-    "storey_height_m": 3.4,
-    "camera_id": "measured:backdrops/source/saloon_ne-S/row23-03fc5c27.png",
-    "camera_reference": "ruled",
-    "measured_round": "manor",
-    "instrument": "cb3e458c6d24",
-    "provisional": false,
-    "measured": true,
-    "backdrop": "wall",
-    "focal_px": 1017.3,
-    "nearest_floor_m": 2.3183,
-    "measured_room": {
-      "storey_height_m": 3.347,
-      "wall_width_m": 13.178,
-      "ruled_storey_height_m": 3.4,
-      "ruled_wall_width_m": 6.4,
-      "carriers": []
-    },
-    "openings": [],
-    "windows": [],
-    "window_evidence": {
-      "unpainted": 0,
-      "read_by": "design/plan-draft/measured/window_measure.py",
-      "ruled": 0,
-      "painted": 0,
-      "unruled": [],
-      "note": "every glazed opening the painting shows answers to a window the plan rules"
-    }
-  },
-  "saloon_ne/W": {
     "floor_line_y": 0.61939453125,
     "px_per_m_at_wall": 91.42857142857143,
     "px_per_m_at_bottom": 420.8791208791208,
@@ -7178,8 +7126,8 @@ window.HOLO_FIXTURES["liner-3"] = {
       }
     ],
     "wall_continuous": true,
-    "corner_x0_px": -109.71428571428567,
-    "corner_x1_px": 1060.5714285714284,
+    "corner_x0_px": 475.4285714285715,
+    "corner_x1_px": 1645.7142857142858,
     "focal_px": 1024,
     "storey_height_m": 3.4,
     "nearest_floor_m": 2.433002610966058,
@@ -7187,8 +7135,60 @@ window.HOLO_FIXTURES["liner-3"] = {
     "openings": [],
     "wall_run_m": 12.8,
     "cell_x0_px": 475.4285714285715,
-    "cell_x1_px": 1060.5714285714284,
+    "cell_x1_px": 1060.5714285714287,
     "stairs": []
+  },
+  "saloon_ne/W": {
+    "floor_line_y": 0.615234,
+    "px_per_m_at_wall": 90.833,
+    "px_per_m_at_bottom": 436.95,
+    "wall_width_m": 6.4,
+    "wall_run_m": 12.8,
+    "key_tint": "#c8b49e",
+    "image_h_px": 1024,
+    "horizon_y": 0.514258,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 109,
+    "camera_wall_m": 11.2,
+    "facing_type": "enclosed",
+    "wall_continuous": true,
+    "wall_segments": [
+      {
+        "from_m": 0,
+        "to_m": 6.4,
+        "kind": "wall"
+      }
+    ],
+    "corner_x0_px": -110,
+    "corner_x1_px": 1053,
+    "storey_height_m": 3.4,
+    "camera_id": "measured:backdrops/source/saloon_ne-W/row23-e425c78c.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "cb3e458c6d24",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1017.3,
+    "nearest_floor_m": 2.3283,
+    "measured_room": {
+      "storey_height_m": 3.38,
+      "wall_width_m": 12.804,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": []
+    },
+    "openings": [],
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   }
 }
 };

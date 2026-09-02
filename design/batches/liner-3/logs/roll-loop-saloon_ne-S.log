@@ -5,3 +5,7 @@ pair 1: attempt 1, rolls ['2735e905', '03fc5c27'] ordered (order ok)
 sweep: saloon_ne/S              PROMOTE   PASS -0.7% focal, promoted and baked
 learn: pair scales [0.9776, 0.9771] -> z 0.9750 -> 0.9727
 LANDED: saloon_ne/S promoted after 2 loop roll(s)
+=== saloon_ne/S deep Tue Sep  1 10:58:31 PM PDT 2026
+guide deep: z0 0.9750 (cap 2.5560)
+guide deep: z 0.9750 shell backdrops/saloon_e/S.png (scale 1.0002); far wall [('saloon_e', 1.0002), ('saloon', 0.9705)]; sides {'left': 'wall', 'right': 'open'}
+pair 1: attempt 3, rolls ['b8d60f72', '1f82601e'] ordered (order ok)

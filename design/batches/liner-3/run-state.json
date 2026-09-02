@@ -525,11 +525,10 @@
   },
   "saloon_ne/S": {
    "attempts": 2,
-   "status": "promoted",
+   "status": "retry",
    "candidate": "backdrops/source/saloon_ne-S/row23-03fc5c27.png",
    "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
-   "exit": "measured",
-   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon_ne/E": {
    "attempts": 2,
@@ -541,9 +540,12 @@
    "why": "withdrawn by the Navigator 2026-09-01: every saloon wall carried the voice's chrome medallion; Kabe wants the walls very blank (surface detail only) - clause struck, rolls retired, re-rolled blank"
   },
   "saloon_ne/W": {
-   "attempts": 0,
-   "status": "retry",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
+   "attempts": 2,
+   "status": "promoted",
+   "candidate": "backdrops/source/saloon_ne-W/row23-e425c78c.png",
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   }
  }
 }

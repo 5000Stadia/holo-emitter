@@ -853,21 +853,21 @@
           "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/carpet-terracotta\"],[\"walls\",\"wall/veneer-sycamore\"]]"
         },
         {
-          "facing": "S",
+          "facing": "E",
           "voice": "saloon_sycamore",
-          "candidate": "backdrops/source/saloon_ne-S/row23-03fc5c27.png",
+          "candidate": "backdrops/source/saloon_ne-E/row23-57107a12.png",
           "ruling": {
             "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
             "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
             "underfoot": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
             "hangings": null
           },
-          "ask_path": "backdrops/source/saloon_ne-S/row23-03fc5c27.prompt.txt",
+          "ask_path": "backdrops/source/saloon_ne-E/row23-57107a12.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
           "asked": "",
-          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_ne-S/row23-03fc5c27.prompt.txt)",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_ne-E/row23-57107a12.prompt.txt)",
           "ask_materials": {
             "walls": "wall/veneer-sycamore",
             "overhead": "ceiling/plaster-cove",
@@ -884,21 +884,21 @@
           "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/carpet-terracotta\"],[\"walls\",\"wall/veneer-sycamore\"]]"
         },
         {
-          "facing": "E",
+          "facing": "W",
           "voice": "saloon_sycamore",
-          "candidate": "backdrops/source/saloon_ne-E/row23-57107a12.png",
+          "candidate": "backdrops/source/saloon_ne-W/row23-e425c78c.png",
           "ruling": {
             "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
             "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
             "underfoot": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
             "hangings": null
           },
-          "ask_path": "backdrops/source/saloon_ne-E/row23-57107a12.prompt.txt",
+          "ask_path": "backdrops/source/saloon_ne-W/row23-e425c78c.prompt.txt",
           "ask_via": "beside the candidate",
           "missing": [],
           "verdict": "current",
           "asked": "",
-          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_ne-E/row23-57107a12.prompt.txt)",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_ne-W/row23-e425c78c.prompt.txt)",
           "ask_materials": {
             "walls": "wall/veneer-sycamore",
             "overhead": "ceiling/plaster-cove",
