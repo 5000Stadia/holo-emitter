@@ -1,0 +1,4 @@
+=== gallery/E deep Tue Sep  1 10:04:26 PM PDT 2026
+guide deep: z0 0.9750 (cap 2.5560)
+guide deep: z 0.9750 shell backdrops/gallery_far/E.png (scale 0.9919); far wall [('gallery_far', 0.9919)]; sides {'left': 'wall', 'right': 'wall'}
+pair 1: attempt 1, rolls ['4443b35e', '32e408c2'] ordered (order ok)

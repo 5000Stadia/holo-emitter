@@ -19,3 +19,6 @@ LANDED: saloon/S promoted after 2 loop roll(s)
 guide close: z0 0.9750 (cap 1.0954)
 guide: z 0.9750 from backdrops/source/saloon-S/retired/blank-1e52b8ef.png (scale 0.9998)
 pair 1: attempt 5, rolls ['0556f445', 'f3a2cc96'] ordered (order ok)
+sweep: saloon/S                 PROMOTE   PASS -4.7% focal, promoted and baked
+learn: pair scales [0.9904, 0.9705] -> z 0.9750 -> 0.9696
+LANDED: saloon/S promoted after 2 loop roll(s)

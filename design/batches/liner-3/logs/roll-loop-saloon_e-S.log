@@ -2,3 +2,10 @@
 guide close: z0 0.9750 (cap 1.0954)
 GUIDE FAILED:  close-guide: saloon_e/E has no promoted store to cut from
 
+=== saloon_e/S --from-wall saloon/S Tue Sep  1 09:55:46 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/saloon/S.png (scale 0.9705)
+pair 1: attempt 1, rolls ['c9aec937', '8aa2f98a'] ordered (order ok)
+sweep: saloon_e/S               PROMOTE   PASS -3.5% focal, promoted and baked
+learn: pair scales [1.0002, 0.9767] -> z 0.9750 -> 0.9617
+LANDED: saloon_e/S promoted after 2 loop roll(s)

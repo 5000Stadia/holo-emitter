@@ -15,3 +15,10 @@ pair 1: attempt 3, rolls ['31e7ffbd', '21e02377'] ordered (order ok)
 sweep: saloon_n/N               PROMOTE   PASS +2.3% focal, promoted and baked
 learn: pair scales [0.8927, 0.9596] -> z 0.9750 -> 1.0264
 LANDED: saloon_n/N promoted after 2 loop roll(s)
+=== saloon_n/N --from-wall saloon_ne/N Tue Sep  1 09:51:29 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/saloon_ne/N.png (scale 0.9964)
+pair 1: attempt 5, rolls ['d12c4aab', 'd9df4356'] ordered (order ok)
+sweep: saloon_n/N               PROMOTE   PASS -3.1% focal, promoted and baked
+learn: pair scales [0.9868, 0.9918] -> z 0.9750 -> 0.9609
+LANDED: saloon_n/N promoted after 2 loop roll(s)
