@@ -284,7 +284,7 @@ renderer.domElement.addEventListener("pointermove", e => {
 });
 const release = e => { if (e.pointerId === stick.id) { stick.id = null; stick.dx = stick.dy = 0; } if (lookDrag && e.pointerId === lookDrag.id) lookDrag = null; };
 renderer.domElement.addEventListener("pointerup", release);
-renderer.addEventListener && renderer.domElement.addEventListener("pointercancel", release);
+renderer.domElement.addEventListener("pointercancel", release);
 renderer.domElement.style.touchAction = "none";
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
