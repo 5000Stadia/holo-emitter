@@ -181,6 +181,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -188,6 +189,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -195,6 +197,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -202,6 +205,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -209,6 +213,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -216,6 +221,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -223,6 +229,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -230,6 +237,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -237,6 +245,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -244,6 +253,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -251,6 +261,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       },
       {
@@ -258,6 +269,7 @@
         "admissible": true,
         "sigma_y_px": 0.93,
         "horizon_y_px": 545.1,
+        "agrees_with_gate": true,
         "why": null
       }
     ],
@@ -351,5 +363,5 @@
   "id": "5c185b14",
   "candidate": "backdrops/source/writing_room-N/row23-5c185b14.png",
   "candidate_sha256": "097399b44d16b8a2d119a7d41df558cd7fb8c883e5bf1a9e912d128a4a9ca6b3",
-  "instrument": "7c45fc4d1f01"
+  "instrument": "6ccb6fc568cf"
 }

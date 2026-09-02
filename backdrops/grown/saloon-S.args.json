@@ -88,11 +88,13 @@
   },
   "right_return_upper": {
    "scale": 1.2986,
-   "blur": 10
+   "blur": 10,
+   "from": "own"
   },
   "right_return_lower": {
    "scale": 1.0039,
-   "blur": 10
+   "blur": 10,
+   "from": "own"
   },
   "door_door02": {
    "scale": 0.9455

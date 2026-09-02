@@ -1,0 +1,14 @@
+=== saloon/S Tue Sep  1 07:54:00 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+GUIDE FAILED:  ile "/home/k/Projects/holo-emitter/tools/close-guide.py", line 535, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/k/Projects/holo-emitter/tools/close-guide.py", line 236, in main
+    if a.src_wall:
+       ^^^^^^^^^^
+AttributeError: 'Namespace' object has no attribute 'src_wall'
+
+=== saloon/S  Tue Sep  1 07:57:21 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/source/saloon-S/row23-60dc04a1.png (scale 0.881)
+pair 1: attempt 3, rolls ['1e52b8ef', '2d255d01'] ordered (order ok)

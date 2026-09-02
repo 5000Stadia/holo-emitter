@@ -120,6 +120,7 @@
         "admissible": false,
         "sigma_y_px": 33.27,
         "horizon_y_px": 724.5,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 724.5 but only to +/-33.3 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -127,6 +128,7 @@
         "admissible": false,
         "sigma_y_px": 26.47,
         "horizon_y_px": 735.2,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 735.2 but only to +/-26.5 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -134,6 +136,7 @@
         "admissible": false,
         "sigma_y_px": 23.28,
         "horizon_y_px": 736.9,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 736.9 but only to +/-23.3 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -141,6 +144,7 @@
         "admissible": false,
         "sigma_y_px": 110.49,
         "horizon_y_px": 599.8,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 599.8 but only to +/-110.5 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -148,6 +152,7 @@
         "admissible": false,
         "sigma_y_px": 30.66,
         "horizon_y_px": 726.3,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 726.3 but only to +/-30.7 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -155,6 +160,7 @@
         "admissible": false,
         "sigma_y_px": 13.45,
         "horizon_y_px": 764.7,
+        "agrees_with_gate": null,
         "why": "the one return's ceiling and floor junctions meet at x 1055.7, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
       },
       {
@@ -162,6 +168,7 @@
         "admissible": false,
         "sigma_y_px": 35.57,
         "horizon_y_px": 700.6,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 700.6 but only to +/-35.6 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -169,6 +176,7 @@
         "admissible": false,
         "sigma_y_px": 65.17,
         "horizon_y_px": 638.6,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 638.6 but only to +/-65.2 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -176,6 +184,7 @@
         "admissible": false,
         "sigma_y_px": 49.42,
         "horizon_y_px": 670.3,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 670.3 but only to +/-49.4 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -183,6 +192,7 @@
         "admissible": false,
         "sigma_y_px": 85.93,
         "horizon_y_px": 420.0,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 420.0 but only to +/-85.9 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -190,6 +200,7 @@
         "admissible": false,
         "sigma_y_px": 79.54,
         "horizon_y_px": 346.3,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 346.3 but only to +/-79.5 px, and the standing licence on the horizon row is +/-20.2 px"
       },
       {
@@ -197,6 +208,7 @@
         "admissible": false,
         "sigma_y_px": 25.5,
         "horizon_y_px": 735.0,
+        "agrees_with_gate": null,
         "why": "the two side-wall junctions converge at y 735.0 but only to +/-25.5 px, and the standing licence on the horizon row is +/-20.2 px"
       }
     ],
@@ -286,5 +298,5 @@
   "id": "37b5f873",
   "candidate": "backdrops/source/saloon_e-E/row23-37b5f873.png",
   "candidate_sha256": "81b50d0c537ef22991b4c122774a1526440c4199c8de62419ed45915d34053b4",
-  "instrument": "7c45fc4d1f01"
+  "instrument": "6ccb6fc568cf"
 }

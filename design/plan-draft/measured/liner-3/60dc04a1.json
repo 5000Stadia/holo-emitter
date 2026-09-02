@@ -140,6 +140,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -147,6 +148,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -154,6 +156,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -161,6 +164,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -168,6 +172,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -175,6 +180,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -182,6 +188,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -189,6 +196,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -196,6 +204,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -203,6 +212,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -210,6 +220,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       },
       {
@@ -217,6 +228,7 @@
         "admissible": false,
         "sigma_y_px": null,
         "horizon_y_px": null,
+        "agrees_with_gate": null,
         "why": "no pair of side-wall junctions could be fitted at all"
       }
     ],
@@ -311,5 +323,5 @@
   "id": "60dc04a1",
   "candidate": "backdrops/source/saloon-S/row23-60dc04a1.png",
   "candidate_sha256": "f1bdaaf26b2e69b528308575abfbc288dc19ca42285dd95248d689b70807e971",
-  "instrument": "7c45fc4d1f01"
+  "instrument": "6ccb6fc568cf"
 }

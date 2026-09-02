@@ -1,13 +1,11 @@
 {
  "walls": {
   "writing_room/N": {
-   "attempts": 2,
-   "status": "retry",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
-   "candidate": "backdrops/source/writing_room-N/row23-135b4dbc.png",
-   "hold_family": "camera-miss",
-   "exit": "grid",
-   "exit_reason": "the warp refused this frame and it is a content miss, so it re-asks: [meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
+   "attempts": 4,
+   "status": "promoted",
+   "candidate": "backdrops/source/writing_room-N/row23-f3bc53b6.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
    "exit_attempt": {
     "candidate": "backdrops/source/writing_room-N/row23-135b4dbc.png",
     "exit": "grid",
@@ -20,7 +18,8 @@
     "why": "the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
     "candidate": "backdrops/source/writing_room-N/row23-135b4dbc.png"
    },
-   "why": "the retry cap is spent; the wall stays grid and the run continues"
+   "why": "the retry cap is spent; the wall stays grid and the run continues",
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "writing_room/S": {
    "attempts": 0,
@@ -103,12 +102,12 @@
    "exit_attempt": {
     "candidate": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
     "exit": "grid",
-    "instrument": "7c45fc4d1f01",
+    "instrument": "6ccb6fc568cf",
     "candidate_sha256": null,
-    "at": "2026-09-01T19:41:19"
+    "at": "2026-09-01T19:52:13"
    },
    "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "correction": "the chair-rail the prompt declares is not in the frame the licence allows; nothing in this painting converts to a scale",
+   "correction": "[meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
    "hold_family": "camera-miss",
    "warp_refusal": {
     "clause": "meshwarp.landmark_unreadable",
@@ -135,18 +134,18 @@
   },
   "saloon/S": {
    "attempts": 2,
-   "status": "held",
+   "status": "retry",
    "candidate": "backdrops/source/saloon-S/row23-60dc04a1.png",
-   "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
    "hold_family": "unfitted-horizon",
    "exit": "grid",
    "exit_reason": "the warp could not carry this wall: the warped frame carries no scale, so there is nothing for a meta to be a meta of",
    "exit_attempt": {
     "candidate": "backdrops/source/saloon-S/row23-60dc04a1.png",
     "exit": "grid",
-    "instrument": "7c45fc4d1f01",
+    "instrument": "6ccb6fc568cf",
     "candidate_sha256": null,
-    "at": "2026-09-01T19:41:28"
+    "at": "2026-09-01T19:52:21"
    },
    "promotion_refused": [
     {
@@ -184,9 +183,9 @@
    "exit_attempt": {
     "candidate": "backdrops/source/saloon_e-E/row23-37b5f873.png",
     "exit": "grid",
-    "instrument": "7c45fc4d1f01",
+    "instrument": "6ccb6fc568cf",
     "candidate_sha256": null,
-    "at": "2026-09-01T19:41:37"
+    "at": "2026-09-01T19:52:31"
    },
    "why": "the retry cap is spent; the wall stays grid and the run continues",
    "promotion_refused": [
@@ -205,7 +204,7 @@
   "saloon_n/N": {
    "attempts": 2,
    "status": "parked",
-   "correction": "the chair-rail the prompt declares is not in the frame the licence allows; nothing in this painting converts to a scale",
+   "correction": "[meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
    "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
    "hold_family": "camera-miss",
    "exit": "grid",
@@ -213,9 +212,9 @@
    "exit_attempt": {
     "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
     "exit": "grid",
-    "instrument": "7c45fc4d1f01",
+    "instrument": "6ccb6fc568cf",
     "candidate_sha256": null,
-    "at": "2026-09-01T19:41:40"
+    "at": "2026-09-01T19:52:33"
    },
    "why": "the retry cap is spent; the wall stays grid and the run continues",
    "warp_refusal": {

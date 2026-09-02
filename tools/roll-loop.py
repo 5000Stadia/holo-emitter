@@ -10,7 +10,7 @@ budget is spent. Every ask is compliant by construction (the emitter appends
 the voice record); every roll is judged by the standing instruments only.
 
 Usage: HOLO_PACK=<pack> python3 tools/roll-loop.py --wall <loc/F> --budget <rolls>
-       [--guide close [--precomp z]]
+       [--guide close [--precomp z] [--from-wall <lead loc/F>]]
 
 --guide close [2026-09-01]: before every pair the wall's Image 1 is rebuilt by
 tools/close-guide.py from its best roll, zoomed z about the vanishing point so
@@ -117,9 +117,11 @@ def clamp_z(z, zcap):
     return max(Z_MIN, min(Z_MAX, zcap, z))
 
 
-def build_close_guide(key, z):
-    r = sh(["python3", "tools/close-guide.py", "--wall", key, "--precomp", f"{z:.4f}"],
-           env={**os.environ, "HOLO_PACK": PACK})
+def build_close_guide(key, z, from_wall=None):
+    cmd = ["python3", "tools/close-guide.py", "--wall", key, "--precomp", f"{z:.4f}"]
+    if from_wall:
+        cmd += ["--from-wall", from_wall]
+    r = sh(cmd, env={**os.environ, "HOLO_PACK": PACK})
     out = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else ""
     try:
         return json.loads(out)
@@ -136,6 +138,8 @@ def main():
     ap.add_argument("--guide", choices=["none", "close"], default="none")
     ap.add_argument("--precomp", type=float, default=None,
                     help="starting zoom for --guide close (default: 1/mean scale of the wall's rolls)")
+    ap.add_argument("--from-wall", dest="from_wall", default=None,
+                    help="cut the close guide from this wall's promoted asset (a follower from its lead)")
     a = ap.parse_args()
     key = a.wall
     loc, f = key.split("/")
@@ -161,7 +165,7 @@ def main():
             print(f"BUDGET SPENT: {key} not landed in {spent} rolls; parked for the Captain", flush=True)
             return 1
         if a.guide == "close":
-            g = build_close_guide(key, z)
+            g = build_close_guide(key, z, a.from_wall)
             if not g:
                 return 5
             with open(GUIDE_LOG, "a") as fh:

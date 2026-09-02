@@ -37,6 +37,9 @@ RETURN_BLUR = 10
 #: Columns kept clear of each in-frame corner when the ceiling and floor strips
 #: are lifted from the roll (see the ceiling/floor covers).
 RETURN_MARGIN = 80
+#: Columns the source's wall span is inset from each measured corner before it
+#: is bookmatched out over the source's own returns (a corner reads to ~25 px).
+SPAN_INSET = 40
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "design", "plan-draft", "measured"))
@@ -183,6 +186,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--wall", required=True)
     ap.add_argument("--from", dest="src")
+    ap.add_argument("--from-wall", dest="src_wall",
+                    help="cut the guide from this wall's promoted close asset (a follower from its lead)")
     ap.add_argument("--measure")
     ap.add_argument("--ruled", action="store_true", help="print the wall's ruled rows/columns as JSON")
     ap.add_argument("--precomp", type=float, default=1.0)
@@ -229,28 +234,50 @@ def main():
         cx0, cx1 = px(cx0), px(cx1)
         doors = [dict(o, x=px(o["x"]), y=py(o["y"]), w=z * o["w"], h=z * o["h"]) for o in doors]
 
-    # the roll: --from, else the wall's best by this ruler
-    if a.src:
-        cands = [a.src]
+    # the source: --from-wall (a FOLLOWER's guide is cut from its room's
+    # promoted close asset - the lead's painting, the room's own fabric at the
+    # ruled scale, measured against ITS declared wall), else --from, else the
+    # wall's best roll by this ruler
+    if a.src_wall:
+        sloc, sf = a.src_wall.split("/")
+        src_path = os.path.join(a.store, sloc, sf + ".png")
+        if not os.path.exists(src_path):
+            sys.exit(f"close-guide: {a.src_wall} has no promoted store to cut from")
+        smeta = declared_meta(P, a.src_wall)
+        m = measure_roll(src_path, smeta, ruler_m)
+        if not m:
+            sys.exit(f"close-guide: could not measure {src_path}")
+        m["roll"] = os.path.relpath(src_path, ROOT)
     else:
-        cands = sorted(glob.glob(os.path.join(a.store, "source", f"{loc}-{f}", "row23-*.png")))
-    measured = [(m, p) for p in cands for m in [measure_roll(p, meta, ruler_m)] if m]
-    if not measured:
-        sys.exit(f"close-guide: no measurable roll for {a.wall}")
-    m, src_path = min(measured, key=lambda t: abs(t[0]["scale"] - 1.0))
+        smeta = meta
+        if a.src:
+            cands = [a.src]
+        else:
+            cands = sorted(glob.glob(os.path.join(a.store, "source", f"{loc}-{f}", "row23-*.png")))
+        measured = [(m, p) for p in cands for m in [measure_roll(p, meta, ruler_m)] if m]
+        if not measured:
+            sys.exit(f"close-guide: no measurable roll for {a.wall}")
+        m, src_path = min(measured, key=lambda t: abs(t[0]["scale"] - 1.0))
     roll = Image.open(src_path).convert("RGB")
+    # the source's own wall span, in its own frame: a corner it has in frame,
+    # else the frame edge the wall runs out through
+    sc0 = m["corner_x0"] if m["corner_x0"] is not None else 0
+    sc1 = m["corner_x1"] if m["corner_x1"] is not None else W
 
     # ---- one uniform zoom: ruler to the ruled rows, corner to its column ----
     s = (floor_y - rail_y) / (m["foot"] - m["rail"])
     ay = floor_y - s * m["foot"]
-    if m["corner_x0"] is not None:
+    # the source's corner lands on the ruled column where BOTH walls have
+    # that corner in frame; otherwise the source's wall span is centred on the
+    # ruled span (a foreign source's corner has nothing to land on)
+    if m["corner_x0"] is not None and cx0 >= 0:
         ax, pivot = cx0 - s * m["corner_x0"], "left corner"
-    elif m["corner_x1"] is not None:
+    elif m["corner_x1"] is not None and cx1 <= W:
         ax, pivot = cx1 - s * m["corner_x1"], "right corner"
     elif m["door"] and doors:
         ax, pivot = (doors[0]["x"] + doors[0]["w"] / 2) - s * (m["door"]["x0"] + m["door"]["x1"]) / 2, "door centre"
     else:
-        ax, pivot = W / 2 - s * W / 2, "frame centre"
+        ax, pivot = (max(0.0, cx0) + min(float(W), cx1)) / 2 - s * (sc0 + sc1) / 2, "wall-span centre"
     zoomed = roll.resize((max(1, int(round(W * s))), max(1, int(round(H * s)))), Image.LANCZOS)
     Z = Image.new("RGB", (W, H), (0, 0, 0))
     Z.paste(zoomed, (int(round(ax)), int(round(ay))))
@@ -270,6 +297,34 @@ def main():
             patch = arr[top:int(floor_y) + 1, d0 - wdt:d0][:, ::-1]
         arr[top:int(floor_y) + 1, d0:d1] = patch
         Z = Image.fromarray(arr.clip(0, 255).astype(np.uint8))
+
+    # the source's wall span in the zoomed frame, and the source with that
+    # span mirror-tiled out over its own returns and any border: the facing
+    # planes (ceiling, floor, dado, upper wall) are cut from this, so a source
+    # narrower than the ruled span (a 6.4 m lead cut for a 12.8 m run, or a
+    # roll that shrank) hands over more of the same fabric at the same scale
+    # instead of a return or black where wall is ruled
+    wz0, wz1 = int(round(max(0.0, zx(sc0)))), int(round(min(float(W), zx(sc1))))
+    src_returns = {}
+    if m["corner_x0"] is not None and wz0 > 0:
+        src_returns["left"] = (0, wz0)
+    if m["corner_x1"] is not None and wz1 < W:
+        src_returns["right"] = (wz1, W)
+    # a measured corner is good to ~25 px; the span stays clear of the return
+    t0 = wz0 + (SPAN_INSET if "left" in src_returns else 0)
+    t1 = wz1 - (SPAN_INSET if "right" in src_returns else 0)
+    arr = np.asarray(Z).astype(np.uint8)
+    span = arr[:, t0:t1]
+    if span.shape[1] >= 8:
+        flipped = span[:, ::-1]
+        n = (t0 + W - t1) // span.shape[1] + 2
+        # bookmatched outward: the tile beside the span is its mirror
+        left = np.concatenate([flipped if k % 2 == 0 else span for k in range(n)][::-1], axis=1)
+        right = np.concatenate([flipped if k % 2 == 0 else span for k in range(n)], axis=1)
+        ext = np.concatenate([left[:, left.shape[1] - t0:], span, right[:, :W - t1]], axis=1)
+        Zw = Image.fromarray(ext[:, :W])
+    else:
+        Zw = Z
 
     canvas = Image.new("RGB", (W, H), (0, 0, 0))
     report = {}
@@ -334,7 +389,7 @@ def main():
     # through its ceiling and floor strips at the roll's slopes, and laid under
     # the ruled seams they were a second convergence the painter followed
     mx0, mx1 = xL + RETURN_MARGIN, xR - RETURN_MARGIN
-    cover("ceiling", Z, (mx0, 0, mx1, ceil_z), top_poly, (0, 0, W, max(p[1] for p in top_poly)), (0.5, 1.0))
+    cover("ceiling", Zw, (mx0, 0, mx1, ceil_z), top_poly, (0, 0, W, max(p[1] for p in top_poly)), (0.5, 1.0))
     # floor: below the foot, up the return seams to the frame edge
     bot_poly = [(0, H), (W, H)]
     for side in ("right", "left"):
@@ -345,28 +400,41 @@ def main():
         else:
             pts = [(x_edge, floor_y), (x_edge, floor_y)]
         bot_poly += pts if side == "right" else pts[::-1]
-    cover("floor", Z, (mx0, floor_y, mx1, H), bot_poly, (0, min(p[1] for p in bot_poly), W, H), (0.5, 0.0))
+    cover("floor", Zw, (mx0, floor_y, mx1, H), bot_poly, (0, min(p[1] for p in bot_poly), W, H), (0.5, 0.0))
     # the facing wall: the dado 1:1 (the zoom already ruled it), the upper wall
     # cover-fit up to the ruled cornice row, both anchored at the walled corner
     fx_anchor = 0.0 if "left" in returns else (1.0 if "right" in returns else 0.5)
-    cover("dado", Z, (xL, rail_y, xR, floor_y), [(xL, rail_y), (xR, rail_y), (xR, floor_y), (xL, floor_y)],
+    cover("dado", Zw, (xL, rail_y, xR, floor_y), [(xL, rail_y), (xR, rail_y), (xR, floor_y), (xL, floor_y)],
           (xL, rail_y, xR, floor_y), (fx_anchor, 1.0))
-    cover("upper_wall", Z, (xL, ceil_z, xR, rail_y), [(xL, ceil_y), (xR, ceil_y), (xR, rail_y), (xL, rail_y)],
+    cover("upper_wall", Zw, (xL, ceil_z, xR, rail_y), [(xL, ceil_y), (xR, ceil_y), (xR, rail_y), (xL, rail_y)],
           (xL, ceil_y, xR, rail_y), (fx_anchor, 1.0))
-    # returns: the roll's own return strip, split at the dado, seams to the VP
+    # returns: the source's own return strip on that side; the other side's
+    # strip mirrored where the source has only one; the wall's own fabric
+    # dimmed to a side wall's fall-off where it has none - split at the dado,
+    # seams to the VP
     seams = []
+    Zm = Z.transpose(Image.FLIP_LEFT_RIGHT)
+    Zd = Image.fromarray((np.asarray(Zw).astype(float) * 0.55).astype(np.uint8))
     for side, c in returns.items():
         x_edge = 0.0 if side == "left" else float(W)
         top_at, rail_at, bot_at = seam_at(c, ceil_y), seam_at(c, rail_y), seam_at(c, floor_y)
         ctop, crail, cbot = (c, ceil_y), (c, rail_y), (c, floor_y)
-        sbox_x = (0, c) if side == "left" else (c, W)
+        other = "right" if side == "left" else "left"
+        if side in src_returns:
+            rsrc, sbox_x, rfrom = Z, src_returns[side], "own"
+        elif other in src_returns:
+            o0, o1 = src_returns[other]
+            rsrc, sbox_x, rfrom = Zm, (W - o1, W - o0), "mirrored"
+        else:
+            rsrc, sbox_x, rfrom = Zd, ((0, c) if side == "left" else (c, W)), "dimmed wall"
         anchor = (1.0, 1.0) if side == "left" else (0.0, 1.0)
-        cover(f"{side}_return_upper", Z, (sbox_x[0], ceil_z, sbox_x[1], rail_y),
+        cover(f"{side}_return_upper", rsrc, (sbox_x[0], ceil_z, sbox_x[1], rail_y),
               [(x_edge, top_at(x_edge)), ctop, crail, (x_edge, rail_at(x_edge))],
               (min(x_edge, c), min(top_at(x_edge), ceil_y), max(x_edge, c), rail_y), anchor, blur=RETURN_BLUR)
-        cover(f"{side}_return_lower", Z, (sbox_x[0], rail_y, sbox_x[1], H),
+        cover(f"{side}_return_lower", rsrc, (sbox_x[0], rail_y, sbox_x[1], H),
               [(x_edge, rail_at(x_edge)), crail, cbot, (x_edge, bot_at(x_edge))],
               (min(x_edge, c), rail_y, max(x_edge, c), max(bot_at(x_edge), floor_y)), (anchor[0], 0.0), blur=RETURN_BLUR)
+        report[f"{side}_return_upper"]["from"] = report[f"{side}_return_lower"]["from"] = rfrom
         seams += [((x_edge, top_at(x_edge)), ctop), ((x_edge, bot_at(x_edge)), cbot), ((x_edge, rail_at(x_edge)), crail)]
     # the door, re-cut from the roll into its ruled rectangle
     door_rects = []
@@ -374,6 +442,12 @@ def main():
         rx0, ry0, rx1, ry1 = o["x"], o["y"], o["x"] + o["w"], o["y"] + o["h"]
         door_rects.append([round(rx0), round(ry0), round(rx1), round(ry1)])
         if not m["door"]:
+            # the source has no door to lift: the ruled opening is drawn as
+            # the void it is, a thin lit architrave around deep shadow
+            dd_ = ImageDraw.Draw(canvas)
+            dd_.rectangle([rx0 - 10, ry0 - 10, rx1 + 10, ry1], fill=(120, 96, 64))
+            dd_.rectangle([rx0, ry0, rx1, ry1], fill=(8, 6, 5))
+            report[f"door_{o['id']}"] = {"scale": 1.0, "from": "drawn void"}
             continue
         # from the unzoomed roll, architrave included, threshold on the foot
         cover(f"door_{o['id']}", roll,
