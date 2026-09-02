@@ -1,0 +1,115 @@
+{
+ "mode": "deep-guide",
+ "wall": "gallery_far/W",
+ "pack": "liner-3",
+ "shell": "backdrops/gallery/W.png",
+ "far_cells": [
+  "gallery"
+ ],
+ "sides": {
+  "left": {
+   "open": false,
+   "via": [],
+   "u_m": -3.1999999999999993
+  },
+  "right": {
+   "open": false,
+   "via": [],
+   "u_m": 3.200000000000001
+  }
+ },
+ "far_rect": [
+  482.7,
+  328.5,
+  1053.3,
+  631.6
+ ],
+ "run_m": 6.4,
+ "depth_ratio": 0.4178571428571428,
+ "vp": [
+  768.0,
+  526.1
+ ],
+ "doors": [],
+ "elements": {
+  "shell": {
+   "painting": "backdrops/gallery/W.png",
+   "rows": {
+    "ceil": 70.0,
+    "rail": 523.7,
+    "foot": 778.0,
+    "x0": 102,
+    "x1": 1430
+   },
+   "from": "measured",
+   "scale": 0.9934,
+   "door": null
+  },
+  "ceiling": {
+   "scale": 7.8207
+  },
+  "floor": {
+   "scale": 1.8002
+  },
+  "left_wall_upper": {
+   "scale": 5.2472,
+   "blur": 10,
+   "from": "own"
+  },
+  "left_wall_lower": {
+   "scale": 5.2472,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_wall_upper": {
+   "scale": 5.0286,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_wall_lower": {
+   "scale": 5.0286,
+   "blur": 10,
+   "from": "own"
+  },
+  "far_wall_gallery": {
+   "scale": 0.4296
+  },
+  "far_wall": [
+   {
+    "cell": "gallery",
+    "from": "measured",
+    "at_px": [
+     483,
+     1053
+    ],
+    "scale": 0.9934,
+    "rows": {
+     "ceil": 70.0,
+     "rail": 523.7,
+     "foot": 778.0,
+     "x0": 102,
+     "x1": 1430
+    },
+    "door": null
+   }
+  ],
+  "joins_px": []
+ },
+ "guards": [
+  {
+   "band": "ceiling_front",
+   "max": 1.53,
+   "median": 0.21,
+   "ok": true
+  },
+  {
+   "band": "floor_front",
+   "max": 1.12,
+   "median": 0.67,
+   "ok": true
+  }
+ ],
+ "precomp": 0.975,
+ "depth_drawn_m": 11.4872,
+ "out": "backdrops/grown/gallery_far-W.png"
+}

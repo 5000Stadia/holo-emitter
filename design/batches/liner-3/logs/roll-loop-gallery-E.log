@@ -2,3 +2,6 @@
 guide deep: z0 0.9750 (cap 2.5560)
 guide deep: z 0.9750 shell backdrops/gallery_far/E.png (scale 0.9919); far wall [('gallery_far', 0.9919)]; sides {'left': 'wall', 'right': 'wall'}
 pair 1: attempt 1, rolls ['4443b35e', '32e408c2'] ordered (order ok)
+sweep: gallery/E                PROMOTE   WARPED - the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/gallery-E
+learn: pair scales [0.9518, 0.9927] -> z 0.9750 -> 0.9778
+LANDED: gallery/E promoted after 2 loop roll(s)

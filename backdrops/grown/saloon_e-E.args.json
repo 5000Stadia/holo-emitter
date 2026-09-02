@@ -2,38 +2,48 @@
  "mode": "close-guide",
  "wall": "saloon_e/E",
  "pack": "liner-3",
- "roll": "backdrops/source/saloon_e-E/row23-894166d7.png",
+ "roll": "backdrops/saloon_ne/E.png",
  "measured": {
-  "roll": "backdrops/source/saloon_e-E/row23-894166d7.png",
-  "rail": 554.7,
-  "foot": 813.0,
-  "ceiling": 147.0,
+  "roll": "backdrops/saloon_ne/E.png",
+  "rail": 520.1,
+  "foot": 778.0,
+  "ceiling": 71.0,
   "door": null,
-  "corner_x0": null,
-  "corner_x1": 1511,
+  "corner_x0": 104,
+  "corner_x1": null,
   "corner_evidence": {
-   "foot": [
-    0,
-    1536
-   ],
-   "rail": [
-    0,
-    1511
-   ],
-   "cornice": [
-    0,
-    1443
-   ]
+   "left": {
+    "foot": 120,
+    "foot_fit": 0.6497395833333334,
+    "rail_abstains": "level with the horizon",
+    "cornice": 98,
+    "cornice_fit": 0.9609375,
+    "seams": {
+     "foot": [
+      104,
+      67.8
+     ],
+     "cornice": [
+      104,
+      67.8
+     ]
+    },
+    "agreeing": [
+     "foot"
+    ],
+    "rule": "the kink standing on the strongest vertical seam, snapped to it",
+    "x": 104
+   }
   },
-  "ruler_px": 258.3,
-  "scale": 1.0089,
-  "storey_m": 3.094
+  "ruler_px": 257.9,
+  "scale": 1.0073,
+  "storey_m": 3.29
  },
  "zoom": {
-  "s": 0.9663,
-  "pivot": "right corner",
-  "ax": -26.5,
-  "ay": -13.5
+  "s": 0.9678,
+  "pivot": "wall-span centre",
+  "ax": -76.8,
+  "ay": 19.2
  },
  "ruled": {
   "ceil": 53.1,
@@ -66,17 +76,17 @@
    "scale": 1.0024
   },
   "upper_wall": {
-   "scale": 1.1614
+   "scale": 1.052
   },
   "right_return_upper": {
-   "scale": 1.3415,
+   "scale": 4.2667,
    "blur": 10,
-   "from": "own"
+   "from": "mirrored"
   },
   "right_return_lower": {
-   "scale": 1.0039,
+   "scale": 4.2667,
    "blur": 10,
-   "from": "own"
+   "from": "mirrored"
   }
  },
  "out": "backdrops/grown/saloon_e-E.png"

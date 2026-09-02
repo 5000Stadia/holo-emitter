@@ -1,0 +1,93 @@
+{
+ "mode": "close-guide",
+ "wall": "saloon_n/W",
+ "pack": "liner-3",
+ "roll": "backdrops/saloon/W.png",
+ "measured": {
+  "roll": "backdrops/saloon/W.png",
+  "rail": 522.0,
+  "foot": 772.0,
+  "ceiling": 63.0,
+  "door": null,
+  "corner_x0": 105,
+  "corner_x1": null,
+  "corner_evidence": {
+   "left": {
+    "foot": 11,
+    "foot_fit": 0.5481770833333334,
+    "rail_abstains": "level with the horizon",
+    "cornice": 76,
+    "cornice_fit": 0.9283854166666666,
+    "seams": {
+     "foot": [
+      32,
+      0.8
+     ],
+     "cornice": [
+      105,
+      64.6
+     ]
+    },
+    "agreeing": [
+     "cornice"
+    ],
+    "rule": "the kink standing on the strongest vertical seam, snapped to it",
+    "x": 105
+   }
+  },
+  "ruler_px": 250.0,
+  "scale": 0.9767,
+  "storey_m": 3.403
+ },
+ "zoom": {
+  "s": 0.9984,
+  "pivot": "wall-span centre",
+  "ax": -102.4,
+  "ay": 1.4
+ },
+ "ruled": {
+  "ceil": 53.1,
+  "rail": 522.5,
+  "floor": 778.5,
+  "corner_x0": -1280.0,
+  "corner_x1": 1450.7,
+  "doors": []
+ },
+ "precomp": 0.975,
+ "guide_geometry": {
+  "ceil": 65.0,
+  "rail": 522.6,
+  "floor": 772.2,
+  "xL": -1228.8,
+  "xR": 1433.6,
+  "doors": []
+ },
+ "returns": [
+  "right"
+ ],
+ "elements": {
+  "ceiling": {
+   "scale": 1.2057
+  },
+  "floor": {
+   "scale": 1.2057
+  },
+  "dado": {
+   "scale": 1.0024
+  },
+  "upper_wall": {
+   "scale": 0.9997
+  },
+  "right_return_upper": {
+   "scale": 1.1515,
+   "blur": 10,
+   "from": "dimmed wall"
+  },
+  "right_return_lower": {
+   "scale": 1.0039,
+   "blur": 10,
+   "from": "dimmed wall"
+  }
+ },
+ "out": "backdrops/grown/saloon_n-W.png"
+}

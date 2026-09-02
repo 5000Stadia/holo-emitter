@@ -1,30 +1,30 @@
 {
-  "_source_sha256": "905c0659963b52e21f2432966f1c3dab0c8489f84b0d0ca412364c91b7dd19ae",
-  "_what_this_is": "The manor production reading for saloon/S, measured off backdrops/source/saloon-S/row23-1e52b8ef.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/liner-3/manifest.json before any candidate existed.",
+  "_source_sha256": "8bf5893bc4127b7cdc14a2568edfff0c041afae3e28cf3d1a0fcfc0cf5b5b903",
+  "_what_this_is": "The manor production reading for saloon/S, measured off backdrops/source/saloon-S/row23-f3a2cc96.png by design/plan-draft/measured/row23_run.py through the row-23 instrument \u2014 the SAME reading its camera gate admitted, shaped into the \u00a75 record tools/promote-backdrop.mjs takes. Every search window is the wall's own scaffold's, declared in design/batches/liner-3/manifest.json before any candidate existed.",
   "_role": "manor production wall, measured against the camera its own manifest entry declares",
   "verdict": "PASS",
   "facing_type": "enclosed",
   "image_h_px": 1024,
-  "floor_line_y": 0.75,
-  "horizon_y": 0.508691,
-  "px_per_m_at_wall": 198.333,
-  "px_per_m_at_bottom": 403.8,
-  "implied_focal_px": 952.0,
-  "eye_height_m": 1.2459,
-  "storey_height_m": 3.6454,
+  "floor_line_y": 0.745117,
+  "horizon_y": 0.538477,
+  "px_per_m_at_wall": 203.333,
+  "px_per_m_at_bottom": 454.12,
+  "implied_focal_px": 976.0,
+  "eye_height_m": 1.0407,
+  "storey_height_m": 3.3738,
   "drawn_standpoint_m": 4.8,
-  "delta_focal_pct": -7.03,
-  "delta_eye_pct": 3.1,
+  "delta_focal_pct": -4.69,
+  "delta_eye_pct": -1.51,
   "band_pct": 8.0,
-  "wall_width_m": 13.9261,
+  "wall_width_m": 13.3475,
   "camera_wall_m": 4.8,
   "camera_far_m": null,
   "corner_x0_px": -1280,
-  "corner_x1_px": 1482,
-  "key_tint": "#c8b193",
+  "corner_x1_px": 1434,
+  "key_tint": "#c8a580",
   "key_dir": "L-ABOVE",
   "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m \u2014 blueprint \u00a711 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
-  "calibration_px": 238,
+  "calibration_px": 244,
   "calibration_tier": 1,
   "_ruler_policy": {
     "adopted": "chair_rail",
@@ -35,76 +35,84 @@
   "_horizon_votes": {
     "per_region": {
       "floor": {
-        "x": 686,
-        "y": 594,
-        "edge_px": 26017
+        "x": 740,
+        "y": 554,
+        "edge_px": 26725
       },
       "ceiling": {
-        "x": 1216,
-        "y": 190,
-        "edge_px": 266
+        "x": 1160,
+        "y": 239,
+        "edge_px": 468
       },
       "side_walls": {
-        "x": 1300,
-        "y": 717,
-        "edge_px": 1617
+        "x": 1310,
+        "y": 712,
+        "edge_px": 2147
       }
     },
-    "adopted_y": 520.9,
+    "adopted_y": 551.4,
     "adopted_instrument": "ceiling-ramp",
     "adopted_rule": "the ceiling-ramp intersection - see _which_horizon",
     "ceiling_ramp_intersection": {
-      "x": 956.2,
-      "y": 520.9,
+      "x": 947.5,
+      "y": 551.4,
       "return_side": "right",
-      "ceiling_slope": -0.905,
-      "floor_slope": 0.47,
-      "ceiling_n": 48,
-      "ceiling_score": 6.44,
-      "floor_n": 48,
-      "floor_score": 13.03,
+      "ceiling_slope": -0.975,
+      "floor_slope": 0.435,
+      "ceiling_n": 61,
+      "ceiling_score": 11.97,
+      "floor_n": 61,
+      "floor_score": 38.72,
       "slope_half_widths": [
-        0.0375,
-        0.03
+        0.03,
+        0.01
       ],
-      "sigma_y_px": 17.12
+      "sigma_y_px": 7.87
     },
     "far_line_ruler": null
   },
   "_measured_px": {
-    "wall_floor_line_y_px": 768,
-    "chair_rail_y_px": 530,
-    "dado_rail_above_floor_px": 238,
+    "wall_floor_line_y_px": 763,
+    "chair_rail_y_px": 519,
+    "dado_rail_above_floor_px": 244,
     "floor_read": {
-      "minimum": 767,
+      "minimum": 762,
       "rule": "skirting-base",
       "saturated": false,
-      "foot": 768
+      "foot": 763
     },
-    "capping_above_floor_px": 238,
-    "rail_dip": 0.973,
-    "wall_ceiling_line_y_px": 45,
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 530,
+      "strip": 519,
+      "strip_luma": 168.3,
+      "field_below": 58.2,
+      "contrast": 0.654
+    },
+    "capping_above_floor_px": 242,
+    "rail_dip": 0.654,
+    "wall_ceiling_line_y_px": 77,
     "corner_x0_px": -1280,
-    "corner_x1_px": 1482,
-    "horizon_y_px": 520.9,
+    "corner_x1_px": 1434,
+    "horizon_y_px": 551.4,
     "openings": [
       {
-        "x0_px": 661,
-        "x1_px": 880,
-        "y0_px": 356,
-        "y1_px": 768,
-        "width_px": 219,
-        "width_m": 1.104,
-        "centre_px": 770.5,
-        "head_m": 2.077,
-        "void_luminance": 0.53,
-        "wall_luminance": 11.93,
-        "threshold": 7,
+        "x0_px": 655,
+        "x1_px": 879,
+        "y0_px": 353,
+        "y1_px": 763,
+        "width_px": 224,
+        "width_m": 1.102,
+        "centre_px": 767.0,
+        "head_m": 2.016,
+        "void_luminance": 0.72,
+        "wall_luminance": 13.91,
+        "threshold": 8,
         "threshold_span": [
           2,
-          12
+          14
         ],
-        "stability": 11
+        "stability": 13
       }
     ],
     "windows": []
@@ -146,64 +154,64 @@
       ],
       "hypothesis": null,
       "found": false,
-      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 651..892 (8 px from the ask) and another admissible pair sits 661..939 (32 px from the ask), which disagree by more than the 20 px this arm can resolve"
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 644..885 (8 px from the ask) and another admissible pair sits 655..945 (32 px from the ask), which disagree by more than the 20 px this arm can resolve"
     }
   ],
   "_light": {
     "key_dir_measured": "L",
-    "key_dir_brightest_x": 274,
-    "key_dir_brightest_y": 27,
-    "key_tint": "#c8b193",
+    "key_dir_brightest_x": 12,
+    "key_dir_brightest_y": 24,
+    "key_tint": "#c8a580",
     "key_tint_patch": [
-      74,
-      474,
       0,
-      37
+      212,
+      7,
+      69
     ],
     "key_tint_patch_mean_rgb": [
-      242.15,
-      214.66,
-      177.91
+      182.48,
+      150.52,
+      116.63
     ],
     "key_tint_alternates": {
-      "floor_under_brightest": "#c84b22",
-      "floor_bottom_strip": "#c84f24",
-      "mid_wall_right": "#c88845",
-      "mid_wall_left": "#c89963",
-      "brightest_21x21_patch": "#c8b59b"
+      "floor_under_brightest": "#c8451b",
+      "floor_bottom_strip": "#c8491d",
+      "mid_wall_right": "#c88441",
+      "mid_wall_left": "#c89155",
+      "brightest_21x21_patch": "#c8b79d"
     },
     "brightest_21x21_patch_centre_px": [
-      274,
-      27
+      12,
+      24
     ],
-    "sobel_bright_side_deg_whole_frame": 98.58,
-    "sobel_bright_side_deg_wall_band": 97.33,
-    "left_third_minus_right_third_luminance_whole_frame": 20.051,
-    "left_third_minus_right_third_luminance_wall_band": 23.443
+    "sobel_bright_side_deg_whole_frame": 100.74,
+    "sobel_bright_side_deg_wall_band": 101.01,
+    "left_third_minus_right_third_luminance_whole_frame": 17.237,
+    "left_third_minus_right_third_luminance_wall_band": 21.703
   },
   "_derived": {
-    "eye_height_m": 1.2459,
-    "storey_height_m": 3.6454,
-    "implied_wall_width_m": 13.9261,
-    "px_per_m_at_bottom": 403.8045,
-    "implied_camera_wall_m": 5.163
+    "eye_height_m": 1.0407,
+    "storey_height_m": 3.3738,
+    "implied_wall_width_m": 13.3475,
+    "px_per_m_at_bottom": 454.1174,
+    "implied_camera_wall_m": 5.0361
   },
   "_withheld_because": [],
   "_hold_family": null,
   "_round": "manor",
-  "instrument": "6ccb6fc568cf",
+  "instrument": "5c5cc2cde041",
   "_openings_read": {
     "method": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
     "body_rows": [
-      431,
-      709
+      417,
+      702
     ],
     "wall_band_px": [
       0,
-      1482
+      1434
     ],
-    "wall_median_luminance": 11.93,
-    "min_enumerated_px": 79,
+    "wall_median_luminance": 13.91,
+    "min_enumerated_px": 81,
     "min_head_m": 1.4,
     "storey_m": 3.4,
     "candidates_before_head_test": 1
@@ -211,19 +219,19 @@
   "_windows_read": {
     "method": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
     "body_rows": [
-      404,
-      557
+      390,
+      546
     ],
     "wall_band_px": [
       0,
-      1482
+      1434
     ],
     "window_band_px": [
-      371,
-      590
+      356,
+      580
     ],
-    "wall_median_luminance": 155.39,
-    "min_enumerated_px": 40,
+    "wall_median_luminance": 151.21,
+    "min_enumerated_px": 41,
     "lattice_min": 0.2,
     "lattice_support": 0.12,
     "edge_min": 12.0,

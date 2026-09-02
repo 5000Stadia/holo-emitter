@@ -116,9 +116,68 @@
    "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "gallery/E": {
-   "attempts": 0,
-   "status": "retry",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
+   "attempts": 2,
+   "status": "promoted",
+   "promotion_refused": [
+    {
+     "candidate": "backdrops/source/gallery-E/row23-4443b35e.png",
+     "delta_focal_pct": -7.94,
+     "family": "suspect-painting",
+     "why": "SUSPECT PAINTING: this frame's returns converge at y 507.6 (+/-0.6 px), 19 px from the horizon row 526.1 its own gate reading stands on, beyond the +/-8.7 px licence and the reading's own bar. The wall is drawn at one camera and its return at another; two readings of one picture disagree about where"
+    }
+   ],
+   "candidate": "backdrops/source/gallery-E/row23-4443b35e.png",
+   "warp": {
+    "pins": 4,
+    "columns": 2,
+    "rows": 2,
+    "residuals": {
+     "max_px": 0.0,
+     "column_px": [
+      [
+       "corner_left",
+       0.0
+      ],
+      [
+       "corner_right",
+       0.0
+      ]
+     ],
+     "row_px": [
+      [
+       "ceiling_line",
+       0.0
+      ],
+      [
+       "floor_line",
+       0.0
+      ]
+     ]
+    },
+    "worst_segment": {
+     "axis": "x",
+     "name": "corner_left..corner_right",
+     "scale": 1.002,
+     "target_px": 580.3,
+     "source_px": 579.0
+    },
+    "revealed_px": 49086,
+    "revealed_fraction": 0.03121,
+    "warp_mode": "plane",
+    "warped_from": "backdrops/source/gallery-E/row23-4443b35e.png"
+   },
+   "camera_source": "declared",
+   "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 507.6, which puts the viewer's eye 1.454 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+   "snapped_from_family": "suspect-painting",
+   "exit": "warped",
+   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/gallery-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment corner_left..corner_right x1.002, 49086 px revealed) \u2014 the correction is recorded, not waived",
+   "exit_attempt": {
+    "candidate": "backdrops/source/gallery-E/row23-4443b35e.png",
+    "exit": "warped",
+    "instrument": "5c5cc2cde041",
+    "candidate_sha256": "17a1e2761a83f2c8b2c7446d0f13d3fdc45bd9affab4260db1b9a9b8ef872740",
+    "at": "2026-09-01T22:07:18"
+   }
   },
   "gallery/W": {
    "attempts": 2,
@@ -192,12 +251,65 @@
    "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "gallery_far/W": {
-   "attempts": 0,
-   "status": "waiting"
+   "attempts": 2,
+   "status": "promoted",
+   "candidate": "backdrops/source/gallery_far-W/row23-6678e2fc.png",
+   "warp": {
+    "pins": 4,
+    "columns": 2,
+    "rows": 2,
+    "residuals": {
+     "max_px": 0.0,
+     "column_px": [
+      [
+       "corner_left",
+       0.0
+      ],
+      [
+       "corner_right",
+       0.0
+      ]
+     ],
+     "row_px": [
+      [
+       "ceiling_line",
+       0.0
+      ],
+      [
+       "floor_line",
+       0.0
+      ]
+     ]
+    },
+    "worst_segment": {
+     "axis": "x",
+     "name": "corner_left..corner_right",
+     "scale": 1.014,
+     "target_px": 587.1,
+     "source_px": 579.0
+    },
+    "revealed_px": 6151,
+    "revealed_fraction": 0.00391,
+    "warp_mode": "plane",
+    "warped_from": "backdrops/source/gallery_far-W/row23-6678e2fc.png"
+   },
+   "camera_source": "declared",
+   "answered_correction": "draw 1.108x larger: 91.4 px/m at the wall plane, not 82.5",
+   "snapped_from_family": "camera-miss",
+   "exit": "warped",
+   "exit_reason": "verifier-raw: the untouched roll reads 1.0139 scale, 0.4% reveal - promoted as painted",
+   "exit_attempt": {
+    "candidate": "backdrops/source/gallery_far-W/row23-6678e2fc.png",
+    "exit": "warped",
+    "instrument": "5c5cc2cde041",
+    "candidate_sha256": "55e87f9e38eb9a6c2ba19ec7d43f029abcbf5f1173e18db47158ba44256aeee3",
+    "at": "2026-09-01T22:12:20"
+   }
   },
   "saloon/N": {
    "attempts": 0,
-   "status": "waiting"
+   "status": "retry",
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon/S": {
    "attempts": 4,

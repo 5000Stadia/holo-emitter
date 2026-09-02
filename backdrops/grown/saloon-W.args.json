@@ -5,31 +5,31 @@
  "roll": "backdrops/saloon/S.png",
  "measured": {
   "roll": "backdrops/saloon/S.png",
-  "rail": 521.0,
-  "foot": 777.0,
-  "ceiling": 64.0,
+  "rail": 521.6,
+  "foot": 770.0,
+  "ceiling": 60.0,
   "door": {
-   "x0": 656,
-   "x1": 880,
-   "head": 356
+   "x0": 655,
+   "x1": 884,
+   "head": 353
   },
   "corner_x0": null,
   "corner_x1": 1434,
   "corner_evidence": {
    "right": {
-    "foot": 1433,
-    "foot_fit": 0.8971354166666666,
+    "foot": 1426,
+    "foot_fit": 0.7747395833333334,
     "rail_abstains": "level with the horizon",
-    "cornice": 1474,
-    "cornice_fit": 0.9921875,
+    "cornice": 1468,
+    "cornice_fit": 0.9778645833333334,
     "seams": {
      "foot": [
       1434,
-      32.7
+      41.1
      ],
      "cornice": [
-      1463,
-      4.1
+      1438,
+      21.9
      ]
     },
     "agreeing": [
@@ -39,15 +39,15 @@
     "x": 1434
    }
   },
-  "ruler_px": 256.0,
-  "scale": 0.9998,
-  "storey_m": 3.343
+  "ruler_px": 248.4,
+  "scale": 0.9705,
+  "storey_m": 3.429
  },
  "zoom": {
-  "s": 0.9703,
+  "s": 1.0048,
   "pivot": "wall-span centre",
-  "ax": 125.1,
-  "ay": 17.1
+  "ax": 98.7,
+  "ay": -1.6
  },
  "ruled": {
   "ceil": 53.1,
@@ -57,13 +57,13 @@
   "corner_x1": 2816.0,
   "doors": []
  },
- "precomp": 0.9703,
+ "precomp": 0.975,
  "guide_geometry": {
-  "ceil": 67.2,
+  "ceil": 65.0,
   "rail": 522.6,
-  "floor": 771.0,
-  "xL": 105.6,
-  "xR": 2755.2,
+  "floor": 772.2,
+  "xL": 102.4,
+  "xR": 2764.8,
   "doors": []
  },
  "returns": [
@@ -71,24 +71,24 @@
  ],
  "elements": {
   "ceiling": {
-   "scale": 1.2094
+   "scale": 1.2057
   },
   "floor": {
-   "scale": 1.2094
+   "scale": 1.2057
   },
   "dado": {
-   "scale": 1.0016
+   "scale": 1.0024
   },
   "upper_wall": {
-   "scale": 1.0257
+   "scale": 0.9997
   },
   "left_return_upper": {
-   "scale": 1.1905,
+   "scale": 1.1391,
    "blur": 10,
    "from": "dimmed wall"
   },
   "left_return_lower": {
-   "scale": 0.9963,
+   "scale": 1.0039,
    "blur": 10,
    "from": "dimmed wall"
   }

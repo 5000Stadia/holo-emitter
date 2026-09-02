@@ -1,0 +1,178 @@
+{
+ "facing": "gallery_far/W",
+ "candidate": "backdrops/source/gallery_far-W/row23-6678e2fc.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "55e87f9e38eb9a6c2ba19ec7d43f029abcbf5f1173e18db47158ba44256aeee3",
+ "instrument": "5c5cc2cde041",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -9.77,
+  "delta_eye_pct": 3.38,
+  "hold_family": null
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured",
+  "vanishing_point": "measured-ramp",
+  "px_per_m_at_wall": 82.5
+ },
+ "run_wall": null,
+ "target_notes": {
+  "horizontal": "the declared corners, both inside the frame",
+  "corners_in_frame": true,
+  "run_wall": null,
+  "ppm_source": 82.5,
+  "ppm_target": 91.429,
+  "scale_k": 1.1082
+ },
+ "source_box": {
+  "x0": 478.0,
+  "x1": 1057.0,
+  "yc": 324.0,
+  "yf": 627.0,
+  "vx": 768.0,
+  "vy": 526.6
+ },
+ "target_box": {
+  "x0": 475.43,
+  "x1": 1060.57,
+  "yc": 323.4,
+  "yf": 634.26,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+  "source_storey_m": 3.673,
+  "source_ppm": 82.5
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "uniform": {
+  "scale": 1.0139,
+  "tx": -10.2,
+  "ty": -3.3,
+  "box": [
+   474.5,
+   1061.5,
+   325.2,
+   632.4
+  ]
+ },
+ "columns": [
+  {
+   "name": "corner_left",
+   "kind": "room_corner",
+   "target": 474.475,
+   "source": 478.0,
+   "ask_px": -2.6,
+   "uniform_residual_px": 1.0,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1061.525,
+   "source": 1057.0,
+   "ask_px": 3.6,
+   "uniform_residual_px": -1.0,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 325.225,
+   "source": 324.0,
+   "ask_px": -0.6,
+   "uniform_residual_px": -1.8,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 632.438,
+   "source": 627.0,
+   "ask_px": 7.3,
+   "uniform_residual_px": 1.8,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 1.014,
+  "x_scale_max": 1.014,
+  "y_scale_min": 1.014,
+  "y_scale_max": 1.014,
+  "x_segments": [
+   {
+    "name": "corner_left..corner_right",
+    "target_px": 587.1,
+    "source_px": 579.0,
+    "scale": 1.014
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..floor_line",
+    "target_px": 307.2,
+    "source_px": 303.0,
+    "scale": 1.014
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 6151,
+ "revealed_fraction": 0.00391,
+ "revealed_fill": "plane_recession",
+ "fill_fade_px": 24,
+ "filled_px": 55855,
+ "mirror_band_px": 0,
+ "seam_blend_px": 24,
+ "column_count": 2,
+ "row_count": 2,
+ "seconds": 1.85,
+ "verifier_raw": {
+  "scale": 1.0139,
+  "revealed_fraction": 0.00391
+ },
+ "after": {
+  "camera_verdict": "FAIL",
+  "delta_focal_pct": -9.77,
+  "delta_eye_pct": 3.38,
+  "hold_family": null
+ }
+}

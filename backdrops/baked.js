@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 109 painting(s), 45.8 MB served in total,
+// 115 painting(s), 48.3 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -45,12 +45,14 @@
 //   entrance_approach/W: 2.80 MB of PNG -> 464 kB of JPEG (q92); channels move by 1.7508 on average, 20 at worst, of 255.
 //   entrance_court/E: 3.10 MB of PNG -> 596 kB of JPEG (q92); channels move by 2.0381 on average, 24 at worst, of 255.
 //   entrance_court/S: 2.95 MB of PNG -> 515 kB of JPEG (q92); channels move by 1.8332 on average, 22 at worst, of 255.
+//   gallery/E: 1.53 MB of PNG -> 326 kB of JPEG (q92); channels move by 0.9731 on average, 18 at worst, of 255.
 //   gallery/N: 1.94 MB of PNG -> 383 kB of JPEG (q92); channels move by 1.1552 on average, 19 at worst, of 255.
 //   gallery/S: 1.88 MB of PNG -> 385 kB of JPEG (q92); channels move by 1.0854 on average, 20 at worst, of 255.
 //   gallery/W: 1.85 MB of PNG -> 381 kB of JPEG (q92); channels move by 1.0901 on average, 23 at worst, of 255.
 //   gallery_far/E: 1.97 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.2973 on average, 24 at worst, of 255.
 //   gallery_far/N: 1.94 MB of PNG -> 426 kB of JPEG (q92); channels move by 1.2273 on average, 21 at worst, of 255.
 //   gallery_far/S: 1.81 MB of PNG -> 406 kB of JPEG (q92); channels move by 1.1125 on average, 17 at worst, of 255.
+//   gallery_far/W: 1.84 MB of PNG -> 321 kB of JPEG (q92); channels move by 1.0656 on average, 22 at worst, of 255.
 //   garden_room/E: 2.72 MB of PNG -> 438 kB of JPEG (q92); channels move by 1.8119 on average, 18 at worst, of 255.
 //   garden_room/N: 2.87 MB of PNG -> 504 kB of JPEG (q92); channels move by 1.9227 on average, 21 at worst, of 255.
 //   garden_room/S: 2.03 MB of PNG -> 382 kB of JPEG (q92); channels move by 1.2885 on average, 17 at worst, of 255.
@@ -97,10 +99,14 @@
 //   reception/N: 1.56 MB of PNG -> 228 kB of JPEG (q92); channels move by 0.9229 on average, 12 at worst, of 255.
 //   reception/S: 2.27 MB of PNG -> 267 kB of JPEG (q92); channels move by 1.3194 on average, 14 at worst, of 255.
 //   reception/W: 2.10 MB of PNG -> 233 kB of JPEG (q92); channels move by 1.1619 on average, 15 at worst, of 255.
-//   saloon/S: 2.10 MB of PNG -> 408 kB of JPEG (q92); channels move by 1.2091 on average, 18 at worst, of 255.
-//   saloon/W: 1.95 MB of PNG -> 400 kB of JPEG (q92); channels move by 1.0651 on average, 17 at worst, of 255.
-//   saloon_ne/E: 2.55 MB of PNG -> 536 kB of JPEG (q92); channels move by 1.6543 on average, 21 at worst, of 255.
-//   saloon_ne/N: 2.54 MB of PNG -> 489 kB of JPEG (q92); channels move by 1.7065 on average, 20 at worst, of 255.
+//   saloon/S: 2.30 MB of PNG -> 469 kB of JPEG (q92); channels move by 1.3613 on average, 17 at worst, of 255.
+//   saloon/W: 2.13 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.1939 on average, 14 at worst, of 255.
+//   saloon_e/E: 2.06 MB of PNG -> 448 kB of JPEG (q92); channels move by 1.0885 on average, 17 at worst, of 255.
+//   saloon_e/S: 2.13 MB of PNG -> 456 kB of JPEG (q92); channels move by 1.2078 on average, 15 at worst, of 255.
+//   saloon_n/N: 2.29 MB of PNG -> 462 kB of JPEG (q92); channels move by 1.2818 on average, 17 at worst, of 255.
+//   saloon_n/W: 2.22 MB of PNG -> 493 kB of JPEG (q92); channels move by 1.2966 on average, 16 at worst, of 255.
+//   saloon_ne/E: 2.11 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.1597 on average, 17 at worst, of 255.
+//   saloon_ne/N: 2.26 MB of PNG -> 447 kB of JPEG (q92); channels move by 1.293 on average, 17 at worst, of 255.
 //   servants_hall/E: 3.14 MB of PNG -> 550 kB of JPEG (q92); channels move by 1.9944 on average, 22 at worst, of 255.
 //   servants_hall/N: 3.12 MB of PNG -> 548 kB of JPEG (q92); channels move by 2.0177 on average, 19 at worst, of 255.
 //   servants_hall/S: 3.08 MB of PNG -> 533 kB of JPEG (q92); channels move by 2.0582 on average, 19 at worst, of 255.
@@ -126,7 +132,7 @@
 //   writing_room/S: 1.92 MB of PNG -> 340 kB of JPEG (q92); channels move by 1.0399 on average, 23 at worst, of 255.
 //   writing_room/W: 2.39 MB of PNG -> 444 kB of JPEG (q92); channels move by 1.484 on average, 20 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "1d6de1ee",
+  fp: "51251b5e",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -158,12 +164,14 @@ window.HOLO_BACKDROPS = {
   "entrance_approach/W": { file: "entrance_approach/W.jpg", bytes: 464431 },
   "entrance_court/E": { file: "entrance_court/E.jpg", bytes: 595774 },
   "entrance_court/S": { file: "entrance_court/S.jpg", bytes: 514772 },
+  "gallery/E": { file: "gallery/E.jpg", bytes: 326356 },
   "gallery/N": { file: "gallery/N.jpg", bytes: 383217 },
   "gallery/S": { file: "gallery/S.jpg", bytes: 385209 },
   "gallery/W": { file: "gallery/W.jpg", bytes: 380804 },
   "gallery_far/E": { file: "gallery_far/E.jpg", bytes: 455137 },
   "gallery_far/N": { file: "gallery_far/N.jpg", bytes: 425592 },
   "gallery_far/S": { file: "gallery_far/S.jpg", bytes: 406264 },
+  "gallery_far/W": { file: "gallery_far/W.jpg", bytes: 320908 },
   "garden_room/E": { file: "garden_room/E.jpg", bytes: 438281 },
   "garden_room/N": { file: "garden_room/N.jpg", bytes: 503653 },
   "garden_room/S": { file: "garden_room/S.jpg", bytes: 381556 },
@@ -210,10 +218,14 @@ window.HOLO_BACKDROPS = {
   "reception/N": { file: "reception/N.jpg", bytes: 228086 },
   "reception/S": { file: "reception/S.jpg", bytes: 267317 },
   "reception/W": { file: "reception/W.jpg", bytes: 232888 },
-  "saloon/S": { file: "saloon/S.jpg", bytes: 408439 },
-  "saloon/W": { file: "saloon/W.jpg", bytes: 399785 },
-  "saloon_ne/E": { file: "saloon_ne/E.jpg", bytes: 535846 },
-  "saloon_ne/N": { file: "saloon_ne/N.jpg", bytes: 488543 },
+  "saloon/S": { file: "saloon/S.jpg", bytes: 468517 },
+  "saloon/W": { file: "saloon/W.jpg", bytes: 454770 },
+  "saloon_e/E": { file: "saloon_e/E.jpg", bytes: 447910 },
+  "saloon_e/S": { file: "saloon_e/S.jpg", bytes: 456087 },
+  "saloon_n/N": { file: "saloon_n/N.jpg", bytes: 462121 },
+  "saloon_n/W": { file: "saloon_n/W.jpg", bytes: 492543 },
+  "saloon_ne/E": { file: "saloon_ne/E.jpg", bytes: 455248 },
+  "saloon_ne/N": { file: "saloon_ne/N.jpg", bytes: 446732 },
   "servants_hall/E": { file: "servants_hall/E.jpg", bytes: 549616 },
   "servants_hall/N": { file: "servants_hall/N.jpg", bytes: 548334 },
   "servants_hall/S": { file: "servants_hall/S.jpg", bytes: 533373 },
