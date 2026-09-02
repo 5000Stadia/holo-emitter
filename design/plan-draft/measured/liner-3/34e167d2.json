@@ -1,0 +1,55 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 764,
+    "chair_rail_y_px": 520,
+    "dado_rail_above_floor_px": 244,
+    "floor_read": {
+      "minimum": 763,
+      "rule": "skirting-base",
+      "saturated": false,
+      "foot": 764
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 533,
+      "strip": 520
+    },
+    "capping_above_floor_px": 241,
+    "rail_dip": 0.159
+  },
+  "_windows": {
+    "floor": [
+      758,
+      798
+    ],
+    "rail": [
+      501,
+      542
+    ],
+    "ceiling": [
+      0,
+      111
+    ],
+    "columns": [
+      [
+        85,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": null,
+  "implied_focal_px": null,
+  "eye_height_m": null,
+  "_absent": [
+    "the chair-rail is not painted inside y 501..542: the band's luminance dip is 0.16 of its median against the 0.30 this world's anchor shows wherever it is drawn - the darkest row (y 520) is fabric, not the anchor, and the gate does not vote on fabric"
+  ],
+  "_promotion": null,
+  "verdict": "ABSENT",
+  "kind": "scaffold_feature_absent",
+  "id": "34e167d2",
+  "candidate": "backdrops/source/saloon-W/row23-34e167d2.png",
+  "candidate_sha256": "44cf6152f97494d74364a87597c807c6db4b5ebaa3a7c4d6a1f08a2e66313cae",
+  "instrument": "63dbd6de142e"
+}

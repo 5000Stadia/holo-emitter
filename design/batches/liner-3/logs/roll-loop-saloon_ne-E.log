@@ -1,0 +1,7 @@
+=== saloon_ne/E --from-wall saloon_ne/N Tue Sep  1 08:56:09 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/saloon_ne/N.png (scale 0.9071)
+pair 1: attempt 1, rolls ['2ac4decc', '46e55648'] ordered (order ok)
+sweep: saloon_ne/E              PROMOTE   PASS +1.2% focal, promoted and baked
+learn: pair scales [1.0011, 0.9679] -> z 0.9750 -> 0.9656
+LANDED: saloon_ne/E promoted after 2 loop roll(s)

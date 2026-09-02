@@ -16,7 +16,7 @@
 window.HOLO_FIXTURES = window.HOLO_FIXTURES || {};
 window.HOLO_FIXTURES["liner-3"] = {
   id: "liner-3",
-  fp: "eff9a7c1",
+  fp: "bd62f96b",
   world: {
   "schema": "holo-emitter/0.1",
   "locations": [
@@ -2709,20 +2709,20 @@ window.HOLO_FIXTURES["liner-3"] = {
     "stairs": []
   },
   "gallery/S": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.74707,
+    "px_per_m_at_wall": 203.333,
+    "px_per_m_at_bottom": 412.23,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "wall_run_m": 12.8,
+    "key_tint": "#c8b08e",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.500879,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 244,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -2730,47 +2730,1129 @@ window.HOLO_FIXTURES["liner-3"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
     "corner_x0_px": -1280,
-    "corner_x1_px": 1450.6666666666667,
-    "focal_px": 1024,
+    "corner_x1_px": 1438,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/gallery-S/row23-dce57a09.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "63dbd6de142e",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 976,
+    "nearest_floor_m": 2.3676,
+    "measured_room": {
+      "storey_height_m": 3.428,
+      "wall_width_m": 13.367,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": [
+        {
+          "kind": "door",
+          "id": "door01",
+          "plan_px": [
+            646,
+            890
+          ],
+          "plan_centre_px": 768,
+          "painted_px": [
+            663,
+            872
+          ],
+          "painted_centre_px": 767.5,
+          "centre_delta_px": -0.5,
+          "centre_delta_m": -0.002,
+          "painted_feature": "the painted way through at the wall plane, read as the maximally stable dark run (design/plan-draft/measured/door_measure.py)"
+        }
+      ]
+    },
     "openings": [
       {
         "id": "door01",
         "kind": "door",
         "via": null,
-        "x": 640,
-        "y": 351.8066666666667,
-        "w": 255.9999999999999,
-        "h": 426.6666666666667,
+        "x": 654,
+        "y": 368,
+        "w": 229,
+        "h": 397,
         "beyond_m": 6.6,
         "beyond_offset_m": 0,
-        "depth_m": 0.2
+        "depth_m": 0.2,
+        "measured": true,
+        "polygon": [
+          [
+            665.37,
+            368
+          ],
+          [
+            670.1,
+            368
+          ],
+          [
+            674.84,
+            368
+          ],
+          [
+            679.57,
+            368
+          ],
+          [
+            684.3,
+            368
+          ],
+          [
+            689.04,
+            368
+          ],
+          [
+            693.77,
+            368
+          ],
+          [
+            698.51,
+            368
+          ],
+          [
+            703.24,
+            368
+          ],
+          [
+            707.98,
+            368
+          ],
+          [
+            712.71,
+            368
+          ],
+          [
+            717.45,
+            368
+          ],
+          [
+            722.18,
+            368
+          ],
+          [
+            726.91,
+            368
+          ],
+          [
+            731.65,
+            368
+          ],
+          [
+            736.38,
+            368
+          ],
+          [
+            741.12,
+            368
+          ],
+          [
+            745.85,
+            368
+          ],
+          [
+            750.59,
+            368
+          ],
+          [
+            755.32,
+            368
+          ],
+          [
+            760.05,
+            368
+          ],
+          [
+            764.79,
+            368
+          ],
+          [
+            769.52,
+            368
+          ],
+          [
+            774.26,
+            368
+          ],
+          [
+            778.99,
+            368
+          ],
+          [
+            783.73,
+            368
+          ],
+          [
+            788.46,
+            368
+          ],
+          [
+            793.2,
+            368
+          ],
+          [
+            797.93,
+            368
+          ],
+          [
+            802.66,
+            368
+          ],
+          [
+            807.4,
+            368
+          ],
+          [
+            812.13,
+            368
+          ],
+          [
+            816.87,
+            368
+          ],
+          [
+            821.6,
+            368
+          ],
+          [
+            826.34,
+            368
+          ],
+          [
+            831.07,
+            368
+          ],
+          [
+            835.8,
+            368
+          ],
+          [
+            840.54,
+            368
+          ],
+          [
+            845.27,
+            368
+          ],
+          [
+            850.01,
+            368
+          ],
+          [
+            854.74,
+            368
+          ],
+          [
+            859.48,
+            368
+          ],
+          [
+            864.21,
+            368
+          ],
+          [
+            868.95,
+            368
+          ],
+          [
+            883,
+            369.68
+          ],
+          [
+            880,
+            374.41
+          ],
+          [
+            880,
+            379.15
+          ],
+          [
+            879,
+            383.88
+          ],
+          [
+            879,
+            388.62
+          ],
+          [
+            879,
+            393.35
+          ],
+          [
+            879,
+            398.09
+          ],
+          [
+            879,
+            402.82
+          ],
+          [
+            880,
+            407.55
+          ],
+          [
+            880,
+            412.29
+          ],
+          [
+            880,
+            417.02
+          ],
+          [
+            880,
+            421.76
+          ],
+          [
+            880,
+            426.49
+          ],
+          [
+            880,
+            431.23
+          ],
+          [
+            881,
+            435.96
+          ],
+          [
+            881,
+            440.7
+          ],
+          [
+            881,
+            445.43
+          ],
+          [
+            881,
+            450.16
+          ],
+          [
+            881,
+            454.9
+          ],
+          [
+            881,
+            459.63
+          ],
+          [
+            881,
+            464.37
+          ],
+          [
+            881,
+            469.1
+          ],
+          [
+            881,
+            473.84
+          ],
+          [
+            881,
+            478.57
+          ],
+          [
+            881,
+            483.3
+          ],
+          [
+            881,
+            488.04
+          ],
+          [
+            881,
+            492.77
+          ],
+          [
+            881,
+            497.51
+          ],
+          [
+            881,
+            502.24
+          ],
+          [
+            881,
+            506.98
+          ],
+          [
+            881,
+            511.71
+          ],
+          [
+            880,
+            516.45
+          ],
+          [
+            880,
+            521.18
+          ],
+          [
+            880,
+            525.91
+          ],
+          [
+            880,
+            530.65
+          ],
+          [
+            880,
+            535.38
+          ],
+          [
+            880,
+            540.12
+          ],
+          [
+            880,
+            544.85
+          ],
+          [
+            880,
+            549.59
+          ],
+          [
+            880,
+            554.32
+          ],
+          [
+            880,
+            559.05
+          ],
+          [
+            880,
+            563.79
+          ],
+          [
+            880,
+            568.52
+          ],
+          [
+            880,
+            573.26
+          ],
+          [
+            880,
+            577.99
+          ],
+          [
+            880,
+            582.73
+          ],
+          [
+            880,
+            587.46
+          ],
+          [
+            880,
+            592.2
+          ],
+          [
+            880,
+            596.93
+          ],
+          [
+            880,
+            601.66
+          ],
+          [
+            880,
+            606.4
+          ],
+          [
+            880,
+            611.13
+          ],
+          [
+            880,
+            615.87
+          ],
+          [
+            880,
+            620.6
+          ],
+          [
+            880,
+            625.34
+          ],
+          [
+            880,
+            630.07
+          ],
+          [
+            880,
+            634.8
+          ],
+          [
+            880,
+            639.54
+          ],
+          [
+            880,
+            644.27
+          ],
+          [
+            880,
+            649.01
+          ],
+          [
+            880,
+            653.74
+          ],
+          [
+            880,
+            658.48
+          ],
+          [
+            880,
+            663.21
+          ],
+          [
+            880,
+            667.95
+          ],
+          [
+            880,
+            672.68
+          ],
+          [
+            880,
+            677.41
+          ],
+          [
+            880,
+            682.15
+          ],
+          [
+            880,
+            686.88
+          ],
+          [
+            880,
+            691.62
+          ],
+          [
+            880,
+            696.35
+          ],
+          [
+            880,
+            701.09
+          ],
+          [
+            880,
+            705.82
+          ],
+          [
+            880,
+            710.55
+          ],
+          [
+            880,
+            715.29
+          ],
+          [
+            880,
+            720.02
+          ],
+          [
+            880,
+            724.76
+          ],
+          [
+            880,
+            729.49
+          ],
+          [
+            881,
+            734.23
+          ],
+          [
+            881,
+            738.96
+          ],
+          [
+            881,
+            743.7
+          ],
+          [
+            881,
+            748.43
+          ],
+          [
+            881,
+            753.16
+          ],
+          [
+            881,
+            757.9
+          ],
+          [
+            881,
+            762.63
+          ],
+          [
+            869.63,
+            765
+          ],
+          [
+            864.9,
+            765
+          ],
+          [
+            860.16,
+            765
+          ],
+          [
+            855.43,
+            765
+          ],
+          [
+            850.7,
+            765
+          ],
+          [
+            845.96,
+            765
+          ],
+          [
+            841.23,
+            765
+          ],
+          [
+            836.49,
+            765
+          ],
+          [
+            831.76,
+            765
+          ],
+          [
+            827.02,
+            765
+          ],
+          [
+            822.29,
+            765
+          ],
+          [
+            817.55,
+            765
+          ],
+          [
+            812.82,
+            765
+          ],
+          [
+            808.09,
+            765
+          ],
+          [
+            803.35,
+            765
+          ],
+          [
+            798.62,
+            765
+          ],
+          [
+            793.88,
+            765
+          ],
+          [
+            789.15,
+            765
+          ],
+          [
+            784.41,
+            765
+          ],
+          [
+            779.68,
+            765
+          ],
+          [
+            774.95,
+            765
+          ],
+          [
+            770.21,
+            765
+          ],
+          [
+            765.48,
+            765
+          ],
+          [
+            760.74,
+            765
+          ],
+          [
+            756.01,
+            765
+          ],
+          [
+            751.27,
+            765
+          ],
+          [
+            746.54,
+            765
+          ],
+          [
+            741.8,
+            765
+          ],
+          [
+            737.07,
+            765
+          ],
+          [
+            732.34,
+            765
+          ],
+          [
+            727.6,
+            765
+          ],
+          [
+            722.87,
+            765
+          ],
+          [
+            718.13,
+            765
+          ],
+          [
+            713.4,
+            765
+          ],
+          [
+            708.66,
+            765
+          ],
+          [
+            703.93,
+            765
+          ],
+          [
+            699.2,
+            765
+          ],
+          [
+            694.46,
+            765
+          ],
+          [
+            689.73,
+            765
+          ],
+          [
+            684.99,
+            765
+          ],
+          [
+            680.26,
+            765
+          ],
+          [
+            675.52,
+            765
+          ],
+          [
+            670.79,
+            765
+          ],
+          [
+            666.05,
+            765
+          ],
+          [
+            654,
+            763.32
+          ],
+          [
+            654,
+            758.59
+          ],
+          [
+            654,
+            753.85
+          ],
+          [
+            654,
+            749.12
+          ],
+          [
+            654,
+            744.38
+          ],
+          [
+            654,
+            739.65
+          ],
+          [
+            654,
+            734.91
+          ],
+          [
+            655,
+            730.18
+          ],
+          [
+            655,
+            725.45
+          ],
+          [
+            655,
+            720.71
+          ],
+          [
+            655,
+            715.98
+          ],
+          [
+            655,
+            711.24
+          ],
+          [
+            655,
+            706.51
+          ],
+          [
+            655,
+            701.77
+          ],
+          [
+            655,
+            697.04
+          ],
+          [
+            655,
+            692.3
+          ],
+          [
+            655,
+            687.57
+          ],
+          [
+            655,
+            682.84
+          ],
+          [
+            655,
+            678.1
+          ],
+          [
+            655,
+            673.37
+          ],
+          [
+            655,
+            668.63
+          ],
+          [
+            655,
+            663.9
+          ],
+          [
+            655,
+            659.16
+          ],
+          [
+            655,
+            654.43
+          ],
+          [
+            655,
+            649.7
+          ],
+          [
+            655,
+            644.96
+          ],
+          [
+            655,
+            640.23
+          ],
+          [
+            663,
+            635.49
+          ],
+          [
+            663,
+            630.76
+          ],
+          [
+            663,
+            626.02
+          ],
+          [
+            663,
+            621.29
+          ],
+          [
+            663,
+            616.55
+          ],
+          [
+            663,
+            611.82
+          ],
+          [
+            663,
+            607.09
+          ],
+          [
+            663,
+            602.35
+          ],
+          [
+            663,
+            597.62
+          ],
+          [
+            663,
+            592.88
+          ],
+          [
+            663,
+            588.15
+          ],
+          [
+            663,
+            583.41
+          ],
+          [
+            663,
+            578.68
+          ],
+          [
+            663,
+            573.95
+          ],
+          [
+            659,
+            569.21
+          ],
+          [
+            654,
+            564.48
+          ],
+          [
+            654,
+            559.74
+          ],
+          [
+            654,
+            555.01
+          ],
+          [
+            654,
+            550.27
+          ],
+          [
+            654,
+            545.54
+          ],
+          [
+            654,
+            540.8
+          ],
+          [
+            654,
+            536.07
+          ],
+          [
+            654,
+            531.34
+          ],
+          [
+            654,
+            526.6
+          ],
+          [
+            654,
+            521.87
+          ],
+          [
+            654,
+            517.13
+          ],
+          [
+            654,
+            512.4
+          ],
+          [
+            654,
+            507.66
+          ],
+          [
+            654,
+            502.93
+          ],
+          [
+            654,
+            498.2
+          ],
+          [
+            654,
+            493.46
+          ],
+          [
+            654,
+            488.73
+          ],
+          [
+            654,
+            483.99
+          ],
+          [
+            654,
+            479.26
+          ],
+          [
+            654,
+            474.52
+          ],
+          [
+            654,
+            469.79
+          ],
+          [
+            655,
+            465.05
+          ],
+          [
+            655,
+            460.32
+          ],
+          [
+            655,
+            455.59
+          ],
+          [
+            655,
+            450.85
+          ],
+          [
+            655,
+            446.12
+          ],
+          [
+            655,
+            441.38
+          ],
+          [
+            655,
+            436.65
+          ],
+          [
+            655,
+            431.91
+          ],
+          [
+            655,
+            427.18
+          ],
+          [
+            655,
+            422.45
+          ],
+          [
+            655,
+            417.71
+          ],
+          [
+            655,
+            412.98
+          ],
+          [
+            655,
+            408.24
+          ],
+          [
+            655,
+            403.51
+          ],
+          [
+            656,
+            398.77
+          ],
+          [
+            656,
+            394.04
+          ],
+          [
+            656,
+            389.3
+          ],
+          [
+            656,
+            384.57
+          ],
+          [
+            655,
+            379.84
+          ],
+          [
+            655,
+            375.1
+          ],
+          [
+            654,
+            370.37
+          ]
+        ],
+        "corners": [
+          [
+            665.37,
+            368
+          ],
+          [
+            881.28,
+            368
+          ],
+          [
+            879.29,
+            765
+          ],
+          [
+            666.05,
+            765
+          ]
+        ],
+        "head_kind": "straight",
+        "trace_confidence": 0.752,
+        "polygon_used": true
       }
     ],
-    "wall_run_m": 12.8,
-    "cell_x0_px": 85.33333333333314,
-    "cell_x1_px": 1450.6666666666667,
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "gallery/W": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.749023,
+    "px_per_m_at_wall": 205,
+    "px_per_m_at_bottom": 408.5,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8b08d",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.496191,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 246,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -2778,15 +3860,35 @@ window.HOLO_FIXTURES["liner-3"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 85.33333333333326,
-    "corner_x1_px": 1450.6666666666667,
-    "focal_px": 1024,
+    "corner_x0_px": 102,
+    "corner_x1_px": 1430,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/gallery-W/row23-3695662c.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "63dbd6de142e",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 984,
+    "nearest_floor_m": 2.4088,
+    "measured_room": {
+      "storey_height_m": 3.454,
+      "wall_width_m": 6.478,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": []
+    },
     "openings": [],
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "gallery_far/N": {
     "floor_line_y": 0.75,
@@ -2841,20 +3943,19 @@ window.HOLO_FIXTURES["liner-3"] = {
     }
   },
   "gallery_far/E": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.75,
+    "px_per_m_at_wall": 205,
+    "px_per_m_at_bottom": 411.94,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "key_tint": "#c8b088",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.502344,
+    "key_dir": "C-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 246,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -2862,31 +3963,51 @@ window.HOLO_FIXTURES["liner-3"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 85.33333333333326,
-    "corner_x1_px": 1450.6666666666667,
-    "focal_px": 1024,
+    "corner_x0_px": 91,
+    "corner_x1_px": 1431,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/gallery_far-E/row23-4f1ecd11.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "63dbd6de142e",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 984,
+    "nearest_floor_m": 2.3887,
+    "measured_room": {
+      "storey_height_m": 3.473,
+      "wall_width_m": 6.537,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": []
+    },
     "openings": [],
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "gallery_far/S": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.749023,
+    "px_per_m_at_wall": 204.167,
+    "px_per_m_at_bottom": 418.51,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "wall_run_m": 12.8,
+    "key_tint": "#c8af83",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.509961,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 245,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -2894,18 +4015,35 @@ window.HOLO_FIXTURES["liner-3"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 85.33333333333348,
+    "corner_x0_px": 96,
     "corner_x1_px": 2816,
-    "focal_px": 1024,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/gallery_far-S/row23-0943e33a.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "63dbd6de142e",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 980,
+    "nearest_floor_m": 2.3416,
+    "measured_room": {
+      "storey_height_m": 3.424,
+      "wall_width_m": 13.322,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": []
+    },
     "openings": [],
-    "wall_run_m": 12.8,
-    "cell_x0_px": 85.33333333333348,
-    "cell_x1_px": 1450.6666666666667,
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "gallery_far/W": {
     "floor_line_y": 0.61939453125,
@@ -4141,20 +5279,20 @@ window.HOLO_FIXTURES["liner-3"] = {
     }
   },
   "saloon/W": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.745117,
+    "px_per_m_at_wall": 202.5,
+    "px_per_m_at_bottom": 451.8,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "wall_run_m": 12.8,
+    "key_tint": "#c8a681",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.538086,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 243,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -4162,18 +5300,35 @@ window.HOLO_FIXTURES["liner-3"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 85.33333333333303,
-    "corner_x1_px": 2815.9999999999995,
-    "focal_px": 1024,
+    "corner_x0_px": 109,
+    "corner_x1_px": 2816,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/saloon-W/row23-7231e69d.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "63dbd6de142e",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 972,
+    "nearest_floor_m": 2.1514,
+    "measured_room": {
+      "storey_height_m": 3.378,
+      "wall_width_m": 13.368,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": []
+    },
     "openings": [],
-    "wall_run_m": 12.8,
-    "cell_x0_px": 85.33333333333303,
-    "cell_x1_px": 1450.6666666666665,
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "saloon_e/N": {
     "floor_line_y": 0.61939453125,
@@ -4520,20 +5675,20 @@ window.HOLO_FIXTURES["liner-3"] = {
     }
   },
   "saloon_ne/E": {
-    "floor_line_y": 0.7602278645833334,
-    "px_per_m_at_wall": 213.33333333333334,
-    "px_per_m_at_bottom": 420.8791208791208,
+    "floor_line_y": 0.751953,
+    "px_per_m_at_wall": 215.833,
+    "px_per_m_at_bottom": 465.25,
     "wall_width_m": 6.4,
-    "key_tint": "#c8b489",
+    "wall_run_m": 12.8,
+    "key_tint": "#c8965f",
     "image_h_px": 1024,
-    "horizon_y": 0.51376953125,
-    "key_dir": "UL",
-    "calibration_ref": "wall grid module, 1.0 m at the wall plane",
-    "calibration_px": 213.33333333333334,
+    "horizon_y": 0.537305,
+    "key_dir": "L-ABOVE",
+    "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+    "calibration_px": 259,
+    "camera_wall_m": 4.8,
     "facing_type": "enclosed",
-    "camera_id": "grid",
-    "provisional": true,
-    "backdrop": "wall",
+    "wall_continuous": true,
     "wall_segments": [
       {
         "from_m": 0,
@@ -4541,18 +5696,35 @@ window.HOLO_FIXTURES["liner-3"] = {
         "kind": "wall"
       }
     ],
-    "wall_continuous": true,
-    "corner_x0_px": 85.33333333333348,
+    "corner_x0_px": 106,
     "corner_x1_px": 2816,
-    "focal_px": 1024,
     "storey_height_m": 3.4,
-    "nearest_floor_m": 2.433002610966058,
-    "camera_wall_m": 4.8,
+    "camera_id": "measured:backdrops/source/saloon_ne-E/row23-2ac4decc.png",
+    "camera_reference": "ruled",
+    "measured_round": "manor",
+    "instrument": "63dbd6de142e",
+    "provisional": false,
+    "measured": true,
+    "backdrop": "wall",
+    "focal_px": 1036,
+    "nearest_floor_m": 2.2268,
+    "measured_room": {
+      "storey_height_m": 3.262,
+      "wall_width_m": 12.556,
+      "ruled_storey_height_m": 3.4,
+      "ruled_wall_width_m": 6.4,
+      "carriers": []
+    },
     "openings": [],
-    "wall_run_m": 12.8,
-    "cell_x0_px": 85.33333333333348,
-    "cell_x1_px": 1450.6666666666665,
-    "stairs": []
+    "windows": [],
+    "window_evidence": {
+      "unpainted": 0,
+      "read_by": "design/plan-draft/measured/window_measure.py",
+      "ruled": 0,
+      "painted": 0,
+      "unruled": [],
+      "note": "every glazed opening the painting shows answers to a window the plan rules"
+    }
   },
   "saloon_ne/S": {
     "floor_line_y": 0.61939453125,

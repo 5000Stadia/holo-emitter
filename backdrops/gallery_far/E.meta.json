@@ -1,0 +1,51 @@
+{
+  "floor_line_y": 0.75,
+  "px_per_m_at_wall": 205,
+  "px_per_m_at_bottom": 411.94,
+  "wall_width_m": 6.4,
+  "key_tint": "#c8b088",
+  "image_h_px": 1024,
+  "horizon_y": 0.502344,
+  "key_dir": "C-ABOVE",
+  "calibration_ref": "the wainscot chair-rail's undercut shadow above the wall's own floor line, taken at 1.20 m — blueprint §11 rules it there on every panelled wall in the manor and this facing's own scaffold declares it as the measurement anchor",
+  "calibration_px": 246,
+  "camera_wall_m": 4.8,
+  "facing_type": "enclosed",
+  "wall_continuous": true,
+  "wall_segments": [
+    {
+      "from_m": 0,
+      "to_m": 6.4,
+      "kind": "wall"
+    }
+  ],
+  "corner_x0_px": 91,
+  "corner_x1_px": 1431,
+  "storey_height_m": 3.4,
+  "camera_id": "measured:backdrops/source/gallery_far-E/row23-4f1ecd11.png",
+  "camera_reference": "ruled",
+  "measured_round": "manor",
+  "instrument": "63dbd6de142e",
+  "provisional": false,
+  "measured": true,
+  "backdrop": "wall",
+  "focal_px": 984,
+  "nearest_floor_m": 2.3887,
+  "measured_room": {
+    "storey_height_m": 3.473,
+    "wall_width_m": 6.537,
+    "ruled_storey_height_m": 3.4,
+    "ruled_wall_width_m": 6.4,
+    "carriers": []
+  },
+  "openings": [],
+  "windows": [],
+  "window_evidence": {
+    "unpainted": 0,
+    "read_by": "design/plan-draft/measured/window_measure.py",
+    "ruled": 0,
+    "painted": 0,
+    "unruled": [],
+    "note": "every glazed opening the painting shows answers to a window the plan rules"
+  }
+}

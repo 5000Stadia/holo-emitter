@@ -1,11 +1,11 @@
 {
   "instrument": "tools/make-scaffold.mjs materialProvenance()",
   "what": "the material sentences every promoted painting was actually asked for, against the sentences this composer writes today — and, where those differ, the MATERIALS each resolves to, which is what decides whether the wall is vouched (see `VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING` in the instrument)",
-  "promoted_facings": 8,
+  "promoted_facings": 14,
   "split_rooms": [],
   "superseded_rooms": [],
   "refined_rooms": [],
-  "vouched_facings": 8,
+  "vouched_facings": 14,
   "unrecoverable": [],
   "rooms": [
     {
@@ -176,6 +176,68 @@
           },
           "class": "current",
           "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/linoleum-buff\"],[\"walls\",\"wall/veneer-walnut\"]]"
+        },
+        {
+          "facing": "S",
+          "voice": "gallery_walnut",
+          "candidate": "backdrops/source/gallery-S/row23-dce57a09.png",
+          "ruling": {
+            "walls": "warm figured walnut veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a plain polished buff linoleum floor, lightly scuffed, unpatterned",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/gallery-S/row23-dce57a09.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/gallery-S/row23-dce57a09.prompt.txt)",
+          "ask_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/linoleum-buff\"],[\"walls\",\"wall/veneer-walnut\"]]"
+        },
+        {
+          "facing": "W",
+          "voice": "gallery_walnut",
+          "candidate": "backdrops/source/gallery-W/row23-3695662c.png",
+          "ruling": {
+            "walls": "warm figured walnut veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a plain polished buff linoleum floor, lightly scuffed, unpatterned",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/gallery-W/row23-3695662c.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/gallery-W/row23-3695662c.prompt.txt)",
+          "ask_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/linoleum-buff\"],[\"walls\",\"wall/veneer-walnut\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -204,6 +266,68 @@
           "verdict": "current",
           "asked": "",
           "ask_key": "(no material sentence this audit can read, in backdrops/source/gallery_far-N/row23-f1322202.prompt.txt)",
+          "ask_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/linoleum-buff\"],[\"walls\",\"wall/veneer-walnut\"]]"
+        },
+        {
+          "facing": "S",
+          "voice": "gallery_walnut",
+          "candidate": "backdrops/source/gallery_far-S/row23-0943e33a.png",
+          "ruling": {
+            "walls": "warm figured walnut veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a plain polished buff linoleum floor, lightly scuffed, unpatterned",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/gallery_far-S/row23-0943e33a.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/gallery_far-S/row23-0943e33a.prompt.txt)",
+          "ask_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-walnut",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/linoleum-buff",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/linoleum-buff\"],[\"walls\",\"wall/veneer-walnut\"]]"
+        },
+        {
+          "facing": "E",
+          "voice": "gallery_walnut",
+          "candidate": "backdrops/source/gallery_far-E/row23-4f1ecd11.png",
+          "ruling": {
+            "walls": "warm figured walnut veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a plain polished buff linoleum floor, lightly scuffed, unpatterned",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/gallery_far-E/row23-4f1ecd11.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/gallery_far-E/row23-4f1ecd11.prompt.txt)",
           "ask_materials": {
             "walls": "wall/veneer-walnut",
             "overhead": "ceiling/plaster-cove",
@@ -260,6 +384,37 @@
           },
           "class": "current",
           "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/carpet-terracotta\"],[\"walls\",\"wall/veneer-sycamore\"]]"
+        },
+        {
+          "facing": "W",
+          "voice": "saloon_sycamore",
+          "candidate": "backdrops/source/saloon-W/row23-7231e69d.png",
+          "ruling": {
+            "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer; a single blank round brushed-chrome medallion mounted on the wall",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/saloon-W/row23-7231e69d.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon-W/row23-7231e69d.prompt.txt)",
+          "ask_materials": {
+            "walls": "wall/veneer-sycamore",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/carpet-terracotta",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-sycamore",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/carpet-terracotta",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/carpet-terracotta\"],[\"walls\",\"wall/veneer-sycamore\"]]"
         }
       ],
       "distinct_asks": 1,
@@ -288,6 +443,37 @@
           "verdict": "current",
           "asked": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove. Underfoot: a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern.",
           "ask_key": "flat cream painted plaster ceiling meeting walls in shallow stepped cove deep-pile fitted carpet in terracotta red with small all-over geometric pattern",
+          "ask_materials": {
+            "walls": "wall/veneer-sycamore",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/carpet-terracotta",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-sycamore",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/carpet-terracotta",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/carpet-terracotta\"],[\"walls\",\"wall/veneer-sycamore\"]]"
+        },
+        {
+          "facing": "E",
+          "voice": "saloon_sycamore",
+          "candidate": "backdrops/source/saloon_ne-E/row23-2ac4decc.png",
+          "ruling": {
+            "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer; a single blank round brushed-chrome medallion mounted on the wall",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/saloon_ne-E/row23-2ac4decc.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_ne-E/row23-2ac4decc.prompt.txt)",
           "ask_materials": {
             "walls": "wall/veneer-sycamore",
             "overhead": "ceiling/plaster-cove",

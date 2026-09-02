@@ -1,0 +1,7 @@
+=== gallery_far/S --from-wall gallery_far/N Tue Sep  1 08:47:17 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/gallery_far/N.png (scale 0.975)
+pair 1: attempt 1, rolls ['0943e33a', '81ee5baf'] ordered (order ok)
+sweep: gallery_far/S            PROMOTE   PASS -4.3% focal, promoted and baked
+learn: pair scales [0.9945, 0.9916] -> z 0.9750 -> 0.9573
+LANDED: gallery_far/S promoted after 2 loop roll(s)

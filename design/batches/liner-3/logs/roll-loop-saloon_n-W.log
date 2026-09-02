@@ -1,0 +1,4 @@
+=== saloon_n/W --from-wall saloon_n/N Tue Sep  1 08:56:09 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+GUIDE FAILED:  close-guide: saloon_n/N has no promoted store to cut from
+

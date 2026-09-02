@@ -7,10 +7,10 @@
   "height_m": 1.2,
   "datum": "floor",
   "contrast_min": 0.3,
-  "contrast_why": "A chrome capping strip over an ebony dado is the highest-contrast line on the wall: the rail band's luminance dip is 0.5-0.95 of its median wherever the strip is painted inside it and 0.01-0.03 wherever it is not (gallery_far/N 8b6b3e2b read a veneer row in the band as the rail and PASSed a wall painted at 0.81 scale). Below this floor the band holds no anchor and the reading says so.",
+  "contrast_why": "A chrome capping strip over an ebony dado is the highest-contrast line on the wall: the strip's step into the field beneath it (strip luma minus the mean of rows 3-12 below, over the strip luma) is 0.56-0.93 wherever the strip is painted and 0.02-0.26 wherever the band holds none (gallery_far/N 8b6b3e2b read a veneer row in the band as the rail and PASSed a wall painted at 0.81 scale). Below this floor the band holds no anchor and the reading says so.",
   "why": "This ship's universal anchor: the dado's chrome capping strip at 1.20 m on every inboard first-class wall including the returns. A painter draws it and the instrument finds it.",
   "line": "bright-strip",
-  "line_why": "The anchor is a LIGHT line over a dark field. The corpus rule reads the rail as the band's darkest row (a painted capping's undercut); over an ebony dado the darkest row is the dado itself, anywhere in the band - gallery_far/N dca24599's strip sat at y 523, the rail read 541 (the band's last row) and a wall painted on the ruled camera FAILED at -11 %, while every earlier pass read 8-15 px under its strip. The rail is the band's brightest row, and the contrast the ruler must show is that row's rise over the band's median."
+  "line_why": "The anchor is a LIGHT line over a dark field. The corpus rule reads the rail as the band's darkest row (a painted capping's undercut); over an ebony dado the darkest row is the dado itself, anywhere in the band - gallery_far/N dca24599's strip sat at y 523, the rail read 541 (the band's last row) and a wall painted on the ruled camera FAILED at -11 %, while every earlier pass read 8-15 px under its strip. The rail is the row that steps brightest into the field beneath it, and that step is the contrast the ruler must show: read as a rise over the band's median instead, the strip on the saloon's pale burl (173 over a wall of 162) measured 0.21 and 0.04 on two rolls that had it at the ruled row (saloon/W b60854c9, 426e0fd2) and both were refused as ABSENT."
  },
  "conventions": {
   "window_sill_m": 0.9,

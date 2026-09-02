@@ -389,13 +389,28 @@ def _floor_and_rail(L, cfg, picks):
     # strip and passed at -6..-7 % by the luck of where the dado's argmin fell.
     # A pack whose ruler is a light line over a dark field says so
     # (`ruler.line: "bright-strip"`), and its rail is the band's brightest row.
+    # [saloon/W b60854c9, 426e0fd2] ... and the LINE IS READ AGAINST THE FIELD
+    # IT CAPS, not against the band: on the saloon's pale burl the chrome
+    # strip is 173 over a wall of 162 (a rise of 0.21 on the band's median;
+    # 0.04 on its twin) and both rolls read the strip at the ruled row and were
+    # refused as ABSENT. The strip is a bright row with the dark field
+    # immediately beneath it (162 -> 7 across three rows); the row that
+    # maximises that step is the strip, and the step is its contrast.
     rail_read = dict(rule="darkest-row")
     if (_PACK.ruler.get("line") if _PACK else None) == "bright-strip":
         a, b = cfg["rail_band"]
         cols = np.concatenate([np.arange(int(x0), int(x1)) for x0, x1 in cfg["rail_columns"]])
-        prof = L[a:b + 1][:, cols].mean(axis=1)
-        strip = a + int(np.argmax(prof))
-        rail_read = dict(rule="bright-strip", darkest_row=int(mod["dado_rail_y_px"]), strip=strip)
+        Hh = L.shape[0]
+        rows = np.arange(int(a), int(b) + 1)
+        prof = L[:, cols].mean(axis=1)
+        below = np.array([prof[min(Hh - 1, r + 3):min(Hh, r + 12)].mean() for r in rows])
+        step = prof[rows] - below
+        i = int(np.argmax(step))
+        strip = int(rows[i])
+        top = float(prof[strip])
+        contrast = round((top - float(below[i])) / top, 3) if top > 0 else 0.0
+        rail_read = dict(rule="bright-strip", darkest_row=int(mod["dado_rail_y_px"]), strip=strip,
+                         strip_luma=round(top, 1), field_below=round(float(below[i]), 1), contrast=contrast)
         mod["dado_rail_y_px"] = strip
         mod["dado_rail_above_floor_px"] = floor_y - strip
     mod["rail_read"] = rail_read
@@ -1188,9 +1203,9 @@ def measure_candidate(path, side, cfg, ref, picks):
         if len(_p):
             _med = float(np.median(_p))
             if (mod.get("rail_read") or {}).get("rule") == "bright-strip":
-                # the anchor is a light line: its contrast is the band's rise
-                # over the median, read the same way the dip is
-                rail_dip = round((float(_p.max()) - _med) / _med, 3) if _med > 0 else 0.0
+                # the anchor is a light line over a dark field: its contrast
+                # is the step from the strip into the field beneath it
+                rail_dip = float(mod["rail_read"]["contrast"])
             else:
                 rail_dip = round((_med - float(_p.min())) / _med, 3) if _med > 0 else 0.0
             if rail_dip < float(_cmin):
@@ -1215,7 +1230,16 @@ def measure_candidate(path, side, cfg, ref, picks):
     if not floor_in_band:
         absent.append("the floor line reads y %d, outside the y %d..%d the standing "
                       "licence allows" % (floor_y, a, b))
-    if not rail_in_band and rail_dip is not None and rail_dip < float(_cmin):
+    if not rail_in_band and rail_dip is not None and rail_dip < float(_cmin) \
+            and (mod.get("rail_read") or {}).get("rule") == "bright-strip":
+        _rr = mod["rail_read"]
+        absent.append("the %s is not painted inside y %d..%d: no row there is a light line "
+                      "over a dark field - the brightest step (y %d, luma %.0f over %.0f beneath) "
+                      "is %.2f of the strip against the %.2f this world's anchor shows wherever "
+                      "it is drawn, and the gate does not vote on fabric"
+                      % (cfg["anchor_label"], ra, rb, _rr["strip"], _rr["strip_luma"], _rr["field_below"],
+                         rail_dip, float(_cmin)))
+    elif not rail_in_band and rail_dip is not None and rail_dip < float(_cmin):
         absent.append("the %s is not painted inside y %d..%d: the band's luminance "
                       "dip is %.2f of its median against the %.2f this world's anchor "
                       "shows wherever it is drawn - the darkest row (y %d) is fabric, "
