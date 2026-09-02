@@ -52,9 +52,12 @@
    "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "writing_room/W": {
-   "attempts": 0,
-   "status": "retry",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
+   "attempts": 2,
+   "status": "promoted",
+   "candidate": "backdrops/source/writing_room-W/row23-1864f7a5.png",
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "gallery/N": {
    "attempts": 8,
@@ -106,7 +109,8 @@
   },
   "gallery/S": {
    "attempts": 0,
-   "status": "waiting"
+   "status": "retry",
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "gallery/E": {
    "attempts": 0,
@@ -196,11 +200,11 @@
   },
   "saloon_e/E": {
    "attempts": 4,
-   "status": "retry",
-   "candidate": "backdrops/source/saloon_e-E/row23-091fd1d6.png",
-   "exit": "warped",
-   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/saloon_e-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment run_end_left..corner_right x0.968, 125636 px revealed) \u2014 the correction is recorded, not waived",
-   "why": "withdrawn by the Navigator 2026-09-01 (second time): saloon_e/E warped from a doubled-corner roll, saloon_n/N promoted with a void return; re-rolled from repaired guides",
+   "status": "parked",
+   "candidate": "backdrops/source/saloon_e-E/row23-ae179338.png",
+   "exit": "grid",
+   "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.925..0.925, 16% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
+   "why": "the retry cap is spent; the wall stays grid and the run continues",
    "promotion_refused": [
     {
      "candidate": "backdrops/source/saloon_e-E/row23-091fd1d6.png",
@@ -250,7 +254,16 @@
    },
    "camera_source": "declared",
    "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 81.8, which puts the viewer's eye 3.205 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "snapped_from_family": "suspect-painting"
+   "snapped_from_family": "suspect-painting",
+   "correction": "draw 0.911x larger: 213.3 px/m at the wall plane, not 234.2",
+   "hold_family": "camera-miss",
+   "exit_attempt": {
+    "candidate": "backdrops/source/saloon_e-E/row23-ae179338.png",
+    "exit": "grid",
+    "instrument": "63dbd6de142e",
+    "candidate_sha256": null,
+    "at": "2026-09-01T20:31:42"
+   }
   },
   "saloon_e/W": {
    "attempts": 0,
@@ -258,7 +271,7 @@
   },
   "saloon_n/N": {
    "attempts": 4,
-   "status": "retry",
+   "status": "held",
    "candidate": "backdrops/source/saloon_n-N/row23-31e7ffbd.png",
    "exit": "measured",
    "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
@@ -268,7 +281,17 @@
     "why": "the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
     "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png"
    },
-   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+   "promotion_refused": [
+    {
+     "candidate": "backdrops/source/saloon_n-N/row23-31e7ffbd.png",
+     "delta_focal_pct": -1.17,
+     "family": "void-return",
+     "why": "VOID RETURN: the left return (x 4..100, rows 60..765) is painted black (mean luma 1.3 against 93.7 on the wall). The plan rules a lit side wall there; a surface nobody painted is not warped or tolerated, it is asked for."
+    }
+   ],
+   "hold_family": "void-return",
+   "correction": "camera PASS; held for the promotion instrument [void-return]: the left return of this wall, between the corner and the edge of frame, is a lit receding side wall in the same finish as the facing wall - its surface overhead, its wall-foot line and its dado line each run from the corner to the edge of frame toward the eye line Image 2 marks. It is not a dark void, a doorway or a shadow. Everything else stays exactly where Image 2 puts it."
   },
   "saloon_n/S": {
    "attempts": 0,

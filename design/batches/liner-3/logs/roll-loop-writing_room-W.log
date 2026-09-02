@@ -2,3 +2,6 @@
 guide close: z0 0.9750 (cap 1.0954)
 guide: z 0.9750 from backdrops/writing_room/N.png (scale 0.9944)
 pair 1: attempt 1, rolls ['1864f7a5', '20a27de5'] ordered (order ok)
+sweep: writing_room/W           PROMOTE   PASS -4.3% focal, promoted and baked
+learn: pair scales [0.9894, 0.9676] -> z 0.9750 -> 0.9715
+LANDED: writing_room/W promoted after 2 loop roll(s)

@@ -10,7 +10,7 @@ budget is spent. Every ask is compliant by construction (the emitter appends
 the voice record); every roll is judged by the standing instruments only.
 
 Usage: HOLO_PACK=<pack> python3 tools/roll-loop.py --wall <loc/F> --budget <rolls>
-       [--guide close [--precomp z] [--from-wall <lead loc/F>]]
+       [--guide close|deep [--precomp z] [--from-wall <lead loc/F>]]
 
 --guide close [2026-09-01]: before every pair the wall's Image 1 is rebuilt by
 tools/close-guide.py from its best roll, zoomed z about the vanishing point so
@@ -18,6 +18,13 @@ the painter's uniform shrink hands back the ruled picture; after every pair z
 is learned from the pair's own measured scale (z <- z / scale, clamped to
 [1.0, 1.3] and to the row that keeps the cornice in frame). Each step is
 appended to design/batches/<pack>/guide-loop.jsonl.
+
+--guide deep [2026-09-01, phase 2]: the same loop for a deep facing, Image 1
+rebuilt before every pair by tools/deep-guide.py from the promoted CLOSE
+paintings of the cells on the facing's wall line (the far wall) and of the
+shell straight ahead (ceiling, floor, side walls) - phase-1 law: no deep view
+before its close set. The scale is measured against the facing's own declared
+(deep) camera by the same close-guide instrument; z is learned the same way.
 """
 import argparse, json, os, subprocess, sys, tempfile, time
 
@@ -130,12 +137,27 @@ def build_close_guide(key, z, from_wall=None):
         return None
 
 
+def build_deep_guide(key, z):
+    r = sh(["python3", "tools/deep-guide.py", "--wall", key, "--precomp", f"{z:.4f}"],
+           env={**os.environ, "HOLO_PACK": PACK})
+    out = r.stdout.strip().splitlines()[-1] if r.stdout.strip() else ""
+    try:
+        g = json.loads(out)
+        if not g.get("ok"):
+            print("GUIDE FAILED:", out[-300:], flush=True)
+            return None
+        return g
+    except Exception:
+        print("GUIDE FAILED:", r.stdout[-300:], r.stderr[-300:], flush=True)
+        return None
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--wall", required=True)
     ap.add_argument("--budget", type=int, default=8)
     ap.add_argument("--wait-mins", type=int, default=40)
-    ap.add_argument("--guide", choices=["none", "close"], default="none")
+    ap.add_argument("--guide", choices=["none", "close", "deep"], default="none")
     ap.add_argument("--precomp", type=float, default=None,
                     help="starting zoom for --guide close (default: 1/mean scale of the wall's rolls)")
     ap.add_argument("--from-wall", dest="from_wall", default=None,
@@ -145,7 +167,8 @@ def main():
     loc, f = key.split("/")
     spent = 0
     z = None
-    if a.guide == "close":
+    guided = a.guide in ("close", "deep")
+    if guided:
         zcap = z_ceiling(key)
         if a.precomp is None:
             # unguided rolls carry the painter's shrink bias and say nothing
@@ -154,7 +177,7 @@ def main():
             z = clamp_z(Z_TARGET, zcap)
         else:
             z = clamp_z(a.precomp, zcap)
-        print(f"guide close: z0 {z:.4f} (cap {zcap:.4f})", flush=True)
+        print(f"guide {a.guide}: z0 {z:.4f} (cap {zcap:.4f})", flush=True)
     while True:
         st = wall_state(key)
         if st.get("status") == "promoted" and os.path.exists(
@@ -172,7 +195,17 @@ def main():
                 fh.write(json.dumps({"key": key, "step": "guide", "z": round(z, 4), "roll": g["roll"],
                                      "measured": g["measured"], "zoom": g["zoom"], "t": time.time()}) + "\n")
             print(f"guide: z {z:.4f} from {g['roll']} (scale {g['measured']['scale']})", flush=True)
-        set_retry(key, GUIDE_CORRECTION if a.guide == "close" else None)
+        elif a.guide == "deep":
+            g = build_deep_guide(key, z)
+            if not g:
+                return 5
+            with open(GUIDE_LOG, "a") as fh:
+                fh.write(json.dumps({"key": key, "step": "guide", "guide": "deep", "z": round(z, 4),
+                                     "shell": g["roll"], "measured": g["measured"], "far_wall": g["far_wall"],
+                                     "sides": g["sides"], "far_rect": g["far_rect"], "t": time.time()}) + "\n")
+            print(f"guide deep: z {z:.4f} shell {g['roll']} (scale {g['measured']['scale']}); far wall "
+                  f"{[(fw['cell'], fw['scale']) for fw in g['far_wall']]}; sides {g['sides']}", flush=True)
+        set_retry(key, GUIDE_CORRECTION if guided else None)
         r = sh(["node", "tools/make-scaffold.mjs", "--emit-retries", "--pack", PACK,
                 "--wall", key, "--retries", "99"])
         if "1 re-ask packet" not in r.stdout:
@@ -204,7 +237,7 @@ def main():
         for line in s.stdout.splitlines():
             if key in line:
                 print("sweep:", line.strip()[:160], flush=True)
-        if a.guide == "close":
+        if guided:
             ms = [close_measure(key, c) for _i, c in rolls]
             sc = [m["scale"] for m in ms if m and m.get("scale")]
             z_prev = z

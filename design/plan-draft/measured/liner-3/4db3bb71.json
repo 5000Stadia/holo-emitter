@@ -217,6 +217,9 @@
         "why": "the two side-wall junctions converge at y 147.5 but only to +/-29.5 px, and the standing licence on the horizon row is +/-20.2 px"
       }
     ],
+    "return_luma": {
+      "left": 79.3
+    },
     "corner_x0_px": 154,
     "corner_x1_px": 2816,
     "corner_evidence": {
@@ -333,5 +336,5 @@
   "id": "4db3bb71",
   "candidate": "backdrops/source/saloon_n-N/row23-4db3bb71.png",
   "candidate_sha256": "515965235e2ee0eda92b6a3d10852be1a7e9b367023c903529a92ce70ce36107",
-  "instrument": "4743941cf38d"
+  "instrument": "63dbd6de142e"
 }

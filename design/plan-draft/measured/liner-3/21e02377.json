@@ -217,6 +217,9 @@
         "why": null
       }
     ],
+    "return_luma": {
+      "left": 71.2
+    },
     "corner_x0_px": 102,
     "corner_x1_px": 2816,
     "corner_evidence": {
@@ -331,5 +334,5 @@
   "id": "21e02377",
   "candidate": "backdrops/source/saloon_n-N/row23-21e02377.png",
   "candidate_sha256": "fc6c05eab08c32e635dea2b31d367efe94e60af7d54ac15d5c2e42ccd8d5fa7d",
-  "instrument": "4743941cf38d"
+  "instrument": "63dbd6de142e"
 }

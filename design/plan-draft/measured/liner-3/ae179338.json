@@ -217,6 +217,9 @@
         "why": "the one return's ceiling and floor junctions meet at x 1056.9, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
       }
     ],
+    "return_luma": {
+      "right": 1.0
+    },
     "corner_x0_px": -1280,
     "corner_x1_px": 1466,
     "corner_evidence": {
@@ -321,9 +324,10 @@
     "eye_height_m": 0.3147,
     "horizon_instrument": "ceiling-ramp",
     "far_line_ruler": null,
-    "hold_family": "suspect-painting",
+    "hold_family": "void-return",
     "withheld_because": [
-      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 729.3, fixed to +/-5.5 px, inside the +/-20.2 px the standing licence allows the horizon row) puts the eye at 0.315 m above its own floor line at the scale its own gate anchor declares (234.2 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that."
+      "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 729.3, fixed to +/-5.5 px, inside the +/-20.2 px the standing licence allows the horizon row) puts the eye at 0.315 m above its own floor line at the scale its own gate anchor declares (234.2 px/m), outside 0.8-2.2 m. Both readings are determinate and they are of one picture, so they cannot both be true: the ruler and the perspective disagree, and no band is widened to admit that.",
+      "VOID RETURN: the right return (x 1472..1532, rows 81..793) is painted black (mean luma 1.0 against 92.9 on the wall). The plan rules a lit side wall there; a surface nobody painted is not warped or tolerated, it is asked for."
     ]
   },
   "delta_focal_pct": 9.77,
@@ -333,5 +337,5 @@
   "id": "ae179338",
   "candidate": "backdrops/source/saloon_e-E/row23-ae179338.png",
   "candidate_sha256": "a35beacae12c96cc957be90d335d1a5c29e97d42f2c35a33935321e9641f5392",
-  "instrument": "4743941cf38d"
+  "instrument": "63dbd6de142e"
 }

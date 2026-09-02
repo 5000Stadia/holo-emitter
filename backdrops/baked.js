@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 104 painting(s), 43.7 MB served in total,
+// 103 painting(s), 43.2 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -94,8 +94,6 @@
 //   reception/S: 2.27 MB of PNG -> 267 kB of JPEG (q92); channels move by 1.3194 on average, 14 at worst, of 255.
 //   reception/W: 2.10 MB of PNG -> 233 kB of JPEG (q92); channels move by 1.1619 on average, 15 at worst, of 255.
 //   saloon/S: 2.10 MB of PNG -> 408 kB of JPEG (q92); channels move by 1.2091 on average, 18 at worst, of 255.
-//   saloon_e/E: 1.90 MB of PNG -> 465 kB of JPEG (q92); channels move by 1.2964 on average, 22 at worst, of 255.
-//   saloon_n/N: 2.24 MB of PNG -> 444 kB of JPEG (q92); channels move by 1.3607 on average, 19 at worst, of 255.
 //   saloon_ne/N: 2.54 MB of PNG -> 489 kB of JPEG (q92); channels move by 1.7065 on average, 20 at worst, of 255.
 //   servants_hall/E: 3.14 MB of PNG -> 550 kB of JPEG (q92); channels move by 1.9944 on average, 22 at worst, of 255.
 //   servants_hall/N: 3.12 MB of PNG -> 548 kB of JPEG (q92); channels move by 2.0177 on average, 19 at worst, of 255.
@@ -120,8 +118,9 @@
 //   writing_room/E: 2.01 MB of PNG -> 358 kB of JPEG (q92); channels move by 1.0953 on average, 21 at worst, of 255.
 //   writing_room/N: 2.12 MB of PNG -> 352 kB of JPEG (q92); channels move by 1.215 on average, 19 at worst, of 255.
 //   writing_room/S: 1.92 MB of PNG -> 340 kB of JPEG (q92); channels move by 1.0399 on average, 23 at worst, of 255.
+//   writing_room/W: 2.39 MB of PNG -> 444 kB of JPEG (q92); channels move by 1.484 on average, 20 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "c3110381",
+  fp: "a0dfbcad",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -202,8 +201,6 @@ window.HOLO_BACKDROPS = {
   "reception/S": { file: "reception/S.jpg", bytes: 267317 },
   "reception/W": { file: "reception/W.jpg", bytes: 232888 },
   "saloon/S": { file: "saloon/S.jpg", bytes: 408439 },
-  "saloon_e/E": { file: "saloon_e/E.jpg", bytes: 464841 },
-  "saloon_n/N": { file: "saloon_n/N.jpg", bytes: 443502 },
   "saloon_ne/N": { file: "saloon_ne/N.jpg", bytes: 488543 },
   "servants_hall/E": { file: "servants_hall/E.jpg", bytes: 549616 },
   "servants_hall/N": { file: "servants_hall/N.jpg", bytes: 548334 },
@@ -227,6 +224,7 @@ window.HOLO_BACKDROPS = {
   "ward/W": { file: "ward/W.jpg", bytes: 208876 },
   "writing_room/E": { file: "writing_room/E.jpg", bytes: 358352 },
   "writing_room/N": { file: "writing_room/N.jpg", bytes: 351560 },
-  "writing_room/S": { file: "writing_room/S.jpg", bytes: 340439 }
+  "writing_room/S": { file: "writing_room/S.jpg", bytes: 340439 },
+  "writing_room/W": { file: "writing_room/W.jpg", bytes: 443842 }
   }
 };

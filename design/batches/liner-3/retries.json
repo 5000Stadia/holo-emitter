@@ -7,7 +7,7 @@
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-09-02",
   "emitted": 1,
-  "carried": 12,
+  "carried": 13,
   "refused": 0,
   "entries": [
     {
@@ -297,6 +297,63 @@
           "id": "35d3ce83",
           "candidate": "backdrops/source/gallery-N/row23-35d3ce83.png",
           "prompt": "backdrops/source/gallery-N/row23-35d3ce83.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "gallery/S",
+      "attempt": 1,
+      "packet": "design/batches/liner-3/gallery-S/retry-1",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "door",
+        "no-window"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "0a727837fd0be5cbd81d75b329a984c8d7d5545e92719b72814d262fd1ca6e18",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": false,
+      "continues": "gallery/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/gallery/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-gallery-S.png",
+        "rel": "backdrops/grown/gallery-S.png",
+        "room": "gallery",
+        "facing": "S",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "dce57a09",
+          "candidate": "backdrops/source/gallery-S/row23-dce57a09.png",
+          "prompt": "backdrops/source/gallery-S/row23-dce57a09.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "9b27471f",
+          "candidate": "backdrops/source/gallery-S/row23-9b27471f.png",
+          "prompt": "backdrops/source/gallery-S/row23-9b27471f.prompt.txt"
         }
       ]
     },

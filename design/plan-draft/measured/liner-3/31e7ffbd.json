@@ -217,6 +217,9 @@
         "why": "the one return's ceiling and floor junctions meet at x 473.9, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
       }
     ],
+    "return_luma": {
+      "left": 1.3
+    },
     "corner_x0_px": 106,
     "corner_x1_px": 2816,
     "corner_evidence": {
@@ -321,8 +324,10 @@
     "eye_height_m": 1.1739,
     "horizon_instrument": "ceiling-ramp",
     "far_line_ruler": null,
-    "hold_family": null,
-    "withheld_because": []
+    "hold_family": "void-return",
+    "withheld_because": [
+      "VOID RETURN: the left return (x 4..100, rows 60..765) is painted black (mean luma 1.3 against 93.7 on the wall). The plan rules a lit side wall there; a surface nobody painted is not warped or tolerated, it is asked for."
+    ]
   },
   "delta_focal_pct": -1.17,
   "delta_eye_pct": -0.21,
@@ -331,5 +336,5 @@
   "id": "31e7ffbd",
   "candidate": "backdrops/source/saloon_n-N/row23-31e7ffbd.png",
   "candidate_sha256": "701dc088a599447d809ff78ee704ff2d2894ca5a6aa746c1ec1dbb0b4af1ab6c",
-  "instrument": "4743941cf38d"
+  "instrument": "63dbd6de142e"
 }

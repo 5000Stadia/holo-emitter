@@ -1,0 +1,358 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 767,
+    "chair_rail_y_px": 522,
+    "dado_rail_above_floor_px": 245,
+    "floor_read": {
+      "minimum": 766,
+      "rule": "skirting-base",
+      "saturated": false,
+      "foot": 767
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 531,
+      "strip": 522
+    },
+    "capping_above_floor_px": 236,
+    "rail_dip": 0.818
+  },
+  "_windows": {
+    "floor": [
+      758,
+      798
+    ],
+    "rail": [
+      501,
+      542
+    ],
+    "ceiling": [
+      0,
+      111
+    ],
+    "columns": [
+      [
+        85,
+        1450
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 204.167,
+  "implied_focal_px": 980.0,
+  "eye_height_m": 1.1799,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 53,
+    "ceiling_candidates": [
+      {
+        "y": 54,
+        "strength": 52.55,
+        "horiz": 0.992,
+        "cv": 0.11
+      },
+      {
+        "y": 60,
+        "strength": 44.42,
+        "horiz": 0.978,
+        "cv": 0.163
+      },
+      {
+        "y": 11,
+        "strength": 20.41,
+        "horiz": 1.0,
+        "cv": 0.084
+      },
+      {
+        "y": 67,
+        "strength": 19.25,
+        "horiz": 0.954,
+        "cv": 0.243
+      },
+      {
+        "y": 109,
+        "strength": 3.92,
+        "horiz": 0.734,
+        "cv": 0.829
+      },
+      {
+        "y": 98,
+        "strength": 3.81,
+        "horiz": 0.718,
+        "cv": 0.881
+      },
+      {
+        "y": 91,
+        "strength": 3.43,
+        "horiz": 0.712,
+        "cv": 0.877
+      },
+      {
+        "y": 82,
+        "strength": 3.12,
+        "horiz": 0.693,
+        "cv": 0.881
+      },
+      {
+        "y": 74,
+        "strength": 2.57,
+        "horiz": 0.709,
+        "cv": 0.837
+      },
+      {
+        "y": 24,
+        "strength": 2.1,
+        "horiz": 0.923,
+        "cv": 0.342
+      },
+      {
+        "y": 30,
+        "strength": 2.01,
+        "horiz": 0.931,
+        "cv": 0.35
+      },
+      {
+        "y": 18,
+        "strength": 1.65,
+        "horiz": 0.859,
+        "cv": 0.433
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 53,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 59,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 10,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 66,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 108,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 97,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 90,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 81,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 73,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 23,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 29,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.57,
+        "horizon_y_px": 502.6,
+        "agrees_with_gate": false,
+        "why": null
+      }
+    ],
+    "return_luma": {
+      "left": 62.6,
+      "right": 63.2
+    },
+    "corner_x0_px": 106,
+    "corner_x1_px": 1429,
+    "corner_evidence": {
+      "left_fit_r2": 0.0029,
+      "right_fit_r2": 0.0165,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame",
+      "left_witness": {
+        "foot": 182,
+        "foot_fit": 0.9036458333333334,
+        "rail_abstains": "level with the horizon",
+        "cornice": 90,
+        "cornice_fit": 0.9622395833333334,
+        "seams": {
+          "foot": [
+            211,
+            6.5
+          ],
+          "cornice": [
+            106,
+            40.0
+          ]
+        },
+        "agreeing": [
+          "cornice"
+        ],
+        "rule": "the kink standing on the strongest vertical seam, snapped to it",
+        "x": 106,
+        "used": true
+      },
+      "right_witness": {
+        "foot": 1355,
+        "foot_fit": 0.8997395833333334,
+        "rail_abstains": "level with the horizon",
+        "cornice": 1447,
+        "cornice_fit": 0.8828125,
+        "seams": {
+          "foot": [
+            1325,
+            5.7
+          ],
+          "cornice": [
+            1429,
+            36.6
+          ]
+        },
+        "agreeing": [
+          "cornice"
+        ],
+        "rule": "the kink standing on the strongest vertical seam, snapped to it",
+        "x": 1429,
+        "used": true
+      }
+    },
+    "horizon_bracket_px": 20.19,
+    "ramp": {
+      "x": 762.0,
+      "y": 502.6,
+      "left_slope": 0.6707,
+      "right_slope": -0.6598,
+      "left_n": 54,
+      "left_resid_px": 0.31,
+      "right_n": 56,
+      "right_resid_px": 0.42,
+      "sigma_y_px": 1.57
+    },
+    "votes": {
+      "floor": {
+        "x": 806,
+        "y": 565,
+        "edge_px": 27617
+      },
+      "ceiling": {
+        "x": 814,
+        "y": 465,
+        "edge_px": 1037
+      },
+      "side_walls": {
+        "x": 794,
+        "y": 485,
+        "edge_px": 732
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 878,
+      "key_dir_brightest_y": 43,
+      "key_tint": "#c89e70",
+      "key_tint_patch": [
+        678,
+        1078,
+        0,
+        45
+      ],
+      "key_tint_patch_mean_rgb": [
+        202.16,
+        160.01,
+        112.85
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#5f80c8",
+        "floor_bottom_strip": "#5a7ec8",
+        "mid_wall_right": "#c87220",
+        "mid_wall_left": "#c87220",
+        "brightest_21x21_patch": "#c8a881"
+      },
+      "brightest_21x21_patch_centre_px": [
+        878,
+        43
+      ],
+      "sobel_bright_side_deg_whole_frame": 93.04,
+      "sobel_bright_side_deg_wall_band": 97.86,
+      "left_third_minus_right_third_luminance_whole_frame": 0.753,
+      "left_third_minus_right_third_luminance_wall_band": 0.552
+    },
+    "storey_height_m": 3.4971,
+    "implied_wall_width_m": 6.48,
+    "eye_height_m": 1.295,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": "suspect-painting",
+    "withheld_because": [
+      "SUSPECT PAINTING: this frame's returns converge at y 502.6 (+/-1.6 px), 24 px from the horizon row 526.1 its own gate reading stands on, beyond the +/-20.2 px licence and the reading's own bar. The wall is drawn at one camera and its return at another; two readings of one picture disagree about where the eye is, and neither is widened to admit the other."
+    ]
+  },
+  "delta_focal_pct": -4.3,
+  "delta_eye_pct": -0.26,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "20a27de5",
+  "candidate": "backdrops/source/writing_room-W/row23-20a27de5.png",
+  "candidate_sha256": "c92666e250ba4d81329eea8073dd944e95176996b7623f324adddc0459274b3a",
+  "instrument": "63dbd6de142e"
+}
