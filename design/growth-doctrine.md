@@ -212,3 +212,68 @@ distance. Deep and backward views are built only after, as G-PREP guides
 whose far-wall element is cover-fit from the CLOSE painting of the wall being
 faced (never from the seed's own back-wall cut), and whose door assets come
 from the close door-wall painting.
+
+
+## Amendment — the close-guide landing loop (2026-09-01, liner-3)
+
+Standing directive [Kabe, 2026-09-01]: "assure a strong programatic process
+that produces good results... if we have to do re-rolls I would like you to
+assess the situation with the re-rolls because I really want to minimize the
+chances that the image execution is not usable."
+
+The re-roll assessment, gallery/N (eight rolls read). Unguided, the painter
+shrinks the wall (0.76-0.93 of ruled). Given a close guide as Image 1 it
+returns the guide's own scale within ~2% (z 1.0954 -> 1.104/1.091; z 1.0 ->
+1.007/0.994; z 0.975 -> 0.995/0.994), so scale is no longer where rolls are
+lost. What still lost them was the RETURN: the painter also follows whatever
+junction lines the guide draws on the side walls, and a guide whose returns
+were lifted from the roll carried the roll's own convergence (returns meeting
+at y 390-475 against the ruled 526). Four consecutive PASS-scale rolls were
+refused as suspect for that alone.
+
+The construction, tools/close-guide.py + tools/roll-loop.py --guide close:
+
+* The guide is ruled on the DECLARED camera (deriveMeta), never the fixture
+  bake — a promoted wall's bake carries the MEASURED camera, and a guide ruled
+  on it would teach the last painting's error to the next.
+* --precomp z is applied to the ruled geometry about the vanishing point
+  BEFORE the planes are cut (never a post-zoom crop: a z<1 paste reveals
+  border). Z_TARGET 0.975: the warp finisher enlarges a slightly-small
+  painting by cropping (0 px revealed) but shrinks a large one only by
+  revealing edge (1.043 -> 8.6% > the 8% budget), so a hair under ruled lands
+  every roll inside the finisher.
+* The returns are drawn from the ruled convergence only: return covers are
+  Gaussian-softened (RETURN_BLUR 10) and the ceiling/floor covers are sourced
+  BETWEEN the returns (RETURN_MARGIN 80), so no junction line of the roll's
+  own survives; the ruled seams are then ruled over the top. The ask states
+  the drawn rows.
+* The loop learns z from the pair's measured scale (z <- z * 0.975 / mean),
+  clamped to [0.85, 1.3] and to the row that keeps the cornice in frame.
+
+The verifier hazards the campaign found, all hardened (row23_lib.py,
+promote-backdrop.mjs):
+
+* run corner scale — the run's corner span was divided by the CELL width
+  (door02 read 0.45x); promote-backdrop divides the runSpanOf span.
+* one-return admissibility — a 37-px return "fitted" a horizon at 583 from a
+  ceiling score of 1.6 against a floor of 48.8, meeting at x 380; a
+  one-return fit must meet on the principal column (+/-15% W), inside the
+  slope search, with both junctions textured (min score >= 15% of max).
+* one picture, one eye — the gate reads the eye off the floor line against
+  the ruled horizon row; the returns are a second reading of the same eye.
+  Where they converge more than the licence (+/-20 px) plus their own bar
+  from that row, the painting is suspect (the 0.8-2.2 m eye band alone
+  admitted a return at y 390, eye 1.89 m against the gate's 1.22).
+* the ceiling-row tie — the cove light sits 8 px above the cornice on the
+  liner's panelled walls and both rows fit a horizon; "tightest wins" chose
+  the light band on 9246d44a (y 459 +/-6) and the cornice on its twin
+  35d3ce83 (540 +/-12). Among admissible rows the one agreeing with the
+  gate's row wins the tie, then the tighter.
+* all PASS arrivals are offered to promotion in |delta focal| order; a
+  refused nearest no longer parks the wall while a fitted twin waits.
+
+Landing: attempt 7 pair 0.995/0.994 of ruled, both PASS (-6.6% focal; the
+painter sets the chair rail ~7 px low, and the rail-to-floor band is the
+focal ruler), 35d3ce83 promoted measured, horizon 540. The wall is the guide
+handed back — which is the point: the deterministic engine draws the
+picture, the painter finishes the surfaces.
