@@ -1,35 +1,35 @@
 {
  "mode": "deep-guide",
- "wall": "saloon_n/S",
+ "wall": "saloon_ne/S",
  "pack": "liner-3",
- "shell": "backdrops/saloon/S.png",
+ "shell": "backdrops/saloon_e/S.png",
  "far_cells": [
   "saloon_e",
   "saloon"
  ],
  "sides": {
   "left": {
+   "open": false,
+   "via": [],
+   "u_m": -3.1999999999999993
+  },
+  "right": {
    "open": true,
    "via": [
     "way03",
     "way02"
    ],
-   "u_m": -3.2000000000000006
-  },
-  "right": {
-   "open": false,
-   "via": [],
    "u_m": 3.2
   }
  },
  "far_rect": [
-  -58.8,
-  335.2,
-  1043.6,
-  628.0
+  482.7,
+  328.5,
+  1623.8,
+  631.6
  ],
- "run_m": 12.8,
- "depth_ratio": 0.40371428571428575,
+ "run_m": 12.799999999999999,
+ "depth_ratio": 0.4178571428571428,
  "vp": [
   768.0,
   526.1
@@ -38,58 +38,54 @@
   {
    "id": "door02",
    "cols": [
-    716,
-    820
+    1285,
+    1392
    ]
   }
  ],
  "elements": {
   "shell": {
-   "painting": "backdrops/saloon/S.png",
+   "painting": "backdrops/saloon_e/S.png",
    "rows": {
-    "ceil": 60.0,
-    "rail": 521.6,
-    "foot": 770.0,
-    "x0": -1280.0,
-    "x1": 1434
+    "ceil": 63.0,
+    "rail": 522.9,
+    "foot": 779.0,
+    "x0": 106,
+    "x1": 2816.0
    },
    "from": "measured",
-   "scale": 0.9705,
-   "door": {
-    "x0": 655,
-    "x1": 884,
-    "head": 353
-   }
+   "scale": 1.0002,
+   "door": null
   },
   "ceiling": {
-   "scale": 10.4737
+   "scale": 9.3849
   },
   "floor": {
-   "scale": 1.7523
+   "scale": 1.8085
   },
-  "right_wall_upper": {
-   "scale": 5.3521,
+  "left_wall_upper": {
+   "scale": 5.0286,
    "blur": 10,
    "from": "own"
   },
-  "right_wall_lower": {
-   "scale": 5.3521,
+  "left_wall_lower": {
+   "scale": 5.0286,
    "blur": 10,
    "from": "own"
   },
   "far_wall_saloon_e": {
-   "scale": 0.409
+   "scale": 0.4233
   },
   "far_wall_saloon": {
-   "scale": 0.4124
+   "scale": 0.4269
   },
   "far_wall": [
    {
     "cell": "saloon_e",
     "from": "measured",
     "at_px": [
-     -59,
-     492
+     483,
+     1053
     ],
     "scale": 1.0002,
     "rows": {
@@ -105,8 +101,8 @@
     "cell": "saloon",
     "from": "measured",
     "at_px": [
-     492,
-     1044
+     1053,
+     1624
     ],
     "scale": 0.9705,
     "rows": {
@@ -124,24 +120,24 @@
    }
   ],
   "joins_px": [
-   492
+   1053
   ]
  },
  "guards": [
   {
    "band": "ceiling_front",
-   "max": 0.51,
-   "median": 0.1,
+   "max": 4.55,
+   "median": 0.08,
    "ok": true
   },
   {
    "band": "floor_front",
-   "max": 5.5,
-   "median": 4.09,
+   "max": 4.36,
+   "median": 2.95,
    "ok": true
   }
  ],
- "precomp": 0.942,
- "depth_drawn_m": 11.8896,
- "out": "backdrops/grown/saloon_n-S.png"
+ "precomp": 0.975,
+ "depth_drawn_m": 11.4872,
+ "out": "backdrops/grown/saloon_ne-S.png"
 }

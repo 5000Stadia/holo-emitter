@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 120 painting(s), 50.3 MB served in total,
+// 121 painting(s), 50.6 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -109,6 +109,7 @@
 //   saloon_e/W: 1.90 MB of PNG -> 354 kB of JPEG (q92); channels move by 1.0669 on average, 24 at worst, of 255.
 //   saloon_n/E: 2.21 MB of PNG -> 452 kB of JPEG (q92); channels move by 1.3432 on average, 23 at worst, of 255.
 //   saloon_n/N: 2.29 MB of PNG -> 462 kB of JPEG (q92); channels move by 1.2818 on average, 17 at worst, of 255.
+//   saloon_n/S: 2.05 MB of PNG -> 367 kB of JPEG (q92); channels move by 1.1711 on average, 20 at worst, of 255.
 //   saloon_n/W: 2.22 MB of PNG -> 493 kB of JPEG (q92); channels move by 1.2966 on average, 16 at worst, of 255.
 //   saloon_ne/E: 2.11 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.1597 on average, 17 at worst, of 255.
 //   saloon_ne/N: 2.26 MB of PNG -> 447 kB of JPEG (q92); channels move by 1.293 on average, 17 at worst, of 255.
@@ -137,7 +138,7 @@
 //   writing_room/S: 1.92 MB of PNG -> 340 kB of JPEG (q92); channels move by 1.0399 on average, 23 at worst, of 255.
 //   writing_room/W: 2.39 MB of PNG -> 444 kB of JPEG (q92); channels move by 1.484 on average, 20 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "17ce2bae",
+  fp: "78ca9e5c",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -233,6 +234,7 @@ window.HOLO_BACKDROPS = {
   "saloon_e/W": { file: "saloon_e/W.jpg", bytes: 354242 },
   "saloon_n/E": { file: "saloon_n/E.jpg", bytes: 452419 },
   "saloon_n/N": { file: "saloon_n/N.jpg", bytes: 462121 },
+  "saloon_n/S": { file: "saloon_n/S.jpg", bytes: 367476 },
   "saloon_n/W": { file: "saloon_n/W.jpg", bytes: 492543 },
   "saloon_ne/E": { file: "saloon_ne/E.jpg", bytes: 455248 },
   "saloon_ne/N": { file: "saloon_ne/N.jpg", bytes: 446732 },

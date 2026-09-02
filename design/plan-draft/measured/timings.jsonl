@@ -20778,3 +20778,44 @@
 {"ts_start":1788327703.111,"ts_end":1788327703.448,"step":"emit.facing","key":"saloon_n/S","detail":{"carriers":1,"voice":"saloon_sycamore","retry":1}}
 {"ts_start":1788327703.449,"ts_end":1788327703.454,"step":"emit.packet","key":"saloon_n/S","detail":{"rolls":2,"roll_ids":["2f4fc409","1afbc33d"],"prompt_chars":5350,"retry":1}}
 {"ts_start":1788327701.924,"ts_end":1788327703.525,"step":"emit.run","key":null,"detail":{"mode":"retries","emitted":1,"refused":0}}
+{"detail":{"candidate":"backdrops/source/saloon_n-S/row23-2f4fc409.png","kind":null,"roll_id":"2f4fc409","verdict":"PASS"},"key":"saloon_n/S","step":"measure.candidate","ts_end":1788327860.422211,"ts_start":1788327855.749613}
+{"detail":{"candidate":"backdrops/source/saloon_n-S/row23-1afbc33d.png","kind":null,"roll_id":"1afbc33d","verdict":"PASS"},"key":"saloon_n/S","step":"measure.candidate","ts_end":1788327865.390947,"ts_start":1788327860.423135}
+{"ts_start":1788327865.665,"ts_end":1788327865.676,"step":"promote.backdrop","key":"saloon_n/S","detail":{"candidate":"backdrops/source/saloon_n-S/row23-2f4fc409.png","exit_code":1,"refused":true}}
+{"detail":{"camera_source":"measured","candidate":"backdrops/source/saloon_n-S/row23-2f4fc409.png","refused":true,"why":"promote refused: saloon_n/S: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player woul"},"key":"saloon_n/S","step":"promote.wall","ts_end":1788327865.687852,"ts_start":1788327865.391845}
+{"ts_start":1788327865.96,"ts_end":1788327865.971,"step":"promote.backdrop","key":"saloon_n/S","detail":{"candidate":"backdrops/source/saloon_n-S/row23-1afbc33d.png","exit_code":1,"refused":true}}
+{"detail":{"camera_source":"measured","candidate":"backdrops/source/saloon_n-S/row23-1afbc33d.png","refused":true,"why":"promote refused: saloon_n/S: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player woul"},"key":"saloon_n/S","step":"promote.wall","ts_end":1788327865.983293,"ts_start":1788327865.688002}
+{"detail":{"failed":1,"parked":0,"promote_enabled":true,"promoted":0,"waiting":2},"key":null,"step":"sweep.pass","ts_end":1788327865.983812,"ts_start":1788327855.74763}
+{"ts_start":1788327870.064,"ts_end":1788327870.383,"step":"emit.facing","key":"saloon_n/S","detail":{"carriers":1,"voice":"saloon_sycamore","retry":3}}
+{"ts_start":1788327870.384,"ts_end":1788327870.393,"step":"emit.packet","key":"saloon_n/S","detail":{"rolls":2,"roll_ids":["fc4fc120","bc24e234"],"prompt_chars":5350,"retry":3}}
+{"ts_start":1788327868.855,"ts_end":1788327870.513,"step":"emit.run","key":null,"detail":{"mode":"retries","emitted":1,"refused":0}}
+{"detail":{"candidate":"backdrops/source/saloon_n-S/row23-fc4fc120.png","kind":null,"roll_id":"fc4fc120","verdict":"PASS"},"key":"saloon_n/S","step":"measure.candidate","ts_end":1788328027.963688,"ts_start":1788328022.765809}
+{"detail":{"candidate":"backdrops/source/saloon_n-S/row23-bc24e234.png","kind":null,"roll_id":"bc24e234","verdict":"PASS"},"key":"saloon_n/S","step":"measure.candidate","ts_end":1788328033.02902,"ts_start":1788328027.964646}
+{"ts_start":1788328033.304,"ts_end":1788328033.317,"step":"promote.backdrop","key":"saloon_n/S","detail":{"candidate":"backdrops/source/saloon_n-S/row23-2f4fc409.png","exit_code":1,"refused":true}}
+{"detail":{"camera_source":"measured","candidate":"backdrops/source/saloon_n-S/row23-2f4fc409.png","refused":true,"why":"promote refused: saloon_n/S: the plan rules 1 way(s) through this wall and the painting shows 0 \u2014 a doorway the world walks through with no hole in the picture is not promotable, because a player woul"},"key":"saloon_n/S","step":"promote.wall","ts_end":1788328033.327257,"ts_start":1788328033.029936}
+{"ts_start":1788328033.598,"ts_end":1788328033.932,"step":"promote.backdrop","key":"saloon_n/S","detail":{"candidate":"backdrops/source/saloon_n-S/row23-fc4fc120.png","exit_code":0,"refused":false}}
+{"detail":{"camera_source":"measured","candidate":"backdrops/source/saloon_n-S/row23-fc4fc120.png","refused":false,"why":null},"key":"saloon_n/S","step":"promote.wall","ts_end":1788328034.018757,"ts_start":1788328033.327419}
+{"detail":{"action":"materials","files":1,"note":null,"refused":false,"wrote":["design/plan-draft/measured/material_provenance.json"]},"key":"material_provenance","step":"derive.regen","ts_end":1788328036.618033,"ts_start":1788328036.48458}
+{"detail":{"action":"room_consistency","files":2,"note":null,"refused":false,"wrote":["design/plan-draft/measured/room_consistency.json","design/batches/row40-consistency/README.md"]},"key":"room_consistency","step":"derive.regen","ts_end":1788328056.760461,"ts_start":1788328036.618168}
+{"detail":{"action":"window_calibration","files":0,"note":null,"refused":false,"wrote":[]},"key":"window_calibration","step":"derive.regen","ts_end":1788328066.376641,"ts_start":1788328056.760679}
+{"ts_start":1788328066.416,"ts_end":1788328098.953,"step":"bake.backdrops","key":null,"detail":{"paintings":121,"out_bytes":22865,"fp":"78ca9e5c","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":274084052,"jpeg_bytes":50642098}}
+{"ts_start":1788328099.025,"ts_end":1788328099.068,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788328099.137,"ts_end":1788328099.218,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788328099.285,"ts_end":1788328099.329,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788328099.397,"ts_end":1788328099.459,"step":"bake.fixtures","key":"liner-3","detail":{"fp":"a9f4733b","out_bytes":138664,"facings":28,"locations":7}}
+{"ts_start":1788328099.533,"ts_end":1788328099.73,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788328099.827,"ts_end":1788328099.876,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"84015222","out_bytes":83614,"facings":12,"locations":3}}
+{"detail":{"action":"bake","files":2,"note":null,"refused":false,"wrote":["backdrops/baked.js","fixtures/liner-3/fixture.js"]},"key":"baked","step":"derive.regen","ts_end":1788328099.890656,"ts_start":1788328066.376868}
+{"detail":{"files":5,"notes":[],"reason":"sweep","stale":["material_provenance","material_legacy","room_consistency","room_consistency_readme","window_calibration","baked"]},"key":null,"step":"derive.sweep","ts_end":1788328103.781196,"ts_start":1788328034.020674}
+{"detail":{"fixture":"fixtures/liner-3","refused":false},"key":null,"step":"validate.sweep","ts_end":1788328106.330682,"ts_start":1788328106.227679}
+{"ts_start":1788328106.367,"ts_end":1788328138.705,"step":"bake.backdrops","key":null,"detail":{"paintings":121,"out_bytes":22865,"fp":"78ca9e5c","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":274084052,"jpeg_bytes":50642098}}
+{"ts_start":1788328138.78,"ts_end":1788328138.822,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788328138.887,"ts_end":1788328138.964,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788328139.039,"ts_end":1788328139.084,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788328139.173,"ts_end":1788328139.234,"step":"bake.fixtures","key":"liner-3","detail":{"fp":"a9f4733b","out_bytes":138664,"facings":28,"locations":7}}
+{"ts_start":1788328139.313,"ts_end":1788328139.512,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788328139.61,"ts_end":1788328139.656,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"84015222","out_bytes":83614,"facings":12,"locations":3}}
+{"detail":{"refused":false,"worlds":6},"key":null,"step":"bake.sweep","ts_end":1788328139.666476,"ts_start":1788328106.33093}
+{"detail":{"failed":0,"parked":0,"promote_enabled":true,"promoted":1,"waiting":2},"key":null,"step":"sweep.pass","ts_end":1788328139.666854,"ts_start":1788328022.757485}
+{"ts_start":1788328144.08,"ts_end":1788328144.429,"step":"emit.facing","key":"saloon_ne/S","detail":{"carriers":0,"voice":"saloon_sycamore","retry":1}}
+{"ts_start":1788328144.43,"ts_end":1788328144.44,"step":"emit.packet","key":"saloon_ne/S","detail":{"rolls":2,"roll_ids":["2735e905","03fc5c27"],"prompt_chars":5350,"retry":1}}
+{"ts_start":1788328142.856,"ts_end":1788328144.55,"step":"emit.run","key":null,"detail":{"mode":"retries","emitted":1,"refused":0}}

@@ -345,6 +345,7 @@ def main():
     # the far wall: each cell's own span from its close painting, at its place
     far_report = []
     doors = []
+    door_gaps = []   # far-frame column spans where a far cell's painting has a void
     for c in far_cells:
         cpath = os.path.join(store, c["id"], f + ".png")
         if not os.path.exists(cpath):
@@ -370,6 +371,23 @@ def main():
               (tx0, ceil_far, tx1, floor_far), (0.5, 1.0))
         far_report.append({"cell": c["id"], "from": os.path.relpath(cpath, ROOT), "at_px": [round(dx0), round(dx1)],
                            "scale": report[f"far_wall_{c['id']}"]["scale"], "rows": {k_: round(v, 1) for k_, v in cfr.items()}, **cm_})
+        # [saloon_n/S, 2026-09-01] THE SEAMS STOP AT A DOORWAY. The far seams
+        # (cornice, capping strip, foot) were ruled straight across the far
+        # wall, doorway included: saloon_n/S's guide carried the chrome strip
+        # across door02's void, both rolls copied it (a 9-row bar across the
+        # opening at 1.2 m), the door reader's head walk stopped on the bar at
+        # 1.06 m and the promotion refused a doorway the painter had painted.
+        # The void's columns are the close painting's own measured door,
+        # carried through the cover's mapping (uniform scale, centred).
+        dr = cm_.get("door") if isinstance(cm_, dict) else None
+        if dr:
+            sx0r, sx1r = max(0, int(round(sb[0]))), min(W, int(round(sb[2])))
+            s_ = report[f"far_wall_{c['id']}"]["scale"]
+            pw_ = max(1, round(max(1, sx1r - sx0r) * s_))
+            px_ = tx0 + 0.5 * ((tx1 - tx0) - pw_)
+            gx0, gx1 = px_ + (dr["x0"] - sx0r) * s_, px_ + (dr["x1"] - sx0r) * s_
+            if gx1 > tx0 and gx0 < tx1:
+                door_gaps.append((max(tx0, gx0) - 4.0, min(tx1, gx1) + 4.0))
         for o in plan.get("openings", []):
             if o.get("kind") != "door" or c["id"] not in o.get("joins", []):
                 continue
@@ -412,8 +430,24 @@ def main():
     for s_ in seams:
         seam(*s_)
     bx0, bx1 = max(0.0, xL), min(float(W), xR)
-    seam((bx0, ceil_far), (bx1, ceil_far)); seam((bx0, floor_far), (bx1, floor_far))
-    seam((bx0, rail_far), (bx1, rail_far))
+    def seam_row(y_, gaps):
+        """One horizontal seam, broken over every doorway's columns."""
+        segs = [(bx0, bx1)]
+        for g0, g1 in sorted(gaps):
+            nxt = []
+            for a_, b_ in segs:
+                if g1 <= a_ or g0 >= b_:
+                    nxt.append((a_, b_)); continue
+                if g0 > a_: nxt.append((a_, g0))
+                if g1 < b_: nxt.append((g1, b_))
+            segs = nxt
+        for a_, b_ in segs:
+            if b_ - a_ > 1:
+                seam((a_, y_), (b_, y_))
+    seam_row(ceil_far, [])
+    seam_row(floor_far, door_gaps)
+    seam_row(rail_far, door_gaps)
+    report["door_gaps_px"] = [[round(a_), round(b_)] for a_, b_ in door_gaps]
     if xL >= 0:
         seam((xL, ceil_far), (xL, floor_far))
     if xR <= W:

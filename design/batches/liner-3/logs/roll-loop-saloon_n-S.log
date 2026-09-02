@@ -2,3 +2,10 @@
 guide deep: z0 0.9750 (cap 2.5560)
 guide deep: z 0.9750 shell backdrops/saloon/S.png (scale 0.9705); far wall [('saloon_e', 1.0002), ('saloon', 0.9705)]; sides {'left': 'open', 'right': 'wall'}
 pair 1: attempt 1, rolls ['2f4fc409', '1afbc33d'] ordered (order ok)
+sweep: saloon_n/S               HELD      PASS | camera PASS; held for the promotion instrument [promotion-refused]: promote refused: saloon_n/S: the plan rules 1 way(
+learn: pair scales [1.0228, 0.9955] -> z 0.9750 -> 0.9420
+guide deep: z 0.9420 shell backdrops/saloon/S.png (scale 0.9705); far wall [('saloon_e', 1.0002), ('saloon', 0.9705)]; sides {'left': 'open', 'right': 'wall'}
+pair 2: attempt 3, rolls ['fc4fc120', 'bc24e234'] ordered (order ok)
+sweep: saloon_n/S               PROMOTE   PASS -1.6% focal, promoted and baked
+learn: pair scales [0.9437, 0.987] -> z 0.9420 -> 0.9514
+LANDED: saloon_n/S promoted after 4 loop roll(s)
