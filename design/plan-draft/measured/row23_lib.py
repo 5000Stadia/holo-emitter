@@ -387,9 +387,13 @@ def _floor_and_rail(L, cfg, picks):
         below = np.array([prof[y + 1:y + 5].mean() for y in ys])
         step = below - above
         base = int(floor_y)
+        # A candidate is RELATIVE, never a share of the strongest step: on
+        # writing_room/E's navy carpet the foot step is 3 -> 21 under a
+        # chrome trim's 3 -> 125, and "half the strongest" chose the trim
+        # (732 for a foot at 770). Ebony above (<= 48 in any light), the
+        # rows below at least twice it, and at least 8 luma of step.
         if len(step):
-            mx = float(step.max())
-            ok = (step >= 0.5 * mx) & (above <= 0.5 * below) if mx > 0 else np.zeros_like(step, bool)
+            ok = (above <= 48) & (below >= 2.0 * above) & (step >= 8)
             base = int(ys[np.nonzero(ok)[0][-1]]) if ok.any() else int(ys[int(np.argmax(step))])
         read.update(rule="skirting-base", foot=base,
                     saturated=bool(base <= lo + 1 or base >= hi - 1))

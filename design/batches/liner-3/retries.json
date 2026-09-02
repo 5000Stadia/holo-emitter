@@ -7,7 +7,7 @@
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-09-02",
   "emitted": 1,
-  "carried": 33,
+  "carried": 36,
   "refused": 0,
   "entries": [
     {
@@ -1112,6 +1112,288 @@
           "id": "8aa2f98a",
           "candidate": "backdrops/source/saloon_e-S/row23-8aa2f98a.png",
           "prompt": "backdrops/source/saloon_e-S/row23-8aa2f98a.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "saloon_e/W",
+      "attempt": 1,
+      "packet": "design/batches/liner-3/saloon_e-W/retry-1",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 91.42857142857143,
+      "flights": [],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "saloon_e/W",
+        "location": "saloon_e",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon_e/S",
+        "neighbour_edge": "right",
+        "source": "backdrops/saloon_e/S.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon_e/N",
+            "painted": true
+          }
+        ],
+        "lead": "saloon_e/E",
+        "is_lead": false,
+        "continues": "saloon_e/E",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/liner-3/saloon_e-W/retry-1/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "cb0ca3d9d03ae57c37c1e9435b798939444b9d30ed5b0f488b9faa28954d2a46",
+        "source_sha256": "231c1934a38922e38588f49511021e7c03298b3a180ce5096492f3761fc90575"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_e/E",
+      "is_lead": false,
+      "continues": "saloon_e/E",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/saloon_e/E.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-saloon_e-W.png",
+        "rel": "backdrops/grown/saloon_e-W.png",
+        "room": "saloon_e",
+        "facing": "W",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b085b4b0",
+          "candidate": "backdrops/source/saloon_e-W/row23-b085b4b0.png",
+          "prompt": "backdrops/source/saloon_e-W/row23-b085b4b0.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "bf507e82",
+          "candidate": "backdrops/source/saloon_e-W/row23-bf507e82.png",
+          "prompt": "backdrops/source/saloon_e-W/row23-bf507e82.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "saloon_n/E",
+      "attempt": 1,
+      "packet": "design/batches/liner-3/saloon_n-E/retry-1",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 91.42857142857143,
+      "flights": [],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "saloon_n/E",
+        "location": "saloon_n",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon_n/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/saloon_n/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon_n/S",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_n/N",
+        "is_lead": false,
+        "continues": "saloon_n/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/liner-3/saloon_n-E/retry-1/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "6ef0df00ad403f8c571a8362ef652dc74f1adcfd1acb6866c128148548f49aa6",
+        "source_sha256": "ea925e6c0a71f2673555b7eca1ef21f404bd71a36350aa2c8b270881dbd93480"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": false,
+      "continues": "saloon_n/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/saloon_n/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-saloon_n-E.png",
+        "rel": "backdrops/grown/saloon_n-E.png",
+        "room": "saloon_n",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "e1513516",
+          "candidate": "backdrops/source/saloon_n-E/row23-e1513516.png",
+          "prompt": "backdrops/source/saloon_n-E/row23-e1513516.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "04ddbf1c",
+          "candidate": "backdrops/source/saloon_n-E/row23-04ddbf1c.png",
+          "prompt": "backdrops/source/saloon_n-E/row23-04ddbf1c.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "saloon_n/E",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/saloon_n-E/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 91.42857142857143,
+      "flights": [],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "saloon_n/E",
+        "location": "saloon_n",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon_n/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/saloon_n/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon_n/S",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_n/N",
+        "is_lead": false,
+        "continues": "saloon_n/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/liner-3/saloon_n-E/retry-3/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "6ef0df00ad403f8c571a8362ef652dc74f1adcfd1acb6866c128148548f49aa6",
+        "source_sha256": "ea925e6c0a71f2673555b7eca1ef21f404bd71a36350aa2c8b270881dbd93480"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": false,
+      "continues": "saloon_n/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/saloon_n/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-saloon_n-E.png",
+        "rel": "backdrops/grown/saloon_n-E.png",
+        "room": "saloon_n",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "d97ae225",
+          "candidate": "backdrops/source/saloon_n-E/row23-d97ae225.png",
+          "prompt": "backdrops/source/saloon_n-E/row23-d97ae225.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "0025d4bc",
+          "candidate": "backdrops/source/saloon_n-E/row23-0025d4bc.png",
+          "prompt": "backdrops/source/saloon_n-E/row23-0025d4bc.prompt.txt"
         }
       ]
     },

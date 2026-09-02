@@ -1,0 +1,58 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 610,
+    "chair_rail_y_px": 520,
+    "dado_rail_above_floor_px": 90,
+    "floor_read": {
+      "minimum": 625,
+      "rule": "skirting-base",
+      "saturated": false,
+      "foot": 610
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 531,
+      "strip": 520,
+      "strip_luma": 14.9,
+      "field_below": 13.0,
+      "contrast": 0.123
+    },
+    "capping_above_floor_px": null,
+    "rail_dip": 0.123
+  },
+  "_windows": {
+    "floor": [
+      625,
+      642
+    ],
+    "rail": [
+      515,
+      533
+    ],
+    "ceiling": [
+      298,
+      348
+    ],
+    "columns": [
+      [
+        475,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": null,
+  "implied_focal_px": null,
+  "eye_height_m": null,
+  "_absent": [
+    "the chair-rail is not painted inside y 515..533: no row there is a light line over a dark field - the brightest step (y 520, luma 15 over 13 beneath) is 0.12 of the strip against the 0.30 this world's anchor shows wherever it is drawn, and the gate does not vote on fabric"
+  ],
+  "_promotion": null,
+  "verdict": "ABSENT",
+  "kind": "scaffold_feature_absent",
+  "id": "b085b4b0",
+  "candidate": "backdrops/source/saloon_e-W/row23-b085b4b0.png",
+  "candidate_sha256": "24db1d4bfd27475e3c56faab8e51a2e46e08d703c40b6609370ea54c31b2e7c4",
+  "instrument": "0c4cc51dae2a"
+}
