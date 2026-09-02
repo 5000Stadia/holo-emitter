@@ -277,3 +277,52 @@ painter sets the chair rail ~7 px low, and the rail-to-floor band is the
 focal ruler), 35d3ce83 promoted measured, horizon 540. The wall is the guide
 handed back — which is the point: the deterministic engine draws the
 picture, the painter finishes the surfaces.
+
+## Amendment — the instrument laws the liner-3 close campaign paid for (2026-09-01)
+
+Every roll lost in the liner-3 close set after the loop landed gallery/N was
+lost to an INSTRUMENT or a GUIDE defect, not to painter randomness — each one
+found by reading the refused roll against its reading and fixed in the tree
+(the re-roll assessment Kabe asked for, applied roll by roll). The laws:
+
+* **The rail is read by the ruler's own line.** `module_in_bands` takes the
+  darkest row of the rail band; on an ebony dado with a chrome capping strip
+  the darkest row lies anywhere in the dado (gallery_far/N's ruled-scale rolls
+  FAILed -11/-13%; earlier passes at -6/-7% by luck; saloon_n/N's +2.3% was
+  two errors cancelling). `world.json ruler.line: "bright-strip"` (with
+  `line_why`) makes `_floor_and_rail` take the brightest row instead, and the
+  rail's contrast is then (max-median)/median. A pack states which way its
+  ruler reads; the reading records `rail_read` (rule, darkest_row, strip).
+* **The corner witness is blind at the eye.** A junction line's slope is
+  (row - horizon)/(x - VP_x): the capping strip runs level at eye height and
+  witnesses nothing. `witness_corner` fits the kink of the foot and cornice
+  lines (the rail abstains within FLAT_WITNESS_PX 40 of the horizon), snaps
+  to the strongest vertical seam >= CORNER_SEAM_MIN 12 within +/-30 px, and
+  is asked for BOTH walls: the promotion half took its two-return breakpoints
+  from a median that a frame-edge trace polluted (writing_room/E: 761/884 for
+  corners at 104/1431 -> "unfitted-horizon" on a clean roll). Off a seam the
+  witness abstains and the ruled column stands.
+* **A guide draws only lit returns.** close-guide's return strips are clamped
+  to the zoomed roll's own extent (RETURN_MIN_PX 24) and cut at the witnessed
+  corner; a strip that reached past the roll was black, and the painter copies
+  what the guide draws on a return (saloon_n/N: a black slab, then an invented
+  double corner; saloon_e/E 091fd1d6 doubled its corner from the same cause
+  and was RETIRED, backdrops/source/saloon_e-E/retired/README.md).
+* **A black return is a family, not a hold.** `void-return` (row23_lib): a
+  return band whose luma <= 12 while the wall reads >= 40 is a painting
+  fault; it re-asks with the forward correction ("a lit receding side wall in
+  the same finish as the facing wall ... not a dark void, a doorway or a
+  shadow"), and is never warped through.
+* **Instrument hash, world excluded.** The reading cache keys on the
+  instrument files; a world.json convention change re-reads only by an
+  instrument edit landing with it (the rail rule did).
+* **The deep loop is the close loop.** `roll-loop.py --guide deep` rebuilds
+  Image 1 before every pair with tools/deep-guide.py (far wall = every cell on
+  the wall line from ITS close painting; ceiling/floor/side walls from the
+  shell straight ahead; all cut at MEASURED rows, one uniform scale each), z
+  learned from the pair against the facing's own declared deep camera. It
+  refuses until the close set it consumes is promoted (phase-1 law).
+* **Followers cut from their lead.** `--from-wall` builds a wall's first guide
+  from a promoted sibling in the same room (writing_room/E,S,W from N; each
+  landed on its first pair): the room's own fabric at the ruled scale, no
+  unguided rolls spent to seed it.
