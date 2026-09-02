@@ -363,12 +363,34 @@ def _floor_and_rail(L, cfg, picks):
         # scale came out 0.86 for a wall drawn at 1.00. This convention takes
         # the strongest LIGHTENING step (dark above, light below) at or under
         # the minimum, inside the licence - where the skirting meets the floor.
+        # [liner-3 deep, 2026-09-01] THE FOOT IS THE LOWEST DARK-OVER-LIGHT
+        # STEP IN THE LICENCE, NOT THE STRONGEST UNDER THE MINIMUM. Two
+        # failures of the first draft on saloon/N's far wall: (1) the
+        # minimum is `pick_floor`'s, taken inside the 17 px floor WINDOW, and
+        # a far wall painted 10 px nearer than the plan puts its skirting
+        # above that window - the minimum then sits on the carpet (637 for a
+        # foot at 624) and the search that starts 4 rows over it finds a
+        # carpet row (693, +56 % focal); (2) a chrome trim line on the
+        # skirting's top is a stronger lightening step than the skirting's
+        # own foot (3b3923c7: 69 at 631 over 43 at 642). So the search is
+        # the whole licence, a step is read over four rows either side, a
+        # candidate is a step at least half the strongest whose rows above
+        # are darker than half the rows below (ebony over floor: a carpet
+        # motif never is), and the foot is the LOWEST candidate - the base of
+        # the dark band, under any trim on it.
         lo, hi = cfg["floor_licence"]
         cols = np.concatenate([np.arange(int(a), int(b)) for a, b in cfg["rail_columns"]])
         prof = L[:, cols].mean(axis=1)
-        y0, y1 = int(max(1, min(floor_y - 4, hi - 1))), int(min(L.shape[0] - 2, hi))
-        step = prof[y0 + 1:y1 + 1] - prof[y0:y1]
-        base = int(y0 + int(np.argmax(step))) if len(step) else int(floor_y)
+        y0, y1 = int(max(4, lo)), int(min(L.shape[0] - 5, hi))
+        ys = np.arange(y0, y1 + 1)
+        above = np.array([prof[y - 3:y + 1].mean() for y in ys])
+        below = np.array([prof[y + 1:y + 5].mean() for y in ys])
+        step = below - above
+        base = int(floor_y)
+        if len(step):
+            mx = float(step.max())
+            ok = (step >= 0.5 * mx) & (above <= 0.5 * below) if mx > 0 else np.zeros_like(step, bool)
+            base = int(ys[np.nonzero(ok)[0][-1]]) if ok.any() else int(ys[int(np.argmax(step))])
         read.update(rule="skirting-base", foot=base,
                     saturated=bool(base <= lo + 1 or base >= hi - 1))
         floor_y = base

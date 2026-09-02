@@ -1,0 +1,131 @@
+{
+ "mode": "deep-guide",
+ "wall": "saloon_e/N",
+ "pack": "liner-3",
+ "shell": "backdrops/saloon_ne/N.png",
+ "far_cells": [
+  "saloon_n",
+  "saloon_ne"
+ ],
+ "sides": {
+  "left": {
+   "open": true,
+   "via": [
+    "way02",
+    "way03"
+   ],
+   "u_m": -3.2
+  },
+  "right": {
+   "open": false,
+   "via": [],
+   "u_m": 3.1999999999999993
+  }
+ },
+ "far_rect": [
+  -87.8,
+  328.5,
+  1053.3,
+  631.6
+ ],
+ "run_m": 12.799999999999999,
+ "depth_ratio": 0.4178571428571428,
+ "vp": [
+  768.0,
+  526.1
+ ],
+ "doors": [],
+ "elements": {
+  "shell": {
+   "painting": "backdrops/saloon_ne/N.png",
+   "rows": {
+    "ceil": 63.0,
+    "rail": 520.9,
+    "foot": 776.0,
+    "x0": -1280.0,
+    "x1": 1428
+   },
+   "from": "measured",
+   "scale": 0.9964,
+   "door": null
+  },
+  "ceiling": {
+   "scale": 9.3849
+  },
+  "floor": {
+   "scale": 1.7838
+  },
+  "right_wall_upper": {
+   "scale": 4.9259,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_wall_lower": {
+   "scale": 4.9259,
+   "blur": 10,
+   "from": "own"
+  },
+  "far_wall_saloon_n": {
+   "scale": 0.4257
+  },
+  "far_wall_saloon_ne": {
+   "scale": 0.4251
+  },
+  "far_wall": [
+   {
+    "cell": "saloon_n",
+    "from": "measured",
+    "at_px": [
+     -88,
+     483
+    ],
+    "scale": 0.9868,
+    "rows": {
+     "ceil": 60.0,
+     "rail": 519.4,
+     "foot": 772.0,
+     "x0": 105,
+     "x1": 2816.0
+    },
+    "door": null
+   },
+   {
+    "cell": "saloon_ne",
+    "from": "measured",
+    "at_px": [
+     483,
+     1053
+    ],
+    "scale": 0.9964,
+    "rows": {
+     "ceil": 63.0,
+     "rail": 520.9,
+     "foot": 776.0,
+     "x0": -1280.0,
+     "x1": 1428
+    },
+    "door": null
+   }
+  ],
+  "joins_px": [
+   483
+  ]
+ },
+ "guards": [
+  {
+   "band": "ceiling_front",
+   "max": 2.0,
+   "median": 0.18,
+   "ok": true
+  },
+  {
+   "band": "floor_front",
+   "max": 7.13,
+   "median": 5.47,
+   "ok": true
+  }
+ ],
+ "precomp": 0.975,
+ "depth_drawn_m": 11.4872,
+ "out": "backdrops/grown/saloon_e-N.png"
+}

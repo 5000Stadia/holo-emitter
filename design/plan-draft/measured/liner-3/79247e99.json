@@ -1,0 +1,341 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 693,
+    "chair_rail_y_px": 522,
+    "dado_rail_above_floor_px": 171,
+    "floor_read": {
+      "minimum": 637,
+      "rule": "skirting-base",
+      "saturated": true,
+      "foot": 693
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 517,
+      "strip": 522,
+      "strip_luma": 111.1,
+      "field_below": 29.3,
+      "contrast": 0.736
+    },
+    "capping_above_floor_px": 176,
+    "rail_dip": 0.736
+  },
+  "_windows": {
+    "floor": [
+      625,
+      642
+    ],
+    "rail": [
+      515,
+      533
+    ],
+    "ceiling": [
+      298,
+      348
+    ],
+    "columns": [
+      [
+        475,
+        1535
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 142.5,
+  "implied_focal_px": 1596.0,
+  "eye_height_m": 1.1712,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 347,
+    "ceiling_candidates": [
+      {
+        "y": 308,
+        "strength": 78.05,
+        "horiz": 1.0,
+        "cv": 0.032
+      },
+      {
+        "y": 272,
+        "strength": 28.14,
+        "horiz": 1.0,
+        "cv": 0.035
+      },
+      {
+        "y": 314,
+        "strength": 3.33,
+        "horiz": 0.76,
+        "cv": 0.677
+      },
+      {
+        "y": 348,
+        "strength": 2.96,
+        "horiz": 0.743,
+        "cv": 0.797
+      },
+      {
+        "y": 342,
+        "strength": 2.56,
+        "horiz": 0.752,
+        "cv": 0.851
+      },
+      {
+        "y": 336,
+        "strength": 2.36,
+        "horiz": 0.754,
+        "cv": 0.795
+      },
+      {
+        "y": 322,
+        "strength": 2.31,
+        "horiz": 0.755,
+        "cv": 0.722
+      },
+      {
+        "y": 328,
+        "strength": 2.19,
+        "horiz": 0.767,
+        "cv": 0.727
+      },
+      {
+        "y": 266,
+        "strength": 0.99,
+        "horiz": 0.746,
+        "cv": 0.664
+      },
+      {
+        "y": 278,
+        "strength": 0.49,
+        "horiz": 0.657,
+        "cv": 0.905
+      },
+      {
+        "y": 255,
+        "strength": 0.49,
+        "horiz": 0.558,
+        "cv": 0.82
+      },
+      {
+        "y": 284,
+        "strength": 0.47,
+        "horiz": 0.662,
+        "cv": 0.908
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 307,
+        "admissible": true,
+        "sigma_y_px": 1.84,
+        "horizon_y_px": 437.7,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 271,
+        "admissible": true,
+        "sigma_y_px": 4.58,
+        "horizon_y_px": 294.5,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 313,
+        "admissible": true,
+        "sigma_y_px": 1.46,
+        "horizon_y_px": 445.5,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 347,
+        "admissible": true,
+        "sigma_y_px": 0.84,
+        "horizon_y_px": 523.0,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 341,
+        "admissible": true,
+        "sigma_y_px": 0.88,
+        "horizon_y_px": 512.7,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 335,
+        "admissible": true,
+        "sigma_y_px": 0.73,
+        "horizon_y_px": 502.4,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 321,
+        "admissible": true,
+        "sigma_y_px": 2.69,
+        "horizon_y_px": 480.2,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 327,
+        "admissible": true,
+        "sigma_y_px": 1.16,
+        "horizon_y_px": 496.0,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 265,
+        "admissible": false,
+        "sigma_y_px": 3.3,
+        "horizon_y_px": 463.2,
+        "agrees_with_gate": null,
+        "why": "the two junctions scored 0.51 (ceiling) and 17.36 (floor): the weaker is under a seventh of the stronger, which is texture along the search line and not a junction"
+      },
+      {
+        "ceiling_y_px": 277,
+        "admissible": true,
+        "sigma_y_px": 3.44,
+        "horizon_y_px": 326.1,
+        "agrees_with_gate": false,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 254,
+        "admissible": false,
+        "sigma_y_px": 2.17,
+        "horizon_y_px": 498.1,
+        "agrees_with_gate": null,
+        "why": "a junction slope ran to the search's own boundary (ceiling 1.590, floor 1.270): the line was not found, the range was"
+      },
+      {
+        "ceiling_y_px": 283,
+        "admissible": true,
+        "sigma_y_px": 8.04,
+        "horizon_y_px": 354.9,
+        "agrees_with_gate": false,
+        "why": null
+      }
+    ],
+    "return_luma": {
+      "left": 71.1
+    },
+    "corner_x0_px": 443,
+    "corner_x1_px": 1646,
+    "corner_evidence": {
+      "left_fit_r2": 0.0535,
+      "right_fit_r2": 0.0406,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame",
+      "open_side": "right",
+      "open_side_corner": "declared: the plan's corner stands outside the frame",
+      "return_corner": {
+        "foot": 242,
+        "foot_fit": 0.2565104166666667,
+        "rail_abstains": "level with the horizon",
+        "cornice": 445,
+        "cornice_fit": 0.73046875,
+        "seams": {
+          "foot": [
+            221,
+            8.9
+          ],
+          "cornice": [
+            443,
+            55.1
+          ]
+        },
+        "agreeing": [
+          "cornice"
+        ],
+        "rule": "median of the foot, capping-strip and cornice kinks on the return side",
+        "x": 443
+      }
+    },
+    "horizon_bracket_px": 8.65,
+    "ramp": {
+      "x": 576.8,
+      "y": 523.0,
+      "return_side": "left",
+      "ceiling_slope": 1.315,
+      "floor_slope": -1.27,
+      "ceiling_n": 61,
+      "ceiling_score": 6.21,
+      "floor_n": 61,
+      "floor_score": 17.36,
+      "slope_half_widths": [
+        0.005,
+        0.0075
+      ],
+      "sigma_y_px": 0.84
+    },
+    "votes": {
+      "floor": {
+        "x": 690,
+        "y": 543,
+        "edge_px": 30000
+      },
+      "ceiling": {
+        "x": 1082,
+        "y": 749,
+        "edge_px": 28803
+      },
+      "side_walls": {
+        "x": 4,
+        "y": 805,
+        "edge_px": 5666
+      }
+    },
+    "light": {
+      "key_dir_measured": "R",
+      "key_dir_brightest_x": 1042,
+      "key_dir_brightest_y": 378,
+      "key_tint": "#c8813c",
+      "key_tint_patch": [
+        842,
+        1242,
+        277,
+        339
+      ],
+      "key_tint_patch_mean_rgb": [
+        164.23,
+        105.79,
+        49.49
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c8390a",
+        "floor_bottom_strip": "#c83809",
+        "mid_wall_right": "#c8853f",
+        "mid_wall_left": "#c8813a",
+        "brightest_21x21_patch": "#c8aa88"
+      },
+      "brightest_21x21_patch_centre_px": [
+        1042,
+        378
+      ],
+      "sobel_bright_side_deg_whole_frame": 88.97,
+      "sobel_bright_side_deg_wall_band": 101.26,
+      "left_third_minus_right_third_luminance_whole_frame": -12.219,
+      "left_third_minus_right_third_luminance_wall_band": -17.572
+    },
+    "storey_height_m": 2.4281,
+    "implied_wall_width_m": 8.4421,
+    "eye_height_m": 1.193,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": 55.86,
+  "delta_eye_pct": -1.0,
+  "verdict": "FAIL",
+  "kind": "generation_miss",
+  "id": "79247e99",
+  "candidate": "backdrops/source/saloon-N/row23-79247e99.png",
+  "candidate_sha256": "9574131ec26649e1f4b5241a2d76d1ff85c0d6382358c75dfdc93010f9bae154",
+  "instrument": "5c5cc2cde041"
+}

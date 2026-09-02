@@ -307,9 +307,25 @@
    }
   },
   "saloon/N": {
-   "attempts": 0,
-   "status": "retry",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
+   "attempts": 4,
+   "status": "promoted",
+   "candidate": "backdrops/source/saloon-N/row23-b292a653.png",
+   "warp_refusal": {
+    "clause": "meshwarp.landmark_unreadable",
+    "why": "the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
+    "candidate": "backdrops/source/saloon-N/row23-a176c613.png"
+   },
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
+   "exit_attempt": {
+    "candidate": "backdrops/source/saloon-N/row23-a176c613.png",
+    "exit": "grid",
+    "instrument": "5c5cc2cde041",
+    "candidate_sha256": null,
+    "at": "2026-09-01T22:17:36"
+   },
+   "why": "the retry cap is spent; the wall stays grid and the run continues",
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon/S": {
    "attempts": 4,
@@ -328,8 +344,12 @@
    "why": "withdrawn by the Navigator 2026-09-01: every saloon wall carried the voice's chrome medallion; Kabe wants the walls very blank (surface detail only) - clause struck, rolls retired, re-rolled blank"
   },
   "saloon/E": {
-   "attempts": 0,
-   "status": "waiting"
+   "attempts": 2,
+   "status": "promoted",
+   "candidate": "backdrops/source/saloon-E/row23-3d4c527c.png",
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "saloon/W": {
    "attempts": 4,
@@ -354,7 +374,8 @@
   },
   "saloon_e/N": {
    "attempts": 0,
-   "status": "waiting"
+   "status": "retry",
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon_e/S": {
    "attempts": 2,

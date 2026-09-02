@@ -1,0 +1,7 @@
+=== saloon/E deep Tue Sep  1 10:22:57 PM PDT 2026
+guide deep: z0 0.9750 (cap 2.5560)
+guide deep: z 0.9750 shell backdrops/saloon_e/E.png (scale 0.9658); far wall [('saloon_ne', 1.0073), ('saloon_e', 0.9658)]; sides {'left': 'open', 'right': 'wall'}
+pair 1: attempt 1, rolls ['3d4c527c', '273bb4a9'] ordered (order ok)
+sweep: saloon/E                 PROMOTE   PASS -2.5% focal, promoted and baked
+learn: pair scales [1.0095, 1.0294] -> z 0.9750 -> 0.9325
+LANDED: saloon/E promoted after 2 loop roll(s)

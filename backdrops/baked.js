@@ -11,7 +11,7 @@
 // have a painting, what each one is called, and what it weighs. A stale
 // manifest OR a stale served tree fails the test suite.
 //
-// 115 painting(s), 48.3 MB served in total,
+// 117 painting(s), 49.1 MB served in total,
 // heaviest 613 kB — and only ONE of them is ever on the
 // critical path to a first painted wall.
 //
@@ -99,6 +99,8 @@
 //   reception/N: 1.56 MB of PNG -> 228 kB of JPEG (q92); channels move by 0.9229 on average, 12 at worst, of 255.
 //   reception/S: 2.27 MB of PNG -> 267 kB of JPEG (q92); channels move by 1.3194 on average, 14 at worst, of 255.
 //   reception/W: 2.10 MB of PNG -> 233 kB of JPEG (q92); channels move by 1.1619 on average, 15 at worst, of 255.
+//   saloon/E: 1.90 MB of PNG -> 354 kB of JPEG (q92); channels move by 0.9991 on average, 17 at worst, of 255.
+//   saloon/N: 2.27 MB of PNG -> 425 kB of JPEG (q92); channels move by 1.3053 on average, 19 at worst, of 255.
 //   saloon/S: 2.30 MB of PNG -> 469 kB of JPEG (q92); channels move by 1.3613 on average, 17 at worst, of 255.
 //   saloon/W: 2.13 MB of PNG -> 455 kB of JPEG (q92); channels move by 1.1939 on average, 14 at worst, of 255.
 //   saloon_e/E: 2.06 MB of PNG -> 448 kB of JPEG (q92); channels move by 1.0885 on average, 17 at worst, of 255.
@@ -132,7 +134,7 @@
 //   writing_room/S: 1.92 MB of PNG -> 340 kB of JPEG (q92); channels move by 1.0399 on average, 23 at worst, of 255.
 //   writing_room/W: 2.39 MB of PNG -> 444 kB of JPEG (q92); channels move by 1.484 on average, 20 at worst, of 255.
 window.HOLO_BACKDROPS = {
-  fp: "51251b5e",
+  fp: "e34cb047",
   dir: "backdrops/served/",
   paintings: {
   "back_office/E": { file: "back_office/E.jpg", bytes: 290170 },
@@ -218,6 +220,8 @@ window.HOLO_BACKDROPS = {
   "reception/N": { file: "reception/N.jpg", bytes: 228086 },
   "reception/S": { file: "reception/S.jpg", bytes: 267317 },
   "reception/W": { file: "reception/W.jpg", bytes: 232888 },
+  "saloon/E": { file: "saloon/E.jpg", bytes: 354141 },
+  "saloon/N": { file: "saloon/N.jpg", bytes: 424790 },
   "saloon/S": { file: "saloon/S.jpg", bytes: 468517 },
   "saloon/W": { file: "saloon/W.jpg", bytes: 454770 },
   "saloon_e/E": { file: "saloon_e/E.jpg", bytes: 447910 },

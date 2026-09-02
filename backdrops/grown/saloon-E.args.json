@@ -1,0 +1,131 @@
+{
+ "mode": "deep-guide",
+ "wall": "saloon/E",
+ "pack": "liner-3",
+ "shell": "backdrops/saloon_e/E.png",
+ "far_cells": [
+  "saloon_ne",
+  "saloon_e"
+ ],
+ "sides": {
+  "left": {
+   "open": true,
+   "via": [
+    "way04",
+    "way05"
+   ],
+   "u_m": -3.1999999999999993
+  },
+  "right": {
+   "open": false,
+   "via": [],
+   "u_m": 3.200000000000001
+  }
+ },
+ "far_rect": [
+  -87.8,
+  328.5,
+  1053.3,
+  631.6
+ ],
+ "run_m": 12.799999999999999,
+ "depth_ratio": 0.4178571428571428,
+ "vp": [
+  768.0,
+  526.1
+ ],
+ "doors": [],
+ "elements": {
+  "shell": {
+   "painting": "backdrops/saloon_e/E.png",
+   "rows": {
+    "ceil": 64.0,
+    "rail": 520.8,
+    "foot": 768.0,
+    "x0": -1280.0,
+    "x1": 1434
+   },
+   "from": "measured",
+   "scale": 0.9658,
+   "door": null
+  },
+  "ceiling": {
+   "scale": 9.1242
+  },
+  "floor": {
+   "scale": 1.7212
+  },
+  "right_wall_upper": {
+   "scale": 5.2472,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_wall_lower": {
+   "scale": 5.2472,
+   "blur": 10,
+   "from": "own"
+  },
+  "far_wall_saloon_ne": {
+   "scale": 0.4287
+  },
+  "far_wall_saloon_e": {
+   "scale": 0.4305
+  },
+  "far_wall": [
+   {
+    "cell": "saloon_ne",
+    "from": "measured",
+    "at_px": [
+     -88,
+     483
+    ],
+    "scale": 1.0073,
+    "rows": {
+     "ceil": 71.0,
+     "rail": 520.1,
+     "foot": 778.0,
+     "x0": 104,
+     "x1": 2816.0
+    },
+    "door": null
+   },
+   {
+    "cell": "saloon_e",
+    "from": "measured",
+    "at_px": [
+     483,
+     1053
+    ],
+    "scale": 0.9658,
+    "rows": {
+     "ceil": 64.0,
+     "rail": 520.8,
+     "foot": 768.0,
+     "x0": -1280.0,
+     "x1": 1434
+    },
+    "door": null
+   }
+  ],
+  "joins_px": [
+   483
+  ]
+ },
+ "guards": [
+  {
+   "band": "ceiling_front",
+   "max": 1.01,
+   "median": 0.15,
+   "ok": true
+  },
+  {
+   "band": "floor_front",
+   "max": 5.07,
+   "median": 3.87,
+   "ok": true
+  }
+ ],
+ "precomp": 0.975,
+ "depth_drawn_m": 11.4872,
+ "out": "backdrops/grown/saloon-E.png"
+}
