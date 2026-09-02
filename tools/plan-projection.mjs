@@ -282,36 +282,42 @@ const facingOf = (room, f) => {
  * both ways and returns the run's ends in world coordinates. */
 export function runSpanOf(plan, room, facing) {
   const span = viewSpan(room.rect, facing);
-  const [normalAxis] = NORMAL[facing];
-  const depthLo = normalAxis === "y" ? room.rect.y0 : room.rect.x0;
-  const depthHi = normalAxis === "y" ? room.rect.y1 : room.rect.x1;
-  const wallLine = facingOf(room, facing).wall_line;
-  let lo = span.lo, hi = span.hi;
-  for (const dir of [-1, 1]) {
-    let cell = room, hops = 0;
-    while (hops++ < 8) {
-      const edge = dir < 0
-        ? (span.axis === "x" ? cell.rect.x0 : cell.rect.y0)
-        : (span.axis === "x" ? cell.rect.x1 : cell.rect.y1);
-      const oe = (plan.openings || []).find((o) =>
-        o.kind === "open_edge" && o.floor === cell.floor && o.rect &&
-        (o.joins || []).includes(cell.id) &&
-        Math.abs(o.rect[span.axis + "0"] - edge) < EPS &&
-        Math.abs(o.rect[span.axis + "1"] - edge) < EPS &&
-        o.rect[normalAxis + "0"] <= depthLo + EPS && depthHi - EPS <= o.rect[normalAxis + "1"]);
-      if (!oe) break;
-      const next = (plan.rooms || []).find((r) => r.id === (oe.joins || []).find((j) => j !== cell.id));
-      if (!next) break;
-      /* the run continues only along the same wall line */
-      const nextLine = facing === "N" ? next.rect.y1 : facing === "S" ? next.rect.y0
-        : facing === "E" ? next.rect.x1 : next.rect.x0;
-      if (wallLine != null && Math.abs(nextLine - wallLine) > EPS) break;
-      cell = next;
-      if (dir < 0) lo = span.axis === "x" ? cell.rect.x0 : cell.rect.y0;
-      else hi = span.axis === "x" ? cell.rect.x1 : cell.rect.y1;
+  const farEdge = (r) => facing === "N" ? r.rect.y1 : facing === "S" ? r.rect.y0
+    : facing === "E" ? r.rect.x1 : r.rect.x0;
+  const wallLine = facingOf(room, facing).wall_line ?? farEdge(room);
+  /* [liner-3] A SQUARE ROOM'S FAR WALL. A deep facing's wall line lies past
+   * the sideways neighbour (whose own far edge is nearer), so walking the span
+   * axis alone finds no run. Instead: every cell reachable across full-width
+   * open edges in any direction, keep those standing on the wall line, merge
+   * their spans, and take the merged stretch this cell's span lies in. */
+  const cellsById = new Map((plan.rooms || []).map((r) => [r.id, r]));
+  const seen = new Set([room.id]);
+  const queue = [room];
+  while (queue.length) {
+    const cell = queue.shift();
+    for (const o of plan.openings || []) {
+      if (o.kind !== "open_edge" || o.floor !== cell.floor || !o.rect || !(o.joins || []).includes(cell.id)) continue;
+      const other = cellsById.get((o.joins || []).find((j) => j !== cell.id));
+      if (!other || seen.has(other.id)) continue;
+      const along = Math.abs(o.rect.x0 - o.rect.x1) < EPS ? "y" : "x";
+      const full = o.rect[along + "0"] <= cell.rect[along + "0"] + EPS && cell.rect[along + "1"] - EPS <= o.rect[along + "1"];
+      if (!full) continue;
+      seen.add(other.id);
+      queue.push(other);
     }
   }
-  return { lo, hi, span };
+  const stretches = [...seen].map((id) => cellsById.get(id))
+    .filter((r) => Math.abs(farEdge(r) - wallLine) < EPS)
+    .map((r) => ({ lo: r.rect[span.axis + "0"], hi: r.rect[span.axis + "1"] }))
+    .sort((a, b) => a.lo - b.lo);
+  const merged = [];
+  for (const s of stretches) {
+    const last = merged[merged.length - 1];
+    if (last && s.lo <= last.hi + EPS) last.hi = Math.max(last.hi, s.hi);
+    else merged.push({ ...s });
+  }
+  const mine = merged.find((m) => m.lo <= span.lo + EPS && span.hi - EPS <= m.hi);
+  return mine ? { lo: mine.lo, hi: mine.hi, span } : { lo: span.lo, hi: span.hi, span };
 }
 
 export function wallSegments(plan, roomId, facing) {
@@ -1557,6 +1563,13 @@ export function deriveMeta(plan, roomId, facing, opts = {}) {
       meta.corner_x0_px = Math.min(a2, b2);
       meta.corner_x1_px = Math.max(a2, b2);
       meta.wall_run_m = Number((run.hi - run.lo).toFixed(6));
+      /* [liner-3] THE CELL'S OWN ENDS, for the ruler. A carrier's `from_m` is
+         measured from the CELL's view-left end, not the run's; the run's
+         corners put `wallCentrePx` at the run's middle and drew gallery/N's
+         door half a cell east of where the plan has it (1322 px, not 640). */
+      const c2 = pxOf(run.span.lo), d2 = pxOf(run.span.hi);
+      meta.cell_x0_px = Math.min(c2, d2);
+      meta.cell_x1_px = Math.max(c2, d2);
     } else {
     /* The corners are the ends of the u-domain at the wall plane, so they are
      * `xAtScale(0)` and `xAtScale(1)` — the renderer's own u-mapping, called,

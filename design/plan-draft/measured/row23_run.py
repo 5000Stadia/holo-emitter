@@ -345,12 +345,13 @@ def picks_for_instrument():
     assembled somewhere else is the first step toward a second instrument.
     """
     from measure import (pick_floor, module_in_bands, pick_ceiling,
-                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
-                         light, EYE_RANGE)
+                         find_corners_recession, ceiling_ramp_vp, single_return_vp,
+                         horizon_votes, light, EYE_RANGE)
     return dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
                 pick_ceiling=pick_ceiling,
                 find_corners_recession=find_corners_recession,
-                ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+                ceiling_ramp_vp=ceiling_ramp_vp, single_return_vp=single_return_vp,
+                horizon_votes=horizon_votes,
                 light=light, EYE_RANGE=EYE_RANGE)
 
 
@@ -2515,15 +2516,26 @@ def sweep(manifest, state, do_promote=True):
             continue
 
         best = None
+        passes = []
         for r in arrivals:
             # See `measure_roll` — this loop's own body, lifted out so the
             # supersede route reads a roll on the same instrument.
             d = measure_roll(key, r, side, cfg, ref, picks)
             if d is None:
                 continue
+            if d.get("verdict") == "PASS":
+                passes.append((r, d))
             if d.get("verdict") == "PASS" and (best is None or
                     abs(d["delta_focal_pct"]) < abs(best[1]["delta_focal_pct"])):
                 best = (r, d)
+        # [liner-3, 2026-09-01] EVERY PASS IS OFFERED TO THE PROMOTION
+        # INSTRUMENT, nearest camera first. The nearest camera alone was
+        # offered before, and when the instrument refused it the wall went to
+        # the exits with a sibling PASS on disk the instrument would have
+        # taken (gallery/N: f6591bea at +4.3 % refused unfitted-horizon while
+        # 3e0e555a at +5.5 % read a horizon). The order is the camera's; the
+        # instrument's refusals are each recorded; nothing is chosen by eye.
+        passes.sort(key=lambda t: abs(t[1]["delta_focal_pct"]))
 
         st["attempts"] = max(st["attempts"], len(arrivals))
         if best:
@@ -2546,8 +2558,26 @@ def sweep(manifest, state, do_promote=True):
                              "row 4's, not this loop's")
                 promoted.append((key, "ADMITTED, fenced from promotion (M0, row 4's)", d))
             elif do_promote:
-                side["candidate"] = r["candidate"]
-                ok, why = do_promote_fn(key, r["candidate"], e, side, ref, d)
+                refused = []
+                for r2, d2 in passes:
+                    side["candidate"] = r2["candidate"]
+                    ok, why = do_promote_fn(key, r2["candidate"], e, side, ref, d2)
+                    if ok:
+                        r, d = r2, d2
+                        break
+                    refused.append({"candidate": r2["candidate"],
+                                    "delta_focal_pct": d2["delta_focal_pct"],
+                                    "family": ((d2.get("_promotion") or {}).get("hold_family")
+                                               if isinstance(d2, dict) else None),
+                                    "why": (why or "")[:300]})
+                else:
+                    r, d = passes[0]
+                    side["candidate"] = r["candidate"]
+                    why = refused[0]["why"] if refused else why
+                if refused:
+                    st["promotion_refused"] = refused
+                else:
+                    st.pop("promotion_refused", None)
                 if ok:
                     st["status"] = "promoted"
                     st["candidate"] = r["candidate"]
@@ -2898,12 +2928,13 @@ def tolerance_sweep(manifest, state, dry_run=True):
     """
     import row23_lib
     from measure import (pick_floor, module_in_bands, pick_ceiling,
-                         find_corners_recession, ceiling_ramp_vp, horizon_votes,
-                         light, EYE_RANGE)
+                         find_corners_recession, ceiling_ramp_vp, single_return_vp,
+                         horizon_votes, light, EYE_RANGE)
     picks = dict(pick_floor=pick_floor, module_in_bands=module_in_bands,
                  pick_ceiling=pick_ceiling,
                  find_corners_recession=find_corners_recession,
-                 ceiling_ramp_vp=ceiling_ramp_vp, horizon_votes=horizon_votes,
+                 ceiling_ramp_vp=ceiling_ramp_vp, single_return_vp=single_return_vp,
+                 horizon_votes=horizon_votes,
                  light=light, EYE_RANGE=EYE_RANGE)
     ruling = tolerance_ruling()
     would, skipped = [], []
@@ -3156,6 +3187,9 @@ def main():
                     help="keep sweeping; arrivals are processed as they land")
     ap.add_argument("--interval", type=int, default=45)
     ap.add_argument("--no-promote", action="store_true")
+    ap.add_argument("--remeasure", action="store_true",
+                    help="retake every cached reading on the current instrument "
+                         "(REMEASURE is read off argv at import)")
     ap.add_argument("--recheck-doors", action="store_true",
                     help="row 27: re-measure and re-decide every promoted "
                          "door-bearing wall against the painted-door rule")

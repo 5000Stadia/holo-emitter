@@ -1,6 +1,6 @@
 {
   "instrument": "design/plan-draft/measured/room_consistency.py",
-  "promoted_facings": 95,
+  "promoted_facings": 97,
   "target_ppm": 150.0,
   "tile_m": 0.3,
   "weights": {
@@ -3215,6 +3215,27 @@
       "worst_band": null,
       "outliers": [],
       "why": "0 promoted facing(s) with usable geometry \u2014 nothing to compare against"
+    },
+    {
+      "room": "gallery",
+      "facings": [
+        "N"
+      ],
+      "notes": [
+        "gallery/N: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe"
+      ],
+      "bands": {},
+      "wall_split": {
+        "N": 10.825
+      },
+      "reference_log_luma": {
+        "N": -2.5738
+      },
+      "verdict": "insufficient",
+      "score": null,
+      "worst_band": null,
+      "outliers": [],
+      "why": "1 promoted facing(s) with usable geometry \u2014 nothing to compare against"
     },
     {
       "room": "garden_room",
@@ -8809,6 +8830,27 @@
       "wall_split_spread": 4.235,
       "verdict": "mismatched",
       "why": "wall_upper disagrees most: worst pair E/W at D=4.43 (colour 0.054, contrast x3.40; brightness x1.14 and spread 0.545 reported, not counted). NSW agree; E stands outside them."
+    },
+    {
+      "room": "saloon_ne",
+      "facings": [
+        "N"
+      ],
+      "notes": [
+        "saloon_ne/N: ceiling band gave 0 tiles of 0.30 m (needs 8) - too little material to describe"
+      ],
+      "bands": {},
+      "wall_split": {
+        "N": 9.657
+      },
+      "reference_log_luma": {
+        "N": -2.0326
+      },
+      "verdict": "insufficient",
+      "score": null,
+      "worst_band": null,
+      "outliers": [],
+      "why": "1 promoted facing(s) with usable geometry \u2014 nothing to compare against"
     },
     {
       "room": "servants_hall",

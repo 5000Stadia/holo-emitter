@@ -2,7 +2,7 @@
 
 [HUMAN, 2026-08-24, verbatim]: "Still getting rooms with wall/ceiling mismatches" — "Mismatches as in different from other walls".
 
-Rows 36 and 38 cure this by construction for walls painted from here on. The 95 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
+Rows 36 and 38 cure this by construction for walls painted from here on. The 97 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
 
 Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two declared corners are ceiling above the one and floor below the other, so four bands - ceiling, upper wall, lower wall, floor - cut out with no perspective bookkeeping. Each band is resampled to 150 px/m, cut into 0.30 m tiles of WORLD, and described by the MEDIAN tile, so a window or a doorway cannot decide that a wall changed; the columns a carrier is declared on are dropped outright first.
 
@@ -15,8 +15,8 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | # | room | facings | worst band | D | worst pair | brightness x | colour | spread | contrast x | outlier | verdict |
 |---|------|---------|-----------|---|-----------|------------|--------|--------|------------|---------|---------|
 | 1 | guest_chamber | ENSW | wall_upper | **8.96** | S-W | x4.33 | 1.095 | 1.000 | x3.36 | SW | mismatched |
-| 2 | platform | ENSW | floor | **8.47** | E-N | x2.86 | 0.252 | 1.000 | x9.92 | E | mismatched |
-| 3 | platform_far | ENSW | wall_lower | **6.40** | S-W | x2.70 | 0.246 | 0.714 | x5.51 | **all** (EW/NS) | mismatched |
+| 2 | platform_far | ENSW | wall_lower | **6.40** | S-W | x2.70 | 0.246 | 0.714 | x5.51 | **all** (EW/NS) | mismatched |
+| 3 | platform | ENSW | wall_upper | **6.06** | E-W | x1.34 | 0.274 | 0.482 | x4.90 | E | mismatched |
 | 4 | closet_chamber | ENSW | wall_upper | **5.67** | S-W | x1.08 | 0.342 | 0.572 | x4.13 | W | mismatched |
 | 5 | treatment_room | ENSW | wall_lower | **4.98** | N-S | x1.02 | 0.024 | 0.250 | x3.97 | S | mismatched |
 | 6 | reception | ENSW | wall_upper | **4.43** | E-W | x1.14 | 0.054 | 0.545 | x3.40 | E | mismatched |
@@ -46,8 +46,10 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 |------|-----|
 | entrance_approach | 0 promoted facing(s) with usable geometry — nothing to compare against |
 | entrance_court | 0 promoted facing(s) with usable geometry — nothing to compare against |
+| gallery | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | great_stair_hall | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | privy_garden | 0 promoted facing(s) with usable geometry — nothing to compare against |
+| saloon_ne | 1 promoted facing(s) with usable geometry — nothing to compare against |
 
 ## Facings the instrument could not read
 
@@ -73,18 +75,18 @@ Every (room, band) spread in the store, worst first:
 
 ```
   8.96  guest_chamber        wall_upper
-  8.47  platform             floor
-  7.76  platform             wall_upper
   6.40  platform_far         wall_lower
+  6.06  platform             wall_upper
   5.82  platform_far         wall_upper
   5.67  closet_chamber       wall_upper
+  5.41  platform             floor
   4.98  treatment_room       wall_lower
   4.43  reception            wall_upper
   4.34  back_office          wall_upper
   4.15  booking_hall         wall_upper
   4.14  master_bedchamber    ceiling
-  4.11  platform             wall_lower
   3.90  garden_room          wall_lower
+  3.63  platform             wall_lower
   3.62  long_gallery         floor
   3.56  master_bedchamber    wall_upper
   3.35  closet_chamber       wall_lower

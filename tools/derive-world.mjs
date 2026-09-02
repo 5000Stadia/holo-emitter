@@ -42,6 +42,23 @@ function sideOf(r, o) {
 const OPP = { N: "S", S: "N", E: "W", W: "E" };
 const slug = (s) => s.replace(/[^a-z0-9]+/gi, "_").toLowerCase();
 const nameOf = (id) => (plan.rooms.find((r) => r.id === id)?.name || id).toLowerCase();
+/* A walk within one name. Two cells in a row read "on down"/"back along" (the
+   long-room phrasing underground-2 shipped with). A square has two walks per
+   compass direction, so the line also names which side of the room the walk
+   keeps to — the from-cell's lateral half of the name's footprint. */
+const withinName = (ex) => {
+  const cells = plan.rooms.filter((r) => nameOf(r.id) === nameOf(ex.to));
+  if (cells.length <= 2) return `${ex.facing === "E" || ex.facing === "S" ? "on down" : "back along"} the ${nameOf(ex.to)}`;
+  const from = plan.rooms.find((r) => r.id === ex.from);
+  const mid = (r, k0, k1) => (r.rect[k0] + r.rect[k1]) / 2;
+  const lateral = ex.facing === "N" || ex.facing === "S" ? ["x0", "x1"] : ["y0", "y1"];
+  const c = mid(from, ...lateral);
+  const all = cells.map((r) => mid(r, ...lateral));
+  const centre = (Math.min(...all) + Math.max(...all)) / 2;
+  const side = c === centre ? "middle" : (lateral[0] === "x0" ? (c < centre ? "western side" : "eastern side") : (c < centre ? "southern side" : "northern side"));
+  const dir = { N: "northward", S: "southward", E: "eastward", W: "westward" }[ex.facing];
+  return `${dir} along the ${nameOf(ex.to)}'s ${side}`;
+};
 
 const locations = plan.rooms.map((r) => ({ id: r.id, facings: FACINGS.filter((f) => r.facings && r.facings[f]), exits: [] }));
 for (const o of plan.openings || []) {
@@ -77,12 +94,12 @@ for (const key of domain) {
        Walking within a name gets its own line, directed by the exit's facing
        so the two ways read differently (the validator refuses shared prose). */
     if (outcome === "arrive") lines[key] = (nameOf(ex.from) === nameOf(ex.to)
-      ? `You walk ${ex.facing === "E" || ex.facing === "S" ? "on down" : "back along"} the ${nameOf(ex.to)}.`
+      ? `You walk ${withinName(ex)}.`
       : `You pass from the ${nameOf(ex.from)} into the ${nameOf(ex.to)}.`);
     /* [hospital-3 step 2b] PER-ENTITY PROSE: two doors into one room share a
        destination, so the line names the door's own side too. */
     else if (outcome === "refused_unreachable") lines[key] = (nameOf(ex.from) === nameOf(ex.to)
-      ? `The way ${ex.facing === "E" || ex.facing === "S" ? "on down" : "back along"} the ${nameOf(ex.to)} is not before you from here.`
+      ? `The way ${withinName(ex)} is not before you from here.`
       : `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} is not before you from here.`);
     else lines[key] = `The way from the ${nameOf(ex.from)} to the ${nameOf(ex.to)} does not answer.`;
   } else {

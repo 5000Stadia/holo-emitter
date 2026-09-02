@@ -1,0 +1,111 @@
+{
+ "mode": "close-guide",
+ "wall": "writing_room/N",
+ "pack": "liner-3",
+ "roll": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+ "measured": {
+  "roll": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+  "rail": 553.5,
+  "foot": 802.0,
+  "ceiling": 135.0,
+  "door": {
+   "x0": 652,
+   "x1": 887,
+   "head": 298
+  },
+  "corner_x0": 178,
+  "corner_x1": 1357,
+  "corner_evidence": {
+   "foot": [
+    649,
+    889
+   ],
+   "rail": [
+    1,
+    1535
+   ],
+   "cornice": [
+    178,
+    1357
+   ]
+  },
+  "ruler_px": 248.5,
+  "scale": 0.9707,
+  "storey_m": 3.221
+ },
+ "zoom": {
+  "s": 1.0044,
+  "pivot": "left corner",
+  "ax": -76.4,
+  "ay": -33.4
+ },
+ "ruled": {
+  "ceil": 53.1,
+  "rail": 522.5,
+  "floor": 778.5,
+  "corner_x0": 85.3,
+  "corner_x1": 1450.7,
+  "doors": [
+   [
+    640,
+    352,
+    896,
+    778
+   ]
+  ]
+ },
+ "precomp": 0.975,
+ "guide_geometry": {
+  "ceil": 65.0,
+  "rail": 522.6,
+  "floor": 772.2,
+  "xL": 102.4,
+  "xR": 1433.6,
+  "doors": [
+   [
+    643.0,
+    356.0,
+    893.0,
+    772.0
+   ]
+  ]
+ },
+ "returns": [
+  "left",
+  "right"
+ ],
+ "elements": {
+  "ceiling": {
+   "scale": 1.3106
+  },
+  "floor": {
+   "scale": 1.3106
+  },
+  "dado": {
+   "scale": 1.0024
+  },
+  "upper_wall": {
+   "scale": 1.0869
+  },
+  "left_return_upper": {
+   "scale": 1.2554,
+   "blur": 10
+  },
+  "left_return_lower": {
+   "scale": 1.0039,
+   "blur": 10
+  },
+  "right_return_upper": {
+   "scale": 1.2554,
+   "blur": 10
+  },
+  "right_return_lower": {
+   "scale": 1.0039,
+   "blur": 10
+  },
+  "door_door01": {
+   "scale": 0.949
+  }
+ },
+ "out": "backdrops/grown/writing_room-N.png"
+}

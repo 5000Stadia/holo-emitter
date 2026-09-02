@@ -1,0 +1,85 @@
+{
+ "_what_this_is": "SS MERIDIAN 1934: era and medium, THE RULER, the conventions a plan cannot hold, the word lists that refuse a prompt, and where this pack's batches and readings live.",
+ "era": "circa-1934 North Atlantic liner, first-class inboard rooms on C deck",
+ "medium": "Style/medium: a high-realism digital painting in the manner of a hand-tinted period architectural record photograph \u2014 polished book-matched veneers, warm even light from concealed cove lamps above with gentle falloff, its lamps out of frame, no visible light source, no daylight",
+ "ruler": {
+  "kind": "dado_band",
+  "height_m": 1.2,
+  "datum": "floor",
+  "contrast_min": 0.3,
+  "contrast_why": "A chrome capping strip over an ebony dado is the highest-contrast line on the wall: the rail band's luminance dip is 0.5-0.95 of its median wherever the strip is painted inside it and 0.01-0.03 wherever it is not (gallery_far/N 8b6b3e2b read a veneer row in the band as the rail and PASSed a wall painted at 0.81 scale). Below this floor the band holds no anchor and the reading says so.",
+  "why": "This ship's universal anchor: the dado's chrome capping strip at 1.20 m on every inboard first-class wall including the returns. A painter draws it and the instrument finds it."
+ },
+ "conventions": {
+  "window_sill_m": 0.9,
+  "window_head_m": 2.0,
+  "door_head_m": 2.1,
+  "door_width_m": 1.2,
+  "light_module_m": 0.6,
+  "why": "A liner of this line: a doorway is a 1.20 x 2.10 m opening in a chrome-trimmed veneer architrave; there are no windows in an inboard room.",
+  "glazing": "  There is no daylight and no window glass in an inboard room: ",
+  "window": {
+   "surround": {
+    "default": "in a chrome-trimmed veneer architrave"
+   },
+   "mullion": "glazing bar",
+   "transom": "a single transom",
+   "opening_light": "an opening light",
+   "why": "No window exists inboard; these words exist so no other pack's ever leak."
+  },
+  "floor_licence_px": 60,
+  "floor_line": "skirting-base",
+  "floor_line_why": "An ebony dado stands on an ebony skirting over a pale floor: the darkest row of the floor window is inside the skirting, and a foot rule that walks up from it reads the skirting's top (gallery/N: 749 for a foot painted at 778, scale 0.86 for a wall drawn at 1.00). The foot is where the dark meets the light - the strongest lightening step at or under the minimum.",
+  "door_reads_as": "void",
+  "door_reads_as_why": "Every doorway in this pack opens onto deep unlit shadow (the ask says so on every wall), so a door is the one door-width pair of verticals with a dark interior; the veneer joints one panel apart are not."
+ },
+ "rulers": [
+  {
+   "match": "dado band|dado|capping strip",
+   "size_m": 1.2,
+   "name": "the dado's chrome capping strip top edge above the floor (this ship's universal anchor)"
+  },
+  {
+   "match": "door[^,]*height|doorway[^,]*head",
+   "size_m": 2.1,
+   "name": "the doorway's height at the wall plane"
+  },
+  {
+   "match": "door[^,]*width|doorway[^,]*wide",
+   "size_m": 1.2,
+   "name": "the doorway's width"
+  },
+  {
+   "match": "chrome medallion|chrome disc",
+   "size_m": 0.9,
+   "name": "the blank brushed-chrome medallion, rim to rim"
+  },
+  {
+   "match": "veneer panel|book-matched panel",
+   "size_m": 0.6,
+   "name": "one book-matched veneer panel's width"
+  }
+ ],
+ "refusals": {
+  "interior_fabric": "veneer|macassar|sycamore|walnut|maple|dado|chrome|linoleum|carpet|cove",
+  "interior_fabric_why": "A facing outside the ship has none of this; naming it even to forbid it puts it in front of the generator.",
+  "panelling": "veneer|macassar|dado|capping strip",
+  "panelling_why": "The veneers belong to the rooms that carry the dado band (the ruled anchor names it); a prompt whose room has no band must not name it.",
+  "rationed_line": "^chrome medallion:[^\\n]*$",
+  "entitled_to_rationed": "saloon|SALOON",
+  "rationed_why": "The blank chrome medallion is the saloon's alone; repeated in every room it becomes wallpaper.",
+  "redacted_correction": "the previous attempt at this wall was rejected because it did not paint this ship as the materials and the anchor below describe it. Those words replace anything the earlier attempt was told.",
+  "redacted_correction_why": "What replaces a correction that cannot be carried into an outside-the-ship prompt."
+ },
+ "paths": {
+  "batch_dir": "design/batches/liner-3",
+  "fixture_dir": "fixtures/liner-3",
+  "store_dir": "backdrops",
+  "readings_dir": "design/plan-draft/measured/liner-3",
+  "world_query": "liner-3"
+ },
+ "use_case": "location-study",
+ "constraints": {
+  "surfaces": "Every surface carries only what its materials say: the chrome medallion is blank, the veneers are plain \u2014 no legible text, no signage copy, no ship names, no logos, no posters, no deck plans, no portholes"
+ }
+}

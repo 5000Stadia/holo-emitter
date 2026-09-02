@@ -1,0 +1,11 @@
+{
+  "_what_this_is": "The three-room liner proof: a WRITING ROOM (1 box), a LONG GALLERY (2 boxes long, cells `gallery` + `gallery_far`) and a GRAND SALOON (2 by 2 boxes, cells `saloon` `saloon_e` `saloon_n` `saloon_ne`), all one deck, inboard, windowless. Every cell of a many-box room shares its room's name and is joined to its neighbours by full-width open edges a visitor walks with the up arrow. Nothing in these four files is in the engine; a location is data.",
+  "name": "liner-3",
+  "title": "SS MERIDIAN 1934",
+  "box_unit_m": 6.4,
+  "files": {
+    "plan": "plan.json",
+    "voices": "voices.json",
+    "world": "world.json"
+  }
+}

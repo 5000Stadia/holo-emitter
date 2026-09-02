@@ -1,0 +1,246 @@
+{
+  "_what_this_is": "Every re-ask packet this run has ever cut, each carrying its wall's own correction sentence verbatim. Emitted by `node tools/make-scaffold.mjs --emit-retries`; nothing here is hand-written.",
+  "_cumulative": "Entries accumulate across passes, keyed by wall and attempt. `row23_run.py` finds a retry roll's candidate only through this file, so an entry dropped here hides an image that is already on disk — which is how the second coat went unread once.",
+  "_never_overwrites": "A retry lives in <wall>/retry-<n>/ with its own roll ids, so the diagram and the prompt an already-returned candidate was painted from are untouched.",
+  "_voice": "Each entry names the room voice its prompt was cut at (tools/room-voices.mjs), so a wall re-asked after the voice table moved is visibly asked under the new voice.",
+  "_register": "[row 43] Every entry names the REGISTER its prompt was composed in; an entry with no `register` key predates the 2026-08-25 ruling and is `g4`. `timings_report.py --monitor` joins each reading to its packet record through the roll id and reports the camera pass rate per register.",
+  "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
+  "_generated": "2026-09-02",
+  "emitted": 1,
+  "carried": 3,
+  "refused": 0,
+  "entries": [
+    {
+      "key": "gallery/N",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/gallery-N/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-left",
+        "door",
+        "no-window"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "5c020677e5f6ffd2708cc06a2b26c1f06e5029c18968709a189f51154f2e746a",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/gallery-N/row23-09d37eeb.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-gallery-N.png",
+        "rel": "backdrops/grown/gallery-N.png",
+        "room": "gallery",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f6591bea",
+          "candidate": "backdrops/source/gallery-N/row23-f6591bea.png",
+          "prompt": "backdrops/source/gallery-N/row23-f6591bea.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "3e0e555a",
+          "candidate": "backdrops/source/gallery-N/row23-3e0e555a.png",
+          "prompt": "backdrops/source/gallery-N/row23-3e0e555a.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "gallery/N",
+      "attempt": 5,
+      "packet": "design/batches/liner-3/gallery-N/retry-5",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-left",
+        "door",
+        "no-window"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "5c020677e5f6ffd2708cc06a2b26c1f06e5029c18968709a189f51154f2e746a",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-gallery-N.png",
+        "rel": "backdrops/grown/gallery-N.png",
+        "room": "gallery",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "a9024bfc",
+          "candidate": "backdrops/source/gallery-N/row23-a9024bfc.png",
+          "prompt": "backdrops/source/gallery-N/row23-a9024bfc.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "079f9a01",
+          "candidate": "backdrops/source/gallery-N/row23-079f9a01.png",
+          "prompt": "backdrops/source/gallery-N/row23-079f9a01.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "gallery/N",
+      "attempt": 7,
+      "packet": "design/batches/liner-3/gallery-N/retry-7",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-left",
+        "door",
+        "no-window"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 203.333,
+      "flights": [],
+      "scaffold_sha256": "7a21826215cf3b0503a830879d641175db250d5670cc50a2ec0f9036e446a6f3",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-gallery-N.png",
+        "rel": "backdrops/grown/gallery-N.png",
+        "room": "gallery",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "9246d44a",
+          "candidate": "backdrops/source/gallery-N/row23-9246d44a.png",
+          "prompt": "backdrops/source/gallery-N/row23-9246d44a.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "35d3ce83",
+          "candidate": "backdrops/source/gallery-N/row23-35d3ce83.png",
+          "prompt": "backdrops/source/gallery-N/row23-35d3ce83.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "writing_room/N",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/writing_room-N/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "door",
+        "no-window"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "f7b7fddcb1b62f820c8aa108b2d918a2b26924dcc7098d1c86d382361d307b48",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-writing_room-N.png",
+        "rel": "backdrops/grown/writing_room-N.png",
+        "room": "writing_room",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f3bc53b6",
+          "candidate": "backdrops/source/writing_room-N/row23-f3bc53b6.png",
+          "prompt": "backdrops/source/writing_room-N/row23-f3bc53b6.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "814cd02c",
+          "candidate": "backdrops/source/writing_room-N/row23-814cd02c.png",
+          "prompt": "backdrops/source/writing_room-N/row23-814cd02c.prompt.txt"
+        }
+      ]
+    }
+  ],
+  "refused_entries": []
+}

@@ -1,0 +1,3824 @@
+{
+  "_what_this_is": "The manor art run as ONE ORDER. Every unpainted facing, its scaffold, its packet and its return paths — dispatched at once and painted in parallel, with a per-wall retry cap, rather than drained as a queue.",
+  "_arrivals_are_unordered": "Every return path is unique and absolute. `measure.py --round row23` is a directory watch: it measures whatever is on disk and reports what is not, so a wall that lands late costs nothing and nothing waits for a wave to complete. THE ONE ORDERING, row 38's mechanism made the default at row 42: every location paints its LEAD wall first — the most-carried one, named in `room_order` below — and the other three carry `depends_on` until that wall's picture is on disk. A packet whose `depends_on` is set is NOT PAINTED YET; its PACKET.md says so in its first line. Once the lead has landed, its three followers go out together and the parallelism inside a room is unchanged.",
+  "_seams": "[HUMAN 2026-08-24] \"the side of the completed picture which is adjacent to the wall about to be developed should have that sides 10% of the picture cropped and sent as an additional reference picture, with a description that this is a reference image of what should be sitting on the left/right edge\" — every entry below whose neighbour is painted carries `edge_seed`: the strip that went out beside the layout image (`edge_seed.image_index` is which Image number it was given - the index is derived from whether an Image 1 rode, never typed [row 43]), where it was cut from, and its sha256. Open locations REQUIRE the strip; indoor ones take it opportunistically. ORDERING is no longer scoped to open locations - see `_lead_rule` and `room_order` below - and what is still scoped to them is the RING: outdoors each facing continues the one at its left edge, indoors all three continue the lead.",
+  "_lead_rule": "[HUMAN 2026-08-24] \"Can we paint the whole scene on wall 1 for a room, use it to influence wall 2-4\" — one facing of each room is painted first and the other three take it as Image 1 (row 40's own-room rule, extended to accept the lead's CANDIDATE) plus row 38's edge strip where it abuts. The lead is the MOST-CARRIED wall: doors, windows and fireplaces counted; ties break to the wall the room's entry door faces, then to compass order.",
+  "room_order": {
+    "writing_room": {
+      "lead": "writing_room/N",
+      "lead_why": "the most-carried wall of this room (N:1 E:0 S:0 W:0) — doors, windows and fireplaces",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "N",
+          "key": "writing_room/N",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "writing_room/N",
+          "carriers": 1,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "writing_room/E",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "writing_room/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "writing_room/N",
+          "depends_on": null
+        },
+        {
+          "facing": "S",
+          "key": "writing_room/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "writing_room/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "writing_room/N",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "writing_room/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "writing_room/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "writing_room/N",
+          "depends_on": null
+        }
+      ]
+    },
+    "gallery": {
+      "lead": "gallery/N",
+      "lead_why": "N/S carry equally (N:1 S:1 W:0), so the tie breaks to the wall the room's entry door (its S wall) faces",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "N",
+          "key": "gallery/N",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "gallery/N",
+          "carriers": 1,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "gallery/E",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "gallery/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "gallery/N",
+          "depends_on": null
+        },
+        {
+          "facing": "S",
+          "key": "gallery/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "gallery/N",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "gallery/N",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "gallery/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "gallery/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "gallery/N",
+          "depends_on": null
+        }
+      ]
+    },
+    "gallery_far": {
+      "lead": "gallery_far/N",
+      "lead_why": "N/E/S carry equally (N:0 E:0 S:0) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "N",
+          "key": "gallery_far/N",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "gallery_far/N",
+          "carriers": 0,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "gallery_far/E",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "gallery_far/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "gallery_far/N",
+          "depends_on": null
+        },
+        {
+          "facing": "S",
+          "key": "gallery_far/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "gallery_far/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "gallery_far/N",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "gallery_far/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "gallery_far/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "gallery_far/N",
+          "depends_on": null
+        }
+      ]
+    },
+    "saloon": {
+      "lead": "saloon/S",
+      "lead_why": "the most-carried wall of this room (S:1 W:0) — doors, windows and fireplaces",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "S",
+          "key": "saloon/S",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "saloon/S",
+          "carriers": 1,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "N",
+          "key": "saloon/N",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon/S",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon/S",
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "saloon/E",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon/S",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon/S",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "saloon/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon/S",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon/S",
+          "depends_on": null
+        }
+      ]
+    },
+    "saloon_e": {
+      "lead": "saloon_e/E",
+      "lead_why": "E/S carry equally (E:0 S:0) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "E",
+          "key": "saloon_e/E",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "saloon_e/E",
+          "carriers": 0,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "N",
+          "key": "saloon_e/N",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_e/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_e/E",
+          "depends_on": null
+        },
+        {
+          "facing": "S",
+          "key": "saloon_e/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_e/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_e/E",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "saloon_e/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_e/E",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_e/E",
+          "depends_on": null
+        }
+      ]
+    },
+    "saloon_n": {
+      "lead": "saloon_n/N",
+      "lead_why": "N/W carry equally (N:0 W:0) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "N",
+          "key": "saloon_n/N",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "saloon_n/N",
+          "carriers": 0,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "saloon_n/E",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_n/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_n/N",
+          "depends_on": null
+        },
+        {
+          "facing": "S",
+          "key": "saloon_n/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_n/N",
+          "carriers": 1,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_n/N",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "saloon_n/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_n/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_n/N",
+          "depends_on": null
+        }
+      ]
+    },
+    "saloon_ne": {
+      "lead": "saloon_ne/N",
+      "lead_why": "N/E carry equally (N:0 E:0) and the room's entry door breaks no tie here, so the first in compass order leads",
+      "type": "indoor",
+      "shape": "a star — the other three all continue the lead",
+      "order": [
+        {
+          "facing": "N",
+          "key": "saloon_ne/N",
+          "position": 0,
+          "lead": true,
+          "origin": true,
+          "lead_key": "saloon_ne/N",
+          "carriers": 0,
+          "has_image": true,
+          "painted": false,
+          "continues": null,
+          "depends_on": null
+        },
+        {
+          "facing": "E",
+          "key": "saloon_ne/E",
+          "position": 1,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_ne/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_ne/N",
+          "depends_on": null
+        },
+        {
+          "facing": "S",
+          "key": "saloon_ne/S",
+          "position": 2,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_ne/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_ne/N",
+          "depends_on": null
+        },
+        {
+          "facing": "W",
+          "key": "saloon_ne/W",
+          "position": 3,
+          "lead": false,
+          "origin": false,
+          "lead_key": "saloon_ne/N",
+          "carriers": 0,
+          "has_image": false,
+          "painted": false,
+          "continues": "saloon_ne/N",
+          "depends_on": null
+        }
+      ]
+    }
+  },
+  "_speed_rule": "[HUMAN 2026-08-23] \"To the degree we hope to one pass parallel all assets created few turns each to full completion.\"",
+  "_reuse_rule": "ART IS GENERATED ONCE, PROMOTED ONCE, AND THEREAFTER READ. This worklist was derived by checking the stores - a promoted backdrop, a candidate already on disk, or a spent retry budget removes a facing from the order, each with its reason recorded below. Re-running the emitter is idempotent: it emits only what is genuinely outstanding. It is the same doctrine the content contract runs on one tier up, where a side wall is inherited from the neighbour that already exists rather than re-imagined.",
+  "_technique": "t2",
+  "_register": "[row 43] Every entry names the REGISTER its prompt was composed in. `g5-noappendix` is the clean register ruled production on 2026-08-25 — the room and its materials first, this wall's carriers, the picture in words with the layout image carrying the lines, the medium, nothing else, and no coordinate appendix. An entry with no `register` key predates the ruling and is `g4`, which is what the timings report's trailing rate is measured against.",
+  "_generated": "2026-09-02",
+  "facings_in_plan": 28,
+  "emitted": 21,
+  "skipped": 7,
+  "skipped_entries": [
+    {
+      "key": "writing_room/N",
+      "room": "writing_room",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "backdrops/source/writing_room-N/row23-5c185b14.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    },
+    {
+      "key": "gallery/N",
+      "room": "gallery",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "skipped": "returned, unmeasured: 6 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/gallery-N/row23-079f9a01.png",
+        "backdrops/source/gallery-N/row23-09d37eeb.png",
+        "backdrops/source/gallery-N/row23-3e0e555a.png",
+        "backdrops/source/gallery-N/row23-a1d09761.png",
+        "backdrops/source/gallery-N/row23-a9024bfc.png",
+        "backdrops/source/gallery-N/row23-f6591bea.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    },
+    {
+      "key": "gallery_far/N",
+      "room": "gallery_far",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/gallery_far-N/row23-03233630.png",
+        "backdrops/source/gallery_far-N/row23-8b6b3e2b.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    },
+    {
+      "key": "saloon/S",
+      "room": "saloon",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/saloon-S/row23-60dc04a1.png",
+        "backdrops/source/saloon-S/row23-f0fd345d.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    },
+    {
+      "key": "saloon_e/E",
+      "room": "saloon_e",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "backdrops/source/saloon_e-E/row23-894166d7.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    },
+    {
+      "key": "saloon_n/N",
+      "room": "saloon_n",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/saloon_n-N/row23-4db3bb71.png",
+        "backdrops/source/saloon_n-N/row23-8508ccbc.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    },
+    {
+      "key": "saloon_ne/N",
+      "room": "saloon_ne",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "skipped": "returned, unmeasured: 2 candidate(s) on disk",
+      "returns": [
+        "backdrops/source/saloon_ne-N/row23-5320f213.png",
+        "backdrops/source/saloon_ne-N/row23-5cfb5cff.png"
+      ],
+      "_routed": "the measure loop, not the seat - dispatching this again pays twice for one wall"
+    }
+  ],
+  "entries": [
+    {
+      "key": "writing_room/S",
+      "room": "writing_room",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/writing_room-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "d76dfe66",
+          "candidate": "backdrops/source/writing_room-S/row23-d76dfe66.png",
+          "prompt": "backdrops/source/writing_room-S/row23-d76dfe66.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "123faa29",
+          "candidate": "backdrops/source/writing_room-S/row23-123faa29.png",
+          "prompt": "backdrops/source/writing_room-S/row23-123faa29.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "writing_room/E",
+      "room": "writing_room",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/writing_room-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "writing_room/E",
+        "location": "writing_room",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "writing_room/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "writing_room/S",
+            "painted": false
+          }
+        ],
+        "lead": "writing_room/N",
+        "is_lead": false,
+        "continues": "writing_room/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/writing_room-E/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "2aad46bb90250f9052c97242fe3193895c1dc2567f92b4245654c57a277a1c34",
+        "source_sha256": "45d5882ae1e90bad21d3ceff0ce20e08f90a06368fa1c13b8f9319444bc82dd2"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "56b2a9e9",
+          "candidate": "backdrops/source/writing_room-E/row23-56b2a9e9.png",
+          "prompt": "backdrops/source/writing_room-E/row23-56b2a9e9.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "1413fcd4",
+          "candidate": "backdrops/source/writing_room-E/row23-1413fcd4.png",
+          "prompt": "backdrops/source/writing_room-E/row23-1413fcd4.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "writing_room/W",
+      "room": "writing_room",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/writing_room-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "writing_room/W",
+        "location": "writing_room",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "writing_room/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "writing_room/S",
+            "painted": false
+          }
+        ],
+        "lead": "writing_room/N",
+        "is_lead": false,
+        "continues": "writing_room/N",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/writing_room-W/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "e956be6154ed625756de4de6bc0c86fd8dddb84a682cdf6eb015e8f04ff20ef2",
+        "source_sha256": "45d5882ae1e90bad21d3ceff0ce20e08f90a06368fa1c13b8f9319444bc82dd2"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "9ce24099",
+          "candidate": "backdrops/source/writing_room-W/row23-9ce24099.png",
+          "prompt": "backdrops/source/writing_room-W/row23-9ce24099.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "27fb1609",
+          "candidate": "backdrops/source/writing_room-W/row23-27fb1609.png",
+          "prompt": "backdrops/source/writing_room-W/row23-27fb1609.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery/S",
+      "room": "gallery",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/liner-3/gallery-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "door",
+        "no-window"
+      ],
+      "scaffold_sha256": "0a727837fd0be5cbd81d75b329a984c8d7d5545e92719b72814d262fd1ca6e18",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 384,
+            "x1": 1152,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 256,
+        "rail_columns": [
+          [
+            -1280,
+            640
+          ],
+          [
+            896,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 640,
+          "x1": 896
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": false,
+      "continues": "gallery/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "94fdc1f7",
+          "candidate": "backdrops/source/gallery-S/row23-94fdc1f7.png",
+          "prompt": "backdrops/source/gallery-S/row23-94fdc1f7.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "86bc34a6",
+          "candidate": "backdrops/source/gallery-S/row23-86bc34a6.png",
+          "prompt": "backdrops/source/gallery-S/row23-86bc34a6.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery/E",
+      "room": "gallery",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/gallery-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "67e47365247c877a9bb6c88d9a93e579fa444609c5cce0733d1e7f657a99739c",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285714,
+      "corner_x1_px": 1060.5714285714287,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            475.4285714285714,
+            1060.5714285714287
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "gallery/E",
+        "location": "gallery",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "gallery/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "gallery/S",
+            "painted": false
+          }
+        ],
+        "lead": "gallery/N",
+        "is_lead": false,
+        "continues": "gallery/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/gallery-E/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "b9c0c2aff9c1205002d2913473640be687bfc5c52d51f51c6e80d36faed1aebc",
+        "source_sha256": "3f75defa3d78f79a6e405f5985d04c36b3a03710c910d073b607b9be6fa7dc07"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": false,
+      "continues": "gallery/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "a5f2765e",
+          "candidate": "backdrops/source/gallery-E/row23-a5f2765e.png",
+          "prompt": "backdrops/source/gallery-E/row23-a5f2765e.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "e2426ebe",
+          "candidate": "backdrops/source/gallery-E/row23-e2426ebe.png",
+          "prompt": "backdrops/source/gallery-E/row23-e2426ebe.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery/W",
+      "room": "gallery",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/gallery-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "gallery/W",
+        "location": "gallery",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "gallery/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "gallery/S",
+            "painted": false
+          }
+        ],
+        "lead": "gallery/N",
+        "is_lead": false,
+        "continues": "gallery/N",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/gallery-W/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "94be200172cd03a3050db22e8033bdfc6f30110b7e8c95c50ef471829841a2ca",
+        "source_sha256": "3f75defa3d78f79a6e405f5985d04c36b3a03710c910d073b607b9be6fa7dc07"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": false,
+      "continues": "gallery/N",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/gallery-N/row23-f6591bea.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "d5da099b",
+          "candidate": "backdrops/source/gallery-W/row23-d5da099b.png",
+          "prompt": "backdrops/source/gallery-W/row23-d5da099b.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "33671a10",
+          "candidate": "backdrops/source/gallery-W/row23-33671a10.png",
+          "prompt": "backdrops/source/gallery-W/row23-33671a10.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery_far/S",
+      "room": "gallery_far",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/gallery_far-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "a1cf601492f69185afbb11c43d35478edb13fe21b4d8216e39ba042024e9dfc2",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333348,
+      "corner_x1_px": 2816,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333348,
+            2816
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery_far/N",
+      "is_lead": false,
+      "continues": "gallery_far/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "2d2206be",
+          "candidate": "backdrops/source/gallery_far-S/row23-2d2206be.png",
+          "prompt": "backdrops/source/gallery_far-S/row23-2d2206be.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "39fe3801",
+          "candidate": "backdrops/source/gallery_far-S/row23-39fe3801.png",
+          "prompt": "backdrops/source/gallery_far-S/row23-39fe3801.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery_far/E",
+      "room": "gallery_far",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/gallery_far-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "gallery_far/E",
+        "location": "gallery_far",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "gallery_far/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "gallery_far/S",
+            "painted": false
+          }
+        ],
+        "lead": "gallery_far/N",
+        "is_lead": false,
+        "continues": "gallery_far/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/gallery_far-E/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "a8ffff8c5adbca9c6fc5b4ba944a61688faacd57ed9d002026d96b807d3908cd",
+        "source_sha256": "4b2d5d91091bb50b151ffd0ed891df4b6a6ceb45a717e91d93f558c7b0c27499"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery_far/N",
+      "is_lead": false,
+      "continues": "gallery_far/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "826423ea",
+          "candidate": "backdrops/source/gallery_far-E/row23-826423ea.png",
+          "prompt": "backdrops/source/gallery_far-E/row23-826423ea.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "2515d825",
+          "candidate": "backdrops/source/gallery_far-E/row23-2515d825.png",
+          "prompt": "backdrops/source/gallery_far-E/row23-2515d825.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery_far/W",
+      "room": "gallery_far",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/gallery_far-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "67e47365247c877a9bb6c88d9a93e579fa444609c5cce0733d1e7f657a99739c",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285714,
+      "corner_x1_px": 1060.5714285714287,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            475.4285714285714,
+            1060.5714285714287
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "gallery_far/W",
+        "location": "gallery_far",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "gallery_far/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "gallery_far/S",
+            "painted": false
+          }
+        ],
+        "lead": "gallery_far/N",
+        "is_lead": false,
+        "continues": "gallery_far/N",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/gallery_far-W/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "80f4926175d6a3b4fd6f957d139e8fe27f2f3cbeb607e0fc511beeb4f2554389",
+        "source_sha256": "4b2d5d91091bb50b151ffd0ed891df4b6a6ceb45a717e91d93f558c7b0c27499"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery_far/N",
+      "is_lead": false,
+      "continues": "gallery_far/N",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "9b83b32d",
+          "candidate": "backdrops/source/gallery_far-W/row23-9b83b32d.png",
+          "prompt": "backdrops/source/gallery_far-W/row23-9b83b32d.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "4fedce4d",
+          "candidate": "backdrops/source/gallery_far-W/row23-4fedce4d.png",
+          "prompt": "backdrops/source/gallery_far-W/row23-4fedce4d.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon/N",
+      "room": "saloon",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285714,
+      "corner_x1_px": 1645.7142857142858,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            475.4285714285714,
+            1645.7142857142858
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon/S",
+      "is_lead": false,
+      "continues": "saloon/S",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/saloon-S/row23-f0fd345d.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "81d0d4cd",
+          "candidate": "backdrops/source/saloon-N/row23-81d0d4cd.png",
+          "prompt": "backdrops/source/saloon-N/row23-81d0d4cd.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "35433809",
+          "candidate": "backdrops/source/saloon-N/row23-35433809.png",
+          "prompt": "backdrops/source/saloon-N/row23-35433809.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon/E",
+      "room": "saloon",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "4f1ea84d9d719543ad3018a7f65cb20e8f8d45978d52819d44e234fe7f7f9a32",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -109.71428571428555,
+      "corner_x1_px": 1060.5714285714287,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -109.71428571428555,
+            1060.5714285714287
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon/E",
+        "location": "saloon",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "saloon/S",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/saloon-S/row23-f0fd345d.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "saloon/N",
+            "painted": false
+          }
+        ],
+        "lead": "saloon/S",
+        "is_lead": false,
+        "continues": "saloon/S",
+        "order_position": 2,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon-E/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "e2fd784ab1a8bbd60511ca9c352ce0f29e75e08dff5ca2800d9ecc19f1836a57",
+        "source_sha256": "d871cb7bdee7deda0b6dcb5ab8cfa97cbdba03227f4d031e7127fa127c72aecf"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon/S",
+      "is_lead": false,
+      "continues": "saloon/S",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/saloon-S/row23-f0fd345d.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "a43016f1",
+          "candidate": "backdrops/source/saloon-E/row23-a43016f1.png",
+          "prompt": "backdrops/source/saloon-E/row23-a43016f1.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "d52f593c",
+          "candidate": "backdrops/source/saloon-E/row23-d52f593c.png",
+          "prompt": "backdrops/source/saloon-E/row23-d52f593c.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon/W",
+      "room": "saloon",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "a1cf601492f69185afbb11c43d35478edb13fe21b4d8216e39ba042024e9dfc2",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333303,
+      "corner_x1_px": 2815.9999999999995,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333303,
+            2815.9999999999995
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon/W",
+        "location": "saloon",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon/S",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/saloon-S/row23-f0fd345d.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon/N",
+            "painted": false
+          }
+        ],
+        "lead": "saloon/S",
+        "is_lead": false,
+        "continues": "saloon/S",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon-W/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "b8d13b936f9967a945a66434c96e0fd2d06a314eb631c838ca36a3e3f2b53b90",
+        "source_sha256": "d871cb7bdee7deda0b6dcb5ab8cfa97cbdba03227f4d031e7127fa127c72aecf"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon/S",
+      "is_lead": false,
+      "continues": "saloon/S",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/saloon-S/row23-f0fd345d.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "1d14e923",
+          "candidate": "backdrops/source/saloon-W/row23-1d14e923.png",
+          "prompt": "backdrops/source/saloon-W/row23-1d14e923.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "ea72630c",
+          "candidate": "backdrops/source/saloon-W/row23-ea72630c.png",
+          "prompt": "backdrops/source/saloon-W/row23-ea72630c.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_e/N",
+      "room": "saloon_e",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_e-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "4f1ea84d9d719543ad3018a7f65cb20e8f8d45978d52819d44e234fe7f7f9a32",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -109.71428571428567,
+      "corner_x1_px": 1060.5714285714284,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -109.71428571428567,
+            1060.5714285714284
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon_e/N",
+        "location": "saloon_e",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "saloon_e/E",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "saloon_e/W",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_e/E",
+        "is_lead": false,
+        "continues": "saloon_e/E",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon_e-N/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "78b00a00f42a0bd6ec6d314be1187cad0bf8b8d04ec3905ef4de8f00d85499ef",
+        "source_sha256": "81b50d0c537ef22991b4c122774a1526440c4199c8de62419ed45915d34053b4"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_e/E",
+      "is_lead": false,
+      "continues": "saloon_e/E",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ca43ffac",
+          "candidate": "backdrops/source/saloon_e-N/row23-ca43ffac.png",
+          "prompt": "backdrops/source/saloon_e-N/row23-ca43ffac.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "0793fc1b",
+          "candidate": "backdrops/source/saloon_e-N/row23-0793fc1b.png",
+          "prompt": "backdrops/source/saloon_e-N/row23-0793fc1b.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_e/S",
+      "room": "saloon_e",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_e-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "a1cf601492f69185afbb11c43d35478edb13fe21b4d8216e39ba042024e9dfc2",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333348,
+      "corner_x1_px": 2816,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333348,
+            2816
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon_e/S",
+        "location": "saloon_e",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon_e/E",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon_e/W",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_e/E",
+        "is_lead": false,
+        "continues": "saloon_e/E",
+        "order_position": 2,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon_e-S/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "6263039454ba9fdfba2f2fe326e269ca2374912db5793bac7d97e846de1afe8e",
+        "source_sha256": "81b50d0c537ef22991b4c122774a1526440c4199c8de62419ed45915d34053b4"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_e/E",
+      "is_lead": false,
+      "continues": "saloon_e/E",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "a4c934fe",
+          "candidate": "backdrops/source/saloon_e-S/row23-a4c934fe.png",
+          "prompt": "backdrops/source/saloon_e-S/row23-a4c934fe.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "005f63a1",
+          "candidate": "backdrops/source/saloon_e-S/row23-005f63a1.png",
+          "prompt": "backdrops/source/saloon_e-S/row23-005f63a1.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_e/W",
+      "room": "saloon_e",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_e-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.42857142857133,
+      "corner_x1_px": 1645.7142857142856,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            475.42857142857133,
+            1645.7142857142856
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_e/E",
+      "is_lead": false,
+      "continues": "saloon_e/E",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "deb7b86f",
+          "candidate": "backdrops/source/saloon_e-W/row23-deb7b86f.png",
+          "prompt": "backdrops/source/saloon_e-W/row23-deb7b86f.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "fcb785cc",
+          "candidate": "backdrops/source/saloon_e-W/row23-fcb785cc.png",
+          "prompt": "backdrops/source/saloon_e-W/row23-fcb785cc.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_n/S",
+      "room": "saloon_n",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/liner-3/saloon_n-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "deep-view",
+        "same-wall-image",
+        "door",
+        "no-window"
+      ],
+      "scaffold_sha256": "087972a015a465be7b8b35e66bfd22810737c03179af02bdd3bc7d3c370a4c89",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -109.71428571428567,
+      "corner_x1_px": 1060.5714285714287,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door02",
+            "x0": 603.14,
+            "x1": 932.86,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 110,
+        "rail_columns": [
+          [
+            -109.71428571428567,
+            713
+          ],
+          [
+            823,
+            1060.5714285714287
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 713.14,
+          "x1": 822.86
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": false,
+      "continues": "saloon_n/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "3c25f292",
+          "candidate": "backdrops/source/saloon_n-S/row23-3c25f292.png",
+          "prompt": "backdrops/source/saloon_n-S/row23-3c25f292.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "a41c624c",
+          "candidate": "backdrops/source/saloon_n-S/row23-a41c624c.png",
+          "prompt": "backdrops/source/saloon_n-S/row23-a41c624c.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_n/E",
+      "room": "saloon_n",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_n-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285715,
+      "corner_x1_px": 1645.7142857142858,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            475.4285714285715,
+            1645.7142857142858
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon_n/E",
+        "location": "saloon_n",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon_n/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon_n/S",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_n/N",
+        "is_lead": false,
+        "continues": "saloon_n/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon_n-E/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "3f44bd480fa93805b0112840f56d1752a455dfce9dcc72f93120991caf80d0df",
+        "source_sha256": "5ac86c994825ac6ebd74162b07a56e3684909b810d4e5c715fcdc94600edee43"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": false,
+      "continues": "saloon_n/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ec42e5ca",
+          "candidate": "backdrops/source/saloon_n-E/row23-ec42e5ca.png",
+          "prompt": "backdrops/source/saloon_n-E/row23-ec42e5ca.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "1dcfbadc",
+          "candidate": "backdrops/source/saloon_n-E/row23-1dcfbadc.png",
+          "prompt": "backdrops/source/saloon_n-E/row23-1dcfbadc.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_n/W",
+      "room": "saloon_n",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_n-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "00bf9da2df25fd85a55c734db16efcbb12379b364586eea8c6573ce5dd5024f7",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280,
+      "corner_x1_px": 1450.6666666666665,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -1280,
+            1450.6666666666665
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon_n/W",
+        "location": "saloon_n",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "saloon_n/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "saloon_n/S",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_n/N",
+        "is_lead": false,
+        "continues": "saloon_n/N",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon_n-W/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "a4172b0fb7266b1ce590ca89e7b8092408cd2bb7581ee20aa3c560f292775c45",
+        "source_sha256": "5ac86c994825ac6ebd74162b07a56e3684909b810d4e5c715fcdc94600edee43"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": false,
+      "continues": "saloon_n/N",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ae0ed0c7",
+          "candidate": "backdrops/source/saloon_n-W/row23-ae0ed0c7.png",
+          "prompt": "backdrops/source/saloon_n-W/row23-ae0ed0c7.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "ce3fb206",
+          "candidate": "backdrops/source/saloon_n-W/row23-ce3fb206.png",
+          "prompt": "backdrops/source/saloon_n-W/row23-ce3fb206.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_ne/S",
+      "room": "saloon_ne",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_ne-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "0e77cc17cb8de9ad5688d178ca6260160d0e3f322a8abdcef45349c24851cd7a",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 475.4285714285715,
+      "corner_x1_px": 1645.7142857142858,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            475.4285714285715,
+            1645.7142857142858
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_ne/N",
+      "is_lead": false,
+      "continues": "saloon_ne/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_ne-N/row23-5cfb5cff.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "2af2b9a7",
+          "candidate": "backdrops/source/saloon_ne-S/row23-2af2b9a7.png",
+          "prompt": "backdrops/source/saloon_ne-S/row23-2af2b9a7.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "8cc93d17",
+          "candidate": "backdrops/source/saloon_ne-S/row23-8cc93d17.png",
+          "prompt": "backdrops/source/saloon_ne-S/row23-8cc93d17.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_ne/E",
+      "room": "saloon_ne",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_ne-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-left",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "a1cf601492f69185afbb11c43d35478edb13fe21b4d8216e39ba042024e9dfc2",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333348,
+      "corner_x1_px": 2816,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333348,
+            2816
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon_ne/E",
+        "location": "saloon_ne",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "saloon_ne/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/source/saloon_ne-N/row23-5cfb5cff.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "saloon_ne/S",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_ne/N",
+        "is_lead": false,
+        "continues": "saloon_ne/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon_ne-E/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "687e7a11bbce43caff7ab190c35d17137396a6f5be8d124b4eeeb8c29a037964",
+        "source_sha256": "572ca9ec622054d5e7e0702d4428162fbae7b0ef78447e71b18489901f8c1cfc"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_ne/N",
+      "is_lead": false,
+      "continues": "saloon_ne/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_ne-N/row23-5cfb5cff.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "7b2e7eef",
+          "candidate": "backdrops/source/saloon_ne-E/row23-7b2e7eef.png",
+          "prompt": "backdrops/source/saloon_ne-E/row23-7b2e7eef.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "787e1359",
+          "candidate": "backdrops/source/saloon_ne-E/row23-787e1359.png",
+          "prompt": "backdrops/source/saloon_ne-E/row23-787e1359.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_ne/W",
+      "room": "saloon_ne",
+      "facing": "W",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_ne-W",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "run-wall:corner-right",
+        "deep-view",
+        "same-wall-image",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "4f1ea84d9d719543ad3018a7f65cb20e8f8d45978d52819d44e234fe7f7f9a32",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 91.42857142857143,
+      "camera_wall_m": 11.2,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.61939453125,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -109.71428571428567,
+      "corner_x1_px": 1060.5714285714284,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 634.26,
+          "half_width": 8.65,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 524.5457142857143,
+          "half_width": 8.78,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 323.40285714285716,
+          "half_width": 24.87,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -109.71428571428567,
+            1060.5714285714284
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 524.55,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": {
+        "key": "saloon_ne/W",
+        "location": "saloon_ne",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "right",
+        "neighbour": "saloon_ne/N",
+        "neighbour_edge": "left",
+        "source": "backdrops/source/saloon_ne-N/row23-5cfb5cff.png",
+        "source_kind": "candidate",
+        "role_sentence": "Image 2 is a reference of exactly what sits at this picture's right edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "left",
+            "neighbour": "saloon_ne/S",
+            "painted": false
+          }
+        ],
+        "lead": "saloon_ne/N",
+        "is_lead": false,
+        "continues": "saloon_ne/N",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (candidate)",
+        "image_index": 2,
+        "file": "design/batches/liner-3/saloon_ne-W/edge-seed-right.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          0,
+          154
+        ],
+        "sha256": "df809d5e6894b7358cddfba36873bb51bc419e86e650311ea2f1aefa94b0ec0e",
+        "source_sha256": "572ca9ec622054d5e7e0702d4428162fbae7b0ef78447e71b18489901f8c1cfc"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_ne/N",
+      "is_lead": false,
+      "continues": "saloon_ne/N",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_ne-N/row23-5cfb5cff.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "b05f53f4",
+          "candidate": "backdrops/source/saloon_ne-W/row23-b05f53f4.png",
+          "prompt": "backdrops/source/saloon_ne-W/row23-b05f53f4.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "2448b93c",
+          "candidate": "backdrops/source/saloon_ne-W/row23-2448b93c.png",
+          "prompt": "backdrops/source/saloon_ne-W/row23-2448b93c.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "writing_room/N",
+      "room": "writing_room",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/liner-3/writing_room-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "door",
+        "no-window"
+      ],
+      "scaffold_sha256": "f7b7fddcb1b62f820c8aa108b2d918a2b26924dcc7098d1c86d382361d307b48",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door01",
+            "x0": 384,
+            "x1": 1152,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 256,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            640
+          ],
+          [
+            896,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 640,
+          "x1": 896
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "5c185b14",
+          "candidate": "backdrops/source/writing_room-N/row23-5c185b14.png",
+          "prompt": "backdrops/source/writing_room-N/row23-5c185b14.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "135b4dbc",
+          "candidate": "backdrops/source/writing_room-N/row23-135b4dbc.png",
+          "prompt": "backdrops/source/writing_room-N/row23-135b4dbc.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery/N",
+      "room": "gallery",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/liner-3/gallery-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-left",
+        "door",
+        "no-window"
+      ],
+      "scaffold_sha256": "3dcfd5db0dca474900fc9669163643048296fec50fd857917b7b859ec02658b4",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 2816,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door02",
+            "x0": 384,
+            "x1": 1152,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 256,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            640
+          ],
+          [
+            896,
+            2816
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 640,
+          "x1": 896
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "a1d09761",
+          "candidate": "backdrops/source/gallery-N/row23-a1d09761.png",
+          "prompt": "backdrops/source/gallery-N/row23-a1d09761.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "09d37eeb",
+          "candidate": "backdrops/source/gallery-N/row23-09d37eeb.png",
+          "prompt": "backdrops/source/gallery-N/row23-09d37eeb.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "gallery_far/N",
+      "room": "gallery_far",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/gallery_far-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "68a454611e8491f789a33b47366eb298114d3b99e2fe5ffede5756c0993b8e05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280,
+      "corner_x1_px": 1450.6666666666665,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -1280,
+            1450.6666666666665
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery_far/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "03233630",
+          "candidate": "backdrops/source/gallery_far-N/row23-03233630.png",
+          "prompt": "backdrops/source/gallery_far-N/row23-03233630.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "8b6b3e2b",
+          "candidate": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+          "prompt": "backdrops/source/gallery_far-N/row23-8b6b3e2b.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon/S",
+      "room": "saloon",
+      "facing": "S",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [
+        "door"
+      ],
+      "packet": "design/batches/liner-3/saloon-S",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "door",
+        "no-window"
+      ],
+      "scaffold_sha256": "a73dcab064fb8cedf3b7611cc06af40f07df3c03e2c2d5feb44b6241eebeccad",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280,
+      "corner_x1_px": 1450.6666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [
+          {
+            "kind": "door",
+            "id": "door02",
+            "x0": 384,
+            "x1": 1152,
+            "from": "the stamped box dilated by this wall's own measured reflex-versus-plan separation"
+          }
+        ],
+        "carrier_tolerance_px": 256,
+        "rail_columns": [
+          [
+            -1280,
+            640
+          ],
+          [
+            896,
+            1450.6666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [
+        {
+          "kind": "door",
+          "x0": 640,
+          "x1": 896
+        }
+      ],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon/S",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f0fd345d",
+          "candidate": "backdrops/source/saloon-S/row23-f0fd345d.png",
+          "prompt": "backdrops/source/saloon-S/row23-f0fd345d.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "60dc04a1",
+          "candidate": "backdrops/source/saloon-S/row23-60dc04a1.png",
+          "prompt": "backdrops/source/saloon-S/row23-60dc04a1.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_e/E",
+      "room": "saloon_e",
+      "facing": "E",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_e-E",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "68a454611e8491f789a33b47366eb298114d3b99e2fe5ffede5756c0993b8e05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1279.9999999999995,
+      "corner_x1_px": 1450.666666666667,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -1279.9999999999995,
+            1450.666666666667
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_e/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "894166d7",
+          "candidate": "backdrops/source/saloon_e-E/row23-894166d7.png",
+          "prompt": "backdrops/source/saloon_e-E/row23-894166d7.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "37b5f873",
+          "candidate": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+          "prompt": "backdrops/source/saloon_e-E/row23-37b5f873.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_n/N",
+      "room": "saloon_n",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_n-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-left",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "4b36a7ba2cadc6f14322fd9aaf48b0246e4c882d3951c773406ae3cd6b9f6476",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": 85.33333333333326,
+      "corner_x1_px": 2816,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            85.33333333333326,
+            2816
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "4db3bb71",
+          "candidate": "backdrops/source/saloon_n-N/row23-4db3bb71.png",
+          "prompt": "backdrops/source/saloon_n-N/row23-4db3bb71.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "8508ccbc",
+          "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+          "prompt": "backdrops/source/saloon_n-N/row23-8508ccbc.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    },
+    {
+      "key": "saloon_ne/N",
+      "room": "saloon_ne",
+      "facing": "N",
+      "floor": "c_deck",
+      "type": "enclosed",
+      "promoted": false,
+      "fenced": null,
+      "carriers": [],
+      "packet": "design/batches/liner-3/saloon_ne-N",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "scaffold_sha256": "68a454611e8491f789a33b47366eb298114d3b99e2fe5ffede5756c0993b8e05",
+      "scaffold_style": "ink-on-paper-v2",
+      "px_per_m_at_wall": 213.33333333333334,
+      "camera_wall_m": 4.8,
+      "camera_far_m": null,
+      "facing_type": "enclosed",
+      "floor_line_y": 0.7602278645833334,
+      "horizon_y": 0.51376953125,
+      "corner_x0_px": -1280,
+      "corner_x1_px": 1450.6666666666665,
+      "storey_height_m": 3.4,
+      "wall_width_m": 6.4,
+      "brackets": {
+        "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen",
+        "band": 0.08,
+        "floor_window": {
+          "centre": 778.4733333333334,
+          "half_width": 20.19,
+          "from": "+/-8 % of the floor-to-horizon separation, which is eye x px_per_m_at_wall"
+        },
+        "rail_band": {
+          "centre": 522.4733333333334,
+          "half_width": 20.48,
+          "from": "+/-8 % of the anchor's own height above the floor line"
+        },
+        "ceiling_band": {
+          "centre": 53.139999999999986,
+          "half_width": 58.03,
+          "from": "+/-8 % of the ceiling-to-floor span"
+        },
+        "carrier_windows": [],
+        "carrier_tolerance_px": 0,
+        "rail_columns": [
+          [
+            -1280,
+            1450.6666666666665
+          ]
+        ]
+      },
+      "implied_focal_px": 1024,
+      "stamped": [],
+      "flights": [],
+      "chair_rail_y": 522.47,
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_ne/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": null,
+      "style_image": null,
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "5320f213",
+          "candidate": "backdrops/source/saloon_ne-N/row23-5320f213.png",
+          "prompt": "backdrops/source/saloon_ne-N/row23-5320f213.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "5cfb5cff",
+          "candidate": "backdrops/source/saloon_ne-N/row23-5cfb5cff.png",
+          "prompt": "backdrops/source/saloon_ne-N/row23-5cfb5cff.prompt.txt"
+        }
+      ],
+      "retry_cap": 2
+    }
+  ]
+}

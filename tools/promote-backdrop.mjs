@@ -40,7 +40,7 @@ import {
   MEASURED_REFERENCE_PX, MEASURED_BAND, measuredLensBand,
   TOLERANCE_RULING, DECLARED_CAMERA_FIELDS, WARPED_CAMERA_FIELDS, CAMERA_SOURCES
 } from "./validate-fixtures.mjs";
-import { openingsForFacing, windowsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
+import { openingsForFacing, windowsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta, runSpanOf } from "./plan-projection.mjs";
 import { INTERIOR_FABRIC, voiceFor } from "./room-voices.mjs";
 import { rulingSentences, scaffoldRects, normMaterial } from "./make-scaffold.mjs";
 import { askNamesAFlight } from "./frame-language.mjs";
@@ -106,6 +106,13 @@ if (!fc) {
   console.error(`promote refused: the plan holds no facing ${facingArg}`);
   process.exit(1);
 }
+/* [liner-3] THE METRES THE CORNERS SPAN. On a run wall the corners are the
+ * RUN's ends (deriveMeta's run branch, gallery/N: 85..2816 px for 12.8 m) while
+ * `fc.wall_width_m` is the CELL's 6.4 m; divided by the cell the corner scale
+ * came out doubled and the ruled door refused at 0.45x its own width. */
+const runOf = runSpanOf(plan, room, facing);
+const CORNER_SPAN_M = Number((runOf.hi - runOf.lo).toFixed(6));
+const WALL_RUN_M = CORNER_SPAN_M > fc.wall_width_m + 1e-6 ? CORNER_SPAN_M : null;
 
 /* The measurement must be OF the candidate being promoted. Without this the
  * script will happily dress a new painting in an old painting's numbers, which
@@ -383,8 +390,8 @@ if (warpRecord) {
     floor_line_y: wallFootY == null ? null : round(wallFootY, 6),
     corner_x0_px: cornerX0 == null ? null : round(cornerX0, 2),
     corner_x1_px: cornerX1 == null ? null : round(cornerX1, 2),
-    corner_scale_px_per_m: (cornerX0 != null && cornerX1 != null && fc.wall_width_m > 0)
-      ? round((cornerX1 - cornerX0) / fc.wall_width_m, 3) : null
+    corner_scale_px_per_m: (cornerX0 != null && cornerX1 != null && CORNER_SPAN_M > 0)
+      ? round((cornerX1 - cornerX0) / CORNER_SPAN_M, 3) : null
   };
   ppm = declaredMeta.px_per_m_at_wall;
   cornerX0 = declaredMeta.corner_x0_px;
@@ -451,6 +458,7 @@ const meta = {
   px_per_m_at_wall: round(ppm, 3),
   px_per_m_at_bottom: round((imageH - horizonY * imageH) / eyeM, 2),
   wall_width_m: fc.wall_width_m,
+  ...(WALL_RUN_M ? { wall_run_m: WALL_RUN_M } : {}),
   key_tint: m.key_tint,
   image_h_px: imageH,
   horizon_y: round(horizonY, 6),
@@ -768,7 +776,7 @@ if (drawnFlights.length) {
     }
     const over = apart.filter((a) => a.over);
     if (over.length) {
-      refusals.push(`${facingArg}: ${over.map((a) => `this meta and the ask disagree about where the flight "${a.id}" stands — they agree about ${a.agreed_px} px of it and dispute ${a.disputed_px}, ${round(a.agreed_of_union * 100, 0)}% of their union, with the two bodies ${a.apart_m} m apart`).join("; ")} — a flight is carried only where the two readings of the wall agree about more of the staircase than they dispute, because the disputed part is where a player aims and finds no stair. The wall's own corners are the reading to look at: this meta carries ${meta.corner_x0_px}..${meta.corner_x1_px} px, a span of ${round((meta.corner_x1_px || 0) - (meta.corner_x0_px || 0), 0)} against the ${round(fc.wall_width_m * ppm, 0)} its ${fc.wall_width_m} m implies, and a staircase standing against a wainscot is exactly what a recession detector reads as a return [row39:stair.projection_disagrees]`);
+      refusals.push(`${facingArg}: ${over.map((a) => `this meta and the ask disagree about where the flight "${a.id}" stands — they agree about ${a.agreed_px} px of it and dispute ${a.disputed_px}, ${round(a.agreed_of_union * 100, 0)}% of their union, with the two bodies ${a.apart_m} m apart`).join("; ")} — a flight is carried only where the two readings of the wall agree about more of the staircase than they dispute, because the disputed part is where a player aims and finds no stair. The wall's own corners are the reading to look at: this meta carries ${meta.corner_x0_px}..${meta.corner_x1_px} px, a span of ${round((meta.corner_x1_px || 0) - (meta.corner_x0_px || 0), 0)} against the ${round(CORNER_SPAN_M * ppm, 0)} its ${CORNER_SPAN_M} m implies, and a staircase standing against a wainscot is exactly what a recession detector reads as a return [row39:stair.projection_disagrees]`);
     } else {
       /* The reading is taken here, so that a wall whose pixels disagree with
        * its own ask is on the record even though nothing refuses it:
@@ -861,8 +869,8 @@ if (plannedDoors.length) {
 const RULED_DOOR_M = activePack().world.conventions.door_width_m;
 const DOORWAY_BAND = [0.50, 1.50];
 const apertureScale = (meta.corner_x1_px != null && meta.corner_x0_px != null &&
-                       fc.wall_width_m > 0)
-  ? (meta.corner_x1_px - meta.corner_x0_px) / fc.wall_width_m : ppm;
+                       CORNER_SPAN_M > 0)
+  ? (meta.corner_x1_px - meta.corner_x0_px) / CORNER_SPAN_M : ppm;
 /* ...AND THE PLAN DOES NOT RULE THEM ALL AT 1.00 m. `op01` (court → great
  * hall) and `op10` (great hall → garden) are drawn 1.60 m wide, and judged
  * against a fixed 1.00 m both facings of op01 refused at 1.51× and 2.42× while
@@ -1086,8 +1094,8 @@ if (paintedWindows !== null) {
    * painted with its reveals showing reads wider than its own rect. */
   const WINDOW_BAND = [0.35, 1.90];
   const apScale = (meta.corner_x1_px != null && meta.corner_x0_px != null &&
-                   fc.wall_width_m > 0)
-    ? (meta.corner_x1_px - meta.corner_x0_px) / fc.wall_width_m : ppm;
+                   CORNER_SPAN_M > 0)
+    ? (meta.corner_x1_px - meta.corner_x0_px) / CORNER_SPAN_M : ppm;
   const planWinM = new Map(plannedWindows.map((w) => [w.id, w.width_m]));
   for (const [id, cand] of assignedW) {
     const ownM = planWinM.get(id) > 0 ? planWinM.get(id) : 1.40;
@@ -1331,7 +1339,7 @@ if (isOpen) {
    * two or none). Said out loud rather than printed as a NaN span. */
   console.log(`  no corners: this frame's own architecture never stops being square to the camera, so the wall's ends are not in the reading`);
 } else {
-  console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(fc.wall_width_m * ppm).toFixed(1)} the plan's ${fc.wall_width_m} m implies`);
+  console.log(`  corners ${meta.corner_x0_px}..${meta.corner_x1_px} px, span ${meta.corner_x1_px - meta.corner_x0_px} against ${(CORNER_SPAN_M * ppm).toFixed(1)} the ${WALL_RUN_M ? "run's" : "plan's"} ${CORNER_SPAN_M} m implies`);
 }
 if (meta.stairs && meta.stairs.length) {
   for (const s of meta.stairs) {

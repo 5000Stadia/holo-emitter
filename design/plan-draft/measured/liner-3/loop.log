@@ -1,0 +1,451 @@
+18:02:59  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:03:44  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:04:29  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:05:14  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:05:59  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:06:44  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:07:29  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:08:14  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:08:59  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:09:44  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:10:29  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:11:14  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:11:59  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:12:44  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+18:13:29  0 promoted, 0 retrying, 0 held, 0 parked, 28 still unpainted
+  writing_room/N           RETRY     FAIL | draw 1.169x larger: 213.3 px/m at the wall plane, not 182.5
+18:14:25  0 promoted, 1 retrying, 0 held, 0 parked, 27 still unpainted
+  exits: 1 grid
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+18:15:14  0 promoted, 0 retrying, 0 held, 1 parked, 27 still unpainted
+  exits: 1 grid
+  gallery/N                RETRY     FAIL | draw 1.185x larger: 213.3 px/m at the wall plane, not 180.0
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+18:16:08  0 promoted, 1 retrying, 0 held, 1 parked, 26 still unpainted
+  exits: 2 grid
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+18:17:02  0 promoted, 0 retrying, 0 held, 2 parked, 26 still unpainted
+  exits: 2 grid
+  gallery_far/N            RETRY     FAIL | draw 1.225x larger: 213.3 px/m at the wall plane, not 174.2
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+18:17:56  0 promoted, 1 retrying, 0 held, 2 parked, 25 still unpainted
+  exits: 3 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+18:18:51  0 promoted, 0 retrying, 1 held, 2 parked, 25 still unpainted
+  exits: 3 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 RETRY     PASS | the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+18:19:46  0 promoted, 1 retrying, 1 held, 2 parked, 24 still unpainted
+  exits: 4 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+18:20:35  0 promoted, 0 retrying, 2 held, 2 parked, 24 still unpainted
+  exits: 4 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon_e/E               RETRY     FAIL | draw 1.143x larger: 213.3 px/m at the wall plane, not 186.7
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+18:21:29  0 promoted, 1 retrying, 2 held, 2 parked, 23 still unpainted
+  exits: 5 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+18:22:25  0 promoted, 0 retrying, 2 held, 3 parked, 23 still unpainted
+  exits: 5 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+18:23:10  0 promoted, 0 retrying, 2 held, 3 parked, 23 still unpainted
+  exits: 5 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon_n/N               RETRY     FAIL | draw 1.180x larger: 213.3 px/m at the wall plane, not 180.8
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+18:24:06  0 promoted, 1 retrying, 2 held, 3 parked, 22 still unpainted
+  exits: 6 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+18:25:00  0 promoted, 0 retrying, 2 held, 4 parked, 22 still unpainted
+  exits: 6 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:25:58  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:26:43  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:27:28  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:28:13  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:28:58  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:29:43  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:30:28  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:31:13  0 promoted, 0 retrying, 2 held, 5 parked, 21 still unpainted
+  exits: 7 grid
+  gallery_far/N            EXISTS    backdrops/gallery_far/N.png - late returns ignored
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:32:46  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 7 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:33:31  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 7 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:34:46  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:35:31  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:36:16  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:37:01  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:37:46  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:38:31  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:39:16  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:40:01  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:40:46  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:41:31  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:42:16  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:43:02  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:43:47  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:44:32  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:45:17  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:46:02  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:46:47  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:47:32  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:48:17  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:49:02  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:49:47  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:50:32  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:51:17  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:52:02  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:52:47  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:53:32  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.
+  saloon/S                 HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 115.0, which puts the viewer's eye 3.185 m above the wall-foot line this frame draws — nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame — the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.
+  writing_room/N           PARKED    cap spent; wall stays grid, run continues
+  gallery/N                PARKED    cap spent; wall stays grid, run continues
+  saloon_e/E               PARKED    cap spent; wall stays grid, run continues
+  saloon_n/N               PARKED    cap spent; wall stays grid, run continues
+  saloon_ne/N              PARKED    cap spent; wall stays grid, run continues
+18:54:17  1 promoted, 0 retrying, 1 held, 5 parked, 21 still unpainted
+  >> 1 promoted wall(s) stand on another instrument's reading (gallery_far/N): `--remeasure` re-promotes them
+  exits: 1 measured, 6 grid
+  >> 1 wall(s) promoted and baked. `tools/publish-site.sh` is yours to run when you want them live - this loop never publishes.

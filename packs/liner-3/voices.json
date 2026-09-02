@@ -1,0 +1,219 @@
+{
+ "_what_this_is": "Three voices for SS MERIDIAN. Materials in this ship's language; every horizontal anchor is the dado's polished chrome capping strip at 1.20 m.",
+ "ANCHOR_M": 1.2,
+ "WINDOW_SILL_M": 0.9,
+ "WINDOW_HEAD_M": 2.0,
+ "LIGHT_MODULE_M": 0.6,
+ "ANCHORS": {
+  "dado_band": {
+   "id": "dado_band",
+   "line": "the dado's chrome capping strip above the floor",
+   "datum": "floor",
+   "sentence": "A clearly legible dado of dark macassar-ebony veneer runs corner to corner on every exposed wall surface including the side-wall returns, capped by a polished chrome half-round strip whose top edge is at exactly 1.20 m above the floor, interrupted only by the doorway.",
+   "label": "DADO CAPPING STRIP 1.20 M ABOVE FLOOR - GATE ANCHOR",
+   "legend_word": "DADO BAND",
+   "why": "This ship's universal anchor: every inboard first-class wall carries the same dark veneer dado under the same chrome strip at one height. A painter draws it and the instrument finds it."
+  }
+ },
+ "VOICES": {
+  "writing_room_maple": {
+   "id": "writing_room_maple",
+   "why": "The writing room is the small quiet room: pale bird's-eye maple above the dark dado, a plain blue carpet, nothing to distract a letter.",
+   "outdoor": false,
+   "walls": "pale bird's-eye maple veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+   "ceiling": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+   "floor": "a plain deep-blue fitted carpet, close-piled and unpatterned",
+   "blank": "unbroken pale bird's-eye maple veneer above the dado's chrome capping strip with dark macassar-ebony veneer below",
+   "anchor": "dado_band",
+   "glass": "plain",
+   "window_status": "inboard"
+  },
+  "gallery_walnut": {
+   "id": "gallery_walnut",
+   "why": "The long gallery is the deep room: warm walnut running away down its whole length under the same cream ceiling, its linoleum polished by a season of promenading.",
+   "outdoor": false,
+   "walls": "warm figured walnut veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+   "ceiling": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+   "floor": "a plain polished buff linoleum floor, lightly scuffed, unpatterned",
+   "blank": "unbroken warm figured walnut veneer above the dado's chrome capping strip with dark macassar-ebony veneer below",
+   "anchor": "dado_band",
+   "glass": "plain",
+   "window_status": "inboard"
+  },
+  "saloon_sycamore": {
+   "id": "saloon_sycamore",
+   "why": "The grand saloon is the ship's public face: pale figured sycamore, a red carpet, and one blank chrome medallion on the wall.",
+   "outdoor": false,
+   "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer; a single blank round brushed-chrome medallion mounted on the wall",
+   "ceiling": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+   "floor": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
+   "blank": "unbroken pale figured sycamore veneer above the dado's chrome capping strip with dark macassar-ebony veneer below",
+   "anchor": "dado_band",
+   "glass": "plain",
+   "window_status": "inboard"
+  }
+ },
+ "ROOM_VOICE": {
+  "writing_room": "writing_room_maple",
+  "gallery": "gallery_walnut",
+  "gallery_far": "gallery_walnut",
+  "saloon": "saloon_sycamore",
+  "saloon_e": "saloon_sycamore",
+  "saloon_n": "saloon_sycamore",
+  "saloon_ne": "saloon_sycamore"
+ },
+ "ARCHETYPE_FALLBACK": {
+  "writing_room": "writing_room_maple",
+  "gallery": "gallery_walnut",
+  "saloon": "saloon_sycamore"
+ },
+ "TYPE_FALLBACK": {
+  "enclosed": "gallery_walnut"
+ },
+ "MATERIALS": {
+  "wall/veneer-maple": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.6,
+    "feature": "veneer panel"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 0.6,
+    "stile_m": 0.01,
+    "plinth_m": 0.1,
+    "chair_rail_m": 1.2,
+    "chair_rail_h_m": 0.03,
+    "cornice_m": 0.0,
+    "architrave_m": 0.05,
+    "bevel_m": 0.0
+   }
+  },
+  "wall/veneer-walnut": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.6,
+    "feature": "veneer panel"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 0.6,
+    "stile_m": 0.01,
+    "plinth_m": 0.1,
+    "chair_rail_m": 1.2,
+    "chair_rail_h_m": 0.03,
+    "cornice_m": 0.0,
+    "architrave_m": 0.05,
+    "bevel_m": 0.0
+   }
+  },
+  "wall/veneer-sycamore": {
+   "slot": "walls",
+   "lane": "harvest",
+   "tiling": {
+    "grain_axis": "v",
+    "grain_frame": "surface",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.6,
+    "feature": "veneer panel"
+   },
+   "frame": {
+    "kind": "dado",
+    "module_m": 0.6,
+    "stile_m": 0.01,
+    "plinth_m": 0.1,
+    "chair_rail_m": 1.2,
+    "chair_rail_h_m": 0.03,
+    "cornice_m": 0.0,
+    "architrave_m": 0.05,
+    "bevel_m": 0.0
+   }
+  },
+  "ceiling/plaster-cove": {
+   "slot": "ceiling",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "plaster sweep"
+   }
+  },
+  "floor/carpet-blue": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "pile"
+   }
+  },
+  "floor/linoleum-buff": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "stochastic",
+    "pitch_m": 1.0,
+    "feature": "scuff"
+   }
+  },
+  "floor/carpet-terracotta": {
+   "slot": "floor",
+   "lane": "swatch",
+   "tiling": {
+    "grain_axis": "h",
+    "grain_frame": "room",
+    "mirror": "none",
+    "scale_kind": "periodic",
+    "pitch_m": 0.3,
+    "feature": "pattern repeat"
+   }
+  }
+ },
+ "MATERIAL_BINDING": {
+  "writing_room_maple": {
+   "walls": "wall/veneer-maple",
+   "blank": "wall/veneer-maple",
+   "ceiling": "ceiling/plaster-cove",
+   "floor": "floor/carpet-blue"
+  },
+  "gallery_walnut": {
+   "walls": "wall/veneer-walnut",
+   "blank": "wall/veneer-walnut",
+   "ceiling": "ceiling/plaster-cove",
+   "floor": "floor/linoleum-buff"
+  },
+  "saloon_sycamore": {
+   "walls": "wall/veneer-sycamore",
+   "blank": "wall/veneer-sycamore",
+   "ceiling": "ceiling/plaster-cove",
+   "floor": "floor/carpet-terracotta"
+  }
+ },
+ "MATERIAL_PART_OF_KEY": {
+  "walls": "walls",
+  "walls_with_openings": "walls",
+  "ceiling": "overhead",
+  "floor": "underfoot"
+ },
+ "SAID_BEFORE": {}
+}

@@ -329,6 +329,10 @@ const META_KEYS = [
   /* [Kabe, 2026-08-30, the long room] the full run a side wall belongs to, in
    * metres, when it continues across open edges beyond this cell's corners */
   "wall_run_m", "composed_from",
+  /* [liner-3] ...and where THIS CELL's own ends fall in px on such a run wall,
+   * so a carrier ruled from the cell's view-left end stamps where the plan has
+   * it rather than at the run's middle (gallery/N's door drew a cell east) */
+  "cell_x0_px", "cell_x1_px",
   // [row 32, the Captain's tolerance ruling] ...and whether its camera was
   // MEASURED off the painting or DECLARED from the page's own derived camera,
   // with the flag that says why and the ruling that admits it. All four are

@@ -1,0 +1,657 @@
+{
+ "schema": "holo-emitter-plan/0.1",
+ "version": 1,
+ "units": "m",
+ "north": "+y",
+ "standpoint_stand_back": 0.25,
+ "standpoint_threshold_clearance_m": 0.45,
+ "entrance": "writing_room",
+ "wall_thickness": {
+  "exterior": 0.4,
+  "partition": 0.2
+ },
+ "outline": [
+  [
+   0,
+   0
+  ],
+  [
+   7.2,
+   0
+  ],
+  [
+   7.2,
+   6.6
+  ],
+  [
+   13.6,
+   6.6
+  ],
+  [
+   13.6,
+   26.8
+  ],
+  [
+   0,
+   26.8
+  ]
+ ],
+ "floors": [
+  {
+   "id": "c_deck",
+   "level": 0,
+   "storey_height_m": 3.4
+  }
+ ],
+ "wall_bands": [
+  {
+   "id": "U0",
+   "kind": "exterior",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 0.4,
+    "y0": 0,
+    "y1": 26.8
+   }
+  },
+  {
+   "id": "U1",
+   "kind": "exterior",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 7.2,
+    "y0": 0,
+    "y1": 0.4
+   }
+  },
+  {
+   "id": "U2",
+   "kind": "exterior",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 6.8,
+    "x1": 7.2,
+    "y0": 0,
+    "y1": 6.6
+   }
+  },
+  {
+   "id": "U3",
+   "kind": "exterior",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 6.8,
+    "x1": 13.6,
+    "y0": 6.6,
+    "y1": 7.0
+   }
+  },
+  {
+   "id": "U4",
+   "kind": "exterior",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 13.2,
+    "x1": 13.6,
+    "y0": 6.6,
+    "y1": 26.8
+   }
+  },
+  {
+   "id": "U5",
+   "kind": "exterior",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 0,
+    "x1": 13.6,
+    "y0": 26.4,
+    "y1": 26.8
+   }
+  },
+  {
+   "id": "P0",
+   "kind": "partition",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.8,
+    "y0": 6.8,
+    "y1": 7.0
+   }
+  },
+  {
+   "id": "P1",
+   "kind": "partition",
+   "floors": [
+    "c_deck"
+   ],
+   "rect": {
+    "x0": 0.4,
+    "x1": 13.2,
+    "y0": 13.4,
+    "y1": 13.6
+   }
+  }
+ ],
+ "rooms": [
+  {
+   "id": "writing_room",
+   "floor": "c_deck",
+   "name": "WRITING ROOM",
+   "type": "enclosed",
+   "archetype": "writing_room",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.800000000000001,
+    "y0": 0.4,
+    "y1": 6.800000000000001
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 2.0
+     },
+     "wall_line": 6.800000000000001,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 5.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 2.0,
+      "y": 3.6
+     },
+     "wall_line": 6.800000000000001,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 5.2,
+      "y": 3.6
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    }
+   }
+  },
+  {
+   "id": "gallery",
+   "floor": "c_deck",
+   "name": "LONG GALLERY",
+   "type": "enclosed",
+   "archetype": "gallery",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.800000000000001,
+    "y0": 7.0,
+    "y1": 13.4
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 8.6
+     },
+     "wall_line": 13.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 11.8
+     },
+     "wall_line": 7.0,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 2.0,
+      "y": 10.2
+     },
+     "wall_line": 13.2,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 5.2,
+      "y": 10.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    }
+   }
+  },
+  {
+   "id": "gallery_far",
+   "floor": "c_deck",
+   "name": "LONG GALLERY",
+   "type": "enclosed",
+   "archetype": "gallery",
+   "rect": {
+    "x0": 6.8,
+    "x1": 13.2,
+    "y0": 7.0,
+    "y1": 13.4
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.0,
+      "y": 8.6
+     },
+     "wall_line": 13.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.0,
+      "y": 11.8
+     },
+     "wall_line": 7.0,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 8.4,
+      "y": 10.2
+     },
+     "wall_line": 13.2,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 11.6,
+      "y": 10.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    }
+   }
+  },
+  {
+   "id": "saloon",
+   "floor": "c_deck",
+   "name": "GRAND SALOON",
+   "type": "enclosed",
+   "archetype": "saloon",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.800000000000001,
+    "y0": 13.6,
+    "y1": 20.0
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 15.2
+     },
+     "wall_line": 26.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 18.4
+     },
+     "wall_line": 13.6,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 2.0,
+      "y": 16.8
+     },
+     "wall_line": 13.2,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 5.2,
+      "y": 16.8
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    }
+   }
+  },
+  {
+   "id": "saloon_e",
+   "floor": "c_deck",
+   "name": "GRAND SALOON",
+   "type": "enclosed",
+   "archetype": "saloon",
+   "rect": {
+    "x0": 6.8,
+    "x1": 13.2,
+    "y0": 13.6,
+    "y1": 20.0
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.0,
+      "y": 15.2
+     },
+     "wall_line": 26.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.0,
+      "y": 18.4
+     },
+     "wall_line": 13.6,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 8.4,
+      "y": 16.8
+     },
+     "wall_line": 13.2,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 11.6,
+      "y": 16.8
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    }
+   }
+  },
+  {
+   "id": "saloon_n",
+   "floor": "c_deck",
+   "name": "GRAND SALOON",
+   "type": "enclosed",
+   "archetype": "saloon",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.800000000000001,
+    "y0": 20.0,
+    "y1": 26.4
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 21.6
+     },
+     "wall_line": 26.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 3.6,
+      "y": 24.8
+     },
+     "wall_line": 13.6,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 2.0,
+      "y": 23.2
+     },
+     "wall_line": 13.2,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 5.2,
+      "y": 23.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    }
+   }
+  },
+  {
+   "id": "saloon_ne",
+   "floor": "c_deck",
+   "name": "GRAND SALOON",
+   "type": "enclosed",
+   "archetype": "saloon",
+   "rect": {
+    "x0": 6.8,
+    "x1": 13.2,
+    "y0": 20.0,
+    "y1": 26.4
+   },
+   "facings": {
+    "N": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.0,
+      "y": 21.6
+     },
+     "wall_line": 26.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "S": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 10.0,
+      "y": 24.8
+     },
+     "wall_line": 13.6,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    },
+    "E": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 8.4,
+      "y": 23.2
+     },
+     "wall_line": 13.2,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 4.8
+    },
+    "W": {
+     "type": "enclosed",
+     "standpoint": {
+      "x": 11.6,
+      "y": 23.2
+     },
+     "wall_line": 0.4,
+     "wall_width_m": 6.4,
+     "camera_wall_m": 11.2
+    }
+   }
+  }
+ ],
+ "openings": [
+  {
+   "id": "door01",
+   "kind": "door",
+   "floor": "c_deck",
+   "axis": "NS",
+   "rect": {
+    "x0": 3.0,
+    "x1": 4.2,
+    "y0": 6.8,
+    "y1": 7.0
+   },
+   "joins": [
+    "writing_room",
+    "gallery"
+   ]
+  },
+  {
+   "id": "door02",
+   "kind": "door",
+   "floor": "c_deck",
+   "axis": "NS",
+   "rect": {
+    "x0": 3.0,
+    "x1": 4.2,
+    "y0": 13.4,
+    "y1": 13.6
+   },
+   "joins": [
+    "gallery",
+    "saloon"
+   ]
+  },
+  {
+   "id": "way01",
+   "kind": "open_edge",
+   "floor": "c_deck",
+   "axis": "EW",
+   "rect": {
+    "x0": 6.8,
+    "x1": 6.8,
+    "y0": 7.0,
+    "y1": 13.4
+   },
+   "joins": [
+    "gallery",
+    "gallery_far"
+   ]
+  },
+  {
+   "id": "way02",
+   "kind": "open_edge",
+   "floor": "c_deck",
+   "axis": "EW",
+   "rect": {
+    "x0": 6.8,
+    "x1": 6.8,
+    "y0": 13.6,
+    "y1": 20.0
+   },
+   "joins": [
+    "saloon",
+    "saloon_e"
+   ]
+  },
+  {
+   "id": "way03",
+   "kind": "open_edge",
+   "floor": "c_deck",
+   "axis": "EW",
+   "rect": {
+    "x0": 6.8,
+    "x1": 6.8,
+    "y0": 20.0,
+    "y1": 26.4
+   },
+   "joins": [
+    "saloon_n",
+    "saloon_ne"
+   ]
+  },
+  {
+   "id": "way04",
+   "kind": "open_edge",
+   "floor": "c_deck",
+   "axis": "NS",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.8,
+    "y0": 20.0,
+    "y1": 20.0
+   },
+   "joins": [
+    "saloon",
+    "saloon_n"
+   ]
+  },
+  {
+   "id": "way05",
+   "kind": "open_edge",
+   "floor": "c_deck",
+   "axis": "NS",
+   "rect": {
+    "x0": 6.8,
+    "x1": 13.2,
+    "y0": 20.0,
+    "y1": 20.0
+   },
+   "joins": [
+    "saloon_e",
+    "saloon_ne"
+   ]
+  }
+ ],
+ "windows": [],
+ "fireplaces": [],
+ "stairs": [],
+ "objects": []
+}

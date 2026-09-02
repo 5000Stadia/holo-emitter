@@ -263,7 +263,7 @@ export function entryDoorFacing(plan, roomId) {
 export function leadFacing(plan, roomId) {
   const room = (plan.rooms || []).find((r) => r.id === roomId);
   if (!room) throw new Error(`edge-seed: the plan holds no room \`${roomId}\``);
-  const have = FACINGS.filter((f) => (room.facings || {})[f]);
+  const have = closeFacings(plan, roomId);
   if (!have.length) return null;
   const load = new Map(have.map((f) => [f, carrierLoad(plan, roomId, f)]));
   const most = Math.max(...load.values());
@@ -277,10 +277,25 @@ export function leadFacing(plan, roomId) {
   return tied[0];
 }
 
+/* [growth doctrine, phase 1] A LEAD IS A CLOSE WALL. A facing that views a
+ * wall line past its own edge is a deep view, built after the close set as a
+ * G-PREP guide from that wall's close painting; it never leads a cell. A cell
+ * with no close facing at all (none exists in any plan yet) keeps every facing. */
+export function closeFacings(plan, roomId) {
+  const room = (plan.rooms || []).find((r) => r.id === roomId);
+  const have = FACINGS.filter((f) => (room.facings || {})[f]);
+  const ownEdge = (f) => f === "N" ? room.rect.y1 : f === "S" ? room.rect.y0 : f === "E" ? room.rect.x1 : room.rect.x0;
+  const close = have.filter((f) => {
+    const wl = room.facings[f].wall_line;
+    return wl == null || Math.abs(wl - ownEdge(f)) < 1e-6;
+  });
+  return close.length ? close : have;
+}
+
 /** Why this facing leads, in the words the manifest carries. */
 export function leadWhy(plan, roomId, lead) {
   const room = (plan.rooms || []).find((r) => r.id === roomId);
-  const have = FACINGS.filter((f) => (room.facings || {})[f]);
+  const have = closeFacings(plan, roomId);
   const load = new Map(have.map((f) => [f, carrierLoad(plan, roomId, f)]));
   const most = load.get(lead);
   const tied = have.filter((f) => load.get(f) === most);

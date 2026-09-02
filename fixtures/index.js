@@ -9,6 +9,10 @@ window.HOLO_WORLDS = [
   "title": "ST. BRENDAN'S OUT-PATIENTS WING"
  },
  {
+  "id": "liner-3",
+  "title": "SS MERIDIAN 1934"
+ },
+ {
   "id": "nav-manor",
   "title": "A circa-1660 English manor"
  },

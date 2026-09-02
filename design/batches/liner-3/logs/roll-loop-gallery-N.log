@@ -1,0 +1,19 @@
+guide close: z0 1.0954 (cap 1.0954)
+guide: z 1.0954 from backdrops/source/gallery-N/row23-a1d09761.png (scale 0.9178)
+pair 1: attempt 3, rolls ['f6591bea', '3e0e555a'] ordered (order ok)
+guide close: z0 1.0240 (cap 1.0954)
+guide: z 1.0240 from backdrops/source/gallery-N/row23-a1d09761.png (scale 0.9178)
+pair 1: attempt 3, rolls ['f6591bea', '3e0e555a'] ordered (order ok)
+sweep: gallery/N                HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at
+learn: pair scales [1.104, 1.0906] -> z 1.0240 -> 1.0000
+guide: z 1.0000 from backdrops/source/gallery-N/row23-a1d09761.png (scale 0.9178)
+pair 2: attempt 5, rolls ['a9024bfc', '079f9a01'] ordered (order ok)
+sweep: gallery/N                HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at
+learn: pair scales [1.0074, 0.9939] -> z 1.0000 -> 1.0000
+BUDGET SPENT: gallery/N not landed in 4 rolls; parked for the Captain
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/source/gallery-N/row23-079f9a01.png (scale 0.9939)
+pair 1: attempt 7, rolls ['9246d44a', '35d3ce83'] ordered (order ok)
+sweep: gallery/N                PROMOTE   PASS -6.6% focal, promoted and baked
+learn: pair scales [0.9949, 0.9943] -> z 0.9750 -> 0.9558
+LANDED: gallery/N promoted after 2 loop roll(s)

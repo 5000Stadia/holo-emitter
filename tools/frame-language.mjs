@@ -59,6 +59,9 @@ import { createRequire } from "node:module";
  * register is the ENGINE and the world is the argument. */
 import { activePack } from "./pack.mjs";
 const PACK = activePack();
+/* the door head the scaffold draws (make-scaffold's DOOR_HEAD_M); the prose
+   must name the height the diagram rules, not a number from another world */
+const DOOR_HEAD_M = PACK.world.conventions.door_head_m;
 
 const require_ = createRequire(import.meta.url);
 const groundplane = require_("../src/groundplane.js");
@@ -774,9 +777,9 @@ export function g5WallLines(ctx) {
       } else {
         body.push(n > 1
           ? `${nWord(n)} door openings stand ${where}, each exactly ${grp.width_m.toFixed(2)} m ` +
-            "wide and exactly 2.00 m high at the wall plane"
+            `wide and exactly ${DOOR_HEAD_M.toFixed(2)} m high at the wall plane`
           : `the door opening stands ${where}, exactly ${grp.width_m.toFixed(2)} m wide and ` +
-            "exactly 2.00 m high at the wall plane");
+            `exactly ${DOOR_HEAD_M.toFixed(2)} m high at the wall plane`);
       }
     }
     if (kind === "door") {
@@ -963,7 +966,14 @@ export function g5PictureLines(ctx) {
      * words had dropped was WHERE THE CORNERS STAND. Said in words, from the
      * scaffold's own corner columns, never as pixel figures. */
     const m = ctx.meta || {};
-    const fracWords = (f) => f < 0.045 ? "just inside" : f < 0.11 ? "about a tenth of the way in from"
+    /* [liner-3] THE FINE END OF THE SCALE. Six lead rolls read the corners at
+       150-195 px on a 85 px ruling: 1/18 of the width was worded "about a
+       tenth" and the painter drew a tenth, and the whole wall came in 15 %
+       small with it. Below a tenth the buckets are now a twelfth, a
+       twentieth, a thirtieth - each within a couple of columns of the ruling. */
+    const fracWords = (f) => f < 0.025 ? "just inside" : f < 0.04 ? "about a thirtieth of the way in from"
+      : f < 0.065 ? "about a twentieth of the way in from" : f < 0.09 ? "about a twelfth of the way in from"
+      : f < 0.11 ? "about a tenth of the way in from"
       : f < 0.17 ? "about a seventh of the way in from" : f < 0.22 ? "about a fifth of the way in from"
       : f < 0.29 ? "about a quarter of the way in from" : f < 0.38 ? "about a third of the way in from"
       : "well inside";
@@ -986,6 +996,11 @@ export function g5PictureLines(ctx) {
       L.push(`  The ${SURFACE} you face is square on and shows its whole width: its left corner stands ` +
         `${fracWords(fL)} the picture's left edge and its right corner ${fracWords(fR)} the right edge, ` +
         `and from each corner a side wall runs toward you and leaves the picture through ${edgeWords(edges)}.`);
+      if (fL < 0.09 && fR < 0.09) {
+        L.push(`  Those side walls are seen almost edge-on: each is only a narrow, steeply foreshortened ` +
+          `strip between its corner and the picture's edge, and the facing ${SURFACE} fills nearly ` +
+          `everything between them.`);
+      }
     } else {
       L.push(`  The ${SURFACE} you face is square on and shows its whole width, and the two side ` +
         `walls run away from you to left and right and leave the picture through ${edgeWords(edges)}.`);
@@ -998,9 +1013,17 @@ export function g5PictureLines(ctx) {
     if (ppm > 0 && m.wall_run_m > 0 && (m.wall_run_m * ppm) > CANVAS_W) {
       L.push(`  Seen from where you stand, the ${SURFACE} is ${m.wall_run_m.toFixed(1)} m long and wider than ` +
         `the picture: about ${(CANVAS_W / ppm).toFixed(1)} m of it are in view, at one unbroken scale.`);
+    } else if (ppm > 0 && m.wall_run_m > 0 && (offL || offR)) {
+      /* [liner-3] A RUN WALL SEEN FROM DEEP: the whole run would fit the frame
+       * were it centred, but the standpoint is off its middle, so one end is
+       * past the picture's edge. Name the run and the part of it in view. */
+      const inView = (Math.min(m.corner_x1_px, CANVAS_W) - Math.max(m.corner_x0_px, 0)) / ppm;
+      L.push(`  Seen from where you stand, the ${SURFACE} is ${m.wall_run_m.toFixed(1)} m long and runs past ` +
+        `the picture's ${offL ? "left" : "right"} edge: about ${inView.toFixed(1)} m of it are in view, at one unbroken scale.`);
     } else if (ppm > 0 && m.wall_width_m > 0) {
       const share = (m.wall_width_m * ppm) / CANVAS_W;
-      const shareWords = share > 0.95 ? "almost the whole width of the picture" : share > 0.85 ? "about nine tenths of the picture's width"
+      const shareWords = share > 0.95 ? "almost the whole width of the picture" : share > 0.9 ? "about nine tenths of the picture's width"
+        : share > 0.85 ? "just under nine tenths of the picture's width"
         : share > 0.75 ? "about four fifths of the picture's width" : share > 0.65 ? "about seven tenths of the picture's width"
         : share > 0.55 ? "about three fifths of the picture's width" : "about half the picture's width";
       L.push(`  Seen from where you stand, the whole ${m.wall_width_m.toFixed(1)} m of the ${SURFACE} spans ${shareWords} — ` +

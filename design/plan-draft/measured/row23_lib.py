@@ -355,7 +355,24 @@ def _floor_and_rail(L, cfg, picks):
     convention = ((_PACK.world.get("conventions") or {}).get("floor_line")) if _PACK else None
     read = dict(minimum=int(floor_y), rule="shadow-seam",
                 saturated=bool(floor_y <= cfg["floor_window"][0] + 1 or floor_y >= cfg["floor_window"][1] - 1))
-    if convention != "shadow-seam":
+    if convention == "skirting-base":
+        # [liner-3, 2026-09-01] THE FOOT IS THE BASE OF THE DARK SKIRTING. On
+        # a wall whose dado and skirting are ebony over a pale floor the
+        # luminance minimum sits INSIDE the skirting band and `foot_of` walks
+        # up to its top: gallery/N read 749 for a foot painted at 778 and the
+        # scale came out 0.86 for a wall drawn at 1.00. This convention takes
+        # the strongest LIGHTENING step (dark above, light below) at or under
+        # the minimum, inside the licence - where the skirting meets the floor.
+        lo, hi = cfg["floor_licence"]
+        cols = np.concatenate([np.arange(int(a), int(b)) for a, b in cfg["rail_columns"]])
+        prof = L[:, cols].mean(axis=1)
+        y0, y1 = int(max(1, min(floor_y - 4, hi - 1))), int(min(L.shape[0] - 2, hi))
+        step = prof[y0 + 1:y1 + 1] - prof[y0:y1]
+        base = int(y0 + int(np.argmax(step))) if len(step) else int(floor_y)
+        read.update(rule="skirting-base", foot=base,
+                    saturated=bool(base <= lo + 1 or base >= hi - 1))
+        floor_y = base
+    elif convention != "shadow-seam":
         foot = foot_of(floor_y, floor_cands)
         read.update(rule="foot", foot=(None if foot is None else int(foot)))
         if foot is not None:
@@ -445,6 +462,37 @@ def _admissible(ramp, ceil_y, floor_y, bracket):
                 "the convergence lands at y %.1f, which is not between this "
                 "frame's own ceiling line (y %d) and its own floor line (y %d)"
                 % (ramp["y"], ceil_y, floor_y))
+    if ramp.get("return_side"):
+        # [liner-3] ONE RETURN IS TWO LINES THROUGH ONE POINT, and a sliver of
+        # a return (gallery/N: 37 px) lets a slope search settle on cornice
+        # moulding or carpet and report a tight bar on a line that is not
+        # there (ceiling score 1.6 against the floor's 48.8, meeting at x 380
+        # with +/-6.8 px). Three tests the pivoted fit owes on top of the
+        # pair's: the two junctions are parallel to the view axis, so they
+        # meet on the PRINCIPAL COLUMN; a slope that ran to the search's own
+        # boundary was not found; and a junction an order weaker than its
+        # partner is texture.
+        half = 0.15 * W
+        if abs(ramp["x"] - W / 2.0) > half:
+            return (False,
+                    "the one return's ceiling and floor junctions meet at x "
+                    "%.1f, but lines parallel to the view axis meet on the "
+                    "principal column (x %d +/- %d): this is a junction and "
+                    "a stripe of texture crossing, not a horizon"
+                    % (ramp["x"], W // 2, int(half)))
+        mc, mf = abs(ramp.get("ceiling_slope", 0.0)), abs(ramp.get("floor_slope", 0.0))
+        if min(mc, mf) <= 0.045 or max(mc, mf) >= 1.59:
+            return (False,
+                    "a junction slope ran to the search's own boundary "
+                    "(ceiling %.3f, floor %.3f): the line was not found, the "
+                    "range was" % (mc, mf))
+        sc, sf = ramp.get("ceiling_score") or 0.0, ramp.get("floor_score") or 0.0
+        if min(sc, sf) < 0.15 * max(sc, sf):
+            return (False,
+                    "the two junctions scored %.2f (ceiling) and %.2f (floor): "
+                    "the weaker is under a seventh of the stronger, which is "
+                    "texture along the search line and not a junction"
+                    % (sc, sf))
     return True, None
 
 
@@ -660,20 +708,78 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=(), rail_y=None):
             exclude.append((c["asked_x0"], c["asked_x1"]))
     cx0, cx1, corner_ev = picks["find_corners_recession"](
         L, ceil_y, floor_y, cfg["horizon_declared"], exclude)
+    # [liner-3, Kabe: a run wall "should extend the flat wall off screen"] A
+    # DECLARED CORNER OUTSIDE THE FRAME IS NOT IN THE PICTURE TO FIND. The
+    # recession rule still returns a breakpoint on that side - some panel joint
+    # in the flat wall - and the two-ramp horizon then intersects a real return
+    # with the far wall's own cornice. So: the open side's corner is the plan's,
+    # carried as declared, and the horizon is read off the one return alone
+    # (its ceiling ramp against its floor ramp, `single_return_vp`).
+    one_return = None
+    if cfg.get("corner_x0") is not None and cfg["corner_x0"] < 0:
+        one_return, cx0 = "right", int(round(cfg["corner_x0"]))
+    elif cfg.get("corner_x1") is not None and cfg["corner_x1"] > W:
+        one_return, cx1 = "left", int(round(cfg["corner_x1"]))
+    if one_return:
+        corner_ev = dict(corner_ev or {}, open_side=("left" if one_return == "right" else "right"),
+                         open_side_corner="declared: the plan's corner stands outside the frame")
+        # [liner-3, 2026-09-01] THE ONE RETURN'S CORNER IS WHERE THE PAINTED
+        # LINES KINK. The recession breakpoint has nothing to fit on a narrow
+        # return (gallery/N: r2 0.01-0.1, corners answered at 26..211 for a
+        # corner painted at 85) and every ramp read from a wrong corner
+        # converged somewhere no eye stands (y 782, 635). The foot, the
+        # capping strip and the cornice each kink at the corner; their median
+        # is the corner the ramps are pivoted on, each witness recorded.
+        try:
+            wc = picks.get("witness_corner")
+            if wc is None:
+                from measure import witness_corner as wc
+            kx, kev = wc(L, one_return, floor_y=floor_y, rail_y=rail_y, ceil_y=ceil_y)
+        except Exception as e:  # a witness that cannot be read leaves the breakpoint
+            kx, kev = None, {"error": str(e)}
+        if kx is not None:
+            if one_return == "left":
+                cx0 = kx
+            else:
+                cx1 = kx
+            corner_ev["return_corner"] = dict(kev, x=kx,
+                rule="median of the foot, capping-strip and cornice kinks on the return side")
 
     # THE CEILING ROW IS THE ONE THE SIDE WALLS AGREE ON. Every candidate is
     # tried; the admissible one with the tightest convergence wins; if none is
     # admissible the frame has not fixed a horizon and says so.
     ramp, ramp_why, tried = None, None, []
+    # [liner-3] Where two rows both fit, the one that agrees with the gate's
+    # own eye wins before the tighter one. The cove-light band sits 8 px above
+    # the cornice on the liner's panelled walls and both rows fit a horizon;
+    # on a 92 px return the light band's junction met at y 459 to +/-6 and
+    # the cornice's at 520 to +/-8 (gallery/N 9246d44a), so "tightest wins"
+    # chose the wrong edge and called the whole picture suspect, while its
+    # twin roll (35d3ce83, same guide) drew the tie the other way. One
+    # picture, one eye: a row whose convergence lands inside the licence of
+    # the row the gate stands on is the row the gate already read.
+    gate_h = 1024 * HORIZON_Y
+    def _rank(r):
+        agrees = abs(r["y"] - gate_h) <= bracket + r["sigma_y_px"]
+        return (0 if agrees else 1, r["sigma_y_px"])
     if cx0 is not None and cx1 is not None:
         for c in ceil_cands:
             y = c["y"] - 1
-            r = picks["ceiling_ramp_vp"](L, y, cx0, cx1, with_error=True)
+            if one_return:
+                srv = picks.get("single_return_vp")
+                if srv is None:
+                    from measure import single_return_vp as srv
+                r = srv(L, y, floor_y, cx1 if one_return == "right" else cx0,
+                        one_return, with_error=True)
+            else:
+                r = picks["ceiling_ramp_vp"](L, y, cx0, cx1, with_error=True)
             ok, why = _admissible(r, y, floor_y, bracket)
             tried.append(dict(ceiling_y_px=y, admissible=ok,
                               sigma_y_px=(r or {}).get("sigma_y_px"),
-                              horizon_y_px=(r or {}).get("y"), why=why))
-            if ok and (ramp is None or r["sigma_y_px"] < ramp["sigma_y_px"]):
+                              horizon_y_px=(r or {}).get("y"),
+                              agrees_with_gate=(bool(_rank(r)[0] == 0) if ok else None),
+                              why=why))
+            if ok and (ramp is None or _rank(r) < _rank(ramp)):
                 ramp, ceil_y = r, y
         if ramp is None:
             ramp_why = (tried[0]["why"] if tried else
@@ -730,6 +836,31 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=(), rail_y=None):
                 "and no band is widened to admit that."
                 % (ramp["y"], ramp["sigma_y_px"], bracket, eye, ppm,
                    eye_range[0], eye_range[1]))
+    if family is None and ramp is not None:
+        # [liner-3] ONE PICTURE, ONE EYE. The gate has already read this
+        # frame's eye off its floor line and its ruler against the horizon
+        # row the prompt rules (a level camera, zero tilt: the row is the
+        # principal row), and admitted it within its band. The returns are
+        # a second reading of the same eye; where they put it more than the
+        # horizon licence and their own bar away from the gate's row, the
+        # two readings are of one picture and cannot both be true — a
+        # return painted at another camera's convergence (gallery/N
+        # a9024bfc: the wall at the ruled scale, its 92 px return meeting at
+        # y 390, an eye of 1.89 m against the gate's 1.22). That is the
+        # suspect family's own definition, and the 0.8-2.2 m band alone was
+        # letting it through as the painting's "own" camera.
+        gate_h = 1024 * HORIZON_Y
+        if abs(ramp["y"] - gate_h) > bracket + ramp["sigma_y_px"]:
+            family = SUSPECT_PAINTING
+            why.append(
+                "SUSPECT PAINTING: this frame's returns converge at y %.1f "
+                "(+/-%.1f px), %.0f px from the horizon row %.1f its own gate "
+                "reading stands on, beyond the +/-%.1f px licence and the "
+                "reading's own bar. The wall is drawn at one camera and its "
+                "return at another; two readings of one picture disagree "
+                "about where the eye is, and neither is widened to admit "
+                "the other." % (ramp["y"], ramp["sigma_y_px"],
+                                abs(ramp["y"] - gate_h), gate_h, bracket))
 
     return dict(
         ceiling_y_px=ceil_y, ceiling_candidates=ceil_cands,
@@ -793,6 +924,25 @@ def carrier_edges(L, cfg, carrier):
     if not pairs:
         return None, ("no pair of vertical edges inside the declared window is within "
                       "a quarter of the ruled width of each other")
+    # [liner-3, 2026-09-01] A DOOR THE PACK DECLARES AS A VOID IS DARK BETWEEN
+    # ITS EDGES. On a panelled wall every veneer joint is a strong vertical and
+    # every joint pair one panel apart is an admissible door-width pair, so the
+    # straddle rule below could never read a liner door (gallery/N: 629..895 at
+    # 6 px from the ask, refused for the panel joint pair 415..629). A pack
+    # whose doors open onto unlit shadow (`conventions.door_reads_as: "void"`)
+    # says so, and a pair whose interior is as bright as the wall around it is
+    # panelling, not a doorway - a physical fact of the picture, not a choice.
+    _void = ((_PACK.world.get("conventions") or {}).get("door_reads_as")) if _PACK else None
+    if carrier["kind"] == "door" and _void == "void":
+        wall_level = float(np.median(L[y0:y1, x0w:x1w].mean(axis=0)))
+        def interior(q):
+            a, b = int(q["x0"]) + 12, int(q["x1"]) - 12
+            return float(L[y0:y1, a:b].mean()) if b > a else wall_level
+        dark = [q for q in pairs if interior(q) < 0.5 * wall_level]
+        if not dark:
+            return None, ("no admissible edge pair has the unlit void this world's "
+                          "doors open onto between its edges")
+        pairs = dark
     pairs.sort(key=lambda z: -z["strength"])
     best = pairs[0]
     # THE DISAGREEMENT THRESHOLD IS THE STANDING LICENCE APPLIED TO THE ARM'S
@@ -949,6 +1099,23 @@ def measure_candidate(path, side, cfg, ref, picks):
     rail_y = mod["dado_rail_y_px"]
     ra, rb = cfg["rail_band"]
     rail_in_band = (ra <= rail_y <= rb)
+    # [liner-3, 2026-09-01] THE ARGMIN OF A FLAT BAND IS NOT AN ANCHOR. The
+    # rail is the band's luminance minimum, and a band the painter left the
+    # anchor out of still has a minimum: gallery_far/N 8b6b3e2b's capping strip
+    # sat at y 570, the band 501..542 held only veneer, its darkest veneer row
+    # (513) was read as the rail and a wall painted at 0.81 scale PASSED at
+    # +3 % and was promoted. A pack whose anchor is a high-contrast line
+    # declares the dip it must show (`ruler.contrast_min`, with its why);
+    # shallower than that, the band holds no anchor and the reading says so.
+    rail_dip = None
+    _cmin = (_PACK.ruler.get("contrast_min") if _PACK else None)
+    if _cmin is not None:
+        _p = np.asarray(mod.get("profile") or [], dtype=float)
+        if len(_p):
+            _med = float(np.median(_p))
+            rail_dip = round((_med - float(_p.min())) / _med, 3) if _med > 0 else 0.0
+            if rail_dip < float(_cmin):
+                rail_in_band = False
 
     out = dict(
         _measured_px=dict(
@@ -957,6 +1124,7 @@ def measure_candidate(path, side, cfg, ref, picks):
             dado_rail_above_floor_px=int(rail_above),
             floor_read=mod.get("floor_read"),
             capping_above_floor_px=mod.get("capping_above_floor_px"),
+            rail_dip=rail_dip,
         ),
         _windows=dict(floor=cfg["floor_window"], rail=cfg["rail_band"],
                       ceiling=cfg["ceiling_band"], columns=cfg["rail_columns"],
@@ -967,7 +1135,13 @@ def measure_candidate(path, side, cfg, ref, picks):
     if not floor_in_band:
         absent.append("the floor line reads y %d, outside the y %d..%d the standing "
                       "licence allows" % (floor_y, a, b))
-    if not rail_in_band:
+    if not rail_in_band and rail_dip is not None and rail_dip < float(_cmin):
+        absent.append("the %s is not painted inside y %d..%d: the band's luminance "
+                      "dip is %.2f of its median against the %.2f this world's anchor "
+                      "shows wherever it is drawn - the darkest row (y %d) is fabric, "
+                      "not the anchor, and the gate does not vote on fabric"
+                      % (cfg["anchor_label"], ra, rb, rail_dip, float(_cmin), rail_y))
+    elif not rail_in_band:
         absent.append("the %s reads y %d, outside the y %d..%d the standing "
                       "licence allows - this frame declares the anchor the gate votes "
                       "on and does not paint it there"

@@ -320,6 +320,7 @@ const rnd = (o) => o == null ? null
 
 /** Ruler space: what `drawGrid` draws its own metre lines in. */
 export function rulerX(m, meta) {
+  if (meta.cell_x0_px != null) return meta.cell_x0_px + m * meta.px_per_m_at_wall;   // a run wall: the cell's end, not the run's middle
   return groundplane.wallCentrePx(meta, CANVAS_W) +
     (m - meta.wall_width_m / 2) * meta.px_per_m_at_wall;
 }
@@ -1940,7 +1941,7 @@ const CARRIER_SENTENCE = {
    * behind it is unmeasurable (library/S was demoted for exactly this). The
    * darkness is also what the renderer wants: it composites the destination
    * room into the opening, so painted light back there fights the through-view. */
-  door: (w, which, where) => `The ${which}door opening is exactly ${w.toFixed(2)} m wide and exactly 2.00 m high at the wall plane, and it stands empty with no door leaf hung in it${where}. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.`,
+  door: (w, which, where) => `The ${which}door opening is exactly ${w.toFixed(2)} m wide and exactly ${DOOR_HEAD_M.toFixed(2)} m high at the wall plane, and it stands empty with no door leaf hung in it${where}. The space beyond the opening is deep unlit shadow — no lit room, no visible far wall, no light source beyond the doorway.`,
   window: (w, which, where) => `The ${which}leaded window opening is exactly ${w.toFixed(2)} m wide${where}.`,
   fireplace: (w, which, where) => `The ${which}stone fireplace's firebox opening is exactly 0.90 m wide, and its stone breast is exactly ${w.toFixed(2)} m wide${where}.`,
   /* [Kabe, 2026-08-24: "Entrance court s looks very weird on the edges"] The
@@ -2611,6 +2612,13 @@ async function emitManor(outDir, opts) {
   }
   const todo = outstanding.slice(0, opts.limit || undefined);
   mkdirSync(outDir, { recursive: true });
+  /* [liner-3, 2026-09-01] A KEPT ENTRY KEEPS THE PAGE'S CURRENT GEOMETRY. The
+     brackets the sweep reads (carrier windows, rail columns, corners) are cut
+     from the page's meta at emit time; a wall skipped on a later pass kept the
+     brackets of its first, so gallery/N's door window sat at 1322 px for two
+     sweeps after the page had moved the door to 640. The skip keeps the
+     packet and the roll ids; the geometry is re-read from the page below. */
+  const refreshed = {};
 
   /* [hospital-3 step 3] REFUSE BEFORE THE BROWSER, BY NAME. The page boots
      from `<fixture_dir>/fixture.js`; without it the wait below times out after
@@ -2624,6 +2632,29 @@ async function emitManor(outDir, opts) {
   await page.goto(pathToFileURL(join(ROOT, "index.html")).href + `?world=${PACK.world.paths.world_query}`);
   await page.waitForFunction(() => window.HOLO_APP && window.HOLO_APP.paints > 0);
 
+  for (const x of skipped) {
+    if (!priorEntries[x.key] || priorEntries[x.key].px_per_m_at_wall == null) continue;
+    const [loc, f] = x.key.split("/");
+    let meta = null;
+    try {
+      meta = await page.evaluate((k) => {
+        const e = window.HOLO_APP.backdrops[k];
+        return e && e.meta ? e.meta : null;
+      }, x.key);
+    } catch (e) { meta = null; }
+    if (!meta) continue;
+    const { rects } = scaffoldRects(plan, loc, f, meta);
+    refreshed[x.key] = {
+      px_per_m_at_wall: meta.px_per_m_at_wall,
+      camera_wall_m: meta.camera_wall_m ?? null, camera_far_m: meta.camera_far_m ?? null,
+      facing_type: meta.facing_type, floor_line_y: meta.floor_line_y, horizon_y: meta.horizon_y,
+      corner_x0_px: meta.corner_x0_px, corner_x1_px: meta.corner_x1_px,
+      storey_height_m: meta.storey_height_m, wall_width_m: meta.wall_width_m,
+      brackets: brackets(meta, rects, tolFor(meta, rects)),
+      implied_focal_px: round(groundplane.focalPx(meta), 1),
+      stamped: rects.map((r) => ({ kind: r.kind, x0: r.x0, x1: r.x1 }))
+    };
+  }
   const entries = [];
   for (const fac of todo) {
     const [loc, f] = fac.key.split("/");
@@ -2859,7 +2890,7 @@ async function emitManor(outDir, opts) {
     entries: entries.concat(skipped.map((x) => {
       const prior = priorEntries[x.key];
       return prior && prior.px_per_m_at_wall != null
-        ? { ...prior, promoted: x.promoted ?? prior.promoted }
+        ? { ...prior, ...(refreshed[x.key] || {}), promoted: x.promoted ?? prior.promoted }
         : x;
     }))
   };

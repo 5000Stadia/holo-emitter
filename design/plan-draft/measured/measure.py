@@ -1127,6 +1127,134 @@ def ceiling_ramp_vp(L, ceil_y, cx0, cx1, reach=64, with_error=False):
     return out
 
 
+def trace_corner(L, row, side, sign=0, reach=160, tol=6, settle=16):
+    """[liner-3] THE CORNER AS THE PAINTED LINES KINK. Per column, the row of
+    the strongest horizontal step near `row` (sign +1: lighter below, as at the
+    wall foot; -1: lighter above, as at the cornice; 0: either, as at a capping
+    strip); the corner is the first column, walking in from `side`'s frame
+    edge, after which that row sits on the run wall's row for `settle` columns
+    running. A narrow return (gallery/N's left return is 85 px) gives the
+    recession-profile breakpoint no fit to make (r2 0.01-0.1) and it answers
+    with a panel joint; the foot, capping strip and cornice lines kink at the
+    corner whatever its width. Returns the frame edge where no kink is found."""
+    H_, W_ = L.shape
+    y0, y1 = int(max(1, row - reach)), int(min(H_ - 1, row + reach))
+    d = np.diff(L[y0 - 1:y1 + 1], axis=0)
+    d = np.abs(d) if sign == 0 else np.maximum(0.0, sign * d)
+    k = np.ones(5) / 5.0
+    d = np.apply_along_axis(lambda r: np.convolve(r, k, mode="same"), 1, d)
+    r = d.argmax(axis=0) + y0
+    on = np.abs(r - row) <= tol
+    xs = range(0, W_ // 2) if side == "left" else range(W_ - 1, W_ // 2, -1)
+    run = 0
+    for x in xs:
+        run = run + 1 if on[x] else 0
+        if run >= settle:
+            return int(x - settle + 1) if side == "left" else int(x + settle - 1)
+    return 0 if side == "left" else W_
+
+
+def witness_corner(L, side, floor_y=None, rail_y=None, ceil_y=None):
+    """The median of the corner witnesses `trace_corner` can read (foot, capping
+    strip, cornice), with each witness recorded. None where no row was given."""
+    ev = {}
+    if floor_y is not None:
+        ev["foot"] = trace_corner(L, floor_y, side, +1)
+    if rail_y is not None:
+        ev["rail"] = trace_corner(L, rail_y, side, 0, reach=100)
+    if ceil_y is not None:
+        ev["cornice"] = trace_corner(L, ceil_y, side, -1)
+    if not ev:
+        return None, ev
+    return int(np.median(list(ev.values()))), ev
+
+
+def single_return_vp(L, ceil_y, floor_y, cx, side, reach=64, with_error=False):
+    """[liner-3] ONE RETURN, TWO RAMPS, PIVOTED ON THE CORNER. A run wall whose
+    other corner stands outside the frame has one side wall in the picture, so
+    `ceiling_ramp_vp`'s second ramp is the far wall's own cornice - flat - and
+    the pair "converges" at the corner itself (gallery_far/N read its horizon at
+    y 152 that way, 2.8 m up the wall). The one return's ceiling junction and
+    floor junction are both parallel to the view axis, so THEY meet on the
+    principal point.
+
+    Each junction is a line through a point already measured - the corner, at
+    the far wall's own ceiling row and floor row - so it has ONE free number,
+    its slope, and that is found by a line search: the slope along which the
+    vertical luminance step, summed over the return's columns, is greatest. A
+    free two-parameter fit picks carpet texture and skirting edges column by
+    column on a 76 px sliver (saloon/S: floor residual 51 px); the pivoted
+    search cannot leave the corner. The error bar is the slope width over which
+    the score stays within a fifth of its peak, propagated to the intersection
+    row. A new function rather than a flag, so the round-locked corpora re-run
+    byte-identical."""
+    if cx is None:
+        return None
+    D = np.abs(np.diff(L, axis=0)).astype(float)
+    x0, x1 = ((cx + 4, min(W - 3, cx + reach)) if side == "right"
+              else (max(2, cx - reach), cx - 4))
+    xs = np.arange(x0, x1 + 1)
+    if len(xs) < 25:
+        return None
+    dxs = (xs - cx).astype(float)
+
+    def search(y_at, sign):
+        # slope sign: a right return's ceiling rises (negative) and its floor
+        # falls (positive) toward the near edge; mirrored on the left
+        slopes = np.arange(0.04, 1.6, 0.005) * sign
+        best, scores = None, []
+        for m in slopes:
+            ys = np.rint(y_at + m * dxs).astype(int)
+            ok = (ys >= 1) & (ys <= H - 2)
+            if ok.sum() < 20:
+                scores.append(0.0)
+                continue
+            v = D[ys[ok] - 1, xs[ok]]
+            scores.append(float(np.mean(v)))
+        scores = np.array(scores)
+        k = int(np.argmax(scores))
+        peak = scores[k]
+        if peak <= 0:
+            return None
+        above = scores >= 0.8 * peak
+        lo = k
+        while lo > 0 and above[lo - 1]:
+            lo -= 1
+        hi = k
+        while hi < len(slopes) - 1 and above[hi + 1]:
+            hi += 1
+        return dict(slope=float(slopes[k]), half_width=float(abs(slopes[hi] - slopes[lo])) / 2.0,
+                    score=round(peak, 2), n=int(len(xs)))
+
+    sgn = 1.0 if side == "right" else -1.0
+    c = search(float(ceil_y), -sgn)
+    f = search(float(floor_y), sgn)
+    if c is None or f is None:
+        return None
+    mc, mf = c["slope"], f["slope"]
+    if abs(mc - mf) < 1e-6:
+        return None
+
+    def meet(mc_, mf_):
+        xm = cx + (floor_y - ceil_y) / (mc_ - mf_)
+        return xm, ceil_y + mc_ * (xm - cx)
+
+    x, y = meet(mc, mf)
+    # the intersection row over the slope bars, taken at the four corners of
+    # the (mc, mf) box, as its half-spread
+    ys = [meet(mc + a * c["half_width"], mf + b * f["half_width"])[1]
+          for a in (-1, 1) for b in (-1, 1)]
+    out = dict(x=round(float(x), 1), y=round(float(y), 1),
+               return_side=side,
+               ceiling_slope=round(mc, 4), floor_slope=round(mf, 4),
+               ceiling_n=c["n"], ceiling_score=c["score"],
+               floor_n=f["n"], floor_score=f["score"],
+               slope_half_widths=[round(c["half_width"], 4), round(f["half_width"], 4)])
+    if with_error:
+        out["sigma_y_px"] = round(float((max(ys) - min(ys)) / 2.0), 2)
+    return out
+
+
 def horizon_votes(L, ceil_y, floor_y, cx0, cx1):
     yy, xx = np.mgrid[0:H, 0:W]
     regions = {}
