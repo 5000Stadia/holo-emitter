@@ -1,11 +1,11 @@
 {
   "instrument": "tools/make-scaffold.mjs materialProvenance()",
   "what": "the material sentences every promoted painting was actually asked for, against the sentences this composer writes today — and, where those differ, the MATERIALS each resolves to, which is what decides whether the wall is vouched (see `VOUCHING FOLLOWS THE MATERIAL, NOT THE WORDING` in the instrument)",
-  "promoted_facings": 24,
+  "promoted_facings": 25,
   "split_rooms": [],
   "superseded_rooms": [],
   "refined_rooms": [],
-  "vouched_facings": 24,
+  "vouched_facings": 25,
   "unrecoverable": [],
   "rooms": [
     {
@@ -702,6 +702,37 @@
           "verdict": "current",
           "asked": "",
           "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_n-N/row23-d12c4aab.prompt.txt)",
+          "ask_materials": {
+            "walls": "wall/veneer-sycamore",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/carpet-terracotta",
+            "hangings": null
+          },
+          "ruling_materials": {
+            "walls": "wall/veneer-sycamore",
+            "overhead": "ceiling/plaster-cove",
+            "underfoot": "floor/carpet-terracotta",
+            "hangings": null
+          },
+          "class": "current",
+          "ask_material_key": "[[\"overhead\",\"ceiling/plaster-cove\"],[\"underfoot\",\"floor/carpet-terracotta\"],[\"walls\",\"wall/veneer-sycamore\"]]"
+        },
+        {
+          "facing": "E",
+          "voice": "saloon_sycamore",
+          "candidate": "backdrops/source/saloon_n-E/row23-0025d4bc.png",
+          "ruling": {
+            "walls": "pale figured sycamore veneer in tall book-matched panels above the dado; below the dado's chrome capping strip, dark macassar-ebony veneer",
+            "overhead": "a flat cream painted plaster ceiling meeting the walls in a shallow stepped cove",
+            "underfoot": "a deep-pile fitted carpet in terracotta red with a small all-over geometric pattern",
+            "hangings": null
+          },
+          "ask_path": "backdrops/source/saloon_n-E/row23-0025d4bc.prompt.txt",
+          "ask_via": "beside the candidate",
+          "missing": [],
+          "verdict": "current",
+          "asked": "",
+          "ask_key": "(no material sentence this audit can read, in backdrops/source/saloon_n-E/row23-0025d4bc.prompt.txt)",
           "ask_materials": {
             "walls": "wall/veneer-sycamore",
             "overhead": "ceiling/plaster-cove",

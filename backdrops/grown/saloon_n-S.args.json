@@ -1,0 +1,147 @@
+{
+ "mode": "deep-guide",
+ "wall": "saloon_n/S",
+ "pack": "liner-3",
+ "shell": "backdrops/saloon/S.png",
+ "far_cells": [
+  "saloon_e",
+  "saloon"
+ ],
+ "sides": {
+  "left": {
+   "open": true,
+   "via": [
+    "way03",
+    "way02"
+   ],
+   "u_m": -3.2000000000000006
+  },
+  "right": {
+   "open": false,
+   "via": [],
+   "u_m": 3.2
+  }
+ },
+ "far_rect": [
+  -87.8,
+  328.5,
+  1053.3,
+  631.6
+ ],
+ "run_m": 12.8,
+ "depth_ratio": 0.4178571428571428,
+ "vp": [
+  768.0,
+  526.1
+ ],
+ "doors": [
+  {
+   "id": "door02",
+   "cols": [
+    715,
+    821
+   ]
+  }
+ ],
+ "elements": {
+  "shell": {
+   "painting": "backdrops/saloon/S.png",
+   "rows": {
+    "ceil": 60.0,
+    "rail": 521.6,
+    "foot": 770.0,
+    "x0": -1280.0,
+    "x1": 1434
+   },
+   "from": "measured",
+   "scale": 0.9705,
+   "door": {
+    "x0": 655,
+    "x1": 884,
+    "head": 353
+   }
+  },
+  "ceiling": {
+   "scale": 10.2647
+  },
+  "floor": {
+   "scale": 1.7365
+  },
+  "right_wall_upper": {
+   "scale": 5.2472,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_wall_lower": {
+   "scale": 5.2472,
+   "blur": 10,
+   "from": "own"
+  },
+  "far_wall_saloon_e": {
+   "scale": 0.4233
+  },
+  "far_wall_saloon": {
+   "scale": 0.4269
+  },
+  "far_wall": [
+   {
+    "cell": "saloon_e",
+    "from": "measured",
+    "at_px": [
+     -88,
+     483
+    ],
+    "scale": 1.0002,
+    "rows": {
+     "ceil": 63.0,
+     "rail": 522.9,
+     "foot": 779.0,
+     "x0": 106,
+     "x1": 2816.0
+    },
+    "door": null
+   },
+   {
+    "cell": "saloon",
+    "from": "measured",
+    "at_px": [
+     483,
+     1053
+    ],
+    "scale": 0.9705,
+    "rows": {
+     "ceil": 60.0,
+     "rail": 521.6,
+     "foot": 770.0,
+     "x0": -1280.0,
+     "x1": 1434
+    },
+    "door": {
+     "x0": 655,
+     "x1": 884,
+     "head": 353
+    }
+   }
+  ],
+  "joins_px": [
+   483
+  ]
+ },
+ "guards": [
+  {
+   "band": "ceiling_front",
+   "max": 0.5,
+   "median": 0.11,
+   "ok": true
+  },
+  {
+   "band": "floor_front",
+   "max": 5.51,
+   "median": 4.14,
+   "ok": true
+  }
+ ],
+ "precomp": 0.975,
+ "depth_drawn_m": 11.4872,
+ "out": "backdrops/grown/saloon_n-S.png"
+}

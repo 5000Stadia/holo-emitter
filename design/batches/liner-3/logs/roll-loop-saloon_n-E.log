@@ -6,3 +6,6 @@ sweep: saloon_n/E               PARKED    cap spent; wall stays grid, run contin
 learn: pair scales [0.951, 1.0677] -> z 0.9750 -> 0.9418
 guide deep: z 0.9418 shell backdrops/saloon_ne/E.png (scale 1.0073); far wall [('saloon_ne', 1.0073), ('saloon_e', 0.9658)]; sides {'left': 'wall', 'right': 'open'}
 pair 2: attempt 3, rolls ['d97ae225', '0025d4bc'] ordered (order ok)
+sweep: saloon_n/E               PROMOTE   PASS -5.2% focal, promoted and baked
+learn: pair scales [0.8901, 0.9742] -> z 0.9418 -> 0.9851
+LANDED: saloon_n/E promoted after 4 loop roll(s)

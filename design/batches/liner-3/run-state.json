@@ -469,16 +469,15 @@
   },
   "saloon_n/S": {
    "attempts": 0,
-   "status": "waiting"
+   "status": "retry",
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon_n/E": {
-   "attempts": 2,
-   "status": "retry",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
-   "candidate": "backdrops/source/saloon_n-E/row23-04ddbf1c.png",
-   "hold_family": "camera-miss",
-   "exit": "grid",
-   "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.881..0.881, 28% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
+   "attempts": 4,
+   "status": "promoted",
+   "candidate": "backdrops/source/saloon_n-E/row23-0025d4bc.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
    "exit_attempt": {
     "candidate": "backdrops/source/saloon_n-E/row23-04ddbf1c.png",
     "exit": "grid",
@@ -486,7 +485,8 @@
     "candidate_sha256": null,
     "at": "2026-09-01T22:37:20"
    },
-   "why": "the retry cap is spent; the wall stays grid and the run continues"
+   "why": "the retry cap is spent; the wall stays grid and the run continues",
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon_n/W": {
    "attempts": 2,
