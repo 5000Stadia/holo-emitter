@@ -1,0 +1,11 @@
+=== writing_room/E --from-wall writing_room/N Tue Sep  1 08:15:25 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/writing_room/N.png (scale 0.9944)
+pair 1: attempt 1, rolls ['25f33033', '613d2d07'] ordered (order ok)
+sweep: writing_room/E           HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at
+learn: pair scales [0.9906] -> z 0.9750 -> 0.9596
+guide: z 0.9596 from backdrops/writing_room/N.png (scale 0.9944)
+pair 2: attempt 3, rolls ['86e2371a', 'e0617886'] ordered (order ok)
+sweep: writing_room/E           HELD      PASS | camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at
+learn: pair scales [0.9515, 0.9706] -> z 0.9596 -> 0.9736
+BUDGET SPENT: writing_room/E not landed in 4 rolls; parked for the Captain

@@ -1,0 +1,340 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 768,
+    "chair_rail_y_px": 530,
+    "dado_rail_above_floor_px": 238,
+    "floor_read": {
+      "minimum": 767,
+      "rule": "skirting-base",
+      "saturated": false,
+      "foot": 768
+    },
+    "capping_above_floor_px": 238,
+    "rail_dip": 0.973
+  },
+  "_windows": {
+    "floor": [
+      758,
+      798
+    ],
+    "rail": [
+      501,
+      542
+    ],
+    "ceiling": [
+      0,
+      111
+    ],
+    "columns": [
+      [
+        0,
+        640
+      ],
+      [
+        896,
+        1450
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [
+    {
+      "kind": "door",
+      "asked_x0": 640,
+      "asked_x1": 896,
+      "ruled_m": 1.2,
+      "window": [
+        384,
+        1152
+      ],
+      "hypothesis": null,
+      "found": false,
+      "why": "the choice of edge pair would choose the verdict: the strongest pair sits 651..892 (8 px from the ask) and another admissible pair sits 661..939 (32 px from the ask), which disagree by more than the 20 px this arm can resolve"
+    }
+  ],
+  "px_per_m_at_wall": 198.333,
+  "implied_focal_px": 952.0,
+  "eye_height_m": 1.2197,
+  "_absent": [
+    "the door: the choice of edge pair would choose the verdict: the strongest pair sits 651..892 (8 px from the ask) and another admissible pair sits 661..939 (32 px from the ask), which disagree by more than the 20 px this arm can resolve"
+  ],
+  "_promotion": {
+    "ceiling_y_px": 45,
+    "ceiling_candidates": [
+      {
+        "y": 39,
+        "strength": 42.97,
+        "horiz": 1.0,
+        "cv": 0.107
+      },
+      {
+        "y": 60,
+        "strength": 31.01,
+        "horiz": 0.988,
+        "cv": 0.177
+      },
+      {
+        "y": 69,
+        "strength": 24.38,
+        "horiz": 0.771,
+        "cv": 0.555
+      },
+      {
+        "y": 46,
+        "strength": 2.76,
+        "horiz": 0.879,
+        "cv": 0.365
+      },
+      {
+        "y": 110,
+        "strength": 1.72,
+        "horiz": 0.763,
+        "cv": 0.717
+      },
+      {
+        "y": 10,
+        "strength": 1.7,
+        "horiz": 0.846,
+        "cv": 0.45
+      },
+      {
+        "y": 102,
+        "strength": 1.63,
+        "horiz": 0.816,
+        "cv": 0.774
+      },
+      {
+        "y": 80,
+        "strength": 1.56,
+        "horiz": 0.823,
+        "cv": 0.736
+      },
+      {
+        "y": 88,
+        "strength": 1.55,
+        "horiz": 0.807,
+        "cv": 0.745
+      },
+      {
+        "y": 94,
+        "strength": 1.48,
+        "horiz": 0.803,
+        "cv": 0.779
+      },
+      {
+        "y": 53,
+        "strength": 1.46,
+        "horiz": 0.879,
+        "cv": 0.613
+      },
+      {
+        "y": 16,
+        "strength": 1.39,
+        "horiz": 0.958,
+        "cv": 0.411
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 38,
+        "admissible": false,
+        "sigma_y_px": 14.63,
+        "horizon_y_px": 544.5,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1006.4, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 59,
+        "admissible": false,
+        "sigma_y_px": 11.74,
+        "horizon_y_px": 575.4,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1072.2, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 68,
+        "admissible": false,
+        "sigma_y_px": 9.46,
+        "horizon_y_px": 607.5,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1140.5, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 45,
+        "admissible": true,
+        "sigma_y_px": 17.12,
+        "horizon_y_px": 520.9,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 109,
+        "admissible": false,
+        "sigma_y_px": 25.14,
+        "horizon_y_px": 352.3,
+        "agrees_with_gate": null,
+        "why": "the two side-wall junctions converge at y 352.3 but only to +/-25.1 px, and the standing licence on the horizon row is +/-20.2 px"
+      },
+      {
+        "ceiling_y_px": 9,
+        "admissible": false,
+        "sigma_y_px": 52.63,
+        "horizon_y_px": 125.2,
+        "agrees_with_gate": null,
+        "why": "the two side-wall junctions converge at y 125.2 but only to +/-52.6 px, and the standing licence on the horizon row is +/-20.2 px"
+      },
+      {
+        "ceiling_y_px": 101,
+        "admissible": false,
+        "sigma_y_px": 10.52,
+        "horizon_y_px": 568.3,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1057.2, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 79,
+        "admissible": false,
+        "sigma_y_px": 9.1,
+        "horizon_y_px": 606.5,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1138.4, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 87,
+        "admissible": false,
+        "sigma_y_px": 12.29,
+        "horizon_y_px": 607.2,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1139.8, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 93,
+        "admissible": false,
+        "sigma_y_px": 8.69,
+        "horizon_y_px": 614.4,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1155.1, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 52,
+        "admissible": false,
+        "sigma_y_px": 13.51,
+        "horizon_y_px": 556.4,
+        "agrees_with_gate": null,
+        "why": "the one return's ceiling and floor junctions meet at x 1031.7, but lines parallel to the view axis meet on the principal column (x 768 +/- 230): this is a junction and a stripe of texture crossing, not a horizon"
+      },
+      {
+        "ceiling_y_px": 15,
+        "admissible": false,
+        "sigma_y_px": 23.05,
+        "horizon_y_px": 269.5,
+        "agrees_with_gate": null,
+        "why": "the two side-wall junctions converge at y 269.5 but only to +/-23.1 px, and the standing licence on the horizon row is +/-20.2 px"
+      }
+    ],
+    "corner_x0_px": -1280,
+    "corner_x1_px": 1482,
+    "corner_evidence": {
+      "left_fit_r2": 0.1461,
+      "right_fit_r2": 0.0065,
+      "block_px": 16,
+      "excluded": [
+        [
+          640,
+          896
+        ]
+      ],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame",
+      "open_side": "left",
+      "open_side_corner": "declared: the plan's corner stands outside the frame",
+      "return_corner": {
+        "foot": 1420,
+        "rail": 1535,
+        "cornice": 1482,
+        "x": 1482,
+        "rule": "median of the foot, capping-strip and cornice kinks on the return side"
+      }
+    },
+    "horizon_bracket_px": 20.19,
+    "ramp": {
+      "x": 956.2,
+      "y": 520.9,
+      "return_side": "right",
+      "ceiling_slope": -0.905,
+      "floor_slope": 0.47,
+      "ceiling_n": 48,
+      "ceiling_score": 6.44,
+      "floor_n": 48,
+      "floor_score": 13.03,
+      "slope_half_widths": [
+        0.0375,
+        0.03
+      ],
+      "sigma_y_px": 17.12
+    },
+    "votes": {
+      "floor": {
+        "x": 686,
+        "y": 594,
+        "edge_px": 26017
+      },
+      "ceiling": {
+        "x": 1216,
+        "y": 190,
+        "edge_px": 266
+      },
+      "side_walls": {
+        "x": 1300,
+        "y": 717,
+        "edge_px": 1617
+      }
+    },
+    "light": {
+      "key_dir_measured": "L",
+      "key_dir_brightest_x": 274,
+      "key_dir_brightest_y": 27,
+      "key_tint": "#c8b193",
+      "key_tint_patch": [
+        74,
+        474,
+        0,
+        37
+      ],
+      "key_tint_patch_mean_rgb": [
+        242.15,
+        214.66,
+        177.91
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#c84b22",
+        "floor_bottom_strip": "#c84f24",
+        "mid_wall_right": "#c88845",
+        "mid_wall_left": "#c89963",
+        "brightest_21x21_patch": "#c8b59b"
+      },
+      "brightest_21x21_patch_centre_px": [
+        274,
+        27
+      ],
+      "sobel_bright_side_deg_whole_frame": 98.58,
+      "sobel_bright_side_deg_wall_band": 97.33,
+      "left_third_minus_right_third_luminance_whole_frame": 20.051,
+      "left_third_minus_right_third_luminance_wall_band": 23.443
+    },
+    "storey_height_m": 3.6454,
+    "implied_wall_width_m": 13.9261,
+    "eye_height_m": 1.2459,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -7.03,
+  "delta_eye_pct": 3.1,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "1e52b8ef",
+  "candidate": "backdrops/source/saloon-S/row23-1e52b8ef.png",
+  "candidate_sha256": "905c0659963b52e21f2432966f1c3dab0c8489f84b0d0ca412364c91b7dd19ae",
+  "instrument": "6ccb6fc568cf"
+}

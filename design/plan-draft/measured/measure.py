@@ -1144,6 +1144,13 @@ def trace_corner(L, row, side, sign=0, reach=160, tol=6, settle=16):
     k = np.ones(5) / 5.0
     d = np.apply_along_axis(lambda r: np.convolve(r, k, mode="same"), 1, d)
     r = d.argmax(axis=0) + y0
+    # the run wall's own row is the reference, not the row asked for: a
+    # cornice asked at 67 and painted at 63 with a 58 cove band beside the
+    # corner read the corner a panel joint early (writing_room/N)
+    mid = r[W_ // 4:3 * W_ // 4]
+    row_c = float(np.median(mid))
+    if abs(row_c - row) <= reach / 2:
+        row = row_c
     on = np.abs(r - row) <= tol
     xs = range(0, W_ // 2) if side == "left" else range(W_ - 1, W_ // 2, -1)
     run = 0
@@ -1154,19 +1161,131 @@ def trace_corner(L, row, side, sign=0, reach=160, tol=6, settle=16):
     return 0 if side == "left" else W_
 
 
-def witness_corner(L, side, floor_y=None, rail_y=None, ceil_y=None):
-    """The median of the corner witnesses `trace_corner` can read (foot, capping
-    strip, cornice), with each witness recorded. None where no row was given."""
-    ev = {}
+#: Rows within this many px of the horizon carry no kink to trace: a return's
+#: line at the eye's height runs level (the 1.20 m capping strip sits 4 px
+#: under the declared 1.18 m eye).
+FLAT_WITNESS_PX = 40
+#: Witnesses that agree to within this many columns stand together.
+WITNESS_AGREE_PX = 30
+
+
+def kink_fit(L, row, side, hz, sign=0, reach=160, tol=5):
+    """The corner as the column where a painted line stops running level and
+    turns for the horizon: per column the row of the strongest step near
+    `row` (sign as `trace_corner`), then the one-parameter model - level at the
+    run wall's own row up to the corner, from there a straight line toward the
+    vanishing point (slope (row - hz) / (corner - W/2), which is geometry) -
+    scored by how many columns of this half of the frame sit within `tol` of
+    it. The walk-in tracer answered the outermost column still within its
+    tolerance (tol / slope past a shallow kink) and, on a line whose strongest
+    step wanders (a cove band beside the cornice, carpet under the foot), a
+    panel joint (saloon_e/E 894166d7: 1394 for a corner at 1443). Returns
+    (corner, inlier fraction, run row); the frame edge where the line never
+    turns."""
+    H_, W_ = L.shape
+    y0, y1 = int(max(1, row - reach)), int(min(H_ - 1, row + reach))
+    d = np.diff(L[y0 - 1:y1 + 1], axis=0)
+    d = np.abs(d) if sign == 0 else np.maximum(0.0, sign * d)
+    k = np.ones(5) / 5.0
+    d = np.apply_along_axis(lambda r: np.convolve(r, k, mode="same"), 1, d)
+    r = (d.argmax(axis=0) + y0).astype(float)
+    row_c = float(np.median(r[W_ // 4:3 * W_ // 4]))
+    xs = np.arange(W_ // 2, W_) if side == "right" else np.arange(0, W_ // 2)
+    best, best_n, plateau = None, -1, []
+    lo, hi = (W_ // 2 + 40, W_ - 4) if side == "right" else (4, W_ // 2 - 40)
+    for c in range(lo, hi):
+        if abs(c - W_ / 2.0) < 1:
+            continue
+        slope = (row_c - hz) / (c - W_ / 2.0)
+        model = np.where((xs > c) if side == "right" else (xs < c), row_c + (xs - c) * slope, row_c)
+        n = int((np.abs(r[xs] - model) <= tol).sum())
+        if n > best_n:
+            best_n, plateau = n, [c]
+        elif n == best_n:
+            plateau.append(c)
+    if not plateau:
+        return (W_ if side == "right" else 0), 0.0, row_c
+    c = plateau[len(plateau) // 2]
+    # the line never turned: the best model is flat to the edge
+    edge = W_ - 4 if side == "right" else 4
+    if abs(c - edge) <= 2 or plateau[-1] - plateau[0] > 120:
+        return (W_ if side == "right" else 0), best_n / len(xs), row_c
+    return int(c), best_n / len(xs), row_c
+
+
+#: A corner's own vertical seam, as mean |dL/dx| over the wall band; below
+#: this it is not a seam the witnesses can be snapped to.
+CORNER_SEAM_MIN = 12.0
+
+
+def witness_corner(L, side, floor_y=None, rail_y=None, ceil_y=None, horizon_y=None):
+    """The corner as the witnesses read it - the foot's kink and the cornice's
+    (`kink_fit`; the capping strip only where it stands clear of the horizon)
+    - each snapped to the strongest vertical seam within 30 columns of it
+    across the wall band; the witness standing on the strongest seam wins.
+    Each witness is recorded. None where no row was given.
+
+    [liner-3, saloon_e/E 894166d7] A witness sees the corner only as steeply
+    as its line kinks there, and that slope is geometry: (row - horizon) /
+    (corner - VP). The capping strip stands at the eye's own height, so its
+    return runs level and no tracer can see the corner on it (1511 for a
+    corner at 1443); the median then chose that blind witness. The foot's
+    strongest steps wander into the carpet and the cornice's into the cove
+    band beside the corner (saloon/S: cornice 1474, foot 1433, corner 1441),
+    so neither kink alone is the corner - but the corner is also the one
+    vertical seam that runs the wall's whole height, and the kink that stands
+    on it is the kink that saw it. A witness within FLAT_WITNESS_PX of the
+    horizon abstains; a frame-edge answer is 'not found'; with no seam above
+    CORNER_SEAM_MIN the largest cluster of agreeing kinks (WITNESS_AGREE_PX)
+    answers, slope-weighted."""
+    H_, W_ = L.shape
+    hz = float(horizon_y) if horizon_y is not None else 0.51377 * H_
+    ev, slope = {}, {}
     if floor_y is not None:
-        ev["foot"] = trace_corner(L, floor_y, side, +1)
+        ev["foot"], ev["foot_fit"], _ = kink_fit(L, floor_y, side, hz, +1, reach=40)
+        slope["foot"] = abs(floor_y - hz)
     if rail_y is not None:
-        ev["rail"] = trace_corner(L, rail_y, side, 0, reach=100)
+        if abs(rail_y - hz) >= FLAT_WITNESS_PX:
+            ev["rail"], ev["rail_fit"], _ = kink_fit(L, rail_y, side, hz, 0, reach=60)
+            slope["rail"] = abs(rail_y - hz)
+        else:
+            ev["rail_abstains"] = "level with the horizon"
     if ceil_y is not None:
-        ev["cornice"] = trace_corner(L, ceil_y, side, -1)
-    if not ev:
-        return None, ev
-    return int(np.median(list(ev.values()))), ev
+        ev["cornice"], ev["cornice_fit"], _ = kink_fit(L, ceil_y, side, hz, -1)
+        slope["cornice"] = abs(ceil_y - hz)
+    found = {k: v for k, v in ev.items() if k in slope and 0 < v < W_}
+    if not found:
+        vals = [v for k, v in ev.items() if k in slope]
+        return (int(np.median(vals)) if vals else None), ev
+    # the vertical seam each kink stands beside
+    if ceil_y is not None and floor_y is not None and floor_y - ceil_y > 60:
+        band = L[int(ceil_y) + 10:int(floor_y) - 10]
+        E = np.abs(band[:, 4:] - band[:, :-4]).mean(axis=0)
+        E = np.concatenate([[0.0, 0.0], np.convolve(E, np.ones(3) / 3.0, mode="same"), [0.0, 0.0]])
+        seams = {}
+        for k, c in found.items():
+            lo, hi = max(0, c - 30), min(W_, c + 30)
+            jx = lo + int(np.argmax(E[lo:hi]))
+            seams[k] = (jx, float(E[jx]))
+        ev["seams"] = {k: [jx, round(e, 1)] for k, (jx, e) in seams.items()}
+        k_best = max(seams, key=lambda k: seams[k][1])
+        if seams[k_best][1] >= CORNER_SEAM_MIN:
+            ev["agreeing"] = [k_best]
+            ev["rule"] = "the kink standing on the strongest vertical seam, snapped to it"
+            return int(seams[k_best][0]), ev
+    best = None
+    for k, v in found.items():
+        cl = [j for j, u in found.items() if abs(u - v) <= WITNESS_AGREE_PX]
+        wt = sum(slope[j] for j in cl)
+        if best is None or (len(cl), wt) > (len(best[0]), best[1]):
+            best = (cl, wt)
+    cl, wt = best
+    x = sum(found[j] * slope[j] for j in cl) / wt
+    ev["agreeing"] = cl
+    ev["rule"] = "no vertical seam: the largest cluster of agreeing kinks, slope-weighted"
+    return int(round(x)), ev
+
+
 
 
 def single_return_vp(L, ceil_y, floor_y, cx, side, reach=64, with_error=False):

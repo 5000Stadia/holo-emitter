@@ -256,6 +256,18 @@ def _correction_for(family, why, reading, entry):
     Returns None where the refusal is not row 32's to answer (a doorway the
     plan rules and the painting does not draw), and the wall holds as before.
     """
+    if family == "void-return":
+        sides = [w.split(" return")[0].split("the ")[-1] for w in
+                 ((reading or {}).get("_promotion") or {}).get("withheld_because") or []
+                 if w.startswith("VOID RETURN")]
+        return (
+            "the %s of this wall, between the corner and the edge of frame, is a "
+            "lit receding side wall in the same finish as the facing wall - its "
+            "surface overhead, its wall-foot line and its dado line each run from "
+            "the corner to the edge of frame toward the eye line Image 2 marks. "
+            "It is not a dark void, a doorway or a shadow. Everything else stays "
+            "exactly where Image 2 puts it."
+            % (" and ".join("%s return" % s for s in sides) or "return"))
     if family not in ("suspect-painting", "unfitted-horizon"):
         return None
     hz = entry.get("horizon_y")

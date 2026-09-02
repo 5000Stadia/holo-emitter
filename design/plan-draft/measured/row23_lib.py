@@ -379,6 +379,26 @@ def _floor_and_rail(L, cfg, picks):
             floor_y = foot
     mod = picks["module_in_bands"](L, floor_y, cfg["rail_band"], cfg["rail_columns"])
     mod["floor_read"] = read
+    # [liner-3, 2026-09-01] A BRIGHT ANCHOR IS THE BAND'S MAXIMUM, NOT ITS
+    # MINIMUM. `module_in_bands` reads the rail as the darkest row of the band
+    # (the manor's undercut under a painted capping). Over an ebony dado the
+    # darkest row is the dado itself, anywhere in the band: gallery_far/N
+    # dca24599's chrome strip sits at y 523 and the rail read 541 - the band's
+    # last row - so a wall painted on the ruled camera (close-guide scale
+    # 0.993) FAILED at -11 %; every liner-3 pass so far read 8-15 px under the
+    # strip and passed at -6..-7 % by the luck of where the dado's argmin fell.
+    # A pack whose ruler is a light line over a dark field says so
+    # (`ruler.line: "bright-strip"`), and its rail is the band's brightest row.
+    rail_read = dict(rule="darkest-row")
+    if (_PACK.ruler.get("line") if _PACK else None) == "bright-strip":
+        a, b = cfg["rail_band"]
+        cols = np.concatenate([np.arange(int(x0), int(x1)) for x0, x1 in cfg["rail_columns"]])
+        prof = L[a:b + 1][:, cols].mean(axis=1)
+        strip = a + int(np.argmax(prof))
+        rail_read = dict(rule="bright-strip", darkest_row=int(mod["dado_rail_y_px"]), strip=strip)
+        mod["dado_rail_y_px"] = strip
+        mod["dado_rail_above_floor_px"] = floor_y - strip
+    mod["rail_read"] = rail_read
     rail_above = mod["dado_rail_above_floor_px"]
     return floor_y, mod, rail_above
 
@@ -407,6 +427,16 @@ def foot_of(minimum_y, cands, reach=12, below=2):
 #: instead of on prose.
 UNFITTED_HORIZON = "unfitted-horizon"
 SUSPECT_PAINTING = "suspect-painting"
+#: [liner-3, saloon_n/N 31e7ffbd, 2026-09-01] A return painted as a black slab.
+#: The gate reads only the facing wall's columns and passed the frame at
+#: -1.2 %; the return between the frame edge and the corner was void (mean
+#: luma 0.6 over the wall band against 139 on the wall). Not a tolerance
+#: family: no warp fills a surface nobody painted, and the correction is to
+#: paint it.
+VOID_RETURN = "void-return"
+#: a return darker than this over the wall band, on a wall brighter than
+#: VOID_WALL_MIN, is void
+VOID_RETURN_MAX, VOID_WALL_MIN = 12.0, 40.0
 
 #: [row 32, the Captain's tolerance ruling 2026-08-24] The two names the
 #: DECLARED-CAMERA promotion path answers to, and the one place they are listed.
@@ -720,6 +750,32 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=(), rail_y=None):
         one_return, cx0 = "right", int(round(cfg["corner_x0"]))
     elif cfg.get("corner_x1") is not None and cfg["corner_x1"] > W:
         one_return, cx1 = "left", int(round(cfg["corner_x1"]))
+    else:
+        # [liner-3, writing_room/E 25f33033 / 613d2d07, 2026-09-01] A SEAM THE
+        # WALL'S WHOLE HEIGHT OUTRANKS A BREAKPOINT. On a two-return wall the
+        # recession breakpoint answered 761/884 and 96/1066 for corners painted
+        # at 104/1431 (chrome corner beads, seam strength 50+), and the horizon
+        # was then "unfitted" on one roll and "suspect" on the other - two
+        # faithful reproductions of their own guide held for a corner nobody
+        # measured. The same witness the one-return case stands on reads both
+        # sides; it overrides the breakpoint only where it stands on a seam.
+        try:
+            wc = picks.get("witness_corner")
+            if wc is None:
+                from measure import witness_corner as wc
+            corner_ev = dict(corner_ev or {})
+            for side_ in ("left", "right"):
+                kx, kev = wc(L, side_, floor_y=floor_y, rail_y=rail_y, ceil_y=ceil_y,
+                             horizon_y=cfg["horizon_declared"])
+                on_seam = kx is not None and bool((kev or {}).get("seams"))
+                corner_ev["%s_witness" % side_] = dict(kev or {}, x=kx, used=on_seam)
+                if on_seam:
+                    if side_ == "left":
+                        cx0 = int(kx)
+                    else:
+                        cx1 = int(kx)
+        except Exception as e:  # a witness that cannot be read leaves the breakpoint
+            corner_ev = dict(corner_ev or {}, witness_error=str(e))
     if one_return:
         corner_ev = dict(corner_ev or {}, open_side=("left" if one_return == "right" else "right"),
                          open_side_corner="declared: the plan's corner stands outside the frame")
@@ -734,7 +790,8 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=(), rail_y=None):
             wc = picks.get("witness_corner")
             if wc is None:
                 from measure import witness_corner as wc
-            kx, kev = wc(L, one_return, floor_y=floor_y, rail_y=rail_y, ceil_y=ceil_y)
+            kx, kev = wc(L, one_return, floor_y=floor_y, rail_y=rail_y, ceil_y=ceil_y,
+                         horizon_y=cfg["horizon_declared"])
         except Exception as e:  # a witness that cannot be read leaves the breakpoint
             kx, kev = None, {"error": str(e)}
         if kx is not None:
@@ -862,9 +919,26 @@ def _promotion_half(rgb, L, cfg, floor_y, ppm, picks, carriers=(), rail_y=None):
                 "the other." % (ramp["y"], ramp["sigma_y_px"],
                                 abs(ramp["y"] - gate_h), gate_h, bracket))
 
+    void = {}
+    if ceil_y is not None and floor_y is not None and floor_y - ceil_y > 40:
+        r0, r1 = int(ceil_y) + 10, int(floor_y) - 10
+        wall_l = float(L[r0:r1, int(max(0, cx0 or 0)) + 8:int(min(W, cx1 or W)) - 8].mean()) \
+            if int(min(W, cx1 or W)) - int(max(0, cx0 or 0)) > 40 else None
+        for side_, a_, b_ in (("left", 4, (cx0 or 0) - 6), ("right", (cx1 or W) + 6, W - 4)):
+            if b_ - a_ >= 20:
+                lum = float(L[r0:r1, int(a_):int(b_)].mean())
+                void[side_] = round(lum, 1)
+                if wall_l is not None and wall_l >= VOID_WALL_MIN and lum <= VOID_RETURN_MAX:
+                    family = VOID_RETURN
+                    why.append(
+                        "VOID RETURN: the %s return (x %d..%d, rows %d..%d) is painted "
+                        "black (mean luma %.1f against %.1f on the wall). The plan rules "
+                        "a lit side wall there; a surface nobody painted is not "
+                        "warped or tolerated, it is asked for."
+                        % (side_, a_, b_, r0, r1, lum, wall_l))
     return dict(
         ceiling_y_px=ceil_y, ceiling_candidates=ceil_cands,
-        ceiling_rows_tried=tried,
+        ceiling_rows_tried=tried, return_luma=void,
         corner_x0_px=cx0, corner_x1_px=cx1, corner_evidence=corner_ev,
         horizon_bracket_px=round(bracket, 2),
         ramp=ramp, votes=votes, light=lit,
@@ -1113,7 +1187,12 @@ def measure_candidate(path, side, cfg, ref, picks):
         _p = np.asarray(mod.get("profile") or [], dtype=float)
         if len(_p):
             _med = float(np.median(_p))
-            rail_dip = round((_med - float(_p.min())) / _med, 3) if _med > 0 else 0.0
+            if (mod.get("rail_read") or {}).get("rule") == "bright-strip":
+                # the anchor is a light line: its contrast is the band's rise
+                # over the median, read the same way the dip is
+                rail_dip = round((float(_p.max()) - _med) / _med, 3) if _med > 0 else 0.0
+            else:
+                rail_dip = round((_med - float(_p.min())) / _med, 3) if _med > 0 else 0.0
             if rail_dip < float(_cmin):
                 rail_in_band = False
 
@@ -1123,6 +1202,7 @@ def measure_candidate(path, side, cfg, ref, picks):
             chair_rail_y_px=int(rail_y),
             dado_rail_above_floor_px=int(rail_above),
             floor_read=mod.get("floor_read"),
+            rail_read=mod.get("rail_read"),
             capping_above_floor_px=mod.get("capping_above_floor_px"),
             rail_dip=rail_dip,
         ),

@@ -22,16 +22,39 @@
    "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "writing_room/S": {
-   "attempts": 0,
-   "status": "waiting"
+   "attempts": 2,
+   "status": "promoted",
+   "candidate": "backdrops/source/writing_room-S/row23-17ab75e2.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver"
   },
   "writing_room/E": {
-   "attempts": 0,
-   "status": "waiting"
+   "attempts": 4,
+   "status": "promoted",
+   "promotion_refused": [
+    {
+     "candidate": "backdrops/source/writing_room-E/row23-613d2d07.png",
+     "delta_focal_pct": -3.12,
+     "family": "suspect-painting",
+     "why": "SUSPECT PAINTING: this frame's returns converge at y 491.9 (+/-1.2 px), 34 px from the horizon row 526.1 its own gate reading stands on, beyond the +/-20.2 px licence and the reading's own bar. The wall is drawn at one camera and its return at another; two readings of one picture disagree about wher"
+    }
+   ],
+   "candidate": "backdrops/source/writing_room-E/row23-25f33033.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
+   "exit_attempt": {
+    "candidate": "backdrops/source/writing_room-E/row23-613d2d07.png",
+    "exit": "grid",
+    "instrument": "692e77b94f4f",
+    "candidate_sha256": null,
+    "at": "2026-09-01T20:18:42"
+   },
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "writing_room/W": {
    "attempts": 0,
-   "status": "waiting"
+   "status": "retry",
+   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "gallery/N": {
    "attempts": 8,
@@ -94,27 +117,27 @@
    "status": "waiting"
   },
   "gallery_far/N": {
-   "attempts": 2,
-   "status": "parked",
-   "candidate": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+   "attempts": 6,
+   "status": "promoted",
+   "candidate": "backdrops/source/gallery_far-N/row23-55a47780.png",
    "exit": "grid",
-   "exit_reason": "the warp refused this frame and it is a content miss, so it re-asks: [meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
+   "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 1.126..1.126, 0% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
    "exit_attempt": {
-    "candidate": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+    "candidate": "backdrops/source/gallery_far-N/row23-55a47780.png",
     "exit": "grid",
-    "instrument": "6ccb6fc568cf",
+    "instrument": "692e77b94f4f",
     "candidate_sha256": null,
-    "at": "2026-09-01T19:52:13"
+    "at": "2026-09-01T20:15:25"
    },
    "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 152.5, which puts the viewer's eye 2.839 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "correction": "[meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
+   "correction": "draw 1.148x larger: 213.3 px/m at the wall plane, not 185.8",
    "hold_family": "camera-miss",
    "warp_refusal": {
     "clause": "meshwarp.landmark_unreadable",
     "why": "the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
     "candidate": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png"
    },
-   "why": "the retry cap is spent; the wall stays grid and the run continues"
+   "why": "art already in the store; this loop read it rather than remaking it"
   },
   "gallery_far/S": {
    "attempts": 0,
@@ -133,13 +156,11 @@
    "status": "waiting"
   },
   "saloon/S": {
-   "attempts": 2,
-   "status": "retry",
-   "candidate": "backdrops/source/saloon-S/row23-60dc04a1.png",
-   "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
-   "hold_family": "unfitted-horizon",
-   "exit": "grid",
-   "exit_reason": "the warp could not carry this wall: the warped frame carries no scale, so there is nothing for a meta to be a meta of",
+   "attempts": 4,
+   "status": "promoted",
+   "candidate": "backdrops/source/saloon-S/row23-1e52b8ef.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
    "exit_attempt": {
     "candidate": "backdrops/source/saloon-S/row23-60dc04a1.png",
     "exit": "grid",
@@ -154,7 +175,8 @@
      "family": "unfitted-horizon",
      "why": "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: no pair of side-wall junctions could be fitted at all. A facing whose side walls fix no horizon issues no eye height, which is a WITHHELD and not a zero."
     }
-   ]
+   ],
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon/E": {
    "attempts": 0,
@@ -173,55 +195,80 @@
    "status": "waiting"
   },
   "saloon_e/E": {
-   "attempts": 2,
-   "status": "held",
-   "correction": "camera PASS; held for the promotion instrument [unfitted-horizon]: this frame's returns carry no junction the eye line can be fitted to. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
-   "candidate": "backdrops/source/saloon_e-E/row23-37b5f873.png",
-   "hold_family": "unfitted-horizon",
-   "exit": "grid",
-   "exit_reason": "the warp could not carry this wall: geometrically not close (stretch 0.983..0.983, 8% revealed): the warp only teaches here \u2014 its frame and mask stand as the next ask's reference [Kabe: before is fine for reference; after must be CLOSE]",
-   "exit_attempt": {
-    "candidate": "backdrops/source/saloon_e-E/row23-37b5f873.png",
-    "exit": "grid",
-    "instrument": "6ccb6fc568cf",
-    "candidate_sha256": null,
-    "at": "2026-09-01T19:52:31"
-   },
-   "why": "the retry cap is spent; the wall stays grid and the run continues",
+   "attempts": 4,
+   "status": "retry",
+   "candidate": "backdrops/source/saloon_e-E/row23-091fd1d6.png",
+   "exit": "warped",
+   "exit_reason": "the warp pinned this painting's own landmarks onto the plan's and it promoted from backdrops/source-warped/saloon_e-E/warped.png on the declared camera (4 pins, worst residual 0.00 px, worst segment run_end_left..corner_right x0.968, 125636 px revealed) \u2014 the correction is recorded, not waived",
+   "why": "withdrawn by the Navigator 2026-09-01 (second time): saloon_e/E warped from a doubled-corner roll, saloon_n/N promoted with a void return; re-rolled from repaired guides",
    "promotion_refused": [
     {
-     "candidate": "backdrops/source/saloon_e-E/row23-37b5f873.png",
-     "delta_focal_pct": 2.73,
-     "family": "unfitted-horizon",
-     "why": "the ceiling-ramp horizon is the instrument row 20 ruled, and it fits the two side-wall/ceiling junctions outside this frame's own corners: the two side-wall junctions converge at y 724.5 but only to +/-33.3 px, and the standing licence on the horizon row is +/-20.2 px. A facing whose side walls fix "
+     "candidate": "backdrops/source/saloon_e-E/row23-091fd1d6.png",
+     "delta_focal_pct": 3.12,
+     "family": "suspect-painting",
+     "why": "SUSPECT PAINTING: the horizon this painting's own side walls converge on (y 81.8, fixed to +/-4.6 px, inside the +/-20.2 px the standing licence allows the horizon row) puts the eye at 3.205 m above its own floor line at the scale its own gate anchor declares (220.0 px/m), outside 0.8-2.2 m. Both re"
     }
-   ]
+   ],
+   "warp": {
+    "pins": 4,
+    "columns": 2,
+    "rows": 2,
+    "residuals": {
+     "max_px": 0.0,
+     "column_px": [
+      [
+       "run_end_left",
+       0.0
+      ],
+      [
+       "corner_right",
+       0.0
+      ]
+     ],
+     "row_px": [
+      [
+       "ceiling_line",
+       0.0
+      ],
+      [
+       "floor_line",
+       0.0
+      ]
+     ]
+    },
+    "worst_segment": {
+     "axis": "x",
+     "name": "run_end_left..corner_right",
+     "scale": 0.968,
+     "target_px": 1448.3,
+     "source_px": 1496.0
+    },
+    "revealed_px": 125636,
+    "revealed_fraction": 0.07988,
+    "warp_mode": "plane",
+    "warped_from": "backdrops/source/saloon_e-E/row23-091fd1d6.png"
+   },
+   "camera_source": "declared",
+   "answered_correction": "camera PASS; held for the promotion instrument [suspect-painting]: the left and right returns of this wall converge at y 81.8, which puts the viewer's eye 3.205 m above the wall-foot line this frame draws \u2014 nobody stands there, and the frame's own ruler says otherwise, so the two readings of one picture disagree. Both returns must read as real receding surfaces: each meets the surface overhead along ONE straight unbroken line running from its corner to the edge of frame, and those two lines must meet each other at row 526 of the 1024-row frame \u2014 the eye line Image 2 marks. The wall-foot line, the corners and the scale stay exactly where Image 2 puts them.",
+   "snapped_from_family": "suspect-painting"
   },
   "saloon_e/W": {
    "attempts": 0,
    "status": "waiting"
   },
   "saloon_n/N": {
-   "attempts": 2,
-   "status": "parked",
-   "correction": "[meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
-   "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
-   "hold_family": "camera-miss",
-   "exit": "grid",
-   "exit_reason": "the warp refused this frame and it is a content miss, so it re-asks: [meshwarp.landmark_unreadable] the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
-   "exit_attempt": {
-    "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
-    "exit": "grid",
-    "instrument": "6ccb6fc568cf",
-    "candidate_sha256": null,
-    "at": "2026-09-01T19:52:33"
-   },
-   "why": "the retry cap is spent; the wall stays grid and the run continues",
+   "attempts": 4,
+   "status": "retry",
+   "candidate": "backdrops/source/saloon_n-N/row23-31e7ffbd.png",
+   "exit": "measured",
+   "exit_reason": "the camera this frame's own returns fix; no correction and no waiver",
+   "why": "withdrawn by the Navigator 2026-09-01 (second time): saloon_e/E warped from a doubled-corner roll, saloon_n/N promoted with a void return; re-rolled from repaired guides",
    "warp_refusal": {
     "clause": "meshwarp.landmark_unreadable",
     "why": "the room's own corners cannot be read: this frame's anchors cannot be read at all \u2014 no scale, or no floor line \u2014 so there is no geometry for a rectification to start from",
     "candidate": "backdrops/source/saloon_n-N/row23-8508ccbc.png"
-   }
+   },
+   "answered_correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows"
   },
   "saloon_n/S": {
    "attempts": 0,

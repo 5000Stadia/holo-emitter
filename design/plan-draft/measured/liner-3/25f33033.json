@@ -1,0 +1,352 @@
+{
+  "_measured_px": {
+    "wall_floor_line_y_px": 768,
+    "chair_rail_y_px": 522,
+    "dado_rail_above_floor_px": 246,
+    "floor_read": {
+      "minimum": 767,
+      "rule": "skirting-base",
+      "saturated": false,
+      "foot": 768
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 531,
+      "strip": 522
+    },
+    "capping_above_floor_px": 237,
+    "rail_dip": 0.703
+  },
+  "_windows": {
+    "floor": [
+      758,
+      798
+    ],
+    "rail": [
+      501,
+      542
+    ],
+    "ceiling": [
+      0,
+      111
+    ],
+    "columns": [
+      [
+        85,
+        1450
+      ]
+    ],
+    "_derivation": "every width is MEASURED_BAND (the standing +/-8 % on the implied focal length AND the eye height) propagated through a geometry this scaffold declares; nothing here is chosen"
+  },
+  "carriers": [],
+  "px_per_m_at_wall": 205.0,
+  "implied_focal_px": 984.0,
+  "eye_height_m": 1.18,
+  "_absent": [],
+  "_promotion": {
+    "ceiling_y_px": 53,
+    "ceiling_candidates": [
+      {
+        "y": 54,
+        "strength": 44.99,
+        "horiz": 0.993,
+        "cv": 0.093
+      },
+      {
+        "y": 63,
+        "strength": 27.92,
+        "horiz": 0.978,
+        "cv": 0.165
+      },
+      {
+        "y": 11,
+        "strength": 17.47,
+        "horiz": 1.0,
+        "cv": 0.102
+      },
+      {
+        "y": 69,
+        "strength": 3.62,
+        "horiz": 0.732,
+        "cv": 0.938
+      },
+      {
+        "y": 104,
+        "strength": 2.76,
+        "horiz": 0.728,
+        "cv": 0.957
+      },
+      {
+        "y": 98,
+        "strength": 2.63,
+        "horiz": 0.729,
+        "cv": 0.97
+      },
+      {
+        "y": 110,
+        "strength": 2.55,
+        "horiz": 0.734,
+        "cv": 0.911
+      },
+      {
+        "y": 88,
+        "strength": 2.31,
+        "horiz": 0.712,
+        "cv": 0.932
+      },
+      {
+        "y": 24,
+        "strength": 2.12,
+        "horiz": 0.933,
+        "cv": 0.322
+      },
+      {
+        "y": 30,
+        "strength": 2.06,
+        "horiz": 0.919,
+        "cv": 0.341
+      },
+      {
+        "y": 82,
+        "strength": 2.05,
+        "horiz": 0.763,
+        "cv": 0.971
+      },
+      {
+        "y": 18,
+        "strength": 1.55,
+        "horiz": 0.85,
+        "cv": 0.441
+      }
+    ],
+    "ceiling_rows_tried": [
+      {
+        "ceiling_y_px": 53,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 62,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 10,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 68,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 103,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 97,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 109,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 87,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 23,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 29,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 81,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      },
+      {
+        "ceiling_y_px": 17,
+        "admissible": true,
+        "sigma_y_px": 1.74,
+        "horizon_y_px": 509.8,
+        "agrees_with_gate": true,
+        "why": null
+      }
+    ],
+    "corner_x0_px": 104,
+    "corner_x1_px": 1431,
+    "corner_evidence": {
+      "left_fit_r2": 0.0018,
+      "right_fit_r2": 0.0303,
+      "block_px": 16,
+      "excluded": [],
+      "rule": "the least-squares two-level breakpoint of the signed recession profile, one per half-frame",
+      "left_witness": {
+        "foot": 203,
+        "foot_fit": 0.4674479166666667,
+        "rail_abstains": "level with the horizon",
+        "cornice": 88,
+        "cornice_fit": 0.9908854166666666,
+        "seams": {
+          "foot": [
+            211,
+            5.8
+          ],
+          "cornice": [
+            104,
+            49.2
+          ]
+        },
+        "agreeing": [
+          "cornice"
+        ],
+        "rule": "the kink standing on the strongest vertical seam, snapped to it",
+        "x": 104,
+        "used": true
+      },
+      "right_witness": {
+        "foot": 1333,
+        "foot_fit": 0.6158854166666666,
+        "rail_abstains": "level with the horizon",
+        "cornice": 1448,
+        "cornice_fit": 0.9934895833333334,
+        "seams": {
+          "foot": [
+            1311,
+            6.0
+          ],
+          "cornice": [
+            1431,
+            47.9
+          ]
+        },
+        "agreeing": [
+          "cornice"
+        ],
+        "rule": "the kink standing on the strongest vertical seam, snapped to it",
+        "x": 1431,
+        "used": true
+      }
+    },
+    "horizon_bracket_px": 20.19,
+    "ramp": {
+      "x": 769.2,
+      "y": 509.8,
+      "left_slope": 0.672,
+      "right_slope": -0.675,
+      "left_n": 54,
+      "left_resid_px": 0.44,
+      "right_n": 56,
+      "right_resid_px": 0.37,
+      "sigma_y_px": 1.74
+    },
+    "votes": {
+      "floor": {
+        "x": 770,
+        "y": 568,
+        "edge_px": 29205
+      },
+      "ceiling": {
+        "x": 698,
+        "y": 500,
+        "edge_px": 862
+      },
+      "side_walls": {
+        "x": 784,
+        "y": 524,
+        "edge_px": 793
+      }
+    },
+    "light": {
+      "key_dir_measured": "C",
+      "key_dir_brightest_x": 874,
+      "key_dir_brightest_y": 43,
+      "key_tint": "#c8a071",
+      "key_tint_patch": [
+        674,
+        1074,
+        0,
+        45
+      ],
+      "key_tint_patch_mean_rgb": [
+        217.29,
+        174.0,
+        123.24
+      ],
+      "key_tint_alternates": {
+        "floor_under_brightest": "#698fc8",
+        "floor_bottom_strip": "#668dc8",
+        "mid_wall_right": "#c87c31",
+        "mid_wall_left": "#c87b2f",
+        "brightest_21x21_patch": "#c8a982"
+      },
+      "brightest_21x21_patch_centre_px": [
+        874,
+        43
+      ],
+      "sobel_bright_side_deg_whole_frame": 91.26,
+      "sobel_bright_side_deg_wall_band": 96.94,
+      "left_third_minus_right_third_luminance_whole_frame": -1.627,
+      "left_third_minus_right_third_luminance_wall_band": -1.384
+    },
+    "storey_height_m": 3.4878,
+    "implied_wall_width_m": 6.4732,
+    "eye_height_m": 1.2595,
+    "horizon_instrument": "ceiling-ramp",
+    "far_line_ruler": null,
+    "hold_family": null,
+    "withheld_because": []
+  },
+  "delta_focal_pct": -3.91,
+  "delta_eye_pct": -0.25,
+  "verdict": "PASS",
+  "kind": null,
+  "id": "25f33033",
+  "candidate": "backdrops/source/writing_room-E/row23-25f33033.png",
+  "candidate_sha256": "de27c0ab1e490ba3b7fae7ad9d5ad2d086b15ae25224ae75fa710cc3b8dc267f",
+  "instrument": "4743941cf38d"
+}

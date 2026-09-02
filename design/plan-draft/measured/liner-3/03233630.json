@@ -1,13 +1,18 @@
 {
   "_measured_px": {
     "wall_floor_line_y_px": 769,
-    "chair_rail_y_px": 537,
-    "dado_rail_above_floor_px": 232,
+    "chair_rail_y_px": 502,
+    "dado_rail_above_floor_px": 267,
     "floor_read": {
       "minimum": 758,
       "rule": "skirting-base",
       "saturated": false,
       "foot": 769
+    },
+    "rail_read": {
+      "rule": "bright-strip",
+      "darkest_row": 537,
+      "strip": 502
     },
     "capping_above_floor_px": null,
     "rail_dip": 0.035
@@ -38,7 +43,7 @@
   "implied_focal_px": null,
   "eye_height_m": null,
   "_absent": [
-    "the chair-rail is not painted inside y 501..542: the band's luminance dip is 0.04 of its median against the 0.30 this world's anchor shows wherever it is drawn - the darkest row (y 537) is fabric, not the anchor, and the gate does not vote on fabric"
+    "the chair-rail is not painted inside y 501..542: the band's luminance dip is 0.04 of its median against the 0.30 this world's anchor shows wherever it is drawn - the darkest row (y 502) is fabric, not the anchor, and the gate does not vote on fabric"
   ],
   "_promotion": null,
   "verdict": "ABSENT",
@@ -46,5 +51,5 @@
   "id": "03233630",
   "candidate": "backdrops/source/gallery_far-N/row23-03233630.png",
   "candidate_sha256": "9cd634da075abed05334f381f8d9873c54eb96da260f68c561b3f947d48be740",
-  "instrument": "6ccb6fc568cf"
+  "instrument": "0bf842295009"
 }

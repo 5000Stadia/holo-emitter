@@ -1,0 +1,98 @@
+{
+ "mode": "close-guide",
+ "wall": "writing_room/E",
+ "pack": "liner-3",
+ "roll": "backdrops/writing_room/N.png",
+ "measured": {
+  "roll": "backdrops/writing_room/N.png",
+  "rail": 526.4,
+  "foot": 781.0,
+  "ceiling": 67.0,
+  "door": {
+   "x0": 655,
+   "x1": 881,
+   "head": 356
+  },
+  "corner_x0": 89,
+  "corner_x1": 1442,
+  "corner_evidence": {
+   "foot": [
+    195,
+    1227
+   ],
+   "rail": [
+    0,
+    1535
+   ],
+   "cornice": [
+    89,
+    1442
+   ]
+  },
+  "ruler_px": 254.6,
+  "scale": 0.9944,
+  "storey_m": 3.366
+ },
+ "zoom": {
+  "s": 0.9649,
+  "pivot": "left corner",
+  "ax": 27.0,
+  "ay": 14.7
+ },
+ "ruled": {
+  "ceil": 53.1,
+  "rail": 522.5,
+  "floor": 778.5,
+  "corner_x0": 85.3,
+  "corner_x1": 1450.7,
+  "doors": []
+ },
+ "precomp": 0.9596,
+ "guide_geometry": {
+  "ceil": 72.2,
+  "rail": 522.6,
+  "floor": 768.3,
+  "xL": 112.9,
+  "xR": 1423.1,
+  "doors": []
+ },
+ "returns": [
+  "left",
+  "right"
+ ],
+ "elements": {
+  "ceiling": {
+   "scale": 1.3357
+  },
+  "floor": {
+   "scale": 1.3357
+  },
+  "dado": {
+   "scale": 1.0027
+  },
+  "upper_wall": {
+   "scale": 1.0144
+  },
+  "left_return_upper": {
+   "scale": 1.1905,
+   "blur": 10,
+   "from": "own"
+  },
+  "left_return_lower": {
+   "scale": 0.9992,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_return_upper": {
+   "scale": 1.1905,
+   "blur": 10,
+   "from": "own"
+  },
+  "right_return_lower": {
+   "scale": 0.9569,
+   "blur": 10,
+   "from": "own"
+  }
+ },
+ "out": "backdrops/grown/writing_room-E.png"
+}

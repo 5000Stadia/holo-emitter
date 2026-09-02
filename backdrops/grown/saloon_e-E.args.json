@@ -70,11 +70,13 @@
   },
   "right_return_upper": {
    "scale": 1.3415,
-   "blur": 10
+   "blur": 10,
+   "from": "own"
   },
   "right_return_lower": {
    "scale": 1.0039,
-   "blur": 10
+   "blur": 10,
+   "from": "own"
   }
  },
  "out": "backdrops/grown/saloon_e-E.png"

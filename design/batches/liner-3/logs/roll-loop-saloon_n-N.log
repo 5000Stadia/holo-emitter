@@ -8,3 +8,10 @@ GUIDE FAILED:  ile "/home/k/Projects/holo-emitter/tools/close-guide.py", line 53
        ^^^^^^^^^^
 AttributeError: 'Namespace' object has no attribute 'src_wall'
 
+=== saloon_n/N  Tue Sep  1 08:05:31 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/source/saloon_n-N/row23-8508ccbc.png (scale 0.9264)
+pair 1: attempt 3, rolls ['31e7ffbd', '21e02377'] ordered (order ok)
+sweep: saloon_n/N               PROMOTE   PASS +2.3% focal, promoted and baked
+learn: pair scales [0.8927, 0.9596] -> z 0.9750 -> 1.0264
+LANDED: saloon_n/N promoted after 2 loop roll(s)

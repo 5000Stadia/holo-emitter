@@ -22,16 +22,33 @@ What the plan decides (nothing here is chosen per scene):
   * the ask names the fixed corner columns, the open side, the far wall's own
     features (a door where the close painting carries one) and the voice's
     fabric - in words the register would accept.
+  * [2026-09-01, the close-guide standard] every close painting is cut at its
+    MEASURED cornice, foot and corners (close-guide.measure_roll against that
+    wall's declared camera), not at the declared rows - a promoted painting
+    sits within 2 % of them and 2 % of a wall is a cove or a skirting; every
+    piece is laid by one uniform scale (a circle stays a circle); the side
+    walls are softened (RETURN_BLUR) so the drawn seams are the only lines on
+    them; ceiling and floor are lifted from between the shell's returns;
+  * --precomp z: the ruled geometry is zoomed z about the VP before anything
+    is cut (the far wall is set at D/z), so a painter who shrinks by 1/z hands
+    back the ruled picture. The ask is written from the pre-compensated rows.
+    The loop (tools/roll-loop.py --guide deep) learns z from each pair.
 Writes <out>.png, <out>.png.ask.txt, <out>.png.mode ("prep"), <out>.args.json;
 refuses fail-closed on a mid-room artifact band (G-PREP r2 guard).
 """
-import argparse, json, os, sys
+import argparse, importlib.util, json, os, sys
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "design", "plan-draft", "measured"))
 from pack import active_pack  # noqa: E402
+
+_cg_spec = importlib.util.spec_from_file_location("close_guide", os.path.join(ROOT, "tools", "close-guide.py"))
+close_guide = importlib.util.module_from_spec(_cg_spec)
+_cg_spec.loader.exec_module(close_guide)
+declared_meta, measure_roll = close_guide.declared_meta, close_guide.measure_roll
+RETURN_BLUR, RETURN_MARGIN = close_guide.RETURN_BLUR, close_guide.RETURN_MARGIN
 
 W, H = 1536, 1024
 FOCAL = 1024.0
@@ -121,6 +138,7 @@ def main():
     ap.add_argument("--wall", required=True)
     ap.add_argument("--out")
     ap.add_argument("--store", default=os.path.join(ROOT, "backdrops"))
+    ap.add_argument("--precomp", type=float, default=1.0)
     a = ap.parse_args()
     P = active_pack()
     plan, voices, world = P.plan, P.voices, P.world
@@ -132,14 +150,24 @@ def main():
     D_close = 4.8 if "camera_close_m" not in fc else float(fc["camera_close_m"])
     storey = next((fl["storey_height_m"] for fl in plan.get("floors", []) if fl["id"] == cell["floor"]), 3.4)
     ruler_h = float(world["ruler"]["height_m"])
+    # the declared camera (deriveMeta) must be the one this file projects with
+    meta = declared_meta(P, a.wall)
+    if abs(float(meta["horizon_y"]) * H - VP[1]) > 0.5 or abs(float(meta["px_per_m_at_wall"]) - FOCAL / D) > 0.05:
+        sys.exit(f"deep-guide: declared camera for {a.wall} (horizon {meta['horizon_y']}, ppm {meta['px_per_m_at_wall']}) "
+                 f"is not the projection this guide is drawn with")
     sx, sy = fc["standpoint"]["x"], fc["standpoint"]["y"]
     fx, fy = FWD[f]; rx, ry = RGT[f]
     u_of = lambda x, y: (x - sx) * rx + (y - sy) * ry
     wall_line = fc["wall_line"]
-    ceil_far = project(0, D, storey)[1]
-    floor_far = project(0, D, 0.0)[1]
-    rail_far = project(0, D, ruler_h)[1]
-    k = D_close / D
+    # the bias pre-compensation: zooming the ruled picture z about the VP is
+    # the same picture with every depth divided by z, so the guide is drawn
+    # at Dt and its covers fill to the frame edges at any z
+    z = float(a.precomp)
+    Dt = D / z
+    ceil_far = project(0, Dt, storey)[1]
+    floor_far = project(0, Dt, 0.0)[1]
+    rail_far = project(0, Dt, ruler_h)[1]
+    k = D_close / Dt
 
     # the far wall: cells on the wall line, connected, by plan position
     far_cells = [c for c in connected(plan, cell) if abs(far_edge(c, f) - wall_line) < EPS]
@@ -167,8 +195,8 @@ def main():
     # far corners in the deep frame
     span_lo = min(u_of(*p) for c in far_cells for p in corners_of(c))
     span_hi = max(u_of(*p) for c in far_cells for p in corners_of(c))
-    xL = project(span_lo, D, 0)[0]
-    xR = project(span_hi, D, 0)[0]
+    xL = project(span_lo, Dt, 0)[0]
+    xR = project(span_hi, Dt, 0)[0]
     run_m = span_hi - span_lo
 
     # ---- the guide -------------------------------------------------------
@@ -180,7 +208,14 @@ def main():
     canvas = Image.new("RGB", (W, H), (0, 0, 0))
     report = {}
 
-    def cover(name, src, sbox, tpoly, tbox, anchor):
+    def cover(name, src, sbox, tpoly, tbox, anchor, blur=0):
+        """Uniform cover-fit of src[sbox] into the polygon, anchored at a
+        fraction (fx, fy) of the target box (0 = left/top, 1 = right/bottom);
+        `blur` softens the piece before it is laid (a side wall lifted from
+        the shell's return strip carries the shell's own cornice, capping strip
+        and skirting, and beside the ruled seams those are a second, wrong
+        convergence the painter follows - softened, the strip keeps its tone
+        and the drawn seams are the only lines on it)."""
         sx0, sy0, sx1, sy1 = [int(round(v)) for v in sbox]
         sx0, sy0, sx1, sy1 = max(0, sx0), max(0, sy0), min(W, sx1), min(H, sy1)
         sw, sh = max(1, sx1 - sx0), max(1, sy1 - sy0)
@@ -189,39 +224,46 @@ def main():
         s = max(tw / sw, th / sh)
         pw, ph = max(1, round(sw * s)), max(1, round(sh * s))
         piece = src.crop((sx0, sy0, sx1, sy1)).resize((pw, ph), Image.LANCZOS)
-        if anchor == "top":
-            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty0
-        elif anchor == "bottom":
-            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, ty1 - ph
-        elif anchor == "left":
-            px, py = tx0, (ty0 + ty1) / 2.0 - ph / 2.0
-        elif anchor == "right":
-            px, py = tx1 - pw, (ty0 + ty1) / 2.0 - ph / 2.0
-        else:
-            px, py = (tx0 + tx1) / 2.0 - pw / 2.0, (ty0 + ty1) / 2.0 - ph / 2.0
+        if blur:
+            piece = piece.filter(ImageFilter.GaussianBlur(blur))
+        fx_, fy_ = anchor
+        px = tx0 + fx_ * (tw - pw)
+        py = ty0 + fy_ * (th - ph)
         layer = Image.new("RGB", (W, H), (0, 0, 0))
         layer.paste(piece, (int(round(px)), int(round(py))))
         mask = Image.new("L", (W, H), 0)
         ImageDraw.Draw(mask).polygon([(float(p[0]), float(p[1])) for p in tpoly], fill=255)
         canvas.paste(layer, (0, 0), mask)
-        report[name] = {"scale": round(s, 4)}
+        report[name] = {"scale": round(s, 4), **({"blur": blur} if blur else {})}
 
-    # close-frame rows of the shell (declared; the promoted painting is within
-    # the verifier's 2 % of them)
-    ceil_c = project(0, D_close, storey)[1]
-    floor_c = project(0, D_close, 0.0)[1]
-    rail_c = project(0, D_close, ruler_h)[1]
-    shell_fc = shell_cell["facings"][f]
-    ssx, ssy = shell_fc["standpoint"]["x"], shell_fc["standpoint"]["y"]
-    su_of = lambda x, y: (x - ssx) * rx + (y - ssy) * ry
-    s_lo, s_hi = (min(su_of(*p) for p in corners_of(shell_cell)), max(su_of(*p) for p in corners_of(shell_cell)))
-    sxL = project(s_lo, D_close, 0)[0]
-    sxR = project(s_hi, D_close, 0)[0]
+    # close-frame rows and corners of a promoted painting: MEASURED against
+    # its own declared camera (the verifier admits 2 %, and 2 % of a wall is
+    # the cove or the skirting - cut at the declared rows, the far wall carried
+    # a strip of ceiling above its cornice); declared where nothing reads
+    def close_frame(path, wall):
+        cm = declared_meta(P, wall)
+        ppm_c = float(cm["px_per_m_at_wall"])
+        floor_d = float(cm["floor_line_y"]) * H
+        ruled_c = {"ceil": floor_d - storey * ppm_c, "rail": floor_d - ruler_h * ppm_c, "foot": floor_d,
+                   "x0": float(cm["corner_x0_px"]), "x1": float(cm["corner_x1_px"])}
+        m = measure_roll(path, cm, ruler_h)
+        if not m:
+            return ruled_c, {"from": "declared (unmeasurable)"}
+        fr = {"ceil": m["ceiling"] if m["ceiling"] is not None else ruled_c["ceil"],
+              "rail": m["rail"], "foot": m["foot"],
+              "x0": m["corner_x0"] if m["corner_x0"] is not None else ruled_c["x0"],
+              "x1": m["corner_x1"] if m["corner_x1"] is not None else ruled_c["x1"]}
+        return fr, {"from": "measured", "scale": m["scale"], "door": m["door"]}
+
+    shell_fr, shell_m = close_frame(shell_path, f"{shell_cell['id']}/{f}")
+    ceil_c, rail_c, floor_c = shell_fr["ceil"], shell_fr["rail"], shell_fr["foot"]
+    sxL, sxR = shell_fr["x0"], shell_fr["x1"]
+    report["shell"] = {"painting": os.path.relpath(shell_path, ROOT), "rows": {k_: round(v, 1) for k_, v in shell_fr.items()}, **shell_m}
 
     def seam_line(side, h):
         """y on the side wall's seam at height h, as a function of x."""
         u = sides[side]["u_m"]
-        xf, yf = project(u, D, h)
+        xf, yf = project(u, Dt, h)
         def at(x):
             if abs(xf - VP[0]) < 1e-6:
                 return yf
@@ -239,8 +281,11 @@ def main():
             at, corner = seam_line(side, storey)
             pts = [(x_edge, at(x_edge)), corner]
         top_poly += pts if side == "right" else pts[::-1]
-    cover("ceiling", shell, (0, 0, W, ceil_c - JM), top_poly,
-          (0, 0, W, max(p[1] for p in top_poly)), "top")
+    # sourced between the shell's returns only: its own return junctions run
+    # through its ceiling and floor strips at the close slopes
+    mx0, mx1 = max(0.0, sxL) + RETURN_MARGIN, min(float(W), sxR) - RETURN_MARGIN
+    cover("ceiling", shell, (mx0, 0, mx1, ceil_c - JM), top_poly,
+          (0, 0, W, max(p[1] for p in top_poly)), (0.5, 0.0))
     # floor polygon
     bot_poly = [(0, H), (W, H)]
     for side in ("right", "left"):
@@ -253,14 +298,23 @@ def main():
         bot_poly += pts if side == "right" else pts[::-1]
     fy0 = floor_c + JM
     g0 = np.asarray(shell.convert("L")).astype(float)
-    strip = np.abs(np.diff(g0[int(fy0):H - 8, int(sxL) + 40:int(min(sxR, W)) - 40], axis=0)).mean(axis=1)
+    strip = np.abs(np.diff(g0[int(fy0):H - 8, int(mx0):int(mx1)], axis=0)).mean(axis=1)
     if len(strip) > 20:
         med = float(np.median(strip)); mx = float(strip.max())
         if mx > max(9.0, 5.0 * (med + 0.3)):
             fy0 = min(H - 60, int(fy0) + int(np.argmax(strip)) + 40)
-    cover("floor", shell, (0, fy0, W, H), bot_poly,
-          (0, min(p[1] for p in bot_poly), W, H), "bottom")
-    # side walls: the shell's own side strip, split at the ruled dado
+    cover("floor", shell, (mx0, fy0, mx1, H), bot_poly,
+          (0, min(p[1] for p in bot_poly), W, H), (0.5, 1.0))
+    # side walls: the shell's own return strip on that side, split at the
+    # ruled dado; the other side's strip mirrored where the shell has only
+    # one; the shell's wall dimmed to a side wall's fall-off where it has none
+    shell_returns = {}
+    if sxL > VM:
+        shell_returns["left"] = (0, sxL - VM)
+    if sxR < W - VM:
+        shell_returns["right"] = (sxR + VM, W)
+    shell_m_ = shell.transpose(Image.FLIP_LEFT_RIGHT)
+    shell_d = Image.fromarray((np.asarray(shell).astype(float) * 0.55).astype(np.uint8))
     seams = []
     for side in ("left", "right"):
         if sides[side]["open"]:
@@ -269,14 +323,24 @@ def main():
         top_at, ctop = seam_line(side, storey)
         bot_at, cbot = seam_line(side, 0.0)
         rail_at, crail = seam_line(side, ruler_h)
-        sbox_x = (0, sxL - VM) if side == "left" else (sxR + VM, W)
-        anchor = side
-        cover(f"{side}_wall_upper", shell, (sbox_x[0], 0, sbox_x[1], rail_c),
+        other = "right" if side == "left" else "left"
+        if side in shell_returns:
+            rsrc, sbox_x, rfrom = shell, shell_returns[side], "own"
+        elif other in shell_returns:
+            o0, o1 = shell_returns[other]
+            rsrc, sbox_x, rfrom = shell_m_, (W - o1, W - o0), "mirrored"
+        else:
+            rsrc, sbox_x, rfrom = shell_d, (mx0, mx1), "dimmed wall"
+        anchor = (1.0, 1.0) if side == "left" else (0.0, 1.0)
+        cover(f"{side}_wall_upper", rsrc, (sbox_x[0], ceil_c, sbox_x[1], rail_c),
               [(x_edge, top_at(x_edge)), ctop, crail, (x_edge, rail_at(x_edge))],
-              (min(x_edge, ctop[0]), min(top_at(x_edge), ctop[1]), max(x_edge, ctop[0]), max(rail_at(x_edge), crail[1])), anchor)
-        cover(f"{side}_wall_lower", shell, (sbox_x[0], rail_c, sbox_x[1], H),
+              (min(x_edge, ctop[0]), min(top_at(x_edge), ctop[1]), max(x_edge, ctop[0]), max(rail_at(x_edge), crail[1])),
+              anchor, blur=RETURN_BLUR)
+        cover(f"{side}_wall_lower", rsrc, (sbox_x[0], rail_c, sbox_x[1], H),
               [(x_edge, rail_at(x_edge)), crail, cbot, (x_edge, bot_at(x_edge))],
-              (min(x_edge, ctop[0]), min(rail_at(x_edge), crail[1]), max(x_edge, ctop[0]), max(bot_at(x_edge), cbot[1])), anchor)
+              (min(x_edge, ctop[0]), min(rail_at(x_edge), crail[1]), max(x_edge, ctop[0]), max(bot_at(x_edge), cbot[1])),
+              (anchor[0], 0.0), blur=RETURN_BLUR)
+        report[f"{side}_wall_upper"]["from"] = report[f"{side}_wall_lower"]["from"] = rfrom
         seams += [((x_edge, top_at(x_edge)), ctop), ((x_edge, bot_at(x_edge)), cbot), ((x_edge, rail_at(x_edge)), crail)]
     # the far wall: each cell's own span from its close painting, at its place
     far_report = []
@@ -286,19 +350,26 @@ def main():
         if not os.path.exists(cpath):
             sys.exit(f"deep-guide: far wall needs {cpath} promoted first (phase 1 first)")
         close = Image.open(cpath).convert("RGB")
-        cfc = c["facings"][f]
-        csx, csy = cfc["standpoint"]["x"], cfc["standpoint"]["y"]
-        cu = lambda x, y: (x - csx) * rx + (y - csy) * ry
-        c_lo = min(cu(*p) for p in corners_of(c)); c_hi = max(cu(*p) for p in corners_of(c))
-        src_x0 = project(c_lo, D_close, 0)[0]; src_x1 = project(c_hi, D_close, 0)[0]
-        src = close.crop((int(round(src_x0)), int(round(ceil_c)), int(round(src_x1)), int(round(floor_c))))
+        cfr, cm_ = close_frame(cpath, f"{c['id']}/{f}")
+        # the cell's own span in its close frame: the measured corner where
+        # it has one, the frame edge where its wall runs out of the picture
+        src_x0, src_x1 = max(0.0, cfr["x0"]), min(float(W), cfr["x1"])
         d_lo = min(u_of(*p) for p in corners_of(c)); d_hi = max(u_of(*p) for p in corners_of(c))
-        dx0 = project(d_lo, D, 0)[0]; dx1 = project(d_hi, D, 0)[0]
-        pw, ph = max(1, int(round(dx1 - dx0))), max(1, int(round(floor_far - ceil_far)))
-        piece = src.resize((pw, ph), Image.LANCZOS)
-        canvas.paste(piece, (int(round(dx0)), int(round(ceil_far))))
+        dx0 = project(d_lo, Dt, 0)[0]; dx1 = project(d_hi, Dt, 0)[0]
+        # one uniform scale, the foot on the ruled foot row, the span centred;
+        # a close corner is good to ~25 px, so the cover overfills by that
+        # much of wall rather than reveal a return
+        tx0, tx1 = max(0.0, dx0), min(float(W), dx1)
+        if tx1 - tx0 < 2:
+            continue
+        # the source's columns that the in-frame target span covers
+        sc = (src_x1 - src_x0) / max(1e-6, dx1 - dx0)
+        sb = (src_x0 + (tx0 - dx0) * sc, cfr["ceil"], src_x0 + (tx1 - dx0) * sc, cfr["foot"])
+        cover(f"far_wall_{c['id']}", close, sb,
+              [(tx0, ceil_far), (tx1, ceil_far), (tx1, floor_far), (tx0, floor_far)],
+              (tx0, ceil_far, tx1, floor_far), (0.5, 1.0))
         far_report.append({"cell": c["id"], "from": os.path.relpath(cpath, ROOT), "at_px": [round(dx0), round(dx1)],
-                           "scale": round(k, 4)})
+                           "scale": report[f"far_wall_{c['id']}"]["scale"], "rows": {k_: round(v, 1) for k_, v in cfr.items()}, **cm_})
         for o in plan.get("openings", []):
             if o.get("kind") != "door" or c["id"] not in o.get("joins", []):
                 continue
@@ -309,7 +380,7 @@ def main():
                 continue
             span = (rr["x0"], rr["x1"]) if fy else (rr["y0"], rr["y1"])
             us = sorted(u_of(*((s_, wall_line) if fy else (wall_line, s_))) for s_ in span)
-            px0 = project(us[0], D, 0)[0]; px1 = project(us[1], D, 0)[0]
+            px0 = project(us[0], Dt, 0)[0]; px1 = project(us[1], Dt, 0)[0]
             if px1 > 0 and px0 < W:
                 doors.append({"id": o["id"], "cols": [round(max(px0, 0)), round(min(px1, W))]})
     report["far_wall"] = far_report
@@ -458,13 +529,17 @@ def main():
     open(out + ".mode", "w").write("prep\n")
     args = {"mode": "deep-guide", "wall": a.wall, "pack": P.name, "shell": os.path.relpath(shell_path, ROOT),
             "far_cells": [c["id"] for c in far_cells], "sides": sides, "far_rect": [round(xL, 1), round(ceil_far, 1), round(xR, 1), round(floor_far, 1)],
-            "run_m": run_m, "depth_ratio": k, "vp": list(VP), "doors": doors, "elements": report, "guards": guards, "out": os.path.relpath(out, ROOT)}
+            "run_m": run_m, "depth_ratio": k, "vp": list(VP), "doors": doors, "elements": report, "guards": guards,
+            "precomp": z, "depth_drawn_m": round(Dt, 4), "out": os.path.relpath(out, ROOT)}
     open(os.path.splitext(out)[0] + ".args.json", "w").write(json.dumps(args, indent=1) + "\n")
     stale = out + ".stale"
     if os.path.exists(stale):
         os.remove(stale)
     print(json.dumps({"ok": True, "mode": "deep-guide", "wall": a.wall, "sides": {s: ("open" if v["open"] else "wall") for s, v in sides.items()},
-                      "far_rect": args["far_rect"], "run_m": run_m, "doors": doors, "guards": guards, "out": args["out"]}))
+                      "far_rect": args["far_rect"], "run_m": run_m, "doors": doors, "guards": guards, "precomp": z,
+                      "roll": report["shell"]["painting"], "measured": {"scale": report["shell"].get("scale")},
+                      "far_wall": [{"cell": fr["cell"], "from": fr["from"], "scale": fr["scale"]} for fr in far_report],
+                      "out": args["out"]}))
     return 0
 
 

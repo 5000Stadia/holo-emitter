@@ -2,38 +2,38 @@
  "mode": "close-guide",
  "wall": "gallery_far/N",
  "pack": "liner-3",
- "roll": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+ "roll": "backdrops/source/gallery_far-N/row23-dca24599.png",
  "measured": {
-  "roll": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
-  "rail": 568.7,
-  "foot": 779.0,
-  "ceiling": 157.0,
+  "roll": "backdrops/source/gallery_far-N/row23-dca24599.png",
+  "rail": 522.7,
+  "foot": 777.0,
+  "ceiling": 68.0,
   "door": null,
   "corner_x0": null,
-  "corner_x1": 1436,
+  "corner_x1": 1444,
   "corner_evidence": {
    "foot": [
-    0,
-    1436
+    92,
+    1429
    ],
    "rail": [
     0,
-    1467
+    1519
    ],
    "cornice": [
     0,
-    1414
+    1444
    ]
   },
-  "ruler_px": 210.3,
-  "scale": 0.8216,
-  "storey_m": 3.549
+  "ruler_px": 254.3,
+  "scale": 0.9933,
+  "storey_m": 3.346
  },
  "zoom": {
-  "s": 1.1869,
+  "s": 0.9724,
   "pivot": "right corner",
-  "ax": -270.8,
-  "ay": -152.4
+  "ax": 23.3,
+  "ay": 14.3
  },
  "ruled": {
   "ceil": 53.1,
@@ -43,13 +43,13 @@
   "corner_x1": 1450.7,
   "doors": []
  },
- "precomp": 0.975,
+ "precomp": 0.9659,
  "guide_geometry": {
-  "ceil": 65.0,
+  "ceil": 69.3,
   "rail": 522.6,
-  "floor": 772.2,
-  "xL": -1228.8,
-  "xR": 1433.6,
+  "floor": 769.9,
+  "xL": -1210.2,
+  "xR": 1427.4,
   "doors": []
  },
  "returns": [
@@ -57,24 +57,26 @@
  ],
  "elements": {
   "ceiling": {
-   "scale": 1.9107
+   "scale": 1.2123
   },
   "floor": {
-   "scale": 1.2057
+   "scale": 1.2123
   },
   "dado": {
-   "scale": 1.0024
+   "scale": 1.0011
   },
   "upper_wall": {
-   "scale": 0.9997
+   "scale": 1.0233
   },
   "right_return_upper": {
-   "scale": 1.0809,
-   "blur": 10
+   "scale": 1.1932,
+   "blur": 10,
+   "from": "own"
   },
   "right_return_lower": {
-   "scale": 1.0039,
-   "blur": 10
+   "scale": 0.9964,
+   "blur": 10,
+   "from": "own"
   }
  },
  "out": "backdrops/grown/gallery_far-N.png"

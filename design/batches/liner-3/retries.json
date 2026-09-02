@@ -7,9 +7,125 @@
   "_seams": "[row 38] `edge_seed` is the completed neighbour's abutting 10 % that rode with this re-ask as an edge reference — which painting it was cut from, which side, and its sha256 — and `depends_on` is the ordering an open location's unpainted seam neighbour imposes. A re-ask is a fresh full-frame ask, so it seeds like one.",
   "_generated": "2026-09-02",
   "emitted": 1,
-  "carried": 4,
+  "carried": 12,
   "refused": 0,
   "entries": [
+    {
+      "key": "gallery_far/N",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/gallery_far-N/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "00bf9da2df25fd85a55c734db16efcbb12379b364586eea8c6573ce5dd5024f7",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery_far/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/gallery_far-N/row23-8b6b3e2b.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-gallery_far-N.png",
+        "rel": "backdrops/grown/gallery_far-N.png",
+        "room": "gallery_far",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "f1322202",
+          "candidate": "backdrops/source/gallery_far-N/row23-f1322202.png",
+          "prompt": "backdrops/source/gallery_far-N/row23-f1322202.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "dca24599",
+          "candidate": "backdrops/source/gallery_far-N/row23-dca24599.png",
+          "prompt": "backdrops/source/gallery_far-N/row23-dca24599.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "gallery_far/N",
+      "attempt": 5,
+      "packet": "design/batches/liner-3/gallery_far-N/retry-5",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "gallery_walnut",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "00bf9da2df25fd85a55c734db16efcbb12379b364586eea8c6573ce5dd5024f7",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "gallery_far/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/gallery_far-N/row23-dca24599.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-gallery_far-N.png",
+        "rel": "backdrops/grown/gallery_far-N.png",
+        "room": "gallery_far",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "72ff465c",
+          "candidate": "backdrops/source/gallery_far-N/row23-72ff465c.png",
+          "prompt": "backdrops/source/gallery_far-N/row23-72ff465c.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "55a47780",
+          "candidate": "backdrops/source/gallery_far-N/row23-55a47780.png",
+          "prompt": "backdrops/source/gallery_far-N/row23-55a47780.prompt.txt"
+        }
+      ]
+    },
     {
       "key": "gallery/N",
       "attempt": 3,
@@ -185,6 +301,122 @@
       ]
     },
     {
+      "key": "saloon_e/E",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/saloon_e-E/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-right",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "00bf9da2df25fd85a55c734db16efcbb12379b364586eea8c6573ce5dd5024f7",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_e/E",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_e-E/row23-37b5f873.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-saloon_e-E.png",
+        "rel": "backdrops/grown/saloon_e-E.png",
+        "room": "saloon_e",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "ae179338",
+          "candidate": "backdrops/source/saloon_e-E/row23-ae179338.png",
+          "prompt": "backdrops/source/saloon_e-E/row23-ae179338.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "091fd1d6",
+          "candidate": "backdrops/source/saloon_e-E/row23-091fd1d6.png",
+          "prompt": "backdrops/source/saloon_e-E/row23-091fd1d6.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "saloon_n/N",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/saloon_n-N/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "lead",
+        "run-wall:corner-left",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "saloon_sycamore",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "a1cf601492f69185afbb11c43d35478edb13fe21b4d8216e39ba042024e9dfc2",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "saloon_n/N",
+      "is_lead": true,
+      "continues": null,
+      "order_position": 0,
+      "lead_image": {
+        "rel": "backdrops/source/saloon_n-N/row23-8508ccbc.png",
+        "kind": "candidate",
+        "via": "run-state.json"
+      },
+      "style_image": {
+        "file": "grown-saloon_n-N.png",
+        "rel": "backdrops/grown/saloon_n-N.png",
+        "room": "saloon_n",
+        "facing": "N",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "31e7ffbd",
+          "candidate": "backdrops/source/saloon_n-N/row23-31e7ffbd.png",
+          "prompt": "backdrops/source/saloon_n-N/row23-31e7ffbd.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "21e02377",
+          "candidate": "backdrops/source/saloon_n-N/row23-21e02377.png",
+          "prompt": "backdrops/source/saloon_n-N/row23-21e02377.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "saloon/S",
       "attempt": 3,
       "packet": "design/batches/liner-3/saloon-S/retry-3",
@@ -243,6 +475,188 @@
       ]
     },
     {
+      "key": "writing_room/E",
+      "attempt": 1,
+      "packet": "design/batches/liner-3/writing_room-E/retry-1",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "writing_room/E",
+        "location": "writing_room",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "writing_room/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/writing_room/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "writing_room/S",
+            "painted": false
+          }
+        ],
+        "lead": "writing_room/N",
+        "is_lead": false,
+        "continues": "writing_room/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/liner-3/writing_room-E/retry-1/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "07841eb52470340893ca38db3dc38a556aa5af4be1fb621c9d73af7c6eaec5c9",
+        "source_sha256": "dac6bebfa25394cbaf43a585da7a68be40fa5340fd4be32e52eecf3129ebd8f2"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/writing_room/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-writing_room-E.png",
+        "rel": "backdrops/grown/writing_room-E.png",
+        "room": "writing_room",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "25f33033",
+          "candidate": "backdrops/source/writing_room-E/row23-25f33033.png",
+          "prompt": "backdrops/source/writing_room-E/row23-25f33033.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "613d2d07",
+          "candidate": "backdrops/source/writing_room-E/row23-613d2d07.png",
+          "prompt": "backdrops/source/writing_room-E/row23-613d2d07.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "writing_room/E",
+      "attempt": 3,
+      "packet": "design/batches/liner-3/writing_room-E/retry-3",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "writing_room/E",
+        "location": "writing_room",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "writing_room/N",
+        "neighbour_edge": "right",
+        "source": "backdrops/writing_room/N.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "writing_room/S",
+            "painted": false
+          }
+        ],
+        "lead": "writing_room/N",
+        "is_lead": false,
+        "continues": "writing_room/N",
+        "order_position": 1,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/liner-3/writing_room-E/retry-3/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "07841eb52470340893ca38db3dc38a556aa5af4be1fb621c9d73af7c6eaec5c9",
+        "source_sha256": "dac6bebfa25394cbaf43a585da7a68be40fa5340fd4be32e52eecf3129ebd8f2"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 1,
+      "lead_image": {
+        "rel": "backdrops/writing_room/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-writing_room-E.png",
+        "rel": "backdrops/grown/writing_room-E.png",
+        "room": "writing_room",
+        "facing": "E",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "86e2371a",
+          "candidate": "backdrops/source/writing_room-E/row23-86e2371a.png",
+          "prompt": "backdrops/source/writing_room-E/row23-86e2371a.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "e0617886",
+          "candidate": "backdrops/source/writing_room-E/row23-e0617886.png",
+          "prompt": "backdrops/source/writing_room-E/row23-e0617886.prompt.txt"
+        }
+      ]
+    },
+    {
       "key": "writing_room/N",
       "attempt": 3,
       "packet": "design/batches/liner-3/writing_room-N/retry-3",
@@ -296,6 +710,153 @@
           "id": "814cd02c",
           "candidate": "backdrops/source/writing_room-N/row23-814cd02c.png",
           "prompt": "backdrops/source/writing_room-N/row23-814cd02c.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "writing_room/S",
+      "attempt": 1,
+      "packet": "design/batches/liner-3/writing_room-S/retry-1",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": null,
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 2,
+      "lead_image": {
+        "rel": "backdrops/writing_room/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-writing_room-S.png",
+        "rel": "backdrops/grown/writing_room-S.png",
+        "room": "writing_room",
+        "facing": "S",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "17ab75e2",
+          "candidate": "backdrops/source/writing_room-S/row23-17ab75e2.png",
+          "prompt": "backdrops/source/writing_room-S/row23-17ab75e2.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "52018edd",
+          "candidate": "backdrops/source/writing_room-S/row23-52018edd.png",
+          "prompt": "backdrops/source/writing_room-S/row23-52018edd.prompt.txt"
+        }
+      ]
+    },
+    {
+      "key": "writing_room/W",
+      "attempt": 1,
+      "packet": "design/batches/liner-3/writing_room-W/retry-1",
+      "register": "g5-noappendix",
+      "situations": [
+        "enclosed",
+        "follower",
+        "no-window",
+        "blank"
+      ],
+      "correction": "Image 1 is already drawn at the ruled scale for this camera; return the same picture at exactly the same size - the wall must not come back smaller, farther away, or with more ceiling and floor around it than Image 1 shows",
+      "voice": {
+        "id": "writing_room_maple",
+        "via": "room id",
+        "outdoor": false,
+        "anchor": "dado_band"
+      },
+      "px_per_m_at_wall": 213.33333333333334,
+      "flights": [],
+      "scaffold_sha256": "ff84433727e04f1cec5f6734f831d33dff3843dd67a174fcc3df92aa4a41fb96",
+      "scaffold_style": "ink-on-paper-v2",
+      "edge_seed": {
+        "key": "writing_room/W",
+        "location": "writing_room",
+        "location_type": "indoor",
+        "policy": "opportunistic",
+        "fraction": 0.1,
+        "side": "left",
+        "neighbour": "writing_room/S",
+        "neighbour_edge": "right",
+        "source": "backdrops/writing_room/S.png",
+        "source_kind": "promoted",
+        "role_sentence": "Image 3 is a reference of exactly what sits at this picture's left edge - the scene continues from it seamlessly.",
+        "alternatives": [
+          {
+            "side": "right",
+            "neighbour": "writing_room/N",
+            "painted": true
+          }
+        ],
+        "lead": "writing_room/N",
+        "is_lead": false,
+        "continues": "writing_room/N",
+        "order_position": 3,
+        "depends_on": null,
+        "why": "an indoor location: the strip anchors material tone and the wainscot line across the corner (promoted)",
+        "image_index": 3,
+        "file": "design/batches/liner-3/writing_room-W/retry-1/edge-seed-left.png",
+        "width_px": 154,
+        "height_px": 1024,
+        "columns": [
+          1382,
+          1536
+        ],
+        "sha256": "64c2bad1a6f13af3eb04cb301f31a818d9989eab865b4d5e39758ed407a0d7e0",
+        "source_sha256": "d2a9718fa1667f8d5c902ea27704eafa02cefd50842191c4b533e9c4b0276cdd"
+      },
+      "seed_policy": "opportunistic",
+      "depends_on": null,
+      "lead": "writing_room/N",
+      "is_lead": false,
+      "continues": "writing_room/N",
+      "order_position": 3,
+      "lead_image": {
+        "rel": "backdrops/writing_room/N.png",
+        "kind": "promoted"
+      },
+      "style_image": {
+        "file": "grown-writing_room-W.png",
+        "rel": "backdrops/grown/writing_room-W.png",
+        "room": "writing_room",
+        "facing": "W",
+        "lead": false,
+        "source_kind": "grown-draft"
+      },
+      "rolls": [
+        {
+          "roll": 1,
+          "id": "1864f7a5",
+          "candidate": "backdrops/source/writing_room-W/row23-1864f7a5.png",
+          "prompt": "backdrops/source/writing_room-W/row23-1864f7a5.prompt.txt"
+        },
+        {
+          "roll": 2,
+          "id": "20a27de5",
+          "candidate": "backdrops/source/writing_room-W/row23-20a27de5.png",
+          "prompt": "backdrops/source/writing_room-W/row23-20a27de5.prompt.txt"
         }
       ]
     }

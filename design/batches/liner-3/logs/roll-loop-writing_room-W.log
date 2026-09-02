@@ -1,0 +1,4 @@
+=== writing_room/W --from-wall writing_room/N Tue Sep  1 08:28:05 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/writing_room/N.png (scale 0.9944)
+pair 1: attempt 1, rolls ['1864f7a5', '20a27de5'] ordered (order ok)

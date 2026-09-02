@@ -1,0 +1,7 @@
+=== writing_room/S --from-wall writing_room/N Tue Sep  1 08:23:37 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/writing_room/N.png (scale 0.9944)
+pair 1: attempt 1, rolls ['17ab75e2', '52018edd'] ordered (order ok)
+sweep: writing_room/S           PROMOTE   PASS -3.1% focal, promoted and baked
+learn: pair scales [0.9699, 0.9936] -> z 0.9750 -> 0.9683
+LANDED: writing_room/S promoted after 2 loop roll(s)

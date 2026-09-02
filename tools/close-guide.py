@@ -40,13 +40,18 @@ RETURN_MARGIN = 80
 #: Columns the source's wall span is inset from each measured corner before it
 #: is bookmatched out over the source's own returns (a corner reads to ~25 px).
 SPAN_INSET = 40
+#: A source return narrower than this in the zoomed frame is not a strip.
+RETURN_MIN_PX = 24
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "design", "plan-draft", "measured"))
 from pack import active_pack  # noqa: E402
-from measure import trace_corner  # noqa: E402
+from measure import witness_corner  # noqa: E402
 
 W, H = 1536, 1024
+#: px/m of the close wall (focal 1024 at 4.8 m), the scale `measure_roll`'s
+#: search bands are drawn for.
+CLOSE_PPM = 1024.0 / 4.8
 LONG = {"N": "north", "S": "south", "E": "east", "W": "west"}
 SHADOW = (96, 82, 68); SEAM = (58, 48, 40)
 
@@ -108,13 +113,16 @@ def measure_roll(path, meta, ruler_m):
     rail_y = floor_y - ruler_m * ppm
     cx0, cx1 = float(meta["corner_x0_px"]), float(meta["corner_x1_px"])
     doors = [o for o in meta.get("openings", []) if o.get("kind") == "door"]
+    # the search bands are sized for the close wall (4.8 m, 213 px/m); a deep
+    # wall's architecture sits in the same bands shrunk by its own px/m
+    kb = ppm / CLOSE_PPM
     keep = np.zeros(W, bool)
-    keep[int(max(0, cx0)) + 60:int(min(W, cx1)) - 60] = True
+    keep[int(max(0, cx0)) + int(60 * kb):int(min(W, cx1)) - int(60 * kb)] = True
     for o in doors:
-        keep[max(0, int(o["x"]) - 100):min(W, int(o["x"] + o["w"]) + 100)] = False
+        keep[max(0, int(o["x"] - 100 * kb)):min(W, int(o["x"] + o["w"] + 100 * kb))] = False
     cols = np.nonzero(keep)[0]
     # the dado capping strip: the strongest step near the ruled rail row
-    st = strong_steps(L, cols, rail_y - 90, rail_y + 90, frac=0.25)
+    st = strong_steps(L, cols, rail_y - 90 * kb, rail_y + 90 * kb, frac=0.25)
     if not st:
         return None
     y_peak = max(st, key=lambda t: t[1])[0]
@@ -125,21 +133,21 @@ def measure_roll(path, meta, ruler_m):
     # lighter underneath than above (the dado and its skirting are dark, the
     # floor is not; a skirting's top edge darkens downward and a carpet's
     # pattern rows are the same carpet on both sides)
-    st = strong_steps(L, cols, rail_r + 150, min(H - 4, rail_r + 340), frac=0.3)
+    st = strong_steps(L, cols, rail_r + 150 * kb, min(H - 4, rail_r + 340 * kb), frac=0.3)
     st = [t for t in st if level(t[0] + 4, t[0] + 24) > 1.3 * level(t[0] - 24, t[0] - 4)]
     if not st:
         return None
     foot_r = float(max(st)[0])
     # the cornice line: the LOWEST strong horizontal well above the dado that
     # is brighter above than below (the lit cove over the veneer)
-    st = strong_steps(L, cols, 8, rail_r - 200, frac=0.3)
+    st = strong_steps(L, cols, 8, rail_r - 200 * kb, frac=0.3)
     st = [t for t in st if level(t[0] - 24, t[0] - 4) > 1.2 * level(t[0] + 4, t[0] + 24)]
     ceil_r = float(max(st)[0]) if st else None
     # the door: a dark column run in the upper wall band
     door_r = None
     if doors and ceil_r is not None:
         # the band just above the rail: a door is void there whatever its head
-        band = L[int(rail_r) - 160:int(rail_r) - 30]
+        band = L[int(rail_r - 160 * kb):int(rail_r - 30 * kb)]
         prof = band.mean(axis=0)
         wall_level = np.median(prof[cols])
         dark = prof < 0.5 * wall_level
@@ -149,7 +157,7 @@ def measure_roll(path, meta, ruler_m):
                 x0 = x
                 while x < W and dark[x]:
                     x += 1
-                if x - x0 >= 120:
+                if x - x0 >= 120 * kb:
                     runs.append((x0, x - 1))
             x += 1
         o = doors[0]
@@ -162,15 +170,24 @@ def measure_roll(path, meta, ruler_m):
             while head > 8 and colm[head] < 0.5 * wall_level:
                 head -= 1
             door_r = {"x0": int(r0), "x1": int(r1), "head": head}
-    # corners: the column where the traced foot line (and, as a second
-    # witness, the cornice line) leaves the run wall's row for the return's
-    # slope toward the horizon
-    kev = {"foot": [trace_corner(L, foot_r, "left", +1), trace_corner(L, foot_r, "right", +1)],
-           "rail": [trace_corner(L, rail_r, "left", 0, reach=100), trace_corner(L, rail_r, "right", 0, reach=100)]}
-    if ceil_r is not None:
-        kev["cornice"] = [trace_corner(L, ceil_r, "left", -1), trace_corner(L, ceil_r, "right", -1)]
-    kx0 = int(np.median([v[0] for v in kev.values()])) if cx0 >= 0 else None
-    kx1 = int(np.median([v[1] for v in kev.values()])) if cx1 <= W else None
+    # corners: the verifier's own witness (the foot's and cornice's kinks,
+    # the capping strip only where it stands clear of the horizon, snapped to
+    # the vertical seam that runs the wall's height). The median of three
+    # traced lines read saloon_e/E 894166d7's corner at 1511 for 1443 (the
+    # strip's return runs level at eye height, a blind witness) and
+    # saloon_n/N 8508ccbc's at 0 (a frame edge, taken as a corner and handed
+    # the painter a black return). Not found is None, never an edge.
+    hz = float(meta["horizon_y"]) * H
+    kev = {}
+    kx0 = kx1 = None
+    if cx0 >= 0:
+        kx0, ev0 = witness_corner(L, "left", floor_y=foot_r, rail_y=rail_r, ceil_y=ceil_r, horizon_y=hz)
+        kev["left"] = dict(ev0 or {}, x=kx0)
+        kx0 = None if kx0 is None or kx0 <= 4 else int(kx0)
+    if cx1 <= W:
+        kx1, ev1 = witness_corner(L, "right", floor_y=foot_r, rail_y=rail_r, ceil_y=ceil_r, horizon_y=hz)
+        kev["right"] = dict(ev1 or {}, x=kx1)
+        kx1 = None if kx1 is None or kx1 >= W - 4 else int(kx1)
     span = foot_r - rail_r
     return {"roll": os.path.relpath(path, ROOT), "rail": round(rail_r, 1), "foot": round(foot_r, 1),
             "ceiling": ceil_r, "door": door_r,
@@ -305,11 +322,17 @@ def main():
     # roll that shrank) hands over more of the same fabric at the same scale
     # instead of a return or black where wall is ruled
     wz0, wz1 = int(round(max(0.0, zx(sc0)))), int(round(min(float(W), zx(sc1))))
+    # a return strip is cut from the ZOOMED ROLL, not from the frame: past the
+    # roll's own extent the frame is black (saloon_e/E 894166d7, s 0.966: the
+    # roll ended at x 1458 and the strip 1434..1536 went to the painter as a
+    # black return; it drew two corners). A strip narrower than RETURN_MIN_PX
+    # is no strip, and the side falls to the mirrored or dimmed rule.
+    rz0, rz1 = int(round(max(0.0, ax))), int(round(min(float(W), ax + s * W)))
     src_returns = {}
-    if m["corner_x0"] is not None and wz0 > 0:
-        src_returns["left"] = (0, wz0)
-    if m["corner_x1"] is not None and wz1 < W:
-        src_returns["right"] = (wz1, W)
+    if m["corner_x0"] is not None and wz0 - rz0 >= RETURN_MIN_PX:
+        src_returns["left"] = (rz0, wz0)
+    if m["corner_x1"] is not None and rz1 - wz1 >= RETURN_MIN_PX:
+        src_returns["right"] = (wz1, rz1)
     # a measured corner is good to ~25 px; the span stays clear of the return
     t0 = wz0 + (SPAN_INSET if "left" in src_returns else 0)
     t1 = wz1 - (SPAN_INSET if "right" in src_returns else 0)

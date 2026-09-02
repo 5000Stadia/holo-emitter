@@ -8,3 +8,14 @@ GUIDE FAILED:  ile "/home/k/Projects/holo-emitter/tools/close-guide.py", line 53
        ^^^^^^^^^^
 AttributeError: 'Namespace' object has no attribute 'src_wall'
 
+=== gallery_far/N  Tue Sep  1 08:09:42 PM PDT 2026
+guide close: z0 0.9750 (cap 1.0954)
+guide: z 0.9750 from backdrops/source/gallery_far-N/row23-8b6b3e2b.png (scale 0.8216)
+pair 1: attempt 3, rolls ['f1322202', 'dca24599'] ordered (order ok)
+sweep: gallery_far/N            PARKED    cap spent; wall stays grid, run continues
+learn: pair scales [0.975, 0.9933] -> z 0.9750 -> 0.9659
+guide: z 0.9659 from backdrops/source/gallery_far-N/row23-dca24599.png (scale 0.9933)
+pair 2: attempt 5, rolls ['72ff465c', '55a47780'] ordered (order ok)
+sweep: gallery_far/N            PARKED    cap spent; wall stays grid, run continues
+learn: pair scales [0.9755, 0.9388] -> z 0.9659 -> 0.9839
+BUDGET SPENT: gallery_far/N not landed in 4 rolls; parked for the Captain

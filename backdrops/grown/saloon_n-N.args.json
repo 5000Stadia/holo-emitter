@@ -70,11 +70,13 @@
   },
   "left_return_upper": {
    "scale": 1.154,
-   "blur": 10
+   "blur": 10,
+   "from": "own"
   },
   "left_return_lower": {
    "scale": 1.0039,
-   "blur": 10
+   "blur": 10,
+   "from": "own"
   }
  },
  "out": "backdrops/grown/saloon_n-N.png"

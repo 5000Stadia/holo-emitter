@@ -1,0 +1,205 @@
+{
+ "facing": "saloon_e/E",
+ "candidate": "backdrops/source/saloon_e-E/row23-091fd1d6.png",
+ "warp_mode": "plane",
+ "declared_frame": [
+  1536,
+  1024
+ ],
+ "verdict": "warped",
+ "why": null,
+ "sha256": "c2e1e157bfdedcad953fd18fc212de489a63db4e11f660a8b3616a5d8d62803e",
+ "instrument": "4743941cf38d",
+ "reading_cache": null,
+ "before": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 3.12,
+  "delta_eye_pct": 0.25,
+  "hold_family": "suspect-painting"
+ },
+ "source_notes": {
+  "ceiling": "measured",
+  "corners": "measured on the closed side only: a run wall has one corner and the open end is ruled",
+  "run_wall": {
+   "closed": "x1",
+   "run_m": 12.8,
+   "run_m_from": "the declared corner span at the declared scale",
+   "run_visible_m": 6.8,
+   "corner_source_px": 1423,
+   "corner_declared_px": 1450.67,
+   "corner_ask_px": 27.7
+  },
+  "vanishing_point": "declared-principal-point",
+  "vanishing_point_why": "the ramp record carries no fitted slopes",
+  "px_per_m_at_wall": 220.0
+ },
+ "run_wall": {
+  "closed": "x1",
+  "open": "x0",
+  "corner_declared": 1450.666666666667,
+  "edge_px": 0.0,
+  "run_m": 12.799999999999999,
+  "run_m_from": "the declared corner span at the declared scale",
+  "width_m": 6.4,
+  "run_visible_m": 6.800000000000001
+ },
+ "target_notes": {
+  "horizontal": "a run wall: the right corner at 1451 is this room's only one and 6.80 m of run leaves the frame on the left, where the declared corner sits at -1280 \u2014 so the box ends at the frame edge",
+  "corners_in_frame": false,
+  "run_wall": {
+   "closed": "x1",
+   "open": "x0",
+   "corner_declared": 1450.666666666667,
+   "edge_px": 0.0,
+   "run_m": 12.799999999999999,
+   "run_m_from": "the declared corner span at the declared scale",
+   "width_m": 6.4,
+   "run_visible_m": 6.800000000000001
+  },
+  "ppm_source": 220.0,
+  "ppm_target": 213.333,
+  "scale_k": 0.9697
+ },
+ "source_box": {
+  "x0": -73.0,
+  "x1": 1423.0,
+  "yc": 33.0,
+  "yf": 787.0,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "target_box": {
+  "x0": 0.0,
+  "x1": 1450.67,
+  "yc": 53.14,
+  "yf": 778.47,
+  "vx": 768.0,
+  "vy": 526.1
+ },
+ "source_size": [
+  1536,
+  1024
+ ],
+ "margin_px": [
+  0.0,
+  0.0
+ ],
+ "aperture_notes": {
+  "door_note": "the maximally stable dark run in each column's median luminance over the middle 70% of a ruled door's height, with the head moved onto the lintel's own step; nothing here is told what width to look for",
+  "window_note": "the maximally stable BRIGHT run in each column's median luminance over the middle 70% of the plan's 0.90-2.00 m window band, and the same sweep on that profile with its own slow illumination taken out; admitted where a rectangle encloses the light \u2014 four boundaries that step together and an interior clear of its own ring \u2014 and the light is bright enough to be daylight, with the lattice supporting rather than deciding; a window's lights are joined across their mullions and across any bar narrower than themselves that leaves head and sill agreeing; nothing here is told what width to look for",
+  "source_storey_m": 3.427,
+  "source_ppm": 220.0
+ },
+ "apertures": {
+  "doors": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  },
+  "windows": {
+   "plan": 0,
+   "measured": 0,
+   "paired": 0,
+   "unpaired_plan": [],
+   "unpaired_source": []
+  }
+ },
+ "pins_dropped_as_duplicate": [],
+ "uniform": {
+  "scale": 0.9681,
+  "tx": 71.8,
+  "ty": 18.9,
+  "box": [
+   1.2,
+   1449.5,
+   50.8,
+   780.8
+  ]
+ },
+ "columns": [
+  {
+   "name": "run_end_left",
+   "kind": "run_end",
+   "target": 1.169,
+   "source": -73.0,
+   "ask_px": 73.0,
+   "uniform_residual_px": -1.2,
+   "residual_px": 0.0
+  },
+  {
+   "name": "corner_right",
+   "kind": "room_corner",
+   "target": 1449.498,
+   "source": 1423.0,
+   "ask_px": 27.7,
+   "uniform_residual_px": 1.2,
+   "residual_px": 0.0
+  }
+ ],
+ "rows": [
+  {
+   "name": "ceiling_line",
+   "kind": "room_corner",
+   "target": 50.82,
+   "source": 33.0,
+   "ask_px": 20.1,
+   "uniform_residual_px": 2.3,
+   "residual_px": 0.0
+  },
+  {
+   "name": "floor_line",
+   "kind": "room_corner",
+   "target": 780.793,
+   "source": 787.0,
+   "ask_px": -8.5,
+   "uniform_residual_px": -2.3,
+   "residual_px": 0.0
+  }
+ ],
+ "stretch": {
+  "x_scale_min": 0.968,
+  "x_scale_max": 0.968,
+  "y_scale_min": 0.968,
+  "y_scale_max": 0.968,
+  "x_segments": [
+   {
+    "name": "run_end_left..corner_right",
+    "target_px": 1448.3,
+    "source_px": 1496.0,
+    "scale": 0.968
+   }
+  ],
+  "y_segments": [
+   {
+    "name": "ceiling_line..floor_line",
+    "target_px": 730.0,
+    "source_px": 754.0,
+    "scale": 0.968
+   }
+  ],
+  "monotone": true,
+  "folded_px": 0
+ },
+ "max_residual_px": 0.0,
+ "revealed_px": 125636,
+ "revealed_fraction": 0.07988,
+ "revealed_fill": "plane_recession",
+ "fill_fade_px": 24,
+ "filled_px": 208824,
+ "mirror_band_px": 0,
+ "seam_blend_px": 24,
+ "column_count": 2,
+ "row_count": 2,
+ "seconds": 2.19,
+ "warped_image": "backdrops/source-warped/saloon_e-E/warped.png",
+ "asked_from": "backdrops/source/saloon_e-E/row23-091fd1d6.prompt.txt",
+ "warped_sha256": "9ab6c4a25c1d15d762ca0b549863e0def7f7b86952d5a592a54527c5f0806124",
+ "after": {
+  "camera_verdict": "PASS",
+  "delta_focal_pct": 0.0,
+  "delta_eye_pct": 1.0,
+  "hold_family": "suspect-painting"
+ }
+}
