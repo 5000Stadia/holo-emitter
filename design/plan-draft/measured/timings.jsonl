@@ -20905,3 +20905,11 @@
 {"detail":{"failed":0,"parked":0,"promote_enabled":true,"promoted":1,"waiting":0},"key":null,"step":"sweep.pass","ts_end":1788329026.837377,"ts_start":1788328912.502631}
 {"ts_start":1788329074.516,"ts_end":1788329074.577,"step":"bake.fixtures","key":"liner-3","detail":{"fp":"a4883fd6","out_bytes":139971,"facings":28,"locations":7}}
 {"ts_start":1788329074.628,"ts_end":1788329107.728,"step":"bake.backdrops","key":null,"detail":{"paintings":123,"out_bytes":23217,"fp":"08ebf930","served_dir":"/home/k/Projects/holo-emitter/backdrops/served","png_bytes":277968338,"jpeg_bytes":51319051}}
+{"ts_start":1788329129.523,"ts_end":1788329129.564,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788329129.663,"ts_end":1788329129.737,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788329129.822,"ts_end":1788329129.865,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788329129.958,"ts_end":1788329130.021,"step":"bake.fixtures","key":"liner-3","detail":{"fp":"a4883fd6","out_bytes":139971,"facings":28,"locations":7}}
+{"ts_start":1788329130.118,"ts_end":1788329130.328,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788329130.438,"ts_end":1788329130.486,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"84015222","out_bytes":83614,"facings":12,"locations":3}}
+{"detail":{"ids":80,"polls":2,"served":true},"key":null,"step":"publish.verify","ts_end":1788329183.911413,"ts_start":1788329148.615333}
+{"detail":{"exit_code":0,"head":"1eefd4d"},"key":null,"step":"publish.site","ts_end":1788329184.006671,"ts_start":1788329134.545276}
