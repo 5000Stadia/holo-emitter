@@ -2,7 +2,7 @@
 
 [HUMAN, 2026-08-24, verbatim]: "Still getting rooms with wall/ceiling mismatches" — "Mismatches as in different from other walls".
 
-Rows 36 and 38 cure this by construction for walls painted from here on. The 97 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
+Rows 36 and 38 cure this by construction for walls painted from here on. The 104 already-promoted paintings were rolled independently and had never been measured against each other. This is that measurement — deterministic, no model in the loop: `design/plan-draft/measured/room_consistency.py`, report in `design/plan-draft/measured/room_consistency.json`.
 
 Each facing's own meta places its ceiling and floor lines; the columns strictly inside the two declared corners are ceiling above the one and floor below the other, so four bands - ceiling, upper wall, lower wall, floor - cut out with no perspective bookkeeping. Each band is resampled to 150 px/m, cut into 0.30 m tiles of WORLD, and described by the MEDIAN tile, so a window or a doorway cannot decide that a wall changed; the columns a carrier is declared on are dropped outright first.
 
@@ -30,15 +30,16 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | 14 | great_hall | NS | wall_upper | **2.75** | N-S | x2.15 | 0.256 | 0.667 | x1.77 | — | consistent |
 | 15 | servants_hall | NSW | wall_upper | **2.75** | N-W | x1.12 | 0.165 | 0.455 | x1.99 | — | consistent-incomplete |
 | 16 | solar | ENSW | wall_lower | **2.68** | N-W | x1.29 | 0.185 | 0.533 | x1.91 | — | consistent |
-| 17 | noodle_bar | ENSW | wall_upper | **2.14** | S-W | x4.50 | 0.189 | 0.708 | x1.59 | — | consistent-incomplete |
-| 18 | ward | ENSW | floor | **2.12** | E-W | x1.12 | 0.265 | 1.000 | x1.31 | — | consistent-incomplete |
-| 19 | buttery_pantry | ENSW | ceiling | **2.07** | S-W | x1.18 | 0.057 | 0.154 | x1.75 | — | consistent-incomplete |
-| 20 | library | EN | ceiling | **1.94** | E-N | x4.55 | 0.271 | 0.667 | x1.03 | — | consistent-incomplete |
-| 21 | back_stair_head | NS | wall_upper | **1.72** | N-S | x1.20 | 0.158 | 0.678 | x1.43 | — | consistent-incomplete |
-| 22 | back_stair | NW | wall_upper | **1.68** | N-W | x1.94 | 0.062 | 0.597 | x1.57 | — | consistent-incomplete |
-| 23 | study | NW | wall_upper | **1.68** | N-W | x1.01 | 0.148 | 0.331 | x1.43 | — | consistent |
-| 24 | stair_landing | EN | wall_lower | **1.31** | E-N | x1.08 | 0.115 | 0.294 | x1.33 | — | consistent |
-| 25 | muniment_room | EW | wall_lower | **1.17** | E-W | x1.06 | 0.109 | 0.242 | x1.27 | — | consistent-incomplete |
+| 17 | writing_room | ENS | floor | **2.56** | E-S | x1.46 | 0.342 | 0.000 | x1.24 | — | consistent-incomplete |
+| 18 | noodle_bar | ENSW | wall_upper | **2.14** | S-W | x4.50 | 0.189 | 0.708 | x1.59 | — | consistent-incomplete |
+| 19 | ward | ENSW | floor | **2.12** | E-W | x1.12 | 0.265 | 1.000 | x1.31 | — | consistent-incomplete |
+| 20 | buttery_pantry | ENSW | ceiling | **2.07** | S-W | x1.18 | 0.057 | 0.154 | x1.75 | — | consistent-incomplete |
+| 21 | library | EN | ceiling | **1.94** | E-N | x4.55 | 0.271 | 0.667 | x1.03 | — | consistent-incomplete |
+| 22 | back_stair_head | NS | wall_upper | **1.72** | N-S | x1.20 | 0.158 | 0.678 | x1.43 | — | consistent-incomplete |
+| 23 | back_stair | NW | wall_upper | **1.68** | N-W | x1.94 | 0.062 | 0.597 | x1.57 | — | consistent-incomplete |
+| 24 | study | NW | wall_upper | **1.68** | N-W | x1.01 | 0.148 | 0.331 | x1.43 | — | consistent |
+| 25 | stair_landing | EN | wall_lower | **1.31** | E-N | x1.08 | 0.115 | 0.294 | x1.33 | — | consistent |
+| 26 | muniment_room | EW | wall_lower | **1.17** | E-W | x1.06 | 0.109 | 0.242 | x1.27 | — | consistent-incomplete |
 
 ## Not comparable
 
@@ -47,8 +48,12 @@ The outlier is chosen by CLUSTERING the room's facings on that band - two facing
 | entrance_approach | 0 promoted facing(s) with usable geometry — nothing to compare against |
 | entrance_court | 0 promoted facing(s) with usable geometry — nothing to compare against |
 | gallery | 1 promoted facing(s) with usable geometry — nothing to compare against |
+| gallery_far | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | great_stair_hall | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | privy_garden | 0 promoted facing(s) with usable geometry — nothing to compare against |
+| saloon | 1 promoted facing(s) with usable geometry — nothing to compare against |
+| saloon_e | 1 promoted facing(s) with usable geometry — nothing to compare against |
+| saloon_n | 1 promoted facing(s) with usable geometry — nothing to compare against |
 | saloon_ne | 1 promoted facing(s) with usable geometry — nothing to compare against |
 
 ## Facings the instrument could not read
@@ -107,6 +112,7 @@ Every (room, band) spread in the store, worst first:
   2.69  master_bedchamber    floor
   2.68  solar                wall_lower
   2.67  long_gallery         wall_lower
+  2.56  writing_room         floor
   2.55  dining_parlour       wall_lower
   2.50  garden_room          wall_upper
   2.46  solar                wall_upper
@@ -143,6 +149,7 @@ Every (room, band) spread in the store, worst first:
   1.37  noodle_bar           wall_lower
   1.37  library              wall_upper
   1.31  stair_landing        wall_lower
+  1.20  writing_room         wall_lower
   1.17  muniment_room        wall_lower
   1.12  buttery_pantry       wall_upper
   1.07  kitchen              wall_lower
@@ -152,6 +159,7 @@ Every (room, band) spread in the store, worst first:
   0.81  muniment_room        wall_upper
   0.81  library              wall_lower
   0.73  stair_landing        floor
+  0.64  writing_room         wall_upper
   0.63  stair_landing        ceiling
   0.59  reception            ceiling
   0.57  library              floor
