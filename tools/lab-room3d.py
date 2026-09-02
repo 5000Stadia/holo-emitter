@@ -119,6 +119,7 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   #status .t { font-family: "Josefin Sans", "Futura", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
   #status .s { margin-top: 12px; color: var(--ink-dim); max-width: 52ch; line-height: 1.6; }
   #status .s b { color: var(--ink); font-weight: 500; }
+  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room { min-width: 0; padding: 8px 10px 6px; } .room .name { font-size: 16px; } .prov { display: none; } #gate { bottom: 64px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 <div id="status"><div><div class="t">SS Meridian · C Deck</div><div class="s" id="statusText">loading the engine…</div></div></div>
@@ -265,12 +266,26 @@ gate.addEventListener("keydown", e => { if (e.code === "Enter" || e.code === "Sp
 document.addEventListener("pointerlockchange", () => { gate.hidden = document.pointerLockElement === renderer.domElement; });
 const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); };
 document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
-// drag to look, for viewers that refuse pointer lock (embedded frames, touch)
-let drag = null;
-renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; renderer.domElement.setPointerCapture(e.pointerId); if (document.pointerLockElement !== renderer.domElement) lock(); });
-renderer.domElement.addEventListener("pointermove", e => { if (!drag || document.pointerLockElement === renderer.domElement) return; look(e.clientX - drag.x, e.clientY - drag.y); drag = { x: e.clientX, y: e.clientY }; });
-renderer.domElement.addEventListener("pointerup", () => { drag = null; });
-renderer.domElement.addEventListener("pointercancel", () => { drag = null; });
+// touch and no-pointer-lock viewers: the left half of the screen is a
+// walking stick (drag from where you touched), the right half looks
+const stick = { id: null, ox: 0, oy: 0, dx: 0, dy: 0 };
+let lookDrag = null;
+const isTouch = matchMedia("(pointer: coarse)").matches;
+if (isTouch) { document.querySelector(".keys").innerHTML = "left thumb walks &nbsp; right thumb looks"; gate.querySelector(".t").textContent = "touch to walk"; gate.querySelector(".s").textContent = "left thumb walks, right thumb looks"; }
+renderer.domElement.addEventListener("pointerdown", e => {
+  renderer.domElement.setPointerCapture(e.pointerId);
+  if (e.pointerType === "touch" && e.clientX < innerWidth / 2 && stick.id === null) { stick.id = e.pointerId; stick.ox = e.clientX; stick.oy = e.clientY; stick.dx = stick.dy = 0; return; }
+  lookDrag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+  if (e.pointerType === "mouse" && document.pointerLockElement !== renderer.domElement) lock();
+});
+renderer.domElement.addEventListener("pointermove", e => {
+  if (e.pointerId === stick.id) { stick.dx = Math.max(-60, Math.min(60, e.clientX - stick.ox)); stick.dy = Math.max(-60, Math.min(60, e.clientY - stick.oy)); return; }
+  if (lookDrag && e.pointerId === lookDrag.id && document.pointerLockElement !== renderer.domElement) { look((e.clientX - lookDrag.x) * 1.6, (e.clientY - lookDrag.y) * 1.6); lookDrag.x = e.clientX; lookDrag.y = e.clientY; }
+});
+const release = e => { if (e.pointerId === stick.id) { stick.id = null; stick.dx = stick.dy = 0; } if (lookDrag && e.pointerId === lookDrag.id) lookDrag = null; };
+renderer.domElement.addEventListener("pointerup", release);
+renderer.addEventListener && renderer.domElement.addEventListener("pointercancel", release);
+renderer.domElement.style.touchAction = "none";
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 const roomName = document.getElementById("roomName"), pos = document.getElementById("pos");
@@ -286,9 +301,11 @@ function step(now) {
   if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
   if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  if (stick.id !== null) { const k = 1 / 60; dx += (fx * -stick.dy + rx * stick.dx) * k; dy += (fy * -stick.dy + ry * stick.dx) * k; }
   const n = Math.hypot(dx, dy);
   if (n > 0) {
-    dx = dx / n * speed * dt; dy = dy / n * speed * dt;
+    const amt = Math.min(1, n);
+    dx = dx / n * amt * speed * dt; dy = dy / n * amt * speed * dt;
     if (inside(px + dx, py)) px += dx;      // slide along walls
     if (inside(px, py + dy)) py += dy;
   }
