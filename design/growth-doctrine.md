@@ -290,9 +290,13 @@ found by reading the refused roll against its reading and fixed in the tree
   the darkest row lies anywhere in the dado (gallery_far/N's ruled-scale rolls
   FAILed -11/-13%; earlier passes at -6/-7% by luck; saloon_n/N's +2.3% was
   two errors cancelling). `world.json ruler.line: "bright-strip"` (with
-  `line_why`) makes `_floor_and_rail` take the brightest row instead, and the
-  rail's contrast is then (max-median)/median. A pack states which way its
-  ruler reads; the reading records `rail_read` (rule, darkest_row, strip).
+  `line_why`) makes `_floor_and_rail` take the row that steps brightest into
+  the field beneath it (luma minus the mean of rows 3-12 below), and that
+  step over the strip's luma is the rail's contrast - read as a rise over the
+  band's median it was 0.21/0.04 on the saloon's pale burl and two rolls with
+  the strip at the ruled row were refused ABSENT (saloon/W pair 1). A pack
+  states which way its ruler reads; the reading records `rail_read` (rule,
+  darkest_row, strip, strip_luma, field_below, contrast).
 * **The corner witness is blind at the eye.** A junction line's slope is
   (row - horizon)/(x - VP_x): the capping strip runs level at eye height and
   witnesses nothing. `witness_corner` fits the kink of the foot and cornice
