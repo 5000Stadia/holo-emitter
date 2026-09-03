@@ -6703,6 +6703,169 @@
       "maskWarnings": [],
       "renderHash": "1aed3157110c5f33",
       "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.8593,
+        "aspectRatioDelta": 0.031,
+        "scaleDelta": 0.0007,
+        "bilateralSymmetryError": 0.1987,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 26.76,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.96
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.96
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "blockout requires --map-stripped-render evidence"
+      ],
+      "maskWarnings": [],
+      "renderHash": "ff36bcb5bb048f36",
+      "passId": "blockout"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8593,
+        "aspectRatioDelta": 0.031,
+        "scaleDelta": 0.0007,
+        "bilateralSymmetryError": 0.1987,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 26.76,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.16
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.96
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.96
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.76
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "ff36bcb5bb048f36",
+      "passId": "blockout",
+      "mapStrippedRender": "renders/ref-flat.png"
     }
   ],
   "dimensionTable": {

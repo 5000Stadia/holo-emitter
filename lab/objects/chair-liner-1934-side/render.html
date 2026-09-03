@@ -109,7 +109,7 @@ function place({ az = -32, dist = 1.28, camY = 0.80, fov = 46, tx = 0, ty = 0.44
 // camera; `turn-*` feed the turntable gate; `walk` is the prop's real use — eye height on a
 // first-person walk.
 const SHOTS = {
-  'ref':      { az: -40, dist: 1.355, camY: 0.80, fov: 46, tx: -0.020, ty: 0.402, tz: 0 },
+  'ref':      { az: -40, dist: 1.555, camY: 0.75, fov: 40, tx: -0.027, ty: 0.386, tz: 0 },
   'turn-000': { az: 0,   dist: 1.75, camY: 0.62, fov: 40, ty: 0.44 },
   'turn-090': { az: 90,  dist: 1.75, camY: 0.62, fov: 40, ty: 0.44 },
   'turn-180': { az: 180, dist: 1.75, camY: 0.62, fov: 40, ty: 0.44 },
@@ -151,6 +151,16 @@ const tag = params.get('tag');
 // review loop needs to render arbitrary camera candidates on demand from the console.
 window.__shot = async (name, cam) => { SHOTS.__sweep = cam; await save2('__sweep', name); };
 window.__view = (cam) => { SHOTS.__sweep = cam; draw('__sweep'); };
+// Map-stripped evidence for diagnose_render: every material replaced by one unlit flat grey,
+// so the silhouette and the mass reading are proven to come from geometry and not from shading.
+window.__flat = async (name) => {
+  const saved = [];
+  const flat = new THREE.MeshBasicMaterial({ color: 0xb4b4b4 });
+  model.traverse((o) => { if (o.isMesh) { saved.push([o, o.material]); o.material = flat; } });
+  await save2('ref', name);
+  for (const [o, m] of saved) o.material = m;
+  flat.dispose();
+};
 window.__stats = () => ({ meshes: meshCount, triangles: Math.round(tris),
   bbox: [size.x, size.y, size.z], minY: box.min.y, maxY: box.max.y,
   textures: renderer.info.memory.textures,
