@@ -12,34 +12,37 @@
   "up": "+y",
   "grounded": true,
   "front": "+z",
-  "source_faces": 190284
+  "source_faces": 190284,
+  "size_m": [
+   2.804,
+   0.85,
+   2.191
+  ]
  },
  "gate": {
-  "ok": false,
+  "ok": true,
   "glb": "/home/k/Projects/holo-emitter/library/settee-objaverse-1/model.glb",
   "triangles": 190284,
   "bbox_min": [
-   -1.0956289768218994,
+   -1.401822805404663,
    0.0,
-   -1.401822805404663
+   -1.0956289768218994
   ],
   "bbox_max": [
-   1.0956289768218994,
+   1.401822805404663,
    0.8500000238418579,
-   1.401822805404663
+   1.0956289768218994
   ],
   "size": [
-   2.191257953643799,
+   2.803645610809326,
    0.8500000238418579,
-   2.803645610809326
+   2.191257953643799
   ],
-  "up_axis": "x",
+  "up_axis": "z",
   "aspect_err": 0.612,
   "images": 0,
   "materials": 1,
-  "failures": [
-   "shape off: side/height ratios 0.39,1.28 vs declared 1.00,1.88 (err 0.61 > 0.35)"
-  ]
+  "failures": []
  },
  "grounding": {
   "ok": true,
@@ -47,12 +50,13 @@
   "tilt_corrected_deg": 0.0,
   "support_vertices": 433,
   "size_m": [
-   2.191,
+   2.804,
    0.85,
-   2.804
+   2.191
   ],
   "lowest_1pct_spread_m": 0.023,
   "level_rule": "seat:0.45",
+  "front": "+z",
   "level_corrected_deg": null,
   "level_surface_vertices": 0,
   "faces": 190284
@@ -63,18 +67,18 @@
   "uid": "1a6a02daf9a84b108e437f75fdcab2f7",
   "name": "Sofa",
   "license": "by",
-  "query": "art deco settee sofa 1930s upholstered velvet vintage",
+  "query": "settee sofa art deco vintage 1930s two seater",
   "rank": 0,
-  "candidates": 81,
+  "candidates": 73,
   "sketchfab": "https://sketchfab.com/3d-models/1a6a02daf9a84b108e437f75fdcab2f7"
  },
  "timings_s": {
   "index": 0.0,
-  "annotations": 17.1,
+  "annotations": 16.9,
   "rank": 0.0,
-  "download": 5.3,
-  "stand": 1.3,
+  "download": 1.2,
+  "stand": 1.5,
   "gate": 0.0,
-  "request_to_library": 23.8
+  "request_to_library": 19.6
  }
 }

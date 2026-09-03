@@ -81,7 +81,11 @@ def factory_of(asset_id):
     if not os.path.exists(rec):
         return None, "not in the library"
     r = json.load(open(rec))
-    dims = r.get("dims_m") or {}
+    dims = dict(r.get("dims_m") or {})
+    # the STOOD object's own footprint wins over the declared one: a retrieved sofa is whatever size it is
+    sz = ((r.get("model") or {}).get("size_m")) or ((r.get("grounding") or {}).get("size_m"))
+    if sz and len(sz) == 3:
+        dims = {"h": dims.get("h") or sz[1], "w": sz[0], "d": sz[2]}
     prim = os.path.join(d, "primitives.json")
     if os.path.exists(prim):
         pj = json.load(open(prim))

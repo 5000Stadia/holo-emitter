@@ -32,6 +32,7 @@ def main():
     ap.add_argument("--max-tilt", type=float, default=35.0)
     ap.add_argument("--contact", type=float, default=0.012, help="a vertex this close to the plane rests on it (metres, after scaling)")
     ap.add_argument("--level", default="", help="the working surface that must be parallel to the ground: top | seat:<height_m> | base (Kabe, 2026-09-02)")
+    ap.add_argument("--front", default="", help="auto: for a thing with a back (chair, sofa) the back is the side where the upper vertices cluster; the mesh is turned so the front faces +z")
     a = ap.parse_args()
     m = trimesh.load(a.src, force="mesh")
     # 1. the generator's up axis to +y
@@ -97,11 +98,25 @@ def main():
                 ext = m.bounds[1] - m.bounds[0]; m.apply_scale(a.height_m / max(1e-6, ext[1]))
                 lo, hi = m.bounds; m.apply_translation([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
             level_deg = round(float(np.degrees(ang2)), 2)
+    # 5c. the front: the back of a seat is where the upper third of the vertices sit relative to the footprint
+    front = None
+    if a.front == "auto":
+        V2 = m.vertices; h = float(m.bounds[1][1])
+        up_pts = V2[V2[:, 1] > 0.66 * h]
+        if len(up_pts) > 20:
+            c = (m.bounds[0] + m.bounds[1]) / 2
+            dx, dz = float(up_pts[:, 0].mean() - c[0]), float(up_pts[:, 2].mean() - c[2])
+            back = "+x" if abs(dx) > abs(dz) and dx > 0 else "-x" if abs(dx) > abs(dz) else "+z" if dz > 0 else "-z"
+            turn = {"+z": np.pi, "-z": 0.0, "+x": np.pi / 2, "-x": -np.pi / 2}[back]   # rotate so the back is at -z (front +z)
+            if turn:
+                m.apply_transform(trimesh.transformations.rotation_matrix(turn, [0, 1, 0]))
+                lo, hi = m.bounds; m.apply_translation([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
+            front = "+z"
     # 6. how level did it come out: the four lowest clusters
     ys = np.sort(m.vertices[:, 1]); feet = ys[: max(4, len(ys) // 200)]
     m.export(a.out)
     print(json.dumps({"ok": True, "out": a.out, "tilt_corrected_deg": round(float(np.degrees(ang)), 2), "support_vertices": support,
-                      "size_m": [round(float(v), 3) for v in (m.bounds[1] - m.bounds[0])], "lowest_1pct_spread_m": round(float(feet[-1] - feet[0]), 4), "level_rule": a.level or None, "level_corrected_deg": level_deg, "level_surface_vertices": int(sel.sum()) if a.level else None,
+                      "size_m": [round(float(v), 3) for v in (m.bounds[1] - m.bounds[0])], "lowest_1pct_spread_m": round(float(feet[-1] - feet[0]), 4), "level_rule": a.level or None, "front": front, "level_corrected_deg": level_deg, "level_surface_vertices": int(sel.sum()) if a.level else None,
                       "faces": int(len(m.faces))}))
     return 0
 
