@@ -1,0 +1,91 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-sf-1",
+ "noun": "art deco chair",
+ "dims_m": {
+  "h": 0.88,
+  "w": 0.46,
+  "d": 0.5
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   0.771,
+   0.88,
+   0.885
+  ],
+  "source_faces": 33598
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/chair-sf-1/model.glb",
+  "triangles": 33598,
+  "bbox_min": [
+   -0.38526153564453125,
+   0.0,
+   -0.4424857497215271
+  ],
+  "bbox_max": [
+   0.38526153564453125,
+   0.8799999952316284,
+   0.4424857497215271
+  ],
+  "size": [
+   0.7705230712890625,
+   0.8799999952316284,
+   0.8849714994430542
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.75,
+  "images": 4,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/chair-sf-1/model.glb",
+  "tilt_corrected_deg": 0.14,
+  "support_vertices": 238,
+  "size_m": [
+   0.771,
+   0.88,
+   0.885
+  ],
+  "lowest_1pct_spread_m": 0.0086,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "level_corrected_deg": 6.82,
+  "level_surface_vertices": 364,
+  "faces": 33598
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "a591b2a531c64f9d99fad3c001d3b1fd",
+  "name": "Art Deco Chair",
+  "author": "OleTobiesen",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-a591b2a531c64f9d99fad3c001d3b1fd",
+  "query": "art deco chair",
+  "pick": 0,
+  "candidates": 4,
+  "hits": 12
+ },
+ "timings_s": {
+  "search": 1.0,
+  "map": 1.1,
+  "download": 1.1,
+  "stand": 2.1,
+  "gate": 0.0,
+  "request_to_library": 5.4
+ }
+}

@@ -64,7 +64,7 @@ def close_painting(room):
 FURNISH = [
     # writing room, west wall: B (TripoSR) and D (Objaverse retrieval); A and C tossed by Kabe 2026-09-02
     {"id": "chair-liner-1934-mesh", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": -0.6, "label": "B · TripoSR (generated mesh)"},
-    {"id": "chair-objaverse-1", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.6, "label": "D · Objaverse retrieval"},
+    {"id": "chair-sf-1", "room": "writing_room", "rule": "wants", "wall": "W", "slot": 0.6, "label": "D · on-demand retrieval (Sketchfab search → mirror), 5 s"},
     # the saloon scene: a unique element the catalogue cannot have (generated) beside a retrieved companion
     # E (the generated telegraph) tossed by Kabe 2026-09-03 ("looks like garbage"): TripoSR drops thin parts; record kept for a stronger model
 
