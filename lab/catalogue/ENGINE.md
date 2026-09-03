@@ -58,3 +58,5 @@ Objects and rooms carry *wants*; a design decision for the room overrides any of
 Priority, highest first: design decision → room want → object relational want (pair) → object plane want (wall / corner) → free. The solver's job is to satisfy the hard ones and score the soft ones, from a seed.
 
 Measured today on the detector: the liner chair's back reads at ~0.03 m² of tall outward face, the retrieved settee's at ~0.1 m²; the settee's arms read at 0.02–0.03 m² above 70 % height and are correctly not backs.
+
+**A back wants a solid wall** (Kabe, 2026-09-03 01:40, the fridge on the kitchen door): a wall want is satisfied only by a stretch of wall with no door or open edge in it, with 0.35 m clearance either side. Wall placements snap to the nearest solid span that fits the object's width and walk to the next wall when none does; a corner is taken only when both of its walls are solid there, else the next corner. A box (tall on every side) takes the corner the design names, or one solid wall.
