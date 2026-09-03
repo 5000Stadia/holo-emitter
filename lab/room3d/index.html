@@ -265,7 +265,8 @@ function step(now) {
     camera.fov = 2 * Math.atan(Math.tan(HFOV_24MM / 2 * Math.PI / 180) / camera.aspect) * 180 / Math.PI; camera.updateProjectionMatrix();
     let dist = 3.0;                                          // the contract's "roughly 3 metres away"
     while (dist > 0.6 && !inside(px - fx * dist, py - fy * dist)) dist -= 0.1;
-    camera.position.copy(P(px - fx * dist, py - fy * dist)); camera.position.y = 1.83;
+    // over the right shoulder, so the walker's own body never hides what is straight ahead
+    camera.position.copy(P(px - fx * dist + rx * 0.7, py - fy * dist + ry * 0.7)); camera.position.y = 1.83;
     camera.rotation.set(0, 0, 0, "YXZ"); camera.rotation.y = yaw; camera.rotation.x = -8 * Math.PI / 180;
     body.visible = true; body.position.copy(P(px, py)); body.position.y = 0.83;
   }
