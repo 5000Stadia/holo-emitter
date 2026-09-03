@@ -144,10 +144,10 @@ for (const r of WORLD.rooms) {
   const nx = Math.max(1, Math.round((R.x1 - R.x0) / 3.2)), ny = Math.max(1, Math.round((R.y1 - R.y0) / 3.2));
   for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
     const lx = R.x0 + (i + 0.5) * (R.x1 - R.x0) / nx, ly = R.y0 + (j + 0.5) * (R.y1 - R.y0) / ny;
-    const l = new THREE.PointLight(0xffd9a8, 45, 14, 2); l.position.copy(P(lx, ly)); l.position.y = H - 0.25; scene.add(l);
+    const l = new THREE.PointLight(0xffd9a8, 16, 14, 2); l.position.copy(P(lx, ly)); l.position.y = H - 0.25; scene.add(l);
   }
 }
-scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.9));
+scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.75));
 
 // props: the library's procedural factories (inline modules registered on
 // window.__factories), placed by the generator's rule, turned to face the room
