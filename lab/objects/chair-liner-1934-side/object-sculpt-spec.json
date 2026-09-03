@@ -1558,8 +1558,8 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(217, 169, 110, 1.0)",
-        "secondaryAlbedo": "rgba(192, 143, 85, 1.0)",
+        "dominantAlbedo": "rgba(209, 152, 90, 1.0)",
+        "secondaryAlbedo": "rgba(226, 172, 114, 1.0)",
         "materialClass": "wood",
         "materialClassConfidence": 0.85,
         "evidenceRefs": [
@@ -1567,7 +1567,7 @@
           "slot-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every sycamore pixel in reference.png (158660 px): rgb(209,152,90); p90 highlight rgb(226,172,114); p10 shade rgb(183,125,64). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       },
       "uvContract": {
         "status": "unwrapped",
@@ -1833,15 +1833,15 @@
       "details": [],
       "fidelityTier": "structural-pass",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(217, 169, 110, 1.0)",
-        "secondaryAlbedo": "rgba(192, 143, 85, 1.0)",
+        "dominantAlbedo": "rgba(209, 152, 90, 1.0)",
+        "secondaryAlbedo": "rgba(226, 172, 114, 1.0)",
         "materialClass": "wood",
         "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "back-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every sycamore pixel in reference.png (158660 px): rgb(209,152,90); p90 highlight rgb(226,172,114); p10 shade rgb(183,125,64). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -2128,15 +2128,15 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(217, 169, 110, 1.0)",
-        "secondaryAlbedo": "rgba(192, 143, 85, 1.0)",
+        "dominantAlbedo": "rgba(209, 152, 90, 1.0)",
+        "secondaryAlbedo": "rgba(226, 172, 114, 1.0)",
         "materialClass": "wood",
         "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "seat-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every sycamore pixel in reference.png (158660 px): rgb(209,152,90); p90 highlight rgb(226,172,114); p10 shade rgb(183,125,64). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -2382,15 +2382,15 @@
       "details": [],
       "fidelityTier": "structural-pass",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(217, 169, 110, 1.0)",
-        "secondaryAlbedo": "rgba(192, 143, 85, 1.0)",
+        "dominantAlbedo": "rgba(209, 152, 90, 1.0)",
+        "secondaryAlbedo": "rgba(226, 172, 114, 1.0)",
         "materialClass": "wood",
-        "materialClassConfidence": 0.88,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "seat-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every sycamore pixel in reference.png (158660 px): rgb(209,152,90); p90 highlight rgb(226,172,114); p10 shade rgb(183,125,64). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -2635,14 +2635,14 @@
       "details": [],
       "fidelityTier": "structural-pass",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(217, 169, 110, 1.0)",
-        "secondaryAlbedo": "rgba(192, 143, 85, 1.0)",
+        "dominantAlbedo": "rgba(209, 152, 90, 1.0)",
+        "secondaryAlbedo": "rgba(226, 172, 114, 1.0)",
         "materialClass": "wood",
-        "materialClassConfidence": 0.7,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "seat-zone"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every sycamore pixel in reference.png (158660 px): rgb(209,152,90); p90 highlight rgb(226,172,114); p10 shade rgb(183,125,64). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -2868,15 +2868,15 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(46, 60, 96, 1.0)",
-        "secondaryAlbedo": "rgba(37, 49, 79, 1.0)",
+        "dominantAlbedo": "rgba(34, 44, 67, 1.0)",
+        "secondaryAlbedo": "rgba(44, 54, 78, 1.0)",
         "materialClass": "fabric",
         "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "seat-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every wool pixel in reference.png (68414 px): rgb(34,44,67); p90 rgb(44,54,78); p10 rgb(20,28,45). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       },
       "uvContract": {
         "status": "unwrapped",
@@ -3147,15 +3147,15 @@
       "details": [],
       "fidelityTier": "structural-pass",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(46, 60, 96, 1.0)",
-        "secondaryAlbedo": "rgba(37, 49, 79, 1.0)",
+        "dominantAlbedo": "rgba(34, 44, 67, 1.0)",
+        "secondaryAlbedo": "rgba(44, 54, 78, 1.0)",
         "materialClass": "fabric",
-        "materialClassConfidence": 0.8,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "seat-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every wool pixel in reference.png (68414 px): rgb(34,44,67); p90 rgb(44,54,78); p10 rgb(20,28,45). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -3403,15 +3403,15 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(51, 36, 27, 1.0)",
-        "secondaryAlbedo": "rgba(107, 70, 50, 1.0)",
+        "dominantAlbedo": "rgba(35, 17, 8, 1.0)",
+        "secondaryAlbedo": "rgba(73, 56, 49, 1.0)",
         "materialClass": "wood",
-        "materialClassConfidence": 0.82,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "leg-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every ebony pixel in reference.png (58282 px): rgb(35,17,8); p90 streak/highlight rgb(73,56,49); p10 rgb(15,5,1). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       },
       "uvContract": {
         "status": "unwrapped",
@@ -3684,15 +3684,15 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(51, 36, 27, 1.0)",
-        "secondaryAlbedo": "rgba(107, 70, 50, 1.0)",
+        "dominantAlbedo": "rgba(35, 17, 8, 1.0)",
+        "secondaryAlbedo": "rgba(73, 56, 49, 1.0)",
         "materialClass": "wood",
-        "materialClassConfidence": 0.82,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "leg-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every ebony pixel in reference.png (58282 px): rgb(35,17,8); p90 streak/highlight rgb(73,56,49); p10 rgb(15,5,1). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -3968,16 +3968,16 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(51, 36, 27, 1.0)",
-        "secondaryAlbedo": "rgba(107, 70, 50, 1.0)",
+        "dominantAlbedo": "rgba(35, 17, 8, 1.0)",
+        "secondaryAlbedo": "rgba(73, 56, 49, 1.0)",
         "materialClass": "wood",
-        "materialClassConfidence": 0.82,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "leg-zone",
           "full-object",
           "slot-zone"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every ebony pixel in reference.png (58282 px): rgb(35,17,8); p90 streak/highlight rgb(73,56,49); p10 rgb(15,5,1). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -4253,16 +4253,16 @@
       "details": [],
       "fidelityTier": "blockout",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(51, 36, 27, 1.0)",
-        "secondaryAlbedo": "rgba(107, 70, 50, 1.0)",
+        "dominantAlbedo": "rgba(35, 17, 8, 1.0)",
+        "secondaryAlbedo": "rgba(73, 56, 49, 1.0)",
         "materialClass": "wood",
-        "materialClassConfidence": 0.82,
+        "materialClassConfidence": 0.85,
         "evidenceRefs": [
           "leg-zone",
           "full-object",
           "slot-zone"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every ebony pixel in reference.png (58282 px): rgb(35,17,8); p90 streak/highlight rgb(73,56,49); p10 rgb(15,5,1). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -4452,15 +4452,15 @@
       "details": [],
       "fidelityTier": "form-refinement",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(198, 201, 203, 1.0)",
-        "secondaryAlbedo": "rgba(142, 146, 149, 1.0)",
+        "dominantAlbedo": "rgba(126, 120, 119, 1.0)",
+        "secondaryAlbedo": "rgba(172, 166, 160, 1.0)",
         "materialClass": "metal",
         "materialClassConfidence": 0.8,
         "evidenceRefs": [
           "foot-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every chrome pixel in reference.png (2334 px): rgb(126,120,119); p90 rim bounce rgb(172,166,160); p99 rgb(241,237,232). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       },
       "uvContract": {
         "status": "unwrapped",
@@ -4675,15 +4675,15 @@
       "details": [],
       "fidelityTier": "form-refinement",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(198, 201, 203, 1.0)",
-        "secondaryAlbedo": "rgba(142, 146, 149, 1.0)",
+        "dominantAlbedo": "rgba(126, 120, 119, 1.0)",
+        "secondaryAlbedo": "rgba(172, 166, 160, 1.0)",
         "materialClass": "metal",
         "materialClassConfidence": 0.8,
         "evidenceRefs": [
           "foot-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every chrome pixel in reference.png (2334 px): rgb(126,120,119); p90 rim bounce rgb(172,166,160); p99 rgb(241,237,232). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -4873,15 +4873,15 @@
       "details": [],
       "fidelityTier": "form-refinement",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(198, 201, 203, 1.0)",
-        "secondaryAlbedo": "rgba(142, 146, 149, 1.0)",
+        "dominantAlbedo": "rgba(126, 120, 119, 1.0)",
+        "secondaryAlbedo": "rgba(172, 166, 160, 1.0)",
         "materialClass": "metal",
         "materialClassConfidence": 0.8,
         "evidenceRefs": [
           "foot-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every chrome pixel in reference.png (2334 px): rgb(126,120,119); p90 rim bounce rgb(172,166,160); p99 rgb(241,237,232). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     },
     {
@@ -5071,15 +5071,15 @@
       "details": [],
       "fidelityTier": "form-refinement",
       "colorMaterialRecipe": {
-        "dominantAlbedo": "rgba(198, 201, 203, 1.0)",
-        "secondaryAlbedo": "rgba(142, 146, 149, 1.0)",
+        "dominantAlbedo": "rgba(126, 120, 119, 1.0)",
+        "secondaryAlbedo": "rgba(172, 166, 160, 1.0)",
         "materialClass": "metal",
         "materialClassConfidence": 0.8,
         "evidenceRefs": [
           "foot-zone",
           "full-object"
         ],
-        "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."
+        "notes": "Median of every chrome pixel in reference.png (2334 px): rgb(126,120,119); p90 rim bounce rgb(172,166,160); p99 rgb(241,237,232). Measured over this material family's whole visible footprint in the reference, not a hand-picked crop."
       }
     }
   ],
@@ -5097,7 +5097,7 @@
           "#C08F55",
           "#EBC28C"
         ],
-        "samplingNotes": "Sampled from the back shell and the apron lipping in reference.png: lit mean rgb(207,150,90), highlight rgb(226,172,114). Albedo lifted off the lit mean for a neutral three-point rig."
+        "samplingNotes": "Median of every sycamore pixel in reference.png (158660 px): rgb(209,152,90); p90 highlight rgb(226,172,114); p10 shade rgb(183,125,64)."
       },
       "colorVariation": {
         "palette": [
@@ -5300,7 +5300,9 @@
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
       "envMapIntensity": 0.95,
-      "qualityTier": "hero"
+      "qualityTier": "hero",
+      "referenceMedian": "#D1985A",
+      "referenceHighlight": "#E2AC72"
     },
     {
       "id": "macassar-ebony",
@@ -5315,7 +5317,7 @@
           "#6B4632",
           "#150D08"
         ],
-        "samplingNotes": "Sampled from the legs in reference.png: lit mean rgb(35,25,24) with warm streaks reaching rgb(65,49,56)+. Near-black warm ground with high-contrast reddish stripes along the member axis."
+        "samplingNotes": "Median of every ebony pixel in reference.png (58282 px): rgb(35,17,8); p90 streak/highlight rgb(73,56,49); p10 rgb(15,5,1)."
       },
       "colorVariation": {
         "palette": [
@@ -5509,7 +5511,9 @@
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
       "envMapIntensity": 0.35,
-      "qualityTier": "hero"
+      "qualityTier": "hero",
+      "referenceMedian": "#231108",
+      "referenceHighlight": "#493831"
     },
     {
       "id": "blue-wool",
@@ -5524,7 +5528,7 @@
           "#25314F",
           "#3A4A72"
         ],
-        "samplingNotes": "Sampled from the seat pad in reference.png: lit mean rgb(37,47,71), p90 rgb(45,56,79). Matte, no specular lobe, fine even weave."
+        "samplingNotes": "Median of every wool pixel in reference.png (68414 px): rgb(34,44,67); p90 rgb(44,54,78); p10 rgb(20,28,45)."
       },
       "colorVariation": {
         "palette": [
@@ -5759,7 +5763,9 @@
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
       "envMapIntensity": 0.18,
-      "qualityTier": "hero"
+      "qualityTier": "hero",
+      "referenceMedian": "#222C43",
+      "referenceHighlight": "#2C364E"
     },
     {
       "id": "polished-chrome",
@@ -5774,7 +5780,7 @@
           "#8E9295",
           "#EDEFF0"
         ],
-        "samplingNotes": "Sampled from the foot ferrules in reference.png: neutral, lit mean rgb(143,139,135) with a bright rim to rgb(192,185,180). Metalness 1, tight specular."
+        "samplingNotes": "Median of every chrome pixel in reference.png (2334 px): rgb(126,120,119); p90 rim bounce rgb(172,166,160); p99 rgb(241,237,232)."
       },
       "colorVariation": {
         "palette": [
@@ -5960,7 +5966,9 @@
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
       "envMapIntensity": 1.0,
-      "qualityTier": "hero"
+      "qualityTier": "hero",
+      "referenceMedian": "#7E7877",
+      "referenceHighlight": "#ACA6A0"
     }
   ],
   "repetitionSystems": [
@@ -8147,6 +8155,86 @@
             {
               "componentId": null,
               "deltaE": 29.06
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "74aef7053b5912f8",
+      "passId": "form-refinement"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8583,
+        "aspectRatioDelta": 0.0488,
+        "scaleDelta": 0.0353,
+        "bilateralSymmetryError": 0.1976,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 15.51,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 9.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 9.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 9.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 9.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 9.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.32
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.32
+            },
+            {
+              "componentId": null,
+              "deltaE": 15.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 15.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 15.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 15.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 1.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 1.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 1.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 1.68
             }
           ],
           "gated": false
