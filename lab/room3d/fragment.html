@@ -18,7 +18,7 @@
   .keys kbd { font-family: inherit; color: var(--ink); border: 1px solid var(--line); padding: 0 5px; border-radius: 2px; }
   .prov { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); max-width: 44ch; line-height: 1.55; }
   .prov b { color: var(--ink); font-weight: 500; }
-  #gate { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
   #gate .t { font-family: "Josefin Sans", "Futura", sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
   #gate .s { margin-top: 4px; color: var(--ink-dim); }
   #gate:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
@@ -27,7 +27,7 @@
   #status .s { margin-top: 12px; color: var(--ink-dim); max-width: 52ch; line-height: 1.6; }
   #status .s b { color: var(--ink); font-weight: 500; }
   #status[hidden], #gate[hidden] { display: none !important; }
-  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room { min-width: 0; padding: 8px 10px 6px; } .room .name { font-size: 16px; } .prov { display: none; } #gate { bottom: 64px; } }
+  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room { min-width: 0; padding: 8px 10px 6px; } .room .name { font-size: 16px; } .prov { display: none; } #gate { top: 70px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 <div id="status"><div><div class="t">SS Meridian · C Deck</div><div class="s" id="statusText">loading the engine…</div></div></div>
@@ -314,7 +314,7 @@ function step(now) {
     // over the right shoulder, so the walker's own body never hides what is straight ahead
     camera.position.copy(P(px - fx * dist + rx * 0.7, py - fy * dist + ry * 0.7)); camera.position.y = 1.83;
     camera.rotation.set(0, 0, 0, "YXZ"); camera.rotation.y = yaw; camera.rotation.x = -8 * Math.PI / 180;
-    body.visible = true; body.position.copy(P(px, py)); body.position.y = 0.83;
+    body.visible = !Q.get("view"); body.position.copy(P(px, py)); body.position.y = 0.83;   // a grading link shows the wall, not the walker
   }
   const r = roomAt(px, py);
   if (r !== lastRoom) { roomName.textContent = r ? r.name : "—"; lastRoom = r;

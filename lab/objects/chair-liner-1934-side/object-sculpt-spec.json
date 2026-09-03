@@ -842,22 +842,24 @@
       "material-pass",
       "optimization-pass"
     ],
-    "currentPass": "structural-pass",
+    "currentPass": "form-refinement",
     "completedPasses": [
-      "blockout"
+      "blockout",
+      "structural-pass"
     ],
-    "lastCompletedPass": "blockout",
+    "lastCompletedPass": "structural-pass",
     "blockedReason": "",
     "nextRequiredEvidence": [
-      "The pale lipping band is unbroken round the pad on every visible side.",
-      "The shell's top edge reads as a roll, not an arris.",
-      "The pad's edge turns down into the lipping with no welt line.",
+      "All four ferrules present, including the occluded rear foot.",
+      "Leg taper matches the measured radius ladder within 0.002 m.",
       "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold.",
       "attachment contracts for child appendages/connectors",
       "no floating child roots/joints in the browser screenshot",
       "browser render screenshot from your agent's browser/screenshot tool",
-      "single side-by-side full reference/render comparison sheet",
-      "all critical semantic feature scores at or above their thresholds",
+      "side-by-side reference/render comparison sheet for AI vision review",
+      "banded interior difference vs the reference baseline (forge/stage4_review/interior_difference.py --from/--to per region)",
+      "AI vision score at or above the visual acceptance threshold",
+      "all critical semantic feature scores from the shared image pair at or above their thresholds",
       "self-correction review appended with action=continue before the next pass"
     ],
     "passOrderRationale": "Five passes, not the eight-pass default. surface-pass is folded into material-pass because the reference carries no relief anywhere: veneer, lacquer and wool are all flat, and every figure is albedo-only. lighting-pass is dropped because this prop is lit by the holo-emitter scene it is dropped into, not by a rig it ships with; the review rig exists only to make the comparison fair. interaction-pass is folded into optimization-pass because the chair is static: it needs an explodable/clickable hierarchy and a collider proxy, and no pivots beyond the root."
@@ -6246,6 +6248,60 @@
       "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
       "notes": "",
       "aiVisionNotes": "Triangle count 4932 for 11 meshes, inside the 6000 budget with room for the four ferrule lathes. Material scores are held flat from the blockout on purpose: albedo work belongs to material-pass and moving it early would make that pass unreadable."
+    },
+    {
+      "timestamp": "2026-09-03T02:15:45.003700+00:00",
+      "passId": "structural-pass",
+      "estimatedFidelity": 0.81,
+      "aiVisionScore": 0.81,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.87,
+        "formDetail": 0.82,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Rolled top edge with a quarter-turn corner return; highlight runs unbroken corner to corner. The reference's top edge carries a slight upward crown that a linear extrude cannot express; stated as an approximation, not matched."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Open at 0.443-0.530 m, crossed only by the two stiles, and still open from both orbit views and the rear."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.83,
+          "threshold": 0.8,
+          "notes": "Unchanged and correct; ferrules are the remaining piece and belong to form-refinement."
+        },
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.82,
+          "threshold": 0.8,
+          "notes": "Roll radius down to 0.010 m reads as a bullnose over a flat apron face, and the pad's plan inset of 0.030 m puts its rolled edge at 0.216 m against the band's 0.215 m inner reach, so no apron top face shows inside the band on any visible side. The corner still shows faint faceting from the 6-segment tube section, visible only well inside the review distance."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-structural2.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "Judged on the side-by-side sheet plus a 3x zoom on the seat corner, because the bullnose is 10 px tall at the review camera and the sheet alone cannot separate a bullnose from a bead at that size."
     }
   ],
   "reviewHistory": [
@@ -6488,6 +6544,87 @@
         "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
         "notes": "",
         "aiVisionNotes": "Triangle count 4932 for 11 meshes, inside the 6000 budget with room for the four ferrule lathes. Material scores are held flat from the blockout on purpose: albedo work belongs to material-pass and moving it early would make that pass unreadable."
+      }
+    },
+    {
+      "timestamp": "2026-09-03T02:15:45.003700+00:00",
+      "passId": "structural-pass",
+      "estimatedFidelity": 0.81,
+      "aiVisionScore": 0.81,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.87,
+        "formDetail": 0.82,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Rolled top edge with a quarter-turn corner return; highlight runs unbroken corner to corner. The reference's top edge carries a slight upward crown that a linear extrude cannot express; stated as an approximation, not matched."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Open at 0.443-0.530 m, crossed only by the two stiles, and still open from both orbit views and the rear."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.83,
+          "threshold": 0.8,
+          "notes": "Unchanged and correct; ferrules are the remaining piece and belong to form-refinement."
+        },
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.82,
+          "threshold": 0.8,
+          "notes": "Roll radius down to 0.010 m reads as a bullnose over a flat apron face, and the pad's plan inset of 0.030 m puts its rolled edge at 0.216 m against the band's 0.215 m inner reach, so no apron top face shows inside the band on any visible side. The corner still shows faint faceting from the 6-segment tube section, visible only well inside the review distance."
+        }
+      ],
+      "action": "continue",
+      "summary": "Structural pass accepted. All four rolled edges are built and every critical feature clears its threshold: silhouette IoU 0.859, aspect delta 0.024, scale delta 0.009, turntable covers four azimuths with no degenerate view and no unintended interior hole. The bead-versus-bullnose defect from the previous review is fixed by dropping the roll radii and pulling the pad's plan out to meet the band.",
+      "matched": [
+        "lipping reads as a bullnose over a flat apron face, not a bead",
+        "pad's rolled edge meets the band's inner reach with no apron top face showing",
+        "pad edge roll tightened to 0.011 m",
+        "shell's top corners round via the roll's corner return",
+        "4932 triangles across 11 meshes, inside the 6000 budget"
+      ],
+      "mismatches": [
+        "reference's top rail carries a slight upward crown a linear extrude cannot express",
+        "tube corners show faint faceting at 6 radial segments",
+        "sycamore still glossier and wool still lighter than the reference - both are material-pass work and are deliberately untouched here"
+      ],
+      "specFixes": [],
+      "codeFixes": [],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-structural2.png",
+        "renders/zoom-seat.png",
+        "renders/turn-090.png",
+        "renders/turn-180.png"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-structural2.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "Judged on the side-by-side sheet plus a 3x zoom on the seat corner, because the bullnose is 10 px tall at the review camera and the sheet alone cannot separate a bullnose from a bead at that size."
       }
     }
   ],
@@ -7939,6 +8076,86 @@
       "maskWarnings": [],
       "renderHash": "3b787304a54cd7c6",
       "passId": "structural-pass"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8583,
+        "aspectRatioDelta": 0.0488,
+        "scaleDelta": 0.0353,
+        "bilateralSymmetryError": 0.1976,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 29.06,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.4
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.4
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.06
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.06
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.06
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.06
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "74aef7053b5912f8",
+      "passId": "form-refinement"
     }
   ],
   "dimensionTable": {
