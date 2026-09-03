@@ -62,10 +62,10 @@ def close_painting(room):
 # experiment two: what stands in the rooms. A placement RULE per prop, not a
 # hand-set coordinate: the same rule places the same asset in any plan.
 FURNISH = [
-    # the same chair through two approaches, side by side on the writing room's west wall (south to north);
-    # the img2threejs chair (A) was tossed by Kabe on cost, 2026-09-02 ("Ugh toss that out"): 100 min and 575k tokens a piece
+    # writing room, west wall (south to north). A (img2threejs) and C (hand primitives) were tossed by Kabe on 2026-09-02;
+    # B (TripoSR) stays; D is the retrieval test (Objaverse) once it passes the gate
     {"id": "chair-liner-1934-mesh", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": -0.6, "label": "B · TripoSR (generated mesh)"},
-    {"id": "chair-liner-1934-prim", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.6, "label": "C · primitives (JSON)"},
+    {"id": "chair-objaverse-1", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.6, "label": "D · Objaverse retrieval"},
 ]
 
 

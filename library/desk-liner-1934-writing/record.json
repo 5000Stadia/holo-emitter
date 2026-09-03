@@ -1,0 +1,72 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "desk-liner-1934-writing",
+ "noun": "writing desk",
+ "dims_m": {
+  "h": 0.76,
+  "w": 1.2,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/desk-liner-1934-writing/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.4834480583667755,
+   0.0,
+   -0.5983688235282898
+  ],
+  "bbox_max": [
+   0.4834480583667755,
+   0.7599999904632568,
+   0.5983688235282898
+  ],
+  "size": [
+   0.966896116733551,
+   0.7599999904632568,
+   1.1967376470565796
+  ],
+  "up_axis": "x",
+  "aspect_err": 0.216,
+  "images": 0,
+  "materials": 0,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/desk-liner-1934-writing/model.glb",
+  "tilt_corrected_deg": 19.9,
+  "support_vertices": 25,
+  "size_m": [
+   0.967,
+   0.76,
+   1.197
+  ],
+  "lowest_1pct_spread_m": 0.0648,
+  "level_rule": "top",
+  "level_corrected_deg": 6.92,
+  "level_surface_vertices": 770,
+  "faces": 16000
+ },
+ "level": "top",
+ "timings": {
+  "s_triposr": 125.2,
+  "s_stand_gate": 1.0,
+  "s_request_to_library": 126.2,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/desk-liner-1934-writing/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 126.2
+ }
+}
