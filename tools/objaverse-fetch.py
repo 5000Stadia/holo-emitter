@@ -52,7 +52,7 @@ def main():
     ground = json.loads(gr.stdout) if gr.stdout.strip().startswith("{") else {"ok": False, "why": gr.stderr[-300:]}
     T["t_stood"] = time.time()
     # decimate if heavy (keeps textures only if the loader kept them; Objaverse GLBs are textured — trimesh keeps TextureVisuals on export)
-    g = subprocess.run([py, os.path.join(ROOT, "tools", "mesh-gate.py"), os.path.join(out, "model.glb"), "--height-m", str(a.height_m), "--width-m", str(a.width_m), "--depth-m", str(a.depth_m), "--max-tris", "200000"], capture_output=True, text=True)
+    g = subprocess.run([py, os.path.join(ROOT, "tools", "mesh-gate.py"), os.path.join(out, "model.glb"), "--height-m", str(a.height_m), "--width-m", str(a.width_m), "--depth-m", str(a.depth_m), "--max-tris", "200000", "--aspect-tol", "0.8"], capture_output=True, text=True)   # a retrieved object has its own proportions: the gate only refuses a wrong CLASS of shape
     gate = json.loads(g.stdout) if g.stdout.strip().startswith("{") else {"ok": False, "failures": [g.stderr[-200:]]}
     T["t_gated"] = time.time()
     rec = {"schema": "library-record/mesh/0.1", "id": a.id, "noun": a.category, "dims_m": {"h": a.height_m, "w": a.width_m, "d": a.depth_m},
