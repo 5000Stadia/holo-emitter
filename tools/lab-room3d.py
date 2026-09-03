@@ -211,7 +211,7 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   </div>
   <div></div>
   <div class="bottom">
-    <div class="keys"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride &nbsp; <kbd>V</kbd> contract camera</div>
+    <div class="keys"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride &nbsp; <kbd>Q</kbd> <kbd>E</kbd> turn &nbsp; <kbd>V</kbd> contract camera</div>
     <div class="prov" id="prov"></div>
   </div>
 </div>
@@ -362,7 +362,12 @@ const keys = {};
 // V: the contract camera (front-three-quarter at 1.83 m, pitched 8 deg down, 24 mm) following behind
 let view = "first";
 const VFOV_FIRST = 70, HFOV_24MM = 2 * Math.atan(18 / 24) * 180 / Math.PI;
-addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyV") { view = view === "first" ? "contract" : "first"; } });
+addEventListener("keydown", e => {
+  keys[e.code] = true;
+  if (e.code === "KeyV") view = view === "first" ? "contract" : "first";
+  if (e.code === "KeyQ") yaw += Math.PI / 12;      // turn left 15 deg, keyboard-only viewers
+  if (e.code === "KeyE") yaw -= Math.PI / 12;
+});
 addEventListener("keyup", e => { keys[e.code] = false; });
 const gate = document.getElementById("gate");
 const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
