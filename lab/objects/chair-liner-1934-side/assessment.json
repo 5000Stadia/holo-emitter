@@ -249,7 +249,8 @@
           "affects": "material",
           "mapsTo": {
             "type": "material.localOverrides",
-            "ref": "macassar-ebony/ebony-streak"
+            "ref": "ebony-streak",
+            "owner": "macassar-ebony"
           },
           "evidenceRef": "di/crop-leg-near.png",
           "confidence": 0.85
@@ -269,7 +270,8 @@
           "affects": "material",
           "mapsTo": {
             "type": "material.localOverrides",
-            "ref": "figured-sycamore/sycamore-mottle"
+            "ref": "sycamore-mottle",
+            "owner": "figured-sycamore"
           },
           "evidenceRef": "di/crop-back-top.png",
           "confidence": 0.85
@@ -289,7 +291,8 @@
           "affects": "material",
           "mapsTo": {
             "type": "material.localOverrides",
-            "ref": "blue-wool/wool-weave"
+            "ref": "wool-weave",
+            "owner": "blue-wool"
           },
           "evidenceRef": "di/crop-seat-corner.png",
           "confidence": 0.85

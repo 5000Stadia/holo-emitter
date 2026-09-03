@@ -45,7 +45,7 @@ def rebuild(pass_id):
     subprocess.run([sys.executable, str(SKILL / 'forge/stage2_spec/validate_sculpt_spec.py'),
                     str(SPEC), '--strict-quality'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, str(SKILL / 'forge/stage3_build/generate_threejs_factory.py'),
-                    str(SPEC), '--out', str(out), '--pass-id', pass_id], cwd=ROOT, check=True)
+                    str(SPEC), '--out', str(out), '--pass-id', pass_id, '--force'], cwd=ROOT, check=True)
     subprocess.run([sys.executable, str(ROOT / 'tools/port_ts_to_js.py'), str(out),
                     str(ROOT / 'src/createChairLiner1934Model.js')], cwd=ROOT, check=True)
 

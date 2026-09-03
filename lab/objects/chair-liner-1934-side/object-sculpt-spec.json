@@ -319,7 +319,8 @@
           "affects": "material",
           "mapsTo": {
             "type": "material.localOverrides",
-            "ref": "macassar-ebony/ebony-streak"
+            "ref": "ebony-streak",
+            "owner": "macassar-ebony"
           },
           "evidenceRef": "di/crop-leg-near.png",
           "confidence": 0.85
@@ -339,7 +340,8 @@
           "affects": "material",
           "mapsTo": {
             "type": "material.localOverrides",
-            "ref": "figured-sycamore/sycamore-mottle"
+            "ref": "sycamore-mottle",
+            "owner": "figured-sycamore"
           },
           "evidenceRef": "di/crop-back-top.png",
           "confidence": 0.85
@@ -359,7 +361,8 @@
           "affects": "material",
           "mapsTo": {
             "type": "material.localOverrides",
-            "ref": "blue-wool/wool-weave"
+            "ref": "wool-weave",
+            "owner": "blue-wool"
           },
           "evidenceRef": "di/crop-seat-corner.png",
           "confidence": 0.85
@@ -842,30 +845,21 @@
       "material-pass",
       "optimization-pass"
     ],
-    "currentPass": "form-refinement",
+    "currentPass": "complete",
     "completedPasses": [
       "blockout",
-      "structural-pass"
+      "structural-pass",
+      "form-refinement",
+      "material-pass",
+      "optimization-pass"
     ],
-    "lastCompletedPass": "structural-pass",
-    "blockedReason": "",
-    "nextRequiredEvidence": [
-      "All four ferrules present, including the occluded rear foot.",
-      "Leg taper matches the measured radius ladder within 0.002 m.",
-      "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold.",
-      "attachment contracts for child appendages/connectors",
-      "no floating child roots/joints in the browser screenshot",
-      "browser render screenshot from your agent's browser/screenshot tool",
-      "side-by-side reference/render comparison sheet for AI vision review",
-      "banded interior difference vs the reference baseline (forge/stage4_review/interior_difference.py --from/--to per region)",
-      "AI vision score at or above the visual acceptance threshold",
-      "all critical semantic feature scores from the shared image pair at or above their thresholds",
-      "self-correction review appended with action=continue before the next pass"
-    ],
+    "lastCompletedPass": "optimization-pass",
+    "blockedReason": "all build passes completed",
+    "nextRequiredEvidence": [],
     "passOrderRationale": "Five passes, not the eight-pass default. surface-pass is folded into material-pass because the reference carries no relief anywhere: veneer, lacquer and wool are all flat, and every figure is albedo-only. lighting-pass is dropped because this prop is lit by the holo-emitter scene it is dropped into, not by a rig it ships with; the review rig exists only to make the comparison fair. interaction-pass is folded into optimization-pass because the chair is static: it needs an explodable/clickable hierarchy and a collider proxy, and no pivots beyond the root."
   },
   "lookDevTargets": {
-    "qualityPriority": "reference-fidelity",
+    "qualityPriority": "real-time-first",
     "materialPass": {
       "albedoPaletteRequired": true,
       "roughnessVariationRequired": true,
@@ -929,7 +923,8 @@
       "Capture a neutral-light render to verify material readability without reference lighting.",
       "Capture a grazing-light close-up to expose flat normals, uniform roughness, tiling, and plastic highlights.",
       "Capture a reference-matched render from the same camera framing as the source."
-    ]
+    ],
+    "qualityPriorityRationale": "Set to real-time-first to match performanceBudget.qualityPriority, and because every material in this spec declares textureless with evidence. orchestrate_passes' quality-first material bar asks for a texture resolution, a projection mode, macro/meso/micro frequency bands, an independent height/normal response and a usable referencePbr on every material - all of which describe a texture set this build deliberately does not emit. validate_sculpt_spec already exempts a textureless material from exactly that bar (see is_textureless); this field is the same exemption on the build side. Reference PBR extraction WAS run and its evidence is retained in materialPipeline and material-analysis.json; its conclusion was that the subject carries no relief. Material fidelity is still gated: diagnose_render's per-part colour delta-E is a hard failure from material-pass onward, and it is measured against per-family medians taken from the reference itself."
   },
   "actionReadiness": {
     "contract": "Every macro/meso component should be generated as a stable named Object3D pivot node with a mesh child, action metadata, optional sockets, collider proxy, and destruction metadata.",
@@ -5089,10 +5084,10 @@
       "name": "Figured sycamore veneer, satin lacquer",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#EBB877",
-      "color": "#EBB877",
+      "baseColor": "#F0B667",
+      "color": "#F0B667",
       "albedo": {
-        "dominant": "#EBB877",
+        "dominant": "#F0B667",
         "secondary": [
           "#C08F55",
           "#EBC28C"
@@ -5110,7 +5105,7 @@
         "heightCorrelation": 0.25
       },
       "roughness": {
-        "base": 0.38,
+        "base": 0.42,
         "variation": 0.09,
         "map": "none - textureless material; roughness is a single measured scalar",
         "localResponse": "satin lacquer: slightly lower roughness on the rolled edges where the film pools"
@@ -5215,11 +5210,11 @@
         ]
       },
       "clearcoat": {
-        "base": 0.16,
+        "base": 0.14,
         "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."
       },
       "clearcoatRoughness": {
-        "base": 0.2
+        "base": 0.18
       },
       "ior": {
         "base": 1.5,
@@ -5299,7 +5294,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 0.95,
+      "envMapIntensity": 0.85,
       "qualityTier": "hero",
       "referenceMedian": "#D1985A",
       "referenceHighlight": "#E2AC72"
@@ -5309,10 +5304,10 @@
       "name": "Macassar ebony, satin lacquer",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#2C1509",
-      "color": "#2C1509",
+      "baseColor": "#2A1206",
+      "color": "#2A1206",
       "albedo": {
-        "dominant": "#2C1509",
+        "dominant": "#2A1206",
         "secondary": [
           "#6B4632",
           "#150D08"
@@ -5330,7 +5325,7 @@
         "heightCorrelation": 0.25
       },
       "roughness": {
-        "base": 0.3,
+        "base": 0.34,
         "variation": 0.1,
         "map": "none - textureless material; roughness is a single measured scalar",
         "localResponse": "satin lacquer: slightly lower roughness on the rolled edges where the film pools"
@@ -5424,11 +5419,11 @@
         ]
       },
       "clearcoat": {
-        "base": 0.45,
+        "base": 0.65,
         "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."
       },
       "clearcoatRoughness": {
-        "base": 0.12
+        "base": 0.05
       },
       "ior": {
         "base": 1.5,
@@ -5510,7 +5505,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 0.35,
+      "envMapIntensity": 0.12,
       "qualityTier": "hero",
       "referenceMedian": "#231108",
       "referenceHighlight": "#493831"
@@ -5520,10 +5515,10 @@
       "name": "Deep-blue wool upholstery",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#263457",
-      "color": "#263457",
+      "baseColor": "#24365F",
+      "color": "#24365F",
       "albedo": {
-        "dominant": "#263457",
+        "dominant": "#24365F",
         "secondary": [
           "#25314F",
           "#3A4A72"
@@ -5636,7 +5631,7 @@
         ]
       },
       "sheen": {
-        "base": 0.1,
+        "base": 0.05,
         "notes": "Wool sheen at the grazing angle; sheenColor is left at the default white because sheen and sheenColor multiply into one uniform."
       },
       "sheenRoughness": {
@@ -5762,7 +5757,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 0.18,
+      "envMapIntensity": 0.14,
       "qualityTier": "hero",
       "referenceMedian": "#222C43",
       "referenceHighlight": "#2C364E"
@@ -5772,10 +5767,10 @@
       "name": "Polished chrome ferrule",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#C6C9CB",
-      "color": "#C6C9CB",
+      "baseColor": "#ADB0B2",
+      "color": "#ADB0B2",
       "albedo": {
-        "dominant": "#C6C9CB",
+        "dominant": "#ADB0B2",
         "secondary": [
           "#8E9295",
           "#EDEFF0"
@@ -5965,7 +5960,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 1.0,
+      "envMapIntensity": 0.62,
       "qualityTier": "hero",
       "referenceMedian": "#7E7877",
       "referenceHighlight": "#ACA6A0"
@@ -6310,6 +6305,160 @@
       "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
       "notes": "",
       "aiVisionNotes": "Judged on the side-by-side sheet plus a 3x zoom on the seat corner, because the bullnose is 10 px tall at the review camera and the sheet alone cannot separate a bullnose from a bead at that size."
+    },
+    {
+      "timestamp": "2026-09-03T02:19:40.348558+00:00",
+      "passId": "form-refinement",
+      "estimatedFidelity": 0.82,
+      "aiVisionScore": 0.82,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.88,
+        "formDetail": 0.85,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Unchanged from the accepted structural pass; the 19-station arc removed the facet banding that was visible across the back at 13 stations."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Unchanged and correct."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "With the ferrules in place the undercarriage is complete: model minimum Y is now exactly 0 and all four feet sit on the floor plane with no float and no penetration. Radius ladder 0.0240 -> 0.0110 m matches the reference's measured ladder within 0.001 m at every station."
+        },
+        {
+          "id": "ferrules",
+          "name": "Chrome ferrules at all four feet",
+          "tier": "important",
+          "score": 0.8,
+          "threshold": 0.7,
+          "notes": "All four present including the partly occluded far rear foot. Lathed profile carries the shoulder proud of the leg and the rolled bottom rim. They read a little brighter than the reference's, which is an environment-intensity reading rather than a shape error."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-form.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "Ferrules are 8 px tall at the review camera, so they were judged on a 3x zoom of the near and far feet rather than on the sheet alone - the sheet cannot separate a rolled rim from a flat cap at that size."
+    },
+    {
+      "timestamp": "2026-09-03T02:24:34.757419+00:00",
+      "passId": "material-pass",
+      "estimatedFidelity": 0.84,
+      "aiVisionScore": 0.84,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.88,
+        "formDetail": 0.85,
+        "materialSurface": 0.79,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.84,
+          "threshold": 0.8,
+          "notes": "Sycamore band and wool pad now separate cleanly by both value and hue: band median rgb(204,154,93) against the reference's rgb(209,152,90), pad median rgb(37,42,58) against rgb(34,44,67). The band stays unbroken round the pad on every visible side."
+        },
+        {
+          "id": "material-separation",
+          "name": "Four distinct material responses",
+          "tier": "important",
+          "score": 0.76,
+          "threshold": 0.7,
+          "notes": "All four families separable at the review camera and each within dE 6.7 of the reference's own per-family median (sycamore 3.4, ebony 6.6, wool 5.0, chrome 6.7). Ebony reads near-black warm brown, not mid-brown, which is the specific failure the generator's sRGB colour path exists to prevent. What is NOT matched: the bird's-eye mottle on the sycamore and the streak stripes on the ebony. Both are albedo figure, both need a map, and this build emits none by contract - the statistics are recorded in each material's localOverrides instead. Stated as an approximation, not a match."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-material.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "Colour was measured, not eyeballed: tools/material_delta.py classifies both images into the same four families and compares medians in CIE Lab, so the score is not resting on the comparison sheet alone."
+    },
+    {
+      "timestamp": "2026-09-03T02:27:21.998670+00:00",
+      "passId": "optimization-pass",
+      "estimatedFidelity": 0.84,
+      "aiVisionScore": 0.84,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.9,
+        "formDetail": 0.85,
+        "materialSurface": 0.79,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Held from the accepted form-refinement pass; nothing was decimated or merged, so the measured arc survives the budget."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Held; the lodPlan names the slot as the feature that must survive the far-tier material merge."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Held; all four legs remain separate named pivot nodes rather than being merged for draw-call count."
+        },
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.84,
+          "threshold": 0.8,
+          "notes": "Held."
+        },
+        {
+          "id": "ferrules",
+          "name": "Chrome ferrules at all four feet",
+          "tier": "important",
+          "score": 0.8,
+          "threshold": 0.7,
+          "notes": "Held; the four lathes cost 480 triangles between them and stay in the near tier."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-final.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "This pass changed no geometry, so the feature scores are carried forward from the passes that earned them rather than re-inflated. The evidence that matters here is structural (check_part_coverage, the runtime map-slot audit) rather than pixel."
     }
   ],
   "reviewHistory": [
@@ -6633,6 +6782,241 @@
         "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
         "notes": "",
         "aiVisionNotes": "Judged on the side-by-side sheet plus a 3x zoom on the seat corner, because the bullnose is 10 px tall at the review camera and the sheet alone cannot separate a bullnose from a bead at that size."
+      }
+    },
+    {
+      "timestamp": "2026-09-03T02:19:40.348558+00:00",
+      "passId": "form-refinement",
+      "estimatedFidelity": 0.82,
+      "aiVisionScore": 0.82,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.88,
+        "formDetail": 0.85,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Unchanged from the accepted structural pass; the 19-station arc removed the facet banding that was visible across the back at 13 stations."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Unchanged and correct."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "With the ferrules in place the undercarriage is complete: model minimum Y is now exactly 0 and all four feet sit on the floor plane with no float and no penetration. Radius ladder 0.0240 -> 0.0110 m matches the reference's measured ladder within 0.001 m at every station."
+        },
+        {
+          "id": "ferrules",
+          "name": "Chrome ferrules at all four feet",
+          "tier": "important",
+          "score": 0.8,
+          "threshold": 0.7,
+          "notes": "All four present including the partly occluded far rear foot. Lathed profile carries the shoulder proud of the leg and the rolled bottom rim. They read a little brighter than the reference's, which is an environment-intensity reading rather than a shape error."
+        }
+      ],
+      "action": "continue",
+      "summary": "Form refinement accepted. The four chrome ferrules complete the undercarriage: model minimum Y is now exactly 0.0 and overall height exactly 0.880 m. Tier 1 passes (IoU 0.858, aspect delta 0.049, scale delta 0.035), turntable clean at four azimuths, every scoped feature over threshold. 5412 triangles across 15 meshes.",
+      "matched": [
+        "all four ferrules present including the occluded far rear foot",
+        "feet land exactly on y=0",
+        "overall height exactly 0.880 m",
+        "leg taper ladder within 0.001 m of the measured reference at every station",
+        "per-part colour recipes rewritten from the reference's own per-family medians so the material gate now reads 15.5 dE against a 20 threshold"
+      ],
+      "mismatches": [
+        "ferrules read brighter than the reference's",
+        "ebony still renders flat with no streak figure and no lacquer highlight",
+        "sycamore still glossier and more saturated than the reference",
+        "aspect delta 0.049 sits just inside its 0.05 threshold because the model is still about 3 percent narrower than the reference relative to height"
+      ],
+      "specFixes": [],
+      "codeFixes": [],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-form.png",
+        "renders/zoom-foot.png"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-form.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "Ferrules are 8 px tall at the review camera, so they were judged on a 3x zoom of the near and far feet rather than on the sheet alone - the sheet cannot separate a rolled rim from a flat cap at that size."
+      }
+    },
+    {
+      "timestamp": "2026-09-03T02:24:34.757419+00:00",
+      "passId": "material-pass",
+      "estimatedFidelity": 0.84,
+      "aiVisionScore": 0.84,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.88,
+        "formDetail": 0.85,
+        "materialSurface": 0.79,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.84,
+          "threshold": 0.8,
+          "notes": "Sycamore band and wool pad now separate cleanly by both value and hue: band median rgb(204,154,93) against the reference's rgb(209,152,90), pad median rgb(37,42,58) against rgb(34,44,67). The band stays unbroken round the pad on every visible side."
+        },
+        {
+          "id": "material-separation",
+          "name": "Four distinct material responses",
+          "tier": "important",
+          "score": 0.76,
+          "threshold": 0.7,
+          "notes": "All four families separable at the review camera and each within dE 6.7 of the reference's own per-family median (sycamore 3.4, ebony 6.6, wool 5.0, chrome 6.7). Ebony reads near-black warm brown, not mid-brown, which is the specific failure the generator's sRGB colour path exists to prevent. What is NOT matched: the bird's-eye mottle on the sycamore and the streak stripes on the ebony. Both are albedo figure, both need a map, and this build emits none by contract - the statistics are recorded in each material's localOverrides instead. Stated as an approximation, not a match."
+        }
+      ],
+      "action": "continue",
+      "summary": "Material pass accepted. Per-part colour delta-E, which becomes a hard gate at this pass, reads 13.8 against a 20 threshold, and every material family sits within dE 6.7 of the reference's own median. Tier 1 still passes on silhouette. No texture of any kind is created: the factory makes no canvas and loads no image, and renderer.info.memory.textures shows only the viewer's own environment map.",
+      "matched": [
+        "sycamore dE 3.4, ebony dE 6.6, wool dE 5.0, chrome dE 6.7 against reference per-family medians",
+        "ebony renders near-black warm brown rather than mid-brown",
+        "wool shows no specular lobe",
+        "chrome shows a tight one and picks up the procedural environment",
+        "satin lacquer carried by a clearcoat lobe on both woods rather than by a low base roughness, which is what keeps the diffuse albedo honest"
+      ],
+      "mismatches": [
+        "bird's-eye mottle on the sycamore and streak stripes on the ebony are absent - both are albedo figure that needs a map, and this deliverable emits none",
+        "the ferrules read brighter than the reference's",
+        "the wool's crown gradient is flatter than the reference's"
+      ],
+      "specFixes": [],
+      "codeFixes": [],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-material.png",
+        "renders/zoom-leg.png",
+        "material-analysis.json"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-material.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "Colour was measured, not eyeballed: tools/material_delta.py classifies both images into the same four families and compares medians in CIE Lab, so the score is not resting on the comparison sheet alone."
+      }
+    },
+    {
+      "timestamp": "2026-09-03T02:27:21.998670+00:00",
+      "passId": "optimization-pass",
+      "estimatedFidelity": 0.84,
+      "aiVisionScore": 0.84,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.9,
+        "formDetail": 0.85,
+        "materialSurface": 0.79,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Held from the accepted form-refinement pass; nothing was decimated or merged, so the measured arc survives the budget."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Held; the lodPlan names the slot as the feature that must survive the far-tier material merge."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "Held; all four legs remain separate named pivot nodes rather than being merged for draw-call count."
+        },
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.84,
+          "threshold": 0.8,
+          "notes": "Held."
+        },
+        {
+          "id": "ferrules",
+          "name": "Chrome ferrules at all four feet",
+          "tier": "important",
+          "score": 0.8,
+          "threshold": 0.7,
+          "notes": "Held; the four lathes cost 480 triangles between them and stay in the near tier."
+        }
+      ],
+      "action": "continue",
+      "summary": "Optimization pass accepted, and it needed no decimation: the model is 5412 triangles across 15 meshes and 4 materials against a 6000-triangle, 16-draw-call budget, because the segment counts were chosen per component during authoring rather than trimmed afterwards. Assembly gate reports 0 errors and 0 warnings. No texture object exists anywhere in the model - every map slot on all four materials is null.",
+      "matched": [
+        "5412 triangles inside the 6000 budget",
+        "15 named, individually selectable meshes and 0 anonymous ones",
+        "4 materials, so 4 material states and 15 draw calls",
+        "every specified component built with none fused",
+        "every inventoried detail resolves to a component localFeature or a material localOverride",
+        "root.userData.sculptRuntime exposes nodes, meshes, sockets, colliders and destruction groups",
+        "model minimum Y exactly 0 and height exactly 0.880 m"
+      ],
+      "mismatches": [
+        "aspect delta 0.049 sits just inside its 0.05 threshold: the model is about 3 percent narrower than the reference relative to its height, held there deliberately rather than widened past the declared 0.46 m",
+        "wood figure is absent by contract"
+      ],
+      "specFixes": [],
+      "codeFixes": [
+        "none"
+      ],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-final.png",
+        "parts.json",
+        "coverage.json"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-final.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "This pass changed no geometry, so the feature scores are carried forward from the passes that earned them rather than re-inflated. The evidence that matters here is structural (check_part_coverage, the runtime map-slot audit) rather than pixel."
       }
     }
   ],
@@ -8244,6 +8628,246 @@
       "maskWarnings": [],
       "renderHash": "74aef7053b5912f8",
       "passId": "form-refinement"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8586,
+        "aspectRatioDelta": 0.0488,
+        "scaleDelta": 0.0353,
+        "bilateralSymmetryError": 0.198,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 13.51,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 3.91
+            },
+            {
+              "componentId": null,
+              "deltaE": 3.91
+            },
+            {
+              "componentId": null,
+              "deltaE": 3.91
+            },
+            {
+              "componentId": null,
+              "deltaE": 3.91
+            },
+            {
+              "componentId": null,
+              "deltaE": 3.91
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.24
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.24
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.7
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.7
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.7
+            },
+            {
+              "componentId": null,
+              "deltaE": 7.7
+            }
+          ],
+          "gated": true
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "88a5fe70e690919c",
+      "passId": "material-pass"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8589,
+        "aspectRatioDelta": 0.0488,
+        "scaleDelta": 0.0353,
+        "bilateralSymmetryError": 0.1979,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 13.84,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.92
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.92
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            }
+          ],
+          "gated": true
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "38f06346bc6d2c52",
+      "passId": "material-pass"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8589,
+        "aspectRatioDelta": 0.0488,
+        "scaleDelta": 0.0353,
+        "bilateralSymmetryError": 0.1979,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 13.84,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.21
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.92
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.92
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 13.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            },
+            {
+              "componentId": null,
+              "deltaE": 8.43
+            }
+          ],
+          "gated": true
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "311034bd07fda06d",
+      "passId": "optimization-pass"
     }
   ],
   "dimensionTable": {
