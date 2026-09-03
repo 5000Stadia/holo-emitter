@@ -101,12 +101,17 @@ def factory_of(asset_id):
         return None, "in the library as a sprite only, no factory, model.glb or primitives.json"
     src = open(js).read()
     # the module must import three by the bare specifier the importmap maps
+    # the factory is the module's DEFAULT export, else its first exported function
     export = None
     for line in src.splitlines():
-        if line.startswith("export function "):
-            export = line.split("export function ", 1)[1].split("(", 1)[0].strip()
-        elif line.startswith("export const ") or line.startswith("export async function "):
-            export = line.split()[2].split("(", 1)[0].strip()
+        if line.startswith("export default ") and line.rstrip().endswith(";"):
+            export = line.split("export default ", 1)[1].rstrip(";").strip()
+            break
+    if not export:
+        for line in src.splitlines():
+            if line.startswith("export function ") or line.startswith("export async function "):
+                export = line.split("function ", 1)[1].split("(", 1)[0].strip()
+                break
     if not export:
         return None, "factory.js exports no function"
     return {
