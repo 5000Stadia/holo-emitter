@@ -134,6 +134,47 @@ def factory_of(asset_id):
     }, None
 
 
+CLEAR = 0.35   # a door or opening keeps this much wall free either side
+
+
+def solid_spans(plan, room, wall, R):
+    """The stretches of this wall a back can see: the wall's run minus its openings, with clearance."""
+    lo, hi = (R["x0"], R["x1"]) if wall in "NS" else (R["y0"], R["y1"])
+    cuts = []
+    for o in plan["openings"]:
+        if room not in o.get("joins", []): continue
+        rr = o["rect"]
+        on = (wall == "N" and abs(rr["y0"] - R["y1"]) < 1e-3) or (wall == "S" and abs(rr["y1"] - R["y0"]) < 1e-3) \
+             or (wall == "E" and abs(rr["x0"] - R["x1"]) < 1e-3) or (wall == "W" and abs(rr["x1"] - R["x0"]) < 1e-3)
+        if not on: continue
+        a_, b_ = (rr["x0"], rr["x1"]) if wall in "NS" else (rr["y0"], rr["y1"])
+        cuts.append((a_ - CLEAR, b_ + CLEAR))
+    spans, u = [], lo
+    for a_, b_ in sorted(cuts):
+        if a_ > u: spans.append((u, a_))
+        u = max(u, b_)
+    if hi > u: spans.append((u, hi))
+    return spans
+
+
+def snap_to_solid(plan, room, wall, R, want_u, width):
+    """Centre coordinate along the wall nearest want_u inside a solid span that fits the width, or None."""
+    best = None
+    for a_, b_ in solid_spans(plan, room, wall, R):
+        if b_ - a_ < width + 0.1: continue
+        u = min(max(want_u, a_ + width / 2 + 0.05), b_ - width / 2 - 0.05)
+        if best is None or abs(u - want_u) < abs(best - want_u): best = u
+    return best
+
+
+def wall_pos(plan, room, wall, R, u, depth):
+    gap = 0.05 + depth / 2
+    if wall == "W": return R["x0"] + gap, u
+    if wall == "E": return R["x1"] - gap, u
+    if wall == "S": return u, R["y0"] + gap
+    return u, R["y1"] - gap
+
+
 def furnish(plan, place=None):
     rooms = {r["id"]: r for r in plan["rooms"]}
     out = []
@@ -185,10 +226,20 @@ def furnish(plan, place=None):
             # the object's own planes decide: two backs -> the corner they name, one back -> a wall, none -> free
             rec = json.load(open(os.path.join(ROOT, "library", f["id"], "record.json")))
             walls = ((rec.get("grounding") or {}).get("wants") or {}).get("walls") or []
-            if len(walls) >= 3: walls = ["-z"]          # a box (cabinet, fridge, cooler) reads tall on every side: one wall, its back by convention
+            if len(walls) >= 3:                          # a box (cabinet, fridge, cooler) reads tall on every side
+                walls = ["-z", "-x"] if f.get("corner") else ["-z"]   # a corner if the design names one, else one wall
             W_, D_ = a["width_m"], a["depth_m"]
             gap = 0.05
             if len(walls) >= 2:
+                # the corner's two walls must be solid where the object sits; otherwise walk the corners
+                for corner in [f.get("corner", "SW")] + [c for c in ("SW", "NW", "NE", "SE") if c != f.get("corner", "SW")]:
+                    wx = "W" if "W" in corner else "E"; wy = "S" if "S" in corner else "N"
+                    ux = R["x0"] + 0.05 + W_ / 2 if wx == "W" else R["x1"] - 0.05 - W_ / 2
+                    uy = R["y0"] + 0.05 + D_ / 2 if wy == "S" else R["y1"] - 0.05 - D_ / 2
+                    ok_x = any(a_ <= ux - W_ / 2 and ux + W_ / 2 <= b_ for a_, b_ in solid_spans(plan, f["room"], wy, R))
+                    ok_y = any(a_ <= uy - D_ / 2 and uy + D_ / 2 <= b_ for a_, b_ in solid_spans(plan, f["room"], wx, R))
+                    if ok_x and ok_y:
+                        f = {**f, "corner": corner}; break
                 # backs at -z and +x (object space, front +z) -> the object's back-left corner sits in a room corner;
                 # choose the room corner named by f["corner"] (default SW) and turn the object so its backs meet those walls
                 corner = f.get("corner", "SW")
@@ -201,14 +252,18 @@ def furnish(plan, place=None):
                 emit(x, y, facing, f"wants: corner {corner} (backs {walls})")
                 continue
             if len(walls) == 1:
-                wall = f.get("wall", "W")
-                gap2 = gap + D_ / 2
-                if wall == "W": x, y = R["x0"] + gap2, (R["y0"] + R["y1"]) / 2
-                elif wall == "E": x, y = R["x1"] - gap2, (R["y0"] + R["y1"]) / 2
-                elif wall == "S": x, y = (R["x0"] + R["x1"]) / 2, R["y0"] + gap2
-                else: x, y = (R["x0"] + R["x1"]) / 2, R["y1"] - gap2
-                facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[wall]
-                emit(x, y, facing, f"wants: wall {wall} (back {walls[0]})")
+                order = ["W", "N", "E", "S"]; w0 = f.get("wall", "W"); order = order[order.index(w0):] + order[:order.index(w0)]
+                done = False
+                for wall in order:                       # the back wants a SOLID wall: the first wall with a span that fits
+                    mid = (R["x0"] + R["x1"]) / 2 if wall in "NS" else (R["y0"] + R["y1"]) / 2
+                    u = snap_to_solid(plan, f["room"], wall, R, mid + f.get("slot", 0.0), W_)
+                    if u is None: continue
+                    x, y = wall_pos(plan, f["room"], wall, R, u, D_)
+                    facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[wall]
+                    emit(x, y, facing, f"wants: wall {wall}{'' if wall == w0 else ' (moved off an opening on ' + w0 + ')'} (back {walls[0]})")
+                    done = True; break
+                if not done:
+                    out.append({"id": f["id"], "room": f["room"], "missing": "no solid wall span fits it", "label": f.get("label", f["id"])})
                 continue
             x, y = (R["x0"] + R["x1"]) / 2, (R["y0"] + R["y1"]) / 2
             emit(x, y, "S", "wants: free (no back)")
@@ -225,16 +280,10 @@ def furnish(plan, place=None):
             elif f["wall"] == "E": x, y = R["x1"] - gap, (R["y0"] + R["y1"]) / 2
             elif f["wall"] == "S": x, y = (R["x0"] + R["x1"]) / 2, R["y0"] + gap
             else: x, y = (R["x0"] + R["x1"]) / 2, R["y1"] - gap
-            for o in plan["openings"]:
-                if f["room"] not in o.get("joins", []):
-                    continue
-                rr = o["rect"]
-                if f["wall"] in "NS" and abs((rr["y0"] if f["wall"] == "N" else rr["y1"]) - (R["y1"] if f["wall"] == "N" else R["y0"])) < 1e-3 \
-                        and rr["x0"] - a["width_m"] < x < rr["x1"] + a["width_m"]:
-                    x = rr["x1"] + a["width_m"]
-                if f["wall"] in "EW" and abs((rr["x0"] if f["wall"] == "E" else rr["x1"]) - (R["x1"] if f["wall"] == "E" else R["x0"])) < 1e-3 \
-                        and rr["y0"] - a["width_m"] < y < rr["y1"] + a["width_m"]:
-                    y = rr["y1"] + a["width_m"]
+            want_u = (x if f["wall"] in "NS" else y) + (f.get("slot", 0.0) if f["wall"] in "NS" else 0.0)
+            u = snap_to_solid(plan, f["room"], f["wall"], R, (x if f["wall"] in "NS" else y), a["width_m"])
+            if u is not None:
+                x, y = wall_pos(plan, f["room"], f["wall"], R, u, a["depth_m"])
             if f["wall"] in "EW": y += f.get("slot", 0.0)
             else: x += f.get("slot", 0.0)
             facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[f["wall"]]
