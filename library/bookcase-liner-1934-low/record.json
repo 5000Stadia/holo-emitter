@@ -1,0 +1,74 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "bookcase-liner-1934-low",
+ "noun": "low bookcase",
+ "dims_m": {
+  "h": 1.0,
+  "w": 1.2,
+  "d": 0.35
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": false,
+  "glb": "/home/k/Projects/holo-emitter/library/bookcase-liner-1934-low/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.47988808155059814,
+   0.0,
+   -0.6405432224273682
+  ],
+  "bbox_max": [
+   0.47988808155059814,
+   1.0,
+   0.6405432224273682
+  ],
+  "size": [
+   0.9597761631011963,
+   1.0,
+   1.2810864448547363
+  ],
+  "up_axis": "z",
+  "aspect_err": 1.141,
+  "images": 0,
+  "materials": 0,
+  "failures": [
+   "shape off: side/height ratios 0.75,0.78 vs declared 0.35,1.20 (err 1.14 > 0.35)"
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/bookcase-liner-1934-low/model.glb",
+  "tilt_corrected_deg": 14.98,
+  "support_vertices": 739,
+  "size_m": [
+   0.96,
+   1.0,
+   1.281
+  ],
+  "lowest_1pct_spread_m": 0.0173,
+  "level_rule": "top",
+  "level_corrected_deg": 6.79,
+  "level_surface_vertices": 568,
+  "faces": 16000
+ },
+ "level": "top",
+ "timings": {
+  "s_triposr": 111.7,
+  "s_stand_gate": 1.0,
+  "s_request_to_library": 112.7,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/bookcase-liner-1934-low/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 112.7
+ }
+}

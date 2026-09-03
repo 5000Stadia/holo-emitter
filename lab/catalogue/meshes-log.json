@@ -1,0 +1,34 @@
+[
+ [
+  "desk-liner-1934-writing",
+  "PASS 126s tris 91132 16000"
+ ],
+ [
+  "armchair-liner-1934-club",
+  "PASS 118s tris 163188 16000"
+ ],
+ [
+  "table-liner-1934-side",
+  "PASS 117s tris 128144 16000"
+ ],
+ [
+  "lamp-liner-1934-floor",
+  "PASS 112s tris 26028 16000"
+ ],
+ [
+  "bookcase-liner-1934-low",
+  "GATE FAIL shape off: side/height ratios 0.75,0.78 vs declared 0.35,1.20 (err 1.14 > 0.35) 113s tris 212908 16000"
+ ],
+ [
+  "basket-liner-1934-waste",
+  "PASS 116s tris 196240 16000"
+ ],
+ [
+  "clock-liner-1934-mantel",
+  "GATE FAIL shape off: side/height ratios 0.74,0.93 vs declared 0.45,1.36 (err 0.63 > 0.35) 115s tris 158268 16000"
+ ],
+ [
+  "stand-liner-1934-coat",
+  "PASS 113s tris 18768 16000"
+ ]
+]
