@@ -96,6 +96,7 @@ def factory_of(asset_id):
             "glb": "data:model/gltf-binary;base64," + base64.b64encode(raw).decode("ascii"),
             "glb_front": (r.get("model") or {}).get("front", "+z"),
             "glb_up": (r.get("model") or {}).get("up", "+y"),
+            "glb_grounded": bool((r.get("model") or {}).get("grounded")),
         }, None
     if not os.path.exists(js):
         return None, "in the library as a sprite only, no factory, model.glb or primitives.json"
@@ -410,6 +411,11 @@ for (const pr of WORLD.props) {
     // a generated mesh at arbitrary scale: fit its height to the declared one, feet on the floor, footprint centred
     fetch(pr.glb).then(r => r.arrayBuffer()).then(buf => gltf.parse(buf, "", (res) => {
       const g = new THREE.Group(); const m = new THREE.Group(); m.add(res.scene);
+      if (pr.glb_grounded) {                                            // tools/mesh-ground.py already stood it level on y=0, in metres
+        if (pr.glb_front === "-z") m.rotation.y = Math.PI; else if (pr.glb_front === "+x") m.rotation.y = Math.PI / 2; else if (pr.glb_front === "-x") m.rotation.y = -Math.PI / 2;
+        m.traverse(o => { if (o.isMesh && o.material) { o.material.side = THREE.DoubleSide; } });
+        g.add(m); placeProp(g, pr); return;
+      }
       if (pr.glb_up === "+z") res.scene.rotation.x = -Math.PI / 2;      // a z-up mesh stood up
       const box = new THREE.Box3().setFromObject(m); const size = new THREE.Vector3(); box.getSize(size);
       const s = pr.height_m / Math.max(1e-6, size.y);

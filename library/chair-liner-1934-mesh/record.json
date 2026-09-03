@@ -9,10 +9,12 @@
  },
  "model": {
   "kind": "glb",
-  "up": "+z",
+  "up": "+y",
   "front": "-x",
   "colors": "vertex",
-  "triangles_note": "decimated from TripoSR's 75,744"
+  "triangles_note": "decimated from TripoSR's 75,744",
+  "grounded": true,
+  "grounding": "tools/mesh-ground.py: support plane = hull underside face with most resting vertices; tilt corrected 7.37 deg, 54 support vertices, lowest-1% spread 15 mm"
  },
  "provenance": {
   "source": "library-src/chair-liner-1934-side/source.png",
