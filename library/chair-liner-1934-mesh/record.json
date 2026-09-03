@@ -10,7 +10,7 @@
  "model": {
   "kind": "glb",
   "up": "+z",
-  "front": "+z",
+  "front": "-x",
   "colors": "vertex",
   "triangles_note": "decimated from TripoSR's 75,744"
  },

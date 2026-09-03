@@ -21017,3 +21017,11 @@
 {"ts_start":1788400581.596,"ts_end":1788400581.643,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"84015222","out_bytes":83614,"facings":12,"locations":3}}
 {"detail":{"ids":80,"polls":1,"served":true},"key":null,"step":"publish.verify","ts_end":1788400616.522725,"ts_start":1788400597.516544}
 {"detail":{"exit_code":0,"head":"5ddb6f2e"},"key":null,"step":"publish.site","ts_end":1788400616.61062,"ts_start":1788400585.640046}
+{"ts_start":1788401431.131,"ts_end":1788401431.174,"step":"bake.fixtures","key":"cyberpunk-2","detail":{"fp":"acd2fd76","out_bytes":60249,"facings":8,"locations":2}}
+{"ts_start":1788401431.271,"ts_end":1788401431.345,"step":"bake.fixtures","key":"demo-study","detail":{"fp":"24184f4b","out_bytes":17018,"facings":8,"locations":2}}
+{"ts_start":1788401431.437,"ts_end":1788401431.482,"step":"bake.fixtures","key":"hospital-3","detail":{"fp":"2d0049ad","out_bytes":99775,"facings":12,"locations":3}}
+{"ts_start":1788401431.58,"ts_end":1788401431.641,"step":"bake.fixtures","key":"liner-3","detail":{"fp":"a4883fd6","out_bytes":139971,"facings":28,"locations":7}}
+{"ts_start":1788401431.742,"ts_end":1788401431.958,"step":"bake.fixtures","key":"nav-manor","detail":{"fp":"9e458fa1","out_bytes":1103611,"facings":88,"locations":22}}
+{"ts_start":1788401432.08,"ts_end":1788401432.128,"step":"bake.fixtures","key":"underground-2","detail":{"fp":"84015222","out_bytes":83614,"facings":12,"locations":3}}
+{"detail":{"ids":80,"polls":1,"served":true},"key":null,"step":"publish.verify","ts_end":1788401463.360697,"ts_start":1788401447.047729}
+{"detail":{"exit_code":0,"head":"9111dfaa"},"key":null,"step":"publish.site","ts_end":1788401463.451525,"ts_start":1788401436.61535}

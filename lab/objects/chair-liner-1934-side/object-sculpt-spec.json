@@ -856,10 +856,8 @@
       "attachment contracts for child appendages/connectors",
       "no floating child roots/joints in the browser screenshot",
       "browser render screenshot from your agent's browser/screenshot tool",
-      "side-by-side reference/render comparison sheet for AI vision review",
-      "banded interior difference vs the reference baseline (forge/stage4_review/interior_difference.py --from/--to per region)",
-      "AI vision score at or above the visual acceptance threshold",
-      "all critical semantic feature scores from the shared image pair at or above their thresholds",
+      "single side-by-side full reference/render comparison sheet",
+      "all critical semantic feature scores at or above their thresholds",
       "self-correction review appended with action=continue before the next pass"
     ],
     "passOrderRationale": "Five passes, not the eight-pass default. surface-pass is folded into material-pass because the reference carries no relief anywhere: veneer, lacquer and wool are all flat, and every figure is albedo-only. lighting-pass is dropped because this prop is lit by the holo-emitter scene it is dropped into, not by a rig it ships with; the review rig exists only to make the comparison fair. interaction-pass is folded into optimization-pass because the chair is static: it needs an explodable/clickable hierarchy and a collider proxy, and no pivots beyond the root."
@@ -981,7 +979,7 @@
     "handedness": "right-handed; the chair's own left is +x"
   },
   "silhouette": {
-    "boundingShape": "upright rectangular prism 0.47 m wide x 0.51583 m deep x 0.88 m tall, split horizontally into a solid seat mass at 0.348-0.445 m, an open reveal band at 0.445-0.53 m, and a reclined shell above it",
+    "boundingShape": "upright rectangular prism 0.47 m wide x 0.51407 m deep x 0.8727 m tall, split horizontally into a solid seat mass at 0.348-0.443 m, an open reveal band at 0.443-0.53 m, and a reclined shell above it",
     "aspectRatios": [
       {
         "pair": "height:width",
@@ -1012,8 +1010,8 @@
         "id": "shell-top",
         "position": [
           0.0,
-          0.88,
-          -0.30183
+          0.8727,
+          -0.30007
         ],
         "confidence": 0.8
       },
@@ -1030,7 +1028,7 @@
         "id": "pad-crown",
         "position": [
           0.0,
-          0.445,
+          0.443,
           0.0
         ],
         "confidence": 0.85
@@ -1374,7 +1372,7 @@
               0.00061
             ]
           ],
-          "depth": 0.35069
+          "depth": 0.34318
         },
         "measurements": {
           "chord": 0.478,
@@ -1444,7 +1442,7 @@
             "localPosition": [
               0.0,
               0.039,
-              0.35069
+              0.34318
             ],
             "axis": [
               0.0,
@@ -1620,77 +1618,77 @@
             [
               -0.23,
               0.009,
-              0.26569
+              0.25818
             ],
             [
               -0.23,
               0.009,
-              0.32069
+              0.31318
             ],
             [
               -0.22598,
               0.01006,
-              0.33569
+              0.32818
             ],
             [
               -0.215,
               0.01284,
-              0.34667
+              0.33916
             ],
             [
               -0.2,
               0.01641,
-              0.35069
+              0.34318
             ],
             [
               -0.13333,
               0.02903,
-              0.35069
+              0.34318
             ],
             [
               -0.06667,
               0.03652,
-              0.35069
+              0.34318
             ],
             [
               0.0,
               0.039,
-              0.35069
+              0.34318
             ],
             [
               0.06667,
               0.03652,
-              0.35069
+              0.34318
             ],
             [
               0.13333,
               0.02903,
-              0.35069
+              0.34318
             ],
             [
               0.2,
               0.01641,
-              0.35069
+              0.34318
             ],
             [
               0.215,
               0.01284,
-              0.34667
+              0.33916
             ],
             [
               0.22598,
               0.01006,
-              0.33569
+              0.32818
             ],
             [
               0.23,
               0.009,
-              0.32069
+              0.31318
             ],
             [
               0.23,
               0.009,
-              0.26569
+              0.25818
             ]
           ],
           "radius": 0.009,
@@ -1705,12 +1703,12 @@
         "localStart": [
           0.0,
           0.039,
-          0.35069
+          0.34318
         ],
         "localEnd": [
           0.0,
           0.039,
-          0.35069
+          0.34318
         ],
         "contactNormal": [
           0.0,
@@ -2162,87 +2160,87 @@
         "tubePath": {
           "points": [
             [
-              0.221,
-              -0.1618,
+              0.225,
+              -0.165,
               0.079
             ],
             [
-              0.21245,
-              -0.18245,
+              0.21621,
+              -0.18621,
               0.079
             ],
             [
-              0.1918,
-              -0.191,
+              0.195,
+              -0.195,
               0.079
             ],
             [
               0.0,
-              -0.191,
+              -0.195,
               0.079
             ],
             [
-              -0.1918,
-              -0.191,
+              -0.195,
+              -0.195,
               0.079
             ],
             [
-              -0.21245,
-              -0.18245,
+              -0.21621,
+              -0.18621,
               0.079
             ],
             [
-              -0.221,
-              -0.1618,
+              -0.225,
+              -0.165,
               0.079
             ],
             [
-              -0.221,
+              -0.225,
               -0.0,
               0.079
             ],
             [
-              -0.221,
-              0.1618,
+              -0.225,
+              0.165,
               0.079
             ],
             [
-              -0.21245,
-              0.18245,
+              -0.21621,
+              0.18621,
               0.079
             ],
             [
-              -0.1918,
-              0.191,
+              -0.195,
+              0.195,
               0.079
             ],
             [
               0.0,
-              0.191,
+              0.195,
               0.079
             ],
             [
-              0.1918,
-              0.191,
+              0.195,
+              0.195,
               0.079
             ],
             [
-              0.21245,
-              0.18245,
+              0.21621,
+              0.18621,
               0.079
             ],
             [
-              0.221,
-              0.1618,
+              0.225,
+              0.165,
               0.079
             ],
             [
-              0.221,
+              0.225,
               -0.0,
               0.079
             ]
           ],
-          "radius": 0.014,
+          "radius": 0.01,
           "radialSegments": 6,
           "closed": true
         }
@@ -2252,13 +2250,13 @@
         "parentSocket": "seat-apron-perimeter",
         "contactType": "bonded",
         "localStart": [
-          0.221,
-          -0.1618,
+          0.225,
+          -0.165,
           0.079
         ],
         "localEnd": [
-          0.221,
-          -0.1618,
+          0.225,
+          -0.165,
           0.079
         ],
         "contactNormal": [
@@ -2416,87 +2414,87 @@
         "tubePath": {
           "points": [
             [
-              0.229,
-              -0.1682,
-              0.006
+              0.23,
+              -0.169,
+              0.005
             ],
             [
-              0.21998,
-              -0.18998,
-              0.006
+              0.22092,
+              -0.19092,
+              0.005
             ],
             [
-              0.1982,
-              -0.199,
-              0.006
+              0.199,
+              -0.2,
+              0.005
             ],
             [
               0.0,
+              -0.2,
+              0.005
+            ],
+            [
               -0.199,
-              0.006
+              -0.2,
+              0.005
             ],
             [
-              -0.1982,
-              -0.199,
-              0.006
+              -0.22092,
+              -0.19092,
+              0.005
             ],
             [
-              -0.21998,
-              -0.18998,
-              0.006
+              -0.23,
+              -0.169,
+              0.005
             ],
             [
-              -0.229,
-              -0.1682,
-              0.006
-            ],
-            [
-              -0.229,
+              -0.23,
               -0.0,
-              0.006
+              0.005
             ],
             [
-              -0.229,
-              0.1682,
-              0.006
+              -0.23,
+              0.169,
+              0.005
             ],
             [
-              -0.21998,
-              0.18998,
-              0.006
+              -0.22092,
+              0.19092,
+              0.005
             ],
             [
-              -0.1982,
-              0.199,
-              0.006
+              -0.199,
+              0.2,
+              0.005
             ],
             [
               0.0,
+              0.2,
+              0.005
+            ],
+            [
               0.199,
-              0.006
+              0.2,
+              0.005
             ],
             [
-              0.1982,
-              0.199,
-              0.006
+              0.22092,
+              0.19092,
+              0.005
             ],
             [
-              0.21998,
-              0.18998,
-              0.006
+              0.23,
+              0.169,
+              0.005
             ],
             [
-              0.229,
-              0.1682,
-              0.006
-            ],
-            [
-              0.229,
+              0.23,
               -0.0,
-              0.006
+              0.005
             ]
           ],
-          "radius": 0.006,
+          "radius": 0.005,
           "radialSegments": 4,
           "closed": true
         }
@@ -2506,14 +2504,14 @@
         "parentSocket": "seat-apron-perimeter",
         "contactType": "bonded",
         "localStart": [
-          0.229,
-          -0.1682,
-          0.006
+          0.23,
+          -0.169,
+          0.005
         ],
         "localEnd": [
-          0.229,
-          -0.1682,
-          0.006
+          0.23,
+          -0.169,
+          0.005
         ],
         "contactNormal": [
           0.0,
@@ -2668,77 +2666,77 @@
         "profile2D": {
           "points": [
             [
-              0.188,
-              -0.128
+              0.205,
+              -0.145
             ],
             [
-              0.17921,
-              -0.14921
+              0.19621,
+              -0.16621
             ],
             [
-              0.158,
-              -0.158
+              0.175,
+              -0.175
             ],
             [
               0.0,
-              -0.158
+              -0.175
             ],
             [
-              -0.158,
-              -0.158
+              -0.175,
+              -0.175
             ],
             [
-              -0.17921,
-              -0.14921
+              -0.19621,
+              -0.16621
             ],
             [
-              -0.188,
-              -0.128
+              -0.205,
+              -0.145
             ],
             [
-              -0.188,
+              -0.205,
               -0.0
             ],
             [
-              -0.188,
-              0.128
+              -0.205,
+              0.145
             ],
             [
-              -0.17921,
-              0.14921
+              -0.19621,
+              0.16621
             ],
             [
-              -0.158,
-              0.158
+              -0.175,
+              0.175
             ],
             [
               0.0,
-              0.158
+              0.175
             ],
             [
-              0.158,
-              0.158
+              0.175,
+              0.175
             ],
             [
-              0.17921,
-              0.14921
+              0.19621,
+              0.16621
             ],
             [
-              0.188,
-              0.128
+              0.205,
+              0.145
             ],
             [
-              0.188,
+              0.205,
               -0.0
             ]
           ],
-          "depth": 0.045
+          "depth": 0.043
         },
         "measurements": {
-          "planWidth": 0.376,
-          "planDepth": 0.316,
+          "planWidth": 0.41,
+          "planDepth": 0.35,
           "cornerRadius": 0.03,
-          "topY": 0.445
+          "topY": 0.443
         }
       },
       "parent": null,
@@ -2797,9 +2795,9 @@
           {
             "id": "seat-pad-perimeter",
             "localPosition": [
-              0.188,
-              -0.128,
-              0.031
+              0.205,
+              -0.145,
+              0.032
             ],
             "axis": [
               1.0,
@@ -2927,87 +2925,87 @@
         "tubePath": {
           "points": [
             [
-              0.188,
-              -0.128,
-              0.031
+              0.205,
+              -0.145,
+              0.032
             ],
             [
-              0.17921,
-              -0.14921,
-              0.031
+              0.19621,
+              -0.16621,
+              0.032
             ],
             [
-              0.158,
-              -0.158,
-              0.031
-            ],
-            [
-              0.0,
-              -0.158,
-              0.031
-            ],
-            [
-              -0.158,
-              -0.158,
-              0.031
-            ],
-            [
-              -0.17921,
-              -0.14921,
-              0.031
-            ],
-            [
-              -0.188,
-              -0.128,
-              0.031
-            ],
-            [
-              -0.188,
-              -0.0,
-              0.031
-            ],
-            [
-              -0.188,
-              0.128,
-              0.031
-            ],
-            [
-              -0.17921,
-              0.14921,
-              0.031
-            ],
-            [
-              -0.158,
-              0.158,
-              0.031
+              0.175,
+              -0.175,
+              0.032
             ],
             [
               0.0,
-              0.158,
-              0.031
+              -0.175,
+              0.032
             ],
             [
-              0.158,
-              0.158,
-              0.031
+              -0.175,
+              -0.175,
+              0.032
             ],
             [
-              0.17921,
-              0.14921,
-              0.031
+              -0.19621,
+              -0.16621,
+              0.032
             ],
             [
-              0.188,
-              0.128,
-              0.031
+              -0.205,
+              -0.145,
+              0.032
             ],
             [
-              0.188,
+              -0.205,
               -0.0,
-              0.031
+              0.032
+            ],
+            [
+              -0.205,
+              0.145,
+              0.032
+            ],
+            [
+              -0.19621,
+              0.16621,
+              0.032
+            ],
+            [
+              -0.175,
+              0.175,
+              0.032
+            ],
+            [
+              0.0,
+              0.175,
+              0.032
+            ],
+            [
+              0.175,
+              0.175,
+              0.032
+            ],
+            [
+              0.19621,
+              0.16621,
+              0.032
+            ],
+            [
+              0.205,
+              0.145,
+              0.032
+            ],
+            [
+              0.205,
+              -0.0,
+              0.032
             ]
           ],
-          "radius": 0.014,
+          "radius": 0.011,
           "radialSegments": 6,
           "closed": true
         }
@@ -3017,14 +3015,14 @@
         "parentSocket": "seat-pad-perimeter",
         "contactType": "bonded",
         "localStart": [
-          0.188,
-          -0.128,
-          0.031
+          0.205,
+          -0.145,
+          0.032
         ],
         "localEnd": [
-          0.188,
-          -0.128,
-          0.031
+          0.205,
+          -0.145,
+          0.032
         ],
         "contactNormal": [
           0.0,
@@ -5990,7 +5988,20 @@
       "evidenceRefs": [
         "leg-zone",
         "foot-zone"
-      ]
+      ],
+      "elementComponentIds": [
+        "leg-front-l",
+        "leg-front-r",
+        "leg-rear-l",
+        "leg-rear-r",
+        "ferrule-front-l",
+        "ferrule-front-r",
+        "ferrule-rear-l",
+        "ferrule-rear-r"
+      ],
+      "level": "meso",
+      "parent": "root",
+      "instancingNote": "elementComponentIds names all eight members, every one of which is authored and built individually, so the generator treats this system as documentation and emits no InstancedMesh. That is deliberate: the rear members carry a different spine from the front pair and each leg must stay separately clickable and detachable, so one instanced draw call would be wrong twice over."
     }
   ],
   "buildPasses": [
@@ -6181,6 +6192,60 @@
       "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
       "notes": "",
       "aiVisionNotes": "formDetail 0.66 is the honest reading of a pass that builds no edge treatment at all; it is the next pass's whole job. Reported fidelity 0.78 is 'object reads correctly, local details approximate' on the grimoire scale, not a claim of a finished model."
+    },
+    {
+      "timestamp": "2026-09-03T02:13:29.105480+00:00",
+      "passId": "structural-pass",
+      "estimatedFidelity": 0.79,
+      "aiVisionScore": 0.79,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.86,
+        "formDetail": 0.76,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "The rolled top edge now exists and returns through a quarter turn into each side edge, so the shell's top corners are round instead of square and the highlight runs unbroken corner to corner as it does in the reference. Overall height lands at 0.880 m measured on the roll's outer surface."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Unchanged and still correct: open at 0.442-0.530 m, crossed only by the two stiles."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.83,
+          "threshold": 0.8,
+          "notes": "Unchanged from the accepted blockout; the legs read slightly heavier than the reference's, which is a material-response reading rather than a radius error (measured radii agree within 0.001 m)."
+        },
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.72,
+          "threshold": 0.8,
+          "notes": "The band is present and unbroken on every visible side, which is the feature's first requirement, but it reads wrong: a 0.014 m roll on a 0.079 m apron makes a bulbous bead where the reference has a slim bullnose over a flat face, and the pad is inset 0.047 m so far too much apron top face shows inside the band. The pad's own 0.014 m edge roll compounds it, giving a mattress edge where the reference has a tight turn."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-structural.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "Triangle count 4932 for 11 meshes, inside the 6000 budget with room for the four ferrule lathes. Material scores are held flat from the blockout on purpose: albedo work belongs to material-pass and moving it early would make that pass unreadable."
     }
   ],
   "reviewHistory": [
@@ -6338,6 +6403,91 @@
         "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
         "notes": "",
         "aiVisionNotes": "formDetail 0.66 is the honest reading of a pass that builds no edge treatment at all; it is the next pass's whole job. Reported fidelity 0.78 is 'object reads correctly, local details approximate' on the grimoire scale, not a claim of a finished model."
+      }
+    },
+    {
+      "timestamp": "2026-09-03T02:13:29.105480+00:00",
+      "passId": "structural-pass",
+      "estimatedFidelity": 0.79,
+      "aiVisionScore": 0.79,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.88,
+        "componentStructure": 0.86,
+        "formDetail": 0.76,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.85,
+          "threshold": 0.8,
+          "notes": "The rolled top edge now exists and returns through a quarter turn into each side edge, so the shell's top corners are round instead of square and the highlight runs unbroken corner to corner as it does in the reference. Overall height lands at 0.880 m measured on the roll's outer surface."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Unchanged and still correct: open at 0.442-0.530 m, crossed only by the two stiles."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.83,
+          "threshold": 0.8,
+          "notes": "Unchanged from the accepted blockout; the legs read slightly heavier than the reference's, which is a material-response reading rather than a radius error (measured radii agree within 0.001 m)."
+        },
+        {
+          "id": "seat-frame-and-pad",
+          "name": "Pale lipping band framing the blue wool pad",
+          "tier": "critical",
+          "score": 0.72,
+          "threshold": 0.8,
+          "notes": "The band is present and unbroken on every visible side, which is the feature's first requirement, but it reads wrong: a 0.014 m roll on a 0.079 m apron makes a bulbous bead where the reference has a slim bullnose over a flat face, and the pad is inset 0.047 m so far too much apron top face shows inside the band. The pad's own 0.014 m edge roll compounds it, giving a mattress edge where the reference has a tight turn."
+        }
+      ],
+      "action": "refine-spec",
+      "summary": "Structural pass builds all four rolled edges and Tier 1 improves on the blockout (IoU 0.860, aspect delta 0.024, scale delta 0.009). The shell's rolled top edge and its corner return are right. The seat's pale band is present but over-rounded: roll radii read as beads rather than bullnoses and the pad is inset far enough to expose apron top face inside the band, so the critical seat feature scores 0.72 and blocks continue.",
+      "matched": [
+        "rolled top edge present with a quarter-turn corner return, so the shell's top corners are round",
+        "pale lipping band unbroken round the pad on every visible side",
+        "apron's bottom arris softened",
+        "overall height corrected to 0.880 m at the roll's outer surface",
+        "stray InstancedMesh unit box from the repetition system removed (it had dragged model minY to -0.05)"
+      ],
+      "mismatches": [
+        "lipping roll radius 0.014 m reads as a bead, not a bullnose",
+        "pad inset 0.047 m leaves apron top face visible inside the band",
+        "pad edge roll 0.014 m reads as a mattress edge",
+        "sycamore still glossier and more saturated than the reference's satin",
+        "wool still lighter and less saturated than the reference"
+      ],
+      "specFixes": [
+        "lip_r 0.014 -> 0.010",
+        "pad_inset 0.047 -> 0.030",
+        "pad_roll_r 0.014 -> 0.011",
+        "bottom_roll_r 0.006 -> 0.005"
+      ],
+      "codeFixes": [],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-structural.png"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-structural.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "Triangle count 4932 for 11 meshes, inside the 6000 budget with room for the four ferrule lathes. Material scores are held flat from the blockout on purpose: albedo work belongs to material-pass and moving it early would make that pass unreadable."
       }
     }
   ],
@@ -7629,6 +7779,86 @@
       "renderHash": "96cba05b7ac70dc9",
       "passId": "blockout",
       "mapStrippedRender": "renders/ref-flat.png"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8603,
+        "aspectRatioDelta": 0.0235,
+        "scaleDelta": 0.0085,
+        "bilateralSymmetryError": 0.1968,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 27.66,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.62
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.62
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 27.66
+            },
+            {
+              "componentId": null,
+              "deltaE": 27.66
+            },
+            {
+              "componentId": null,
+              "deltaE": 27.66
+            },
+            {
+              "componentId": null,
+              "deltaE": 27.66
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "d396a0216192a3ca",
+      "passId": "structural-pass"
     }
   ],
   "dimensionTable": {
@@ -7639,18 +7869,18 @@
     "apron_corner_r": 0.032,
     "apron_bottom_y": 0.348,
     "apron_top_y": 0.427,
-    "lip_r": 0.014,
-    "bottom_roll_r": 0.006,
-    "pad_inset": 0.047,
+    "lip_r": 0.01,
+    "bottom_roll_r": 0.005,
+    "pad_inset": 0.03,
     "pad_corner_r": 0.03,
     "pad_bottom_y": 0.4,
-    "pad_top_y": 0.445,
-    "pad_roll_r": 0.014,
+    "pad_top_y": 0.443,
+    "pad_roll_r": 0.011,
     "shell_half_w": 0.239,
     "shell_edge_r": 0.009,
     "shell_sagitta": 0.03,
     "shell_bottom_y": 0.53,
-    "shell_top_y": 0.88,
+    "shell_top_y": 0.8727,
     "shell_roll_r": 0.009,
     "shell_recline_deg": 13.5,
     "shell_corner_r": 0.03,

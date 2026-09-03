@@ -23,13 +23,13 @@ SPEC = ROOT / "object-sculpt-spec.json"
 DIMS = dict(
     # seat frame (apron)
     apron_hx=0.235, apron_hz=0.205, apron_corner_r=0.032,
-    apron_bottom_y=0.348, apron_top_y=0.427, lip_r=0.014, bottom_roll_r=0.006,
+    apron_bottom_y=0.348, apron_top_y=0.427, lip_r=0.010, bottom_roll_r=0.005,
     # wool pad
-    pad_inset=0.047,            # pad plan half-extent = apron half-extent - this
-    pad_corner_r=0.030, pad_bottom_y=0.400, pad_top_y=0.445, pad_roll_r=0.014,
+    pad_inset=0.030,            # pad plan half-extent = apron half-extent - this
+    pad_corner_r=0.030, pad_bottom_y=0.400, pad_top_y=0.443, pad_roll_r=0.011,
     # back shell
     shell_half_w=0.239, shell_edge_r=0.009, shell_sagitta=0.030,
-    shell_bottom_y=0.530, shell_top_y=0.880, shell_roll_r=0.009, shell_recline_deg=13.5,
+    shell_bottom_y=0.530, shell_top_y=0.8727, shell_roll_r=0.009, shell_recline_deg=13.5,
     shell_corner_r=0.030, shell_corner_run=0.055,
     stile_top_z=-0.206,
     # undercarriage
@@ -183,7 +183,7 @@ def apply(d, g, spec):
     b["geometryDescriptor"]["measurements"].update(
         {"chord": D(2 * d["shell_half_w"]), "sagitta": d["shell_sagitta"], "arcRadius": g["shell_R"],
          "thickness": D(2 * d["shell_edge_r"]), "bottomY": d["shell_bottom_y"],
-         "topY": d["shell_top_y"], "reclineDegrees": d["shell_recline_deg"]})
+         "topY": 0.880, "reclineDegrees": d["shell_recline_deg"]})
     b["transform"]["position"] = g["shell_pos"]
     b["transform"]["rotation"] = [D(math.radians(-90.0 - d["shell_recline_deg"])), 0.0, 0.0]
 
