@@ -148,6 +148,7 @@ def furnish(plan, place=None):
         def emit(x, y, facing, rule):
             pr = {**base, "x": round(x, 3), "y": round(y, 3), "facing": facing, "rule": rule}
             if f.get("instance"): placed[f["instance"]] = pr
+            placed.setdefault(f["id"], pr)
             out.append(pr)
         if f["rule"] == "at":                      # a design decision: exactly here, facing this way
             emit(f["x"], f["y"], f.get("facing", "S"), f"at ({f['x']}, {f['y']}) {f.get('why', '')}".strip())
@@ -197,8 +198,7 @@ def furnish(plan, place=None):
                 if "W" in corner: x = R["x0"] + gap + W_ / 2
                 else: x = R["x1"] - gap - W_ / 2
                 facing = {"SW": "N", "SE": "N", "NW": "S", "NE": "S"}[corner]
-                out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
-                            "facing": facing, "rule": f"wants: corner {corner} (backs {walls})", "label": f.get("label", f["id"])})
+                emit(x, y, facing, f"wants: corner {corner} (backs {walls})")
                 continue
             if len(walls) == 1:
                 wall = f.get("wall", "W")
@@ -208,12 +208,10 @@ def furnish(plan, place=None):
                 elif wall == "S": x, y = (R["x0"] + R["x1"]) / 2, R["y0"] + gap2
                 else: x, y = (R["x0"] + R["x1"]) / 2, R["y1"] - gap2
                 facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[wall]
-                out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
-                            "facing": facing, "rule": f"wants: wall {wall} (back {walls[0]})", "label": f.get("label", f["id"])})
+                emit(x, y, facing, f"wants: wall {wall} (back {walls[0]})")
                 continue
             x, y = (R["x0"] + R["x1"]) / 2, (R["y0"] + R["y1"]) / 2
-            out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
-                        "facing": "S", "rule": "wants: free (no back)", "label": f.get("label", f["id"])})
+            emit(x, y, "S", "wants: free (no back)")
             continue
         if f["rule"] == "room_centre":
             x, y = (R["x0"] + R["x1"]) / 2 + f.get("slot", 0.0), (R["y0"] + R["y1"]) / 2
@@ -241,8 +239,7 @@ def furnish(plan, place=None):
             if f["wall"] in "EW": y += f.get("slot", 0.0)
             else: x += f.get("slot", 0.0)
             facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[f["wall"]]
-            out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
-                        "facing": facing, "rule": f"{f['rule']} {f['wall']}", "label": f.get("label", f["id"])})
+            emit(x, y, facing, f"{f['rule']} {f['wall']}")
     return out
 
 
