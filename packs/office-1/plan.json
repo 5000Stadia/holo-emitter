@@ -1,0 +1,203 @@
+{
+ "schema": "plan/lab",
+ "version": 1,
+ "units": "m",
+ "north": "+y",
+ "wall_thickness": {
+  "exterior": 0.3,
+  "partition": 0.15
+ },
+ "outline": [
+  [
+   0,
+   0
+  ],
+  [
+   17.3,
+   0
+  ],
+  [
+   17.3,
+   17.7
+  ],
+  [
+   0,
+   17.7
+  ]
+ ],
+ "floors": [
+  {
+   "id": "second",
+   "level": 1,
+   "storey_height_m": 2.7
+  }
+ ],
+ "rooms": [
+  {
+   "id": "reception",
+   "name": "RECEPTION",
+   "archetype": "reception",
+   "rect": {
+    "x0": 0.4,
+    "x1": 6.0,
+    "y0": 0.4,
+    "y1": 4.4
+   },
+   "floor": "second",
+   "type": "enclosed"
+  },
+  {
+   "id": "bullpen",
+   "name": "THE BULLPEN",
+   "archetype": "open_office",
+   "rect": {
+    "x0": 0.4,
+    "x1": 13.0,
+    "y0": 4.55,
+    "y1": 13.0
+   },
+   "floor": "second",
+   "type": "enclosed"
+  },
+  {
+   "id": "manager",
+   "name": "MANAGER'S OFFICE",
+   "archetype": "private_office",
+   "rect": {
+    "x0": 0.4,
+    "x1": 5.2,
+    "y0": 13.15,
+    "y1": 17.4
+   },
+   "floor": "second",
+   "type": "enclosed"
+  },
+  {
+   "id": "conference",
+   "name": "CONFERENCE ROOM",
+   "archetype": "conference",
+   "rect": {
+    "x0": 5.35,
+    "x1": 10.4,
+    "y0": 13.15,
+    "y1": 17.4
+   },
+   "floor": "second",
+   "type": "enclosed"
+  },
+  {
+   "id": "kitchen",
+   "name": "KITCHEN",
+   "archetype": "kitchenette",
+   "rect": {
+    "x0": 13.15,
+    "x1": 17.0,
+    "y0": 8.0,
+    "y1": 13.0
+   },
+   "floor": "second",
+   "type": "enclosed"
+  },
+  {
+   "id": "annex",
+   "name": "THE ANNEX",
+   "archetype": "open_office",
+   "rect": {
+    "x0": 13.15,
+    "x1": 17.0,
+    "y0": 4.55,
+    "y1": 7.85
+   },
+   "floor": "second",
+   "type": "enclosed"
+  }
+ ],
+ "openings": [
+  {
+   "id": "way01",
+   "kind": "open_edge",
+   "floor": "second",
+   "axis": "NS",
+   "rect": {
+    "x0": 2.4,
+    "x1": 6.0,
+    "y0": 4.4,
+    "y1": 4.55
+   },
+   "joins": [
+    "reception",
+    "bullpen"
+   ]
+  },
+  {
+   "id": "door01",
+   "kind": "door",
+   "floor": "second",
+   "axis": "NS",
+   "rect": {
+    "x0": 3.6,
+    "x1": 4.6,
+    "y0": 13.0,
+    "y1": 13.15
+   },
+   "joins": [
+    "bullpen",
+    "manager"
+   ]
+  },
+  {
+   "id": "door02",
+   "kind": "door",
+   "floor": "second",
+   "axis": "NS",
+   "rect": {
+    "x0": 6.2,
+    "x1": 7.2,
+    "y0": 13.0,
+    "y1": 13.15
+   },
+   "joins": [
+    "bullpen",
+    "conference"
+   ]
+  },
+  {
+   "id": "door03",
+   "kind": "door",
+   "floor": "second",
+   "axis": "EW",
+   "rect": {
+    "x0": 13.0,
+    "x1": 13.15,
+    "y0": 10.0,
+    "y1": 11.0
+   },
+   "joins": [
+    "bullpen",
+    "kitchen"
+   ]
+  },
+  {
+   "id": "door04",
+   "kind": "door",
+   "floor": "second",
+   "axis": "NS",
+   "rect": {
+    "x0": 14.5,
+    "x1": 15.5,
+    "y0": 7.85,
+    "y1": 8.0
+   },
+   "joins": [
+    "annex",
+    "kitchen"
+   ]
+  }
+ ],
+ "windows": [],
+ "fireplaces": [],
+ "stairs": [],
+ "objects": [],
+ "entrance": "reception",
+ "notes": "Scranton Business Park, second floor, simplified to rectangles from the set's layout (2026-09-03). No signage, no logo: the layout is the reference, the trademarks are not."
+}

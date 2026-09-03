@@ -1,0 +1,317 @@
+{
+ "desk-office": {
+  "ok": true,
+  "id": "desk-office",
+  "name": "Office desk",
+  "license": "CC Attribution",
+  "faces": 1036,
+  "candidates": 10,
+  "of_hits": 24,
+  "size_kb": 156,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 1.1,
+   "map": 1.1,
+   "download": 2.1,
+   "stand": 1.0,
+   "gate": 0.0,
+   "request_to_library": 5.4
+  }
+ },
+ "chair-office": {
+  "ok": true,
+  "id": "chair-office",
+  "name": "Swivel chair",
+  "license": "CC Attribution",
+  "faces": 40102,
+  "candidates": 3,
+  "of_hits": 24,
+  "size_kb": 4535,
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 1.2,
+   "map": 1.1,
+   "download": 5.5,
+   "stand": 1.8,
+   "gate": 0.0,
+   "request_to_library": 9.6
+  }
+ },
+ "desk-reception": {
+  "ok": true,
+  "id": "desk-reception",
+  "name": "Reception Desk",
+  "license": "CC Attribution",
+  "faces": 600,
+  "candidates": 10,
+  "of_hits": 24,
+  "size_kb": 1541,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 1.0,
+   "map": 1.1,
+   "download": 3.7,
+   "stand": 1.9,
+   "gate": 0.0,
+   "request_to_library": 7.8
+  }
+ },
+ "chair-waiting": {
+  "ok": true,
+  "id": "chair-waiting",
+  "name": "Chair Hospital",
+  "license": "CC Attribution",
+  "faces": 134884,
+  "candidates": 2,
+  "of_hits": 24,
+  "size_kb": 3851,
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "timings_s": {
+   "search": 0.4,
+   "map": 1.1,
+   "download": 3.2,
+   "stand": 1.4,
+   "gate": 0.0,
+   "request_to_library": 6.2
+  }
+ },
+ "cabinet-filing": {
+  "ok": true,
+  "id": "cabinet-filing",
+  "name": "Old Filing Cabinet",
+  "license": "CC Attribution",
+  "faces": 3642,
+  "candidates": 9,
+  "of_hits": 24,
+  "size_kb": 4609,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 1.0,
+   "map": 1.2,
+   "download": 3.6,
+   "stand": 2.8,
+   "gate": 0.0,
+   "request_to_library": 8.6
+  }
+ },
+ "table-conference": {
+  "ok": true,
+  "id": "table-conference",
+  "name": "Conference Table - rectangular 6m",
+  "license": "CC Attribution",
+  "faces": 640,
+  "candidates": 6,
+  "of_hits": 24,
+  "size_kb": 2489,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 0.3,
+   "map": 1.1,
+   "download": 5.5,
+   "stand": 2.2,
+   "gate": 0.0,
+   "request_to_library": 9.1
+  }
+ },
+ "chair-conference": {
+  "ok": false,
+  "why": "no shippable, mirrored candidate",
+  "hits": 24
+ },
+ "desk-manager": {
+  "ok": true,
+  "id": "desk-manager",
+  "name": "Modern Wood Executive Desk",
+  "license": "CC Attribution",
+  "faces": 720,
+  "candidates": 1,
+  "of_hits": 5,
+  "size_kb": 523,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "+z",
+    "-x"
+   ]
+  },
+  "timings_s": {
+   "search": 0.5,
+   "map": 1.2,
+   "download": 3.2,
+   "stand": 1.2,
+   "gate": 0.0,
+   "request_to_library": 6.1
+  }
+ },
+ "copier": {
+  "ok": true,
+  "id": "copier",
+  "name": "Old Copier",
+  "license": "CC Attribution",
+  "faces": 1646,
+  "candidates": 1,
+  "of_hits": 3,
+  "size_kb": 107,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 1.1,
+   "map": 1.1,
+   "download": 4.1,
+   "stand": 0.9,
+   "gate": 0.0,
+   "request_to_library": 7.3
+  }
+ },
+ "cooler-water": {
+  "ok": true,
+  "id": "cooler-water",
+  "name": "Water cooler",
+  "license": "CC Attribution",
+  "faces": 2188,
+  "candidates": 8,
+  "of_hits": 24,
+  "size_kb": 1232,
+  "wants": {
+   "ground": "base",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 1.0,
+   "map": 1.2,
+   "download": 3.1,
+   "stand": 2.1,
+   "gate": 0.0,
+   "request_to_library": 7.5
+  }
+ },
+ "fridge": {
+  "ok": true,
+  "id": "fridge",
+  "name": "Merchandiser Refrigerator",
+  "license": "CC Attribution-ShareAlike",
+  "faces": 46400,
+  "candidates": 13,
+  "of_hits": 24,
+  "size_kb": 3073,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "timings_s": {
+   "search": 0.8,
+   "map": 1.2,
+   "download": 7.6,
+   "stand": 1.4,
+   "gate": 0.0,
+   "request_to_library": 11.0
+  }
+ },
+ "plant-potted": {
+  "ok": false,
+  "id": "plant-potted",
+  "name": "Office Plant",
+  "license": "CC Attribution",
+  "faces": 17982,
+  "candidates": 3,
+  "of_hits": 17,
+  "size_kb": 8035,
+  "wants": {
+   "ground": "base",
+   "walls": []
+  },
+  "timings_s": {
+   "search": 0.7,
+   "map": 1.1,
+   "download": 3.3,
+   "stand": 5.8,
+   "gate": 0.0,
+   "request_to_library": 11.0
+  }
+ },
+ "sofa-annex": {
+  "ok": true,
+  "id": "sofa-annex",
+  "name": "Sofa",
+  "license": "CC Attribution",
+  "faces": 32496,
+  "candidates": 5,
+  "of_hits": 24,
+  "size_kb": 4336,
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "timings_s": {
+   "search": 1.2,
+   "map": 1.2,
+   "download": 3.8,
+   "stand": 2.8,
+   "gate": 0.0,
+   "request_to_library": 9.0
+  }
+ },
+ "_total_s": 25.2
+}

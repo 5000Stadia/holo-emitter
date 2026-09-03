@@ -1,0 +1,416 @@
+{
+ "fetch": {
+  "desk-office": {
+   "query": "office desk",
+   "dims_m": {
+    "h": 0.75,
+    "w": 1.5,
+    "d": 0.75
+   },
+   "level": "top",
+   "must": "desk",
+   "avoid": "set,room,scene,office chair"
+  },
+  "chair-office": {
+   "query": "office chair swivel",
+   "dims_m": {
+    "h": 1.0,
+    "w": 0.6,
+    "d": 0.6
+   },
+   "level": "seat:0.47"
+  },
+  "desk-reception": {
+   "query": "reception desk",
+   "dims_m": {
+    "h": 1.1,
+    "w": 2.4,
+    "d": 1.0
+   },
+   "level": "top"
+  },
+  "chair-waiting": {
+   "query": "waiting room chair",
+   "dims_m": {
+    "h": 0.85,
+    "w": 0.55,
+    "d": 0.6
+   },
+   "level": "seat:0.45",
+   "must": "chair",
+   "avoid": "chairs,room,set,bench"
+  },
+  "cabinet-filing": {
+   "query": "filing cabinet",
+   "dims_m": {
+    "h": 1.3,
+    "w": 0.45,
+    "d": 0.6
+   },
+   "level": "top"
+  },
+  "table-conference": {
+   "query": "conference table",
+   "dims_m": {
+    "h": 0.75,
+    "w": 3.0,
+    "d": 1.2
+   },
+   "level": "top",
+   "must": "table",
+   "avoid": "room,scene,set,office,chairs"
+  },
+  "chair-conference": {
+   "query": "conference chair",
+   "dims_m": {
+    "h": 0.9,
+    "w": 0.6,
+    "d": 0.6
+   },
+   "level": "seat:0.45",
+   "must": "chair",
+   "avoid": "table,chairs,set,room"
+  },
+  "desk-manager": {
+   "query": "executive desk wood",
+   "dims_m": {
+    "h": 0.76,
+    "w": 1.8,
+    "d": 0.9
+   },
+   "level": "top"
+  },
+  "copier": {
+   "query": "photocopier",
+   "dims_m": {
+    "h": 1.1,
+    "w": 1.0,
+    "d": 0.7
+   },
+   "level": "top",
+   "must": "",
+   "avoid": "room,scene"
+  },
+  "cooler-water": {
+   "query": "water cooler",
+   "dims_m": {
+    "h": 1.2,
+    "w": 0.35,
+    "d": 0.35
+   },
+   "level": "base"
+  },
+  "fridge": {
+   "query": "refrigerator",
+   "dims_m": {
+    "h": 1.7,
+    "w": 0.7,
+    "d": 0.7
+   },
+   "level": "top"
+  },
+  "plant-potted": {
+   "query": "potted plant office",
+   "dims_m": {
+    "h": 1.4,
+    "w": 0.6,
+    "d": 0.6
+   },
+   "level": "base"
+  },
+  "sofa-annex": {
+   "query": "office sofa",
+   "dims_m": {
+    "h": 0.85,
+    "w": 1.8,
+    "d": 0.9
+   },
+   "level": "seat:0.45"
+  }
+ },
+ "place": [
+  {
+   "id": "desk-reception",
+   "room": "reception",
+   "rule": "at",
+   "x": 3.2,
+   "y": 2.6,
+   "facing": "S",
+   "why": "design decision: the desk faces whoever walks in"
+  },
+  {
+   "id": "chair-office",
+   "room": "reception",
+   "rule": "pair",
+   "with": "desk-reception",
+   "side": "behind",
+   "instance": "reception-chair"
+  },
+  {
+   "id": "chair-waiting",
+   "room": "reception",
+   "rule": "against_wall",
+   "wall": "W",
+   "slot": -0.9
+  },
+  {
+   "id": "chair-waiting",
+   "room": "reception",
+   "rule": "against_wall",
+   "wall": "W",
+   "slot": 0.0
+  },
+  {
+   "id": "chair-waiting",
+   "room": "reception",
+   "rule": "against_wall",
+   "wall": "W",
+   "slot": 0.9
+  },
+  {
+   "id": "plant-potted",
+   "room": "reception",
+   "rule": "wants",
+   "corner": "SE"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 4.0,
+   "y": 8.2,
+   "facing": "N",
+   "instance": "q1a"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 4.0,
+   "y": 9.8,
+   "facing": "S",
+   "instance": "q1b"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 5.7,
+   "y": 8.2,
+   "facing": "N",
+   "instance": "q1c"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 5.7,
+   "y": 9.8,
+   "facing": "S",
+   "instance": "q1d"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q1a",
+   "side": "behind"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q1b",
+   "side": "behind"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q1c",
+   "side": "behind"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q1d",
+   "side": "behind"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 9.2,
+   "y": 8.2,
+   "facing": "N",
+   "instance": "q2a"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 9.2,
+   "y": 9.8,
+   "facing": "S",
+   "instance": "q2b"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 10.9,
+   "y": 8.2,
+   "facing": "N",
+   "instance": "q2c"
+  },
+  {
+   "id": "desk-office",
+   "room": "bullpen",
+   "rule": "at",
+   "x": 10.9,
+   "y": 9.8,
+   "facing": "S",
+   "instance": "q2d"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q2a",
+   "side": "behind"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q2b",
+   "side": "behind"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q2c",
+   "side": "behind"
+  },
+  {
+   "id": "chair-office",
+   "room": "bullpen",
+   "rule": "pair",
+   "with": "q2d",
+   "side": "behind"
+  },
+  {
+   "id": "cabinet-filing",
+   "room": "bullpen",
+   "rule": "against_wall",
+   "wall": "W",
+   "slot": -2.0
+  },
+  {
+   "id": "cabinet-filing",
+   "room": "bullpen",
+   "rule": "against_wall",
+   "wall": "W",
+   "slot": -1.4
+  },
+  {
+   "id": "copier",
+   "room": "bullpen",
+   "rule": "against_wall",
+   "wall": "E",
+   "slot": -3.0
+  },
+  {
+   "id": "cooler-water",
+   "room": "bullpen",
+   "rule": "against_wall",
+   "wall": "E",
+   "slot": 3.5
+  },
+  {
+   "id": "plant-potted",
+   "room": "bullpen",
+   "rule": "wants",
+   "corner": "NE"
+  },
+  {
+   "id": "desk-manager",
+   "room": "manager",
+   "rule": "at",
+   "x": 2.8,
+   "y": 15.6,
+   "facing": "S"
+  },
+  {
+   "id": "chair-office",
+   "room": "manager",
+   "rule": "pair",
+   "with": "desk-manager",
+   "side": "behind"
+  },
+  {
+   "id": "chair-waiting",
+   "room": "manager",
+   "rule": "pair",
+   "with": "desk-manager",
+   "side": "front"
+  },
+  {
+   "id": "cabinet-filing",
+   "room": "manager",
+   "rule": "wants",
+   "corner": "NW"
+  },
+  {
+   "id": "table-conference",
+   "room": "conference",
+   "rule": "room_centre",
+   "facing": "E",
+   "instance": "conf-table"
+  },
+  {
+   "id": "chair-conference",
+   "room": "conference",
+   "rule": "around",
+   "with": "conf-table",
+   "count": 6
+  },
+  {
+   "id": "fridge",
+   "room": "kitchen",
+   "rule": "wants",
+   "corner": "NE"
+  },
+  {
+   "id": "cooler-water",
+   "room": "kitchen",
+   "rule": "against_wall",
+   "wall": "N",
+   "slot": -1.0
+  },
+  {
+   "id": "sofa-annex",
+   "room": "annex",
+   "rule": "wants",
+   "wall": "S"
+  },
+  {
+   "id": "desk-office",
+   "room": "annex",
+   "rule": "at",
+   "x": 15.0,
+   "y": 6.9,
+   "facing": "S",
+   "instance": "annex-desk"
+  },
+  {
+   "id": "chair-office",
+   "room": "annex",
+   "rule": "pair",
+   "with": "annex-desk",
+   "side": "behind"
+  }
+ ]
+}

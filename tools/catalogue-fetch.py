@@ -35,11 +35,17 @@ def main():
     ap.add_argument("--query", required=True); ap.add_argument("--id", required=True)
     ap.add_argument("--height-m", type=float, required=True); ap.add_argument("--width-m", type=float, required=True); ap.add_argument("--depth-m", type=float, required=True)
     ap.add_argument("--level", default=""); ap.add_argument("--pick", type=int, default=0); ap.add_argument("--max-faces", type=int, default=150000)
+    ap.add_argument("--must", default="", help="a word the candidate's name must contain (e.g. table, so 'Conference Room' is not a table)")
+    ap.add_argument("--avoid", default="", help="comma-separated words the name must not contain (e.g. 'room,scene,set,chairs')")
     a = ap.parse_args()
     T = {"request": time.time()}
     hits = search(a.query); T["search"] = time.time()
     paths = objaverse._load_object_paths(); T["map"] = time.time()
-    cands = [h for h in hits if (h.get("license") or {}).get("label") in SHIP and h["uid"] in paths and (h.get("faceCount") or 0) <= a.max_faces]
+    avoid = [w.strip().lower() for w in a.avoid.split(",") if w.strip()]
+    def name_ok(h):
+        n = (h.get("name") or "").lower()
+        return (not a.must or a.must.lower() in n) and not any(w in n for w in avoid)
+    cands = [h for h in hits if (h.get("license") or {}).get("label") in SHIP and h["uid"] in paths and (h.get("faceCount") or 0) <= a.max_faces and name_ok(h)]
     if not cands:
         print(json.dumps({"ok": False, "why": "no shippable, mirrored candidate", "hits": len(hits)})); return 2
     h = cands[min(a.pick, len(cands) - 1)]
@@ -58,7 +64,7 @@ def main():
            "model": {"kind": "glb", "up": "+y", "grounded": bool(ground.get("ok")), "front": "+z", "size_m": ground.get("size_m"), "source_faces": ground.get("faces")},
            "gate": gate, "grounding": ground, "level": a.level or None,
            "provenance": {"source": "sketchfab-search → objaverse-mirror", "uid": h["uid"], "name": h.get("name"), "author": (h.get("user") or {}).get("displayName"),
-                          "license": (h.get("license") or {}).get("label"), "url": h.get("viewerUrl"), "query": a.query, "pick": a.pick, "candidates": len(cands), "hits": len(hits)},
+                          "license": (h.get("license") or {}).get("label"), "url": h.get("viewerUrl"), "query": a.query, "must": a.must, "avoid": a.avoid, "pick": a.pick, "candidates": len(cands), "hits": len(hits)},
            "timings_s": {k: round(T[k] - T[p], 1) for k, p in (("search", "request"), ("map", "search"), ("download", "map"), ("stand", "download"), ("gate", "stand"))} | {"request_to_library": round(T["gate"] - T["request"], 1)}}
     json.dump(rec, open(os.path.join(out, "record.json"), "w"), indent=1)
     print(json.dumps({"ok": gate.get("ok"), "id": a.id, "name": h.get("name"), "license": rec["provenance"]["license"], "faces": h.get("faceCount"), "candidates": len(cands), "of_hits": len(hits),

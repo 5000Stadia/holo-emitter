@@ -1,0 +1,93 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-waiting",
+ "noun": "waiting room chair",
+ "dims_m": {
+  "h": 0.85,
+  "w": 0.55,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   1.967,
+   0.85,
+   0.625
+  ],
+  "source_faces": 134842
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/chair-waiting/model.glb",
+  "triangles": 134842,
+  "bbox_min": [
+   -0.9835111498832703,
+   0.0,
+   -0.3123903274536133
+  ],
+  "bbox_max": [
+   0.9835111498832703,
+   0.8500000238418579,
+   0.3123903274536133
+  ],
+  "size": [
+   1.9670222997665405,
+   0.8500000238418579,
+   0.6247806549072266
+  ],
+  "up_axis": "x",
+  "aspect_err": 0.509,
+  "images": 2,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/chair-waiting/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 2385,
+  "size_m": [
+   1.967,
+   0.85,
+   0.625
+  ],
+  "lowest_1pct_spread_m": 0.0001,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "level_corrected_deg": 1.38,
+  "level_surface_vertices": 1086,
+  "faces": 134842
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "baaa4ec5d6d34ad49004e4d151b43aa2",
+  "name": "Chair Hospital",
+  "author": "Khafesus",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-baaa4ec5d6d34ad49004e4d151b43aa2",
+  "query": "waiting room chair",
+  "must": "chair",
+  "avoid": "chairs,room,set,bench",
+  "pick": 0,
+  "candidates": 2,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 0.4,
+  "map": 1.1,
+  "download": 3.2,
+  "stand": 1.4,
+  "gate": 0.0,
+  "request_to_library": 6.2
+ }
+}

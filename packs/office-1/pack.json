@@ -1,0 +1,15 @@
+{
+ "id": "office-1",
+ "title": "SCRANTON BRANCH \u00b7 SECOND FLOOR",
+ "world_query": "office-1",
+ "palette_default": {
+  "ceiling": "#f1efe9",
+  "upper": "#d7d0c2",
+  "strip": "#c9c2b3",
+  "lower": "#cfc8ba",
+  "skirting": "#8a8478",
+  "floor": "#6f6f74"
+ },
+ "rail_m": 0.9,
+ "eye_m": 1.65
+}

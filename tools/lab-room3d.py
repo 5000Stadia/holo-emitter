@@ -20,6 +20,7 @@ import numpy as np
 from PIL import Image
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INLINE_GLB = False
 
 # row bands of the declared close camera (1536x1024, ceiling 53, rail 522,
 # floor 778): where each surface is, on every promoted close painting
@@ -97,11 +98,12 @@ def factory_of(asset_id):
     if os.path.exists(glb) and not os.path.exists(js):
         # a generated mesh: ships inline as base64; the page scales it to the
         # declared height, stands it on the floor and turns it to face the room
-        raw = open(glb, "rb").read()
         return {
             "id": asset_id, "noun": r.get("noun"),
             "height_m": float(dims.get("h") or 1.0), "width_m": float(dims.get("w") or 0.5), "depth_m": float(dims.get("d") or 0.5),
-            "glb": "data:model/gltf-binary;base64," + base64.b64encode(raw).decode("ascii"),
+            # served from the library (publish-site ships library/); the page is a few hundred KB whatever the catalogue holds
+            "glb": ("data:model/gltf-binary;base64," + base64.b64encode(open(glb, "rb").read()).decode("ascii")) if INLINE_GLB else f"__LIB__/{asset_id}/model.glb",
+            "glb_bytes": os.path.getsize(glb),
             "glb_front": (r.get("model") or {}).get("front", "+z"),
             "glb_up": (r.get("model") or {}).get("up", "+y"),
             "glb_grounded": bool((r.get("model") or {}).get("grounded")),
@@ -132,19 +134,57 @@ def factory_of(asset_id):
     }, None
 
 
-def furnish(plan):
+def furnish(plan, place=None):
     rooms = {r["id"]: r for r in plan["rooms"]}
     out = []
-    for f in FURNISH:
+    placed = {}   # instance name -> placed prop (for pair / around)
+    for f in (place if place is not None else FURNISH):
         a, why = factory_of(f["id"])
         if a is None:
             out.append({"id": f["id"], "room": f["room"], "missing": why, "label": f.get("label", f["id"])})
             continue
         R = rooms[f["room"]]["rect"]
+        base = {**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "label": f.get("label", f["id"])}
+        def emit(x, y, facing, rule):
+            pr = {**base, "x": round(x, 3), "y": round(y, 3), "facing": facing, "rule": rule}
+            if f.get("instance"): placed[f["instance"]] = pr
+            out.append(pr)
+        if f["rule"] == "at":                      # a design decision: exactly here, facing this way
+            emit(f["x"], f["y"], f.get("facing", "S"), f"at ({f['x']}, {f['y']}) {f.get('why', '')}".strip())
+            continue
+        if f["rule"] == "pair":                    # a chair wants its desk: behind it (the sitter's side) or in front (the visitor's)
+            w = placed.get(f["with"])
+            if not w:
+                out.append({"id": f["id"], "room": f["room"], "missing": f"pair target {f['with']} not placed", "label": f.get("label", f["id"])}); continue
+            fx, fy = {"N": (0, 1), "S": (0, -1), "E": (1, 0), "W": (-1, 0)}[w["facing"]]
+            gapd = w["depth_m"] / 2 + a["depth_m"] / 2 + 0.15
+            if f.get("side", "behind") == "behind":
+                emit(w["x"] - fx * gapd, w["y"] - fy * gapd, w["facing"], f"pair: behind {f['with']}")
+            else:
+                opp = {"N": "S", "S": "N", "E": "W", "W": "E"}[w["facing"]]
+                emit(w["x"] + fx * gapd, w["y"] + fy * gapd, opp, f"pair: facing {f['with']}")
+            continue
+        if f["rule"] == "around":                  # chairs around a table: along its two long sides, facing it
+            w = placed.get(f["with"])
+            if not w:
+                out.append({"id": f["id"], "room": f["room"], "missing": f"around target {f['with']} not placed", "label": f.get("label", f["id"])}); continue
+            n = int(f.get("count", 4)); per = max(1, n // 2)
+            long_axis = "x" if w["facing"] in "NS" else "y"
+            half_w, half_d = w["width_m"] / 2, w["depth_m"] / 2
+            gapd = half_d + a["depth_m"] / 2 + 0.1
+            for side in (1, -1):
+                for i in range(per):
+                    t = (i + 0.5) / per * 2 - 1
+                    if long_axis == "x":
+                        emit(w["x"] + t * (half_w - a["width_m"] / 2), w["y"] + side * gapd, "S" if side > 0 else "N", f"around {f['with']}")
+                    else:
+                        emit(w["x"] + side * gapd, w["y"] + t * (half_w - a["width_m"] / 2), "W" if side > 0 else "E", f"around {f['with']}")
+            continue
         if f["rule"] == "wants":
             # the object's own planes decide: two backs -> the corner they name, one back -> a wall, none -> free
             rec = json.load(open(os.path.join(ROOT, "library", f["id"], "record.json")))
             walls = ((rec.get("grounding") or {}).get("wants") or {}).get("walls") or []
+            if len(walls) >= 3: walls = ["-z"]          # a box (cabinet, fridge, cooler) reads tall on every side: one wall, its back by convention
             W_, D_ = a["width_m"], a["depth_m"]
             gap = 0.05
             if len(walls) >= 2:
@@ -210,7 +250,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pack", default="liner-3")
     ap.add_argument("--out", default=os.path.join(ROOT, "lab", "room3d", "index.html"))
+    ap.add_argument("--inline-glb", action="store_true", help="embed meshes as base64 (only for a single-file artifact; the served page fetches them)")
     a = ap.parse_args()
+    global INLINE_GLB; INLINE_GLB = a.inline_glb
     plan = json.load(open(os.path.join(ROOT, "packs", a.pack, "plan.json")))
     pack = json.load(open(os.path.join(ROOT, "packs", a.pack, "pack.json")))
     palette, provenance = {}, {}
@@ -219,14 +261,20 @@ def main():
         if src and os.path.exists(src):
             palette[r["id"]] = sample(src)
             provenance[r["id"]] = os.path.relpath(src, ROOT)
-    props = furnish(plan)
+    fpath = os.path.join(ROOT, "packs", a.pack, "furnish.json")
+    place = json.load(open(fpath))["place"] if os.path.exists(fpath) else None
+    props = furnish(plan, place)
+    if not palette:
+        for r in plan["rooms"]:
+            palette[r["id"]] = pack.get("palette_default") or {"ceiling": "#eeeeee", "upper": "#cccccc", "strip": "#bbbbbb", "lower": "#bbbbbb", "skirting": "#777777", "floor": "#666666"}
+            provenance[r["id"]] = "packs/%s/pack.json palette_default (no painting for this room)" % a.pack
     world = {
         "pack": a.pack,
         "props": props,
         "title": pack.get("title") or pack.get("name") or a.pack,
         "storey_m": plan["floors"][0]["storey_height_m"],
-        "rail_m": 1.2,
-        "eye_m": 1.17,
+        "rail_m": float(pack.get("rail_m", 1.2)),
+        "eye_m": float(pack.get("eye_m", 1.17)),
         "rooms": [{"id": r["id"], "name": r["name"], "rect": r["rect"]} for r in plan["rooms"]],
         "openings": [{"id": o["id"], "kind": o["kind"], "rect": o["rect"], "joins": o["joins"]}
                      for o in plan["openings"]],
@@ -236,14 +284,16 @@ def main():
         "provenance": provenance,
     }
     mods = []
-    for f in FURNISH:
+    for f in {p["id"]: p for p in (place if place is not None else FURNISH)}.values():
         fa, _ = factory_of(f["id"])
         if fa and "module" in fa:
             mods.append('<script type="module">\n' + fa["module"].rstrip() +
                         f'\nwindow.__factories = window.__factories || {{}}; window.__factories[{json.dumps(fa["id"])}] = {fa["export"]};\n</script>')
-    body = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world)).replace("__FACTORY_MODULES__", "\n".join(mods))
+    body = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world)).replace("__FACTORY_MODULES__", "\n".join(mods)).replace("__TITLE__", "SS Meridian · C Deck" if a.pack == "liner-3" else world["title"])
     # the served page is a whole document; the artifact copy is the bare
     # fragment (the artifact viewer wraps it in its own head and body)
+    rel = os.path.relpath(os.path.join(ROOT, "library"), os.path.dirname(os.path.abspath(a.out))).replace(os.sep, "/")
+    body = body.replace("__LIB__", rel)
     html = ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
             "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, viewport-fit=cover\">\n"
             + body.split("<style>", 1)[0] + "<style>" + body.split("<style>", 1)[1].split("</style>", 1)[0] + "</style>\n</head>\n<body>\n"
@@ -252,13 +302,16 @@ def main():
     with open(a.out, "w") as fh:
         fh.write(html)
     frag = os.path.join(os.path.dirname(a.out), "fragment.html")
-    with open(frag, "w") as fh:
-        fh.write(body)
+    if INLINE_GLB:
+        with open(frag, "w") as fh:
+            fh.write(body)
+    elif os.path.exists(frag):
+        os.remove(frag)
     print(json.dumps({"ok": True, "out": os.path.relpath(a.out, ROOT), "rooms": len(world["rooms"]),
                       "openings": len(world["openings"]), "palette": palette}))
 
 
-TEMPLATE = r"""<title>Meridian Deck Walk</title>
+TEMPLATE = r"""<title>__TITLE__</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
   :root { --ink: #ece4d2; --ink-dim: #a89e88; --panel: rgba(22, 19, 16, 0.78); --line: rgba(236, 228, 210, 0.22); --brass: #c9a961; }
@@ -290,7 +343,7 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room { min-width: 0; padding: 8px 10px 6px; } .room .name { font-size: 16px; } .prov { display: none; } #gate { top: 70px; } }
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
-<div id="status"><div><div class="t">SS Meridian · C Deck</div><div class="s" id="statusText">loading the engine…</div></div></div>
+<div id="status"><div><div class="t">__TITLE__</div><div class="s" id="statusText">loading the engine…</div></div></div>
 <div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
 <div class="hud">
   <div class="top">

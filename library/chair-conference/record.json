@@ -1,0 +1,91 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-conference",
+ "noun": "conference chair",
+ "dims_m": {
+  "h": 0.9,
+  "w": 0.6,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   1.065,
+   0.9,
+   1.065
+  ],
+  "source_faces": 4704
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/chair-conference/model.glb",
+  "triangles": 4704,
+  "bbox_min": [
+   -0.5322834253311157,
+   0.0,
+   -0.5322834253311157
+  ],
+  "bbox_max": [
+   0.5322834253311157,
+   0.8999999761581421,
+   0.5322834253311157
+  ],
+  "size": [
+   1.0645668506622314,
+   0.8999999761581421,
+   1.0645668506622314
+  ],
+  "up_axis": "x",
+  "aspect_err": 0.5,
+  "images": 4,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/chair-conference/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 272,
+  "size_m": [
+   1.065,
+   0.9,
+   1.065
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "+x"
+   ]
+  },
+  "level_corrected_deg": 1.88,
+  "level_surface_vertices": 100,
+  "faces": 4704
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "d1efe442fb95425c8cef9faf2e0ff187",
+  "name": "Conference Chair with Table",
+  "author": "Lyrus",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-d1efe442fb95425c8cef9faf2e0ff187",
+  "query": "conference chair",
+  "pick": 0,
+  "candidates": 6,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.2,
+  "map": 1.1,
+  "download": 5.9,
+  "stand": 4.9,
+  "gate": 0.0,
+  "request_to_library": 13.2
+ }
+}
