@@ -31,6 +31,7 @@ def main():
     ap.add_argument("--up", default="+z", help="the generator's up axis")
     ap.add_argument("--max-tilt", type=float, default=35.0)
     ap.add_argument("--contact", type=float, default=0.012, help="a vertex this close to the plane rests on it (metres, after scaling)")
+    ap.add_argument("--level", default="", help="the working surface that must be parallel to the ground: top | seat:<height_m> | base (Kabe, 2026-09-02)")
     a = ap.parse_args()
     m = trimesh.load(a.src, force="mesh")
     # 1. the generator's up axis to +y
@@ -70,11 +71,37 @@ def main():
     m.apply_scale(a.height_m / max(1e-6, ext[1]))
     lo, hi = m.bounds
     m.apply_translation([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
+    # 5b. the CLASS RULE: a chair is level when its SEAT is, a table when its TOP is
+    # (Kabe): fit a plane to the up-facing surface in a slab at that height and level it
+    level_deg = None
+    if a.level:
+        kind, _, arg = a.level.partition(":")
+        h = float(m.bounds[1][1])
+        if kind == "top": yc, half = h - 0.03, 0.03
+        elif kind == "seat": yc, half = float(arg or 0.45), 0.03
+        else: yc, half = 0.0, 0.02
+        vn = m.vertex_normals; vy = m.vertices[:, 1]
+        lo_, hi_ = m.bounds; cx, cz = (lo_[0] + hi_[0]) / 2, (lo_[2] + hi_[2]) / 2
+        # the middle of the surface only: a seat pad's rolled edge and a table's lipping are not the plane
+        mid = (np.abs(m.vertices[:, 0] - cx) < 0.3 * (hi_[0] - lo_[0])) & (np.abs(m.vertices[:, 2] - cz) < 0.3 * (hi_[2] - lo_[2]))
+        sel = (np.abs(vy - yc) < half) & (vn[:, 1] > 0.85) & mid
+        if sel.sum() >= 30:
+            P = m.vertices[sel]; C = P - P.mean(axis=0)
+            w, vec = np.linalg.eigh(C.T @ C)
+            n2 = vec[:, 0]; n2 = n2 if n2[1] > 0 else -n2      # the surface's normal, pointing up
+            rms = float(np.sqrt(w[0] / max(1, sel.sum())))     # how planar the picked surface is
+            up = np.array([0.0, 1.0, 0.0])
+            ax2 = np.cross(n2, up); s2 = np.linalg.norm(ax2); ang2 = float(np.arctan2(s2, np.dot(n2, up)))
+            if s2 > 1e-8 and 0.2 < np.degrees(ang2) < 25 and rms < 0.012:
+                m.apply_transform(trimesh.transformations.rotation_matrix(ang2, ax2 / s2))
+                ext = m.bounds[1] - m.bounds[0]; m.apply_scale(a.height_m / max(1e-6, ext[1]))
+                lo, hi = m.bounds; m.apply_translation([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
+            level_deg = round(float(np.degrees(ang2)), 2)
     # 6. how level did it come out: the four lowest clusters
     ys = np.sort(m.vertices[:, 1]); feet = ys[: max(4, len(ys) // 200)]
     m.export(a.out)
     print(json.dumps({"ok": True, "out": a.out, "tilt_corrected_deg": round(float(np.degrees(ang)), 2), "support_vertices": support,
-                      "size_m": [round(float(v), 3) for v in (m.bounds[1] - m.bounds[0])], "lowest_1pct_spread_m": round(float(feet[-1] - feet[0]), 4),
+                      "size_m": [round(float(v), 3) for v in (m.bounds[1] - m.bounds[0])], "lowest_1pct_spread_m": round(float(feet[-1] - feet[0]), 4), "level_rule": a.level or None, "level_corrected_deg": level_deg, "level_surface_vertices": int(sel.sum()) if a.level else None,
                       "faces": int(len(m.faces))}))
     return 0
 

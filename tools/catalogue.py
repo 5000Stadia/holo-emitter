@@ -96,8 +96,9 @@ if cols is not None:
 d.export({os.path.join(out, "model.glb")!r}); print(len(m.faces), len(d.faces))
 """], capture_output=True, text=True)
         dims = row["dims_m"]
+        t_mesh = time.time()
         gr = subprocess.run([py, os.path.join(ROOT, "tools", "mesh-ground.py"), os.path.join(out, "model.glb"), os.path.join(out, "model.glb"),
-                             "--height-m", str(dims["h"]), "--up", "+z"], capture_output=True, text=True)
+                             "--height-m", str(dims["h"]), "--up", "+z", "--level", row.get("level", "")], capture_output=True, text=True)
         ground = json.loads(gr.stdout) if gr.stdout.strip().startswith("{") else {"ok": False, "why": gr.stderr[-200:]}
         g = subprocess.run([sys.executable, os.path.join(ROOT, "tools", "mesh-gate.py"), os.path.join(out, "model.glb"),
                             "--height-m", str(dims["h"]), "--width-m", str(dims["w"]), "--depth-m", str(dims["d"]), "--max-tris", str(a.faces + 1000)],
@@ -105,7 +106,9 @@ d.export({os.path.join(out, "model.glb")!r}); print(len(m.faces), len(d.faces))
         gate = json.loads(g.stdout) if g.stdout.strip().startswith("{") else {"ok": False, "failures": [g.stderr[-200:]]}
         rec = {"schema": "library-record/mesh/0.1", "id": row["id"], "noun": row["noun"], "dims_m": dims,
                "model": {"kind": "glb", "up": "+y", "grounded": bool(ground.get("ok")), "front": "-x", "colors": "vertex", "faces": a.faces},
-               "gate": gate, "grounding": ground, "provenance": {"source": os.path.relpath(src, ROOT), "prompt": "template (tools/catalogue.py)",
+               "gate": gate, "grounding": ground, "level": row.get("level"),
+               "timings": {"s_triposr": round(t_mesh - t0, 1), "s_stand_gate": round(time.time() - t_mesh, 1), "s_request_to_library": round(time.time() - t0, 1),
+                           "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"}, "provenance": {"source": os.path.relpath(src, ROOT), "prompt": "template (tools/catalogue.py)",
                                             "generator": f"TripoSR on CPU, mc-resolution {a.mc}", "seconds": round(time.time() - t0, 1)}}
         json.dump(rec, open(os.path.join(out, "record.json"), "w"), indent=1)
         log.append((row["id"], ("PASS" if gate.get("ok") else "GATE FAIL " + "; ".join(gate.get("failures", []))) + f" {time.time() - t0:.0f}s tris {dec.stdout.strip()}"))
