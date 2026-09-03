@@ -95,6 +95,7 @@ def factory_of(asset_id):
             "height_m": float(dims.get("h") or 1.0), "width_m": float(dims.get("w") or 0.5), "depth_m": float(dims.get("d") or 0.5),
             "glb": "data:model/gltf-binary;base64," + base64.b64encode(raw).decode("ascii"),
             "glb_front": (r.get("model") or {}).get("front", "+z"),
+            "glb_up": (r.get("model") or {}).get("up", "+y"),
         }, None
     if not os.path.exists(js):
         return None, "in the library as a sprite only, no factory, model.glb or primitives.json"
@@ -403,7 +404,8 @@ for (const pr of WORLD.props) {
   if (pr.glb) {
     // a generated mesh at arbitrary scale: fit its height to the declared one, feet on the floor, footprint centred
     fetch(pr.glb).then(r => r.arrayBuffer()).then(buf => gltf.parse(buf, "", (res) => {
-      const g = new THREE.Group(); const m = res.scene;
+      const g = new THREE.Group(); const m = new THREE.Group(); m.add(res.scene);
+      if (pr.glb_up === "+z") res.scene.rotation.x = -Math.PI / 2;      // a z-up mesh stood up
       const box = new THREE.Box3().setFromObject(m); const size = new THREE.Vector3(); box.getSize(size);
       const s = pr.height_m / Math.max(1e-6, size.y);
       m.scale.setScalar(s);

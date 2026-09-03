@@ -1,0 +1,22 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-liner-1934-mesh",
+ "noun": "liner writing-room side chair",
+ "dims_m": {
+  "h": 0.88,
+  "w": 0.46,
+  "d": 0.5
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+z",
+  "front": "+z",
+  "colors": "vertex",
+  "triangles_note": "decimated from TripoSR's 75,744"
+ },
+ "provenance": {
+  "source": "library-src/chair-liner-1934-side/source.png",
+  "generator": "TripoSR (stabilityai/TripoSR) on CPU, mc-resolution 256, 2026-09-02",
+  "gate": "tools/mesh-gate.py"
+ }
+}

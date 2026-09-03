@@ -30,6 +30,7 @@ DIMS = dict(
     # back shell
     shell_half_w=0.239, shell_edge_r=0.009, shell_sagitta=0.030,
     shell_bottom_y=0.530, shell_top_y=0.880, shell_roll_r=0.009, shell_recline_deg=13.5,
+    shell_corner_r=0.030, shell_corner_run=0.055,
     stile_top_z=-0.206,
     # undercarriage
     leg_x=0.207, leg_front_z=0.177, leg_rear_z=-0.177,
@@ -98,8 +99,27 @@ def build(d):
 
     shell_profile = [[D(a), D(b)] for a, b in
                      front + cap(arc_half, 1) + list(reversed(back)) + cap(-arc_half, -1)]
-    roll_xs = [-arc_half + 2 * arc_half * i / 5 for i in range(6)]
-    shell_roll = [[D(x), D(yfront(x) + d["shell_edge_r"]), D(length)] for x in roll_xs]
+    # The rolled top edge does not stop at the corners: it turns through a quarter and runs a
+    # little way down each side edge, which is what rounds the shell's top corners. An extrude's
+    # cap is flat, so without this return the corners stay square and the shell reads as a cut
+    # board rather than a bent one.
+    rc = d["shell_corner_r"]
+    run = d["shell_corner_run"]
+    er = d["shell_edge_r"]
+    shell_roll = [[D(-arc_half), D(er), D(length - rc - run)]]
+    for k in range(3, -1, -1):
+        th = math.radians(90.0 * k / 3)
+        x = -(arc_half - rc) - rc * math.sin(th)
+        shell_roll.append([D(x), D(yfront(x) + er), D(length - rc + rc * math.cos(th))])
+    inner = arc_half - rc
+    for i in range(1, 6):
+        x = -inner + 2 * inner * i / 6
+        shell_roll.append([D(x), D(yfront(x) + er), D(length)])
+    for k in range(4):
+        th = math.radians(90.0 * k / 3)
+        x = (arc_half - rc) + rc * math.sin(th)
+        shell_roll.append([D(x), D(yfront(x) + er), D(length - rc + rc * math.cos(th))])
+    shell_roll.append([D(arc_half), D(er), D(length - rc - run)])
 
     a = -math.pi / 2 - recline
     wy = yfront(0.0) * math.cos(a)
@@ -170,6 +190,7 @@ def apply(d, g, spec):
     r = by["back-shell-roll"]
     r["geometryDescriptor"]["tubePath"]["points"] = g["shell_roll"]
     r["geometryDescriptor"]["tubePath"]["radius"] = d["shell_roll_r"]
+    r["geometryDescriptor"]["tubePath"]["radialSegments"] = 6
     mid = g["shell_roll"][len(g["shell_roll"]) // 2]
     r["attachment"]["localStart"] = r["attachment"]["localEnd"] = mid
     by["back-shell"]["actionProfile"]["sockets"][0]["localPosition"] = mid
@@ -185,10 +206,12 @@ def apply(d, g, spec):
 
     by["apron-lipping-roll"]["geometryDescriptor"]["tubePath"]["points"] = g["lip_path"]
     by["apron-lipping-roll"]["geometryDescriptor"]["tubePath"]["radius"] = d["lip_r"]
+    by["apron-lipping-roll"]["geometryDescriptor"]["tubePath"]["radialSegments"] = 6
     by["apron-lipping-roll"]["attachment"]["localStart"] = g["lip_path"][0]
     by["apron-lipping-roll"]["attachment"]["localEnd"] = g["lip_path"][0]
     by["apron-bottom-roll"]["geometryDescriptor"]["tubePath"]["points"] = g["bot_path"]
     by["apron-bottom-roll"]["geometryDescriptor"]["tubePath"]["radius"] = d["bottom_roll_r"]
+    by["apron-bottom-roll"]["geometryDescriptor"]["tubePath"]["radialSegments"] = 4
     by["apron-bottom-roll"]["attachment"]["localStart"] = g["bot_path"][0]
     by["apron-bottom-roll"]["attachment"]["localEnd"] = g["bot_path"][0]
 
@@ -200,6 +223,7 @@ def apply(d, g, spec):
     pd["transform"]["position"] = [0.0, d["pad_bottom_y"], 0.0]
     by["seat-pad-roll"]["geometryDescriptor"]["tubePath"]["points"] = g["pad_path"]
     by["seat-pad-roll"]["geometryDescriptor"]["tubePath"]["radius"] = d["pad_roll_r"]
+    by["seat-pad-roll"]["geometryDescriptor"]["tubePath"]["radialSegments"] = 6
     by["seat-pad-roll"]["attachment"]["localStart"] = g["pad_path"][0]
     by["seat-pad-roll"]["attachment"]["localEnd"] = g["pad_path"][0]
     by["seat-pad"]["actionProfile"]["sockets"][0]["localPosition"] = g["pad_path"][0]

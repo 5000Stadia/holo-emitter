@@ -842,19 +842,24 @@
       "material-pass",
       "optimization-pass"
     ],
-    "currentPass": "blockout",
-    "completedPasses": [],
-    "lastCompletedPass": "",
+    "currentPass": "structural-pass",
+    "completedPasses": [
+      "blockout"
+    ],
+    "lastCompletedPass": "blockout",
     "blockedReason": "",
     "nextRequiredEvidence": [
-      "Overall height reads 0.88 m, seat crown 0.445 m, and all four feet land on y = 0.",
-      "The reclined concave shell is distinguishable from a flat vertical board.",
-      "The reveal slot between pad and shell is open.",
-      "Rear members rake back; front members are vertical.",
+      "The pale lipping band is unbroken round the pad on every visible side.",
+      "The shell's top edge reads as a roll, not an arris.",
+      "The pad's edge turns down into the lipping with no welt line.",
       "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold.",
+      "attachment contracts for child appendages/connectors",
+      "no floating child roots/joints in the browser screenshot",
       "browser render screenshot from your agent's browser/screenshot tool",
-      "single side-by-side full reference/render comparison sheet",
-      "all critical semantic feature scores at or above their thresholds",
+      "side-by-side reference/render comparison sheet for AI vision review",
+      "banded interior difference vs the reference baseline (forge/stage4_review/interior_difference.py --from/--to per region)",
+      "AI vision score at or above the visual acceptance threshold",
+      "all critical semantic feature scores from the shared image pair at or above their thresholds",
       "self-correction review appended with action=continue before the next pass"
     ],
     "passOrderRationale": "Five passes, not the eight-pass default. surface-pass is folded into material-pass because the reference carries no relief anywhere: veneer, lacquer and wool are all flat, and every figure is albedo-only. lighting-pass is dropped because this prop is lit by the holo-emitter scene it is dropped into, not by a rig it ships with; the review rig exists only to make the comparison fair. interaction-pass is folded into optimization-pass because the chair is static: it needs an explodable/clickable hierarchy and a collider proxy, and no pivots beyond the root."
@@ -1437,8 +1442,8 @@
           {
             "id": "shell-top-edge",
             "localPosition": [
-              0.046,
-              0.03782,
+              0.0,
+              0.039,
               0.35069
             ],
             "axis": [
@@ -1615,36 +1620,81 @@
             [
               -0.23,
               0.009,
+              0.26569
+            ],
+            [
+              -0.23,
+              0.009,
+              0.32069
+            ],
+            [
+              -0.22598,
+              0.01006,
+              0.33569
+            ],
+            [
+              -0.215,
+              0.01284,
+              0.34667
+            ],
+            [
+              -0.2,
+              0.01641,
               0.35069
             ],
             [
-              -0.138,
-              0.02832,
+              -0.13333,
+              0.02903,
               0.35069
             ],
             [
-              -0.046,
-              0.03782,
+              -0.06667,
+              0.03652,
               0.35069
             ],
             [
-              0.046,
-              0.03782,
+              0.0,
+              0.039,
               0.35069
             ],
             [
-              0.138,
-              0.02832,
+              0.06667,
+              0.03652,
               0.35069
+            ],
+            [
+              0.13333,
+              0.02903,
+              0.35069
+            ],
+            [
+              0.2,
+              0.01641,
+              0.35069
+            ],
+            [
+              0.215,
+              0.01284,
+              0.34667
+            ],
+            [
+              0.22598,
+              0.01006,
+              0.33569
             ],
             [
               0.23,
               0.009,
-              0.35069
+              0.32069
+            ],
+            [
+              0.23,
+              0.009,
+              0.26569
             ]
           ],
           "radius": 0.009,
-          "radialSegments": 8,
+          "radialSegments": 6,
           "closed": false
         }
       },
@@ -1653,13 +1703,13 @@
         "parentSocket": "shell-top-edge",
         "contactType": "bonded",
         "localStart": [
-          0.046,
-          0.03782,
+          0.0,
+          0.039,
           0.35069
         ],
         "localEnd": [
-          0.046,
-          0.03782,
+          0.0,
+          0.039,
           0.35069
         ],
         "contactNormal": [
@@ -2447,7 +2497,7 @@
             ]
           ],
           "radius": 0.006,
-          "radialSegments": 5,
+          "radialSegments": 4,
           "closed": true
         }
       },
@@ -6085,6 +6135,52 @@
       "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
       "notes": "",
       "aiVisionNotes": "Judged from the side-by-side sheet. formDetail is low by design at blockout: the four rolled edges and the ferrules are later tiers. materialSurface is held at 0.70 because the sycamore still carries a glassier clearcoat streak than the reference's satin lacquer."
+    },
+    {
+      "timestamp": "2026-09-03T02:09:08.067801+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.78,
+      "aiVisionScore": 0.78,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.87,
+        "componentStructure": 0.84,
+        "formDetail": 0.66,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.82,
+          "threshold": 0.8,
+          "notes": "Concave loft, 0.030 m sagitta over a 0.478 m chord and 13.5-degree recline all read; the shell now laps the stiles as the reference shows. Top corners are still square because the extrude's cap is flat - the rolled top edge that rounds them is a meso component built in the next pass."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Open at 0.445-0.530 m with only the two stiles crossing it; background visible through it at the review camera and from both orbit views."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.83,
+          "threshold": 0.8,
+          "notes": "Round section, linear taper 0.0238 to 0.0110 m, front pair vertical, rear pair rakes 0.079 m back to the foot with the sabre knee. Both placement defects from the previous review are gone: leg shoulders clear the apron's 0.032 m corner arc and the leg tops now stop at 0.418 m, below the apron's 0.427 m top face."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-blockout2.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "formDetail 0.66 is the honest reading of a pass that builds no edge treatment at all; it is the next pass's whole job. Reported fidelity 0.78 is 'object reads correctly, local details approximate' on the grimoire scale, not a claim of a finished model."
     }
   ],
   "reviewHistory": [
@@ -6164,6 +6260,84 @@
         "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
         "notes": "",
         "aiVisionNotes": "Judged from the side-by-side sheet. formDetail is low by design at blockout: the four rolled edges and the ferrules are later tiers. materialSurface is held at 0.70 because the sycamore still carries a glassier clearcoat streak than the reference's satin lacquer."
+      }
+    },
+    {
+      "timestamp": "2026-09-03T02:09:08.067801+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.78,
+      "aiVisionScore": 0.78,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.87,
+        "componentStructure": 0.84,
+        "formDetail": 0.66,
+        "materialSurface": 0.72,
+        "lightingCamera": 0.88
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.82,
+          "threshold": 0.8,
+          "notes": "Concave loft, 0.030 m sagitta over a 0.478 m chord and 13.5-degree recline all read; the shell now laps the stiles as the reference shows. Top corners are still square because the extrude's cap is flat - the rolled top edge that rounds them is a meso component built in the next pass."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.9,
+          "threshold": 0.8,
+          "notes": "Open at 0.445-0.530 m with only the two stiles crossing it; background visible through it at the review camera and from both orbit views."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.83,
+          "threshold": 0.8,
+          "notes": "Round section, linear taper 0.0238 to 0.0110 m, front pair vertical, rear pair rakes 0.079 m back to the foot with the sabre knee. Both placement defects from the previous review are gone: leg shoulders clear the apron's 0.032 m corner arc and the leg tops now stop at 0.418 m, below the apron's 0.427 m top face."
+        }
+      ],
+      "action": "continue",
+      "summary": "Blockout accepted. Tier 1 passes (silhouette IoU 0.851, aspect delta 0.029, scale delta 0.014) with a map-stripped render as evidence, turntable covers four azimuths with no degenerate view, and all three blockout-scoped critical features clear their thresholds. The two placement defects from the previous review are fixed.",
+      "matched": [
+        "front-leg shoulders now clear the apron's rounded corners",
+        "leg tops sink below the apron's top face",
+        "shell laps the stiles instead of the stiles standing proud of it",
+        "shell arc sampled at 19 stations so the facet banding across the back is gone",
+        "per-material colour within dE 9.3 of the reference on all four families"
+      ],
+      "mismatches": [
+        "shell's top corners are square (the rolled top edge that rounds them is a meso component, next pass)",
+        "no ferrules (micro tier)",
+        "pad still sits proud of the apron with a pale shelf showing, which the bullnose lipping roll will cover",
+        "sycamore reads glossier than the reference's satin lacquer",
+        "model remains 2.9 percent narrower than the reference relative to height"
+      ],
+      "specFixes": [],
+      "codeFixes": [
+        "none - the factory is generated, the fixes were dimensional"
+      ],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-blockout2.png",
+        "renders/turn-000.png",
+        "renders/turn-090.png",
+        "renders/turn-180.png",
+        "renders/turn-270.png"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-blockout2.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "formDetail 0.66 is the honest reading of a pass that builds no edge treatment at all; it is the next pass's whole job. Reported fidelity 0.78 is 'object reads correctly, local details approximate' on the grimoire scale, not a claim of a finished model."
       }
     }
   ],
@@ -7479,6 +7653,8 @@
     "shell_top_y": 0.88,
     "shell_roll_r": 0.009,
     "shell_recline_deg": 13.5,
+    "shell_corner_r": 0.03,
+    "shell_corner_run": 0.055,
     "stile_top_z": -0.206,
     "leg_x": 0.207,
     "leg_front_z": 0.177,
