@@ -44,21 +44,22 @@
     "fovDegrees": 46.0,
     "aspect": 1.0,
     "orientation": {
-      "yaw": -32.0,
-      "pitch": -11.0,
+      "yaw": -40.0,
+      "pitch": -10.6,
       "roll": 0.0
     },
     "positionHint": [
-      -0.68,
-      0.8,
-      1.09
+      -0.9083,
+      0.7,
+      1.0825
     ],
     "targetHint": [
       0.0,
       0.44,
-      -0.02
+      0.0
     ],
-    "note": "Solved from reference.png by two-vanishing-point orthogonality on the apron's bottom edge and the pad's lower edge (VP_x 1820,397 and VP_z -1063,270 about a centred principal point) giving f ~1390 px on a 1254 px square frame, i.e. ~46-48 deg vertical field and a ~40 mm-equivalent lens. Chair yaw solved at 32 deg from the ratio of the projected front rail (389 px for 0.458 m) to the projected side rail (268 px for 0.410 m). Confirm by overlay review, not by these numbers alone."
+    "solveMethod": "silhouette-search",
+    "note": "Fitted, not guessed. Two independent estimates were made first - two-vanishing-point orthogonality on the apron's bottom edge and the pad's lower edge (f ~1390 px on a 1254 px square frame, i.e. ~48 deg vertical field), and a plane homography on the four foot positions (yaw -40.6 deg, rms 9.4 px) - and then 192 camera candidates were rendered and scored by align-then-IoU against the reference silhouette (tools/align_iou.py: both masks normalised to their own bounding box first, because raw IoU between a photograph and a procedural render is dominated by framing rather than fidelity). Best candidate yaw -40 deg, camera height 0.70 m, distance 1.413 m, vertical field 46 deg, target (0, 0.44, 0), aligned silhouette IoU 0.840 at blockout. A third estimate from the ratio of the projected front rail to the projected side rail gave 32 deg; it is the weakest of the three because it assumes the apron's plan proportions, which are themselves inferred."
   },
   "suitability": "pass",
   "scores": {
@@ -970,7 +971,7 @@
     "handedness": "right-handed; the chair's own left is +x"
   },
   "silhouette": {
-    "boundingShape": "upright rectangular prism 0.46 m wide x 0.50 m deep x 0.88 m tall, split horizontally into a solid seat mass at 0.35-0.45 m, an open reveal band at 0.45-0.53 m, and a reclined shell above it",
+    "boundingShape": "upright rectangular prism 0.47 m wide x 0.51505 m deep x 0.88 m tall, split horizontally into a solid seat mass at 0.348-0.445 m, an open reveal band at 0.445-0.53 m, and a reclined shell above it",
     "aspectRatios": [
       {
         "pair": "height:width",
@@ -1002,7 +1003,7 @@
         "position": [
           0.0,
           0.88,
-          -0.3
+          -0.30105
         ],
         "confidence": 0.8
       },
@@ -1011,7 +1012,7 @@
         "position": [
           0.0,
           0.53,
-          -0.226
+          -0.22666
         ],
         "confidence": 0.75
       },
@@ -1036,18 +1037,18 @@
       {
         "id": "front-foot-l",
         "position": [
-          0.197,
+          0.208,
           0.0,
-          0.173
+          0.178
         ],
         "confidence": 0.9
       },
       {
         "id": "rear-foot-l",
         "position": [
-          0.197,
+          0.208,
           0.0,
-          -0.222
+          -0.256
         ],
         "confidence": 0.75
       }
@@ -1179,27 +1180,27 @@
         "profile2D": {
           "points": [
             [
-              -0.213,
+              -0.221,
               0.0
             ],
             [
-              -0.1775,
-              0.00929
+              -0.18417,
+              0.00928
             ],
             [
-              -0.142,
-              0.01681
+              -0.14733,
+              0.0168
             ],
             [
-              -0.1065,
-              0.02261
+              -0.1105,
+              0.0226
             ],
             [
-              -0.071,
+              -0.07367,
               0.02672
             ],
             [
-              -0.0355,
+              -0.03683,
               0.02918
             ],
             [
@@ -1207,67 +1208,67 @@
               0.03
             ],
             [
-              0.0355,
+              0.03683,
               0.02918
             ],
             [
-              0.071,
+              0.07367,
               0.02672
             ],
             [
-              0.1065,
-              0.02261
+              0.1105,
+              0.0226
             ],
             [
-              0.142,
-              0.01681
+              0.14733,
+              0.0168
             ],
             [
-              0.1775,
-              0.00929
+              0.18417,
+              0.00928
             ],
             [
-              0.213,
+              0.221,
               0.0
             ],
             [
-              0.21607,
-              0.00054
+              0.22416,
+              0.00057
             ],
             [
-              0.22046,
-              0.00396
+              0.22851,
+              0.00404
             ],
             [
-              0.22199,
-              0.00931
+              0.22999,
+              0.0094
             ],
             [
-              0.2201,
-              0.01454
+              0.22804,
+              0.01461
             ],
             [
-              0.213,
+              0.221,
               0.018
             ],
             [
-              0.1775,
-              0.02729
+              0.18417,
+              0.02728
             ],
             [
-              0.142,
-              0.03481
+              0.14733,
+              0.0348
             ],
             [
-              0.1065,
-              0.04061
+              0.1105,
+              0.0406
             ],
             [
-              0.071,
+              0.07367,
               0.04472
             ],
             [
-              0.0355,
+              0.03683,
               0.04718
             ],
             [
@@ -1275,52 +1276,52 @@
               0.048
             ],
             [
-              -0.0355,
+              -0.03683,
               0.04718
             ],
             [
-              -0.071,
+              -0.07367,
               0.04472
             ],
             [
-              -0.1065,
-              0.04061
+              -0.1105,
+              0.0406
             ],
             [
-              -0.142,
-              0.03481
+              -0.14733,
+              0.0348
             ],
             [
-              -0.1775,
-              0.02729
+              -0.18417,
+              0.02728
             ],
             [
-              -0.213,
+              -0.221,
               0.018
             ],
             [
-              -0.2201,
-              0.01454
+              -0.22804,
+              0.01461
             ],
             [
-              -0.22199,
-              0.00931
+              -0.22999,
+              0.0094
             ],
             [
-              -0.22046,
-              0.00396
+              -0.22851,
+              0.00404
             ],
             [
-              -0.21607,
-              0.00054
+              -0.22416,
+              0.00057
             ]
           ],
           "depth": 0.34862
         },
         "measurements": {
-          "chord": 0.444,
+          "chord": 0.46,
           "sagitta": 0.03,
-          "arcRadius": 0.77115,
+          "arcRadius": 0.82902,
           "thickness": 0.018,
           "bottomY": 0.53,
           "topY": 0.88,
@@ -1383,7 +1384,7 @@
           {
             "id": "shell-top-edge",
             "localPosition": [
-              0.0426,
+              0.0442,
               0.03782,
               0.34862
             ],
@@ -1398,7 +1399,7 @@
           {
             "id": "shell-stile-lap-l",
             "localPosition": [
-              0.213,
+              0.221,
               0.0,
               0.0
             ],
@@ -1413,7 +1414,7 @@
           {
             "id": "shell-stile-lap-r",
             "localPosition": [
-              -0.213,
+              -0.221,
               0.0,
               0.0
             ],
@@ -1559,32 +1560,32 @@
         "tubePath": {
           "points": [
             [
-              -0.213,
+              -0.221,
               0.009,
               0.34862
             ],
             [
-              -0.1278,
-              0.02834,
+              -0.1326,
+              0.02833,
               0.34862
             ],
             [
-              -0.0426,
+              -0.0442,
               0.03782,
               0.34862
             ],
             [
-              0.0426,
+              0.0442,
               0.03782,
               0.34862
             ],
             [
-              0.1278,
-              0.02834,
+              0.1326,
+              0.02833,
               0.34862
             ],
             [
-              0.213,
+              0.221,
               0.009,
               0.34862
             ]
@@ -1599,12 +1600,12 @@
         "parentSocket": "shell-top-edge",
         "contactType": "bonded",
         "localStart": [
-          0.0426,
+          0.0442,
           0.03782,
           0.34862
         ],
         "localEnd": [
-          0.0426,
+          0.0442,
           0.03782,
           0.34862
         ],
@@ -1763,15 +1764,15 @@
         "profile2D": {
           "points": [
             [
-              0.229,
+              0.235,
               -0.173
             ],
             [
-              0.21963,
+              0.22563,
               -0.19563
             ],
             [
-              0.197,
+              0.203,
               -0.205
             ],
             [
@@ -1779,31 +1780,31 @@
               -0.205
             ],
             [
-              -0.197,
+              -0.203,
               -0.205
             ],
             [
-              -0.21963,
+              -0.22563,
               -0.19563
             ],
             [
-              -0.229,
+              -0.235,
               -0.173
             ],
             [
-              -0.229,
+              -0.235,
               -0.0
             ],
             [
-              -0.229,
+              -0.235,
               0.173
             ],
             [
-              -0.21963,
+              -0.22563,
               0.19563
             ],
             [
-              -0.197,
+              -0.203,
               0.205
             ],
             [
@@ -1811,26 +1812,26 @@
               0.205
             ],
             [
-              0.197,
+              0.203,
               0.205
             ],
             [
-              0.21963,
+              0.22563,
               0.19563
             ],
             [
-              0.229,
+              0.235,
               0.173
             ],
             [
-              0.229,
+              0.235,
               -0.0
             ]
           ],
           "depth": 0.079
         },
         "measurements": {
-          "planWidth": 0.458,
+          "planWidth": 0.47,
           "planDepth": 0.41,
           "cornerRadius": 0.032,
           "bottomY": 0.348,
@@ -1893,9 +1894,9 @@
           {
             "id": "apron-corner-socket-front-l",
             "localPosition": [
-              0.197,
-              -0.205,
-              0.079
+              0.208,
+              -0.178,
+              0.082
             ],
             "axis": [
               0.0,
@@ -1908,9 +1909,9 @@
           {
             "id": "apron-corner-socket-front-r",
             "localPosition": [
-              -0.197,
-              -0.205,
-              0.079
+              -0.208,
+              -0.178,
+              0.082
             ],
             "axis": [
               0.0,
@@ -1923,9 +1924,9 @@
           {
             "id": "apron-corner-socket-rear-l",
             "localPosition": [
-              0.197,
-              0.205,
-              0.079
+              0.208,
+              0.178,
+              0.082
             ],
             "axis": [
               0.0,
@@ -1938,9 +1939,9 @@
           {
             "id": "apron-corner-socket-rear-r",
             "localPosition": [
-              -0.197,
-              0.205,
-              0.079
+              -0.208,
+              0.178,
+              0.082
             ],
             "axis": [
               0.0,
@@ -1953,7 +1954,7 @@
           {
             "id": "seat-apron-perimeter",
             "localPosition": [
-              0.229,
+              0.235,
               0.0,
               0.079
             ],
@@ -2058,17 +2059,17 @@
         "tubePath": {
           "points": [
             [
-              0.215,
+              0.221,
               -0.1618,
               0.079
             ],
             [
-              0.20645,
+              0.21245,
               -0.18245,
               0.079
             ],
             [
-              0.1858,
+              0.1918,
               -0.191,
               0.079
             ],
@@ -2078,37 +2079,37 @@
               0.079
             ],
             [
-              -0.1858,
+              -0.1918,
               -0.191,
               0.079
             ],
             [
-              -0.20645,
+              -0.21245,
               -0.18245,
               0.079
             ],
             [
-              -0.215,
+              -0.221,
               -0.1618,
               0.079
             ],
             [
-              -0.215,
+              -0.221,
               -0.0,
               0.079
             ],
             [
-              -0.215,
+              -0.221,
               0.1618,
               0.079
             ],
             [
-              -0.20645,
+              -0.21245,
               0.18245,
               0.079
             ],
             [
-              -0.1858,
+              -0.1918,
               0.191,
               0.079
             ],
@@ -2118,22 +2119,22 @@
               0.079
             ],
             [
-              0.1858,
+              0.1918,
               0.191,
               0.079
             ],
             [
-              0.20645,
+              0.21245,
               0.18245,
               0.079
             ],
             [
-              0.215,
+              0.221,
               0.1618,
               0.079
             ],
             [
-              0.215,
+              0.221,
               -0.0,
               0.079
             ]
@@ -2148,12 +2149,12 @@
         "parentSocket": "seat-apron-perimeter",
         "contactType": "bonded",
         "localStart": [
-          0.215,
+          0.221,
           -0.1618,
           0.079
         ],
         "localEnd": [
-          0.215,
+          0.221,
           -0.1618,
           0.079
         ],
@@ -2312,17 +2313,17 @@
         "tubePath": {
           "points": [
             [
-              0.223,
+              0.229,
               -0.1682,
               0.006
             ],
             [
-              0.21398,
+              0.21998,
               -0.18998,
               0.006
             ],
             [
-              0.1922,
+              0.1982,
               -0.199,
               0.006
             ],
@@ -2332,37 +2333,37 @@
               0.006
             ],
             [
-              -0.1922,
+              -0.1982,
               -0.199,
               0.006
             ],
             [
-              -0.21398,
+              -0.21998,
               -0.18998,
               0.006
             ],
             [
-              -0.223,
+              -0.229,
               -0.1682,
               0.006
             ],
             [
-              -0.223,
+              -0.229,
               -0.0,
               0.006
             ],
             [
-              -0.223,
+              -0.229,
               0.1682,
               0.006
             ],
             [
-              -0.21398,
+              -0.21998,
               0.18998,
               0.006
             ],
             [
-              -0.1922,
+              -0.1982,
               0.199,
               0.006
             ],
@@ -2372,22 +2373,22 @@
               0.006
             ],
             [
-              0.1922,
+              0.1982,
               0.199,
               0.006
             ],
             [
-              0.21398,
+              0.21998,
               0.18998,
               0.006
             ],
             [
-              0.223,
+              0.229,
               0.1682,
               0.006
             ],
             [
-              0.223,
+              0.229,
               -0.0,
               0.006
             ]
@@ -2402,12 +2403,12 @@
         "parentSocket": "seat-apron-perimeter",
         "contactType": "bonded",
         "localStart": [
-          0.223,
+          0.229,
           -0.1682,
           0.006
         ],
         "localEnd": [
-          0.223,
+          0.229,
           -0.1682,
           0.006
         ],
@@ -2565,31 +2566,31 @@
           "points": [
             [
               0.188,
-              -0.138
+              -0.128
             ],
             [
               0.17921,
-              -0.15921
+              -0.14921
             ],
             [
               0.158,
-              -0.168
+              -0.158
             ],
             [
               0.0,
-              -0.168
+              -0.158
             ],
             [
               -0.158,
-              -0.168
+              -0.158
             ],
             [
               -0.17921,
-              -0.15921
+              -0.14921
             ],
             [
               -0.188,
-              -0.138
+              -0.128
             ],
             [
               -0.188,
@@ -2597,31 +2598,31 @@
             ],
             [
               -0.188,
-              0.138
+              0.128
             ],
             [
               -0.17921,
-              0.15921
+              0.14921
             ],
             [
               -0.158,
-              0.168
+              0.158
             ],
             [
               0.0,
-              0.168
+              0.158
             ],
             [
               0.158,
-              0.168
+              0.158
             ],
             [
               0.17921,
-              0.15921
+              0.14921
             ],
             [
               0.188,
-              0.138
+              0.128
             ],
             [
               0.188,
@@ -2632,7 +2633,7 @@
         },
         "measurements": {
           "planWidth": 0.376,
-          "planDepth": 0.336,
+          "planDepth": 0.316,
           "cornerRadius": 0.03,
           "topY": 0.445
         }
@@ -2694,7 +2695,7 @@
             "id": "seat-pad-perimeter",
             "localPosition": [
               0.188,
-              -0.138,
+              -0.128,
               0.031
             ],
             "axis": [
@@ -2824,37 +2825,37 @@
           "points": [
             [
               0.188,
-              -0.138,
+              -0.128,
               0.031
             ],
             [
               0.17921,
-              -0.15921,
+              -0.14921,
               0.031
             ],
             [
               0.158,
-              -0.168,
+              -0.158,
               0.031
             ],
             [
               0.0,
-              -0.168,
+              -0.158,
               0.031
             ],
             [
               -0.158,
-              -0.168,
+              -0.158,
               0.031
             ],
             [
               -0.17921,
-              -0.15921,
+              -0.14921,
               0.031
             ],
             [
               -0.188,
-              -0.138,
+              -0.128,
               0.031
             ],
             [
@@ -2864,37 +2865,37 @@
             ],
             [
               -0.188,
-              0.138,
+              0.128,
               0.031
             ],
             [
               -0.17921,
-              0.15921,
+              0.14921,
               0.031
             ],
             [
               -0.158,
-              0.168,
+              0.158,
               0.031
             ],
             [
               0.0,
-              0.168,
+              0.158,
               0.031
             ],
             [
               0.158,
-              0.168,
+              0.158,
               0.031
             ],
             [
               0.17921,
-              0.15921,
+              0.14921,
               0.031
             ],
             [
               0.188,
-              0.138,
+              0.128,
               0.031
             ],
             [
@@ -2914,12 +2915,12 @@
         "contactType": "bonded",
         "localStart": [
           0.188,
-          -0.138,
+          -0.128,
           0.031
         ],
         "localEnd": [
           0.188,
-          -0.138,
+          -0.128,
           0.031
         ],
         "contactNormal": [
@@ -3173,9 +3174,9 @@
       },
       "transform": {
         "position": [
-          0.197,
+          0.208,
           0.43,
-          0.173
+          0.178
         ],
         "rotation": [
           0,
@@ -3454,9 +3455,9 @@
       },
       "transform": {
         "position": [
-          -0.197,
+          -0.208,
           0.43,
-          0.173
+          0.178
         ],
         "rotation": [
           0,
@@ -3617,7 +3618,7 @@
               "position": [
                 0.0,
                 0.118,
-                -0.023
+                -0.018
               ],
               "rx": 0.0205,
               "rz": 0.0205,
@@ -3627,7 +3628,7 @@
               "position": [
                 0.0,
                 0.07,
-                -0.017
+                -0.01296
               ],
               "rx": 0.0228,
               "rz": 0.0228,
@@ -3647,7 +3648,7 @@
               "position": [
                 0.0,
                 -0.1,
-                0.003
+                0.004
               ],
               "rx": 0.0225,
               "rz": 0.0225,
@@ -3657,7 +3658,7 @@
               "position": [
                 0.0,
                 -0.2,
-                -0.012
+                -0.0234
               ],
               "rx": 0.0186,
               "rz": 0.0186,
@@ -3667,7 +3668,7 @@
               "position": [
                 0.0,
                 -0.31,
-                -0.032
+                -0.05148
               ],
               "rx": 0.0145,
               "rz": 0.0145,
@@ -3677,7 +3678,7 @@
               "position": [
                 0.0,
                 -0.404,
-                -0.049
+                -0.078
               ],
               "rx": 0.011,
               "rz": 0.011,
@@ -3705,7 +3706,7 @@
         "localEnd": [
           0.0,
           -0.404,
-          -0.049
+          -0.078
         ],
         "contactNormal": [
           0.0,
@@ -3730,9 +3731,9 @@
       },
       "transform": {
         "position": [
-          0.197,
+          0.208,
           0.43,
-          -0.173
+          -0.178
         ],
         "rotation": [
           0,
@@ -3777,7 +3778,7 @@
             "localPosition": [
               0.0,
               -0.404,
-              -0.049
+              -0.078
             ],
             "axis": [
               0.0,
@@ -3902,7 +3903,7 @@
               "position": [
                 0.0,
                 0.118,
-                -0.023
+                -0.018
               ],
               "rx": 0.0205,
               "rz": 0.0205,
@@ -3912,7 +3913,7 @@
               "position": [
                 0.0,
                 0.07,
-                -0.017
+                -0.01296
               ],
               "rx": 0.0228,
               "rz": 0.0228,
@@ -3932,7 +3933,7 @@
               "position": [
                 0.0,
                 -0.1,
-                0.003
+                0.004
               ],
               "rx": 0.0225,
               "rz": 0.0225,
@@ -3942,7 +3943,7 @@
               "position": [
                 0.0,
                 -0.2,
-                -0.012
+                -0.0234
               ],
               "rx": 0.0186,
               "rz": 0.0186,
@@ -3952,7 +3953,7 @@
               "position": [
                 0.0,
                 -0.31,
-                -0.032
+                -0.05148
               ],
               "rx": 0.0145,
               "rz": 0.0145,
@@ -3962,7 +3963,7 @@
               "position": [
                 0.0,
                 -0.404,
-                -0.049
+                -0.078
               ],
               "rx": 0.011,
               "rz": 0.011,
@@ -3990,7 +3991,7 @@
         "localEnd": [
           0.0,
           -0.404,
-          -0.049
+          -0.078
         ],
         "contactNormal": [
           0.0,
@@ -4015,9 +4016,9 @@
       },
       "transform": {
         "position": [
-          -0.197,
+          -0.208,
           0.43,
-          -0.173
+          -0.178
         ],
         "rotation": [
           0,
@@ -4062,7 +4063,7 @@
             "localPosition": [
               0.0,
               -0.404,
-              -0.049
+              -0.078
             ],
             "axis": [
               0.0,
@@ -4671,7 +4672,7 @@
         "position": [
           0.0,
           -0.43,
-          -0.049
+          -0.078
         ],
         "rotation": [
           0,
@@ -4869,7 +4870,7 @@
         "position": [
           0.0,
           -0.43,
-          -0.049
+          -0.078
         ],
         "rotation": [
           0,
@@ -4985,10 +4986,10 @@
       "name": "Figured sycamore veneer, satin lacquer",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#D9A96E",
-      "color": "#D9A96E",
+      "baseColor": "#EBB877",
+      "color": "#EBB877",
       "albedo": {
-        "dominant": "#D9A96E",
+        "dominant": "#EBB877",
         "secondary": [
           "#C08F55",
           "#EBC28C"
@@ -5111,7 +5112,7 @@
         ]
       },
       "clearcoat": {
-        "base": 0.35,
+        "base": 0.3,
         "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."
       },
       "clearcoatRoughness": {
@@ -5195,7 +5196,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 0.85,
+      "envMapIntensity": 0.95,
       "qualityTier": "hero"
     },
     {
@@ -5203,10 +5204,10 @@
       "name": "Macassar ebony, satin lacquer",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#33241B",
-      "color": "#33241B",
+      "baseColor": "#2C1509",
+      "color": "#2C1509",
       "albedo": {
-        "dominant": "#33241B",
+        "dominant": "#2C1509",
         "secondary": [
           "#6B4632",
           "#150D08"
@@ -5322,7 +5323,7 @@
         "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."
       },
       "clearcoatRoughness": {
-        "base": 0.14
+        "base": 0.12
       },
       "ior": {
         "base": 1.5,
@@ -5404,7 +5405,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 0.9,
+      "envMapIntensity": 0.35,
       "qualityTier": "hero"
     },
     {
@@ -5412,10 +5413,10 @@
       "name": "Deep-blue wool upholstery",
       "type": "physical",
       "shaderModel": "MeshPhysicalMaterial / PBR",
-      "baseColor": "#2E3C60",
-      "color": "#2E3C60",
+      "baseColor": "#263457",
+      "color": "#263457",
       "albedo": {
-        "dominant": "#2E3C60",
+        "dominant": "#263457",
         "secondary": [
           "#25314F",
           "#3A4A72"
@@ -5528,7 +5529,7 @@
         ]
       },
       "sheen": {
-        "base": 0.42,
+        "base": 0.1,
         "notes": "Wool sheen at the grazing angle; sheenColor is left at the default white because sheen and sheenColor multiply into one uniform."
       },
       "sheenRoughness": {
@@ -5654,7 +5655,7 @@
         ],
         "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."
       },
-      "envMapIntensity": 0.35,
+      "envMapIntensity": 0.18,
       "qualityTier": "hero"
     },
     {
@@ -6366,6 +6367,381 @@
       ],
       "renderHash": "046ee1223b0e6226",
       "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.5114,
+        "aspectRatioDelta": 0.0559,
+        "scaleDelta": 0.126,
+        "bilateralSymmetryError": 0.1744,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 26.4,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 2.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.86
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.4
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.4
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.9
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.511 is below threshold 0.85",
+        "aspect-ratio delta 0.056 exceeds threshold 0.05",
+        "scale delta 0.126 exceeds threshold 0.08",
+        "blockout requires --map-stripped-render evidence"
+      ],
+      "maskWarnings": [],
+      "renderHash": "f5fb291be9ba336a",
+      "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.7649,
+        "aspectRatioDelta": 0.0585,
+        "scaleDelta": 0.0174,
+        "bilateralSymmetryError": 0.1946,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 26.4,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 2.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 2.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.4
+            },
+            {
+              "componentId": null,
+              "deltaE": 26.4
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 12.76
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.87
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.765 is below threshold 0.85",
+        "aspect-ratio delta 0.059 exceeds threshold 0.05",
+        "blockout requires --map-stripped-render evidence"
+      ],
+      "maskWarnings": [],
+      "renderHash": "8c165ff929741bb7",
+      "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.7396,
+        "aspectRatioDelta": 0.0534,
+        "scaleDelta": 0.0534,
+        "bilateralSymmetryError": 0.1914,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 32.17,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.67
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.67
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.67
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.67
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.17
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.17
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.17
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.17
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.740 is below threshold 0.85",
+        "aspect-ratio delta 0.053 exceeds threshold 0.05",
+        "blockout requires --map-stripped-render evidence"
+      ],
+      "maskWarnings": [],
+      "renderHash": "96f05015bd6a15c8",
+      "passId": "blockout"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.7755,
+        "aspectRatioDelta": 0.0485,
+        "scaleDelta": 0.0278,
+        "bilateralSymmetryError": 0.1901,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 32.62,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 5.08
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.08
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.08
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.08
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.08
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.64
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.63
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.63
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.63
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.63
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.62
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.62
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.62
+            },
+            {
+              "componentId": null,
+              "deltaE": 32.62
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.776 is below threshold 0.85",
+        "blockout requires --map-stripped-render evidence"
+      ],
+      "maskWarnings": [],
+      "renderHash": "1aed3157110c5f33",
+      "passId": "blockout"
     }
-  ]
+  ],
+  "dimensionTable": {
+    "units": "metres",
+    "source": "tools/regeom.py DIMS",
+    "apron_hx": 0.235,
+    "apron_hz": 0.205,
+    "apron_corner_r": 0.032,
+    "apron_bottom_y": 0.348,
+    "apron_top_y": 0.427,
+    "lip_r": 0.014,
+    "bottom_roll_r": 0.006,
+    "pad_inset": 0.047,
+    "pad_corner_r": 0.03,
+    "pad_bottom_y": 0.4,
+    "pad_top_y": 0.445,
+    "pad_roll_r": 0.014,
+    "shell_half_w": 0.23,
+    "shell_edge_r": 0.009,
+    "shell_sagitta": 0.03,
+    "shell_bottom_y": 0.53,
+    "shell_top_y": 0.88,
+    "shell_roll_r": 0.009,
+    "shell_recline_deg": 12.0,
+    "stile_top_z": -0.196,
+    "leg_x": 0.208,
+    "leg_front_z": 0.178,
+    "leg_rear_z": -0.178,
+    "rear_foot_z": -0.256,
+    "rear_knee_dz": 0.004,
+    "leg_top_y": 0.43,
+    "foot_y": 0.026,
+    "leg_r_top": 0.027,
+    "leg_r_apron": 0.025,
+    "leg_r_foot": 0.011,
+    "stile_top_y": 0.548,
+    "stile_r_top": 0.0205,
+    "leg_r_seat": 0.0258,
+    "ferrule_h": 0.026,
+    "ferrule_r": 0.0112
+  }
 }

@@ -62,7 +62,10 @@ def close_painting(room):
 # experiment two: what stands in the rooms. A placement RULE per prop, not a
 # hand-set coordinate: the same rule places the same asset in any plan.
 FURNISH = [
-    {"id": "chair-liner-1934-side", "room": "writing_room", "rule": "against_wall", "wall": "W"},
+    # the same chair through three approaches, side by side on the writing room's west wall (south to north)
+    {"id": "chair-liner-1934-side", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": -1.2, "label": "A · img2threejs (procedural code)"},
+    {"id": "chair-liner-1934-mesh", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.0, "label": "B · TripoSR (generated mesh)"},
+    {"id": "chair-liner-1934-prim", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 1.2, "label": "C · primitives (JSON)"},
 ]
 
 
@@ -77,6 +80,12 @@ def factory_of(asset_id):
         return None, "not in the library"
     r = json.load(open(rec))
     dims = r.get("dims_m") or {}
+    prim = os.path.join(d, "primitives.json")
+    if os.path.exists(prim):
+        pj = json.load(open(prim))
+        return {"id": asset_id, "noun": r.get("noun"),
+                "height_m": float(dims.get("h") or 1.0), "width_m": float(dims.get("w") or 0.5), "depth_m": float(dims.get("d") or 0.5),
+                "primitives": pj}, None
     if os.path.exists(glb) and not os.path.exists(js):
         # a generated mesh: ships inline as base64; the page scales it to the
         # declared height, stands it on the floor and turns it to face the room
@@ -88,7 +97,7 @@ def factory_of(asset_id):
             "glb_front": (r.get("model") or {}).get("front", "+z"),
         }, None
     if not os.path.exists(js):
-        return None, "in the library as a sprite only, no factory or model.glb"
+        return None, "in the library as a sprite only, no factory, model.glb or primitives.json"
     src = open(js).read()
     # the module must import three by the bare specifier the importmap maps
     export = None
@@ -114,7 +123,7 @@ def furnish(plan):
     for f in FURNISH:
         a, why = factory_of(f["id"])
         if a is None:
-            out.append({"id": f["id"], "room": f["room"], "missing": why})
+            out.append({"id": f["id"], "room": f["room"], "missing": why, "label": f.get("label", f["id"])})
             continue
         R = rooms[f["room"]]["rect"]
         if f["rule"] == "against_wall":
@@ -135,9 +144,11 @@ def furnish(plan):
                 if f["wall"] in "EW" and abs((rr["x0"] if f["wall"] == "E" else rr["x1"]) - (R["x1"] if f["wall"] == "E" else R["x0"])) < 1e-3 \
                         and rr["y0"] - a["width_m"] < y < rr["y1"] + a["width_m"]:
                     y = rr["y1"] + a["width_m"]
+            if f["wall"] in "EW": y += f.get("slot", 0.0)
+            else: x += f.get("slot", 0.0)
             facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[f["wall"]]
             out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
-                        "facing": facing, "rule": f"{f['rule']} {f['wall']}"})
+                        "facing": facing, "rule": f"{f['rule']} {f['wall']}", "label": f.get("label", f["id"])})
     return out
 
 
@@ -354,9 +365,41 @@ const placeProp = (g, pr) => {
   g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
   scene.add(g);
 };
+// primitive JSON (LLM-Primitives' representation): cubes, cylinders, spheres with a material each
+function buildPrimitives(pj) {
+  const g = new THREE.Group();
+  const mats = {};
+  for (const [k, m] of Object.entries(pj.materials || {})) mats[k] = new THREE.MeshStandardMaterial({ color: new THREE.Color(m.color), roughness: m.roughness ?? 0.6, metalness: m.metalness ?? 0 });
+  for (const p of pj.parts) {
+    let geo;
+    const sc = p.scale || [1, 1, 1];
+    if (p.type === "cylinder") geo = new THREE.CylinderGeometry(sc[0], sc[0], sc[1], 24), geo.scale(1, 1, sc[2] / sc[0]);
+    else if (p.type === "sphere") geo = new THREE.SphereGeometry(0.5, 24, 16), geo.scale(sc[0], sc[1], sc[2]);
+    else { geo = new THREE.BoxGeometry(sc[0], sc[1], sc[2], 1, 4, 1);
+      if (p.taper !== undefined) {           // narrower at the foot: a leg
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) { const t = (pos.getY(i) / sc[1]) + 0.5; const f = p.taper + (1 - p.taper) * t; pos.setX(i, pos.getX(i) * f); pos.setZ(i, pos.getZ(i) * f); }
+        geo.computeVertexNormals();
+      }
+      if (p.curve) {                          // a gentle concave bend across the width: a chair back
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) { const u = pos.getX(i) / sc[0]; pos.setZ(i, pos.getZ(i) - p.curve * (1 - 4 * u * u)); }
+        geo.computeVertexNormals();
+      }
+    }
+    const mesh = new THREE.Mesh(geo, mats[p.material] || new THREE.MeshStandardMaterial({ color: 0x888888 }));
+    mesh.position.fromArray(p.position || [0, 0, 0]);
+    if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+    mesh.name = p.name || p.type;
+    g.add(mesh);
+  }
+  return g;
+}
+const legend = WORLD.props.map(pr => `${pr.label}${pr.missing ? " — " + pr.missing : ""}`).join("<br>");
 const gltf = new GLTFLoader();
 for (const pr of WORLD.props) {
   if (pr.missing) continue;
+  if (pr.primitives) { placeProp(buildPrimitives(pr.primitives), pr); continue; }
   if (pr.glb) {
     // a generated mesh at arbitrary scale: fit its height to the declared one, feet on the floor, footprint centred
     fetch(pr.glb).then(r => r.arrayBuffer()).then(buf => gltf.parse(buf, "", (res) => {
@@ -367,6 +410,8 @@ for (const pr of WORLD.props) {
       const b2 = new THREE.Box3().setFromObject(m); const c = new THREE.Vector3(); b2.getCenter(c);
       m.position.set(-c.x, -b2.min.y, -c.z);
       if (pr.glb_front === "-z") m.rotation.y = Math.PI; else if (pr.glb_front === "+x") m.rotation.y = Math.PI / 2; else if (pr.glb_front === "-x") m.rotation.y = -Math.PI / 2;
+      // a single-image mesh can arrive with either winding: draw both faces
+      m.traverse(o => { if (o.isMesh && o.material) { o.material.side = THREE.DoubleSide; } });
       g.add(m); placeProp(g, pr);
     }, (e) => console.error("glb", pr.id, e)));
     continue;
@@ -475,8 +520,9 @@ function step(now) {
   const r = roomAt(px, py);
   if (r !== lastRoom) { roomName.textContent = r ? r.name : "—"; lastRoom = r;
     const prov = WORLD.provenance[r && r.id];
+    const chairs = (r && WORLD.props.some(pr => pr.room === r.id)) ? `<br><br>west wall, south to north:<br>${legend}` : "";
     document.getElementById("prov").innerHTML = prov
-      ? `walls, dado, strip, carpet and ceiling are the plan's geometry; their colours are the medians of <b>${prov}</b> in fixed row bands. No painter, no prompt.`
+      ? `walls, dado, strip, carpet and ceiling are the plan's geometry; their colours are the medians of <b>${prov}</b> in fixed row bands. No painter, no prompt.${chairs}`
       : "";
   }
   const hd = ((-yaw * 180 / Math.PI) % 360 + 360) % 360;

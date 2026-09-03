@@ -1,0 +1,18 @@
+{
+ "schema": "library-record/primitive/0.1",
+ "id": "chair-liner-1934-prim",
+ "noun": "liner writing-room side chair",
+ "dims_m": {
+  "h": 0.88,
+  "w": 0.46,
+  "d": 0.5
+ },
+ "model": {
+  "kind": "primitives",
+  "front": "+z"
+ },
+ "provenance": {
+  "source": "library-src/chair-liner-1934-side/source.png",
+  "authored": "Navigator, 2026-09-02, one pass from the reference; LLM-Primitives' representation (Tian et al., SA 2025), no model"
+ }
+}
