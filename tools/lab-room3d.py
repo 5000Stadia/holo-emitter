@@ -66,30 +66,33 @@ FURNISH = [
 ]
 
 
-def sprite_of(asset_id):
-    """The replicator's certified sprite for an asset id, or None with why.
-    The sprite ships inside the page as a data URI (the artifact host serves
-    no files); the record's declared dims size it in the world."""
+def factory_of(asset_id):
+    """The library's procedural factory for an asset id, or None with why.
+    A factory is an ES module (`library/<id>/factory.js`) exporting one
+    function that returns a THREE.Group in metres, feet on y=0, front +z;
+    it ships inline in the page. The record's declared dims place it."""
     d = os.path.join(ROOT, "library", asset_id)
-    rec, png = os.path.join(d, "record.json"), os.path.join(d, "sprite.png")
-    if not (os.path.exists(rec) and os.path.exists(png)):
-        src = os.path.join(ROOT, "library-src", asset_id, "source.png")
-        return None, ("source painted, not yet ingested" if os.path.exists(src) else "not in the library")
+    rec, js = os.path.join(d, "record.json"), os.path.join(d, "factory.js")
+    if not (os.path.exists(rec) and os.path.exists(js)):
+        return None, ("not in the library" if not os.path.exists(rec) else "in the library as a sprite only, no factory")
     r = json.load(open(rec))
-    im = Image.open(png).convert("RGBA")
-    # the contact row: the lowest row with opaque pixels
-    alpha = np.asarray(im)[..., 3]
-    rows = np.nonzero(alpha.max(axis=1) > 8)[0]
-    contact = int(rows.max()) + 1 if len(rows) else im.height
-    buf = io.BytesIO(); im.save(buf, "PNG")
     dims = r.get("dims_m") or {}
+    src = open(js).read()
+    # the module must import three by the bare specifier the importmap maps
+    export = None
+    for line in src.splitlines():
+        if line.startswith("export function "):
+            export = line.split("export function ", 1)[1].split("(", 1)[0].strip()
+        elif line.startswith("export const ") or line.startswith("export async function "):
+            export = line.split()[2].split("(", 1)[0].strip()
+    if not export:
+        return None, "factory.js exports no function"
     return {
         "id": asset_id, "noun": r.get("noun"),
         "height_m": float(dims.get("h") or 1.0),
         "width_m": float(dims.get("w") or 0.5),
         "depth_m": float(dims.get("d") or 0.5),
-        "px": [im.width, im.height], "contact_px": contact,
-        "sprite": "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii"),
+        "export": export, "module": src,
     }, None
 
 
@@ -97,7 +100,7 @@ def furnish(plan):
     rooms = {r["id"]: r for r in plan["rooms"]}
     out = []
     for f in FURNISH:
-        a, why = sprite_of(f["id"])
+        a, why = factory_of(f["id"])
         if a is None:
             out.append({"id": f["id"], "room": f["room"], "missing": why})
             continue
@@ -120,7 +123,9 @@ def furnish(plan):
                 if f["wall"] in "EW" and abs((rr["x0"] if f["wall"] == "E" else rr["x1"]) - (R["x1"] if f["wall"] == "E" else R["x0"])) < 1e-3 \
                         and rr["y0"] - a["width_m"] < y < rr["y1"] + a["width_m"]:
                     y = rr["y1"] + a["width_m"]
-            out.append({**a, "room": f["room"], "x": round(x, 3), "y": round(y, 3), "rule": f"{f['rule']} {f['wall']}"})
+            facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[f["wall"]]
+            out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
+                        "facing": facing, "rule": f"{f['rule']} {f['wall']}"})
     return out
 
 
@@ -153,7 +158,13 @@ def main():
         "palette": palette,
         "provenance": provenance,
     }
-    body = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world))
+    mods = []
+    for f in FURNISH:
+        fa, _ = factory_of(f["id"])
+        if fa:
+            mods.append('<script type="module">\n' + fa["module"].rstrip() +
+                        f'\nwindow.__factories = window.__factories || {{}}; window.__factories[{json.dumps(fa["id"])}] = {fa["export"]};\n</script>')
+    body = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world)).replace("__FACTORY_MODULES__", "\n".join(mods))
     # the served page is a whole document; the artifact copy is the bare
     # fragment (the artifact viewer wraps it in its own head and body)
     html = ("<!doctype html>\n<html lang=\"en\">\n<head>\n<meta charset=\"utf-8\">\n"
@@ -219,16 +230,17 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   // fail loudly: a black page says nothing, a sentence says what to fix
   window.__fail = (why) => { const s = document.getElementById("status"); s.hidden = false; s.querySelector("#statusText").innerHTML = why; };
   window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error before the first frame: <b>" + (e.message || e.type) + "</b>"); });
-  setTimeout(() => { if (!window.THREE) window.__fail("the engine script did not arrive from cdnjs.cloudflare.com within 12 s. A content blocker or an offline tab is the usual cause; reload once it is reachable."); }, 12000);
+  setTimeout(() => { if (!window.__ok && !window.__failed) window.__fail("the engine module did not arrive from cdnjs.cloudflare.com within 15 s. A content blocker, an offline tab or a browser without import maps is the usual cause; reload once it is reachable."); }, 15000);
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script>
+<script type="importmap">{"imports": {"three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"}}</script>
+__FACTORY_MODULES__
+<script type="module">
+import * as THREE from "three";
 const WORLD = __WORLD_JSON__;
-if (!window.THREE) throw new Error("three.js did not load");
 (function () {
   const c = document.createElement("canvas");
   const gl = c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl");
-  if (!gl) { window.__fail("this browser refused a WebGL context, so there is nothing to draw with. Enable hardware acceleration / WebGL, or open the page outside the embedded viewer."); throw new Error("no WebGL"); }
+  if (!gl) { window.__failed = true; window.__fail("this browser refused a WebGL context, so there is nothing to draw with. Enable hardware acceleration / WebGL, or open the page outside the embedded viewer."); throw new Error("no WebGL"); }
 })();
 const EPS = 1e-6;
 // plan: metres, north = +y.  three: y up, so plan y -> -z (north is -z, the camera's default look).
@@ -240,7 +252,7 @@ const camera = new THREE.PerspectiveCamera(70, innerWidth / innerHeight, 0.05, 8
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
-renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 document.body.prepend(renderer.domElement);
@@ -315,30 +327,26 @@ for (const r of WORLD.rooms) {
   const nx = Math.max(1, Math.round((R.x1 - R.x0) / 3.2)), ny = Math.max(1, Math.round((R.y1 - R.y0) / 3.2));
   for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
     const lx = R.x0 + (i + 0.5) * (R.x1 - R.x0) / nx, ly = R.y0 + (j + 0.5) * (R.y1 - R.y0) / ny;
-    const l = new THREE.PointLight(0xffd9a8, 0.55, 12, 2); l.position.copy(P(lx, ly)); l.position.y = H - 0.25; scene.add(l);
+    const l = new THREE.PointLight(0xffd9a8, 45, 14, 2); l.position.copy(P(lx, ly)); l.position.y = H - 0.25; scene.add(l);
   }
 }
-scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.35));
+scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.9));
 
-// props: the replicator's sprites as billboards standing on the floor. The
-// contract shot them front-three-quarter at 1.83 m eye, -8 deg; the V camera
-// below is that camera, so a billboard turned to face it shows what was shot.
-const billboards = [];
+// props: the library's procedural factories (inline modules registered on
+// window.__factories), placed by the generator's rule, turned to face the room
+const FACING_YAW = { N: 0, E: -Math.PI / 2, S: Math.PI, W: Math.PI / 2 };   // a factory's front is +z (south); turn it to face `facing`
 for (const pr of WORLD.props) {
   if (pr.missing) continue;
-  const tex = new THREE.TextureLoader().load(pr.sprite);
-  tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.anisotropy = 4;
-  const hPx = pr.contact_px, wPx = pr.px[0];
-  const h = pr.height_m * (pr.px[1] / hPx);           // the whole image, scaled so the contact row is height_m above the floor
-  const w = h * (wPx / pr.px[1]);
-  const g = new THREE.PlaneGeometry(w, h);
-  const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.35, roughness: 0.8, side: THREE.DoubleSide });
-  const mesh = new THREE.Mesh(g, m);
-  mesh.position.copy(P(pr.x, pr.y)); mesh.position.y = h / 2 - (pr.px[1] - hPx) / pr.px[1] * h;  // contact row on the floor
-  scene.add(mesh); billboards.push(mesh);
+  const make = (window.__factories || {})[pr.id];
+  if (!make) continue;
+  const g = make();
+  g.position.copy(P(pr.x, pr.y));
+  g.rotation.y = Math.PI + FACING_YAW[pr.facing];
+  g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
+  scene.add(g);
 }
 // the walker's own body, so the third-person camera has a scale to read against
-const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.66, 12),
+const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 1.3, 4, 10),
   new THREE.MeshStandardMaterial({ color: 0x2b2420, roughness: 0.9 }));
 body.visible = false; scene.add(body);
 
@@ -434,7 +442,6 @@ function step(now) {
     camera.rotation.set(0, 0, 0, "YXZ"); camera.rotation.y = yaw; camera.rotation.x = -8 * Math.PI / 180;
     body.visible = true; body.position.copy(P(px, py)); body.position.y = 0.83;
   }
-  for (const b of billboards) b.rotation.y = yaw;             // face the camera's bearing
   const r = roomAt(px, py);
   if (r !== lastRoom) { roomName.textContent = r ? r.name : "—"; lastRoom = r;
     const prov = WORLD.provenance[r && r.id];
