@@ -62,10 +62,12 @@ def close_painting(room):
 # experiment two: what stands in the rooms. A placement RULE per prop, not a
 # hand-set coordinate: the same rule places the same asset in any plan.
 FURNISH = [
-    # writing room, west wall (south to north). A (img2threejs) and C (hand primitives) were tossed by Kabe on 2026-09-02;
-    # B (TripoSR) stays; D is the retrieval test (Objaverse) once it passes the gate
+    # writing room, west wall: B (TripoSR) and D (Objaverse retrieval); A and C tossed by Kabe 2026-09-02
     {"id": "chair-liner-1934-mesh", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": -0.6, "label": "B · TripoSR (generated mesh)"},
     {"id": "chair-objaverse-1", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.6, "label": "D · Objaverse retrieval"},
+    # the saloon scene: a unique element the catalogue cannot have (generated) beside a retrieved companion
+    {"id": "telegraph-liner-1934-engine-order", "room": "saloon", "rule": "room_centre", "label": "E · engine-order telegraph (generated: a catalogue miss)"},
+    {"id": "settee-objaverse-1", "room": "saloon", "rule": "against_wall", "wall": "W", "label": "F · settee (Objaverse retrieval)"},
 ]
 
 
@@ -133,6 +135,11 @@ def furnish(plan):
             out.append({"id": f["id"], "room": f["room"], "missing": why, "label": f.get("label", f["id"])})
             continue
         R = rooms[f["room"]]["rect"]
+        if f["rule"] == "room_centre":
+            x, y = (R["x0"] + R["x1"]) / 2 + f.get("slot", 0.0), (R["y0"] + R["y1"]) / 2
+            out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
+                        "facing": f.get("facing", "S"), "rule": "room_centre", "label": f.get("label", f["id"])})
+            continue
         if f["rule"] == "against_wall":
             # centred on the wall, its back 5 cm off it, clear of any opening
             # on that wall (a door pushes it sideways past the opening)
@@ -455,7 +462,8 @@ for (const o of WORLD.openings) {
   if (vert) zones.push({ x0: R.x0 - INSET - 0.05, x1: R.x1 + INSET + 0.05, y0: R.y0 + w, y1: R.y1 - w });
   else zones.push({ x0: R.x0 + w, x1: R.x1 - w, y0: R.y0 - INSET - 0.05, y1: R.y1 + INSET + 0.05 });
 }
-const inside = (x, y) => zones.some(z => x >= z.x0 && x <= z.x1 && y >= z.y0 && y <= z.y1);
+const blocks = WORLD.props.filter(pr => !pr.missing && pr.rule === "room_centre").map(pr => ({ x0: pr.x - pr.width_m / 2 - 0.25, x1: pr.x + pr.width_m / 2 + 0.25, y0: pr.y - pr.depth_m / 2 - 0.25, y1: pr.y + pr.depth_m / 2 + 0.25 }));
+const inside = (x, y) => zones.some(z => x >= z.x0 && x <= z.x1 && y >= z.y0 && y <= z.y1) && !blocks.some(b => x > b.x0 && x < b.x1 && y > b.y0 && y < b.y1);
 const roomAt = (x, y) => WORLD.rooms.find(r => x >= r.rect.x0 && x <= r.rect.x1 && y >= r.rect.y0 && y <= r.rect.y1);
 
 // the walker
@@ -545,7 +553,8 @@ function step(now) {
   const r = roomAt(px, py);
   if (r !== lastRoom) { roomName.textContent = r ? r.name : "—"; lastRoom = r;
     const prov = WORLD.provenance[r && r.id];
-    const chairs = (r && WORLD.props.some(pr => pr.room === r.id)) ? `<br><br>west wall, south to north:<br>${legend}` : "";
+    const here = r ? WORLD.props.filter(pr => pr.room === r.id) : [];
+    const chairs = here.length ? `<br><br>in this room:<br>${here.map(pr => `${pr.label} — ${pr.rule}${pr.missing ? " — " + pr.missing : ""}`).join("<br>")}` : "";
     document.getElementById("prov").innerHTML = prov
       ? `walls, dado, strip, carpet and ceiling are the plan's geometry; their colours are the medians of <b>${prov}</b> in fixed row bands. No painter, no prompt.${chairs}`
       : "";
