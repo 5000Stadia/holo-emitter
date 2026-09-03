@@ -7859,6 +7859,86 @@
       "maskWarnings": [],
       "renderHash": "d396a0216192a3ca",
       "passId": "structural-pass"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8587,
+        "aspectRatioDelta": 0.0235,
+        "scaleDelta": 0.0085,
+        "bilateralSymmetryError": 0.1967,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 29.29,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 5.0
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.0
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.0
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.0
+            },
+            {
+              "componentId": null,
+              "deltaE": 5.0
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.45
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.45
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.97
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.97
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.97
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.97
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.29
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.29
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.29
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.29
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "3b787304a54cd7c6",
+      "passId": "structural-pass"
     }
   ],
   "dimensionTable": {

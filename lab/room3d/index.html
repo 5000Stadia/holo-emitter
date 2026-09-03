@@ -244,9 +244,13 @@ const roomAt = (x, y) => WORLD.rooms.find(r => x >= r.rect.x0 && x <= r.rect.x1 
 const start = WORLD.rooms.find(r => r.id === WORLD.entrance) || WORLD.rooms[0];
 let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2;
 let yaw = 0, pitch = 0;      // yaw 0 = facing north (+y plan, -z three)
+// ?face=W&view=contract&x=..&y=.. opens the page already placed and turned (links for grading)
+const Q = new URLSearchParams(location.search);
+if (Q.get("face")) yaw = { N: 0, W: Math.PI / 2, S: Math.PI, E: -Math.PI / 2 }[Q.get("face").toUpperCase()] ?? 0;
+if (Q.get("x") && Q.get("y") && inside(+Q.get("x"), +Q.get("y"))) { px = +Q.get("x"); py = +Q.get("y"); }
 const keys = {};
 // V: the contract camera (front-three-quarter at 1.83 m, pitched 8 deg down, 24 mm) following behind
-let view = "first";
+let view = new URLSearchParams(location.search).get("view") === "contract" ? "contract" : "first";
 const VFOV_FIRST = 70, HFOV_24MM = 2 * Math.atan(18 / 24) * 180 / Math.PI;
 addEventListener("keydown", e => {
   keys[e.code] = true;
