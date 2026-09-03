@@ -62,7 +62,7 @@
 <script type="module">
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-const WORLD = {"pack": "liner-3", "props": [{"id": "chair-liner-1934-side", "room": "writing_room", "missing": "in the library as a sprite only, no factory or model.glb"}], "title": "SS MERIDIAN 1934", "storey_m": 3.4, "rail_m": 1.2, "eye_m": 1.17, "rooms": [{"id": "writing_room", "name": "WRITING ROOM", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 0.4, "y1": 6.800000000000001}}, {"id": "gallery", "name": "LONG GALLERY", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 7.0, "y1": 13.4}}, {"id": "gallery_far", "name": "LONG GALLERY", "rect": {"x0": 6.8, "x1": 13.2, "y0": 7.0, "y1": 13.4}}, {"id": "saloon", "name": "GRAND SALOON", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 13.6, "y1": 20.0}}, {"id": "saloon_e", "name": "GRAND SALOON", "rect": {"x0": 6.8, "x1": 13.2, "y0": 13.6, "y1": 20.0}}, {"id": "saloon_n", "name": "GRAND SALOON", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 20.0, "y1": 26.4}}, {"id": "saloon_ne", "name": "GRAND SALOON", "rect": {"x0": 6.8, "x1": 13.2, "y0": 20.0, "y1": 26.4}}], "openings": [{"id": "door01", "kind": "door", "rect": {"x0": 3.0, "x1": 4.2, "y0": 6.8, "y1": 7.0}, "joins": ["writing_room", "gallery"]}, {"id": "door02", "kind": "door", "rect": {"x0": 3.0, "x1": 4.2, "y0": 13.4, "y1": 13.6}, "joins": ["gallery", "saloon"]}, {"id": "way01", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 6.8, "y0": 7.0, "y1": 13.4}, "joins": ["gallery", "gallery_far"]}, {"id": "way02", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 6.8, "y0": 13.6, "y1": 20.0}, "joins": ["saloon", "saloon_e"]}, {"id": "way03", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 6.8, "y0": 20.0, "y1": 26.4}, "joins": ["saloon_n", "saloon_ne"]}, {"id": "way04", "kind": "open_edge", "rect": {"x0": 0.4, "x1": 6.8, "y0": 20.0, "y1": 20.0}, "joins": ["saloon", "saloon_n"]}, {"id": "way05", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 13.2, "y0": 20.0, "y1": 20.0}, "joins": ["saloon_e", "saloon_ne"]}], "door_head_m": 2.1, "entrance": "writing_room", "palette": {"writing_room": {"ceiling": "#d4ab7b", "upper": "#cc863a", "strip": "#f8f3e8", "lower": "#050100", "skirting": "#060301", "floor": "#28334b"}, "gallery": {"ceiling": "#cfa672", "upper": "#8f4a1e", "strip": "#e8b176", "lower": "#0d0602", "skirting": "#513c25", "floor": "#cfa56e"}, "gallery_far": {"ceiling": "#f2ce99", "upper": "#622403", "strip": "#b5a28c", "lower": "#0e0500", "skirting": "#150c04", "floor": "#b4783a"}, "saloon": {"ceiling": "#f6ddba", "upper": "#cc904f", "strip": "#d6a266", "lower": "#0d0601", "skirting": "#4b3024", "floor": "#852c0f"}, "saloon_e": {"ceiling": "#f7e0c3", "upper": "#ce9253", "strip": "#dba261", "lower": "#120a03", "skirting": "#291f17", "floor": "#842a0c"}, "saloon_n": {"ceiling": "#b77f47", "upper": "#c1833e", "strip": "#b3a89a", "lower": "#180a00", "skirting": "#362a20", "floor": "#9e320c"}, "saloon_ne": {"ceiling": "#b67c44", "upper": "#cc8e46", "strip": "#baaa9b", "lower": "#200c00", "skirting": "#322112", "floor": "#a2320b"}}, "provenance": {"writing_room": "backdrops/writing_room/N.png", "gallery": "backdrops/gallery/N.png", "gallery_far": "backdrops/gallery_far/N.png", "saloon": "backdrops/saloon/S.png", "saloon_e": "backdrops/saloon_e/S.png", "saloon_n": "backdrops/saloon_n/N.png", "saloon_ne": "backdrops/saloon_ne/N.png"}};
+const WORLD = {"pack": "liner-3", "props": [{"id": "chair-liner-1934-side", "room": "writing_room", "missing": "in the library as a sprite only, no factory, model.glb or primitives.json", "label": "A \u00b7 img2threejs (procedural code)"}, {"id": "chair-liner-1934-mesh", "room": "writing_room", "missing": "not in the library", "label": "B \u00b7 TripoSR (generated mesh)"}, {"id": "chair-liner-1934-prim", "noun": "liner writing-room side chair", "height_m": 0.88, "width_m": 0.46, "depth_m": 0.5, "primitives": {"schema": "primitive-asset/0.1", "id": "chair-liner-1934-prim", "noun": "liner writing-room side chair", "source": "library-src/chair-liner-1934-side/source.png", "authored": "Navigator, 2026-09-02, one pass from the reference; LLM-Primitives' representation (Tian et al., SA 2025), no model", "units": "m", "up": "+y", "front": "+z", "dims_m": {"h": 0.88, "w": 0.46, "d": 0.5}, "materials": {"sycamore": {"color": "#d9a860", "roughness": 0.35, "metalness": 0.0}, "ebony": {"color": "#1c110b", "roughness": 0.3, "metalness": 0.0}, "wool": {"color": "#1e2e5c", "roughness": 0.95, "metalness": 0.0}, "chrome": {"color": "#d8d8d8", "roughness": 0.15, "metalness": 1.0}}, "parts": [{"name": "front leg L", "type": "cube", "material": "ebony", "position": [-0.19, 0.215, 0.2], "scale": [0.036, 0.43, 0.036], "taper": 0.55}, {"name": "front leg R", "type": "cube", "material": "ebony", "position": [0.19, 0.215, 0.2], "scale": [0.036, 0.43, 0.036], "taper": 0.55}, {"name": "rear leg L", "type": "cube", "material": "ebony", "position": [-0.19, 0.215, -0.19], "scale": [0.036, 0.43, 0.04], "rotation": [-0.05, 0, 0], "taper": 0.55}, {"name": "rear leg R", "type": "cube", "material": "ebony", "position": [0.19, 0.215, -0.19], "scale": [0.036, 0.43, 0.04], "rotation": [-0.05, 0, 0], "taper": 0.55}, {"name": "ferrule FL", "type": "cylinder", "material": "chrome", "position": [-0.19, 0.012, 0.2], "scale": [0.022, 0.024, 0.022]}, {"name": "ferrule FR", "type": "cylinder", "material": "chrome", "position": [0.19, 0.012, 0.2], "scale": [0.022, 0.024, 0.022]}, {"name": "ferrule RL", "type": "cylinder", "material": "chrome", "position": [-0.19, 0.012, -0.2], "scale": [0.022, 0.024, 0.022]}, {"name": "ferrule RR", "type": "cylinder", "material": "chrome", "position": [0.19, 0.012, -0.2], "scale": [0.022, 0.024, 0.022]}, {"name": "seat frame", "type": "cube", "material": "sycamore", "position": [0, 0.445, 0.0], "scale": [0.46, 0.05, 0.48], "bevel": 0.02}, {"name": "seat pad", "type": "cube", "material": "wool", "position": [0, 0.49, 0.01], "scale": [0.4, 0.05, 0.42], "bevel": 0.025}, {"name": "rear stile L", "type": "cube", "material": "ebony", "position": [-0.19, 0.64, -0.215], "scale": [0.034, 0.4, 0.034], "rotation": [-0.1, 0, 0]}, {"name": "rear stile R", "type": "cube", "material": "ebony", "position": [0.19, 0.64, -0.215], "scale": [0.034, 0.4, 0.034], "rotation": [-0.1, 0, 0]}, {"name": "back panel", "type": "cube", "material": "sycamore", "position": [0, 0.72, -0.235], "scale": [0.42, 0.3, 0.022], "rotation": [-0.1, 0, 0], "bevel": 0.012, "curve": 0.05}, {"name": "back roll", "type": "cylinder", "material": "sycamore", "position": [0, 0.865, -0.25], "scale": [0.018, 0.42, 0.018], "rotation": [0, 0, 1.5708]}]}, "room": "writing_room", "x": 0.7, "y": 4.8, "facing": "E", "rule": "against_wall W", "label": "C \u00b7 primitives (JSON)"}], "title": "SS MERIDIAN 1934", "storey_m": 3.4, "rail_m": 1.2, "eye_m": 1.17, "rooms": [{"id": "writing_room", "name": "WRITING ROOM", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 0.4, "y1": 6.800000000000001}}, {"id": "gallery", "name": "LONG GALLERY", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 7.0, "y1": 13.4}}, {"id": "gallery_far", "name": "LONG GALLERY", "rect": {"x0": 6.8, "x1": 13.2, "y0": 7.0, "y1": 13.4}}, {"id": "saloon", "name": "GRAND SALOON", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 13.6, "y1": 20.0}}, {"id": "saloon_e", "name": "GRAND SALOON", "rect": {"x0": 6.8, "x1": 13.2, "y0": 13.6, "y1": 20.0}}, {"id": "saloon_n", "name": "GRAND SALOON", "rect": {"x0": 0.4, "x1": 6.800000000000001, "y0": 20.0, "y1": 26.4}}, {"id": "saloon_ne", "name": "GRAND SALOON", "rect": {"x0": 6.8, "x1": 13.2, "y0": 20.0, "y1": 26.4}}], "openings": [{"id": "door01", "kind": "door", "rect": {"x0": 3.0, "x1": 4.2, "y0": 6.8, "y1": 7.0}, "joins": ["writing_room", "gallery"]}, {"id": "door02", "kind": "door", "rect": {"x0": 3.0, "x1": 4.2, "y0": 13.4, "y1": 13.6}, "joins": ["gallery", "saloon"]}, {"id": "way01", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 6.8, "y0": 7.0, "y1": 13.4}, "joins": ["gallery", "gallery_far"]}, {"id": "way02", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 6.8, "y0": 13.6, "y1": 20.0}, "joins": ["saloon", "saloon_e"]}, {"id": "way03", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 6.8, "y0": 20.0, "y1": 26.4}, "joins": ["saloon_n", "saloon_ne"]}, {"id": "way04", "kind": "open_edge", "rect": {"x0": 0.4, "x1": 6.8, "y0": 20.0, "y1": 20.0}, "joins": ["saloon", "saloon_n"]}, {"id": "way05", "kind": "open_edge", "rect": {"x0": 6.8, "x1": 13.2, "y0": 20.0, "y1": 20.0}, "joins": ["saloon_e", "saloon_ne"]}], "door_head_m": 2.1, "entrance": "writing_room", "palette": {"writing_room": {"ceiling": "#d4ab7b", "upper": "#cc863a", "strip": "#f8f3e8", "lower": "#050100", "skirting": "#060301", "floor": "#28334b"}, "gallery": {"ceiling": "#cfa672", "upper": "#8f4a1e", "strip": "#e8b176", "lower": "#0d0602", "skirting": "#513c25", "floor": "#cfa56e"}, "gallery_far": {"ceiling": "#f2ce99", "upper": "#622403", "strip": "#b5a28c", "lower": "#0e0500", "skirting": "#150c04", "floor": "#b4783a"}, "saloon": {"ceiling": "#f6ddba", "upper": "#cc904f", "strip": "#d6a266", "lower": "#0d0601", "skirting": "#4b3024", "floor": "#852c0f"}, "saloon_e": {"ceiling": "#f7e0c3", "upper": "#ce9253", "strip": "#dba261", "lower": "#120a03", "skirting": "#291f17", "floor": "#842a0c"}, "saloon_n": {"ceiling": "#b77f47", "upper": "#c1833e", "strip": "#b3a89a", "lower": "#180a00", "skirting": "#362a20", "floor": "#9e320c"}, "saloon_ne": {"ceiling": "#b67c44", "upper": "#cc8e46", "strip": "#baaa9b", "lower": "#200c00", "skirting": "#322112", "floor": "#a2320b"}}, "provenance": {"writing_room": "backdrops/writing_room/N.png", "gallery": "backdrops/gallery/N.png", "gallery_far": "backdrops/gallery_far/N.png", "saloon": "backdrops/saloon/S.png", "saloon_e": "backdrops/saloon_e/S.png", "saloon_n": "backdrops/saloon_n/N.png", "saloon_ne": "backdrops/saloon_ne/N.png"}};
 (function () {
   const c = document.createElement("canvas");
   const gl = c.getContext("webgl2") || c.getContext("webgl") || c.getContext("experimental-webgl");
@@ -167,9 +167,41 @@ const placeProp = (g, pr) => {
   g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
   scene.add(g);
 };
+// primitive JSON (LLM-Primitives' representation): cubes, cylinders, spheres with a material each
+function buildPrimitives(pj) {
+  const g = new THREE.Group();
+  const mats = {};
+  for (const [k, m] of Object.entries(pj.materials || {})) mats[k] = new THREE.MeshStandardMaterial({ color: new THREE.Color(m.color), roughness: m.roughness ?? 0.6, metalness: m.metalness ?? 0 });
+  for (const p of pj.parts) {
+    let geo;
+    const sc = p.scale || [1, 1, 1];
+    if (p.type === "cylinder") geo = new THREE.CylinderGeometry(sc[0], sc[0], sc[1], 24), geo.scale(1, 1, sc[2] / sc[0]);
+    else if (p.type === "sphere") geo = new THREE.SphereGeometry(0.5, 24, 16), geo.scale(sc[0], sc[1], sc[2]);
+    else { geo = new THREE.BoxGeometry(sc[0], sc[1], sc[2], 1, 4, 1);
+      if (p.taper !== undefined) {           // narrower at the foot: a leg
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) { const t = (pos.getY(i) / sc[1]) + 0.5; const f = p.taper + (1 - p.taper) * t; pos.setX(i, pos.getX(i) * f); pos.setZ(i, pos.getZ(i) * f); }
+        geo.computeVertexNormals();
+      }
+      if (p.curve) {                          // a gentle concave bend across the width: a chair back
+        const pos = geo.attributes.position;
+        for (let i = 0; i < pos.count; i++) { const u = pos.getX(i) / sc[0]; pos.setZ(i, pos.getZ(i) - p.curve * (1 - 4 * u * u)); }
+        geo.computeVertexNormals();
+      }
+    }
+    const mesh = new THREE.Mesh(geo, mats[p.material] || new THREE.MeshStandardMaterial({ color: 0x888888 }));
+    mesh.position.fromArray(p.position || [0, 0, 0]);
+    if (p.rotation) mesh.rotation.set(p.rotation[0], p.rotation[1], p.rotation[2]);
+    mesh.name = p.name || p.type;
+    g.add(mesh);
+  }
+  return g;
+}
+const legend = WORLD.props.map(pr => `${pr.label}${pr.missing ? " — " + pr.missing : ""}`).join("<br>");
 const gltf = new GLTFLoader();
 for (const pr of WORLD.props) {
   if (pr.missing) continue;
+  if (pr.primitives) { placeProp(buildPrimitives(pr.primitives), pr); continue; }
   if (pr.glb) {
     // a generated mesh at arbitrary scale: fit its height to the declared one, feet on the floor, footprint centred
     fetch(pr.glb).then(r => r.arrayBuffer()).then(buf => gltf.parse(buf, "", (res) => {
@@ -180,6 +212,8 @@ for (const pr of WORLD.props) {
       const b2 = new THREE.Box3().setFromObject(m); const c = new THREE.Vector3(); b2.getCenter(c);
       m.position.set(-c.x, -b2.min.y, -c.z);
       if (pr.glb_front === "-z") m.rotation.y = Math.PI; else if (pr.glb_front === "+x") m.rotation.y = Math.PI / 2; else if (pr.glb_front === "-x") m.rotation.y = -Math.PI / 2;
+      // a single-image mesh can arrive with either winding: draw both faces
+      m.traverse(o => { if (o.isMesh && o.material) { o.material.side = THREE.DoubleSide; } });
       g.add(m); placeProp(g, pr);
     }, (e) => console.error("glb", pr.id, e)));
     continue;
@@ -288,8 +322,9 @@ function step(now) {
   const r = roomAt(px, py);
   if (r !== lastRoom) { roomName.textContent = r ? r.name : "—"; lastRoom = r;
     const prov = WORLD.provenance[r && r.id];
+    const chairs = (r && WORLD.props.some(pr => pr.room === r.id)) ? `<br><br>west wall, south to north:<br>${legend}` : "";
     document.getElementById("prov").innerHTML = prov
-      ? `walls, dado, strip, carpet and ceiling are the plan's geometry; their colours are the medians of <b>${prov}</b> in fixed row bands. No painter, no prompt.`
+      ? `walls, dado, strip, carpet and ceiling are the plan's geometry; their colours are the medians of <b>${prov}</b> in fixed row bands. No painter, no prompt.${chairs}`
       : "";
   }
   const hd = ((-yaw * 180 / Math.PI) % 360 + 360) % 360;

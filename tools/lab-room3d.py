@@ -184,7 +184,7 @@ def main():
     mods = []
     for f in FURNISH:
         fa, _ = factory_of(f["id"])
-        if fa:
+        if fa and "module" in fa:
             mods.append('<script type="module">\n' + fa["module"].rstrip() +
                         f'\nwindow.__factories = window.__factories || {{}}; window.__factories[{json.dumps(fa["id"])}] = {fa["export"]};\n</script>')
     body = TEMPLATE.replace("__WORLD_JSON__", json.dumps(world)).replace("__FACTORY_MODULES__", "\n".join(mods))
