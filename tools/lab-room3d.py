@@ -13,6 +13,9 @@ import argparse
 import json
 import os
 
+import base64
+import io
+
 import numpy as np
 from PIL import Image
 
@@ -56,6 +59,71 @@ def close_painting(room):
     return best[1] if best else None
 
 
+# experiment two: what stands in the rooms. A placement RULE per prop, not a
+# hand-set coordinate: the same rule places the same asset in any plan.
+FURNISH = [
+    {"id": "chair-liner-1934-side", "room": "writing_room", "rule": "against_wall", "wall": "W"},
+]
+
+
+def sprite_of(asset_id):
+    """The replicator's certified sprite for an asset id, or None with why.
+    The sprite ships inside the page as a data URI (the artifact host serves
+    no files); the record's declared dims size it in the world."""
+    d = os.path.join(ROOT, "library", asset_id)
+    rec, png = os.path.join(d, "record.json"), os.path.join(d, "sprite.png")
+    if not (os.path.exists(rec) and os.path.exists(png)):
+        src = os.path.join(ROOT, "library-src", asset_id, "source.png")
+        return None, ("source painted, not yet ingested" if os.path.exists(src) else "not in the library")
+    r = json.load(open(rec))
+    im = Image.open(png).convert("RGBA")
+    # the contact row: the lowest row with opaque pixels
+    alpha = np.asarray(im)[..., 3]
+    rows = np.nonzero(alpha.max(axis=1) > 8)[0]
+    contact = int(rows.max()) + 1 if len(rows) else im.height
+    buf = io.BytesIO(); im.save(buf, "PNG")
+    dims = r.get("dims_m") or {}
+    return {
+        "id": asset_id, "noun": r.get("noun"),
+        "height_m": float(dims.get("h") or 1.0),
+        "width_m": float(dims.get("w") or 0.5),
+        "depth_m": float(dims.get("d") or 0.5),
+        "px": [im.width, im.height], "contact_px": contact,
+        "sprite": "data:image/png;base64," + base64.b64encode(buf.getvalue()).decode("ascii"),
+    }, None
+
+
+def furnish(plan):
+    rooms = {r["id"]: r for r in plan["rooms"]}
+    out = []
+    for f in FURNISH:
+        a, why = sprite_of(f["id"])
+        if a is None:
+            out.append({"id": f["id"], "room": f["room"], "missing": why})
+            continue
+        R = rooms[f["room"]]["rect"]
+        if f["rule"] == "against_wall":
+            # centred on the wall, its back 5 cm off it, clear of any opening
+            # on that wall (a door pushes it sideways past the opening)
+            gap = 0.05 + a["depth_m"] / 2
+            if f["wall"] == "W": x, y = R["x0"] + gap, (R["y0"] + R["y1"]) / 2
+            elif f["wall"] == "E": x, y = R["x1"] - gap, (R["y0"] + R["y1"]) / 2
+            elif f["wall"] == "S": x, y = (R["x0"] + R["x1"]) / 2, R["y0"] + gap
+            else: x, y = (R["x0"] + R["x1"]) / 2, R["y1"] - gap
+            for o in plan["openings"]:
+                if f["room"] not in o.get("joins", []):
+                    continue
+                rr = o["rect"]
+                if f["wall"] in "NS" and abs((rr["y0"] if f["wall"] == "N" else rr["y1"]) - (R["y1"] if f["wall"] == "N" else R["y0"])) < 1e-3 \
+                        and rr["x0"] - a["width_m"] < x < rr["x1"] + a["width_m"]:
+                    x = rr["x1"] + a["width_m"]
+                if f["wall"] in "EW" and abs((rr["x0"] if f["wall"] == "E" else rr["x1"]) - (R["x1"] if f["wall"] == "E" else R["x0"])) < 1e-3 \
+                        and rr["y0"] - a["width_m"] < y < rr["y1"] + a["width_m"]:
+                    y = rr["y1"] + a["width_m"]
+            out.append({**a, "room": f["room"], "x": round(x, 3), "y": round(y, 3), "rule": f"{f['rule']} {f['wall']}"})
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--pack", default="liner-3")
@@ -69,8 +137,10 @@ def main():
         if src and os.path.exists(src):
             palette[r["id"]] = sample(src)
             provenance[r["id"]] = os.path.relpath(src, ROOT)
+    props = furnish(plan)
     world = {
         "pack": a.pack,
+        "props": props,
         "title": pack.get("title") or pack.get("name") or a.pack,
         "storey_m": plan["floors"][0]["storey_height_m"],
         "rail_m": 1.2,
@@ -141,7 +211,7 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   </div>
   <div></div>
   <div class="bottom">
-    <div class="keys"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride</div>
+    <div class="keys"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride &nbsp; <kbd>V</kbd> contract camera</div>
     <div class="prov" id="prov"></div>
   </div>
 </div>
@@ -250,6 +320,28 @@ for (const r of WORLD.rooms) {
 }
 scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.35));
 
+// props: the replicator's sprites as billboards standing on the floor. The
+// contract shot them front-three-quarter at 1.83 m eye, -8 deg; the V camera
+// below is that camera, so a billboard turned to face it shows what was shot.
+const billboards = [];
+for (const pr of WORLD.props) {
+  if (pr.missing) continue;
+  const tex = new THREE.TextureLoader().load(pr.sprite);
+  tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearMipmapLinearFilter; tex.anisotropy = 4;
+  const hPx = pr.contact_px, wPx = pr.px[0];
+  const h = pr.height_m * (pr.px[1] / hPx);           // the whole image, scaled so the contact row is height_m above the floor
+  const w = h * (wPx / pr.px[1]);
+  const g = new THREE.PlaneGeometry(w, h);
+  const m = new THREE.MeshStandardMaterial({ map: tex, transparent: true, alphaTest: 0.35, roughness: 0.8, side: THREE.DoubleSide });
+  const mesh = new THREE.Mesh(g, m);
+  mesh.position.copy(P(pr.x, pr.y)); mesh.position.y = h / 2 - (pr.px[1] - hPx) / pr.px[1] * h;  // contact row on the floor
+  scene.add(mesh); billboards.push(mesh);
+}
+// the walker's own body, so the third-person camera has a scale to read against
+const body = new THREE.Mesh(new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.18, 1.3, 4, 8) : new THREE.CylinderGeometry(0.18, 0.18, 1.66, 12),
+  new THREE.MeshStandardMaterial({ color: 0x2b2420, roughness: 0.9 }));
+body.visible = false; scene.add(body);
+
 // where you may stand: rooms inset from their walls, plus a corridor through every opening
 const INSET = 0.35;
 const zones = WORLD.rooms.map(r => ({ x0: r.rect.x0 + INSET, x1: r.rect.x1 - INSET, y0: r.rect.y0 + INSET, y1: r.rect.y1 - INSET }));
@@ -267,7 +359,10 @@ const start = WORLD.rooms.find(r => r.id === WORLD.entrance) || WORLD.rooms[0];
 let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2;
 let yaw = 0, pitch = 0;      // yaw 0 = facing north (+y plan, -z three)
 const keys = {};
-addEventListener("keydown", e => { keys[e.code] = true; });
+// V: the contract camera (front-three-quarter at 1.83 m, pitched 8 deg down, 24 mm) following behind
+let view = "first";
+const VFOV_FIRST = 70, HFOV_24MM = 2 * Math.atan(18 / 24) * 180 / Math.PI;
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyV") { view = view === "first" ? "contract" : "first"; } });
 addEventListener("keyup", e => { keys[e.code] = false; });
 const gate = document.getElementById("gate");
 const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
@@ -319,8 +414,21 @@ function step(now) {
     if (inside(px + dx, py)) px += dx;      // slide along walls
     if (inside(px, py + dy)) py += dy;
   }
-  camera.position.copy(P(px, py)); camera.position.y = WORLD.eye_m;
-  camera.rotation.set(0, 0, 0, "YXZ"); camera.rotation.y = yaw; camera.rotation.x = pitch;
+  if (view === "first") {
+    camera.fov = VFOV_FIRST; camera.updateProjectionMatrix();
+    camera.position.copy(P(px, py)); camera.position.y = WORLD.eye_m;
+    camera.rotation.set(0, 0, 0, "YXZ"); camera.rotation.y = yaw; camera.rotation.x = pitch;
+    body.visible = false;
+  } else {
+    // 24 mm on the 36 mm frame is the horizontal field; three.js takes the vertical one
+    camera.fov = 2 * Math.atan(Math.tan(HFOV_24MM / 2 * Math.PI / 180) / camera.aspect) * 180 / Math.PI; camera.updateProjectionMatrix();
+    let dist = 3.0;                                          // the contract's "roughly 3 metres away"
+    while (dist > 0.6 && !inside(px - fx * dist, py - fy * dist)) dist -= 0.1;
+    camera.position.copy(P(px - fx * dist, py - fy * dist)); camera.position.y = 1.83;
+    camera.rotation.set(0, 0, 0, "YXZ"); camera.rotation.y = yaw; camera.rotation.x = -8 * Math.PI / 180;
+    body.visible = true; body.position.copy(P(px, py)); body.position.y = 0.83;
+  }
+  for (const b of billboards) b.rotation.y = yaw;             // face the camera's bearing
   const r = roomAt(px, py);
   if (r !== lastRoom) { roomName.textContent = r ? r.name : "—"; lastRoom = r;
     const prov = WORLD.provenance[r && r.id];
