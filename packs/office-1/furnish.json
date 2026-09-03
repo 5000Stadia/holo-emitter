@@ -61,7 +61,7 @@
    "avoid": "room,scene,set,office,chairs"
   },
   "chair-conference": {
-   "query": "conference chair",
+   "query": "office chair",
    "dims_m": {
     "h": 0.9,
     "w": 0.6,
@@ -69,7 +69,8 @@
    },
    "level": "seat:0.45",
    "must": "chair",
-   "avoid": "table,chairs,set,room"
+   "avoid": "table,chairs,set,room",
+   "pick": 1
   },
   "desk-manager": {
    "query": "executive desk wood",
