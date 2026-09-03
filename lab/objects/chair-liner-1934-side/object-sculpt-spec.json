@@ -724,7 +724,8 @@
       "evidenceRefs": [
         "back-zone",
         "full-object"
-      ]
+      ],
+      "scopeNote": "The rolled top edge half of this feature only exists from structural-pass onward; at blockout only the loft and the recline are scored."
     },
     {
       "id": "reveal-slot",
@@ -774,7 +775,6 @@
       "name": "Pale lipping band framing the blue wool pad",
       "tier": "critical",
       "passIds": [
-        "blockout",
         "structural-pass",
         "material-pass"
       ],
@@ -789,7 +789,8 @@
       "evidenceRefs": [
         "seat-zone",
         "full-object"
-      ]
+      ],
+      "scopeNote": "Removed from the blockout pass: the pale band this feature is about is carried by apron-lipping-roll, a meso component that the blockout pass does not build, so the feature cannot read there and scoring it against the reference would be scoring the pass contract rather than the model."
     },
     {
       "id": "material-separation",
@@ -844,13 +845,17 @@
     "currentPass": "blockout",
     "completedPasses": [],
     "lastCompletedPass": "",
-    "blockedReason": "blockout requires a browser screenshot and self-correction review before structural-pass unlocks",
+    "blockedReason": "",
     "nextRequiredEvidence": [
-      "blockout browser render screenshot from your agent's browser/screenshot tool",
-      "side-by-side reference/render comparison sheet",
-      "AI vision score >= 0.7 with layer scores and mismatch critique",
-      "critical semantic feature scores from the same image pair meeting their individual thresholds",
-      "reviewHistory entry for blockout with action=continue"
+      "Overall height reads 0.88 m, seat crown 0.445 m, and all four feet land on y = 0.",
+      "The reclined concave shell is distinguishable from a flat vertical board.",
+      "The reveal slot between pad and shell is open.",
+      "Rear members rake back; front members are vertical.",
+      "AI vision comparison score meets selfCorrectLoop.visualAcceptance.threshold.",
+      "browser render screenshot from your agent's browser/screenshot tool",
+      "single side-by-side full reference/render comparison sheet",
+      "all critical semantic feature scores at or above their thresholds",
+      "self-correction review appended with action=continue before the next pass"
     ],
     "passOrderRationale": "Five passes, not the eight-pass default. surface-pass is folded into material-pass because the reference carries no relief anywhere: veneer, lacquer and wool are all flat, and every figure is albedo-only. lighting-pass is dropped because this prop is lit by the holo-emitter scene it is dropped into, not by a rig it ships with; the review rig exists only to make the comparison fair. interaction-pass is folded into optimization-pass because the chair is static: it needs an explodable/clickable hierarchy and a collider proxy, and no pivots beyond the root."
   },
@@ -971,7 +976,7 @@
     "handedness": "right-handed; the chair's own left is +x"
   },
   "silhouette": {
-    "boundingShape": "upright rectangular prism 0.47 m wide x 0.51505 m deep x 0.88 m tall, split horizontally into a solid seat mass at 0.348-0.445 m, an open reveal band at 0.445-0.53 m, and a reclined shell above it",
+    "boundingShape": "upright rectangular prism 0.47 m wide x 0.51583 m deep x 0.88 m tall, split horizontally into a solid seat mass at 0.348-0.445 m, an open reveal band at 0.445-0.53 m, and a reclined shell above it",
     "aspectRatios": [
       {
         "pair": "height:width",
@@ -1003,7 +1008,7 @@
         "position": [
           0.0,
           0.88,
-          -0.30105
+          -0.30183
         ],
         "confidence": 0.8
       },
@@ -1012,7 +1017,7 @@
         "position": [
           0.0,
           0.53,
-          -0.22666
+          -0.2178
         ],
         "confidence": 0.75
       },
@@ -1037,16 +1042,16 @@
       {
         "id": "front-foot-l",
         "position": [
-          0.208,
+          0.207,
           0.0,
-          0.178
+          0.177
         ],
         "confidence": 0.9
       },
       {
         "id": "rear-foot-l",
         "position": [
-          0.208,
+          0.207,
           0.0,
           -0.256
         ],
@@ -1180,152 +1185,200 @@
         "profile2D": {
           "points": [
             [
-              -0.221,
+              -0.23,
               0.0
             ],
             [
-              -0.18417,
-              0.00928
+              -0.20444,
+              0.00638
             ],
             [
-              -0.14733,
-              0.0168
+              -0.17889,
+              0.01197
             ],
             [
-              -0.1105,
-              0.0226
+              -0.15333,
+              0.01679
             ],
             [
-              -0.07367,
+              -0.12778,
+              0.02085
+            ],
+            [
+              -0.10222,
+              0.02415
+            ],
+            [
+              -0.07667,
               0.02672
             ],
             [
-              -0.03683,
-              0.02918
+              -0.05111,
+              0.02854
+            ],
+            [
+              -0.02556,
+              0.02964
             ],
             [
               0.0,
               0.03
             ],
             [
-              0.03683,
-              0.02918
+              0.02556,
+              0.02964
             ],
             [
-              0.07367,
+              0.05111,
+              0.02854
+            ],
+            [
+              0.07667,
               0.02672
             ],
             [
-              0.1105,
-              0.0226
+              0.10222,
+              0.02415
             ],
             [
-              0.14733,
-              0.0168
+              0.12778,
+              0.02085
             ],
             [
-              0.18417,
-              0.00928
+              0.15333,
+              0.01679
             ],
             [
-              0.221,
+              0.17889,
+              0.01197
+            ],
+            [
+              0.20444,
+              0.00638
+            ],
+            [
+              0.23,
               0.0
             ],
             [
-              0.22416,
-              0.00057
+              0.23325,
+              0.00061
             ],
             [
-              0.22851,
-              0.00404
+              0.23756,
+              0.00412
             ],
             [
-              0.22999,
-              0.0094
+              0.23899,
+              0.00949
             ],
             [
-              0.22804,
-              0.01461
+              0.23698,
+              0.01468
             ],
             [
-              0.221,
+              0.23,
               0.018
             ],
             [
-              0.18417,
-              0.02728
+              0.20444,
+              0.02438
             ],
             [
-              0.14733,
-              0.0348
+              0.17889,
+              0.02997
             ],
             [
-              0.1105,
-              0.0406
+              0.15333,
+              0.03479
             ],
             [
-              0.07367,
+              0.12778,
+              0.03885
+            ],
+            [
+              0.10222,
+              0.04215
+            ],
+            [
+              0.07667,
               0.04472
             ],
             [
-              0.03683,
-              0.04718
+              0.05111,
+              0.04654
+            ],
+            [
+              0.02556,
+              0.04764
             ],
             [
               0.0,
               0.048
             ],
             [
-              -0.03683,
-              0.04718
+              -0.02556,
+              0.04764
             ],
             [
-              -0.07367,
+              -0.05111,
+              0.04654
+            ],
+            [
+              -0.07667,
               0.04472
             ],
             [
-              -0.1105,
-              0.0406
+              -0.10222,
+              0.04215
             ],
             [
-              -0.14733,
-              0.0348
+              -0.12778,
+              0.03885
             ],
             [
-              -0.18417,
-              0.02728
+              -0.15333,
+              0.03479
             ],
             [
-              -0.221,
+              -0.17889,
+              0.02997
+            ],
+            [
+              -0.20444,
+              0.02438
+            ],
+            [
+              -0.23,
               0.018
             ],
             [
-              -0.22804,
-              0.01461
+              -0.23698,
+              0.01468
             ],
             [
-              -0.22999,
-              0.0094
+              -0.23899,
+              0.00949
             ],
             [
-              -0.22851,
-              0.00404
+              -0.23756,
+              0.00412
             ],
             [
-              -0.22416,
-              0.00057
+              -0.23325,
+              0.00061
             ]
           ],
-          "depth": 0.34862
+          "depth": 0.35069
         },
         "measurements": {
-          "chord": 0.46,
+          "chord": 0.478,
           "sagitta": 0.03,
-          "arcRadius": 0.82902,
+          "arcRadius": 0.89667,
           "thickness": 0.018,
           "bottomY": 0.53,
           "topY": 0.88,
-          "reclineDegrees": 12.0
+          "reclineDegrees": 13.5
         }
       },
       "parent": null,
@@ -1340,11 +1393,11 @@
       "transform": {
         "position": [
           0.0,
-          0.53624,
-          -0.19666
+          0.537,
+          -0.1878
         ],
         "rotation": [
-          -1.78024,
+          -1.80642,
           0.0,
           0.0
         ],
@@ -1384,9 +1437,9 @@
           {
             "id": "shell-top-edge",
             "localPosition": [
-              0.0442,
+              0.046,
               0.03782,
-              0.34862
+              0.35069
             ],
             "axis": [
               0.0,
@@ -1399,7 +1452,7 @@
           {
             "id": "shell-stile-lap-l",
             "localPosition": [
-              0.221,
+              0.23,
               0.0,
               0.0
             ],
@@ -1414,7 +1467,7 @@
           {
             "id": "shell-stile-lap-r",
             "localPosition": [
-              -0.221,
+              -0.23,
               0.0,
               0.0
             ],
@@ -1560,34 +1613,34 @@
         "tubePath": {
           "points": [
             [
-              -0.221,
+              -0.23,
               0.009,
-              0.34862
+              0.35069
             ],
             [
-              -0.1326,
-              0.02833,
-              0.34862
+              -0.138,
+              0.02832,
+              0.35069
             ],
             [
-              -0.0442,
+              -0.046,
               0.03782,
-              0.34862
+              0.35069
             ],
             [
-              0.0442,
+              0.046,
               0.03782,
-              0.34862
+              0.35069
             ],
             [
-              0.1326,
-              0.02833,
-              0.34862
+              0.138,
+              0.02832,
+              0.35069
             ],
             [
-              0.221,
+              0.23,
               0.009,
-              0.34862
+              0.35069
             ]
           ],
           "radius": 0.009,
@@ -1600,14 +1653,14 @@
         "parentSocket": "shell-top-edge",
         "contactType": "bonded",
         "localStart": [
-          0.0442,
+          0.046,
           0.03782,
-          0.34862
+          0.35069
         ],
         "localEnd": [
-          0.0442,
+          0.046,
           0.03782,
-          0.34862
+          0.35069
         ],
         "contactNormal": [
           0.0,
@@ -1894,9 +1947,9 @@
           {
             "id": "apron-corner-socket-front-l",
             "localPosition": [
-              0.208,
-              -0.178,
-              0.082
+              0.207,
+              -0.177,
+              0.07
             ],
             "axis": [
               0.0,
@@ -1909,9 +1962,9 @@
           {
             "id": "apron-corner-socket-front-r",
             "localPosition": [
-              -0.208,
-              -0.178,
-              0.082
+              -0.207,
+              -0.177,
+              0.07
             ],
             "axis": [
               0.0,
@@ -1924,9 +1977,9 @@
           {
             "id": "apron-corner-socket-rear-l",
             "localPosition": [
-              0.208,
-              0.178,
-              0.082
+              0.207,
+              0.177,
+              0.07
             ],
             "axis": [
               0.0,
@@ -1939,9 +1992,9 @@
           {
             "id": "apron-corner-socket-rear-r",
             "localPosition": [
-              -0.208,
-              0.178,
-              0.082
+              -0.207,
+              0.177,
+              0.07
             ],
             "axis": [
               0.0,
@@ -3083,18 +3136,18 @@
                 0.0,
                 0.0
               ],
-              "rx": 0.027,
-              "rz": 0.027,
+              "rx": 0.024,
+              "rz": 0.024,
               "twist": 0.0
             },
             {
               "position": [
                 0.0,
-                -0.082,
+                -0.07,
                 0.0
               ],
-              "rx": 0.025,
-              "rz": 0.025,
+              "rx": 0.0238,
+              "rz": 0.0238,
               "twist": 0.0
             },
             {
@@ -3120,7 +3173,7 @@
             {
               "position": [
                 0.0,
-                -0.404,
+                -0.392,
                 0.0
               ],
               "rx": 0.011,
@@ -3132,9 +3185,9 @@
           "capEnds": true
         },
         "measurements": {
-          "topRadius": 0.027,
+          "topRadius": 0.024,
           "footRadius": 0.011,
-          "runLength": 0.404
+          "runLength": 0.392
         }
       },
       "parent": null,
@@ -3148,7 +3201,7 @@
         ],
         "localEnd": [
           0.0,
-          -0.404,
+          -0.392,
           0.0
         ],
         "contactNormal": [
@@ -3174,9 +3227,9 @@
       },
       "transform": {
         "position": [
-          0.208,
-          0.43,
-          0.178
+          0.207,
+          0.418,
+          0.177
         ],
         "rotation": [
           0,
@@ -3220,7 +3273,7 @@
             "id": "leg-front-l-foot",
             "localPosition": [
               0.0,
-              -0.404,
+              -0.392,
               0.0
             ],
             "axis": [
@@ -3364,18 +3417,18 @@
                 0.0,
                 0.0
               ],
-              "rx": 0.027,
-              "rz": 0.027,
+              "rx": 0.024,
+              "rz": 0.024,
               "twist": 0.0
             },
             {
               "position": [
                 0.0,
-                -0.082,
+                -0.07,
                 0.0
               ],
-              "rx": 0.025,
-              "rz": 0.025,
+              "rx": 0.0238,
+              "rz": 0.0238,
               "twist": 0.0
             },
             {
@@ -3401,7 +3454,7 @@
             {
               "position": [
                 0.0,
-                -0.404,
+                -0.392,
                 0.0
               ],
               "rx": 0.011,
@@ -3413,9 +3466,9 @@
           "capEnds": true
         },
         "measurements": {
-          "topRadius": 0.027,
+          "topRadius": 0.024,
           "footRadius": 0.011,
-          "runLength": 0.404
+          "runLength": 0.392
         }
       },
       "parent": null,
@@ -3429,7 +3482,7 @@
         ],
         "localEnd": [
           0.0,
-          -0.404,
+          -0.392,
           0.0
         ],
         "contactNormal": [
@@ -3455,9 +3508,9 @@
       },
       "transform": {
         "position": [
-          -0.208,
-          0.43,
-          0.178
+          -0.207,
+          0.418,
+          0.177
         ],
         "rotation": [
           0,
@@ -3501,7 +3554,7 @@
             "id": "leg-front-r-foot",
             "localPosition": [
               0.0,
-              -0.404,
+              -0.392,
               0.0
             ],
             "axis": [
@@ -3617,18 +3670,18 @@
             {
               "position": [
                 0.0,
-                0.118,
-                -0.018
+                0.127,
+                -0.029
               ],
-              "rx": 0.0205,
-              "rz": 0.0205,
+              "rx": 0.0182,
+              "rz": 0.0182,
               "twist": 0.0
             },
             {
               "position": [
                 0.0,
                 0.07,
-                -0.01296
+                -0.02088
               ],
               "rx": 0.0228,
               "rz": 0.0228,
@@ -3640,8 +3693,8 @@
                 0.0,
                 0.0
               ],
-              "rx": 0.0258,
-              "rz": 0.0258,
+              "rx": 0.0248,
+              "rz": 0.0248,
               "twist": 0.0
             },
             {
@@ -3658,7 +3711,7 @@
               "position": [
                 0.0,
                 -0.2,
-                -0.0234
+                -0.0237
               ],
               "rx": 0.0186,
               "rz": 0.0186,
@@ -3668,7 +3721,7 @@
               "position": [
                 0.0,
                 -0.31,
-                -0.05148
+                -0.05214
               ],
               "rx": 0.0145,
               "rz": 0.0145,
@@ -3677,8 +3730,8 @@
             {
               "position": [
                 0.0,
-                -0.404,
-                -0.078
+                -0.392,
+                -0.079
               ],
               "rx": 0.011,
               "rz": 0.011,
@@ -3689,9 +3742,9 @@
           "capEnds": true
         },
         "measurements": {
-          "topRadius": 0.0205,
+          "topRadius": 0.0182,
           "footRadius": 0.011,
-          "runLength": 0.404
+          "runLength": 0.392
         }
       },
       "parent": null,
@@ -3705,8 +3758,8 @@
         ],
         "localEnd": [
           0.0,
-          -0.404,
-          -0.078
+          -0.392,
+          -0.079
         ],
         "contactNormal": [
           0.0,
@@ -3731,9 +3784,9 @@
       },
       "transform": {
         "position": [
-          0.208,
-          0.43,
-          -0.178
+          0.207,
+          0.418,
+          -0.177
         ],
         "rotation": [
           0,
@@ -3777,8 +3830,8 @@
             "id": "leg-rear-l-foot",
             "localPosition": [
               0.0,
-              -0.404,
-              -0.078
+              -0.392,
+              -0.079
             ],
             "axis": [
               0.0,
@@ -3902,18 +3955,18 @@
             {
               "position": [
                 0.0,
-                0.118,
-                -0.018
+                0.127,
+                -0.029
               ],
-              "rx": 0.0205,
-              "rz": 0.0205,
+              "rx": 0.0182,
+              "rz": 0.0182,
               "twist": 0.0
             },
             {
               "position": [
                 0.0,
                 0.07,
-                -0.01296
+                -0.02088
               ],
               "rx": 0.0228,
               "rz": 0.0228,
@@ -3925,8 +3978,8 @@
                 0.0,
                 0.0
               ],
-              "rx": 0.0258,
-              "rz": 0.0258,
+              "rx": 0.0248,
+              "rz": 0.0248,
               "twist": 0.0
             },
             {
@@ -3943,7 +3996,7 @@
               "position": [
                 0.0,
                 -0.2,
-                -0.0234
+                -0.0237
               ],
               "rx": 0.0186,
               "rz": 0.0186,
@@ -3953,7 +4006,7 @@
               "position": [
                 0.0,
                 -0.31,
-                -0.05148
+                -0.05214
               ],
               "rx": 0.0145,
               "rz": 0.0145,
@@ -3962,8 +4015,8 @@
             {
               "position": [
                 0.0,
-                -0.404,
-                -0.078
+                -0.392,
+                -0.079
               ],
               "rx": 0.011,
               "rz": 0.011,
@@ -3974,9 +4027,9 @@
           "capEnds": true
         },
         "measurements": {
-          "topRadius": 0.0205,
+          "topRadius": 0.0182,
           "footRadius": 0.011,
-          "runLength": 0.404
+          "runLength": 0.392
         }
       },
       "parent": null,
@@ -3990,8 +4043,8 @@
         ],
         "localEnd": [
           0.0,
-          -0.404,
-          -0.078
+          -0.392,
+          -0.079
         ],
         "contactNormal": [
           0.0,
@@ -4016,9 +4069,9 @@
       },
       "transform": {
         "position": [
-          -0.208,
-          0.43,
-          -0.178
+          -0.207,
+          0.418,
+          -0.177
         ],
         "rotation": [
           0,
@@ -4062,8 +4115,8 @@
             "id": "leg-rear-r-foot",
             "localPosition": [
               0.0,
-              -0.404,
-              -0.078
+              -0.392,
+              -0.079
             ],
             "axis": [
               0.0,
@@ -4250,7 +4303,7 @@
       "transform": {
         "position": [
           0.0,
-          -0.43,
+          -0.418,
           0.0
         ],
         "rotation": [
@@ -4473,7 +4526,7 @@
       "transform": {
         "position": [
           0.0,
-          -0.43,
+          -0.418,
           0.0
         ],
         "rotation": [
@@ -4671,8 +4724,8 @@
       "transform": {
         "position": [
           0.0,
-          -0.43,
-          -0.078
+          -0.418,
+          -0.079
         ],
         "rotation": [
           0,
@@ -4869,8 +4922,8 @@
       "transform": {
         "position": [
           0.0,
-          -0.43,
-          -0.078
+          -0.418,
+          -0.079
         ],
         "rotation": [
           0,
@@ -5007,7 +5060,7 @@
         "heightCorrelation": 0.25
       },
       "roughness": {
-        "base": 0.34,
+        "base": 0.38,
         "variation": 0.09,
         "map": "none - textureless material; roughness is a single measured scalar",
         "localResponse": "satin lacquer: slightly lower roughness on the rolled edges where the film pools"
@@ -5112,7 +5165,7 @@
         ]
       },
       "clearcoat": {
-        "base": 0.3,
+        "base": 0.16,
         "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."
       },
       "clearcoatRoughness": {
@@ -5986,8 +6039,134 @@
       ]
     }
   ],
-  "visualEvidence": [],
-  "reviewHistory": [],
+  "visualEvidence": [
+    {
+      "timestamp": "2026-09-03T02:03:29.696189+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.74,
+      "aiVisionScore": 0.74,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.84,
+        "componentStructure": 0.8,
+        "formDetail": 0.62,
+        "materialSurface": 0.7,
+        "lightingCamera": 0.86
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.8,
+          "threshold": 0.8,
+          "notes": "Loft, chord, sagitta and 12-degree recline all read at the reference camera and the shell is clearly not a flat board. Scored on the loft only: the rolled top edge is a meso component this pass does not build, so half the feature is out of scope here."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.88,
+          "threshold": 0.8,
+          "notes": "Open, background visible through it, height and position match the reference within a few pixels at the review camera; only the two stiles cross it."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.74,
+          "threshold": 0.8,
+          "notes": "Round section, taper ladder and rear rake all read, but two placement defects: each front leg's shoulder pokes through the apron's rounded plan corner (leg centre 0.208,0.178 sits 0.0326 m from the corner arc centre against a 0.032 m corner radius), and each stile's front half stands proud of the back shell's front face instead of being lapped by it (shell front face at the edges lands at z -0.1967, the stile centreline at z -0.196 with radius 0.018)."
+        }
+      ],
+      "referenceScreenshot": "reference.png",
+      "renderScreenshot": "renders/ref.png",
+      "comparisonImage": "renders/cmp-blockout.png",
+      "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+      "notes": "",
+      "aiVisionNotes": "Judged from the side-by-side sheet. formDetail is low by design at blockout: the four rolled edges and the ferrules are later tiers. materialSurface is held at 0.70 because the sycamore still carries a glassier clearcoat streak than the reference's satin lacquer."
+    }
+  ],
+  "reviewHistory": [
+    {
+      "timestamp": "2026-09-03T02:03:29.696189+00:00",
+      "passId": "blockout",
+      "estimatedFidelity": 0.74,
+      "aiVisionScore": 0.74,
+      "visualAcceptanceThreshold": 0.7,
+      "layerScores": {
+        "silhouetteProportion": 0.84,
+        "componentStructure": 0.8,
+        "formDetail": 0.62,
+        "materialSurface": 0.7,
+        "lightingCamera": 0.86
+      },
+      "featureReviews": [
+        {
+          "id": "back-shell-loft",
+          "name": "Lofted concave back shell with rolled top edge",
+          "tier": "critical",
+          "score": 0.8,
+          "threshold": 0.8,
+          "notes": "Loft, chord, sagitta and 12-degree recline all read at the reference camera and the shell is clearly not a flat board. Scored on the loft only: the rolled top edge is a meso component this pass does not build, so half the feature is out of scope here."
+        },
+        {
+          "id": "reveal-slot",
+          "name": "Open reveal slot between back and seat",
+          "tier": "critical",
+          "score": 0.88,
+          "threshold": 0.8,
+          "notes": "Open, background visible through it, height and position match the reference within a few pixels at the review camera; only the two stiles cross it."
+        },
+        {
+          "id": "leg-system",
+          "name": "Four round tapered ebony legs, rear pair raked",
+          "tier": "critical",
+          "score": 0.74,
+          "threshold": 0.8,
+          "notes": "Round section, taper ladder and rear rake all read, but two placement defects: each front leg's shoulder pokes through the apron's rounded plan corner (leg centre 0.208,0.178 sits 0.0326 m from the corner arc centre against a 0.032 m corner radius), and each stile's front half stands proud of the back shell's front face instead of being lapped by it (shell front face at the edges lands at z -0.1967, the stile centreline at z -0.196 with radius 0.018)."
+        }
+      ],
+      "action": "refine-spec",
+      "summary": "Blockout reads as the reference chair at the fitted camera: silhouette IoU 0.859, aspect delta 0.031, scale delta 0.0007, and per-material colour within dE 9. Two placement defects block continue - the front legs poke through the apron's rounded corners and the stiles stand proud of the shell instead of being lapped by it. Both are dimensions, so this is refine-spec.",
+      "matched": [
+        "overall height 0.880 m and seat crown 0.445 m",
+        "reclined concave shell distinguishable from a flat board",
+        "reveal slot open at the right height",
+        "rear pair raked, front pair vertical",
+        "all four feet land on the floor plane",
+        "render bilateral-symmetry error 0.198 against the reference photograph's own 0.191"
+      ],
+      "mismatches": [
+        "front-leg shoulders intersect the apron's rounded plan corners",
+        "stiles stand proud of the shell's front face",
+        "model is 3.1 percent narrower than the reference relative to height",
+        "ferrules absent (micro tier, form-refinement pass)",
+        "rolled edges absent (meso tier, structural pass)"
+      ],
+      "specFixes": [
+        "move the legs inboard to x 0.205 and z 0.175 so the shoulder clears the 0.032 m corner arc",
+        "move the shell's front face at its edges forward to the stile's front face so the shell laps the stile",
+        "drop the stile top from 0.560 to 0.545 m"
+      ],
+      "codeFixes": [],
+      "evidence": [
+        "renders/ref.png",
+        "renders/ref-flat.png",
+        "renders/cmp-blockout.png",
+        "renders/overlay-aligned.png"
+      ],
+      "mapStrippedRender": "renders/ref-flat.png",
+      "visualEvidence": {
+        "referenceScreenshot": "reference.png",
+        "renderScreenshot": "renders/ref.png",
+        "comparisonImage": "renders/cmp-blockout.png",
+        "cameraView": "reference three-quarter, yaw -40 deg, camera 0.75 m, 40 deg vertical field, distance 1.555 m",
+        "notes": "",
+        "aiVisionNotes": "Judged from the side-by-side sheet. formDetail is low by design at blockout: the four rolled edges and the ferrules are later tiers. materialSurface is held at 0.70 because the sycamore still carries a glassier clearcoat streak than the reference's satin lacquer."
+      }
+    }
+  ],
   "lodPlan": [
     {
       "tier": "near",
@@ -6866,6 +7045,416 @@
       "renderHash": "ff36bcb5bb048f36",
       "passId": "blockout",
       "mapStrippedRender": "renders/ref-flat.png"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8594,
+        "aspectRatioDelta": 0.031,
+        "scaleDelta": 0.0007,
+        "bilateralSymmetryError": 0.1978,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 28.94,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 17.9
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.61
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.61
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.61
+            },
+            {
+              "componentId": null,
+              "deltaE": 6.61
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.94
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.94
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "8f1054bd2de6a426",
+      "passId": "blockout",
+      "mapStrippedRender": "renders/ref-flat.png"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.8232,
+        "aspectRatioDelta": 0.0511,
+        "scaleDelta": 0.0096,
+        "bilateralSymmetryError": 0.1889,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 28.78,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.87
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.97
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.97
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.57
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.78
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.78
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.78
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.78
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.823 is below threshold 0.85",
+        "aspect-ratio delta 0.051 exceeds threshold 0.05"
+      ],
+      "maskWarnings": [],
+      "renderHash": "a439c346f6fbf84b",
+      "passId": "blockout",
+      "mapStrippedRender": "renders/ref-flat.png"
+    },
+    {
+      "passed": false,
+      "checks": {
+        "silhouetteIoU": 0.8356,
+        "aspectRatioDelta": 0.0436,
+        "scaleDelta": 0.0018,
+        "bilateralSymmetryError": 0.1909,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 28.79,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.84
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.98
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.98
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.54
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.54
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.54
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.54
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.79
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.79
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.79
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.79
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [
+        "silhouette IoU 0.836 is below threshold 0.85"
+      ],
+      "maskWarnings": [],
+      "renderHash": "ba9376f933f8f512",
+      "passId": "blockout",
+      "mapStrippedRender": "renders/ref-flat.png"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.8509,
+        "aspectRatioDelta": 0.0286,
+        "scaleDelta": 0.0138,
+        "bilateralSymmetryError": 0.197,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 28.37,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.83
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.83
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.83
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.83
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.83
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.96
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.96
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.37
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.37
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.37
+            },
+            {
+              "componentId": null,
+              "deltaE": 28.37
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "f7bba26fa5ecca27",
+      "passId": "blockout",
+      "mapStrippedRender": "renders/ref-flat.png"
+    },
+    {
+      "passed": true,
+      "checks": {
+        "silhouetteIoU": 0.851,
+        "aspectRatioDelta": 0.0286,
+        "scaleDelta": 0.0138,
+        "bilateralSymmetryError": 0.1978,
+        "colorDelta": {
+          "checked": 15,
+          "maxDeltaE": 29.51,
+          "perComponent": [
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 4.95
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 22.68
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 11.56
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.51
+            },
+            {
+              "componentId": null,
+              "deltaE": 29.51
+            }
+          ],
+          "gated": false
+        }
+      },
+      "failures": [],
+      "maskWarnings": [],
+      "renderHash": "96cba05b7ac70dc9",
+      "passId": "blockout",
+      "mapStrippedRender": "renders/ref-flat.png"
     }
   ],
   "dimensionTable": {
@@ -6883,27 +7472,27 @@
     "pad_bottom_y": 0.4,
     "pad_top_y": 0.445,
     "pad_roll_r": 0.014,
-    "shell_half_w": 0.23,
+    "shell_half_w": 0.239,
     "shell_edge_r": 0.009,
     "shell_sagitta": 0.03,
     "shell_bottom_y": 0.53,
     "shell_top_y": 0.88,
     "shell_roll_r": 0.009,
-    "shell_recline_deg": 12.0,
-    "stile_top_z": -0.196,
-    "leg_x": 0.208,
-    "leg_front_z": 0.178,
-    "leg_rear_z": -0.178,
+    "shell_recline_deg": 13.5,
+    "stile_top_z": -0.206,
+    "leg_x": 0.207,
+    "leg_front_z": 0.177,
+    "leg_rear_z": -0.177,
     "rear_foot_z": -0.256,
     "rear_knee_dz": 0.004,
-    "leg_top_y": 0.43,
+    "leg_top_y": 0.418,
     "foot_y": 0.026,
-    "leg_r_top": 0.027,
-    "leg_r_apron": 0.025,
+    "leg_r_top": 0.024,
+    "leg_r_apron": 0.0238,
     "leg_r_foot": 0.011,
-    "stile_top_y": 0.548,
-    "stile_r_top": 0.0205,
-    "leg_r_seat": 0.0258,
+    "stile_top_y": 0.545,
+    "stile_r_top": 0.0182,
+    "leg_r_seat": 0.0248,
     "ferrule_h": 0.026,
     "ferrule_r": 0.0112
   }

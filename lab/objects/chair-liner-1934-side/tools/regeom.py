@@ -28,15 +28,15 @@ DIMS = dict(
     pad_inset=0.047,            # pad plan half-extent = apron half-extent - this
     pad_corner_r=0.030, pad_bottom_y=0.400, pad_top_y=0.445, pad_roll_r=0.014,
     # back shell
-    shell_half_w=0.230, shell_edge_r=0.009, shell_sagitta=0.030,
-    shell_bottom_y=0.530, shell_top_y=0.880, shell_roll_r=0.009, shell_recline_deg=12.0,
-    stile_top_z=-0.196,
+    shell_half_w=0.239, shell_edge_r=0.009, shell_sagitta=0.030,
+    shell_bottom_y=0.530, shell_top_y=0.880, shell_roll_r=0.009, shell_recline_deg=13.5,
+    stile_top_z=-0.206,
     # undercarriage
-    leg_x=0.208, leg_front_z=0.178, leg_rear_z=-0.178,
+    leg_x=0.207, leg_front_z=0.177, leg_rear_z=-0.177,
     rear_foot_z=-0.256, rear_knee_dz=0.004,
-    leg_top_y=0.430, foot_y=0.026,
-    leg_r_top=0.0270, leg_r_apron=0.0250, leg_r_foot=0.0110,
-    stile_top_y=0.548, stile_r_top=0.0205, leg_r_seat=0.0258,
+    leg_top_y=0.418, foot_y=0.026,
+    leg_r_top=0.0240, leg_r_apron=0.0238, leg_r_foot=0.0110,
+    stile_top_y=0.545, stile_r_top=0.0182, leg_r_seat=0.0248,
     # ferrule
     ferrule_h=0.026, ferrule_r=0.0112,
 )
@@ -79,7 +79,7 @@ def build(d):
     def yfront(x):
         return math.sqrt(max(0.0, R * R - x * x)) - (R - sag)
 
-    n = 13
+    n = 19
     xs = [-arc_half + 2 * arc_half * i / (n - 1) for i in range(n)]
     front = [(x, yfront(x)) for x in xs]
     back = [(x, yfront(x) + thick) for x in xs]
@@ -104,7 +104,11 @@ def build(d):
     a = -math.pi / 2 - recline
     wy = yfront(0.0) * math.cos(a)
     wz = yfront(0.0) * math.sin(a)
-    shell_pos = [0.0, D(d["shell_bottom_y"] - wy), D(d["stile_top_z"] - sag - wz)]
+    # z of the local origin IS the world z of the shell's front face at its side edges (the
+    # profile's y is zero there). Put that face on the stile's front face so the shell LAPS the
+    # stile, which is what the reference shows; leaving it on the stile centreline left the
+    # stile's front half standing proud of the shell.
+    shell_pos = [0.0, D(d["shell_bottom_y"] - wy), D(d["stile_top_z"] + d["stile_r_top"])]
 
     pad_hx = d["apron_hx"] - d["pad_inset"]
     pad_hz = d["apron_hz"] - d["pad_inset"]
