@@ -1,0 +1,21 @@
+{
+  "referenceId": "chair-liner-1934-side",
+  "regions": [
+    {"componentId": "back-shell", "regionId": "sycamore-veneer", "sourceImage": "reference.png",
+     "bbox": {"x": 380, "y": 190, "width": 190, "height": 150},
+     "family": "wood", "subtype": "generic", "finish": "varnished",
+     "materialSpecId": "figured-sycamore"},
+    {"componentId": "leg-front-l", "regionId": "macassar-ebony", "sourceImage": "reference.png",
+     "bbox": {"x": 570, "y": 800, "width": 42, "height": 130},
+     "family": "wood", "subtype": "generic", "finish": "varnished",
+     "materialSpecId": "macassar-ebony"},
+    {"componentId": "seat-pad", "regionId": "blue-wool", "sourceImage": "reference.png",
+     "bbox": {"x": 500, "y": 555, "width": 200, "height": 80},
+     "family": "fabric", "subtype": "woven", "finish": "matte",
+     "materialSpecId": "blue-wool"},
+    {"componentId": "ferrule-front-l", "regionId": "chrome", "sourceImage": "reference.png",
+     "bbox": {"x": 578, "y": 1104, "width": 30, "height": 32},
+     "family": "metal", "subtype": "steel", "finish": "polished",
+     "materialSpecId": "polished-chrome"}
+  ]
+}

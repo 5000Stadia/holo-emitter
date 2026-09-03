@@ -72,11 +72,23 @@ def factory_of(asset_id):
     function that returns a THREE.Group in metres, feet on y=0, front +z;
     it ships inline in the page. The record's declared dims place it."""
     d = os.path.join(ROOT, "library", asset_id)
-    rec, js = os.path.join(d, "record.json"), os.path.join(d, "factory.js")
-    if not (os.path.exists(rec) and os.path.exists(js)):
-        return None, ("not in the library" if not os.path.exists(rec) else "in the library as a sprite only, no factory")
+    rec, js, glb = os.path.join(d, "record.json"), os.path.join(d, "factory.js"), os.path.join(d, "model.glb")
+    if not os.path.exists(rec):
+        return None, "not in the library"
     r = json.load(open(rec))
     dims = r.get("dims_m") or {}
+    if os.path.exists(glb) and not os.path.exists(js):
+        # a generated mesh: ships inline as base64; the page scales it to the
+        # declared height, stands it on the floor and turns it to face the room
+        raw = open(glb, "rb").read()
+        return {
+            "id": asset_id, "noun": r.get("noun"),
+            "height_m": float(dims.get("h") or 1.0), "width_m": float(dims.get("w") or 0.5), "depth_m": float(dims.get("d") or 0.5),
+            "glb": "data:model/gltf-binary;base64," + base64.b64encode(raw).decode("ascii"),
+            "glb_front": (r.get("model") or {}).get("front", "+z"),
+        }, None
+    if not os.path.exists(js):
+        return None, "in the library as a sprite only, no factory or model.glb"
     src = open(js).read()
     # the module must import three by the bare specifier the importmap maps
     export = None
@@ -232,10 +244,11 @@ TEMPLATE = r"""<title>Meridian Deck Walk</title>
   window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error before the first frame: <b>" + (e.message || e.type) + "</b>"); });
   setTimeout(() => { if (!window.__ok && !window.__failed) window.__fail("the engine module did not arrive from cdnjs.cloudflare.com within 15 s. A content blocker, an offline tab or a browser without import maps is the usual cause; reload once it is reachable."); }, 15000);
 </script>
-<script type="importmap">{"imports": {"three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"}}</script>
+<script type="importmap">{"imports": {"three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 __FACTORY_MODULES__
 <script type="module">
 import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 const WORLD = __WORLD_JSON__;
 (function () {
   const c = document.createElement("canvas");
@@ -335,15 +348,32 @@ scene.add(new THREE.HemisphereLight(0xfff1dc, 0x2a1a10, 0.75));
 // props: the library's procedural factories (inline modules registered on
 // window.__factories), placed by the generator's rule, turned to face the room
 const FACING_YAW = { N: 0, E: -Math.PI / 2, S: Math.PI, W: Math.PI / 2 };   // a factory's front is +z (south); turn it to face `facing`
-for (const pr of WORLD.props) {
-  if (pr.missing) continue;
-  const make = (window.__factories || {})[pr.id];
-  if (!make) continue;
-  const g = make();
+const placeProp = (g, pr) => {
   g.position.copy(P(pr.x, pr.y));
   g.rotation.y = Math.PI + FACING_YAW[pr.facing];
   g.traverse(o => { if (o.isMesh) { o.castShadow = false; o.receiveShadow = false; } });
   scene.add(g);
+};
+const gltf = new GLTFLoader();
+for (const pr of WORLD.props) {
+  if (pr.missing) continue;
+  if (pr.glb) {
+    // a generated mesh at arbitrary scale: fit its height to the declared one, feet on the floor, footprint centred
+    fetch(pr.glb).then(r => r.arrayBuffer()).then(buf => gltf.parse(buf, "", (res) => {
+      const g = new THREE.Group(); const m = res.scene;
+      const box = new THREE.Box3().setFromObject(m); const size = new THREE.Vector3(); box.getSize(size);
+      const s = pr.height_m / Math.max(1e-6, size.y);
+      m.scale.setScalar(s);
+      const b2 = new THREE.Box3().setFromObject(m); const c = new THREE.Vector3(); b2.getCenter(c);
+      m.position.set(-c.x, -b2.min.y, -c.z);
+      if (pr.glb_front === "-z") m.rotation.y = Math.PI; else if (pr.glb_front === "+x") m.rotation.y = Math.PI / 2; else if (pr.glb_front === "-x") m.rotation.y = -Math.PI / 2;
+      g.add(m); placeProp(g, pr);
+    }, (e) => console.error("glb", pr.id, e)));
+    continue;
+  }
+  const make = (window.__factories || {})[pr.id];
+  if (!make) continue;
+  placeProp(make(), pr);
 }
 // the walker's own body, so the third-person camera has a scale to read against
 const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.18, 1.3, 4, 10),

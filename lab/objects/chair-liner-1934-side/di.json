@@ -2,189 +2,260 @@
   "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/reference.png",
   "zonesDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di",
   "detailInventory": {
-    "scanMethod": "grid-3x3",
+    "scanMethod": "component-zones",
     "targetMinDetails": 6,
     "details": [
       {
-        "id": "zone-r0c0",
-        "kind": "",
-        "description": "",
+        "id": "d-back-roll",
+        "kind": "bevel",
+        "description": "Rolled (half-round) top edge on the back shell, radius ~0.009 m, catching a continuous specular highlight along the whole top arc.",
         "region": {
-          "x": 0.0,
-          "y": 0.0,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.19,
+          "y": 0.07,
+          "width": 0.4,
+          "height": 0.06,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "micro",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "back-shell-roll"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r0c0.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-back-top.png",
+        "confidence": 0.9
       },
       {
-        "id": "zone-r0c1",
-        "kind": "",
-        "description": "",
+        "id": "d-back-concave",
+        "kind": "contour",
+        "description": "Back shell is a lofted concave surface, sagitta ~0.030 m over a 0.444 m chord, concave toward the sitter; its side edges are rounded full-round, not square.",
         "region": {
-          "x": 0.3333,
-          "y": 0.0,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.19,
+          "y": 0.08,
+          "width": 0.4,
+          "height": 0.3,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "meso",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "back-shell"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r0c1.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-back-top.png",
+        "confidence": 0.85
       },
       {
-        "id": "zone-r0c2",
-        "kind": "",
-        "description": "",
+        "id": "d-reveal-slot",
+        "kind": "seam",
+        "description": "Open reveal slot ~0.085 m tall between the bottom edge of the back shell and the top of the seat pad; the two ebony stiles are the only things crossing it.",
         "region": {
-          "x": 0.6667,
-          "y": 0.0,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.22,
+          "y": 0.34,
+          "width": 0.35,
+          "height": 0.1,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "meso",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "back-shell"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r0c2.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-slot.png",
+        "confidence": 0.9
       },
       {
-        "id": "zone-r1c0",
-        "kind": "",
-        "description": "",
+        "id": "d-apron-bullnose",
+        "kind": "bevel",
+        "description": "Bullnose lipping roll, radius ~0.014 m, running the whole apron perimeter at its top edge; the pale band that frames the blue pad.",
         "region": {
-          "x": 0.0,
-          "y": 0.3333,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.26,
+          "y": 0.47,
+          "width": 0.52,
+          "height": 0.08,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "micro",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "apron-lipping-roll"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r1c0.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-seat-corner.png",
+        "confidence": 0.92
       },
       {
-        "id": "zone-r1c1",
-        "kind": "",
-        "description": "",
+        "id": "d-apron-corner-radius",
+        "kind": "contour",
+        "description": "Apron plan corners are rounded, radius ~0.032 m, so the seat frame reads as a rounded-corner slab and not a box.",
         "region": {
-          "x": 0.3333,
-          "y": 0.3333,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.4,
+          "y": 0.48,
+          "width": 0.2,
+          "height": 0.1,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "micro",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "seat-apron"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r1c1.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-seat-corner.png",
+        "confidence": 0.85
       },
       {
-        "id": "zone-r1c2",
-        "kind": "",
-        "description": "",
+        "id": "d-pad-edge-roll",
+        "kind": "contour",
+        "description": "Wool pad has a rounded top edge (roll radius ~0.014 m) meeting the pale lipping with no welt or piping line; the top face is very slightly crowned.",
         "region": {
-          "x": 0.6667,
-          "y": 0.3333,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.28,
+          "y": 0.41,
+          "width": 0.48,
+          "height": 0.1,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "micro",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "seat-pad-roll"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r1c2.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-seat-corner.png",
+        "confidence": 0.8
       },
       {
-        "id": "zone-r2c0",
-        "kind": "",
-        "description": "",
+        "id": "d-leg-round-taper",
+        "kind": "contour",
+        "description": "Legs are circular in section, not square: radius falls linearly from ~0.0265 m under the apron to ~0.0110 m at the ferrule, with a very slight concave bow.",
         "region": {
-          "x": 0.0,
-          "y": 0.6667,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.42,
+          "y": 0.6,
+          "width": 0.12,
+          "height": 0.32,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "meso",
+        "affects": "silhouette",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "leg-front-l"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r2c0.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-leg-near.png",
+        "confidence": 0.9
       },
       {
-        "id": "zone-r2c1",
-        "kind": "",
-        "description": "",
+        "id": "d-ferrule",
+        "kind": "fastener",
+        "description": "Polished chrome ferrule capping each foot: ~0.026 m tall, ~0.0112 m radius at its shoulder, tapering slightly with a rounded bottom rim; the only metal in the model.",
         "region": {
-          "x": 0.3333,
-          "y": 0.6667,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.44,
+          "y": 0.86,
+          "width": 0.06,
+          "height": 0.06,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "micro",
+        "affects": "material",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "component.localFeatures",
+          "ref": "ferrule-front-l"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r2c1.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-leg-near.png",
+        "confidence": 0.9
       },
       {
-        "id": "zone-r2c2",
-        "kind": "",
-        "description": "",
+        "id": "d-ebony-streak",
+        "kind": "linework",
+        "description": "Macassar ebony streak figure: near-black ground with warm reddish-brown stripes running along the leg axis, high contrast, sharp-edged, no relief.",
         "region": {
-          "x": 0.6667,
-          "y": 0.6667,
-          "width": 0.3333,
-          "height": 0.3333,
+          "x": 0.42,
+          "y": 0.6,
+          "width": 0.12,
+          "height": 0.32,
           "units": "normalized"
         },
-        "scale": "",
-        "affects": "",
+        "scale": "micro",
+        "affects": "material",
         "mapsTo": {
-          "type": "",
-          "ref": ""
+          "type": "material.localOverrides",
+          "ref": "macassar-ebony/ebony-streak"
         },
-        "evidenceRef": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/di/zone-r2c2.png",
-        "confidence": 0.0
+        "evidenceRef": "di/crop-leg-near.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "d-sycamore-mottle",
+        "kind": "linework",
+        "description": "Figured sycamore mottle: low-contrast irregular blotch figure over a warm pale tan ground, roughly isotropic, satin lacquer over it, no relief.",
+        "region": {
+          "x": 0.22,
+          "y": 0.1,
+          "width": 0.34,
+          "height": 0.26,
+          "units": "normalized"
+        },
+        "scale": "micro",
+        "affects": "material",
+        "mapsTo": {
+          "type": "material.localOverrides",
+          "ref": "figured-sycamore/sycamore-mottle"
+        },
+        "evidenceRef": "di/crop-back-top.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "d-wool-weave",
+        "kind": "stitch",
+        "description": "Fine woven wool micro-texture on the pad: matte, roughness ~0.92, no specular lobe, slight value noise only.",
+        "region": {
+          "x": 0.3,
+          "y": 0.42,
+          "width": 0.44,
+          "height": 0.1,
+          "units": "normalized"
+        },
+        "scale": "micro",
+        "affects": "material",
+        "mapsTo": {
+          "type": "material.localOverrides",
+          "ref": "blue-wool/wool-weave"
+        },
+        "evidenceRef": "di/crop-seat-corner.png",
+        "confidence": 0.85
+      },
+      {
+        "id": "d-stile-sabre",
+        "kind": "contour",
+        "description": "Rear legs carry a sabre knee just under the apron: the member is furthest forward at ~0.33 m, rakes back ~0.05 m to the foot and leans back again ~0.02 m to the stile top.",
+        "region": {
+          "x": 0.22,
+          "y": 0.38,
+          "width": 0.36,
+          "height": 0.45,
+          "units": "normalized"
+        },
+        "scale": "meso",
+        "affects": "silhouette",
+        "mapsTo": {
+          "type": "component.localFeatures",
+          "ref": "leg-rear-l"
+        },
+        "evidenceRef": "di/crop-slot.png",
+        "confidence": 0.7
       }
+    ],
+    "zoneEvidence": [
+      "di/zone-r0c0.png",
+      "di/zone-r0c1.png",
+      "di/zone-r0c2.png",
+      "di/zone-r1c0.png",
+      "di/zone-r1c1.png",
+      "di/zone-r1c2.png",
+      "di/zone-r2c0.png",
+      "di/zone-r2c1.png",
+      "di/zone-r2c2.png"
     ]
   },
   "authoringInstruction": "Open each zone crop under zonesDir and replace every detail stub's kind, description, scale, affects, mapsTo, and confidence with what is actually observed. Add more detail entries per zone if a single zone contains multiple distinct marks; do not leave stubs unfilled or unlinked (mapsTo must reference a real component.localFeatures or material.localOverrides entry)."

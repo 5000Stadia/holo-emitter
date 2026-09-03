@@ -1,0 +1,1279 @@
+import * as THREE from 'three';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { BokehPass } from 'three/examples/jsm/postprocessing/BokehPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+export type ProceduralModelOptions = {
+  wireframe?: boolean;
+  castShadow?: boolean;
+  receiveShadow?: boolean;
+  textureSize?: number;
+  textureAnisotropy?: number;
+  qualityPriority?: 'reference-fidelity' | 'balanced';
+};
+
+export type ProceduralModelRuntime = {
+  nodes: Record<string, THREE.Object3D>;
+  meshes: Record<string, THREE.Mesh>;
+  sockets: Record<string, THREE.Object3D>;
+  colliders: Record<string, unknown>;
+  destructionGroups: Record<string, THREE.Object3D[]>;
+};
+
+type SculptMaterialSpec = Record<string, any>;
+
+// bevelEnabled defaults to true on THREE.ExtrudeGeometry and rounds every
+// corner — sharp/pointed profiles (blades, fork tines, spikes) need
+// bevelEnabled: false plus lineTo()-only path segments near the tip, since a
+// curve command cannot produce a true converging point.
+function buildExtrudeShape(points: [number, number][], holes?: [number, number][][]): THREE.Shape {
+  const shape = new THREE.Shape();
+  if (points.length > 0) {
+    shape.moveTo(points[0][0], points[0][1]);
+    for (let i = 1; i < points.length; i += 1) {
+      shape.lineTo(points[i][0], points[i][1]);
+    }
+  }
+  // Cutouts (e.g. an oval wire-cutter hole) as THREE.Path added to shape.holes —
+  // dep-free boolean subtraction via the tessellator, no CSG library needed.
+  for (const loop of holes ?? []) {
+    if (loop.length < 3) continue;
+    const path = new THREE.Path();
+    path.moveTo(loop[0][0], loop[0][1]);
+    for (let i = 1; i < loop.length; i += 1) path.lineTo(loop[i][0], loop[i][1]);
+    path.closePath();
+    shape.holes.push(path);
+  }
+  return shape;
+}
+
+// Build an N-gon oval loop (for hole authoring from a compact {cx,cy,rx,ry} descriptor).
+function ovalLoop(cx: number, cy: number, rx: number, ry: number, seg = 24): [number, number][] {
+  const loop: [number, number][] = [];
+  for (let i = 0; i < seg; i += 1) {
+    const a = (i / seg) * Math.PI * 2;
+    loop.push([cx + Math.cos(a) * rx, cy + Math.sin(a) * ry]);
+  }
+  return loop;
+}
+
+function buildExtrudeGeometry(profile: { points: [number, number][]; depth: number; holes?: [number, number][][]; ovalHoles?: { cx: number; cy: number; rx: number; ry: number }[] }): THREE.ExtrudeGeometry {
+  const holes = [...(profile.holes ?? []), ...((profile.ovalHoles ?? []).map((o) => ovalLoop(o.cx, o.cy, o.rx, o.ry)))];
+  const shape = buildExtrudeShape(profile.points, holes);
+  return new THREE.ExtrudeGeometry(shape, {
+    depth: profile.depth,
+    bevelEnabled: false,
+    steps: 1,
+  });
+}
+
+type TaperedStation = { position: [number, number, number]; rx: number; rz: number; twist?: number };
+
+// Frames come from PARALLEL TRANSPORT, not from a Frenet frame. A Frenet frame is defined by
+// the curve's normal, which flips sign wherever the path has an inflection or straightens out,
+// and every flip twists the surface 180 degrees within one segment. Carrying the previous frame
+// forward and removing only its along-path component keeps the twist continuous. THREE's own
+// extrudePath and TubeGeometry do not expose this, which is why this is hand-built.
+function buildTaperedSweepGeometry(
+  sweep: { stations: TaperedStation[]; radialSegments?: number; capEnds?: boolean },
+): THREE.BufferGeometry {
+  const stations = sweep.stations;
+  if (stations.length < 2) throw new Error('tapered-sweep needs at least two stations');
+  const radial = Math.max(3, sweep.radialSegments ?? 10);
+  const centres = stations.map((s) => new THREE.Vector3(...s.position));
+
+  const tangents = centres.map((_, i) => {
+    const prev = centres[Math.max(0, i - 1)];
+    const next = centres[Math.min(centres.length - 1, i + 1)];
+    const t = next.clone().sub(prev);
+    // Coincident neighbours would normalise to NaN and poison every downstream vertex.
+    return t.lengthSq() < 1e-12 ? new THREE.Vector3(0, 1, 0) : t.normalize();
+  });
+
+  // Seed a reference axis that is not parallel to the first tangent, or the first cross
+  // product is degenerate and the whole sweep collapses to a line.
+  let ref = new THREE.Vector3(0, 0, 1);
+  if (Math.abs(tangents[0].dot(ref)) > 0.9) ref = new THREE.Vector3(1, 0, 0);
+
+  const normals: THREE.Vector3[] = [];
+  const binormals: THREE.Vector3[] = [];
+  let carried = ref.clone().sub(tangents[0].clone().multiplyScalar(ref.dot(tangents[0]))).normalize();
+  for (let i = 0; i < tangents.length; i += 1) {
+    const t = tangents[i];
+    // Project the carried frame back onto the plane perpendicular to this tangent.
+    const n = carried.clone().sub(t.clone().multiplyScalar(carried.dot(t)));
+    if (n.lengthSq() < 1e-12) {
+      const fallback = Math.abs(t.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0);
+      n.copy(fallback.sub(t.clone().multiplyScalar(fallback.dot(t))));
+    }
+    n.normalize();
+    normals.push(n);
+    binormals.push(new THREE.Vector3().crossVectors(t, n).normalize());
+    carried = n;
+  }
+
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const ringStart: number[] = [];
+  const isPoint: boolean[] = [];
+
+  for (let i = 0; i < stations.length; i += 1) {
+    const st = stations[i];
+    const v = i / (stations.length - 1);
+    ringStart.push(positions.length / 3);
+    // A station whose section has collapsed emits ONE vertex, not a ring of radius zero.
+    // A degenerate ring still carries `radial` coincident vertices and `radial` zero-area
+    // triangles, so the lock ends in a blunt cap the width of the floating-point noise
+    // rather than at a point -- and a hair lock, a horn or a blade tip has to reach a point.
+    if (st.rx <= 1e-6 && st.rz <= 1e-6) {
+      isPoint.push(true);
+      positions.push(centres[i].x, centres[i].y, centres[i].z);
+      uvs.push(0.5, v);
+      continue;
+    }
+    isPoint.push(false);
+    const twist = ((st.twist ?? 0) * Math.PI) / 180;
+    for (let j = 0; j <= radial; j += 1) {
+      const theta = (j / radial) * Math.PI * 2 + twist;
+      const offset = normals[i].clone().multiplyScalar(Math.cos(theta) * st.rx)
+        .add(binormals[i].clone().multiplyScalar(Math.sin(theta) * st.rz));
+      const p = centres[i].clone().add(offset);
+      positions.push(p.x, p.y, p.z);
+      uvs.push(j / radial, v);
+    }
+  }
+
+  for (let i = 0; i < stations.length - 1; i += 1) {
+    const a0 = ringStart[i];
+    const b0 = ringStart[i + 1];
+    if (isPoint[i] && isPoint[i + 1]) continue;   // two collapsed stations bound nothing
+    for (let j = 0; j < radial; j += 1) {
+      // Wound so the face normal points radially OUTWARD.
+      //
+      // Ring vertices advance from `normal` toward `binormal`, and binormal is
+      // tangent x normal, so increasing theta runs counter-clockwise seen from the
+      // far end of the segment. Taking the ring-to-ring edge first therefore puts
+      // the cross product on the inside. Measured as signed volume on the built
+      // mesh: every tapered-sweep came out negative -- a torso at -0.0674 and a
+      // tail at -0.0044 against a positive ellipsoid head -- so every sweep this
+      // generator has ever emitted rendered its back faces, with normals pointing
+      // into the solid and every lighting judgement made on the wrong surface.
+      if (isPoint[i]) indices.push(a0, b0 + j + 1, b0 + j);
+      else if (isPoint[i + 1]) indices.push(a0 + j, a0 + j + 1, b0);
+      else indices.push(a0 + j, a0 + j + 1, b0 + j, a0 + j + 1, b0 + j + 1, b0 + j);
+    }
+  }
+
+  if (sweep.capEnds ?? true) {
+    for (const end of [0, stations.length - 1]) {
+      if (isPoint[end]) continue;   // a point end is already closed
+      const centreIndex = positions.length / 3;
+      positions.push(centres[end].x, centres[end].y, centres[end].z);
+      uvs.push(0.5, end === 0 ? 0 : 1);
+      const base = ringStart[end];
+      for (let j = 0; j < radial; j += 1) {
+        if (end === 0) indices.push(centreIndex, base + j + 1, base + j);
+        else indices.push(centreIndex, base + j, base + j + 1);
+      }
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+}
+
+function hashString(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function readLayerNumber(value: unknown, keys: string[], fallback: number): number {
+  if (typeof value === 'number') return value;
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>;
+    for (const key of keys) {
+      if (typeof record[key] === 'number') return record[key] as number;
+    }
+  }
+  return fallback;
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const normalized = /^#[0-9a-f]{3}$/i.test(hex)
+    ? '#' + hex.slice(1).split('').map((part) => part + part).join('')
+    : hex;
+  const value = /^#[0-9a-f]{6}$/i.test(normalized) ? Number.parseInt(normalized.slice(1), 16) : 0x8a7a5f;
+  return [clampAlbedoChannel((value >> 16) & 255), clampAlbedoChannel((value >> 8) & 255), clampAlbedoChannel(value & 255)];
+}
+
+function materialPalette(spec: SculptMaterialSpec): string[] {
+  const palette = spec.colorVariation?.palette;
+  if (Array.isArray(palette) && palette.length > 0) return palette.filter((value) => typeof value === 'string');
+  const secondary = spec.albedo?.secondary;
+  const colors = [spec.baseColor ?? spec.color ?? spec.albedo?.dominant, ...(Array.isArray(secondary) ? secondary : [])];
+  return colors.filter((value): value is string => typeof value === 'string' && value.startsWith('#'));
+}
+
+function clamp01(value: number): number {
+  return Math.max(0, Math.min(1, value));
+}
+
+function clampAlbedoChannel(value: number): number {
+  return Math.max(30, Math.min(240, Math.round(value)));
+}
+
+function clampPbrF0(value: number): number {
+  return Math.max(0.02, Math.min(1, value));
+}
+
+function clampPbrIor(value: number): number {
+  return Math.max(1, Math.min(2.5, value));
+}
+
+function clampPbrMetalness(value: number): number {
+  return value >= 0.5 ? 1 : 0;
+}
+
+function clampedAlbedoColor(spec: SculptMaterialSpec): THREE.Color {
+  const source = typeof spec.baseColor === 'string' ? spec.baseColor : '#8A7A5F';
+  // setStyle with an explicit SRGBColorSpace, NOT the numeric constructor.
+  //
+  // `new THREE.Color(r, g, b)` treats its arguments as LINEAR working-space components,
+  // while an authored `baseColor` hex is sRGB. Feeding one to the other skipped the
+  // transfer function and lifted every dark albedo: #2e2a28, authored as a near-black
+  // vinyl, rendered at roughly sRGB 0.46 — a mid grey. The error is largest exactly where
+  // it matters most, because the transfer curve is steepest near black.
+  return new THREE.Color().setStyle(source, THREE.SRGBColorSpace);
+}
+
+function smoothCurve(value: number): number {
+  return value * value * (3 - 2 * value);
+}
+
+function periodicHash(x: number, y: number, seed: number, periodX: number, periodY: number): number {
+  const wrappedX = ((x % periodX) + periodX) % periodX;
+  const wrappedY = ((y % periodY) + periodY) % periodY;
+  let value = Math.imul(wrappedX + seed * 17, 374761393) ^ Math.imul(wrappedY + seed * 31, 668265263);
+  value = Math.imul(value ^ (value >>> 13), 1274126177);
+  return ((value ^ (value >>> 16)) >>> 0) / 4294967295;
+}
+
+function periodicValueNoise(u: number, v: number, seed: number, periodX: number, periodY: number): number {
+  const x = u * periodX;
+  const y = v * periodY;
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const tx = smoothCurve(x - x0);
+  const ty = smoothCurve(y - y0);
+  const a = periodicHash(x0, y0, seed, periodX, periodY);
+  const b = periodicHash(x0 + 1, y0, seed, periodX, periodY);
+  const c = periodicHash(x0, y0 + 1, seed, periodX, periodY);
+  const d = periodicHash(x0 + 1, y0 + 1, seed, periodX, periodY);
+  return THREE.MathUtils.lerp(THREE.MathUtils.lerp(a, b, tx), THREE.MathUtils.lerp(c, d, tx), ty);
+}
+
+type SurfaceBand = {
+  frequency: number;
+  amplitude: number;
+  stretchX: number;
+  stretchY: number;
+  ridge: boolean;
+};
+
+function surfaceBands(spec: SculptMaterialSpec): SurfaceBand[] {
+  const source = Array.isArray(spec.surfaceFrequencyBands) ? spec.surfaceFrequencyBands : [];
+  const parsed = source.flatMap((item: unknown) => {
+    if (!item || typeof item !== 'object') return [];
+    const band = item as Record<string, unknown>;
+    const frequency = typeof band.frequency === 'number' ? band.frequency : 0;
+    const amplitude = typeof band.amplitude === 'number' ? band.amplitude : 0;
+    if (frequency <= 0 || amplitude <= 0) return [];
+    const stretch = Array.isArray(band.stretch) ? band.stretch : [1, 1];
+    const description = `${String(band.pattern ?? '')} ${String(band.role ?? '')}`.toLowerCase();
+    return [{
+      frequency,
+      amplitude,
+      stretchX: typeof stretch[0] === 'number' ? Math.max(0.1, stretch[0]) : 1,
+      stretchY: typeof stretch[1] === 'number' ? Math.max(0.1, stretch[1]) : 1,
+      ridge: /(ridge|groove|grain|fiber|striated|crack)/.test(description),
+    }];
+  });
+  return parsed.length > 0 ? parsed : [
+    { frequency: 2, amplitude: 0.42, stretchX: 1, stretchY: 1, ridge: false },
+    { frequency: 12, amplitude: 0.22, stretchX: 1, stretchY: 1, ridge: false },
+    { frequency: 56, amplitude: 0.08, stretchX: 1, stretchY: 1, ridge: false },
+  ];
+}
+
+function sampleSurface(u: number, v: number, bands: SurfaceBand[], seed: number): number {
+  let value = 0;
+  let weight = 0;
+  for (let index = 0; index < bands.length; index += 1) {
+    const band = bands[index];
+    const periodX = Math.max(1, Math.round(band.frequency * band.stretchX));
+    const periodY = Math.max(1, Math.round(band.frequency * band.stretchY));
+    let sample = periodicValueNoise(u, v, seed + index * 1013, periodX, periodY);
+    if (band.ridge) sample = 1 - Math.abs(sample * 2 - 1);
+    value += sample * band.amplitude;
+    weight += band.amplitude;
+  }
+  return weight > 0 ? clamp01(value / weight) : 0.5;
+}
+
+function mixPalette(colors: [number, number, number][], value: number): [number, number, number] {
+  if (colors.length === 1) return colors[0];
+  const scaled = clamp01(value) * (colors.length - 1);
+  const index = Math.min(colors.length - 2, Math.floor(scaled));
+  const mix = scaled - index;
+  const a = colors[index];
+  const b = colors[index + 1];
+  return [
+    Math.round(THREE.MathUtils.lerp(a[0], b[0], mix)),
+    Math.round(THREE.MathUtils.lerp(a[1], b[1], mix)),
+    Math.round(THREE.MathUtils.lerp(a[2], b[2], mix)),
+  ];
+}
+
+type ColorGradientStop = { offset: number; color: string };
+type ColorGradientSpec = {
+  type: 'linear' | 'radial';
+  axis: [number, number];
+  stops: ColorGradientStop[];
+};
+
+function parseRgba(value: string): [number, number, number] {
+  const match = /rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/.exec(value);
+  if (!match) return [138, 122, 95];
+  return [clampAlbedoChannel(Number(match[1])), clampAlbedoChannel(Number(match[2])), clampAlbedoChannel(Number(match[3]))];
+}
+
+// Analytical per-pixel gradient sample. The extraction schema's colorGradient carries
+// exact rgba(...) stop colors (see extract_part_color_recipe.py), so this samples the
+// same trend directly in JS math rather than round-tripping through a Canvas 2D
+// createLinearGradient/createRadialGradient object — same visual result, and it composes
+// directly with the existing noise/height-correlated colorVariation blend below.
+function sampleColorGradient(gradient: ColorGradientSpec, u: number, v: number): [number, number, number] {
+  const stops = gradient.stops.length >= 2 ? gradient.stops : [{ offset: 0, color: 'rgba(138,122,95,1)' }, { offset: 1, color: 'rgba(138,122,95,1)' }];
+  let t: number;
+  if (gradient.type === 'radial') {
+    const [cx, cy] = gradient.axis;
+    const dx = u - cx;
+    const dy = v - cy;
+    const maxRadius = Math.max(0.001, Math.hypot(Math.max(cx, 1 - cx), Math.max(cy, 1 - cy)));
+    t = clamp01(Math.hypot(dx, dy) / maxRadius);
+  } else {
+    const [ax, ay] = gradient.axis;
+    const projection = (u - 0.5) * ax + (v - 0.5) * ay;
+    const maxProjection = 0.5 * (Math.abs(ax) + Math.abs(ay)) || 0.5;
+    t = clamp01(projection / maxProjection + 0.5);
+  }
+  const scaled = t * (stops.length - 1);
+  const index = Math.min(stops.length - 2, Math.max(0, Math.floor(scaled)));
+  const mix = scaled - index;
+  const a = parseRgba(stops[index].color);
+  const b = parseRgba(stops[index + 1].color);
+  return [
+    THREE.MathUtils.lerp(a[0], b[0], mix),
+    THREE.MathUtils.lerp(a[1], b[1], mix),
+    THREE.MathUtils.lerp(a[2], b[2], mix),
+  ];
+}
+
+function writePixel(data: Uint8ClampedArray, offset: number, red: number, green: number, blue: number): void {
+  data[offset] = Math.max(0, Math.min(255, Math.round(red)));
+  data[offset + 1] = Math.max(0, Math.min(255, Math.round(green)));
+  data[offset + 2] = Math.max(0, Math.min(255, Math.round(blue)));
+  data[offset + 3] = 255;
+}
+
+function makeCanvas(size: number): HTMLCanvasElement {
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  return canvas;
+}
+
+function createMapTexture(
+  canvas: HTMLCanvasElement,
+  colorSpace: THREE.ColorSpace,
+  spec: SculptMaterialSpec,
+  options: ProceduralModelOptions,
+): THREE.CanvasTexture {
+  const texture = new THREE.CanvasTexture(canvas);
+  const projection = spec.textureProjection && typeof spec.textureProjection === 'object' ? spec.textureProjection : {};
+  const repeat = Array.isArray(projection.repeat) ? projection.repeat : [2, 2];
+  texture.colorSpace = colorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(
+    typeof repeat[0] === 'number' ? repeat[0] : 2,
+    typeof repeat[1] === 'number' ? repeat[1] : 2,
+  );
+  texture.anisotropy = Math.max(1, Math.round(options.textureAnisotropy ?? projection.anisotropy ?? 8));
+  texture.needsUpdate = true;
+  return texture;
+}
+
+type ProceduralTextureSet = {
+  albedo: THREE.Texture;
+  roughness: THREE.Texture;
+  height: THREE.Texture;
+  normal: THREE.Texture;
+  ao: THREE.Texture;
+  source: 'reference-pixel-extraction' | 'procedural';
+};
+
+function referenceMapUrl(spec: SculptMaterialSpec, channel: string): string | null {
+  const reference = spec.referencePbr;
+  if (!reference || typeof reference !== 'object') return null;
+  if (reference.usable === false) return null;
+  const confidence = typeof reference.confidence === 'number'
+    ? reference.confidence
+    : (typeof reference.estimatedFidelity === 'number' ? reference.estimatedFidelity : 0);
+  const threshold = typeof reference.targetThreshold === 'number' ? reference.targetThreshold : 0.7;
+  if (confidence < threshold) return null;
+  const maps = reference.maps;
+  if (!maps || typeof maps !== 'object') return null;
+  const map = (maps as Record<string, unknown>)[channel];
+  if (!map || typeof map !== 'object') return null;
+  const record = map as Record<string, unknown>;
+  const url = typeof record.url === 'string' && record.url.trim() ? record.url : record.path;
+  return typeof url === 'string' && url.trim() ? url : null;
+}
+
+function createLoadedMapTexture(
+  url: string,
+  colorSpace: THREE.ColorSpace,
+  spec: SculptMaterialSpec,
+  options: ProceduralModelOptions,
+): THREE.Texture {
+  const texture = new THREE.TextureLoader().load(url);
+  const projection = spec.textureProjection && typeof spec.textureProjection === 'object' ? spec.textureProjection : {};
+  const repeat = Array.isArray(projection.repeat) ? projection.repeat : [1, 1];
+  texture.colorSpace = colorSpace;
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(
+    typeof repeat[0] === 'number' ? repeat[0] : 1,
+    typeof repeat[1] === 'number' ? repeat[1] : 1,
+  );
+  texture.anisotropy = Math.max(1, Math.round(options.textureAnisotropy ?? projection.anisotropy ?? 8));
+  texture.needsUpdate = true;
+  return texture;
+}
+
+function makeReferenceTextureSet(spec: SculptMaterialSpec, options: ProceduralModelOptions): ProceduralTextureSet | null {
+  const albedo = referenceMapUrl(spec, 'albedo');
+  const roughness = referenceMapUrl(spec, 'roughness');
+  const height = referenceMapUrl(spec, 'height');
+  const normal = referenceMapUrl(spec, 'normal');
+  const ao = referenceMapUrl(spec, 'ao');
+  if (!albedo || !roughness || !height || !normal || !ao) return null;
+  return {
+    albedo: createLoadedMapTexture(albedo, THREE.SRGBColorSpace, spec, options),
+    roughness: createLoadedMapTexture(roughness, THREE.NoColorSpace, spec, options),
+    height: createLoadedMapTexture(height, THREE.NoColorSpace, spec, options),
+    normal: createLoadedMapTexture(normal, THREE.NoColorSpace, spec, options),
+    ao: createLoadedMapTexture(ao, THREE.NoColorSpace, spec, options),
+    source: 'reference-pixel-extraction',
+  };
+}
+
+function makeProceduralTextureSet(
+  id: string,
+  spec: SculptMaterialSpec,
+  options: ProceduralModelOptions,
+): ProceduralTextureSet | null {
+  if (typeof document === 'undefined') return null;
+  const qualityFirst = (options.qualityPriority ?? 'reference-fidelity') === 'reference-fidelity';
+  const requested = options.textureSize ?? spec.textureResolution;
+  const requestedSize = typeof requested === 'number' && Number.isFinite(requested)
+    ? requested
+    : (qualityFirst ? 1024 : 512);
+  const size = Math.max(256, Math.min(2048, 2 ** Math.round(Math.log2(requestedSize))));
+  const canvases = {
+    albedo: makeCanvas(size),
+    roughness: makeCanvas(size),
+    height: makeCanvas(size),
+    normal: makeCanvas(size),
+    ao: makeCanvas(size),
+  };
+  const contexts = {
+    albedo: canvases.albedo.getContext('2d'),
+    roughness: canvases.roughness.getContext('2d'),
+    height: canvases.height.getContext('2d'),
+    normal: canvases.normal.getContext('2d'),
+    ao: canvases.ao.getContext('2d'),
+  };
+  if (!contexts.albedo || !contexts.roughness || !contexts.height || !contexts.normal || !contexts.ao) return null;
+  const images = {
+    albedo: contexts.albedo.createImageData(size, size),
+    roughness: contexts.roughness.createImageData(size, size),
+    height: contexts.height.createImageData(size, size),
+    normal: contexts.normal.createImageData(size, size),
+    ao: contexts.ao.createImageData(size, size),
+  };
+  const seed = hashString(id);
+  const bands = surfaceBands(spec);
+  const heightField = new Float32Array(size * size);
+  const roughnessField = new Float32Array(size * size);
+  const palette = materialPalette(spec);
+  const fallback = typeof spec.baseColor === 'string' ? spec.baseColor : '#8A7A5F';
+  const colors = (palette.length >= 2 ? palette : [fallback, '#6E614B', '#A08F70']).map(hexToRgb);
+  const baseRoughness = clamp01(readLayerNumber(spec.roughness, ['base'], 0.76));
+  const roughnessVariation = clamp01(readLayerNumber(spec.roughness, ['variation'], 0.18));
+  const colorAmplitude = clamp01(readLayerNumber(spec.colorVariation, ['amplitude', 'variation'], 0.18));
+  const heightCorrelation = clamp01(readLayerNumber(spec.colorVariation, ['heightCorrelation'], 0.3));
+  const colorGradient: ColorGradientSpec | undefined = spec.colorGradient;
+  for (let y = 0; y < size; y += 1) {
+    const v = y / size;
+    for (let x = 0; x < size; x += 1) {
+      const u = x / size;
+      const index = y * size + x;
+      const height = sampleSurface(u, v, bands, seed + 101);
+      const roughNoise = sampleSurface(u, v, bands, seed + 7001);
+      const colorNoise = sampleSurface(u, v, bands, seed + 15013);
+      heightField[index] = height;
+      roughnessField[index] = clamp01(baseRoughness + (roughNoise - 0.5) * roughnessVariation * 2);
+      let color: [number, number, number];
+      if (colorGradient) {
+        // Evidence-derived spatial gradient (Plan 1.3 Workstream C) takes priority
+        // over the noise-based palette blend below — it is a measured trend, not a guess.
+        color = sampleColorGradient(colorGradient, u, v);
+      } else {
+        const paletteValue = clamp01(
+          0.5 + (colorNoise - 0.5) * colorAmplitude * 2 + (height - 0.5) * heightCorrelation
+        );
+        color = mixPalette(colors, paletteValue);
+      }
+      writePixel(images.albedo.data, index * 4, color[0], color[1], color[2]);
+    }
+  }
+  const normalStrength = Math.max(0.05, readLayerNumber(spec.normal, ['strength', 'amplitude'], 0.35));
+  const aoStrength = clamp01(readLayerNumber(spec.ambientOcclusion, ['cavityStrength', 'strength'], 0.35));
+  for (let y = 0; y < size; y += 1) {
+    const up = ((y - 1 + size) % size) * size;
+    const down = ((y + 1) % size) * size;
+    for (let x = 0; x < size; x += 1) {
+      const left = (x - 1 + size) % size;
+      const right = (x + 1) % size;
+      const index = y * size + x;
+      const center = heightField[index];
+      const dx = (heightField[y * size + right] - heightField[y * size + left]) * normalStrength * 6;
+      const dy = (heightField[down + x] - heightField[up + x]) * normalStrength * 6;
+      const inverseLength = 1 / Math.sqrt(dx * dx + dy * dy + 1);
+      const normalX = -dx * inverseLength;
+      const normalY = -dy * inverseLength;
+      const normalZ = inverseLength;
+      const neighborAverage = (
+        heightField[y * size + left] + heightField[y * size + right]
+        + heightField[up + x] + heightField[down + x]
+      ) * 0.25;
+      const cavity = Math.max(0, neighborAverage - center);
+      const ao = clamp01(1 - aoStrength * (cavity * 12 + (1 - center) * 0.16));
+      const offset = index * 4;
+      const heightByte = center * 255;
+      const roughnessByte = roughnessField[index] * 255;
+      writePixel(images.height.data, offset, heightByte, heightByte, heightByte);
+      writePixel(images.roughness.data, offset, roughnessByte, roughnessByte, roughnessByte);
+      writePixel(
+        images.normal.data, offset,
+        (normalX * 0.5 + 0.5) * 255,
+        (normalY * 0.5 + 0.5) * 255,
+        (normalZ * 0.5 + 0.5) * 255,
+      );
+      writePixel(images.ao.data, offset, ao * 255, ao * 255, ao * 255);
+    }
+  }
+  contexts.albedo.putImageData(images.albedo, 0, 0);
+  contexts.roughness.putImageData(images.roughness, 0, 0);
+  contexts.height.putImageData(images.height, 0, 0);
+  contexts.normal.putImageData(images.normal, 0, 0);
+  contexts.ao.putImageData(images.ao, 0, 0);
+  return {
+    albedo: createMapTexture(canvases.albedo, THREE.SRGBColorSpace, spec, options),
+    roughness: createMapTexture(canvases.roughness, THREE.NoColorSpace, spec, options),
+    height: createMapTexture(canvases.height, THREE.NoColorSpace, spec, options),
+    normal: createMapTexture(canvases.normal, THREE.NoColorSpace, spec, options),
+    ao: createMapTexture(canvases.ao, THREE.NoColorSpace, spec, options),
+    source: 'procedural',
+  };
+}
+
+function createSculptMaterial(id: string, spec: SculptMaterialSpec, options: ProceduralModelOptions, denseComponent = false): THREE.MeshPhysicalMaterial {
+  // A material that declares -- with evidence -- that its subject carries no texture
+  // detail gets NO texture set. Synthesising one anyway is not a harmless default: the
+  // branch below then forces color to white and roughness to 1 and reads both from the
+  // generated maps, so the authored albedo and the reference-derived roughness are both
+  // discarded, and the model gains mottling the reference does not have. Measured on the
+  // tuxedo cat, whose black fur rendered as speckled grey-and-white from a palette that
+  // only ever described two flat regions.
+  const textureless = (spec.textureless as { declared?: boolean } | undefined)?.declared === true;
+  const textures = textureless
+    ? null
+    : makeReferenceTextureSet(spec, options) ?? makeProceduralTextureSet(id, spec, options);
+  const material = new THREE.MeshPhysicalMaterial({
+    color: textures ? 0xffffff : clampedAlbedoColor(spec),
+    roughness: textures ? 1 : clamp01(readLayerNumber(spec.roughness, ['base'], 0.76)),
+    metalness: clampPbrMetalness(readLayerNumber(spec.metalness, ['base'], 0.0)),
+    clearcoat: clamp01(readLayerNumber(spec.clearcoat, ['base', 'amount'], 0)),
+    clearcoatRoughness: clamp01(readLayerNumber(spec.clearcoatRoughness, ['base'], 0.25)),
+    transmission: clamp01(readLayerNumber(spec.transmission, ['base', 'amount'], 0)),
+    ior: clampPbrIor(readLayerNumber(spec.ior, ['base', 'value'], 1.5)),
+    thickness: Math.max(0, readLayerNumber(spec.thickness, ['base', 'amount'], 0)),
+    attenuationDistance: Math.max(0.001, readLayerNumber(spec.attenuationDistance, ['base', 'value'], Infinity)),
+    attenuationColor: new THREE.Color(typeof spec.attenuationColor === 'string' ? spec.attenuationColor : '#ffffff'),
+    sheen: clamp01(readLayerNumber(spec.sheen, ['base', 'amount'], 0)),
+    sheenColor: new THREE.Color(typeof spec.sheenColor === 'string' ? spec.sheenColor : '#ffffff'),
+    sheenRoughness: clamp01(readLayerNumber(spec.sheenRoughness, ['base'], 1.0)),
+    iridescence: clamp01(readLayerNumber(spec.iridescence, ['base', 'amount'], 0)),
+    iridescenceIOR: clampPbrIor(readLayerNumber(spec.iridescenceIOR, ['base', 'value'], 1.3)),
+    anisotropy: clamp01(readLayerNumber(spec.anisotropy, ['base', 'amount'], 0)),
+    anisotropyRotation: readLayerNumber(spec.anisotropy, ['rotation'], 0),
+    specularIntensity: clampPbrF0(readLayerNumber(spec.specularF0 ?? spec.f0 ?? spec.specularIntensity, ['base', 'value'], 1.0)),
+    specularColor: new THREE.Color(typeof spec.specularColor === 'string' ? spec.specularColor : '#ffffff'),
+    emissive: new THREE.Color(typeof spec.emissive === 'string' ? spec.emissive : '#000000'),
+    emissiveIntensity: Math.max(0, readLayerNumber(spec.emissiveIntensity, ['base'], 1.0)),
+    opacity: clamp01(readLayerNumber(spec.opacity, ['base'], 1)),
+    transparent: readLayerNumber(spec.transmission, ['base', 'amount'], 0) > 0 || readLayerNumber(spec.opacity, ['base'], 1) < 1,
+    alphaTest: Math.max(0, readLayerNumber(spec.alpha, ['cutoff', 'alphaTest'], 0)),
+    wireframe: options.wireframe ?? false,
+    side: spec.doubleSided === true ? THREE.DoubleSide : THREE.FrontSide,
+    flatShading: spec.flatShading === true,
+  });
+  if (textures) {
+    material.map = textures.albedo;
+    material.roughnessMap = textures.roughness;
+    material.normalMap = textures.normal;
+    material.normalScale.setScalar(Math.max(0.05, readLayerNumber(spec.normal, ['strength', 'amplitude'], 0.35)));
+    material.aoMap = textures.ao;
+    material.aoMap.channel = 0;
+    material.aoMapIntensity = readLayerNumber(spec.ambientOcclusion, ['cavityStrength', 'strength'], 0.35);
+    const denseMesh = denseComponent || spec.denseMesh === true || spec.geometryDensity === 'dense' || spec.topologyClass === 'dense';
+    const bumpScale = Math.max(0, readLayerNumber(spec.bump, ['amplitude', 'strength'], 0));
+    const effectiveBumpScale = denseMesh ? Math.max(0.05, bumpScale) : bumpScale;
+    if (effectiveBumpScale > 0) {
+      material.bumpMap = textures.height;
+      material.bumpScale = effectiveBumpScale;
+    }
+    const displacementScale = Math.max(0, readLayerNumber(spec.displacement, ['amplitude', 'strength'], 0));
+    const effectiveDisplacementScale = denseMesh ? Math.max(0.005, displacementScale) : displacementScale;
+    if (effectiveDisplacementScale > 0) {
+      material.displacementMap = textures.height;
+      material.displacementScale = effectiveDisplacementScale;
+      material.displacementBias = -effectiveDisplacementScale * 0.5;
+    }
+  }
+  material.envMapIntensity = readLayerNumber(spec, ['envMapIntensity'], 0.8);
+  material.userData.sculptMaterial = spec;
+  material.userData.proceduralMapsIndependent = true;
+  material.userData.pbrConstraints = { albedoRange: [30, 240], binaryMetalness: true, f0Range: [0.02, 1], iorRange: [1, 2.5] };
+  material.userData.pbrTextureSource = textures?.source ?? 'flat-fallback';
+  material.userData.referencePbr = spec.referencePbr ?? null;
+  material.userData.referenceMaterialId = spec.referenceMaterialId ?? spec.materialReference?.profileId ?? null;
+  material.userData.materialEvidence = spec.materialEvidence ?? null;
+  material.userData.validationViews = spec.materialReference?.validationViews ?? [];
+  material.needsUpdate = true;
+  return material;
+}
+
+type AttachmentEndpoint = {
+  start: THREE.Vector3;
+  midpoint: THREE.Vector3;
+  quaternion: THREE.Quaternion;
+  length: number;
+  baseRadius: number;
+  endRadius: number;
+};
+
+function readVector3(value: unknown, fallback: [number, number, number]): THREE.Vector3 {
+  if (Array.isArray(value) && value.length === 3 && value.every((item) => typeof item === 'number')) {
+    return new THREE.Vector3(value[0], value[1], value[2]);
+  }
+  return new THREE.Vector3(fallback[0], fallback[1], fallback[2]);
+}
+
+function readNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function makeAttachmentEndpoint(attachment: unknown): AttachmentEndpoint | null {
+  if (!attachment || typeof attachment !== 'object') return null;
+  const record = attachment as Record<string, unknown>;
+  const start = readVector3(record.localStart, [0, 0, 0]);
+  const end = readVector3(record.localEnd, [0, 1, 0]);
+  const delta = end.clone().sub(start);
+  const length = delta.length();
+  if (length <= 0.0001) return null;
+  const direction = delta.clone().normalize();
+  const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction);
+  const baseRadius = Math.max(0.005, readNumber(record.baseRadius, 0.06));
+  const endRadius = Math.max(0.003, readNumber(record.endRadius, baseRadius * 0.55));
+  return {
+    start,
+    midpoint: delta.multiplyScalar(0.5),
+    quaternion,
+    length,
+    baseRadius,
+    endRadius,
+  };
+}
+
+// Generated from ObjectSculptSpec target: Chair Liner 1934
+// Sculpt build pass: blockout
+// This factory is intentionally pass-gated. Finish browser screenshot review before unlocking deeper passes.
+export function createChairLiner1934Model(options: ProceduralModelOptions = {}): THREE.Group {
+  const root = new THREE.Group();
+  root.name = "Chair Liner 1934";
+  root.userData.reconstructionEvidence = {"itemFamily": null, "subtype": null, "componentAdapter": null, "route": null, "exactnessTier": null, "referenceCamera": {"solved": true, "fovDegrees": 46.0, "aspect": 1.0, "orientation": {"yaw": -32.0, "pitch": -11.0, "roll": 0.0}, "positionHint": [-0.68, 0.8, 1.09], "targetHint": [0.0, 0.44, -0.02], "note": "Solved from reference.png by two-vanishing-point orthogonality on the apron's bottom edge and the pad's lower edge (VP_x 1820,397 and VP_z -1063,270 about a centred principal point) giving f ~1390 px on a 1254 px square frame, i.e. ~46-48 deg vertical field and a ~40 mm-equivalent lens. Chair yaw solved at 32 deg from the ratio of the projected front rail (389 px for 0.458 m) to the projected side rail (268 px for 0.410 m). Confirm by overlay review, not by these numbers alone."}, "approximationNotes": []};
+  root.userData.materialPipeline = {"schemaVersion": 1, "status": "proceed", "registry": "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json", "analysisArtifact": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-analysis.json", "targetThreshold": 0.7, "unresolvedNotObservedMaterials": [], "regions": [{"componentId": "back-shell", "regionId": "sycamore-veneer", "specMaterialId": "figured-sycamore", "profileId": "wood.varnished", "status": "proceed"}, {"componentId": "leg-front-l", "regionId": "macassar-ebony", "specMaterialId": "macassar-ebony", "profileId": "wood.varnished", "status": "proceed"}, {"componentId": "seat-pad", "regionId": "blue-wool", "specMaterialId": "blue-wool", "profileId": "fabric.woven-matte", "status": "proceed"}, {"componentId": "ferrule-front-l", "regionId": "chrome", "specMaterialId": "polished-chrome", "profileId": "metal.steel-polished", "status": "proceed"}], "controlledViewsRequired": ["albedo-unlit", "environment-reflection", "grazing", "neutral-studio", "reference-beauty"]};
+  root.userData.materialReferenceRegistry = "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json";
+
+  const materialMap: Record<string, THREE.Material> = {};
+  materialMap["figured-sycamore"] = createSculptMaterial(
+    "figured-sycamore",
+    {"id": "figured-sycamore", "name": "Figured sycamore veneer, satin lacquer", "type": "physical", "shaderModel": "MeshPhysicalMaterial / PBR", "baseColor": "#D9A96E", "color": "#D9A96E", "albedo": {"dominant": "#D9A96E", "secondary": ["#C08F55", "#EBC28C"], "samplingNotes": "Sampled from the back shell and the apron lipping in reference.png: lit mean rgb(207,150,90), highlight rgb(226,172,114). Albedo lifted off the lit mean for a neutral three-point rig."}, "colorVariation": {"palette": ["#D9A96E", "#C08F55", "#EBC28C"], "pattern": "mottled", "amplitude": 0.13, "heightCorrelation": 0.25}, "roughness": {"base": 0.34, "variation": 0.09, "map": "none - textureless material; roughness is a single measured scalar", "localResponse": "satin lacquer: slightly lower roughness on the rolled edges where the film pools"}, "metalness": {"base": 0.0, "variation": 0.0}, "ambientOcclusion": {"cavityStrength": 0.25, "contactShadowBias": 0.35, "notes": "Darken creases, seams, intersections, and recessed local features."}, "wear": {"edgeWear": {"base": 0.0}, "scratches": [], "chips": [], "notes": "The reference chair is unworn: a 1934 first-class writing-room chair photographed as new. Any wear layer would be invention."}, "dirt": {"amount": {"base": 0.0}, "cavityBias": {"base": 0.0}, "notes": "No dirt in the reference."}, "localOverrides": [{"id": "shell-roll-sheen", "region": "the rolled top edge of the back shell and the apron bullnose", "roughness": 0.28, "notes": "Lacquer pools on a roll, so the roll reads glossier than the flat veneer beside it; this is the highlight that draws the top edge in the reference.", "evidenceRefs": ["back-zone", "seat-zone"], "confidence": 0.75}, {"id": "sycamore-mottle", "region": "whole veneered surface", "colorJitter": 0.12, "roughness": 0.36, "notes": "Bird's-eye mottle: low-contrast irregular blotches, roughly isotropic, ~0.02 m feature scale, albedo-only with no relief.", "evidenceRefs": ["back-zone"], "confidence": 0.8}, {"id": "shell-inner-shade", "region": "the concave front face away from the key", "ambientOcclusion": 0.25, "notes": "The concavity self-shadows toward its lower edge; an AO bias keeps that read without baking the reference's own key direction into albedo.", "evidenceRefs": ["back-zone"], "confidence": 0.7}], "shaderNotes": ["MeshPhysicalMaterial; albedo authored as an sRGB hex and set with Color.setStyle(hex, SRGBColorSpace).", "No maps of any kind: variation is a procedural field evaluated per vertex/fragment from a fixed seed.", "textureResolution is the intended field resolution if this material is ever baked; this build emits none."], "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.", "materialClass": "wood", "referenceMaterialId": "wood.varnished", "materialFamily": "wood", "materialSubtype": "generic", "materialFinish": "varnished", "materialReference": {"registry": "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json", "profileId": "wood.varnished", "method": "family-subtype-finish", "confidence": 0.751, "sourceRefs": ["three.mesh-physical", "three.texture", "adobe.pbr-guide-1", "google.filament-pbr"], "requiredMaps": ["map", "roughnessMap", "normalMap"], "optionalMaps": ["clearcoatMap", "clearcoatRoughnessMap", "aoMap"], "validationViews": ["albedo-unlit", "neutral-studio", "grazing", "environment-reflection"]}, "clearcoat": {"base": 0.35, "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."}, "clearcoatRoughness": {"base": 0.2}, "ior": {"base": 1.5, "variation": 0.0}, "textureAnalysis": {"finishClass": "painted-metal", "recipe": {"metalness": 0.0, "roughness": 0.5, "clearcoat": 1.0, "clearcoatRoughness": 0.05, "transmission": 0.0, "ior": 1.5, "envMapIntensity": 1.0, "anisotropy": 0.0, "procedural": "flat-clearcoat"}, "palette": ["#C58A4A", "#C98D4C", "#CE9352", "#D69B5B", "#E2AA6F"], "paletteHueRisk": [], "gradientAxis": "horizontal", "stats": {"meanLum": 159.7, "meanSaturation": 0.596, "gradientStrength": 0.127, "mottle": 0.017, "streakRatio": 0.97, "hueSpread": 0.0, "specularFraction": 0.0}}, "materialEvidence": {"componentId": "back-shell", "regionId": "sycamore-veneer", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png", "bbox": {"x": 380, "y": 190, "width": 190, "height": 150}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0181}, "observations": ["chromatic base-colour response", "single-image PBR inference requires controlled render validation"], "hypothesis": {"componentId": "back-shell", "regionId": "sycamore-veneer", "materialId": null, "family": "wood", "subtype": "generic", "finish": "varnished", "aliases": [], "confidence": 0.751, "source": "vision"}, "alternatives": []}, "textureless": {"declared": true, "evidence": ["material-evidence/00-sycamore-veneer.png (190x150 px crop of the back shell): height-field extraction returns a flat field; the figure is a tonal blotch pattern with no shading break at any grazing angle, i.e. albedo-only figure over a smooth lacquer film.", "reference.png rows 130-430 across the shell show no relief shadow anywhere in the mottle; the only shading gradient present is the shell's own concavity, which is geometry and is modelled as geometry.", "Intended use is a real-time first-person walk prop: at walk distance the mottle subtends well under a pixel of tonal contrast, so it is carried as a single albedo plus its recorded localOverrides rather than as a texture this build would have to synthesise and upload."], "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."}, "envMapIntensity": 0.85, "qualityTier": "hero"},
+    options
+  );
+  materialMap["macassar-ebony"] = createSculptMaterial(
+    "macassar-ebony",
+    {"id": "macassar-ebony", "name": "Macassar ebony, satin lacquer", "type": "physical", "shaderModel": "MeshPhysicalMaterial / PBR", "baseColor": "#33241B", "color": "#33241B", "albedo": {"dominant": "#33241B", "secondary": ["#6B4632", "#150D08"], "samplingNotes": "Sampled from the legs in reference.png: lit mean rgb(35,25,24) with warm streaks reaching rgb(65,49,56)+. Near-black warm ground with high-contrast reddish stripes along the member axis."}, "colorVariation": {"palette": ["#33241B", "#6B4632", "#150D08"], "pattern": "streaked", "amplitude": 0.3, "heightCorrelation": 0.25}, "roughness": {"base": 0.3, "variation": 0.1, "map": "none - textureless material; roughness is a single measured scalar", "localResponse": "satin lacquer: slightly lower roughness on the rolled edges where the film pools"}, "metalness": {"base": 0.0, "variation": 0.0}, "ambientOcclusion": {"cavityStrength": 0.25, "contactShadowBias": 0.35, "notes": "Darken creases, seams, intersections, and recessed local features."}, "wear": {"edgeWear": {"base": 0.0}, "scratches": [], "chips": [], "notes": "The reference chair is unworn: a 1934 first-class writing-room chair photographed as new. Any wear layer would be invention."}, "dirt": {"amount": {"base": 0.0}, "cavityBias": {"base": 0.0}, "notes": "No dirt in the reference."}, "localOverrides": [{"id": "ebony-streak", "region": "whole member, aligned to the sweep axis", "colorJitter": 0.3, "roughness": 0.3, "notes": "High-contrast reddish-brown stripes on a near-black ground, running along the member's own axis at roughly 0.004-0.010 m spacing; sharp-edged, albedo-only.", "evidenceRefs": ["leg-zone"], "confidence": 0.85}, {"id": "ebony-foot-shade", "region": "the last 0.05 m above each ferrule", "ambientOcclusion": 0.2, "notes": "Contact darkening where the chrome cap meets the leg.", "evidenceRefs": ["foot-zone"], "confidence": 0.6}], "shaderNotes": ["MeshPhysicalMaterial; albedo authored as an sRGB hex and set with Color.setStyle(hex, SRGBColorSpace).", "No maps of any kind: variation is a procedural field evaluated per vertex/fragment from a fixed seed.", "textureResolution is the intended field resolution if this material is ever baked; this build emits none."], "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.", "materialClass": "wood", "referenceMaterialId": "wood.varnished", "materialFamily": "wood", "materialSubtype": "generic", "materialFinish": "varnished", "materialReference": {"registry": "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json", "profileId": "wood.varnished", "method": "family-subtype-finish", "confidence": 0.773, "sourceRefs": ["three.mesh-physical", "three.texture", "adobe.pbr-guide-1", "google.filament-pbr"], "requiredMaps": ["map", "roughnessMap", "normalMap"], "optionalMaps": ["clearcoatMap", "clearcoatRoughnessMap", "aoMap"], "validationViews": ["albedo-unlit", "neutral-studio", "grazing", "environment-reflection"]}, "clearcoat": {"base": 0.45, "notes": "Satin nitrocellulose lacquer over veneer: a second specular lobe on top of a mid-rough base is what makes the reference's soft broad highlight, and it needs no map."}, "clearcoatRoughness": {"base": 0.14}, "ior": {"base": 1.5, "variation": 0.0}, "textureAnalysis": {"finishClass": "painted-metal", "recipe": {"metalness": 0.0, "roughness": 0.5, "clearcoat": 1.0, "clearcoatRoughness": 0.05, "transmission": 0.0, "ior": 1.5, "envMapIntensity": 1.0, "anisotropy": 0.0, "procedural": "flat-clearcoat"}, "palette": ["#3B271D", "#391C0E", "#43291C", "#28150B", "#1A0902"], "paletteHueRisk": [], "gradientAxis": "horizontal", "stats": {"meanLum": 30.3, "meanSaturation": 0.684, "gradientStrength": 0.295, "mottle": 0.021, "streakRatio": 3.33, "hueSpread": 0.003, "specularFraction": 0.0}}, "materialEvidence": {"componentId": "leg-front-l", "regionId": "macassar-ebony", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png", "bbox": {"x": 570, "y": 800, "width": 42, "height": 130}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0035}, "observations": ["chromatic base-colour response", "directional surface frequency", "strong image-space gradient; verify it is material pattern, not lighting", "single-image PBR inference requires controlled render validation"], "hypothesis": {"componentId": "leg-front-l", "regionId": "macassar-ebony", "materialId": null, "family": "wood", "subtype": "generic", "finish": "varnished", "aliases": [], "confidence": 0.773, "source": "vision"}, "alternatives": []}, "textureless": {"declared": true, "evidence": ["material-evidence/01-macassar-ebony.png (42x130 px crop of the near front leg): the streaks are sharp-edged tonal stripes with no normal-map signal - the extracted height field is flat, so the figure is in the veneer, not in the surface.", "reference.png columns 563-618 show the streak contrast unchanged across the leg's specular highlight, which a relief pattern could not do.", "Carried as a solid near-black albedo plus a satin clearcoat; the stripe pattern is recorded in localOverrides 'ebony-streak' and is deliberately not emitted, because this deliverable ships no textures."], "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."}, "envMapIntensity": 0.9, "qualityTier": "hero"},
+    options
+  );
+  materialMap["blue-wool"] = createSculptMaterial(
+    "blue-wool",
+    {"id": "blue-wool", "name": "Deep-blue wool upholstery", "type": "physical", "shaderModel": "MeshPhysicalMaterial / PBR", "baseColor": "#2E3C60", "color": "#2E3C60", "albedo": {"dominant": "#2E3C60", "secondary": ["#25314F", "#3A4A72"], "samplingNotes": "Sampled from the seat pad in reference.png: lit mean rgb(37,47,71), p90 rgb(45,56,79). Matte, no specular lobe, fine even weave."}, "colorVariation": {"palette": ["#2E3C60", "#25314F", "#3A4A72"], "pattern": "woven", "amplitude": 0.1, "heightCorrelation": 0.25}, "roughness": {"base": 0.92, "variation": 0.05, "map": "none - textureless material; roughness is a single measured scalar", "localResponse": "uniform matte; no cavity or edge modulation"}, "metalness": {"base": 0.0, "variation": 0.0}, "ambientOcclusion": {"cavityStrength": 0.25, "contactShadowBias": 0.35, "notes": "Darken creases, seams, intersections, and recessed local features."}, "wear": {"edgeWear": {"base": 0.0}, "scratches": [], "chips": [], "notes": "The reference chair is unworn: a 1934 first-class writing-room chair photographed as new. Any wear layer would be invention."}, "dirt": {"amount": {"base": 0.0}, "cavityBias": {"base": 0.0}, "notes": "No dirt in the reference."}, "localOverrides": [{"id": "wool-weave", "region": "whole pad", "colorJitter": 0.06, "roughness": 0.94, "notes": "Fine even weave: value noise only, no specular lobe, no directional sheen.", "evidenceRefs": ["seat-zone"], "confidence": 0.8}, {"id": "wool-edge-crush", "region": "the rolled pad edge where it turns into the lipping", "ambientOcclusion": 0.3, "roughness": 0.9, "notes": "The reveal between wool and sycamore reads as a thin dark line in the reference.", "evidenceRefs": ["seat-zone"], "confidence": 0.7}], "shaderNotes": ["MeshPhysicalMaterial; albedo authored as an sRGB hex and set with Color.setStyle(hex, SRGBColorSpace).", "No maps of any kind: variation is a procedural field evaluated per vertex/fragment from a fixed seed.", "textureResolution is the intended field resolution if this material is ever baked; this build emits none."], "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.", "materialClass": "fabric", "referenceMaterialId": "fabric.woven-matte", "materialFamily": "fabric", "materialSubtype": "woven", "materialFinish": "matte", "materialReference": {"registry": "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json", "profileId": "fabric.woven-matte", "method": "family-subtype-finish", "confidence": 0.751, "sourceRefs": ["three.mesh-physical", "three.texture", "khronos.sheen", "mit.material-recognition"], "requiredMaps": ["map", "roughnessMap", "normalMap"], "optionalMaps": ["sheenColorMap", "sheenRoughnessMap", "aoMap"], "validationViews": ["albedo-unlit", "neutral-studio", "grazing", "reference-beauty"]}, "sheen": {"base": 0.42, "notes": "Wool sheen at the grazing angle; sheenColor is left at the default white because sheen and sheenColor multiply into one uniform."}, "sheenRoughness": {"base": 0.9}, "textureAnalysis": {"finishClass": "painted-metal", "recipe": {"metalness": 0.0, "roughness": 0.5, "clearcoat": 1.0, "clearcoatRoughness": 0.05, "transmission": 0.0, "ior": 1.5, "envMapIntensity": 1.0, "anisotropy": 0.0, "procedural": "flat-clearcoat"}, "palette": ["#263047", "#242E44", "#232E45", "#212B42", "#1D283E"], "paletteHueRisk": [{"stop": "#263047", "hueRisk": "blue-collapse", "suggestedRgb": [71, 48, 38]}, {"stop": "#242E44", "hueRisk": "blue-collapse", "suggestedRgb": [68, 46, 36]}, {"stop": "#232E45", "hueRisk": "blue-collapse", "suggestedRgb": [69, 46, 35]}, {"stop": "#212B42", "hueRisk": "blue-collapse", "suggestedRgb": [66, 43, 33]}, {"stop": "#1D283E", "hueRisk": "blue-collapse", "suggestedRgb": [62, 40, 29]}], "gradientAxis": "vertical", "stats": {"meanLum": 44.0, "meanSaturation": 0.492, "gradientStrength": 0.038, "mottle": 0.01, "streakRatio": 0.99, "hueSpread": 0.0, "specularFraction": 0.0}}, "materialEvidence": {"componentId": "seat-pad", "regionId": "blue-wool", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png", "bbox": {"x": 500, "y": 555, "width": 200, "height": 80}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0102}, "observations": ["chromatic base-colour response", "single-image PBR inference requires controlled render validation"], "hypothesis": {"componentId": "seat-pad", "regionId": "blue-wool", "materialId": null, "family": "fabric", "subtype": "woven", "finish": "matte", "aliases": [], "confidence": 0.751, "source": "vision"}, "alternatives": []}, "textureless": {"declared": true, "evidence": ["material-evidence/02-blue-wool.png (200x80 px crop of the pad): even value field, no directional weave signal above extraction noise; the pad reads matte at every point of its crown.", "reference.png shows no specular lobe anywhere on the pad, so there is no highlight for a normal map to break up.", "Carried as a solid albedo plus a sheen term, which is what gives wool its off-axis softness without a map."], "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."}, "envMapIntensity": 0.35, "qualityTier": "hero"},
+    options
+  );
+  materialMap["polished-chrome"] = createSculptMaterial(
+    "polished-chrome",
+    {"id": "polished-chrome", "name": "Polished chrome ferrule", "type": "physical", "shaderModel": "MeshPhysicalMaterial / PBR", "baseColor": "#C6C9CB", "color": "#C6C9CB", "albedo": {"dominant": "#C6C9CB", "secondary": ["#8E9295", "#EDEFF0"], "samplingNotes": "Sampled from the foot ferrules in reference.png: neutral, lit mean rgb(143,139,135) with a bright rim to rgb(192,185,180). Metalness 1, tight specular."}, "colorVariation": {"palette": ["#C6C9CB", "#8E9295", "#EDEFF0"], "pattern": "brushed", "amplitude": 0.06, "heightCorrelation": 0.25}, "roughness": {"base": 0.12, "variation": 0.04, "map": "none - textureless material; roughness is a single measured scalar", "localResponse": "polished; roughness rises only at the rolled bottom rim"}, "metalness": {"base": 1.0, "variation": 0.0}, "ambientOcclusion": {"cavityStrength": 0.25, "contactShadowBias": 0.35, "notes": "Darken creases, seams, intersections, and recessed local features."}, "wear": {"edgeWear": {"base": 0.0}, "scratches": [], "chips": [], "notes": "The reference chair is unworn: a 1934 first-class writing-room chair photographed as new. Any wear layer would be invention."}, "dirt": {"amount": {"base": 0.0}, "cavityBias": {"base": 0.0}, "notes": "No dirt in the reference."}, "localOverrides": [{"id": "chrome-rim-bounce", "region": "the rolled bottom rim of each ferrule", "roughness": 0.1, "notes": "The rim is the brightest value on the whole chair: it catches the ground bounce.", "evidenceRefs": ["foot-zone"], "confidence": 0.75}, {"id": "chrome-shoulder-shade", "region": "the shoulder where the cap meets the leg", "ambientOcclusion": 0.35, "roughness": 0.22, "notes": "Occluded by the leg above it; keeps the cap from reading as a floating band.", "evidenceRefs": ["foot-zone"], "confidence": 0.7}], "shaderNotes": ["MeshPhysicalMaterial; albedo authored as an sRGB hex and set with Color.setStyle(hex, SRGBColorSpace).", "No maps of any kind: variation is a procedural field evaluated per vertex/fragment from a fixed seed.", "textureResolution is the intended field resolution if this material is ever baked; this build emits none."], "notes": "Replace with image-derived color, roughness, noise, and edge-wear notes.", "materialClass": "metal", "referenceMaterialId": "metal.steel-polished", "materialFamily": "metal", "materialSubtype": "steel", "materialFinish": "polished", "materialReference": {"registry": "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json", "profileId": "metal.steel-polished", "method": "family-subtype-finish", "confidence": 0.86, "sourceRefs": ["three.mesh-standard", "three.pmrem", "gltf.2", "khronos.gltf-pbr", "adobe.pbr-guide-2", "google.filament-pbr"], "requiredMaps": ["map", "roughnessMap"], "optionalMaps": ["normalMap", "metalnessMap"], "validationViews": ["neutral-studio", "environment-reflection", "grazing", "reference-beauty"]}, "anisotropy": {"base": 0.0, "variation": 0.0}, "textureAnalysis": {"finishClass": "painted-metal", "recipe": {"metalness": 0.0, "roughness": 0.5, "clearcoat": 1.0, "clearcoatRoughness": 0.05, "transmission": 0.0, "ior": 1.5, "envMapIntensity": 1.0, "anisotropy": 0.0, "procedural": "flat-clearcoat"}, "palette": ["#2A1A13", "#2D1D15", "#7A746E", "#807A75", "#4A4948"], "paletteHueRisk": [], "gradientAxis": "vertical", "stats": {"meanLum": 80.1, "meanSaturation": 0.34, "gradientStrength": 0.396, "mottle": 0.03, "streakRatio": 1.61, "hueSpread": 0.006, "specularFraction": 0.031}}, "materialEvidence": {"componentId": "ferrule-front-l", "regionId": "chrome", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/03-chrome.png", "bbox": {"x": 578, "y": 1104, "width": 30, "height": 32}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0006}, "observations": ["chromatic base-colour response", "strong image-space gradient; verify it is material pattern, not lighting", "single-image PBR inference requires controlled render validation"], "hypothesis": {"componentId": "ferrule-front-l", "regionId": "chrome", "materialId": null, "family": "metal", "subtype": "steel", "finish": "polished", "aliases": [], "confidence": 0.86, "source": "vision"}, "alternatives": []}, "needsEnvironment": true, "textureless": {"declared": true, "evidence": ["material-evidence/03-chrome.png (30x32 px crop of the near ferrule): a turned, polished part - its variation is entirely reflection, which comes from the environment, not from a surface map.", "reference.png shows the ferrule as a smooth vertical gradient from rgb(117,116,110) to rgb(192,185,180) with no texture detail at all."], "note": "Reference PBR extraction was still run (see materialPipeline and material-analysis.json); its conclusion is that this subject carries no relief, and the extracted maps are kept as evidence rather than shipped as art."}, "envMapIntensity": 1.0, "qualityTier": "hero"},
+    options
+  );
+
+  const nodes: Record<string, THREE.Object3D> = { root };
+  const meshes: Record<string, THREE.Mesh> = {};
+  const sockets: Record<string, THREE.Object3D> = {};
+  const colliders: Record<string, unknown> = {};
+  const destructionGroups: Record<string, THREE.Object3D[]> = {};
+
+  const endpoint_back_shell_0 = makeAttachmentEndpoint(null);
+  const node_back_shell_0 = new THREE.Group();
+  node_back_shell_0.name = "Back shell (lofted concave sycamore panel)__pivot";
+  node_back_shell_0.scale.set(1, 1, 1);
+  if (endpoint_back_shell_0) {
+    node_back_shell_0.position.copy(endpoint_back_shell_0.start);
+    node_back_shell_0.rotation.set(-1.78024, 0.0, 0.0);
+  } else {
+    node_back_shell_0.position.set(0.0, 0.53624, -0.19666);
+    node_back_shell_0.rotation.set(-1.78024, 0.0, 0.0);
+  }
+  node_back_shell_0.userData.sculptComponent = {"id": "back-shell", "name": "Back shell (lofted concave sycamore panel)", "level": "macro", "role": "shell", "importance": 1.0, "confidence": 0.85, "primitive": "extrude", "topologyClass": "conforming-shell", "topologyRationale": "A single bent-laminate panel: one continuous surface of constant thickness whose horizontal section is a circular arc and whose vertical section is straight. Extruding that measured arc band along the panel's own (reclined) axis reproduces it exactly; a box would lose the concavity that is the chair's first identity feature, and a continuous-sculpt/implicit route would spend triangles on a form that is genuinely developable.", "geometryDescriptor": {"topologyIntent": "constant-thickness bent shell, concave toward the sitter, rounded side edges", "edgeTreatment": {"type": "full-round", "bevelRadius": 0.009, "segments": 4}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "profile2D": {"points": [[-0.213, 0.0], [-0.1775, 0.00929], [-0.142, 0.01681], [-0.1065, 0.02261], [-0.071, 0.02672], [-0.0355, 0.02918], [0.0, 0.03], [0.0355, 0.02918], [0.071, 0.02672], [0.1065, 0.02261], [0.142, 0.01681], [0.1775, 0.00929], [0.213, 0.0], [0.21607, 0.00054], [0.22046, 0.00396], [0.22199, 0.00931], [0.2201, 0.01454], [0.213, 0.018], [0.1775, 0.02729], [0.142, 0.03481], [0.1065, 0.04061], [0.071, 0.04472], [0.0355, 0.04718], [0.0, 0.048], [-0.0355, 0.04718], [-0.071, 0.04472], [-0.1065, 0.04061], [-0.142, 0.03481], [-0.1775, 0.02729], [-0.213, 0.018], [-0.2201, 0.01454], [-0.22199, 0.00931], [-0.22046, 0.00396], [-0.21607, 0.00054]], "depth": 0.34862}, "measurements": {"chord": 0.444, "sagitta": 0.03, "arcRadius": 0.77115, "thickness": 0.018, "bottomY": 0.53, "topY": 0.88, "reclineDegrees": 12.0}}, "parent": null, "attachment": null, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.85}, "transform": {"position": [0.0, 0.53624, -0.19666], "rotation": [-1.78024, 0.0, 0.0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "shell-top-edge", "localPosition": [0.0426, 0.03782, 0.34862], "axis": [0.0, 0.0, 1.0], "purpose": "bonded run for the rolled top edge", "confidence": 0.9}, {"id": "shell-stile-lap-l", "localPosition": [0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-left stile", "confidence": 0.7}, {"id": "shell-stile-lap-r", "localPosition": [-0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-right stile", "confidence": 0.7}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.444, 0.35, 0.06], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "back-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "figured-sycamore"}}, "material": "figured-sycamore", "materialLayers": ["figured-sycamore"], "deformations": [], "joints": [], "seams": [], "localFeatures": [{"id": "back-shell-concavity", "kind": "contour", "description": "Horizontal section is a circular arc of radius 0.836 m, sagitta 0.030 m over the 0.444 m chord, concave toward the sitter.", "evidenceRef": "back-zone", "confidence": 0.85}, {"id": "back-shell-side-round", "kind": "bevel", "description": "Both vertical side edges are full-round, radius 0.009 m (half the shell thickness), so the edge reads as a bright rim rather than an arris.", "evidenceRef": "back-zone", "confidence": 0.8}, {"id": "back-shell-free-bottom", "kind": "seam", "description": "The shell's bottom edge is free: the only things bridging it to the seat are the two ebony stiles, leaving the 0.085 m reveal slot open.", "evidenceRef": "slot-zone", "confidence": 0.9}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["back-zone", "slot-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(217, 169, 110, 1.0)", "secondaryAlbedo": "rgba(192, 143, 85, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.85, "evidenceRefs": ["back-zone", "slot-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}, "uvContract": {"status": "unwrapped", "strategy": "generated procedural coordinates", "materialId": "figured-sycamore"}, "materialRegions": [{"regionId": "sycamore-veneer", "materialId": "figured-sycamore", "profileId": "wood.varnished", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png", "bbox": {"x": 380, "y": 190, "width": 190, "height": 150}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0181}}]};
+  node_back_shell_0.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "shell-top-edge", "localPosition": [0.0426, 0.03782, 0.34862], "axis": [0.0, 0.0, 1.0], "purpose": "bonded run for the rolled top edge", "confidence": 0.9}, {"id": "shell-stile-lap-l", "localPosition": [0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-left stile", "confidence": 0.7}, {"id": "shell-stile-lap-r", "localPosition": [-0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-right stile", "confidence": 0.7}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.444, 0.35, 0.06], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "back-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "figured-sycamore"}};
+  (nodes["root"] ?? root).add(node_back_shell_0);
+  nodes["back-shell"] = node_back_shell_0;
+  const mesh_back_shell_0Geometry = endpoint_back_shell_0
+    ? new THREE.CylinderGeometry(endpoint_back_shell_0.endRadius, endpoint_back_shell_0.baseRadius, endpoint_back_shell_0.length, 8, 4)
+    : buildExtrudeGeometry({"points": [[-0.213, 0.0], [-0.1775, 0.00929], [-0.142, 0.01681], [-0.1065, 0.02261], [-0.071, 0.02672], [-0.0355, 0.02918], [0.0, 0.03], [0.0355, 0.02918], [0.071, 0.02672], [0.1065, 0.02261], [0.142, 0.01681], [0.1775, 0.00929], [0.213, 0.0], [0.21607, 0.00054], [0.22046, 0.00396], [0.22199, 0.00931], [0.2201, 0.01454], [0.213, 0.018], [0.1775, 0.02729], [0.142, 0.03481], [0.1065, 0.04061], [0.071, 0.04472], [0.0355, 0.04718], [0.0, 0.048], [-0.0355, 0.04718], [-0.071, 0.04472], [-0.1065, 0.04061], [-0.142, 0.03481], [-0.1775, 0.02729], [-0.213, 0.018], [-0.2201, 0.01454], [-0.22199, 0.00931], [-0.22046, 0.00396], [-0.21607, 0.00054]], "depth": 0.34862});
+  if (!endpoint_back_shell_0) {
+    mesh_back_shell_0Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_back_shell_0 = new THREE.Mesh(
+    mesh_back_shell_0Geometry,
+    materialMap["figured-sycamore"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_back_shell_0.name = "Back shell (lofted concave sycamore panel)";
+  if (endpoint_back_shell_0) {
+    mesh_back_shell_0.position.copy(endpoint_back_shell_0.midpoint);
+    mesh_back_shell_0.quaternion.copy(endpoint_back_shell_0.quaternion);
+  }
+  mesh_back_shell_0.castShadow = options.castShadow ?? true;
+  mesh_back_shell_0.receiveShadow = options.receiveShadow ?? true;
+  mesh_back_shell_0.userData.sculptComponent = {"id": "back-shell", "name": "Back shell (lofted concave sycamore panel)", "level": "macro", "role": "shell", "importance": 1.0, "confidence": 0.85, "primitive": "extrude", "topologyClass": "conforming-shell", "topologyRationale": "A single bent-laminate panel: one continuous surface of constant thickness whose horizontal section is a circular arc and whose vertical section is straight. Extruding that measured arc band along the panel's own (reclined) axis reproduces it exactly; a box would lose the concavity that is the chair's first identity feature, and a continuous-sculpt/implicit route would spend triangles on a form that is genuinely developable.", "geometryDescriptor": {"topologyIntent": "constant-thickness bent shell, concave toward the sitter, rounded side edges", "edgeTreatment": {"type": "full-round", "bevelRadius": 0.009, "segments": 4}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "profile2D": {"points": [[-0.213, 0.0], [-0.1775, 0.00929], [-0.142, 0.01681], [-0.1065, 0.02261], [-0.071, 0.02672], [-0.0355, 0.02918], [0.0, 0.03], [0.0355, 0.02918], [0.071, 0.02672], [0.1065, 0.02261], [0.142, 0.01681], [0.1775, 0.00929], [0.213, 0.0], [0.21607, 0.00054], [0.22046, 0.00396], [0.22199, 0.00931], [0.2201, 0.01454], [0.213, 0.018], [0.1775, 0.02729], [0.142, 0.03481], [0.1065, 0.04061], [0.071, 0.04472], [0.0355, 0.04718], [0.0, 0.048], [-0.0355, 0.04718], [-0.071, 0.04472], [-0.1065, 0.04061], [-0.142, 0.03481], [-0.1775, 0.02729], [-0.213, 0.018], [-0.2201, 0.01454], [-0.22199, 0.00931], [-0.22046, 0.00396], [-0.21607, 0.00054]], "depth": 0.34862}, "measurements": {"chord": 0.444, "sagitta": 0.03, "arcRadius": 0.77115, "thickness": 0.018, "bottomY": 0.53, "topY": 0.88, "reclineDegrees": 12.0}}, "parent": null, "attachment": null, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.85}, "transform": {"position": [0.0, 0.53624, -0.19666], "rotation": [-1.78024, 0.0, 0.0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "shell-top-edge", "localPosition": [0.0426, 0.03782, 0.34862], "axis": [0.0, 0.0, 1.0], "purpose": "bonded run for the rolled top edge", "confidence": 0.9}, {"id": "shell-stile-lap-l", "localPosition": [0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-left stile", "confidence": 0.7}, {"id": "shell-stile-lap-r", "localPosition": [-0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-right stile", "confidence": 0.7}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.444, 0.35, 0.06], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "back-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "figured-sycamore"}}, "material": "figured-sycamore", "materialLayers": ["figured-sycamore"], "deformations": [], "joints": [], "seams": [], "localFeatures": [{"id": "back-shell-concavity", "kind": "contour", "description": "Horizontal section is a circular arc of radius 0.836 m, sagitta 0.030 m over the 0.444 m chord, concave toward the sitter.", "evidenceRef": "back-zone", "confidence": 0.85}, {"id": "back-shell-side-round", "kind": "bevel", "description": "Both vertical side edges are full-round, radius 0.009 m (half the shell thickness), so the edge reads as a bright rim rather than an arris.", "evidenceRef": "back-zone", "confidence": 0.8}, {"id": "back-shell-free-bottom", "kind": "seam", "description": "The shell's bottom edge is free: the only things bridging it to the seat are the two ebony stiles, leaving the 0.085 m reveal slot open.", "evidenceRef": "slot-zone", "confidence": 0.9}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["back-zone", "slot-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(217, 169, 110, 1.0)", "secondaryAlbedo": "rgba(192, 143, 85, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.85, "evidenceRefs": ["back-zone", "slot-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}, "uvContract": {"status": "unwrapped", "strategy": "generated procedural coordinates", "materialId": "figured-sycamore"}, "materialRegions": [{"regionId": "sycamore-veneer", "materialId": "figured-sycamore", "profileId": "wood.varnished", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png", "bbox": {"x": 380, "y": 190, "width": 190, "height": 150}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0181}}]};
+  node_back_shell_0.add(mesh_back_shell_0);
+  meshes["back-shell"] = mesh_back_shell_0;
+  colliders["back-shell"] = {"type": "box", "offset": [0, 0, 0], "scale": [0.444, 0.35, 0.06], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["back-assembly"] ??= [];
+  destructionGroups["back-assembly"].push(node_back_shell_0);
+  const socket_back_shell_shell_top_edge_0 = new THREE.Object3D();
+  socket_back_shell_shell_top_edge_0.name = "shell-top-edge";
+  socket_back_shell_shell_top_edge_0.position.set(0.0426, 0.03782, 0.34862);
+  socket_back_shell_shell_top_edge_0.rotation.set(0, 0, 0);
+  socket_back_shell_shell_top_edge_0.userData.socket = {"id": "shell-top-edge", "localPosition": [0.0426, 0.03782, 0.34862], "axis": [0.0, 0.0, 1.0], "purpose": "bonded run for the rolled top edge", "confidence": 0.9};
+  node_back_shell_0.add(socket_back_shell_shell_top_edge_0);
+  sockets["back-shell:shell-top-edge"] = socket_back_shell_shell_top_edge_0;
+  const socket_back_shell_shell_stile_lap_l_1 = new THREE.Object3D();
+  socket_back_shell_shell_stile_lap_l_1.name = "shell-stile-lap-l";
+  socket_back_shell_shell_stile_lap_l_1.position.set(0.213, 0.0, 0.0);
+  socket_back_shell_shell_stile_lap_l_1.rotation.set(0, 0, 0);
+  socket_back_shell_shell_stile_lap_l_1.userData.socket = {"id": "shell-stile-lap-l", "localPosition": [0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-left stile", "confidence": 0.7};
+  node_back_shell_0.add(socket_back_shell_shell_stile_lap_l_1);
+  sockets["back-shell:shell-stile-lap-l"] = socket_back_shell_shell_stile_lap_l_1;
+  const socket_back_shell_shell_stile_lap_r_2 = new THREE.Object3D();
+  socket_back_shell_shell_stile_lap_r_2.name = "shell-stile-lap-r";
+  socket_back_shell_shell_stile_lap_r_2.position.set(-0.213, 0.0, 0.0);
+  socket_back_shell_shell_stile_lap_r_2.rotation.set(0, 0, 0);
+  socket_back_shell_shell_stile_lap_r_2.userData.socket = {"id": "shell-stile-lap-r", "localPosition": [-0.213, 0.0, 0.0], "axis": [0.0, 0.0, -1.0], "purpose": "lap where the shell edge meets the rear-right stile", "confidence": 0.7};
+  node_back_shell_0.add(socket_back_shell_shell_stile_lap_r_2);
+  sockets["back-shell:shell-stile-lap-r"] = socket_back_shell_shell_stile_lap_r_2;
+
+  const endpoint_seat_apron_1 = makeAttachmentEndpoint(null);
+  const node_seat_apron_1 = new THREE.Group();
+  node_seat_apron_1.name = "Seat apron (sycamore rounded-corner frame)__pivot";
+  node_seat_apron_1.scale.set(1, 1, 1);
+  if (endpoint_seat_apron_1) {
+    node_seat_apron_1.position.copy(endpoint_seat_apron_1.start);
+    node_seat_apron_1.rotation.set(-1.5708, 0.0, 0.0);
+  } else {
+    node_seat_apron_1.position.set(0.0, 0.348, 0.0);
+    node_seat_apron_1.rotation.set(-1.5708, 0.0, 0.0);
+  }
+  node_seat_apron_1.userData.sculptComponent = {"id": "seat-apron", "name": "Seat apron (sycamore rounded-corner frame)", "level": "macro", "role": "frame", "importance": 0.95, "confidence": 0.85, "primitive": "extrude", "topologyClass": "assembled-solid", "topologyRationale": "A closed rounded-corner frame of constant section: a plan outline pushed straight down. Extruding the measured plan is exact for it, and keeping it one solid rather than four rails matches the reference, which shows no rail joint anywhere on the visible two faces.", "geometryDescriptor": {"topologyIntent": "rounded-corner slab, vertical outer faces", "edgeTreatment": {"type": "roll", "bevelRadius": 0.014, "segments": 6}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "profile2D": {"points": [[0.229, -0.173], [0.21963, -0.19563], [0.197, -0.205], [0.0, -0.205], [-0.197, -0.205], [-0.21963, -0.19563], [-0.229, -0.173], [-0.229, -0.0], [-0.229, 0.173], [-0.21963, 0.19563], [-0.197, 0.205], [0.0, 0.205], [0.197, 0.205], [0.21963, 0.19563], [0.229, 0.173], [0.229, -0.0]], "depth": 0.079}, "measurements": {"planWidth": 0.458, "planDepth": 0.41, "cornerRadius": 0.032, "bottomY": 0.348, "topY": 0.427}}, "parent": null, "attachment": null, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.85}, "transform": {"position": [0.0, 0.348, 0.0], "rotation": [-1.5708, 0.0, 0.0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "apron-corner-socket-front-l", "localPosition": [0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-front-r", "localPosition": [-0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-rear-l", "localPosition": [0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-rear-r", "localPosition": [-0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "seat-apron-perimeter", "localPosition": [0.229, 0.0, 0.079], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the bullnose and bottom rolls", "confidence": 0.9}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.458, 0.079, 0.41], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "seat-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "figured-sycamore"}}, "material": "figured-sycamore", "materialLayers": ["figured-sycamore"], "deformations": [], "joints": [], "seams": [], "localFeatures": [{"id": "apron-corner-radius", "kind": "contour", "description": "Plan corners rounded at radius 0.032 m so the frame reads as a slab, not a box.", "evidenceRef": "seat-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["seat-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(217, 169, 110, 1.0)", "secondaryAlbedo": "rgba(192, 143, 85, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.85, "evidenceRefs": ["seat-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_seat_apron_1.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "apron-corner-socket-front-l", "localPosition": [0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-front-r", "localPosition": [-0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-rear-l", "localPosition": [0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-rear-r", "localPosition": [-0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "seat-apron-perimeter", "localPosition": [0.229, 0.0, 0.079], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the bullnose and bottom rolls", "confidence": 0.9}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.458, 0.079, 0.41], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "seat-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "figured-sycamore"}};
+  (nodes["root"] ?? root).add(node_seat_apron_1);
+  nodes["seat-apron"] = node_seat_apron_1;
+  const mesh_seat_apron_1Geometry = endpoint_seat_apron_1
+    ? new THREE.CylinderGeometry(endpoint_seat_apron_1.endRadius, endpoint_seat_apron_1.baseRadius, endpoint_seat_apron_1.length, 8, 4)
+    : buildExtrudeGeometry({"points": [[0.229, -0.173], [0.21963, -0.19563], [0.197, -0.205], [0.0, -0.205], [-0.197, -0.205], [-0.21963, -0.19563], [-0.229, -0.173], [-0.229, -0.0], [-0.229, 0.173], [-0.21963, 0.19563], [-0.197, 0.205], [0.0, 0.205], [0.197, 0.205], [0.21963, 0.19563], [0.229, 0.173], [0.229, -0.0]], "depth": 0.079});
+  if (!endpoint_seat_apron_1) {
+    mesh_seat_apron_1Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_seat_apron_1 = new THREE.Mesh(
+    mesh_seat_apron_1Geometry,
+    materialMap["figured-sycamore"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_seat_apron_1.name = "Seat apron (sycamore rounded-corner frame)";
+  if (endpoint_seat_apron_1) {
+    mesh_seat_apron_1.position.copy(endpoint_seat_apron_1.midpoint);
+    mesh_seat_apron_1.quaternion.copy(endpoint_seat_apron_1.quaternion);
+  }
+  mesh_seat_apron_1.castShadow = options.castShadow ?? true;
+  mesh_seat_apron_1.receiveShadow = options.receiveShadow ?? true;
+  mesh_seat_apron_1.userData.sculptComponent = {"id": "seat-apron", "name": "Seat apron (sycamore rounded-corner frame)", "level": "macro", "role": "frame", "importance": 0.95, "confidence": 0.85, "primitive": "extrude", "topologyClass": "assembled-solid", "topologyRationale": "A closed rounded-corner frame of constant section: a plan outline pushed straight down. Extruding the measured plan is exact for it, and keeping it one solid rather than four rails matches the reference, which shows no rail joint anywhere on the visible two faces.", "geometryDescriptor": {"topologyIntent": "rounded-corner slab, vertical outer faces", "edgeTreatment": {"type": "roll", "bevelRadius": 0.014, "segments": 6}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "profile2D": {"points": [[0.229, -0.173], [0.21963, -0.19563], [0.197, -0.205], [0.0, -0.205], [-0.197, -0.205], [-0.21963, -0.19563], [-0.229, -0.173], [-0.229, -0.0], [-0.229, 0.173], [-0.21963, 0.19563], [-0.197, 0.205], [0.0, 0.205], [0.197, 0.205], [0.21963, 0.19563], [0.229, 0.173], [0.229, -0.0]], "depth": 0.079}, "measurements": {"planWidth": 0.458, "planDepth": 0.41, "cornerRadius": 0.032, "bottomY": 0.348, "topY": 0.427}}, "parent": null, "attachment": null, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.85}, "transform": {"position": [0.0, 0.348, 0.0], "rotation": [-1.5708, 0.0, 0.0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "apron-corner-socket-front-l", "localPosition": [0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-front-r", "localPosition": [-0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-rear-l", "localPosition": [0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "apron-corner-socket-rear-r", "localPosition": [-0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85}, {"id": "seat-apron-perimeter", "localPosition": [0.229, 0.0, 0.079], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the bullnose and bottom rolls", "confidence": 0.9}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.458, 0.079, 0.41], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "seat-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "figured-sycamore"}}, "material": "figured-sycamore", "materialLayers": ["figured-sycamore"], "deformations": [], "joints": [], "seams": [], "localFeatures": [{"id": "apron-corner-radius", "kind": "contour", "description": "Plan corners rounded at radius 0.032 m so the frame reads as a slab, not a box.", "evidenceRef": "seat-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["seat-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(217, 169, 110, 1.0)", "secondaryAlbedo": "rgba(192, 143, 85, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.85, "evidenceRefs": ["seat-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_seat_apron_1.add(mesh_seat_apron_1);
+  meshes["seat-apron"] = mesh_seat_apron_1;
+  colliders["seat-apron"] = {"type": "box", "offset": [0, 0, 0], "scale": [0.458, 0.079, 0.41], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["seat-assembly"] ??= [];
+  destructionGroups["seat-assembly"].push(node_seat_apron_1);
+  const socket_seat_apron_apron_corner_socket_front_l_0 = new THREE.Object3D();
+  socket_seat_apron_apron_corner_socket_front_l_0.name = "apron-corner-socket-front-l";
+  socket_seat_apron_apron_corner_socket_front_l_0.position.set(0.197, -0.205, 0.079);
+  socket_seat_apron_apron_corner_socket_front_l_0.rotation.set(0, 0, 0);
+  socket_seat_apron_apron_corner_socket_front_l_0.userData.socket = {"id": "apron-corner-socket-front-l", "localPosition": [0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85};
+  node_seat_apron_1.add(socket_seat_apron_apron_corner_socket_front_l_0);
+  sockets["seat-apron:apron-corner-socket-front-l"] = socket_seat_apron_apron_corner_socket_front_l_0;
+  const socket_seat_apron_apron_corner_socket_front_r_1 = new THREE.Object3D();
+  socket_seat_apron_apron_corner_socket_front_r_1.name = "apron-corner-socket-front-r";
+  socket_seat_apron_apron_corner_socket_front_r_1.position.set(-0.197, -0.205, 0.079);
+  socket_seat_apron_apron_corner_socket_front_r_1.rotation.set(0, 0, 0);
+  socket_seat_apron_apron_corner_socket_front_r_1.userData.socket = {"id": "apron-corner-socket-front-r", "localPosition": [-0.197, -0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85};
+  node_seat_apron_1.add(socket_seat_apron_apron_corner_socket_front_r_1);
+  sockets["seat-apron:apron-corner-socket-front-r"] = socket_seat_apron_apron_corner_socket_front_r_1;
+  const socket_seat_apron_apron_corner_socket_rear_l_2 = new THREE.Object3D();
+  socket_seat_apron_apron_corner_socket_rear_l_2.name = "apron-corner-socket-rear-l";
+  socket_seat_apron_apron_corner_socket_rear_l_2.position.set(0.197, 0.205, 0.079);
+  socket_seat_apron_apron_corner_socket_rear_l_2.rotation.set(0, 0, 0);
+  socket_seat_apron_apron_corner_socket_rear_l_2.userData.socket = {"id": "apron-corner-socket-rear-l", "localPosition": [0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85};
+  node_seat_apron_1.add(socket_seat_apron_apron_corner_socket_rear_l_2);
+  sockets["seat-apron:apron-corner-socket-rear-l"] = socket_seat_apron_apron_corner_socket_rear_l_2;
+  const socket_seat_apron_apron_corner_socket_rear_r_3 = new THREE.Object3D();
+  socket_seat_apron_apron_corner_socket_rear_r_3.name = "apron-corner-socket-rear-r";
+  socket_seat_apron_apron_corner_socket_rear_r_3.position.set(-0.197, 0.205, 0.079);
+  socket_seat_apron_apron_corner_socket_rear_r_3.rotation.set(0, 0, 0);
+  socket_seat_apron_apron_corner_socket_rear_r_3.userData.socket = {"id": "apron-corner-socket-rear-r", "localPosition": [-0.197, 0.205, 0.079], "axis": [0.0, -1.0, 0.0], "purpose": "leg socket at the apron's rounded plan corner", "confidence": 0.85};
+  node_seat_apron_1.add(socket_seat_apron_apron_corner_socket_rear_r_3);
+  sockets["seat-apron:apron-corner-socket-rear-r"] = socket_seat_apron_apron_corner_socket_rear_r_3;
+  const socket_seat_apron_seat_apron_perimeter_4 = new THREE.Object3D();
+  socket_seat_apron_seat_apron_perimeter_4.name = "seat-apron-perimeter";
+  socket_seat_apron_seat_apron_perimeter_4.position.set(0.229, 0.0, 0.079);
+  socket_seat_apron_seat_apron_perimeter_4.rotation.set(0, 0, 0);
+  socket_seat_apron_seat_apron_perimeter_4.userData.socket = {"id": "seat-apron-perimeter", "localPosition": [0.229, 0.0, 0.079], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the bullnose and bottom rolls", "confidence": 0.9};
+  node_seat_apron_1.add(socket_seat_apron_seat_apron_perimeter_4);
+  sockets["seat-apron:seat-apron-perimeter"] = socket_seat_apron_seat_apron_perimeter_4;
+
+  const endpoint_seat_pad_2 = makeAttachmentEndpoint(null);
+  const node_seat_pad_2 = new THREE.Group();
+  node_seat_pad_2.name = "Deep-blue wool seat pad__pivot";
+  node_seat_pad_2.scale.set(1, 1, 1);
+  if (endpoint_seat_pad_2) {
+    node_seat_pad_2.position.copy(endpoint_seat_pad_2.start);
+    node_seat_pad_2.rotation.set(-1.5708, 0.0, 0.0);
+  } else {
+    node_seat_pad_2.position.set(0.0, 0.4, 0.0);
+    node_seat_pad_2.rotation.set(-1.5708, 0.0, 0.0);
+  }
+  node_seat_pad_2.userData.sculptComponent = {"id": "seat-pad", "name": "Deep-blue wool seat pad", "level": "macro", "role": "cushion", "importance": 0.9, "confidence": 0.85, "primitive": "extrude", "topologyClass": "assembled-solid", "topologyRationale": "A shallow rounded-corner cushion sitting inside the lipping. Its plan is the identity here (it has to stay inside the pale band on every side), so the plan outline is extruded and the soft top edge is carried by its own roll rather than by a sphere that would bulge past the frame.", "geometryDescriptor": {"topologyIntent": "shallow rounded-corner pad, flat crown, soft edge", "edgeTreatment": {"type": "roll", "bevelRadius": 0.014, "segments": 5}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "profile2D": {"points": [[0.188, -0.138], [0.17921, -0.15921], [0.158, -0.168], [0.0, -0.168], [-0.158, -0.168], [-0.17921, -0.15921], [-0.188, -0.138], [-0.188, -0.0], [-0.188, 0.138], [-0.17921, 0.15921], [-0.158, 0.168], [0.0, 0.168], [0.158, 0.168], [0.17921, 0.15921], [0.188, 0.138], [0.188, -0.0]], "depth": 0.045}, "measurements": {"planWidth": 0.376, "planDepth": 0.336, "cornerRadius": 0.03, "topY": 0.445}}, "parent": null, "attachment": null, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.85}, "transform": {"position": [0.0, 0.4, 0.0], "rotation": [-1.5708, 0.0, 0.0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "seat-pad-perimeter", "localPosition": [0.188, -0.138, 0.031], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the pad's edge roll", "confidence": 0.85}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.404, 0.045, 0.364], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "seat-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "blue-wool"}}, "material": "blue-wool", "materialLayers": ["blue-wool"], "deformations": [], "joints": [], "seams": [], "localFeatures": [{"id": "pad-inset", "kind": "seam", "description": "Pad plan is inset so its rolled edge stops at 0.202 m, just inside the lipping's 0.201 m inner reach: the pale band stays unbroken on every visible side.", "evidenceRef": "seat-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["seat-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(46, 60, 96, 1.0)", "secondaryAlbedo": "rgba(37, 49, 79, 1.0)", "materialClass": "fabric", "materialClassConfidence": 0.85, "evidenceRefs": ["seat-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}, "uvContract": {"status": "unwrapped", "strategy": "generated procedural coordinates", "materialId": "blue-wool"}, "materialRegions": [{"regionId": "blue-wool", "materialId": "blue-wool", "profileId": "fabric.woven-matte", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png", "bbox": {"x": 500, "y": 555, "width": 200, "height": 80}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0102}}]};
+  node_seat_pad_2.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "seat-pad-perimeter", "localPosition": [0.188, -0.138, 0.031], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the pad's edge roll", "confidence": 0.85}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.404, 0.045, 0.364], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "seat-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "blue-wool"}};
+  (nodes["root"] ?? root).add(node_seat_pad_2);
+  nodes["seat-pad"] = node_seat_pad_2;
+  const mesh_seat_pad_2Geometry = endpoint_seat_pad_2
+    ? new THREE.CylinderGeometry(endpoint_seat_pad_2.endRadius, endpoint_seat_pad_2.baseRadius, endpoint_seat_pad_2.length, 8, 4)
+    : buildExtrudeGeometry({"points": [[0.188, -0.138], [0.17921, -0.15921], [0.158, -0.168], [0.0, -0.168], [-0.158, -0.168], [-0.17921, -0.15921], [-0.188, -0.138], [-0.188, -0.0], [-0.188, 0.138], [-0.17921, 0.15921], [-0.158, 0.168], [0.0, 0.168], [0.158, 0.168], [0.17921, 0.15921], [0.188, 0.138], [0.188, -0.0]], "depth": 0.045});
+  if (!endpoint_seat_pad_2) {
+    mesh_seat_pad_2Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_seat_pad_2 = new THREE.Mesh(
+    mesh_seat_pad_2Geometry,
+    materialMap["blue-wool"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_seat_pad_2.name = "Deep-blue wool seat pad";
+  if (endpoint_seat_pad_2) {
+    mesh_seat_pad_2.position.copy(endpoint_seat_pad_2.midpoint);
+    mesh_seat_pad_2.quaternion.copy(endpoint_seat_pad_2.quaternion);
+  }
+  mesh_seat_pad_2.castShadow = options.castShadow ?? true;
+  mesh_seat_pad_2.receiveShadow = options.receiveShadow ?? true;
+  mesh_seat_pad_2.userData.sculptComponent = {"id": "seat-pad", "name": "Deep-blue wool seat pad", "level": "macro", "role": "cushion", "importance": 0.9, "confidence": 0.85, "primitive": "extrude", "topologyClass": "assembled-solid", "topologyRationale": "A shallow rounded-corner cushion sitting inside the lipping. Its plan is the identity here (it has to stay inside the pale band on every side), so the plan outline is extruded and the soft top edge is carried by its own roll rather than by a sphere that would bulge past the frame.", "geometryDescriptor": {"topologyIntent": "shallow rounded-corner pad, flat crown, soft edge", "edgeTreatment": {"type": "roll", "bevelRadius": 0.014, "segments": 5}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "profile2D": {"points": [[0.188, -0.138], [0.17921, -0.15921], [0.158, -0.168], [0.0, -0.168], [-0.158, -0.168], [-0.17921, -0.15921], [-0.188, -0.138], [-0.188, -0.0], [-0.188, 0.138], [-0.17921, 0.15921], [-0.158, 0.168], [0.0, 0.168], [0.158, 0.168], [0.17921, 0.15921], [0.188, 0.138], [0.188, -0.0]], "depth": 0.045}, "measurements": {"planWidth": 0.376, "planDepth": 0.336, "cornerRadius": 0.03, "topY": 0.445}}, "parent": null, "attachment": null, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.85}, "transform": {"position": [0.0, 0.4, 0.0], "rotation": [-1.5708, 0.0, 0.0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.85}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": false, "visibility": true, "materialState": true}, "sockets": [{"id": "seat-pad-perimeter", "localPosition": [0.188, -0.138, 0.031], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the pad's edge roll", "confidence": 0.85}], "collider": {"type": "box", "offset": [0, 0, 0], "scale": [0.404, 0.045, 0.364], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "seat-assembly", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "blue-wool"}}, "material": "blue-wool", "materialLayers": ["blue-wool"], "deformations": [], "joints": [], "seams": [], "localFeatures": [{"id": "pad-inset", "kind": "seam", "description": "Pad plan is inset so its rolled edge stops at 0.202 m, just inside the lipping's 0.201 m inner reach: the pale band stays unbroken on every visible side.", "evidenceRef": "seat-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["seat-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(46, 60, 96, 1.0)", "secondaryAlbedo": "rgba(37, 49, 79, 1.0)", "materialClass": "fabric", "materialClassConfidence": 0.85, "evidenceRefs": ["seat-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}, "uvContract": {"status": "unwrapped", "strategy": "generated procedural coordinates", "materialId": "blue-wool"}, "materialRegions": [{"regionId": "blue-wool", "materialId": "blue-wool", "profileId": "fabric.woven-matte", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png", "bbox": {"x": 500, "y": 555, "width": 200, "height": 80}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0102}}]};
+  node_seat_pad_2.add(mesh_seat_pad_2);
+  meshes["seat-pad"] = mesh_seat_pad_2;
+  colliders["seat-pad"] = {"type": "box", "offset": [0, 0, 0], "scale": [0.404, 0.045, 0.364], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["seat-assembly"] ??= [];
+  destructionGroups["seat-assembly"].push(node_seat_pad_2);
+  const socket_seat_pad_seat_pad_perimeter_0 = new THREE.Object3D();
+  socket_seat_pad_seat_pad_perimeter_0.name = "seat-pad-perimeter";
+  socket_seat_pad_seat_pad_perimeter_0.position.set(0.188, -0.138, 0.031);
+  socket_seat_pad_seat_pad_perimeter_0.rotation.set(0, 0, 0);
+  socket_seat_pad_seat_pad_perimeter_0.userData.socket = {"id": "seat-pad-perimeter", "localPosition": [0.188, -0.138, 0.031], "axis": [1.0, 0.0, 0.0], "purpose": "bonded perimeter run for the pad's edge roll", "confidence": 0.85};
+  node_seat_pad_2.add(socket_seat_pad_seat_pad_perimeter_0);
+  sockets["seat-pad:seat-pad-perimeter"] = socket_seat_pad_seat_pad_perimeter_0;
+
+  const endpoint_leg_front_l_3 = makeAttachmentEndpoint(null);
+  const node_leg_front_l_3 = new THREE.Group();
+  node_leg_front_l_3.name = "Front-left leg__pivot";
+  node_leg_front_l_3.scale.set(1, 1, 1);
+  if (endpoint_leg_front_l_3) {
+    node_leg_front_l_3.position.copy(endpoint_leg_front_l_3.start);
+    node_leg_front_l_3.rotation.set(0.0, 0.0, 0.0);
+  } else {
+    node_leg_front_l_3.position.set(0.197, 0.43, 0.173);
+    node_leg_front_l_3.rotation.set(0.0, 0.0, 0.0);
+  }
+  node_leg_front_l_3.userData.sculptComponent = {"id": "leg-front-l", "name": "Front-left leg", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - vertical: the reference's front legs move less than 3 px of lateral travel over their whole run. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.0, 0.0], "rx": 0.027, "rz": 0.027, "twist": 0.0}, {"position": [0.0, -0.082, 0.0], "rx": 0.025, "rz": 0.025, "twist": 0.0}, {"position": [0.0, -0.19, 0.0], "rx": 0.0198, "rz": 0.0198, "twist": 0.0}, {"position": [0.0, -0.3, 0.0], "rx": 0.015, "rz": 0.015, "twist": 0.0}, {"position": [0.0, -0.404, 0.0], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.027, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-front-l", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, 0.0], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [0.197, 0.43, 0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-front-l-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-front-l-apron-seam", "type": "socket", "componentRefs": ["leg-front-l", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-front-l-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}, "uvContract": {"status": "unwrapped", "strategy": "generated procedural coordinates", "materialId": "macassar-ebony"}, "materialRegions": [{"regionId": "macassar-ebony", "materialId": "macassar-ebony", "profileId": "wood.varnished", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png", "bbox": {"x": 570, "y": 800, "width": 42, "height": 130}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0035}}]};
+  node_leg_front_l_3.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-front-l-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}};
+  (nodes["root"] ?? root).add(node_leg_front_l_3);
+  nodes["leg-front-l"] = node_leg_front_l_3;
+  const mesh_leg_front_l_3Geometry = endpoint_leg_front_l_3
+    ? new THREE.CylinderGeometry(endpoint_leg_front_l_3.endRadius, endpoint_leg_front_l_3.baseRadius, endpoint_leg_front_l_3.length, 8, 4)
+    : buildTaperedSweepGeometry({"stations": [{"position": [0.0, 0.0, 0.0], "rx": 0.027, "rz": 0.027, "twist": 0.0}, {"position": [0.0, -0.082, 0.0], "rx": 0.025, "rz": 0.025, "twist": 0.0}, {"position": [0.0, -0.19, 0.0], "rx": 0.0198, "rz": 0.0198, "twist": 0.0}, {"position": [0.0, -0.3, 0.0], "rx": 0.015, "rz": 0.015, "twist": 0.0}, {"position": [0.0, -0.404, 0.0], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true});
+  if (!endpoint_leg_front_l_3) {
+    mesh_leg_front_l_3Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_leg_front_l_3 = new THREE.Mesh(
+    mesh_leg_front_l_3Geometry,
+    materialMap["macassar-ebony"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_leg_front_l_3.name = "Front-left leg";
+  if (endpoint_leg_front_l_3) {
+    mesh_leg_front_l_3.position.copy(endpoint_leg_front_l_3.midpoint);
+    mesh_leg_front_l_3.quaternion.copy(endpoint_leg_front_l_3.quaternion);
+  }
+  mesh_leg_front_l_3.castShadow = options.castShadow ?? true;
+  mesh_leg_front_l_3.receiveShadow = options.receiveShadow ?? true;
+  mesh_leg_front_l_3.userData.sculptComponent = {"id": "leg-front-l", "name": "Front-left leg", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - vertical: the reference's front legs move less than 3 px of lateral travel over their whole run. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.0, 0.0], "rx": 0.027, "rz": 0.027, "twist": 0.0}, {"position": [0.0, -0.082, 0.0], "rx": 0.025, "rz": 0.025, "twist": 0.0}, {"position": [0.0, -0.19, 0.0], "rx": 0.0198, "rz": 0.0198, "twist": 0.0}, {"position": [0.0, -0.3, 0.0], "rx": 0.015, "rz": 0.015, "twist": 0.0}, {"position": [0.0, -0.404, 0.0], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.027, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-front-l", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, 0.0], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [0.197, 0.43, 0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-front-l-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-front-l-apron-seam", "type": "socket", "componentRefs": ["leg-front-l", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-front-l-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}, "uvContract": {"status": "unwrapped", "strategy": "generated procedural coordinates", "materialId": "macassar-ebony"}, "materialRegions": [{"regionId": "macassar-ebony", "materialId": "macassar-ebony", "profileId": "wood.varnished", "crop": {"path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png", "bbox": {"x": 570, "y": 800, "width": 42, "height": 130}, "sourceWidth": 1254, "sourceHeight": 1254, "loaderWarnings": [], "coverage": 0.0035}}]};
+  node_leg_front_l_3.add(mesh_leg_front_l_3);
+  meshes["leg-front-l"] = mesh_leg_front_l_3;
+  colliders["leg-front-l"] = {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["undercarriage"] ??= [];
+  destructionGroups["undercarriage"].push(node_leg_front_l_3);
+  const socket_leg_front_l_leg_front_l_foot_0 = new THREE.Object3D();
+  socket_leg_front_l_leg_front_l_foot_0.name = "leg-front-l-foot";
+  socket_leg_front_l_leg_front_l_foot_0.position.set(0.0, -0.404, 0.0);
+  socket_leg_front_l_leg_front_l_foot_0.rotation.set(0, 0, 0);
+  socket_leg_front_l_leg_front_l_foot_0.userData.socket = {"id": "leg-front-l-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85};
+  node_leg_front_l_3.add(socket_leg_front_l_leg_front_l_foot_0);
+  sockets["leg-front-l:leg-front-l-foot"] = socket_leg_front_l_leg_front_l_foot_0;
+
+  const endpoint_leg_front_r_4 = makeAttachmentEndpoint(null);
+  const node_leg_front_r_4 = new THREE.Group();
+  node_leg_front_r_4.name = "Front-right leg__pivot";
+  node_leg_front_r_4.scale.set(1, 1, 1);
+  if (endpoint_leg_front_r_4) {
+    node_leg_front_r_4.position.copy(endpoint_leg_front_r_4.start);
+    node_leg_front_r_4.rotation.set(0.0, 0.0, 0.0);
+  } else {
+    node_leg_front_r_4.position.set(-0.197, 0.43, 0.173);
+    node_leg_front_r_4.rotation.set(0.0, 0.0, 0.0);
+  }
+  node_leg_front_r_4.userData.sculptComponent = {"id": "leg-front-r", "name": "Front-right leg", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - vertical: sagittal mirror of the front-left leg. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.0, 0.0], "rx": 0.027, "rz": 0.027, "twist": 0.0}, {"position": [0.0, -0.082, 0.0], "rx": 0.025, "rz": 0.025, "twist": 0.0}, {"position": [0.0, -0.19, 0.0], "rx": 0.0198, "rz": 0.0198, "twist": 0.0}, {"position": [0.0, -0.3, 0.0], "rx": 0.015, "rz": 0.015, "twist": 0.0}, {"position": [0.0, -0.404, 0.0], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.027, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-front-r", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, 0.0], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [-0.197, 0.43, 0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-front-r-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-front-r-apron-seam", "type": "socket", "componentRefs": ["leg-front-r", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-front-r-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_leg_front_r_4.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-front-r-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}};
+  (nodes["root"] ?? root).add(node_leg_front_r_4);
+  nodes["leg-front-r"] = node_leg_front_r_4;
+  const mesh_leg_front_r_4Geometry = endpoint_leg_front_r_4
+    ? new THREE.CylinderGeometry(endpoint_leg_front_r_4.endRadius, endpoint_leg_front_r_4.baseRadius, endpoint_leg_front_r_4.length, 8, 4)
+    : buildTaperedSweepGeometry({"stations": [{"position": [0.0, 0.0, 0.0], "rx": 0.027, "rz": 0.027, "twist": 0.0}, {"position": [0.0, -0.082, 0.0], "rx": 0.025, "rz": 0.025, "twist": 0.0}, {"position": [0.0, -0.19, 0.0], "rx": 0.0198, "rz": 0.0198, "twist": 0.0}, {"position": [0.0, -0.3, 0.0], "rx": 0.015, "rz": 0.015, "twist": 0.0}, {"position": [0.0, -0.404, 0.0], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true});
+  if (!endpoint_leg_front_r_4) {
+    mesh_leg_front_r_4Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_leg_front_r_4 = new THREE.Mesh(
+    mesh_leg_front_r_4Geometry,
+    materialMap["macassar-ebony"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_leg_front_r_4.name = "Front-right leg";
+  if (endpoint_leg_front_r_4) {
+    mesh_leg_front_r_4.position.copy(endpoint_leg_front_r_4.midpoint);
+    mesh_leg_front_r_4.quaternion.copy(endpoint_leg_front_r_4.quaternion);
+  }
+  mesh_leg_front_r_4.castShadow = options.castShadow ?? true;
+  mesh_leg_front_r_4.receiveShadow = options.receiveShadow ?? true;
+  mesh_leg_front_r_4.userData.sculptComponent = {"id": "leg-front-r", "name": "Front-right leg", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - vertical: sagittal mirror of the front-left leg. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.0, 0.0], "rx": 0.027, "rz": 0.027, "twist": 0.0}, {"position": [0.0, -0.082, 0.0], "rx": 0.025, "rz": 0.025, "twist": 0.0}, {"position": [0.0, -0.19, 0.0], "rx": 0.0198, "rz": 0.0198, "twist": 0.0}, {"position": [0.0, -0.3, 0.0], "rx": 0.015, "rz": 0.015, "twist": 0.0}, {"position": [0.0, -0.404, 0.0], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.027, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-front-r", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, 0.0], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [-0.197, 0.43, 0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-front-r-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-front-r-apron-seam", "type": "socket", "componentRefs": ["leg-front-r", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-front-r-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_leg_front_r_4.add(mesh_leg_front_r_4);
+  meshes["leg-front-r"] = mesh_leg_front_r_4;
+  colliders["leg-front-r"] = {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["undercarriage"] ??= [];
+  destructionGroups["undercarriage"].push(node_leg_front_r_4);
+  const socket_leg_front_r_leg_front_r_foot_0 = new THREE.Object3D();
+  socket_leg_front_r_leg_front_r_foot_0.name = "leg-front-r-foot";
+  socket_leg_front_r_leg_front_r_foot_0.position.set(0.0, -0.404, 0.0);
+  socket_leg_front_r_leg_front_r_foot_0.rotation.set(0, 0, 0);
+  socket_leg_front_r_leg_front_r_foot_0.userData.socket = {"id": "leg-front-r-foot", "localPosition": [0.0, -0.404, 0.0], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85};
+  node_leg_front_r_4.add(socket_leg_front_r_leg_front_r_foot_0);
+  sockets["leg-front-r:leg-front-r-foot"] = socket_leg_front_r_leg_front_r_foot_0;
+
+  const endpoint_leg_rear_l_5 = makeAttachmentEndpoint(null);
+  const node_leg_rear_l_5 = new THREE.Group();
+  node_leg_rear_l_5.name = "Rear-left leg and back stile__pivot";
+  node_leg_rear_l_5.scale.set(1, 1, 1);
+  if (endpoint_leg_rear_l_5) {
+    node_leg_rear_l_5.position.copy(endpoint_leg_rear_l_5.start);
+    node_leg_rear_l_5.rotation.set(0.0, 0.0, 0.0);
+  } else {
+    node_leg_rear_l_5.position.set(0.197, 0.43, -0.173);
+    node_leg_rear_l_5.rotation.set(0.0, 0.0, 0.0);
+  }
+  node_leg_rear_l_5.userData.sculptComponent = {"id": "leg-rear-l", "name": "Rear-left leg and back stile", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - sabre: furthest forward at the knee just under the apron, raking back 0.049 m to the foot and leaning back a further 0.023 m to the stile top. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.118, -0.023], "rx": 0.0205, "rz": 0.0205, "twist": 0.0}, {"position": [0.0, 0.07, -0.017], "rx": 0.0228, "rz": 0.0228, "twist": 0.0}, {"position": [0.0, 0.0, 0.0], "rx": 0.0258, "rz": 0.0258, "twist": 0.0}, {"position": [0.0, -0.1, 0.003], "rx": 0.0225, "rz": 0.0225, "twist": 0.0}, {"position": [0.0, -0.2, -0.012], "rx": 0.0186, "rz": 0.0186, "twist": 0.0}, {"position": [0.0, -0.31, -0.032], "rx": 0.0145, "rz": 0.0145, "twist": 0.0}, {"position": [0.0, -0.404, -0.049], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.0205, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-rear-l", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, -0.049], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [0.197, 0.43, -0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-rear-l-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-rear-l-apron-seam", "type": "socket", "componentRefs": ["leg-rear-l", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-rear-l-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}, {"id": "leg-rear-l-sabre", "kind": "contour", "description": "Sabre knee at y 0.330 m; the member is a single piece from foot to stile top and passes behind the apron without a joint.", "evidenceRef": "slot-zone", "confidence": 0.7}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_leg_rear_l_5.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-rear-l-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}};
+  (nodes["root"] ?? root).add(node_leg_rear_l_5);
+  nodes["leg-rear-l"] = node_leg_rear_l_5;
+  const mesh_leg_rear_l_5Geometry = endpoint_leg_rear_l_5
+    ? new THREE.CylinderGeometry(endpoint_leg_rear_l_5.endRadius, endpoint_leg_rear_l_5.baseRadius, endpoint_leg_rear_l_5.length, 8, 4)
+    : buildTaperedSweepGeometry({"stations": [{"position": [0.0, 0.118, -0.023], "rx": 0.0205, "rz": 0.0205, "twist": 0.0}, {"position": [0.0, 0.07, -0.017], "rx": 0.0228, "rz": 0.0228, "twist": 0.0}, {"position": [0.0, 0.0, 0.0], "rx": 0.0258, "rz": 0.0258, "twist": 0.0}, {"position": [0.0, -0.1, 0.003], "rx": 0.0225, "rz": 0.0225, "twist": 0.0}, {"position": [0.0, -0.2, -0.012], "rx": 0.0186, "rz": 0.0186, "twist": 0.0}, {"position": [0.0, -0.31, -0.032], "rx": 0.0145, "rz": 0.0145, "twist": 0.0}, {"position": [0.0, -0.404, -0.049], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true});
+  if (!endpoint_leg_rear_l_5) {
+    mesh_leg_rear_l_5Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_leg_rear_l_5 = new THREE.Mesh(
+    mesh_leg_rear_l_5Geometry,
+    materialMap["macassar-ebony"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_leg_rear_l_5.name = "Rear-left leg and back stile";
+  if (endpoint_leg_rear_l_5) {
+    mesh_leg_rear_l_5.position.copy(endpoint_leg_rear_l_5.midpoint);
+    mesh_leg_rear_l_5.quaternion.copy(endpoint_leg_rear_l_5.quaternion);
+  }
+  mesh_leg_rear_l_5.castShadow = options.castShadow ?? true;
+  mesh_leg_rear_l_5.receiveShadow = options.receiveShadow ?? true;
+  mesh_leg_rear_l_5.userData.sculptComponent = {"id": "leg-rear-l", "name": "Rear-left leg and back stile", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - sabre: furthest forward at the knee just under the apron, raking back 0.049 m to the foot and leaning back a further 0.023 m to the stile top. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.118, -0.023], "rx": 0.0205, "rz": 0.0205, "twist": 0.0}, {"position": [0.0, 0.07, -0.017], "rx": 0.0228, "rz": 0.0228, "twist": 0.0}, {"position": [0.0, 0.0, 0.0], "rx": 0.0258, "rz": 0.0258, "twist": 0.0}, {"position": [0.0, -0.1, 0.003], "rx": 0.0225, "rz": 0.0225, "twist": 0.0}, {"position": [0.0, -0.2, -0.012], "rx": 0.0186, "rz": 0.0186, "twist": 0.0}, {"position": [0.0, -0.31, -0.032], "rx": 0.0145, "rz": 0.0145, "twist": 0.0}, {"position": [0.0, -0.404, -0.049], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.0205, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-rear-l", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, -0.049], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [0.197, 0.43, -0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-rear-l-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-rear-l-apron-seam", "type": "socket", "componentRefs": ["leg-rear-l", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-rear-l-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}, {"id": "leg-rear-l-sabre", "kind": "contour", "description": "Sabre knee at y 0.330 m; the member is a single piece from foot to stile top and passes behind the apron without a joint.", "evidenceRef": "slot-zone", "confidence": 0.7}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_leg_rear_l_5.add(mesh_leg_rear_l_5);
+  meshes["leg-rear-l"] = mesh_leg_rear_l_5;
+  colliders["leg-rear-l"] = {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["undercarriage"] ??= [];
+  destructionGroups["undercarriage"].push(node_leg_rear_l_5);
+  const socket_leg_rear_l_leg_rear_l_foot_0 = new THREE.Object3D();
+  socket_leg_rear_l_leg_rear_l_foot_0.name = "leg-rear-l-foot";
+  socket_leg_rear_l_leg_rear_l_foot_0.position.set(0.0, -0.404, -0.049);
+  socket_leg_rear_l_leg_rear_l_foot_0.rotation.set(0, 0, 0);
+  socket_leg_rear_l_leg_rear_l_foot_0.userData.socket = {"id": "leg-rear-l-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85};
+  node_leg_rear_l_5.add(socket_leg_rear_l_leg_rear_l_foot_0);
+  sockets["leg-rear-l:leg-rear-l-foot"] = socket_leg_rear_l_leg_rear_l_foot_0;
+
+  const endpoint_leg_rear_r_6 = makeAttachmentEndpoint(null);
+  const node_leg_rear_r_6 = new THREE.Group();
+  node_leg_rear_r_6.name = "Rear-right leg and back stile__pivot";
+  node_leg_rear_r_6.scale.set(1, 1, 1);
+  if (endpoint_leg_rear_r_6) {
+    node_leg_rear_r_6.position.copy(endpoint_leg_rear_r_6.start);
+    node_leg_rear_r_6.rotation.set(0.0, 0.0, 0.0);
+  } else {
+    node_leg_rear_r_6.position.set(-0.197, 0.43, -0.173);
+    node_leg_rear_r_6.rotation.set(0.0, 0.0, 0.0);
+  }
+  node_leg_rear_r_6.userData.sculptComponent = {"id": "leg-rear-r", "name": "Rear-right leg and back stile", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - sabre: sagittal mirror of the rear-left member. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.118, -0.023], "rx": 0.0205, "rz": 0.0205, "twist": 0.0}, {"position": [0.0, 0.07, -0.017], "rx": 0.0228, "rz": 0.0228, "twist": 0.0}, {"position": [0.0, 0.0, 0.0], "rx": 0.0258, "rz": 0.0258, "twist": 0.0}, {"position": [0.0, -0.1, 0.003], "rx": 0.0225, "rz": 0.0225, "twist": 0.0}, {"position": [0.0, -0.2, -0.012], "rx": 0.0186, "rz": 0.0186, "twist": 0.0}, {"position": [0.0, -0.31, -0.032], "rx": 0.0145, "rz": 0.0145, "twist": 0.0}, {"position": [0.0, -0.404, -0.049], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.0205, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-rear-r", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, -0.049], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [-0.197, 0.43, -0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-rear-r-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-rear-r-apron-seam", "type": "socket", "componentRefs": ["leg-rear-r", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-rear-r-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}, {"id": "leg-rear-r-sabre", "kind": "contour", "description": "Sabre knee at y 0.330 m; the member is a single piece from foot to stile top and passes behind the apron without a joint.", "evidenceRef": "slot-zone", "confidence": 0.7}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_leg_rear_r_6.userData.actionProfile = {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-rear-r-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}};
+  (nodes["root"] ?? root).add(node_leg_rear_r_6);
+  nodes["leg-rear-r"] = node_leg_rear_r_6;
+  const mesh_leg_rear_r_6Geometry = endpoint_leg_rear_r_6
+    ? new THREE.CylinderGeometry(endpoint_leg_rear_r_6.endRadius, endpoint_leg_rear_r_6.baseRadius, endpoint_leg_rear_r_6.length, 8, 4)
+    : buildTaperedSweepGeometry({"stations": [{"position": [0.0, 0.118, -0.023], "rx": 0.0205, "rz": 0.0205, "twist": 0.0}, {"position": [0.0, 0.07, -0.017], "rx": 0.0228, "rz": 0.0228, "twist": 0.0}, {"position": [0.0, 0.0, 0.0], "rx": 0.0258, "rz": 0.0258, "twist": 0.0}, {"position": [0.0, -0.1, 0.003], "rx": 0.0225, "rz": 0.0225, "twist": 0.0}, {"position": [0.0, -0.2, -0.012], "rx": 0.0186, "rz": 0.0186, "twist": 0.0}, {"position": [0.0, -0.31, -0.032], "rx": 0.0145, "rz": 0.0145, "twist": 0.0}, {"position": [0.0, -0.404, -0.049], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true});
+  if (!endpoint_leg_rear_r_6) {
+    mesh_leg_rear_r_6Geometry.scale(1.0, 1.0, 1.0);
+  }
+  const mesh_leg_rear_r_6 = new THREE.Mesh(
+    mesh_leg_rear_r_6Geometry,
+    materialMap["macassar-ebony"] ?? new THREE.MeshStandardMaterial({ color: 0x888888 })
+  );
+  mesh_leg_rear_r_6.name = "Rear-right leg and back stile";
+  if (endpoint_leg_rear_r_6) {
+    mesh_leg_rear_r_6.position.copy(endpoint_leg_rear_r_6.midpoint);
+    mesh_leg_rear_r_6.quaternion.copy(endpoint_leg_rear_r_6.quaternion);
+  }
+  mesh_leg_rear_r_6.castShadow = options.castShadow ?? true;
+  mesh_leg_rear_r_6.receiveShadow = options.receiveShadow ?? true;
+  mesh_leg_rear_r_6.userData.sculptComponent = {"id": "leg-rear-r", "name": "Rear-right leg and back stile", "level": "macro", "role": "leg", "importance": 0.9, "confidence": 0.82, "primitive": "tapered-sweep", "topologyClass": "continuous-sculpt", "topologyRationale": "A circular-section member whose radius changes continuously along a curved spine - sabre: sagittal mirror of the rear-left member. Circular, not square: the reference leg carries one soft vertical highlight and no arris anywhere on its length. A cylinder or cone cannot express a spine that bends and a radius that varies independently of it, which is exactly what the rear member does.", "geometryDescriptor": {"topologyIntent": "round tapered member swept along a measured spine", "edgeTreatment": {"type": "none", "bevelRadius": 0.0, "segments": 1}, "deformationStack": [], "uvStrategy": "generated procedural coordinates", "normalStrategy": "vertex normals from generated geometry", "taperedSweep": {"stations": [{"position": [0.0, 0.118, -0.023], "rx": 0.0205, "rz": 0.0205, "twist": 0.0}, {"position": [0.0, 0.07, -0.017], "rx": 0.0228, "rz": 0.0228, "twist": 0.0}, {"position": [0.0, 0.0, 0.0], "rx": 0.0258, "rz": 0.0258, "twist": 0.0}, {"position": [0.0, -0.1, 0.003], "rx": 0.0225, "rz": 0.0225, "twist": 0.0}, {"position": [0.0, -0.2, -0.012], "rx": 0.0186, "rz": 0.0186, "twist": 0.0}, {"position": [0.0, -0.31, -0.032], "rx": 0.0145, "rz": 0.0145, "twist": 0.0}, {"position": [0.0, -0.404, -0.049], "rx": 0.011, "rz": 0.011, "twist": 0.0}], "radialSegments": 10, "capEnds": true}, "measurements": {"topRadius": 0.0205, "footRadius": 0.011, "runLength": 0.404}}, "parent": null, "attachment": {"parentSocket": "apron-corner-socket-rear-r", "contactType": "socket", "localStart": [0.0, 0.0, 0.0], "localEnd": [0.0, -0.404, -0.049], "contactNormal": [0.0, 1.0, 0.0], "embedDepth": 0.082, "gapTolerance": 0.001, "baseRadius": 0.027, "endRadius": 0.011, "evidenceRefs": ["leg-zone"], "notes": "The leg is socketed 0.082 m up into the apron's corner. It is parented to the model root rather than to the apron node so it does not inherit the apron's extrusion rotation; the socket contract records the real joint."}, "dimensions": {"width": 1.0, "height": 1.0, "depth": 1.0, "units": "metres", "confidence": 0.82}, "transform": {"position": [-0.197, 0.43, -0.173], "rotation": [0, 0, 0], "scale": [1, 1, 1]}, "actionProfile": {"animationRole": "static-part", "pivot": {"mode": "custom", "localPosition": [0, 0, 0], "axis": [0, 1, 0], "confidence": 0.82}, "transformChannels": {"translate": true, "rotate": true, "scale": false, "bend": false, "twist": false, "detach": true, "visibility": true, "materialState": true}, "sockets": [{"id": "leg-rear-r-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85}], "collider": {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."}, "constraints": [], "destruction": {"breakable": false, "fractureGroup": "undercarriage", "seamRefs": [], "detachableFragments": [], "breakImpulse": 0.0, "debrisMaterial": "macassar-ebony"}}, "material": "macassar-ebony", "materialLayers": ["macassar-ebony"], "deformations": [], "joints": [], "seams": [{"id": "leg-rear-r-apron-seam", "type": "socket", "componentRefs": ["leg-rear-r", "seat-apron"], "notes": "Plausible break point: the leg's socket into the apron corner."}], "localFeatures": [{"id": "leg-rear-r-taper", "kind": "contour", "description": "Radius falls from 0.0258-0.0270 m at the apron to 0.0110 m at the ferrule, slightly inside a straight line so the profile reads faintly concave.", "evidenceRef": "leg-zone", "confidence": 0.85}, {"id": "leg-rear-r-sabre", "kind": "contour", "description": "Sabre knee at y 0.330 m; the member is a single piece from foot to stile top and passes behind the apron without a joint.", "evidenceRef": "slot-zone", "confidence": 0.7}], "surfaceDetail": {"macroRoughness": 0.05, "microRoughness": 0.03, "bumpAmplitude": 0.0, "normalPattern": "procedural grain field, no relief on the silhouette", "displacementPattern": "none", "occlusionPattern": "contact darkening at part junctions", "edgeWearPattern": "none - the reference chair is unworn", "notes": "No relief: veneer, lacquer and wool are all flat surfaces in the reference; figure is albedo-only."}, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "details": [], "fidelityTier": "blockout", "colorMaterialRecipe": {"dominantAlbedo": "rgba(51, 36, 27, 1.0)", "secondaryAlbedo": "rgba(107, 70, 50, 1.0)", "materialClass": "wood", "materialClassConfidence": 0.82, "evidenceRefs": ["leg-zone", "full-object", "slot-zone"], "notes": "Albedo read from reference.png pixel statistics over this component's visible footprint."}};
+  node_leg_rear_r_6.add(mesh_leg_rear_r_6);
+  meshes["leg-rear-r"] = mesh_leg_rear_r_6;
+  colliders["leg-rear-r"] = {"type": "capsule", "offset": [0, 0, 0], "scale": [0.054, 0.404, 0.054], "isTrigger": false, "notes": "Simplified proxy; the chair is a static prop so the proxy only has to block a first-person walk."};
+  destructionGroups["undercarriage"] ??= [];
+  destructionGroups["undercarriage"].push(node_leg_rear_r_6);
+  const socket_leg_rear_r_leg_rear_r_foot_0 = new THREE.Object3D();
+  socket_leg_rear_r_leg_rear_r_foot_0.name = "leg-rear-r-foot";
+  socket_leg_rear_r_leg_rear_r_foot_0.position.set(0.0, -0.404, -0.049);
+  socket_leg_rear_r_leg_rear_r_foot_0.rotation.set(0, 0, 0);
+  socket_leg_rear_r_leg_rear_r_foot_0.userData.socket = {"id": "leg-rear-r-foot", "localPosition": [0.0, -0.404, -0.049], "axis": [0.0, -1.0, 0.0], "purpose": "ferrule socket at the foot", "confidence": 0.85};
+  node_leg_rear_r_6.add(socket_leg_rear_r_leg_rear_r_foot_0);
+  sockets["leg-rear-r:leg-rear-r-foot"] = socket_leg_rear_r_leg_rear_r_foot_0;
+
+  root.userData.sculptRuntime = { nodes, meshes, sockets, colliders, destructionGroups } satisfies ProceduralModelRuntime;
+  root.userData.lookDevTargets = {"qualityPriority": "reference-fidelity", "materialPass": {"albedoPaletteRequired": true, "roughnessVariationRequired": true, "normalOrBumpRequired": true, "localOverridesRequired": true, "minimumTextureResolution": 0, "preferredTextureResolution": 0, "independentMapChannels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"], "requiredSurfaceFrequencyBands": ["macro", "meso", "micro"], "geometryReliefRequiredWhenSilhouetteAffected": true, "referencePbrExtraction": {"requiredWhenSourceImagePresent": true, "targetThreshold": 0.7, "stopOnLowConfidence": true, "script": "forge/stage1_intake/extract_pbr_evidence.py", "acceptedLimitation": "single-image extraction is reference-derived inference, not exact photogrammetry"}, "mustAvoid": ["single flat albedo per material", "uniform roughness", "albedo texture reused as roughness/height/normal/AO", "single-frequency random noise", "plastic-looking smooth bark, stone, cloth, foliage, or aged material", "local color/detail described only in prose without material masks", "claiming exact PBR recovery when confidence is below the target threshold"], "texturelessRoute": "All four materials declare textureless with evidence. This build emits no map of any kind: the factory imports only 'three', creates no canvas, loads no image, and every surface is a solid measured albedo with measured roughness/metalness/clearcoat/sheen. Surface figure is recorded in each material's localOverrides so it is not lost, and is recoverable by removing the textureless declaration and regenerating."}, "lightingPass": {"requiredTerms": ["key light", "fill light", "rim or environment light", "exposure", "tone mapping", "background", "contact shadow"], "mustAvoid": ["ambient-only lighting", "flat value range", "missing contact shadow", "reference lighting copied without separating material readability"]}, "screenshotReview": ["Compare albedo palette and local color zones.", "Compare roughness/normal/bump response under light.", "Compare cavity dirt, edge wear, stains, moss, scratches, or other local masks.", "Compare key/fill/rim structure, exposure, tone mapping, background, and contact shadows.", "Capture a neutral-light render to verify material readability without reference lighting.", "Capture a grazing-light close-up to expose flat normals, uniform roughness, tiling, and plastic highlights.", "Capture a reference-matched render from the same camera framing as the source."]};
+  root.userData.actionReadiness = {
+    note: 'Use root.userData.sculptRuntime.nodes for transforms, sockets for attachments, colliders for physics proxies, and destructionGroups for breakable sets.',
+  };
+  return root;
+}
+
+export function createChairLiner1934LookDevLights(
+  mode: 'neutral' | 'grazing' | 'reference' = 'neutral',
+): THREE.Group {
+  const lights = new THREE.Group();
+  lights.name = "Chair Liner 1934 look-dev lights";
+  const hemi = new THREE.HemisphereLight(
+    mode === 'reference' ? 0xfff0d6 : 0xf2f4ff,
+    0x363b42,
+    mode === 'grazing' ? 0.28 : mode === 'reference' ? 0.72 : 0.85,
+  );
+  lights.add(hemi);
+  const key = new THREE.DirectionalLight(
+    mode === 'reference' ? 0xffcf8a : 0xfff4e8,
+    mode === 'grazing' ? 4.2 : mode === 'reference' ? 2.6 : 2.15,
+  );
+  if (mode === 'grazing') key.position.set(7.5, 1.1, 4.0);
+  else if (mode === 'reference') key.position.set(-4.5, 7.5, 5.0);
+  else key.position.set(-4.0, 6.0, 5.5);
+  key.castShadow = true;
+  key.shadow.mapSize.set(4096, 4096);
+  key.shadow.bias = -0.00025;
+  key.shadow.normalBias = 0.018;
+  key.shadow.radius = 7;
+  key.shadow.blurSamples = 24;
+  key.shadow.camera.near = 0.5;
+  key.shadow.camera.far = 30;
+  key.shadow.camera.left = -2.6;
+  key.shadow.camera.right = 2.6;
+  key.shadow.camera.top = 2.6;
+  key.shadow.camera.bottom = -2.6;
+  key.shadow.camera.updateProjectionMatrix();
+  lights.add(key);
+  const fill = new THREE.DirectionalLight(0xa8c4ff, mode === 'grazing' ? 0.12 : 0.42);
+  fill.position.set(4.0, 3.0, 3.5);
+  lights.add(fill);
+  const rim = new THREE.DirectionalLight(0xfff1c4, mode === 'grazing' ? 0.28 : 0.85);
+  rim.position.set(0.5, 4.5, -6.0);
+  lights.add(rim);
+  lights.userData.reviewMode = mode;
+  lights.userData.lightingFromPhoto = ["Key: high and camera-left-of-subject, roughly 35 deg above the horizon, soft-edged - the shell's top roll and the pad crown carry the brightest values and shadows under the apron are diffuse.", "Fill: broad and cool from camera-right at roughly a quarter of the key, keeping the ebony readable instead of crushing it to black.", "Rim/environment: a low neutral bounce off the flat rgb(128,128,128) ground, visible as the bright lower rim on each chrome ferrule.", "Contact shadow: none in the reference - the chair floats on a flat grey field with no ground plane, so the review rig adds a soft contact shadow only to judge foot placement, never to score fidelity.", "Exposure/tone mapping: mid-grey background sits at sRGB 128, so the review rig uses neutral exposure and ACES-free linear-to-sRGB output to keep the albedo comparison honest."];
+  lights.userData.lookDevTargets = {"qualityPriority": "reference-fidelity", "materialPass": {"albedoPaletteRequired": true, "roughnessVariationRequired": true, "normalOrBumpRequired": true, "localOverridesRequired": true, "minimumTextureResolution": 0, "preferredTextureResolution": 0, "independentMapChannels": ["albedo", "roughness", "height", "normal", "ambient-occlusion"], "requiredSurfaceFrequencyBands": ["macro", "meso", "micro"], "geometryReliefRequiredWhenSilhouetteAffected": true, "referencePbrExtraction": {"requiredWhenSourceImagePresent": true, "targetThreshold": 0.7, "stopOnLowConfidence": true, "script": "forge/stage1_intake/extract_pbr_evidence.py", "acceptedLimitation": "single-image extraction is reference-derived inference, not exact photogrammetry"}, "mustAvoid": ["single flat albedo per material", "uniform roughness", "albedo texture reused as roughness/height/normal/AO", "single-frequency random noise", "plastic-looking smooth bark, stone, cloth, foliage, or aged material", "local color/detail described only in prose without material masks", "claiming exact PBR recovery when confidence is below the target threshold"], "texturelessRoute": "All four materials declare textureless with evidence. This build emits no map of any kind: the factory imports only 'three', creates no canvas, loads no image, and every surface is a solid measured albedo with measured roughness/metalness/clearcoat/sheen. Surface figure is recorded in each material's localOverrides so it is not lost, and is recoverable by removing the textureless declaration and regenerating."}, "lightingPass": {"requiredTerms": ["key light", "fill light", "rim or environment light", "exposure", "tone mapping", "background", "contact shadow"], "mustAvoid": ["ambient-only lighting", "flat value range", "missing contact shadow", "reference lighting copied without separating material readability"]}, "screenshotReview": ["Compare albedo palette and local color zones.", "Compare roughness/normal/bump response under light.", "Compare cavity dirt, edge wear, stains, moss, scratches, or other local masks.", "Compare key/fill/rim structure, exposure, tone mapping, background, and contact shadows.", "Capture a neutral-light render to verify material readability without reference lighting.", "Capture a grazing-light close-up to expose flat normals, uniform roughness, tiling, and plastic highlights.", "Capture a reference-matched render from the same camera framing as the source."]};
+  return lights;
+}
+
+// PBR materials (clearcoat/iridescence/transmission/anisotropy) need an environment
+// map to visually behave as intended — call this once per renderer and assign the
+// result to scene.environment before rendering. No external HDR asset required.
+export function createChairLiner1934Environment(renderer: THREE.WebGLRenderer): THREE.Texture {
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const texture = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+  pmrem.dispose();
+  return texture;
+}
+
+// Plan 1.3 §3.2 — auto-framing by bounding box. The Divine Eye can only compare a
+// render to the reference if the object is FRAMED consistently (an object framed
+// differently scores as wrong even when its shape is right). This positions the camera
+// deterministically from the object's bounding box so it fills the frame at a stable
+// margin, and sets near/far to the object scale. Call after adding the model to the
+// scene, and again on resize (after updating camera.aspect).
+export function frameChairLiner1934Camera(
+  camera: THREE.PerspectiveCamera,
+  object: THREE.Object3D,
+  options: { margin?: number; azimuthDeg?: number; elevationDeg?: number } = {},
+): void {
+  const box = new THREE.Box3().setFromObject(object);
+  if (box.isEmpty()) return;
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const margin = options.margin ?? 1.15;
+  const maxDim = Math.max(size.x, size.y, size.z) * margin;
+  const fov = (camera.fov * Math.PI) / 180;
+  // distance so the largest object dimension fits vertically in the frame
+  const distance = (maxDim / 2) / Math.tan(fov / 2);
+  const az = ((options.azimuthDeg ?? 0) * Math.PI) / 180;
+  const el = ((options.elevationDeg ?? 0) * Math.PI) / 180;
+  const dir = new THREE.Vector3(
+    Math.sin(az) * Math.cos(el),
+    Math.sin(el),
+    Math.cos(az) * Math.cos(el),
+  );
+  camera.position.copy(center).addScaledVector(dir, distance);
+  camera.near = Math.max(0.01, distance - maxDim);
+  camera.far = distance + maxDim * 2;
+  camera.lookAt(center);
+  camera.updateProjectionMatrix();
+}
+
+// Plan 1.3 §3.2c — PRESENTATION composer (DOF + bloom). CRITICAL (R-POSTFX): this is
+// for the showcase/hero render ONLY. The Divine Eye's EVALUATION render MUST use a
+// plain renderer with NO composer — bloom blows highlights and DOF blurs edges, which
+// would corrupt the deterministic IoU/DCD/edge/blowout signals. Enable dof/bloom ONLY
+// when the reference photo actually exhibits them (detect_reference_effects.py authorizes).
+export function createChairLiner1934PresentationComposer(
+  renderer: THREE.WebGLRenderer,
+  scene: THREE.Scene,
+  camera: THREE.Camera,
+  options: { dof?: boolean; bloom?: boolean; bloomStrength?: number; dofFocus?: number; dofAperture?: number } = {},
+): EffectComposer {
+  const composer = new EffectComposer(renderer);
+  composer.addPass(new RenderPass(scene, camera));
+  if (options.dof) {
+    composer.addPass(new BokehPass(scene, camera, {
+      focus: options.dofFocus ?? 10.0,
+      aperture: options.dofAperture ?? 0.0002,
+      maxblur: 0.01,
+    }));
+  }
+  if (options.bloom) {
+    const size = new THREE.Vector2();
+    renderer.getSize(size);
+    composer.addPass(new UnrealBloomPass(size, options.bloomStrength ?? 0.4, 0.4, 0.85));
+  }
+  return composer;
+}
+
+export function configureChairLiner1934Renderer(renderer: THREE.WebGLRenderer): void {
+  // Load-bearing for view-dependent finishes (anodized / Doppler): without ACES + sRGB
+  // the environment reflection reads flat/washed instead of a believable metal response.
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+}
+
+export function createChairLiner1934InspectControls(
+  camera: THREE.Camera,
+  domElement: HTMLElement,
+): OrbitControls {
+  // View-dependent finishes only read correctly once the user orbits — their color
+  // comes from the environment reflection, not albedo, so free rotation matters here.
+  const controls = new OrbitControls(camera, domElement);
+  controls.enableDamping = true;
+  controls.minDistance = 1.0;
+  controls.maxDistance = 8.0;
+  controls.autoRotate = false;
+  return controls;
+}

@@ -1,0 +1,1888 @@
+{
+  "schemaVersion": 1,
+  "kind": "img2threejs.material-analysis",
+  "referenceId": "chair-liner-1934-side",
+  "manifest": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-regions.json",
+  "registry": "/home/k/.claude/skills/img2threejs/docs/materials/material-reference.json",
+  "targetThreshold": 0.7,
+  "notObservedMaterials": [],
+  "unresolvedNotObservedMaterials": [],
+  "regions": [
+    {
+      "componentId": "back-shell",
+      "regionId": "sycamore-veneer",
+      "materialSpecId": "figured-sycamore",
+      "hypothesis": {
+        "componentId": "back-shell",
+        "regionId": "sycamore-veneer",
+        "materialId": null,
+        "family": "wood",
+        "subtype": "generic",
+        "finish": "varnished",
+        "aliases": [],
+        "confidence": 0.751,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "wood.varnished",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.751,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png",
+            "bbox": {
+              "x": 380,
+              "y": 190,
+              "width": 190,
+              "height": 150
+            },
+            "sourceWidth": 1254,
+            "sourceHeight": 1254,
+            "loaderWarnings": [],
+            "coverage": 0.0181
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.751,
+            "estimatedFidelity": 0.751,
+            "targetThreshold": 0.7,
+            "materialId": "figured-sycamore",
+            "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png",
+            "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer",
+            "palette": [
+              "#CA8D4C",
+              "#D09554",
+              "#D89E5E",
+              "#C48644",
+              "#E1AA6D"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_albedo.png",
+                "url": "figured-sycamore_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_roughness.png",
+                "url": "figured-sycamore_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_height.png",
+                "url": "figured-sycamore_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_normal.png",
+                "url": "figured-sycamore_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_ao.png",
+                "url": "figured-sycamore_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 190,
+              "sourceHeight": 150,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 190,
+                "height": 150
+              },
+              "mask": {
+                "backgroundColor": "#D99D60",
+                "backgroundNoise": 35.805,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.1426,
+                "heightP90Gradient": 0.08873,
+                "roughnessBase": 0.789,
+                "roughnessVariation": 0.156,
+                "normalStrength": 0.26,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#CA8D4C",
+                "#D09554",
+                "#D89E5E",
+                "#C48644",
+                "#E1AA6D"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+              "low value range weakens height/roughness inference"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#C58A4A",
+              "#C98D4C",
+              "#CE9352",
+              "#D69B5B",
+              "#E2AA6F"
+            ],
+            "paletteHueRisk": [],
+            "gradientAxis": "horizontal",
+            "stats": {
+              "meanLum": 159.7,
+              "meanSaturation": 0.596,
+              "gradientStrength": 0.127,
+              "mottle": 0.017,
+              "streakRatio": 0.97,
+              "hueSpread": 0.0,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "wood.varnished",
+        "family": "wood",
+        "subtype": "generic",
+        "finish": "varnished",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.42,
+          "clearcoat": 0.75,
+          "clearcoatRoughness": 0.16,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap",
+          "normalMap"
+        ],
+        "optionalMaps": [
+          "clearcoatMap",
+          "clearcoatRoughnessMap",
+          "aoMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing",
+          "environment-reflection"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "three.texture",
+          "adobe.pbr-guide-1",
+          "google.filament-pbr"
+        ],
+        "visualCues": [
+          "wood grain under a separate glossy layer",
+          "coating scratches differ from grain"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png",
+        "bbox": {
+          "x": 380,
+          "y": 190,
+          "width": 190,
+          "height": 150
+        },
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "loaderWarnings": [],
+        "coverage": 0.0181
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#C58A4A",
+          "#C98D4C",
+          "#CE9352",
+          "#D69B5B",
+          "#E2AA6F"
+        ],
+        "paletteHueRisk": [],
+        "gradientAxis": "horizontal",
+        "stats": {
+          "meanLum": 159.7,
+          "meanSaturation": 0.596,
+          "gradientStrength": 0.127,
+          "mottle": 0.017,
+          "streakRatio": 0.97,
+          "hueSpread": 0.0,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "materialId": "figured-sycamore",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png",
+        "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer",
+        "palette": [
+          "#CA8D4C",
+          "#D09554",
+          "#D89E5E",
+          "#C48644",
+          "#E1AA6D"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_albedo.png",
+            "url": "figured-sycamore_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_roughness.png",
+            "url": "figured-sycamore_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_height.png",
+            "url": "figured-sycamore_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_normal.png",
+            "url": "figured-sycamore_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_ao.png",
+            "url": "figured-sycamore_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 190,
+          "sourceHeight": 150,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 190,
+            "height": 150
+          },
+          "mask": {
+            "backgroundColor": "#D99D60",
+            "backgroundNoise": 35.805,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.1426,
+            "heightP90Gradient": 0.08873,
+            "roughnessBase": 0.789,
+            "roughnessVariation": 0.156,
+            "normalStrength": 0.26,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#CA8D4C",
+            "#D09554",
+            "#D89E5E",
+            "#C48644",
+            "#E1AA6D"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/00-sycamore-veneer.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_albedo.png",
+            "url": "figured-sycamore_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_roughness.png",
+            "url": "figured-sycamore_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_height.png",
+            "url": "figured-sycamore_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_normal.png",
+            "url": "figured-sycamore_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_ao.png",
+            "url": "figured-sycamore_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 190,
+          "sourceHeight": 150,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 190,
+            "height": 150
+          },
+          "mask": {
+            "backgroundColor": "#D99D60",
+            "backgroundNoise": 35.805,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.1426,
+            "heightP90Gradient": 0.08873,
+            "roughnessBase": 0.789,
+            "roughnessVariation": 0.156,
+            "normalStrength": 0.26,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#CA8D4C",
+            "#D09554",
+            "#D89E5E",
+            "#C48644",
+            "#E1AA6D"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_albedo.png",
+          "url": "figured-sycamore_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_roughness.png",
+          "url": "figured-sycamore_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_height.png",
+          "url": "figured-sycamore_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_normal.png",
+          "url": "figured-sycamore_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-00-sycamore-veneer/figured-sycamore_ao.png",
+          "url": "figured-sycamore_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "leg-front-l",
+      "regionId": "macassar-ebony",
+      "materialSpecId": "macassar-ebony",
+      "hypothesis": {
+        "componentId": "leg-front-l",
+        "regionId": "macassar-ebony",
+        "materialId": null,
+        "family": "wood",
+        "subtype": "generic",
+        "finish": "varnished",
+        "aliases": [],
+        "confidence": 0.773,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "wood.varnished",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.773,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png",
+            "bbox": {
+              "x": 570,
+              "y": 800,
+              "width": 42,
+              "height": 130
+            },
+            "sourceWidth": 1254,
+            "sourceHeight": 1254,
+            "loaderWarnings": [],
+            "coverage": 0.0035
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.773,
+            "estimatedFidelity": 0.773,
+            "targetThreshold": 0.7,
+            "materialId": "macassar-ebony",
+            "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png",
+            "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony",
+            "palette": [
+              "#1E0F07",
+              "#110703",
+              "#2F180C",
+              "#412C22",
+              "#5D4436"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_albedo.png",
+                "url": "macassar-ebony_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_roughness.png",
+                "url": "macassar-ebony_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_height.png",
+                "url": "macassar-ebony_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_normal.png",
+                "url": "macassar-ebony_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_ao.png",
+                "url": "macassar-ebony_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 42,
+              "sourceHeight": 130,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 42,
+                "height": 130
+              },
+              "mask": {
+                "backgroundColor": "#220E05",
+                "backgroundNoise": 20.976,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.2534,
+                "heightP90Gradient": 0.05412,
+                "roughnessBase": 0.726,
+                "roughnessVariation": 0.096,
+                "normalStrength": 0.22,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#1E0F07",
+                "#110703",
+                "#2F180C",
+                "#412C22",
+                "#5D4436"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#3B271D",
+              "#391C0E",
+              "#43291C",
+              "#28150B",
+              "#1A0902"
+            ],
+            "paletteHueRisk": [],
+            "gradientAxis": "horizontal",
+            "stats": {
+              "meanLum": 30.3,
+              "meanSaturation": 0.684,
+              "gradientStrength": 0.295,
+              "mottle": 0.021,
+              "streakRatio": 3.33,
+              "hueSpread": 0.003,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "wood.varnished",
+        "family": "wood",
+        "subtype": "generic",
+        "finish": "varnished",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.42,
+          "clearcoat": 0.75,
+          "clearcoatRoughness": 0.16,
+          "ior": 1.5
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap",
+          "normalMap"
+        ],
+        "optionalMaps": [
+          "clearcoatMap",
+          "clearcoatRoughnessMap",
+          "aoMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing",
+          "environment-reflection"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "three.texture",
+          "adobe.pbr-guide-1",
+          "google.filament-pbr"
+        ],
+        "visualCues": [
+          "wood grain under a separate glossy layer",
+          "coating scratches differ from grain"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "directional surface frequency",
+        "strong image-space gradient; verify it is material pattern, not lighting",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png",
+        "bbox": {
+          "x": 570,
+          "y": 800,
+          "width": 42,
+          "height": 130
+        },
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "loaderWarnings": [],
+        "coverage": 0.0035
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#3B271D",
+          "#391C0E",
+          "#43291C",
+          "#28150B",
+          "#1A0902"
+        ],
+        "paletteHueRisk": [],
+        "gradientAxis": "horizontal",
+        "stats": {
+          "meanLum": 30.3,
+          "meanSaturation": 0.684,
+          "gradientStrength": 0.295,
+          "mottle": 0.021,
+          "streakRatio": 3.33,
+          "hueSpread": 0.003,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.773,
+        "estimatedFidelity": 0.773,
+        "targetThreshold": 0.7,
+        "materialId": "macassar-ebony",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png",
+        "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony",
+        "palette": [
+          "#1E0F07",
+          "#110703",
+          "#2F180C",
+          "#412C22",
+          "#5D4436"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_albedo.png",
+            "url": "macassar-ebony_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_roughness.png",
+            "url": "macassar-ebony_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_height.png",
+            "url": "macassar-ebony_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_normal.png",
+            "url": "macassar-ebony_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_ao.png",
+            "url": "macassar-ebony_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 42,
+          "sourceHeight": 130,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 42,
+            "height": 130
+          },
+          "mask": {
+            "backgroundColor": "#220E05",
+            "backgroundNoise": 20.976,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.2534,
+            "heightP90Gradient": 0.05412,
+            "roughnessBase": 0.726,
+            "roughnessVariation": 0.096,
+            "normalStrength": 0.22,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#1E0F07",
+            "#110703",
+            "#2F180C",
+            "#412C22",
+            "#5D4436"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/01-macassar-ebony.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.773,
+        "estimatedFidelity": 0.773,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_albedo.png",
+            "url": "macassar-ebony_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_roughness.png",
+            "url": "macassar-ebony_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_height.png",
+            "url": "macassar-ebony_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_normal.png",
+            "url": "macassar-ebony_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_ao.png",
+            "url": "macassar-ebony_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 42,
+          "sourceHeight": 130,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 42,
+            "height": 130
+          },
+          "mask": {
+            "backgroundColor": "#220E05",
+            "backgroundNoise": 20.976,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.2534,
+            "heightP90Gradient": 0.05412,
+            "roughnessBase": 0.726,
+            "roughnessVariation": 0.096,
+            "normalStrength": 0.22,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#1E0F07",
+            "#110703",
+            "#2F180C",
+            "#412C22",
+            "#5D4436"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_albedo.png",
+          "url": "macassar-ebony_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_roughness.png",
+          "url": "macassar-ebony_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_height.png",
+          "url": "macassar-ebony_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_normal.png",
+          "url": "macassar-ebony_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-01-macassar-ebony/macassar-ebony_ao.png",
+          "url": "macassar-ebony_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "seat-pad",
+      "regionId": "blue-wool",
+      "materialSpecId": "blue-wool",
+      "hypothesis": {
+        "componentId": "seat-pad",
+        "regionId": "blue-wool",
+        "materialId": null,
+        "family": "fabric",
+        "subtype": "woven",
+        "finish": "matte",
+        "aliases": [],
+        "confidence": 0.751,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "fabric.woven-matte",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.751,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png",
+            "bbox": {
+              "x": 500,
+              "y": 555,
+              "width": 200,
+              "height": 80
+            },
+            "sourceWidth": 1254,
+            "sourceHeight": 1254,
+            "loaderWarnings": [],
+            "coverage": 0.0102
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.751,
+            "estimatedFidelity": 0.751,
+            "targetThreshold": 0.7,
+            "materialId": "blue-wool",
+            "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png",
+            "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool",
+            "palette": [
+              "#252F46",
+              "#222C43",
+              "#202A41",
+              "#28324A",
+              "#1C263D"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_albedo.png",
+                "url": "blue-wool_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_roughness.png",
+                "url": "blue-wool_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_height.png",
+                "url": "blue-wool_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_normal.png",
+                "url": "blue-wool_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_ao.png",
+                "url": "blue-wool_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 200,
+              "sourceHeight": 80,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 200,
+                "height": 80
+              },
+              "mask": {
+                "backgroundColor": "#252E45",
+                "backgroundNoise": 16.432,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 1.0
+              },
+              "mapStats": {
+                "valueRange": 0.08,
+                "heightP90Gradient": 0.0974,
+                "roughnessBase": 0.807,
+                "roughnessVariation": 0.153,
+                "normalStrength": 0.27,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#252F46",
+                "#222C43",
+                "#202A41",
+                "#28324A",
+                "#1C263D"
+              ]
+            },
+            "warnings": [
+              "image is not clearly isolated from background; using most pixels as material evidence",
+              "object/background separation is weak",
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+              "low value range weakens height/roughness inference"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#263047",
+              "#242E44",
+              "#232E45",
+              "#212B42",
+              "#1D283E"
+            ],
+            "paletteHueRisk": [
+              {
+                "stop": "#263047",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  71,
+                  48,
+                  38
+                ]
+              },
+              {
+                "stop": "#242E44",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  68,
+                  46,
+                  36
+                ]
+              },
+              {
+                "stop": "#232E45",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  69,
+                  46,
+                  35
+                ]
+              },
+              {
+                "stop": "#212B42",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  66,
+                  43,
+                  33
+                ]
+              },
+              {
+                "stop": "#1D283E",
+                "hueRisk": "blue-collapse",
+                "suggestedRgb": [
+                  62,
+                  40,
+                  29
+                ]
+              }
+            ],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 44.0,
+              "meanSaturation": 0.492,
+              "gradientStrength": 0.038,
+              "mottle": 0.01,
+              "streakRatio": 0.99,
+              "hueSpread": 0.0,
+              "specularFraction": 0.0
+            }
+          }
+        },
+        "profileId": "fabric.woven-matte",
+        "family": "fabric",
+        "subtype": "woven",
+        "finish": "matte",
+        "renderPrior": {
+          "metalness": 0.0,
+          "roughness": 0.85,
+          "sheen": 0.65,
+          "sheenRoughness": 0.75
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap",
+          "normalMap"
+        ],
+        "optionalMaps": [
+          "sheenColorMap",
+          "sheenRoughnessMap",
+          "aoMap"
+        ],
+        "validationViews": [
+          "albedo-unlit",
+          "neutral-studio",
+          "grazing",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-physical",
+          "three.texture",
+          "khronos.sheen",
+          "mit.material-recognition"
+        ],
+        "visualCues": [
+          "diffuse body with grazing-angle sheen",
+          "woven directional microstructure",
+          "soft broad highlights"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png",
+        "bbox": {
+          "x": 500,
+          "y": 555,
+          "width": 200,
+          "height": 80
+        },
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "loaderWarnings": [],
+        "coverage": 0.0102
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#263047",
+          "#242E44",
+          "#232E45",
+          "#212B42",
+          "#1D283E"
+        ],
+        "paletteHueRisk": [
+          {
+            "stop": "#263047",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              71,
+              48,
+              38
+            ]
+          },
+          {
+            "stop": "#242E44",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              68,
+              46,
+              36
+            ]
+          },
+          {
+            "stop": "#232E45",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              69,
+              46,
+              35
+            ]
+          },
+          {
+            "stop": "#212B42",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              66,
+              43,
+              33
+            ]
+          },
+          {
+            "stop": "#1D283E",
+            "hueRisk": "blue-collapse",
+            "suggestedRgb": [
+              62,
+              40,
+              29
+            ]
+          }
+        ],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 44.0,
+          "meanSaturation": 0.492,
+          "gradientStrength": 0.038,
+          "mottle": 0.01,
+          "streakRatio": 0.99,
+          "hueSpread": 0.0,
+          "specularFraction": 0.0
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "materialId": "blue-wool",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png",
+        "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool",
+        "palette": [
+          "#252F46",
+          "#222C43",
+          "#202A41",
+          "#28324A",
+          "#1C263D"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_albedo.png",
+            "url": "blue-wool_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_roughness.png",
+            "url": "blue-wool_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_height.png",
+            "url": "blue-wool_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_normal.png",
+            "url": "blue-wool_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_ao.png",
+            "url": "blue-wool_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 200,
+          "sourceHeight": 80,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 80
+          },
+          "mask": {
+            "backgroundColor": "#252E45",
+            "backgroundNoise": 16.432,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.0974,
+            "roughnessBase": 0.807,
+            "roughnessVariation": 0.153,
+            "normalStrength": 0.27,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#252F46",
+            "#222C43",
+            "#202A41",
+            "#28324A",
+            "#1C263D"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/02-blue-wool.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.751,
+        "estimatedFidelity": 0.751,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_albedo.png",
+            "url": "blue-wool_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_roughness.png",
+            "url": "blue-wool_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_height.png",
+            "url": "blue-wool_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_normal.png",
+            "url": "blue-wool_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_ao.png",
+            "url": "blue-wool_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 200,
+          "sourceHeight": 80,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 200,
+            "height": 80
+          },
+          "mask": {
+            "backgroundColor": "#252E45",
+            "backgroundNoise": 16.432,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 1.0
+          },
+          "mapStats": {
+            "valueRange": 0.08,
+            "heightP90Gradient": 0.0974,
+            "roughnessBase": 0.807,
+            "roughnessVariation": 0.153,
+            "normalStrength": 0.27,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#252F46",
+            "#222C43",
+            "#202A41",
+            "#28324A",
+            "#1C263D"
+          ]
+        },
+        "warnings": [
+          "image is not clearly isolated from background; using most pixels as material evidence",
+          "object/background separation is weak",
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped",
+          "low value range weakens height/roughness inference"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_albedo.png",
+          "url": "blue-wool_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_roughness.png",
+          "url": "blue-wool_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_height.png",
+          "url": "blue-wool_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_normal.png",
+          "url": "blue-wool_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-02-blue-wool/blue-wool_ao.png",
+          "url": "blue-wool_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    },
+    {
+      "componentId": "ferrule-front-l",
+      "regionId": "chrome",
+      "materialSpecId": "polished-chrome",
+      "hypothesis": {
+        "componentId": "ferrule-front-l",
+        "regionId": "chrome",
+        "materialId": null,
+        "family": "metal",
+        "subtype": "steel",
+        "finish": "polished",
+        "aliases": [],
+        "confidence": 0.86,
+        "source": "vision"
+      },
+      "assignment": {
+        "materialId": "metal.steel-polished",
+        "status": "proceed",
+        "source": "vision",
+        "confidence": 0.86,
+        "method": "family-subtype-finish",
+        "alternatives": [],
+        "evidence": {
+          "crop": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/03-chrome.png",
+            "bbox": {
+              "x": 578,
+              "y": 1104,
+              "width": 30,
+              "height": 32
+            },
+            "sourceWidth": 1254,
+            "sourceHeight": 1254,
+            "loaderWarnings": [],
+            "coverage": 0.0006
+          },
+          "pbr": {
+            "ok": true,
+            "verdict": "pass",
+            "confidence": 0.86,
+            "estimatedFidelity": 0.86,
+            "targetThreshold": 0.7,
+            "materialId": "polished-chrome",
+            "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/03-chrome.png",
+            "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome",
+            "palette": [
+              "#49413B",
+              "#190A05",
+              "#77706A",
+              "#341D10",
+              "#DED9D4"
+            ],
+            "maps": {
+              "albedo": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_albedo.png",
+                "url": "polished-chrome_albedo.png",
+                "channel": "albedo",
+                "source": "reference-pixel-extraction"
+              },
+              "roughness": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_roughness.png",
+                "url": "polished-chrome_roughness.png",
+                "channel": "roughness",
+                "source": "reference-pixel-extraction"
+              },
+              "height": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_height.png",
+                "url": "polished-chrome_height.png",
+                "channel": "height",
+                "source": "reference-pixel-extraction"
+              },
+              "normal": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_normal.png",
+                "url": "polished-chrome_normal.png",
+                "channel": "normal",
+                "source": "reference-pixel-extraction"
+              },
+              "ao": {
+                "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_ao.png",
+                "url": "polished-chrome_ao.png",
+                "channel": "ao",
+                "source": "reference-pixel-extraction"
+              }
+            },
+            "diagnostics": {
+              "sourceWidth": 30,
+              "sourceHeight": 32,
+              "mapSize": 512,
+              "cropBBoxPixels": {
+                "x": 0,
+                "y": 0,
+                "width": 30,
+                "height": 32
+              },
+              "mask": {
+                "backgroundColor": "#808080",
+                "backgroundNoise": 0.0,
+                "transparentPixelFraction": 0.0,
+                "foregroundCoverage": 0.7396
+              },
+              "mapStats": {
+                "valueRange": 0.8762,
+                "heightP90Gradient": 0.04009,
+                "roughnessBase": 0.698,
+                "roughnessVariation": 0.077,
+                "normalStrength": 0.203,
+                "blurRadius": 10
+              },
+              "palette": [
+                "#49413B",
+                "#190A05",
+                "#77706A",
+                "#341D10",
+                "#DED9D4"
+              ]
+            },
+            "warnings": [
+              "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+            ],
+            "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+          },
+          "texture": {
+            "finishClass": "painted-metal",
+            "recipe": {
+              "metalness": 0.0,
+              "roughness": 0.5,
+              "clearcoat": 1.0,
+              "clearcoatRoughness": 0.05,
+              "transmission": 0.0,
+              "ior": 1.5,
+              "envMapIntensity": 1.0,
+              "anisotropy": 0.0,
+              "procedural": "flat-clearcoat"
+            },
+            "palette": [
+              "#2A1A13",
+              "#2D1D15",
+              "#7A746E",
+              "#807A75",
+              "#4A4948"
+            ],
+            "paletteHueRisk": [],
+            "gradientAxis": "vertical",
+            "stats": {
+              "meanLum": 80.1,
+              "meanSaturation": 0.34,
+              "gradientStrength": 0.396,
+              "mottle": 0.03,
+              "streakRatio": 1.61,
+              "hueSpread": 0.006,
+              "specularFraction": 0.031
+            }
+          }
+        },
+        "profileId": "metal.steel-polished",
+        "family": "metal",
+        "subtype": "steel",
+        "finish": "polished",
+        "renderPrior": {
+          "metalness": 1.0,
+          "roughness": 0.12,
+          "anisotropy": 0.0
+        },
+        "requiredMaps": [
+          "map",
+          "roughnessMap"
+        ],
+        "optionalMaps": [
+          "normalMap",
+          "metalnessMap"
+        ],
+        "validationViews": [
+          "neutral-studio",
+          "environment-reflection",
+          "grazing",
+          "reference-beauty"
+        ],
+        "sourceRefs": [
+          "three.mesh-standard",
+          "three.pmrem",
+          "gltf.2",
+          "khronos.gltf-pbr",
+          "adobe.pbr-guide-2",
+          "google.filament-pbr"
+        ],
+        "visualCues": [
+          "neutral tinted environment reflection",
+          "sharp high-contrast highlights",
+          "little diffuse body colour"
+        ]
+      },
+      "observations": [
+        "chromatic base-colour response",
+        "strong image-space gradient; verify it is material pattern, not lighting",
+        "single-image PBR inference requires controlled render validation"
+      ],
+      "crop": {
+        "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/03-chrome.png",
+        "bbox": {
+          "x": 578,
+          "y": 1104,
+          "width": 30,
+          "height": 32
+        },
+        "sourceWidth": 1254,
+        "sourceHeight": 1254,
+        "loaderWarnings": [],
+        "coverage": 0.0006
+      },
+      "textureAnalysis": {
+        "finishClass": "painted-metal",
+        "recipe": {
+          "metalness": 0.0,
+          "roughness": 0.5,
+          "clearcoat": 1.0,
+          "clearcoatRoughness": 0.05,
+          "transmission": 0.0,
+          "ior": 1.5,
+          "envMapIntensity": 1.0,
+          "anisotropy": 0.0,
+          "procedural": "flat-clearcoat"
+        },
+        "palette": [
+          "#2A1A13",
+          "#2D1D15",
+          "#7A746E",
+          "#807A75",
+          "#4A4948"
+        ],
+        "paletteHueRisk": [],
+        "gradientAxis": "vertical",
+        "stats": {
+          "meanLum": 80.1,
+          "meanSaturation": 0.34,
+          "gradientStrength": 0.396,
+          "mottle": 0.03,
+          "streakRatio": 1.61,
+          "hueSpread": 0.006,
+          "specularFraction": 0.031
+        }
+      },
+      "pbrReport": {
+        "ok": true,
+        "verdict": "pass",
+        "confidence": 0.86,
+        "estimatedFidelity": 0.86,
+        "targetThreshold": 0.7,
+        "materialId": "polished-chrome",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/03-chrome.png",
+        "outDir": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome",
+        "palette": [
+          "#49413B",
+          "#190A05",
+          "#77706A",
+          "#341D10",
+          "#DED9D4"
+        ],
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_albedo.png",
+            "url": "polished-chrome_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_roughness.png",
+            "url": "polished-chrome_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_height.png",
+            "url": "polished-chrome_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_normal.png",
+            "url": "polished-chrome_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_ao.png",
+            "url": "polished-chrome_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 30,
+          "sourceHeight": 32,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 32
+          },
+          "mask": {
+            "backgroundColor": "#808080",
+            "backgroundNoise": 0.0,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 0.7396
+          },
+          "mapStats": {
+            "valueRange": 0.8762,
+            "heightP90Gradient": 0.04009,
+            "roughnessBase": 0.698,
+            "roughnessVariation": 0.077,
+            "normalStrength": 0.203,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#49413B",
+            "#190A05",
+            "#77706A",
+            "#341D10",
+            "#DED9D4"
+          ]
+        },
+        "warnings": [
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ],
+        "limitation": "single-image PBR extraction is an estimate; 70%+ extraction confidence still needs render screenshot review"
+      },
+      "referencePbr": {
+        "version": "1.0",
+        "sourceImage": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/03-chrome.png",
+        "extractor": "stage1_intake/extract_pbr_evidence.py",
+        "method": "single-image pixel evidence with de-lighting estimate; not photogrammetry",
+        "usable": true,
+        "verdict": "pass",
+        "confidence": 0.86,
+        "estimatedFidelity": 0.86,
+        "targetThreshold": 0.7,
+        "hardLimit": "A single image cannot uniquely recover true albedo/roughness/normal/AO; maps are reference-derived estimates.",
+        "maps": {
+          "albedo": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_albedo.png",
+            "url": "polished-chrome_albedo.png",
+            "channel": "albedo",
+            "source": "reference-pixel-extraction"
+          },
+          "roughness": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_roughness.png",
+            "url": "polished-chrome_roughness.png",
+            "channel": "roughness",
+            "source": "reference-pixel-extraction"
+          },
+          "height": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_height.png",
+            "url": "polished-chrome_height.png",
+            "channel": "height",
+            "source": "reference-pixel-extraction"
+          },
+          "normal": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_normal.png",
+            "url": "polished-chrome_normal.png",
+            "channel": "normal",
+            "source": "reference-pixel-extraction"
+          },
+          "ao": {
+            "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_ao.png",
+            "url": "polished-chrome_ao.png",
+            "channel": "ao",
+            "source": "reference-pixel-extraction"
+          }
+        },
+        "diagnostics": {
+          "sourceWidth": 30,
+          "sourceHeight": 32,
+          "mapSize": 512,
+          "cropBBoxPixels": {
+            "x": 0,
+            "y": 0,
+            "width": 30,
+            "height": 32
+          },
+          "mask": {
+            "backgroundColor": "#808080",
+            "backgroundNoise": 0.0,
+            "transparentPixelFraction": 0.0,
+            "foregroundCoverage": 0.7396
+          },
+          "mapStats": {
+            "valueRange": 0.8762,
+            "heightP90Gradient": 0.04009,
+            "roughnessBase": 0.698,
+            "roughnessVariation": 0.077,
+            "normalStrength": 0.203,
+            "blurRadius": 10
+          },
+          "palette": [
+            "#49413B",
+            "#190A05",
+            "#77706A",
+            "#341D10",
+            "#DED9D4"
+          ]
+        },
+        "warnings": [
+          "single-image inverse rendering cannot prove true physical PBR; confidence is capped"
+        ]
+      },
+      "maps": {
+        "albedo": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_albedo.png",
+          "url": "polished-chrome_albedo.png",
+          "channel": "albedo",
+          "source": "reference-pixel-extraction"
+        },
+        "roughness": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_roughness.png",
+          "url": "polished-chrome_roughness.png",
+          "channel": "roughness",
+          "source": "reference-pixel-extraction"
+        },
+        "height": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_height.png",
+          "url": "polished-chrome_height.png",
+          "channel": "height",
+          "source": "reference-pixel-extraction"
+        },
+        "normal": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_normal.png",
+          "url": "polished-chrome_normal.png",
+          "channel": "normal",
+          "source": "reference-pixel-extraction"
+        },
+        "ao": {
+          "path": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-evidence/pbr-03-chrome/polished-chrome_ao.png",
+          "url": "polished-chrome_ao.png",
+          "channel": "ao",
+          "source": "reference-pixel-extraction"
+        }
+      }
+    }
+  ],
+  "status": "proceed",
+  "limitations": [
+    "PBR extraction is reference-derived inference, not inverse rendering.",
+    "A crop must be checked against the component visible footprint before accepting material scores."
+  ],
+  "artifact": "/home/k/Projects/holo-emitter/lab/objects/chair-liner-1934-side/material-analysis.json"
+}
