@@ -166,7 +166,7 @@ for (const pr of WORLD.props) {
   scene.add(mesh); billboards.push(mesh);
 }
 // the walker's own body, so the third-person camera has a scale to read against
-const body = new THREE.Mesh(new THREE.CapsuleGeometry ? new THREE.CapsuleGeometry(0.18, 1.3, 4, 8) : new THREE.CylinderGeometry(0.18, 0.18, 1.66, 12),
+const body = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.66, 12),
   new THREE.MeshStandardMaterial({ color: 0x2b2420, roughness: 0.9 }));
 body.visible = false; scene.add(body);
 
