@@ -29,3 +29,19 @@ So a **unique load** is: request → key → miss in our library → hit in Obja
 - **Style**: a retrieved chair is *a* chair. Two levers: rank candidates by CLIP similarity to the world's style block render, or repaint the retrieved object's silhouette through the seat and re-mesh. Both are measurable on the same wall.
 - **Licences**: Objaverse objects are mostly CC-BY (attribution file per world) with some CC0; anything else is filtered out at retrieval.
 - **Serving**: the library grows past what a page can inline; the runtime fetches per asset from `backdrops/`-style storage, exactly as the paintings are served today.
+
+## The catalogue as a project of its own (Kabe, 2026-09-02 23:10)
+
+"Maximize an internal catalogue for quick retrieval based on text searches. That seems like a valid GitHub project in itself."
+
+What it would be, and nothing more:
+
+1. **An index**: one local table over TexVerse + Objaverse-LVIS + the CC0 registries — uid, source, licence, name, caption, category, dims from the mesh bounds, thumbnail URL, and a CLIP text embedding of the caption. Built once (hours), updated by diff. Parquet or SQLite; a few hundred MB for a million rows.
+2. **A query**: text → embedding → nearest rows, filtered by licence and class, deterministic ties. Under 50 ms on a CPU. Returns candidates with thumbnails so a human or a page can pick.
+3. **A fetch**: uid → GLB download → stand (support plane + class rule) → gate (class ranges, triangle budget) → a record with provenance and timings. What we measured today: 24 s cold with a warm annotation cache, 5 s of it download.
+4. **A cache**: everything fetched lives under `library/<id>/` with its record; a second request is a file read.
+5. **A miss**: when nothing scores above threshold, hand the noun to the generator path (paint → mesh) and register the result under the same key, so the catalogue grows where the worlds actually need it.
+
+Boundaries: no LLM in the loop; no hosting of other people's assets beyond the cache (licences travel with the record); no style opinions in the index — style is a re-rank the consumer applies. A CLI and a tiny HTTP endpoint; the engine is one client of it.
+
+Measured so far (Objaverse, this box): index load 0 s warm; annotations 17–176 s first time per category, then cached; download 5 s; stand 1–5 s; gate < 1 s. The gate as written compares to the requester's declared dims, which is wrong for a retrieved object (it has its own proportions): it needs class ranges. Two of two retrievals "failed" that way today and were fine.
