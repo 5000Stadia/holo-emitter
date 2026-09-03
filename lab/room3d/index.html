@@ -1667,7 +1667,15 @@ for (const pr of WORLD.props) {
       const s = pr.height_m / Math.max(1e-6, size.y);
       m.scale.setScalar(s);
       const b2 = new THREE.Box3().setFromObject(m); const c = new THREE.Vector3(); b2.getCenter(c);
-      m.position.set(-c.x, -b2.min.y, -c.z);
+      // ground on the mesh's low PERCENTILE of vertex heights, not its single lowest point: a
+      // generated blob has one leg a little longer than the rest, and min.y leaves three feet in the air
+      m.updateMatrixWorld(true);
+      const ys = []; const v = new THREE.Vector3();
+      m.traverse(o => { if (o.isMesh) { const pos = o.geometry.attributes.position; const step = Math.max(1, Math.floor(pos.count / 20000));
+        for (let i = 0; i < pos.count; i += step) { v.fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld); ys.push(v.y); } } });
+      ys.sort((a, b) => a - b);
+      const ground = ys.length ? ys[Math.floor(ys.length * 0.012)] : b2.min.y;
+      m.position.set(-c.x, -ground, -c.z);
       if (pr.glb_front === "-z") m.rotation.y = Math.PI; else if (pr.glb_front === "+x") m.rotation.y = Math.PI / 2; else if (pr.glb_front === "-x") m.rotation.y = -Math.PI / 2;
       // a single-image mesh can arrive with either winding: draw both faces
       m.traverse(o => { if (o.isMesh && o.material) { o.material.side = THREE.DoubleSide; } });
