@@ -112,11 +112,25 @@ def main():
                 m.apply_transform(trimesh.transformations.rotation_matrix(turn, [0, 1, 0]))
                 lo, hi = m.bounds; m.apply_translation([-(lo[0] + hi[0]) / 2, -lo[1], -(lo[2] + hi[2]) / 2])
             front = "+z"
+    # 5d. WANTS (Kabe, 2026-09-02): planes of the object that want something from the world. The
+    # ground want is the level rule above. A BACK plane — a tall, near-vertical face on one side of
+    # the footprint, above the seat height — wants a wall; two orthogonal backs want a corner.
+    wants = {"ground": (a.level.split(":")[0] if a.level else "base"), "walls": []}
+    fn = m.face_normals; fc = m.triangles_center; fa = m.area_faces
+    h = float(m.bounds[1][1]); c = (m.bounds[0] + m.bounds[1]) / 2; ext = m.bounds[1] - m.bounds[0]
+    tall = fc[:, 1] > 0.70 * h                      # a back reaches the top; an arm stops short of it
+    for name, axis, sign in (("-z", 2, -1), ("+z", 2, 1), ("-x", 0, -1), ("+x", 0, 1)):
+        side = (fn[:, axis] * sign > 0.85) & tall & ((fc[:, axis] - c[axis]) * sign > 0.30 * ext[axis])
+        area = float(fa[side].sum())
+        # a back is a big outward face on that side: at least this much of the footprint's width x the upper height
+        span = ext[0] if axis == 2 else ext[2]
+        if area > 0.12 * span * (0.30 * h):       # measured: a chair's reclined thin back gives ~0.03 m2 here, a sofa back ~0.1
+            wants["walls"].append(name)
     # 6. how level did it come out: the four lowest clusters
     ys = np.sort(m.vertices[:, 1]); feet = ys[: max(4, len(ys) // 200)]
     m.export(a.out)
     print(json.dumps({"ok": True, "out": a.out, "tilt_corrected_deg": round(float(np.degrees(ang)), 2), "support_vertices": support,
-                      "size_m": [round(float(v), 3) for v in (m.bounds[1] - m.bounds[0])], "lowest_1pct_spread_m": round(float(feet[-1] - feet[0]), 4), "level_rule": a.level or None, "front": front, "level_corrected_deg": level_deg, "level_surface_vertices": int(sel.sum()) if a.level else None,
+                      "size_m": [round(float(v), 3) for v in (m.bounds[1] - m.bounds[0])], "lowest_1pct_spread_m": round(float(feet[-1] - feet[0]), 4), "level_rule": a.level or None, "front": front, "wants": wants, "level_corrected_deg": level_deg, "level_surface_vertices": int(sel.sum()) if a.level else None,
                       "faces": int(len(m.faces))}))
     return 0
 

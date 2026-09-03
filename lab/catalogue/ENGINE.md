@@ -45,3 +45,16 @@ What it would be, and nothing more:
 Boundaries: no LLM in the loop; no hosting of other people's assets beyond the cache (licences travel with the record); no style opinions in the index — style is a re-rank the consumer applies. A CLI and a tiny HTTP endpoint; the engine is one client of it.
 
 Measured so far (Objaverse, this box): index load 0 s warm; annotations 17–176 s first time per category, then cached; download 5 s; stand 1–5 s; gate < 1 s. The gate as written compares to the requester's declared dims, which is wrong for a retrieved object (it has its own proportions): it needs class ranges. Two of two retrievals "failed" that way today and were fine.
+
+## Wants (Kabe, 2026-09-02 23:30): the arrangement model
+
+Objects and rooms carry *wants*; a design decision for the room overrides any of them.
+
+- **Object wants come from the object's own planes.** `tools/mesh-ground.py` finds them when it stands the mesh: a seat or top plane wants the ground (the level rule); a back plane — a tall outward face reaching the top on one side of the footprint — wants a wall; two orthogonal backs therefore want a corner, with no corner rule written anywhere. Arms are not backs (they stop short of the top). A base with no back wants nothing but the ground, so it stands free. Recorded as `grounding.wants` in the library record; the placement rule `wants` reads it.
+- **Object wants can be relational.** A chair wants to be paired with a table or desk; only if none is present does it fall back to its back against a wall.
+- **Room wants are the archetype's.** A dining room wants its chairs under the table. A waiting room wants its chairs against the walls, and a large one may want a row in the centre; it does not want them under a table. These are the room's soft constraints, ranked above the objects' own defaults.
+- **Design decisions override everything.** A pinned position, a chosen wall, a corner named in the spec wins over room wants, which win over object wants.
+
+Priority, highest first: design decision → room want → object relational want (pair) → object plane want (wall / corner) → free. The solver's job is to satisfy the hard ones and score the soft ones, from a seed.
+
+Measured today on the detector: the liner chair's back reads at ~0.03 m² of tall outward face, the retrieved settee's at ~0.1 m²; the settee's arms read at 0.02–0.03 m² above 70 % height and are correctly not backs.

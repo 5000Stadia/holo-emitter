@@ -67,7 +67,7 @@ FURNISH = [
     {"id": "chair-objaverse-1", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.6, "label": "D · Objaverse retrieval"},
     # the saloon scene: a unique element the catalogue cannot have (generated) beside a retrieved companion
     {"id": "telegraph-liner-1934-engine-order", "room": "saloon", "rule": "room_centre", "label": "E · engine-order telegraph (generated: a catalogue miss)"},
-    {"id": "settee-objaverse-1", "room": "saloon", "rule": "against_wall", "wall": "W", "label": "F · settee (Objaverse retrieval)"},
+    {"id": "settee-objaverse-1", "room": "saloon", "rule": "wants", "corner": "SW", "wall": "W", "label": "F · settee (Objaverse retrieval, placed by its wants)"},
 ]
 
 
@@ -86,6 +86,7 @@ def factory_of(asset_id):
     sz = ((r.get("model") or {}).get("size_m")) or ((r.get("grounding") or {}).get("size_m"))
     if sz and len(sz) == 3:
         dims = {"h": dims.get("h") or sz[1], "w": sz[0], "d": sz[2]}
+    wants = (r.get("grounding") or {}).get("wants") or {}
     prim = os.path.join(d, "primitives.json")
     if os.path.exists(prim):
         pj = json.load(open(prim))
@@ -139,6 +140,40 @@ def furnish(plan):
             out.append({"id": f["id"], "room": f["room"], "missing": why, "label": f.get("label", f["id"])})
             continue
         R = rooms[f["room"]]["rect"]
+        if f["rule"] == "wants":
+            # the object's own planes decide: two backs -> the corner they name, one back -> a wall, none -> free
+            rec = json.load(open(os.path.join(ROOT, "library", f["id"], "record.json")))
+            walls = ((rec.get("grounding") or {}).get("wants") or {}).get("walls") or []
+            W_, D_ = a["width_m"], a["depth_m"]
+            gap = 0.05
+            if len(walls) >= 2:
+                # backs at -z and +x (object space, front +z) -> the object's back-left corner sits in a room corner;
+                # choose the room corner named by f["corner"] (default SW) and turn the object so its backs meet those walls
+                corner = f.get("corner", "SW")
+                x = R["x0"] + gap + (D_ / 2 if "W" in corner else 0) if "W" in corner else R["x1"] - gap - D_ / 2
+                y = R["y0"] + gap + D_ / 2 if "S" in corner else R["y1"] - gap - D_ / 2
+                # an L needs its wide side along one wall: shift along that wall by half the width
+                if "W" in corner: x = R["x0"] + gap + W_ / 2
+                else: x = R["x1"] - gap - W_ / 2
+                facing = {"SW": "N", "SE": "N", "NW": "S", "NE": "S"}[corner]
+                out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
+                            "facing": facing, "rule": f"wants: corner {corner} (backs {walls})", "label": f.get("label", f["id"])})
+                continue
+            if len(walls) == 1:
+                wall = f.get("wall", "W")
+                gap2 = gap + D_ / 2
+                if wall == "W": x, y = R["x0"] + gap2, (R["y0"] + R["y1"]) / 2
+                elif wall == "E": x, y = R["x1"] - gap2, (R["y0"] + R["y1"]) / 2
+                elif wall == "S": x, y = (R["x0"] + R["x1"]) / 2, R["y0"] + gap2
+                else: x, y = (R["x0"] + R["x1"]) / 2, R["y1"] - gap2
+                facing = {"W": "E", "E": "W", "S": "N", "N": "S"}[wall]
+                out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
+                            "facing": facing, "rule": f"wants: wall {wall} (back {walls[0]})", "label": f.get("label", f["id"])})
+                continue
+            x, y = (R["x0"] + R["x1"]) / 2, (R["y0"] + R["y1"]) / 2
+            out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
+                        "facing": "S", "rule": "wants: free (no back)", "label": f.get("label", f["id"])})
+            continue
         if f["rule"] == "room_centre":
             x, y = (R["x0"] + R["x1"]) / 2 + f.get("slot", 0.0), (R["y0"] + R["y1"]) / 2
             out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),

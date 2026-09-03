@@ -57,6 +57,12 @@
   "lowest_1pct_spread_m": 0.023,
   "level_rule": "seat:0.45",
   "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
   "level_corrected_deg": null,
   "level_surface_vertices": 0,
   "faces": 190284
@@ -74,11 +80,11 @@
  },
  "timings_s": {
   "index": 0.0,
-  "annotations": 16.9,
+  "annotations": 16.4,
   "rank": 0.0,
-  "download": 1.2,
+  "download": 1.1,
   "stand": 1.5,
   "gate": 0.0,
-  "request_to_library": 19.6
+  "request_to_library": 19.0
  }
 }

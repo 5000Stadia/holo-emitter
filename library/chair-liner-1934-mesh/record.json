@@ -10,7 +10,7 @@
  "model": {
   "kind": "glb",
   "up": "+y",
-  "front": "-x",
+  "front": "+z",
   "colors": "vertex",
   "triangles_note": "decimated from TripoSR's 75,744",
   "grounded": true,
@@ -24,16 +24,23 @@
  "level": "seat:0.45",
  "grounding": {
   "ok": true,
-  "out": "/tmp/claude-1000/-home-k-Projects-holo-emitter/97770d23-8695-4407-9f5e-30bf8e241f72/scratchpad/triposr/chair-level.glb",
+  "out": "/tmp/claude-1000/-home-k-Projects-holo-emitter/97770d23-8695-4407-9f5e-30bf8e241f72/scratchpad/triposr/chair-w.glb",
   "tilt_corrected_deg": 7.3,
   "support_vertices": 138,
   "size_m": [
-   0.608,
+   0.633,
    0.88,
-   0.633
+   0.608
   ],
   "lowest_1pct_spread_m": 0.0417,
   "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
   "level_corrected_deg": 6.43,
   "level_surface_vertices": 4440,
   "faces": 75744
