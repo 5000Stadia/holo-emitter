@@ -215,8 +215,7 @@ def furnish(plan, place=None):
             continue
         if f["rule"] == "room_centre":
             x, y = (R["x0"] + R["x1"]) / 2 + f.get("slot", 0.0), (R["y0"] + R["y1"]) / 2
-            out.append({**{k: v for k, v in a.items() if k != "module"}, "room": f["room"], "x": round(x, 3), "y": round(y, 3),
-                        "facing": f.get("facing", "S"), "rule": "room_centre", "label": f.get("label", f["id"])})
+            emit(x, y, f.get("facing", "S"), "room_centre")
             continue
         if f["rule"] == "against_wall":
             # centred on the wall, its back 5 cm off it, clear of any opening
