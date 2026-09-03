@@ -66,7 +66,8 @@ FURNISH = [
     {"id": "chair-liner-1934-mesh", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": -0.6, "label": "B · TripoSR (generated mesh)"},
     {"id": "chair-objaverse-1", "room": "writing_room", "rule": "against_wall", "wall": "W", "slot": 0.6, "label": "D · Objaverse retrieval"},
     # the saloon scene: a unique element the catalogue cannot have (generated) beside a retrieved companion
-    {"id": "telegraph-liner-1934-engine-order", "room": "saloon", "rule": "room_centre", "label": "E · engine-order telegraph (generated: a catalogue miss)"},
+    # E (the generated telegraph) tossed by Kabe 2026-09-03 ("looks like garbage"): TripoSR drops thin parts; record kept for a stronger model
+
     {"id": "settee-objaverse-1", "room": "saloon", "rule": "wants", "corner": "SW", "wall": "W", "label": "F · settee (Objaverse retrieval, placed by its wants)"},
 ]
 
