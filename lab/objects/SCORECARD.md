@@ -27,6 +27,15 @@ Times are wall clock from this session's commit and task timestamps; "setup" is 
 
 **Recommendation for the pipeline** (revised after the grades): rooms from the plan (0); every visible piece through a single-image mesh model (B's family: TripoSR here, Hunyuan3D-2 mini / TRELLIS.2 on a GPU box for texture and sharpness); PrimitiveAnything on those meshes only where the footprint must shrink and only if the result grades ≥ 3; parametric families for bulk at distance; no img2threejs (tossed on cost); objects that must move wait for a cheaper code path. No hand-authored primitives, no billboards.
 
+**Retrieval and the miss path, measured (2026-09-02, 22:40–23:20).** Grading links: writing room west wall (B, D) https://5000stadia.github.io/holo-emitter/lab/room3d/?face=W&view=contract&x=2.6&y=3.6 · saloon (E centre, F west wall) https://5000stadia.github.io/holo-emitter/lab/room3d/?face=S&view=contract&x=3.6&y=18.8
+
+| # | approach | request → in the library | footprint | LLM | gate | Navigator | **Kabe** |
+|---|---|---|---|---|---|---|---|
+| D | Objaverse retrieval, chair ("Artsy Chair", CC-BY) | **186 s** cold (176 s of it the category's annotation shards, one-time) → **24 s** warm on the next category; 5 s download, 5 s stand | 2.6 MB, 74k faces, textured | 0 | shape gate refused (its own proportions; loosened to class range) | Look 3 — a good chair, wrong century; ranking needs captions/embeddings (TexVerse) | "definitely artsy… unique. But it's nice." |
+| F | Objaverse retrieval, settee ("Sofa", CC-BY) | **24 s** | 5.3 MB, 190k faces | 0 | as D | pending look | |
+| E | the miss: engine-order telegraph, generated (seat paints 84 s → TripoSR 114 s) | **198 s** request → library, zero hands | 55k → 16k faces, vertex colours | 0 | shape gate refused (chunkier than declared); stood on its base | painting 5/5 (brass, enamel dial with sectors, bell, plinth); mesh pending look | |
+| batch | eight writing-room nouns, template prompts, one order | seat 15 min for 8 (< 2 min each); TripoSR ~115 s each; **31 min for eight** | 16k faces each | 0 | 6 of 8 pass; bookcase and clock fail on shape (thin boxes come back chunky) | paintings 5/5 across the board (`lab/catalogue/sheet.png`); meshes graded per piece later | |
+
 Candidates found by search, queued behind A/B (2026-09-02 19:05):
 
 | # | approach | what it needs | why it matters |
