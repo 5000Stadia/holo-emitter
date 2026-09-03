@@ -1,0 +1,49 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-liner-1934-mesh",
+ "noun": "liner writing-room side chair",
+ "dims_m": {
+  "h": 0.88,
+  "w": 0.46,
+  "d": 0.5
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "front": "+z",
+  "colors": "vertex",
+  "triangles_note": "decimated from TripoSR's 75,744",
+  "grounded": true,
+  "grounding": "tools/mesh-ground.py: support plane = hull underside face with most resting vertices; tilt corrected 7.37 deg, 54 support vertices, lowest-1% spread 15 mm"
+ },
+ "provenance": {
+  "source": "library-src/chair-liner-1934-side/source.png",
+  "generator": "TripoSR (stabilityai/TripoSR) on CPU, mc-resolution 256, 2026-09-02",
+  "gate": "tools/mesh-gate.py"
+ },
+ "level": "seat:0.45",
+ "grounding": {
+  "ok": true,
+  "out": "/tmp/claude-1000/-home-k-Projects-holo-emitter/97770d23-8695-4407-9f5e-30bf8e241f72/scratchpad/triposr/chair-w.glb",
+  "tilt_corrected_deg": 7.3,
+  "support_vertices": 138,
+  "size_m": [
+   0.633,
+   0.88,
+   0.608
+  ],
+  "lowest_1pct_spread_m": 0.0417,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "level_corrected_deg": 6.43,
+  "level_surface_vertices": 4440,
+  "faces": 75744
+ },
+ "warp_note": "seat plane and support plane disagree by 6.4 deg: the generated chair is warped; the class rule (seat level) wins, so one foot sits ~4 cm high"
+}

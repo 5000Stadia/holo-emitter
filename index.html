@@ -1,0 +1,2186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holo Emitter Static Demo</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #05070a; color: #c8b489; }
+  /* Centred vertically: the stage is a fixed 3:2 and the chrome is a fixed
+     9.6rem, so on any screen taller than the two of them the remainder is
+     dead space — and top-aligned it all pooled below, 38% of a phone screen
+     under a small picture and a line of prose. Nothing is cropped and no
+     hash moves; this is where the letterbox goes. */
+  body {
+    font-family: Georgia, serif;
+    min-height: 100svh; display: flex; flex-direction: column; justify-content: center;
+  }
+  /* The stage contain-fits the fixed 1536x1024 logical canvas within the
+     window (§5 viewport, amended at row 1): width-only scaling pushed the
+     frame-bottom floor cut — the camera-has-feet device — below the fold on
+     16:9 screens. 7.6rem is reserved for the bottom chrome, which is what
+     the bottom chrome measures: narration 4.2 + inventory 3.4.
+     It read 9.6rem for a while against a chrome of 8.8, so the picture was
+     ~9 px shorter and ~13 px narrower than the layout's own budget allowed
+     at every height-bound viewport, and nothing compared the reserve to what
+     it reserves for. The canvases keep their internal size. */
+  #stage {
+    position: relative;
+    /* The max() is a floor for the degenerate case only: below ~154px of
+       viewport height the contain-fit calc goes to zero and the page
+       rendered literally nothing. It has to sit low enough not to bind on a
+       real device — at 320px it kicked in for any viewport under 367px tall,
+       which is every phone in landscape, and added 20px of scroll where the
+       plain calc fitted exactly. 120px binds below ~234px. */
+    /* svh, not vh: on iOS Safari `100vh` is the viewport WITHOUT the
+       toolbars, so a layout that exactly fills it puts the status line and
+       part of the inventory under the toolbar — and in phone landscape this
+       one has 9 px of slack. Safari is the one engine this build has never
+       been run on, so it gets the unit that cannot be wrong rather than a
+       measurement nobody here can take.
+       A `vh` line precedes it (row 8) as a fallback beneath `svh` itself: an
+       engine with neither `svh` nor `dvh` support (Chrome <108, Firefox
+       <110, Safari <15.4) drops the whole declaration and `#stage` goes
+       full-width with only its aspect-ratio, reproducing the row-1 defect
+       this file's own history already paid for once. The `svh` line still
+       wins wherever it is understood, cascade order alone decides it. */
+    width: min(100%, max(120px, calc((100vh - 7.6rem) * (1536 / 1024))));
+    width: min(100%, max(120px, calc((100svh - 7.6rem) * (1536 / 1024))));
+    margin: 0 auto;
+    aspect-ratio: 1536 / 1024;
+  }
+  /* Row 8, fullscreen. One state — real OS fullscreen OR the in-page
+     maximize fallback — drives one class, so a player never sees the two
+     mechanisms disagree.
+     `display: none` on #narration/#inventory was the first shape of this and
+     an artifact critic broke it in one click: tab to the desk, open it,
+     and the reveal line — "The drawer resists, then gives. Inside, an iron
+     key." — landed in a pane with zero height, the aria-live region removed
+     from the tree, every subsequent take silently vanishing an object with
+     no tile and no sentence. The narration is the only thing in this
+     product that speaks to a player (stated three times over already in
+     this file); a presentation mode may not turn it off. So: the stage's
+     own reserve still drops to zero (there IS real value in it — a phone in
+     landscape measurably grows from 403×268 to 585×390), but narration and
+     inventory are never hidden or removed from flow — they become a fixed
+     overlay anchored to the viewport bottom instead, still fully live,
+     still fully readable, still announced. Where the picture cannot
+     actually grow (phone portrait is already width-bound, so the reserve
+     was never the limiting dimension there — physically unavoidable, not a
+     bug), the visible change is that the chrome moves from pushing the
+     picture up to floating over its own foot instead of nothing changing
+     at all, so the button's claim stays true even there. */
+  html.fs-active #stage {
+    width: min(100%, max(120px, calc(100vh * (1536 / 1024))));
+    width: min(100%, max(120px, calc(100svh * (1536 / 1024))));
+  }
+  html.fs-active #narration, html.fs-active #inventory {
+    position: fixed; left: 0; right: 0; z-index: 4;
+    background: rgba(5, 7, 10, 0.82);
+  }
+  html.fs-active #inventory { bottom: 0; }
+  html.fs-active #narration { bottom: 3.4rem; } /* stacks directly above the inventory strip */
+  #fullscreen-toggle {
+    position: absolute; top: 6px; right: 6px; z-index: 3;
+    width: 2rem; height: 2rem; padding: 0;
+    background: rgba(200, 180, 137, 0.06); color: #c8b489;
+    border: 1px solid rgba(200, 180, 137, 0.35); cursor: pointer;
+  }
+  #fullscreen-toggle svg { width: 100%; height: 100%; display: block; }
+  /* [Kabe, 2026-08-30] "A toggle on the demo to switch between demos." The
+     world switch: same chrome as its neighbour, one control, listing what
+     fixtures/index.js was baked with — a pack that is not baked is not
+     offered. Hidden until the boot fills it, and hidden for good when there
+     is only one world to be in. */
+  #world-switch {
+    position: absolute; top: 6px; right: calc(6px + 2rem + 6px); z-index: 3;
+    height: 2rem; max-width: 40%; padding: 0 6px;
+    font: inherit; font-size: 0.8rem; letter-spacing: 0.04em;
+    background: rgba(200, 180, 137, 0.06); color: #c8b489;
+    border: 1px solid rgba(200, 180, 137, 0.35); cursor: pointer;
+  }
+  #world-switch option { background: #14120d; color: #c8b489; }
+  #world-switch[hidden] { display: none; }
+  /* The icon itself must change with the state it names, or a sighted mouse
+     user — the majority case, who never reads the aria-label — sees a mark
+     that contradicts the picture: an artifact critic found the glyph frozen
+     on "expand" while fs-active was true. Two path sets, toggled by the
+     SAME class the label reads from. */
+  #fullscreen-toggle .icon-exit { display: none; }
+  #fullscreen-toggle.active .icon-enter { display: none; }
+  #fullscreen-toggle.active .icon-exit { display: block; }
+  /* THE STANDING READOUT — where you are and which way you are looking.
+     Kabe's own ask, 2026-08-24 [HUMAN, verbatim]: "I'd like a text overlay
+     somewhere stating room identified and direction for my reference."
+
+     Row 24 owns the full wayfinding instrument (compass, map, the
+     screen-reader surface on all 88 facings) and **how much of it is always
+     on is Kabe's ruling, not a builder's** — this is one sliver of it,
+     shipped now because he asked for it now.
+
+     Chrome, never the scene canvas: the capture rule forbids anything on the
+     picture the flip pairs are cut from, so this is DOM over the stage,
+     carries `.chrome` (it hides with everything else under `body.capture`),
+     and no scene hash moves because the canvas never learns it exists.
+
+     Top LEFT: the fullscreen button holds the top right, the chevrons hold
+     the vertical middle of both edges, and the bottom is the narration's.
+     Absolutely positioned inside #stage, so it costs the picture nothing —
+     the bottom chrome's 7.6rem reserve is what sizes the frame, and a band
+     added there would shrink the picture on every height-bound viewport.
+     pointer-events: none — a readout is not a control, and a click on the
+     corner it sits in still reaches the canvas underneath. */
+  #whereami {
+    position: absolute; top: 6px; left: 6px; z-index: 3;
+    padding: 2px 8px; max-width: calc(100% - 3.5rem);
+    font-size: 0.8rem; line-height: 1.3; letter-spacing: 0.04em;
+    color: #c8b489; background: rgba(200, 180, 137, 0.06);
+    border: 1px solid rgba(200, 180, 137, 0.35);
+    pointer-events: none;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  #whereami .sep { padding: 0 0.4em; opacity: 0.7; }
+  /* [Row 45] The wall is on its way. Dimmer than the place and the aspect,
+     because it is about the picture and they are about where you stand; its
+     separator is drawn here rather than marked up, since it appears and goes
+     with the note and is decoration either way. */
+  #whereami-painting { opacity: 0.55; font-style: italic; }
+  #whereami-painting::before { content: "·"; padding: 0 0.4em; opacity: 0.7; font-style: normal; }
+  #whereami-painting[hidden] { display: none; }
+  /* Row 10, entity/doorway keyboard controls: invisible, pointer-events:none
+     so a mouse click passes straight through to the canvas beneath — the
+     existing resolve()/hitTest() pointer path is untouched by construction.
+     Keyboard/AT activation of a focused button fires its click handler
+     regardless of pointer-events (that property only gates hit-testing, not
+     synthetic activation of a focused element) — the same pattern a
+     visually-hidden "skip to content" link relies on. Position is in percent
+     of #stage so it tracks the entity roughly even though it stays invisible
+     — belt, not just the suspenders pointer-events:none already is. */
+  /* `opacity: 0`, tried first, made these buttons genuinely unreachable by
+     Tab on Firefox: Playwright's own accessibility snapshot showed no `ref`
+     for any of them there — Firefox excludes near-zero-opacity elements from
+     the keyboard focus order in a way Chromium does not, the exact opposite
+     of what a keyboard-access row exists to fix. The standard
+     `clip`/`clip-path` visually-hidden technique (used site-wide for skip
+     links, with no such exclusion on any engine) replaces it; pointer-events
+     stays none, which is a genuinely different, spec-guaranteed property —
+     it is what lets a mouse click pass through, unrelated to focusability. */
+  .entity-control {
+    position: absolute; width: 1px; height: 1px; margin: -1px;
+    overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%);
+    white-space: nowrap; pointer-events: none; border: 0; padding: 0;
+  }
+  /* Row 10, reduced motion. The go veil's black-in phase is already instant
+     (.instant); this makes the fade-OUT (removing .on) instant too, under
+     the media query only — harmless in a normal session, since the JS path
+     (below) skips adding .on at all when the preference is set, so this rule
+     is defense in depth rather than the sole mechanism. */
+  @media (prefers-reduced-motion: reduce) { #veil { transition: none; } }
+  #scene, #overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    display: block;
+  }
+  #overlay { pointer-events: none; } /* hover overlay: chrome, never hashed */
+  /* The go fade: DOM chrome over the canvas, never canvas drawing (§8).
+     Order matters and was wrong once: the veil covers the room you are
+     LEAVING before the viewstate moves, then fades off the room you have
+     arrived in. So `.instant` (no transition) snaps it black at the moment
+     of the click, and removing `.on` fades the arrival up over 0.38s. A
+     veil that fades in after the destination is already painted blacks out
+     the room you just walked into.
+     pointer-events: none — input stays live through the fade (accepted V1
+     consequence, recorded in the design documents). */
+  #veil {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #000; opacity: 0; transition: opacity 0.38s ease;
+    pointer-events: none;
+  }
+  #veil.on { opacity: 1; }
+  #veil.instant { transition: none; }
+  .chevron {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 4%; min-width: 40px; height: 20%;
+    background: rgba(200, 180, 137, 0.06); color: #c8b489;
+    border: 1px solid rgba(200, 180, 137, 0.35);
+    font-size: 2rem; cursor: pointer; z-index: 2;
+  }
+  #chevron-left { left: 0; border-left: none; }
+  /* [Kabe, 2026-08-30] "An up arrow instead of a turn arrow, indicating that
+     you can walk forward in the same room." Shown only when the facing carries
+     a threshold — a jamb-less way on (a long room's next box, the court's
+     mouth). Same chrome as the chevrons; sits low and centred, where the floor
+     ahead is. */
+  #chevron-forward {
+    position: absolute; left: 50%; bottom: 9%; top: auto;
+    transform: translateX(-50%);
+    width: 4%; min-width: 40px; height: 12%;
+  }
+  #chevron-forward[hidden] { display: none; }
+  #chevron-right { right: 0; border-right: none; }
+  /* Bottom chrome: narration log + inventory strip = 7.6rem.
+     Bare surfaces — no labels, no empty-state text (the product's voice
+     rule: method speech goes nowhere).
+     There was a third band here, a status line, and it printed the fixture
+     bake fingerprint and a re-bake command on the product face — the
+     project talking to itself where a stranger reads it. The fingerprint
+     went to the console at boot; the one genuine fault it also carried (a
+     boot viewstate the world does not hold) is now a product-voiced line in
+     the narration pane, which is where every other fault line already
+     speaks. A developer-caused condition does not get a permanent element
+     of the product face, and no healthy visitor pays a reserved strip for
+     it. */
+  /* 4.2rem, not 3.2: at 390 px an arrival line wraps to two rows and the
+     pane held one and a sliced half of another, permanently, with ascenders
+     cut mid-glyph. The narration is the only thing in this product that
+     speaks to a player. */
+  /* The bottom chrome is deliberately NOT narrowed to the stage's width.
+     Aligning it to the picture is tidier — at 1440x900 the prose begins at
+     x=8 while the frame begins at x=136, so the words hang off the frame
+     into the letterbox — but it costs a whole line of prose at phone
+     landscape (750x342: two visible lines become one in a 67px pane), and
+     the narration is the only thing in this product that speaks to a
+     player. Legibility beats alignment; the tidier version belongs with
+     row 8's presentation work, where the reserve can move with it. */
+  #narration {
+    /* border-box, so the 2px of padding lives inside the 4.2rem rather than
+       adding to it: the stage's reserve is stated in rem and the chrome has
+       to measure what it says. */
+    box-sizing: border-box;
+    height: 4.2rem; overflow-y: auto; padding: 2px 8px;
+    font-size: 0.95rem; line-height: 1.3;
+  }
+  #narration p { margin: 0 0 2px 0; }
+  /* Slack under the last message, on the CONTENT so the box does not grow
+     and the 9.6rem chrome budget is untouched. The pane can only scroll as
+     far as its content, so with no slack the only reachable position is the
+     exact bottom — which lands the top edge mid-line whatever the heights
+     are. This buys the few pixels the snap needs; it shows as blank only
+     when a line boundary demands it. */
+  #narration p:last-child { margin-bottom: 2.6rem; }
+
+  #inventory {
+    height: 3.4rem; padding: 0 8px; display: flex; gap: 6px;
+    align-items: center;
+  }
+  #inventory canvas.inv-tile {
+    /* One sampling policy for all three. The thumbs are built nearest-
+       neighbour from sources of very different size (key 80×48, coin 24×24),
+       and letting the browser smooth the CSS downscale on top of that left
+       the coin a soft grey blob beside two crisp tiles — a visible tell that
+       one object was made differently, which is exactly what "one hand" is
+       about. */
+    image-rendering: pixelated;
+    width: 48px; height: 48px;
+    border: 1px solid rgba(200, 180, 137, 0.35);
+    background: rgba(200, 180, 137, 0.04);
+  }
+  /* Capture mode: §12.6 flip pairs are element screenshots of the scene
+     canvas, and overlapping DOM appears in element screenshots — so all
+     chrome hides under this class; capture tooling sets it. */
+  /* !important because an ID rule outranks this one: `#inventory` carries
+     `display: flex` at (0,1,0,0) against this selector's (0,0,2,1), so the
+     strip was never hidden by capture mode at all — the documented
+     invariant "all chrome hides under body.capture" was false for it, and
+     the only reason no capture was wrong is that the strip sits below the
+     stage and never overlapped the scene canvas. Making the rule win costs
+     nothing and makes the sentence true. */
+  body.capture .chrome { display: none !important; }
+  /* Capture mode also drops the vertical centring: §12.6 wants the scene
+     element captured at exactly 1536×1024, and a flex-centred stage lands on
+     a fractional y, which rounds the element screenshot to 1025 px tall. All
+     chrome is hidden here anyway, so block layout puts the stage at 0. */
+  body.capture { display: block; }
+</style>
+</head>
+<body>
+  <!-- [Row 45] Where the paintings are decoded — the ones the page has asked
+       for: the wall in front of you, then the walls one turn or one step away.
+       They are in the document (hidden; the canvas is the only picture) so the
+       browser owns their decoding and its `load` event means the wall you are
+       looking at is in. Only that one is ever asked for before load. -->
+  <div id="backdrop-store" hidden aria-hidden="true"></div>
+  <div id="stage">
+    <canvas id="scene" width="1536" height="1024" role="img" aria-label="what you see"></canvas>
+    <canvas id="overlay" width="1536" height="1024"></canvas>
+    <div id="veil" class="chrome"></div>
+    <button id="chevron-left" class="chevron affordance chrome" aria-label="turn left">&lsaquo;</button>
+    <button id="chevron-right" class="chevron affordance chrome" aria-label="turn right">&rsaquo;</button>
+    <button id="chevron-forward" class="chevron affordance chrome" aria-label="walk forward" hidden>&uarr;</button>
+    <button id="fullscreen-toggle" class="affordance chrome" aria-label="fill the screen"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><g class="icon-enter" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></g><g class="icon-exit" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"/></g></svg></button>
+    <select id="world-switch" class="chrome" aria-label="which place this is" hidden></select>
+    <div id="entity-controls"></div>
+    <!-- The standing readout. `role="status"` rather than a bare div: the
+         place and the facing are announced when they change, which is the
+         first sliver of row 24's "every facing names itself to a screen
+         reader" — 86 of the manor's 88 facings say nothing at all today. The
+         two halves are separate elements so each is its own string; the mark
+         between them is decoration and is hidden from assistive tech, so what
+         is announced is the place and the aspect and no punctuation. Empty at
+         parse: it is filled by the first paint, and only ever with a view the
+         document actually holds.
+
+         LAST in the stage, after the controls: it is not one, it is not
+         focusable, and keyboard.spec's structure pin ("chevrons, then
+         fullscreen, then #entity-controls") is a claim about where the
+         focusable things are. Where it PAINTS is decided by z-index, not by
+         this position. -->
+    <div id="whereami" class="chrome" role="status" aria-label="where you stand" hidden><span id="whereami-place"></span><span class="sep" aria-hidden="true">·</span><span id="whereami-facing"></span><span id="whereami-painting" aria-hidden="true" hidden>painting loading…</span></div>
+  </div>
+  <div id="narration" class="chrome" tabindex="0" aria-live="polite" aria-label="what the room says"><noscript><style>.affordance{display:none}</style><p>This place is projected by your browser, and your browser is not running scripts. Nothing can be shown here until it does.</p></noscript></div>
+  <div id="inventory" class="chrome" role="group" aria-label="what you are carrying"></div>
+  <script>
+  /* Registered before anything else loads, and depending on nothing that
+     could fail: if a script does not arrive or throws on the way up, the
+     page used to sit black and silent with `‹ ›` as its entire text — the
+     exact shape of a partial load over a public link. The product says so
+     itself instead, in its own voice, and the developer detail goes to the
+     console. */
+  (function () {
+    "use strict";
+    var said = false;
+    window.HOLO_SPOKE = window.HOLO_SPOKE || {};
+    function wavers() {
+      if (said) return;
+      /* One fault, one voice. The render path's own handler also speaks, and
+         when both fired the pane stacked two lines that contradict each
+         other — "nothing of this place can be shown" above "a shown thing
+         wavered". Whichever speaks first owns the fault. */
+      if (window.HOLO_SPOKE.fault) return;
+      /* Only for a page that never got a frame up. This sentence says
+         "nothing of this place can be shown", and an uncaught error thrown
+         at any later moment — a stray timer, an extension, anything — used
+         to print it over a scene that was painted and working, with every
+         affordance still live. A reachable surface string that is false in a
+         reachable state is what "the picture never lies about it" rules out;
+         a fault after the first frame belongs to the render path's own
+         handler, which knows what it is talking about. */
+      if (window.HOLO_APP && window.HOLO_APP.paints > 0) return;
+      said = true;
+      window.HOLO_SPOKE.boot = true;
+      var pane = document.getElementById("narration");
+      if (!pane) return;
+      var p = document.createElement("p");
+      p.textContent = "The projection will not hold. Nothing of this place can be shown.";
+      pane.appendChild(p);
+      /* And stop offering controls that were never wired. A missing script
+         means no handler was ever attached, so the chevrons (and, since row
+         8, the fullscreen button) stay named, focusable and dead — the same
+         defect the render-path handler already withdraws them for, on the
+         other fault path. Selector is `.affordance`, not `.chevron`: a
+         second live control carrying only `.chevron` would silently escape
+         this exact withdrawal (row 10 gave both a shared marker class for
+         exactly this). */
+      var affordances = document.querySelectorAll(".affordance");
+      for (var i = 0; i < affordances.length; i++) affordances[i].style.display = "none";
+    }
+    /* DEFERRED, not immediate, and [row 21] deferred to the LOAD event rather
+       than to the next task. A missing `<script src>` fires its error BEFORE
+       the page paints, and some of this page's scripts are not on the boot
+       path at all — remove `src/inventory.js` and the room draws, the chevrons
+       work, the view turns, and the apology "Nothing of this place can be
+       shown" prints over a working picture. Waiting lets the paint that is
+       about to happen answer for itself.
+       ONE TASK IS NO LONGER LONG ENOUGH: the first frame waits for the baked
+       paintings to decode, so at the next task a perfectly healthy page has
+       painted nothing yet and this sentence was printing over a room that was
+       about to appear. The load event is exactly the moment the pictures are
+       in — they are elements in the document — and it fires whether or not
+       anything came up, so a page that truly never boots still speaks. */
+    function deferWavers() {
+      if (document.readyState === "complete") setTimeout(wavers, 0);
+      else window.addEventListener("load", function () { setTimeout(wavers, 0); });
+    }
+    window.addEventListener("error", function (e) {
+      console.error("boot fault:", e && (e.error || e.message));
+      deferWavers();
+    }, true);
+    window.addEventListener("DOMContentLoaded", function () {
+      // Every script ran, but the app never took: same silence, same answer.
+      if (!window.HOLO_APP) deferWavers();
+    });
+  })();
+  </script>
+  <script>
+  /* [row 44, clause 8] THE PAGE CARRIES THE WORLD IT WAS ASKED FOR. Two fixture
+     bundles used to be script tags here, which made the set of worlds a
+     constant of the page; a pack's world is `fixtures/<name>/fixture.js` and
+     the name is the query's, read once, synchronously, so the boot below
+     finds it registered exactly as a static tag would have. An id outside
+     [A-Za-z0-9_-] loads nothing and takes the boot surface as an unknown
+     world does. */
+  (function () {
+    var m = /[?&]world=([^&]*)/.exec(window.location.search || "");
+    var w = "nav-manor";
+    try { if (m) w = decodeURIComponent(m[1]); } catch (ignored) { /* the default stands */ }
+    if (/^[A-Za-z0-9_-]+$/.test(w)) {
+      document.write('<script src="fixtures/' + w + '/fixture.js?v=498c2a4c"><\/script>');
+    }
+  })();
+  </script>
+  <script src="fixtures/index.js?v=498c2a4c"></script>
+  <script src="backdrops/baked.js?v=498c2a4c"></script>
+  <script src="library/baked.js?v=498c2a4c"></script>
+  <script src="src/groundplane.js?v=498c2a4c"></script>
+  <script src="src/placeholders.js?v=498c2a4c"></script>
+  <script src="src/renderer.js?v=498c2a4c"></script>
+  <script src="src/harness.js?v=498c2a4c"></script>
+  <script src="src/inventory.js?v=498c2a4c"></script>
+  <script>
+  /* Bootstrap: wiring only. The harness owns viewstate; every view change
+     flows intent -> envelope -> redraw, and the boot paint is the harness
+     invoking its own subscriber once. The harness keeps ONE subscriber (the
+     scene painter, invoked only on non-empty events) and HOLO_APP.paints
+     counts exactly those invocations; narration and inventory are not
+     subscribers — every input handler passes the returned envelope to one
+     synchronous updateChrome. */
+  (function () {
+    "use strict";
+    /* WHICH WORLD. [Row 21] The page carries more than one baked world and
+       the bare URL — the one a visitor opens — boots the painted navigation
+       world: the manor's two rooms, walkable, empty of objects, painted where
+       a wall has been admitted and holodeck grid where it has not. The
+       furnished demo world §12.1 walks is at `?world=demo-study`, and the
+       README says so, because the storefront is ruled mute and a query
+       parameter nothing names is a room with no door.
+
+       An unknown id is NOT quietly swapped for a working world: a page that
+       boots something other than what it was asked for is the picture lying
+       about the document, and the boot surface below already has the sentence
+       for a view this pattern does not hold. */
+    var DEFAULT_WORLD = "nav-manor";
+    var fixtures = window.HOLO_FIXTURES || {};
+    var wanted = DEFAULT_WORLD;
+    try {
+      /* THE VALUE IS THE WHOLE VALUE, and the anchors are the point. This
+         pattern was unanchored at its tail, so it matched a PREFIX: `?world=
+         nav-manor.evil` booted `nav-manor` and `?world=demo-study.evil` booted
+         the furnished world, both in silence — a page booting something other
+         than what it was asked for, which is the one thing the paragraph above
+         says it must never do. The test written for it only ever passed ids
+         made entirely of the characters this class admits, so the grammar was
+         its own alibi. Read to the end of the parameter (`&` or the end of the
+         string) and take it whole; an id carrying anything else is unknown and
+         takes the boot surface, exactly as a misspelling does. */
+      var q = /[?&]world=([^&]*)/.exec(window.location.search || "");
+      if (q) wanted = decodeURIComponent(q[1]);
+    } catch (ignored) { /* no location to read: the default stands */ }
+    var fixture = fixtures[wanted];
+    if (!fixture) {
+      /* [F16] And then the line below throws, which is the whole handling: the
+         boot surface registered before any module loaded answers an uncaught
+         error with "nothing of this place can be shown", withdraws the
+         chevrons and says it once. A second branch here used to set a flag for
+         a narration line that could never be reached, because nothing after
+         this point runs. The console keeps the developer's half. */
+      console.error(
+        "BOOT ERROR: no baked world \"" + wanted + "\" — the page carries " +
+        JSON.stringify(Object.keys(fixtures)) + ". Bake it with: " +
+        "node tools/bake-fixtures.mjs --fixture-dir fixtures/" + wanted);
+    }
+    /* `HOLO_FIXTURE` is the world that was BOOTED, set here rather than by the
+       bake, so the name means the world on screen instead of whichever script
+       tag came last. */
+    window.HOLO_FIXTURE = fixture;
+    var harness = window.HOLO.harness.create(fixture);
+    var scene = document.getElementById("scene");
+    var overlay = document.getElementById("overlay");
+    var overlayCtx = overlay.getContext("2d");
+    var narrationEl = document.getElementById("narration");
+    var inventoryEl = document.getElementById("inventory");
+    var veil = document.getElementById("veil");
+    var entityControlsEl = document.getElementById("entity-controls");
+    var fullscreenBtn = document.getElementById("fullscreen-toggle");
+    var whereamiEl = document.getElementById("whereami");
+    var whereamiPlace = document.getElementById("whereami-place");
+    var whereamiFacing = document.getElementById("whereami-facing");
+    var whereamiPainting = document.getElementById("whereami-painting");
+    /* [Row 42] Everything the first frame has to wait for, in ONE list —
+       the promoted paintings AND the ingested sprites. Declared before the
+       library is built because the sprite bake fills it: a leaf drawn from an
+       undecoded PNG is a hole in the doorway, and the page has always held its
+       first frame rather than flip a grid to a painting a frame later. */
+    var pendingImages = [];
+    var library = window.HOLO.placeholders.build(document, pendingImages);
+    /* The renderer's backdrop map: "location/facing" -> { image, meta }.
+       Row 11 fills the META half from the bake — every facing the overhead
+       plan holds carries its own §5 geometry, derived from plan.json by
+       tools/plan-projection.mjs and baked beside the fixture (a file:// page
+       cannot fetch the plan). Row 4 fills the IMAGE half; the resolution rule
+       is the renderer's and does not change when it does. A facing the plan
+       does not hold has no entry and falls to GRID_META, the
+       unplanned-facing meta — one unbounded wall, no corners. */
+    var backdrops = {};
+    var bakedMetas = fixture.metas || {};
+    for (var mk in bakedMetas) {
+      if (Object.prototype.hasOwnProperty.call(bakedMetas, mk)) {
+        backdrops[mk] = { meta: bakedMetas[mk] };
+      }
+    }
+    /* [Row 45] And the IMAGE half — BY URL, one wall at a time.
+       A painting belongs to the BUILDING, not to a fixture: any world standing
+       in this manor's study looking north sees the same north wall, so the map
+       is filled from the promoted set and not from whichever world booted. A
+       facing this world does not name gets no entry, and a facing with no
+       painting keeps its meta and draws the grid — which is the materialization
+       fiction doing exactly what it says: space that has not been established
+       yet is drawn as the holodeck's own scaffold.
+
+       WHAT CHANGED, and why. Until this row `backdrops/baked.js` carried every
+       painting in the building as a `data:` URI: 71 walls, 44 MB, a blocking
+       <script> after the UI's own scripts. The UI came up and then the page sat
+       there — Kabe, from the live site: "Sometimes loading hangs on first
+       launch. UI is present but then hangs without images loading." Nothing
+       hung. The first wall was waiting on the download, parse and decode of
+       every other wall in every other world.
+
+       So the page asks for the wall it is looking at, by URL, and for nothing
+       else on the way in. The manifest (`backdrops/baked.js`, now ~14 kB) says
+       which facings have a painting and what each one is called; §12.2
+       determinism is a claim about the DOCUMENT, which is baked and synchronous
+       as it always was, and a picture arriving a moment later is presentation. */
+    var manifest = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.paintings) || {};
+    var paintingDir = (window.HOLO_BACKDROPS && window.HOLO_BACKDROPS.dir) || "backdrops/served/";
+    var imageStore = document.getElementById("backdrop-store");
+    var requested = {};   // "loc/facing" -> the Image asked for: in flight, or in
+    var prefetching = false;   // armed at load: neighbours are never on the way in
+    var lastWarmed = null;     // the facing warm() last ran for; a move clears failures
+    var repaints = 0;          // presentation repaints — NOT paints; see paintFrame()
+
+    function keyOf(vs) { return vs.location + "/" + vs.facing; }
+
+    /* Ask for one wall. It returns nothing, because what it does is arrange for
+       a picture to arrive later; the page's answer to "not yet" is the grid and
+       the readout's own note, and neither of them is a lie about the room. */
+    function requestPainting(key) {
+      if (!manifest[key] || !backdrops[key]) return;  // no painting, or not a facing this world holds
+      if (requested[key]) return;                     // asked already: in flight, or in
+      var img = new Image();
+      img.alt = "";
+      img.dataset.facing = key;
+      requested[key] = img;
+      img.addEventListener("load", function () {
+        backdrops[key].image = img;
+        /* The wall you are standing in front of repaints the moment it lands.
+           A neighbour just waits in the register, which is the whole point of
+           having asked for it early. */
+        /* [Kabe, 2026-08-30, ward/W] ...AND SO DOES A WALL THIS VIEW LOOKS
+           THROUGH. The room beyond a doorway is painted from its own wall's
+           image; when that image landed after this wall's paint, the doorway
+           kept the grid it was painted with until the next input. A neighbour
+           that the current view depends on repaints it too. */
+        if (harness.viewstate && (keyOf(harness.viewstate) === key ||
+            neighbourKeys(harness.viewstate).indexOf(key) !== -1)) presentPainting();
+      });
+      img.addEventListener("error", function () {
+        console.error("BACKDROP ERROR: " + paintingDir + manifest[key].file +
+          " did not arrive — " + key + " draws the grid until it does. If it is " +
+          "missing from the tree, re-run: node tools/bake-backdrops.mjs");
+        /* MARKED, not forgotten — and the difference is a fetch loop. A wall
+           that failed is still a wall that was asked for, so nothing asks
+           again while you stand in front of it (the repaint below runs through
+           warm(), which would otherwise re-request the thing that just failed,
+           for ever). It is cleared when the view MOVES: the page cannot tell a
+           wall that will never come from a publish that has not finished
+           landing, and "not here yet" is the honest reading of both, so coming
+           back to this facing asks again and a page left open across a deploy
+           heals itself instead of holding a grid for ever. */
+        requested[key].failed = true;
+        if (backdrops[key]) delete backdrops[key].image;
+        if (harness.viewstate && keyOf(harness.viewstate) === key) presentPainting();
+      });
+      /* In the document. Only ONE image is ever asked for before the load event
+         — the wall in front of you — so `load` still means "the first wall is
+         in", which is what every spec that opens this page and reads the canvas
+         back is entitled to assume. The neighbours are asked for after it, so
+         they cost the first frame nothing. */
+      if (imageStore) imageStore.appendChild(img);
+      /* [Kabe, 2026-08-30] "Not seeing any difference in the live demo" — the
+         paintings travel at stable URLs behind a 10-minute cache, so a
+         repainted wall showed its old self long after a publish (the same
+         mask the scripts wore before the sha stamp). The manifest's byte
+         count names this exact painting: the URL changes when the painting
+         does and never otherwise. */
+      img.src = paintingDir + manifest[key].file + "?v=" + (manifest[key].bytes || 0);
+    }
+
+    /* One turn or one step away: the three other facings of the room you are
+       standing in, and the facing each of its exits arrives on. That is the
+       whole set of walls the next input can put in front of you. */
+    function neighbourKeys(vs) {
+      var out = [], locs = (harness.world && harness.world.locations) || [], held = null, i;
+      for (i = 0; i < locs.length; i++) if (locs[i].id === vs.location) held = locs[i];
+      if (!held) return out;
+      var fs = held.facings || [];
+      for (i = 0; i < fs.length; i++) if (fs[i] !== vs.facing) out.push(vs.location + "/" + fs[i]);
+      var ex = held.exits || [];
+      for (i = 0; i < ex.length; i++) {
+        if (ex[i] && ex[i].to && ex[i].arrive_facing) out.push(ex[i].to + "/" + ex[i].arrive_facing);
+      }
+      /* [Kabe, 2026-08-30] TWO ROOMS BACK, on the wall you face: the
+         through-view now looks through the far room's own doorway, so the
+         wall that doorway shows is part of THIS view and is asked for with
+         the neighbours (renderer THROUGH_DEPTH_MAX). */
+      for (i = 0; i < ex.length; i++) {
+        if (!ex[i] || ex[i].facing !== vs.facing || !ex[i].to) continue;
+        var far = null, j;
+        for (j = 0; j < locs.length; j++) if (locs[j].id === ex[i].to) far = locs[j];
+        var fx = (far && far.exits) || [];
+        for (j = 0; j < fx.length; j++) {
+          if (fx[j] && fx[j].facing === ex[i].arrive_facing && fx[j].to && fx[j].arrive_facing) {
+            var k2 = fx[j].to + "/" + fx[j].arrive_facing;
+            if (out.indexOf(k2) === -1) out.push(k2);
+          }
+        }
+      }
+      return out;
+    }
+
+    /* Every view change runs through here, because every view change runs
+       through paint(): the wall you arrived at first, then its neighbours. */
+    function warm(vs) {
+      if (!vs) return;
+      /* A view change is when a wall that did not arrive is worth asking for
+         again — a slow publish lands, a flaky link comes back — and standing
+         still is when it is not. */
+      var k = keyOf(vs);
+      if (k !== lastWarmed) {
+        lastWarmed = k;
+        for (var f in requested) {
+          if (Object.prototype.hasOwnProperty.call(requested, f) && requested[f].failed) {
+            delete requested[f];
+          }
+        }
+      }
+      requestPainting(keyOf(vs));
+      if (ONEWALL && ONEWALL[keyOf(vs)]) requestPainting(ONEWALL[keyOf(vs)].from);
+      if (!prefetching) return;
+      var ns = neighbourKeys(vs);
+      for (var i = 0; i < ns.length; i++) requestPainting(ns[i]);
+    }
+
+    /* A repaint the WORLD did not ask for. It is not a harness event and it is
+       not counted as one: `paints` is the tally of the subscriber's own
+       invocations and a refusal case reads it across two ticks, so a painting
+       landing mid-case must not move it. What arrived is a picture; the
+       document it is a picture of has not changed. */
+    function presentPainting() {
+      if (halted) return;
+      repaints += 1;
+      if (window.HOLO_APP) window.HOLO_APP.repaints = repaints;
+      paintFrame(harness.viewstate, true);
+    }
+
+    /* [Kabe, 2026-08-31] the one-wall walk experiment table, on only with
+       ?onewall=1 in the URL; the E pair of the platform is the testbed. */
+    var ONEWALL = /[?&]onewall=1/.test(window.location.search || "")
+      ? { "platform_far/E": { from: "platform/E", scale: 11.2 / 4.8 } }
+      : null;
+    function metaFor(vs) {
+      var e = backdrops[vs.location + "/" + vs.facing];
+      return (e && e.meta) ? e.meta : window.HOLO.renderer.GRID_META;
+    }
+    var paints = 0;
+    var currentLayout = null;
+    var veilTimer = null;
+    var lastGo = null;          // timestamp of the last successful `go` — the double-click echo guard
+    var DOUBLE_CLICK_MS = 400;
+    var lastPointer = null;
+    var focusTarget = null;     // row 10: the keyboard-focused resolve()-shaped target, or null
+    var halted = false;         // a fault the page cannot come back from
+    var stripFaulted = false;   // the strip alone; the picture is unharmed
+
+    /* Render-path faults surface in the product's voice (the intention's
+       standing rule: every reachable surface string, errors included, is
+       product speech; developer detail goes to the console). */
+    /* Said once, and then the page stops offering things that will not work.
+       Repeating the same apology per arrow key, with the chevrons still lit,
+       leaves a player pressing buttons at a black rectangle that stutters. */
+    function fault(err) {
+      console.error("render fault:", err);
+      if (halted) return;
+      halted = true;
+      window.HOLO_SPOKE = window.HOLO_SPOKE || {};
+      window.HOLO_SPOKE.fault = true;
+      /* Symmetric with the boot handler's own latch, because the order the
+         two fire in depends on which script is missing: whichever speaks
+         first owns the fault, and the second stays quiet rather than
+         stacking a contradiction ("nothing of this place can be shown"
+         above "a shown thing wavered"). */
+      if (!window.HOLO_SPOKE.boot) {
+        appendNarration("The projection wavers; the pattern will not resolve.");
+      }
+      /* And the picture goes with the sentence. fault() is reached from four
+         places and only paint()'s catch cleared the frame, so a throw on the
+         click, hover or dispatch path printed "the pattern will not resolve"
+         over a room that was on screen and correct — the same lie the strip
+         path was given its own true sentence to avoid. Whatever the caller,
+         the page now disowns the frame it has just said it cannot hold. */
+      try {
+        currentLayout = null;
+        scene.getContext("2d").clearRect(0, 0, scene.width, scene.height);
+        overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      } catch (ignored) { /* the canvas is already beyond reach */ }
+      /* And the readout goes with the frame it was reading. The page has just
+         said the pattern will not resolve; a label still naming the room over
+         a black rectangle claims a place the picture no longer shows. */
+      try {
+        whereamiPlace.textContent = "";
+        whereamiFacing.textContent = "";
+        whereamiEl.hidden = true;
+      } catch (ignored2) { /* the element is already beyond reach */ }
+      var affordances = document.querySelectorAll(".affordance");
+      for (var i = 0; i < affordances.length; i++) affordances[i].style.display = "none";
+      scene.style.cursor = "";
+      /* Every affordance withdrawn together. Withdrawing the buttons while
+         the hover silhouette still lights up under the cursor claims two
+         different things about the same page: a player was left stroking a
+         lit, highlighted, dead room. `showHover` returns early on a null
+         layout, so this takes the highlight and the pointer with it.
+         Row 10: the keyboard controls go with them — cleared, not merely
+         hidden, since a stale button in the DOM would still dispatch into a
+         world the page has already disowned — and focus is not left
+         pointing at one that no longer exists. */
+      currentLayout = null;
+      lastPointer = null;
+      focusTarget = null;
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      if (entityControlsEl) {
+        if (entityControlsEl.contains(document.activeElement)) {
+          document.activeElement.blur();
+        }
+        while (entityControlsEl.firstChild) entityControlsEl.removeChild(entityControlsEl.firstChild);
+      }
+    }
+
+    /* The harness's ONE subscriber. Everything below it is shared with the
+       presentation repaint a painting's arrival asks for; the difference is
+       the tally, and the tally is what a refusal case reads. */
+    function paint(viewstate) { paintFrame(viewstate, false); }
+
+    function paintFrame(viewstate, presentation) {
+      /* [Row 45] Ask for the wall this frame is of before drawing it: at boot
+         this is the one image on the critical path, and on a turn or a travel
+         it is the wall the prefetch has usually already got in. */
+      warm(viewstate);
+      try {
+        window.HOLO.renderer.render(
+          scene, harness.world, harness.staging, library, backdrops, viewstate,
+          ONEWALL ? { onewall: ONEWALL } : {});
+        currentLayout = window.HOLO.renderer.layout(
+          harness.world, harness.staging, library, metaFor(viewstate), viewstate);
+      } catch (err) {
+        /* A fault used to return here with the previous frame's pixels still
+           on the canvas, the previous hover outline still inked, and the
+           pointer cursor still promising something clickable — the world had
+           moved and the picture had not, which is the same lie as the
+           picture moving when the world has not. Clear all three, so the
+           fault line is the only thing the page is claiming. */
+        currentLayout = null;
+        scene.getContext("2d").clearRect(0, 0, scene.width, scene.height);
+        overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+        scene.style.cursor = "";
+        fault(err);
+        return;
+      }
+      /* The overlay clears on every scene paint: a stale outline is the
+         overlay lying about the scene. Then it is re-drawn for wherever the
+         cursor actually is — clearing alone made an entity's only affordance
+         vanish at the moment it was clicked, and stay gone until the mouse
+         moved again. Row 10's focus outline goes through the same
+         paintOverlay(), so a keyboard user's outline survives a repaint the
+         same way the mouse's already did. */
+      if (!presentation) {
+        paints += 1;
+        window.HOLO_APP.paints = paints;
+      }
+      scene.style.cursor = "";
+      /* The readout follows the picture, and only a picture that painted:
+         paint() is the harness's ONE subscriber, so every view change — a
+         turn, a travel, the boot redraw — arrives here with the viewstate
+         that produced the frame on screen. Set after the render rather than
+         before it, because a readout naming the room over a frame that threw
+         is the same lie as the picture moving when the world did not. */
+      updateWhereami(viewstate);
+      /* Guarded on its own: syncControls()/paintOverlay() are a supplementary
+         layer over an already-successful render — the picture is correct and
+         on screen by this point — so a bug here degrades keyboard/AT
+         reachability for one paint rather than taking down the whole page or
+         (worse, at boot) escaping this function entirely and reaching the
+         boot handler's uncaught-error listener, which would print "nothing
+         of this place can be shown" over a room that painted fine. */
+      try {
+        syncControls();
+        paintOverlay();
+      } catch (err) {
+        console.error("entity-controls fault:", err);
+      }
+    }
+
+    /* The readout says where you stand — the place and the aspect, in the
+       document's own names for them, which is what Kabe asked it for.
+
+       It says NOTHING for a view the world does not hold. That is not
+       defensive coding, it is the same rule the rest of the page answers to:
+       a viewstate naming a room that is not in the document, or an aspect
+       that room does not have, is a broken document, and the narration pane
+       already has the sentence for it ("The projection was set to a view this
+       pattern does not hold."). A readout that printed `atrium` would be the
+       chrome asserting a place the world denies — and would put a name on the
+       surface that exists in no world, which is exactly the kind of string
+       the surface audit enumerates against. Blank and gone is the honest
+       state; the fault has a voice elsewhere. */
+    function updateWhereami(vs) {
+      var locs = (harness.world && harness.world.locations) || [];
+      var held = null;
+      for (var i = 0; i < locs.length; i++) {
+        if (locs[i].id === vs.location) held = locs[i];
+      }
+      var real = !!(held && held.facings && held.facings.indexOf(vs.facing) !== -1);
+      whereamiPlace.textContent = real ? vs.location : "";
+      whereamiFacing.textContent = real ? vs.facing : "";
+      whereamiEl.hidden = !real;
+      /* [Row 45] And whether the picture is still on its way. The document
+         holds a painting for this facing and the page does not have it yet:
+         what is on screen is the grid, honestly, and this says why rather than
+         leaving a visitor to read an unestablished room as a finished one.
+         It goes as soon as the wall lands — the arrival repaints through here.
+
+         `aria-hidden`: the readout's spoken half is where you stand, and a
+         visitor who cannot see the painting is not waiting for it. Announcing
+         "painting loading" out of a role="status" on every turn would be noise
+         about the one thing that reader cannot use. */
+      var k = keyOf(vs);
+      whereamiPainting.hidden =
+        !(real && manifest[k] && !(backdrops[k] && backdrops[k].image));
+      /* [Kabe] THE UP ARROW: this facing carries a threshold — a way on with
+         no jamb (a long room's next box) — and walking forward is a control,
+         not a hunt for the right pixels. Hidden the moment the facing has
+         none. */
+      try {
+        var fwd = document.getElementById("chevron-forward");
+        var fex = null;
+        if (real && held && held.exits) {
+          for (var xi = 0; xi < held.exits.length; xi++) {
+            var hx = held.exits[xi];
+            /* `way_` is derive-world's name for an open_edge: a jamb-less way
+               on — the long room's next box, the court's mouth. A door stays a
+               door: you click it. */
+            if (hx && hx.facing === vs.facing && /^way_/.test(hx.id)) { fex = hx.id; break; }
+          }
+        }
+        if (fex) { fwd.dataset.exit = fex; fwd.hidden = false; }
+        else { delete fwd.dataset.exit; fwd.hidden = true; }
+      } catch (ignoredFwd) { /* chrome only; the picture stands either way */ }
+    }
+
+    /* Show as many WHOLE lines as the pane holds, newest at the bottom, with
+       the top edge on a paragraph boundary. Scrolling to the pane's bottom
+       alone slices whatever line straddles the top edge — half a line of
+       type, and the narration is the only thing in this product that speaks
+       to a player. Pinning the newest line to the TOP instead avoided the
+       slice and then left two thirds of the pane blank with the transcript
+       scrolled out of reach: the same voice lost a different way. */
+    function scrollNarration() {
+      var ps = narrationEl.querySelectorAll("p");
+      if (!ps.length) return;
+      var last = ps[ps.length - 1];
+      var lastTop = last.offsetTop - narrationEl.offsetTop;
+      if (last.offsetHeight >= narrationEl.clientHeight) {
+        narrationEl.scrollTop = lastTop; // taller than the pane: start at its top
+        return;
+      }
+      var target = lastTop + last.offsetHeight - narrationEl.clientHeight;
+      for (var i = 0; i < ps.length; i++) {
+        var o = ps[i].offsetTop - narrationEl.offsetTop;
+        // The first boundary at or below the bottom-aligned position. It is
+        // never past the newest line's own top, so the newest stays whole.
+        if (o >= target) { target = o; break; }
+      }
+      narrationEl.scrollTop = target;
+      // If the content could not reach that boundary, fall back to putting
+      // the newest line at the top: a little blank below beats half a line
+      // of type above.
+      if (narrationEl.scrollTop !== target) narrationEl.scrollTop = lastTop;
+    }
+
+    function appendNarration(line) {
+      /* The same refusal said twice in a row is the same refusal. §8 requires
+         every refusal to narrate and this still does — the envelope stream
+         and the §12.9 domain are untouched — but ten clicks on the chair used
+         to fill a two-line pane with one sentence ten times, which is the
+         product's whole visible voice spent saying nothing new. */
+      var ps = narrationEl.querySelectorAll("p");
+      var prev = ps.length ? ps[ps.length - 1] : null;
+      if (prev && prev.getAttribute("data-line") === line) {
+        // The same refusal said twice is the same refusal: leave the line
+        // standing rather than filling a two-line pane with one sentence
+        // six times. The count is NOT written to the surface — "(×4)" is a
+        // string about the message stream's own behaviour, in the one voice
+        // that speaks only about the world, and it is composed at runtime
+        // where an audit that reads source literals would never find it.
+        var n = (parseInt(prev.getAttribute("data-count"), 10) || 1) + 1;
+        prev.setAttribute("data-count", String(n));
+        scrollNarration();
+        return;
+      }
+      var p = document.createElement("p");
+      p.setAttribute("data-line", line);
+      p.textContent = line;
+      narrationEl.appendChild(p);
+      scrollNarration();
+    }
+
+    function updateChrome(envelope) {
+      /* Once the page has said the projection will not resolve, nothing may
+         describe an event inside that projection. The subscriber runs INSIDE
+         harness.dispatch, so a paint fault spoke first and the world line
+         landed under it — "the pattern will not resolve" above "the drawer
+         resists, then gives", over a blank frame. A latch on the two boot
+         lines could never catch this; the ordering is the cause. */
+      if (halted) return;
+      if (envelope && typeof envelope.narration === "string") {
+        appendNarration(envelope.narration);
+      }
+      /* The strip is a projection of the same truth the prose reports, so a
+         throw here is not cosmetic: the pane said "You take the iron key"
+         and the strip stayed empty, the two halves of the surface
+         contradicting each other, silently.
+         But it is NOT the render fault either. Saying "the pattern will not
+         resolve" over a room that is on screen and correct is the same lie
+         one path further along — the picture resolved perfectly; what failed
+         is the tally of what you carry. So this state gets its own true
+         sentence, said once, and the picture is left alone. */
+      try {
+        window.HOLO.inventory.render(inventoryEl, harness.world, library, document);
+      } catch (err) {
+        console.error("inventory fault:", err);
+        while (inventoryEl.firstChild) inventoryEl.removeChild(inventoryEl.firstChild);
+        /* Only when the player is actually carrying something. At boot with
+           nothing held this printed "What you carry is with you still" as the
+           FIRST sentence a stranger reads — a claim about possessions they do
+           not have. An empty strip that cannot draw is truthfully silent. */
+        var held = 0, rel = harness.world.relations || [];
+        for (var h = 0; h < rel.length; h++) {
+          if (rel[h][0] === "held_by" && rel[h][2] === "player") held++;
+        }
+        if (held > 0 && !stripFaulted) {
+          stripFaulted = true;
+          appendNarration("What you carry is with you still, though it will not show itself here.");
+        }
+      }
+    }
+
+    /* dispatch owns the go veil because the veil has to be black BEFORE the
+       harness moves the viewstate — the room you leave goes dark, then the
+       room you arrive in fades up. `.instant` suppresses the transition for
+       the black; a refused go (no events) lifts it in the same tick, so a
+       closed door never flashes. */
+    function dispatch(intent) {
+      if (halted) return { turn_id: 0, intent: intent, events: [] };
+      var envelope;
+      try {
+        envelope = harness.dispatch(intent);
+      } catch (err) {
+        /* §8's amendment — "a frame this transport cannot read must still
+           answer" — was implemented for intents the harness can PARSE. An
+           exception inside it answered nothing at all: the page took the
+           click, said no word, changed no pixel, and did the same for every
+           click after it. The wire failed, so the page says so. */
+        fault(err);
+        return { turn_id: 0, intent: intent, events: [] };
+      }
+      updateChrome(envelope);
+      /* The veil goes black in the SAME task as the repaint, so no frame is
+         ever painted showing the arrival at full brightness — then it holds,
+         then it fades the new room up. Raising it after the repaint (a
+         `transition: opacity` added on the way in) did the opposite: the
+         destination cut in instantly and the player was blacked out for half
+         a second afterwards. A refused `go` never reaches this branch, so a
+         shut door does not flash. */
+      // Any other intent ends the double-click echo window: it guards
+      // against a repeated `go` landing on ANY doorway within it, not only
+      // the one just used, so it is a double-click guard and not a lock on
+      // travel generally.
+      /* [Row 15] AND IT IS ARMED BY A CLICK, NOT BY A TRAVEL. This line used
+         to arm the window on ANY successful `go`, the keyboard control's
+         included — so pressing Enter on a go-control and then clicking a
+         doorway within 400 ms had the click silently swallowed, which is a
+         pointer guard eating a gesture no pointer made. The manor's own
+         walkthrough found it, because it is the first route that drives the
+         two input paths one after the other. The window is armed where the
+         echo happens, in the canvas click handler; every other intent still
+         ends it here. */
+      lastGo = null;
+      /* Row 10, reduced motion: an instant CUT, not a shortened fade. Under
+         the preference the whole veil sequence is skipped — no black, no
+         hold, no transition — and the repaint simply happens, exactly as a
+         `turn` or `toggle` already does with no veil at all. Checked once,
+         synchronously, before any class is touched: a version that kept the
+         140ms black hold and only dropped the fade-out was still a flash-cut,
+         not the instant cut the row's own text asks for, and it left a
+         narrow timing window where a test could not tell the two modes
+         apart. The CSS `transition: none` rule under the same media query
+         stays as defense in depth — harmless here, since this branch never
+         adds `.on` for it to apply to. */
+      var reducedMotion = window.matchMedia &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (intent && intent.type === "go" && envelope.events.length > 0 && !reducedMotion) {
+        if (veilTimer) clearTimeout(veilTimer);
+        veil.classList.add("instant", "on");
+        veil.getBoundingClientRect(); // commit the black before the frame
+        veilTimer = setTimeout(function () {
+          veil.classList.remove("instant");
+          veil.classList.remove("on");
+          veilTimer = null;
+        }, 140);
+      }
+      return envelope;
+    }
+
+    /* Canvas coords from a mouse event: CSS box -> 1536x1024 logical. */
+    function canvasPoint(e) {
+      var rect = scene.getBoundingClientRect();
+      return {
+        x: (e.clientX - rect.left) * (scene.width / rect.width),
+        y: (e.clientY - rect.top) * (scene.height / rect.height)
+      };
+    }
+
+    /* Pointing tolerance (chrome, never the renderer; the alpha regions are
+       untouched), and it is bounded by the thing being aimed at rather than
+       by a radius. Two earlier shapes both failed, in opposite directions:
+
+       — A ring of sampled offsets returning the first non-null hit widened
+         nothing for the key and the coin, because at every offset around
+         them the hit is the desk or the shelf underneath.
+       — A radius large enough to reach past them (22 CSS px, converted at
+         the display scale) made every takeable outrank whatever it rested
+         on: on a phone the notebook answered clicks on the drawer, on the
+         chair, and on bare wall 85 canvas px away, and there was no point on
+         the desk that could open the drawer at all.
+
+       So: a takeable owns its own drawn rectangle plus a hand's-width
+       margin, and nothing beyond it. Everywhere else the exact drawn pixel
+       decides, and a point on nothing means nothing — dead space is dead at
+       every display scale, which a radius in canvas pixels could not be.
+
+       The residue, named rather than papered over: at phone scale the coin
+       draws under two CSS pixels and cannot be hit by a finger. That is the
+       apparent-size consequence of the open camera question (blueprint §5),
+       not something pointing can fix. */
+    var TAKEABLE_MARGIN_CSS = 4;
+
+    function cssToCanvas() {
+      var rect = scene.getBoundingClientRect();
+      return rect.width > 0 ? scene.width / rect.width : 1;
+    }
+
+    function isTakeable(id) {
+      var e = entityById(id);
+      return !!(e && e.takeable);
+    }
+
+    /* Below this, in CSS pixels, a target is one a hand cannot hit exactly
+       and the forgiveness applies. Above it the object is big enough to
+       answer for itself, and letting it claim a margin would let it answer
+       for its neighbours. */
+    var SMALL_TARGET_CSS = 24;
+
+    /* The drawn rectangle of a layout entry, clipped as the entry is. */
+    function entryRect(e) {
+      /* [row 42] `fx` horizontally, `f` vertically. They are the same number
+         for everything §4 places, and different for a leaf or a casement fitted
+         to the rectangle a painting measured — where a single factor would put
+         this control, and the tolerance ring measured from it, beside the thing
+         it names. */
+      var fx = (e.fx == null) ? e.f : e.fx;
+      var b = e.swap
+        ? { x: e.drawX + fx * e.swap.origin.x, y: e.drawY + e.f * e.swap.origin.y,
+            w: fx * e.swap.image.width, h: e.f * e.swap.image.height }
+        : { x: e.drawX, y: e.drawY, w: fx * e.record.px.w, h: e.f * e.record.px.h };
+      if (e.clip) {
+        var x0 = Math.max(b.x, e.clip.x), y0 = Math.max(b.y, e.clip.y);
+        var x1 = Math.min(b.x + b.w, e.clip.x + e.clip.w);
+        var y1 = Math.min(b.y + b.h, e.clip.y + e.clip.h);
+        b = { x: x0, y: y0, w: Math.max(0, x1 - x0), h: Math.max(0, y1 - y0) };
+      }
+      return b;
+    }
+
+    function rectArea(e) {
+      var b = entryRect(e);
+      return Math.max(0, b.w) * Math.max(0, b.h);
+    }
+
+    function entryOf(id) {
+      if (!currentLayout) return null;
+      for (var i = 0; i < currentLayout.length; i++) {
+        if (currentLayout[i].id === id) return currentLayout[i];
+      }
+      return null;
+    }
+
+    function smallTargetAt(x, y, margin, k, skipId) {
+      /* Among everything within the margin, the SMALLEST rect wins — not the
+         first in draw order, and not the nearest. Returning the first at
+         distance 0 handed the key's own pixels to the desk underneath it (a
+         host draws before its anchored child, and at phone scale the desk is
+         itself a "small" target), so the forgiveness written for the key
+         never reached the key: three CSS pixels of reachable area, and a
+         near-miss dispatched `toggle desk1`, shutting the drawer over the
+         reveal the player had just earned. */
+      var best = null;
+      var bestArea = Infinity;
+      if (!currentLayout) return null;
+      for (var i = 0; i < currentLayout.length; i++) {
+        var e = currentLayout[i];
+        var b = entryRect(e);
+        if (b.w <= 0 || b.h <= 0) continue;
+        /* Any target too small to hit exactly, not only takeables. §7's
+           amendment says "a widening tolerance ring for targets too small to
+           hit exactly", and scoping it to `takeable` restored the blueprint's
+           own named failure on a phone: the open door leaf draws 6 CSS px
+           wide and is the ONLY pointer path from open back to closed, so
+           `toggle door1 → closed` was authored, narrated, inside the §12.9
+           domain, and unreachable by a finger. The bound stays the target's
+           own rectangle plus a margin — that is what keeps a small object
+           from answering for the furniture it stands on. */
+        if (!isTakeable(e.id) &&
+            Math.min(b.w, b.h) / k >= SMALL_TARGET_CSS) continue;
+        if (e.id === skipId) continue;
+        var dx = Math.max(b.x - x, 0, x - (b.x + b.w));
+        var dy = Math.max(b.y - y, 0, y - (b.y + b.h));
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d > margin) continue;
+        var area = b.w * b.h;
+        if (area < bestArea) { bestArea = area; best = e.id; }
+      }
+      return best;
+    }
+
+    function hitAtPoint(x, y) {
+      if (!currentLayout) return null;
+      var k = cssToCanvas();
+      var near = smallTargetAt(x, y, TAKEABLE_MARGIN_CSS * k, k, null);
+      if (near) return near;
+      return window.HOLO.renderer.hitTest(currentLayout, library, x, y);
+    }
+
+    function hitAt(e) {
+      var p = canvasPoint(e);
+      return hitAtPoint(p.x, p.y);
+    }
+
+    /* The doorway opening the player is facing, if the point is inside it —
+       the `go` target. Derived from the document by the renderer, so the
+       picture and the affordance agree. */
+    /* [Row 15] A FLIGHT IS A QUAD ON A RECEDING PLANE, not a rectangle. Its
+       bounding box takes in bare floor beside it, and answering "climb the
+       stair" for a click on bare floor is the same overshoot that once let the
+       notebook answer clicks 85 px away on bare wall. Where an aperture
+       carries its own outline, the outline decides. */
+    function insidePoly(poly, x, y) {
+      var inside = false;
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var xi = poly[i][0], yi = poly[i][1], xj = poly[j][0], yj = poly[j][1];
+        if ((yi > y) !== (yj > y) &&
+            x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+      }
+      return inside;
+    }
+    /* How far a point lies outside an outline — distance to the nearest edge,
+       which is what a tolerance ring around a POLYGON means. A ring measured
+       from the rectangle instead is the overshoot the outline exists to
+       refuse. */
+    function distToPoly(poly, x, y) {
+      var best = Infinity;
+      for (var i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        var ax = poly[j][0], ay = poly[j][1], bx = poly[i][0], by = poly[i][1];
+        var dx = bx - ax, dy = by - ay;
+        var len2 = dx * dx + dy * dy;
+        var t = len2 > 0 ? ((x - ax) * dx + (y - ay) * dy) / len2 : 0;
+        t = t < 0 ? 0 : (t > 1 ? 1 : t);
+        var ex = x - (ax + t * dx), ey = y - (ay + t * dy);
+        var d = Math.sqrt(ex * ex + ey * ey);
+        if (d < best) best = d;
+      }
+      return best;
+    }
+    /* [Row 25] WHERE AN APERTURE CARRIES A REGION, THE REGION DECIDES, and the
+       rectangle is not consulted at all.
+       A flight's region is the list of rings the picture draws it with, and its
+       `x/y/w/h` are that body cut to the frame — so a rectangle test in front
+       of the rings can only ever subtract from them at an edge. The rings are
+       the whole of the claim: a point inside one of them is on the flight, a
+       point outside all of them is not, and the forgiveness ring below is
+       measured from their edges. */
+    function apertureHolds(a, x, y, marginPx) {
+      var m = marginPx || 0;
+      if (a.polys && a.polys.length) {
+        var near = Infinity;
+        for (var i = 0; i < a.polys.length; i++) {
+          var ring = a.polys[i];
+          if (!ring || ring.length < 3) continue;
+          if (insidePoly(ring, x, y)) return true;
+          if (m > 0) near = Math.min(near, distToPoly(ring, x, y));
+        }
+        return m > 0 && near <= m;
+      }
+      return x >= a.x - m && x < a.x + a.w + m && y >= a.y - m && y < a.y + a.h + m;
+    }
+    function apertureList() {
+      return window.HOLO.renderer.apertures(
+        harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
+    }
+    /* [ROW 42] THE WINDOWS OF THIS WALL, AND THEY ARE NEVER A WAY THROUGH.
+       `apertures` keeps them out of the default list on purpose — every reader
+       of that list turns an entry into a `go` — so the one place that asks for
+       them is the pointer resolver, which routes them to their casement and to
+       nothing else. A window with no casement resolves to nothing at all: there
+       is no third intent, and inventing one ("look through") would be a control
+       the keyboard has no equivalent for. */
+    function windowList() {
+      var all = window.HOLO.renderer.apertures(
+        harness.world, harness.staging, library, metaFor(harness.viewstate),
+        harness.viewstate, { windows: true });
+      var out = [];
+      for (var i = 0; i < all.length; i++) {
+        if (all[i].kind === "window" && all[i].leaf) out.push(all[i]);
+      }
+      return out;
+    }
+    function casementAt(p, marginPx) {
+      var list = windowList();
+      var best = null;
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        if (!apertureHolds(a, p.x, p.y, marginPx || 0)) continue;
+        if (!best || a.w * a.h < best.w * best.h) best = a;
+      }
+      return best;
+    }
+    function apertureAt(p) {
+      var list = apertureList();
+      for (var i = 0; i < list.length; i++) {
+        if (apertureHolds(list[i], p.x, p.y, 0)) return list[i];
+      }
+      return null;
+    }
+    /* [Row 15] THE TOLERANCE RING REACHES A WAY THROUGH. §7's amendment is "a
+       widening tolerance ring for targets too small to hit exactly", and it
+       reached takeables and (through the leaf) a door, but never an opening.
+       Measured over the manor's 55 exits at 390×844: twenty-eight are under
+       the 44 CSS px platform minimum and the smallest is 17 × 34, because the
+       standpoint law stands the entrance court's viewer 15.30 m off its own
+       wall. A near miss on a 17 px doorway used to land on nothing.
+
+       Last, and only where nothing exact is under the point, so it cannot eat
+       an entity — the same order §7 fixes for the takeable ring, for the same
+       reason. Among candidates the SMALLEST wins, because a big aperture
+       (a 20 m court mouth) must not claim the margin around a small one. */
+    function nearAperture(p, marginPx) {
+      var list = apertureList();
+      var best = null;
+      for (var i = 0; i < list.length; i++) {
+        var a = list[i];
+        /* [Row 25] AND IT REACHES AN OUTLINE TOO, measured from the outline.
+           This used to skip any aperture carrying a polygon — "a margin is
+           measured from a RECTANGLE, and a flight's rectangle takes in the bare
+           floor beside it" — which was true of the rectangle and became a
+           second reason a player at the head of a stair could not use it: the
+           one way through with no forgiveness at all was the one whose region
+           was already wrong. `apertureHolds` measures a polygon's margin from
+           its own edges now, so the ring costs nothing it was written to
+           refuse, and the flight that draws 143 CSS px across on a phone simply
+           never needs it. */
+        if (!apertureHolds(a, p.x, p.y, marginPx)) continue;
+        if (!best || a.w * a.h < best.w * best.h) best = a;
+      }
+      return best;
+    }
+
+    /* What one point means, resolved once for both hover and click, in the
+       order a player would expect:
+         1. the exact pixel of a drawn entity — the leaf you are pointing at;
+         2. an open doorway you are inside — travel;
+         3. the tolerance ring, for targets too small to hit exactly.
+       The ring has to come after the doorway or it swallows it: the leaf's
+       16 px of forgiveness reached 40 px into an 86 px opening, so nearly
+       half the visible gap answered "shut the door" while the way through
+       had no room left. Inside the opening the opening wins. */
+    function resolve(p) {
+      var exact = currentLayout
+        ? window.HOLO.renderer.hitTest(currentLayout, library, p.x, p.y) : null;
+      /* Within its own drawn rectangle — plus TAKEABLE_MARGIN_CSS, a hand's
+         slop and no more — a takeable outranks the thing it rests on:
+         children draw over their host, so a see-through pixel of the key is
+         desk pixels underneath, and dispatching `toggle desk1` there shuts
+         the drawer over the reveal the player just earned. Past that margin
+         it outranks nothing, which is what keeps a small object from
+         answering for the furniture it stands on. */
+      var k = cssToCanvas();
+      /* §7's order, and it is load-bearing in both directions:
+           1. the exact pixel of a drawn entity
+           2. an open doorway the point falls inside
+           3. the tolerance ring, LAST, so it cannot eat the opening.
+         Evaluating the ring second put the open leaf's margin inside the
+         aperture, and the smaller the screen the more of the opening it took
+         — 46% of the visible gap on a phone answered "shut the door" while
+         the player was trying to walk through it. */
+      var exactEntry = (exact === null || exact === undefined) ? null : entryOf(exact);
+      if (exact !== null && exact !== undefined) {
+        /* One exception, and it is the point of the ring: a target clearly
+           SMALLER than what is exactly under it — the key over the desk it
+           lies in, the coin over the shelf board. Anything else, the exact
+           pixel decides. */
+        var near0 = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
+        var nearEntry0 = near0 ? entryOf(near0) : null;
+        if (near0 && near0 !== exact && nearEntry0 && exactEntry &&
+            rectArea(nearEntry0) < rectArea(exactEntry) * 0.6) {
+          return { kind: "entity", id: near0 };
+        }
+        return { kind: "entity", id: exact };
+      }
+      /* [ROW 42] A TAP ON A CASEMENT'S OWN LIGHT OPENS OR SHUTS IT, and it
+         never travels — a window is not a way through, and the resolver says so
+         by having no branch that could make it one. It sits above the doorway
+         branch because a window is never an exit, so nothing here can be eaten;
+         and below the exact-pixel branch, so the casement's own sprite (and
+         anything standing in front of it) still wins on its own pixels. This is
+         what makes an OPEN casement reachable: swung to its hinge side, the
+         sprite is a sliver, and the light it has uncovered is the rest of the
+         target a hand aims at. */
+      var win = casementAt(p, 0);
+      if (win) return { kind: "entity", id: win.leaf };
+      var ap = apertureAt(p);
+      if (ap) {
+        var leaf = entityById(ap.leaf);
+        /* [Row 21] AN OPENING WITH NO LEAF IS ALWAYS A WAY THROUGH. Where the
+           world holds a leaf it governs, exactly as before — open, you walk;
+           shut, the click belongs to the door. Where it holds none the doorway
+           is a fact about the building, there is nothing to open, and a click
+           inside it can only mean travel. Without this the painted navigation
+           world had a doorway drawn in its wall, a `go` the harness would have
+           honoured, and no pointer path to it at all. */
+        if (!leaf) return { kind: "doorway", aperture: ap };
+        if (leaf.state === "open") return { kind: "doorway", aperture: ap };
+        // A shut leaf fills its own opening, so this only happens where the
+        // leaf's own pixels do not reach; the doorway still belongs to it.
+        return { kind: "entity", id: ap.leaf };
+      }
+      var near = smallTargetAt(p.x, p.y, TAKEABLE_MARGIN_CSS * k, k, null);
+      if (near) return { kind: "entity", id: near };
+      /* [Row 15] and last of all, a way through that is too small to hit
+         exactly — after everything, so it eats nothing. */
+      var nearAp = nearAperture(p, TAKEABLE_MARGIN_CSS * k);
+      if (nearAp) {
+        var nearLeaf = entityById(nearAp.leaf);
+        if (!nearLeaf || nearLeaf.state === "open") return { kind: "doorway", aperture: nearAp };
+      }
+      /* [ROW 42] and a casement too small to hit exactly — AFTER the way
+         through, because a near miss between a window and a door is a player
+         trying to leave the room. */
+      var nearWin = casementAt(p, TAKEABLE_MARGIN_CSS * k);
+      if (nearWin) return { kind: "entity", id: nearWin.leaf };
+      return { kind: "none" };
+    }
+
+    function entityById(id) {
+      for (var i = 0; i < harness.world.entities.length; i++) {
+        if (harness.world.entities[i].id === id) return harness.world.entities[i];
+      }
+      return null;
+    }
+
+    /* Row 10: one focusable control per drawn entity, plus one per open-facing
+       doorway, so every intent a pointer can emit is also reachable by
+       keyboard alone. Names are state-invariant TEXT, not aria-expanded: a
+       screen reader announcing "expanded"/"collapsed" over a plank door and
+       an oak drawer would be machine register laid over the fiction's own
+       objects, so the open/closed distinction is authored into the name
+       itself instead, exactly like every other product-voiced string. */
+    var NOUN_FALLBACK = "something here";
+
+    function recordOf(entity) {
+      var bound = library[entity.sprite];
+      return bound && bound.record;
+    }
+
+    function nounOf(entity) {
+      var record = recordOf(entity);
+      var noun = record && record.noun;
+      if (typeof noun !== "string" || !noun) {
+        console.error("entity control: record has no usable noun:",
+          entity.sprite, "(entity " + entity.id + ")");
+        return null;
+      }
+      return noun;
+    }
+
+    function controlLabel(entity) {
+      var noun = nounOf(entity);
+      if (!noun) return NOUN_FALLBACK;
+      if (entity.takeable) return "take the " + noun;
+      if (entity.states && entity.states.length) {
+        return (entity.state === "open" ? "close the " : "open the ") + noun;
+      }
+      return "the " + noun;
+    }
+
+    /* Named from the LEAF's own noun, not a per-exit-id lookup table: the
+       document is the one home of what things are called, and a string
+       baked into this bootstrap keyed by exit id would have no name at all
+       the day a world arrives over the future wire carrying exits this page
+       has never heard of. M0's one door entity is shared by both exits, so
+       this yields one string, not two. */
+    function goLabel(leafEntity, aperture) {
+      /* [Row 21] A doorway with no leaf in it is named for what it is. The
+         leaf's own noun is what names this control where a leaf exists — a
+         plank door is the thing you walk through — and where the building
+         carries the opening alone there is no object to name, only the way
+         through.
+         [Row 15] And a way through is not always a doorway. A control's
+         accessible name is the shortest true name of what it does, so a
+         flight and a threshold are named for themselves rather than all
+         three being called a doorway — which would be the one string on the
+         page that is false of the thing under it. */
+      if (!leafEntity) {
+        var kind = aperture && aperture.kind;
+        if (kind === "stair") {
+          return aperture.direction === "down" ? "go down the stair" : "climb the stair";
+        }
+        if (kind === "threshold") return "cross the threshold";
+        /* [Row 15] TWO DOORWAYS ON ONE WALL MUST NOT SHARE ONE NAME. Four
+           facings of the manor carry two ways through, and both controls read
+           "walk through the doorway" while leading to different rooms — which
+           is a screen-reader user choosing blind between them. Neither has a
+           leaf to be named after, and the building offers one true
+           distinction: which of them is on which hand. */
+        if (aperture && aperture.siblings === 2 && aperture.hand) {
+          return "walk through the doorway on the " + aperture.hand;
+        }
+        return "walk through the doorway";
+      }
+      var noun = nounOf(leafEntity);
+      return noun ? "walk through the " + noun : NOUN_FALLBACK;
+    }
+
+    /* Percent-of-stage position so the (invisible) control roughly tracks
+       its entity even though nothing about its own box is ever seen — belt,
+       not just the pointer-events:none suspenders, against a synthesized
+       activation that might resolve by screen position rather than by the
+       accessibility tree's own idea of what has focus. */
+    function positionControl(btn, rect) {
+      /* [Row 15] CLAMPED INSIDE THE STAGE. These controls are 1×1 px and
+         clipped, but an ABSOLUTE position outside the stage still widens the
+         document: the cross passage's own doorway sits at canvas x 1721 on a
+         1536 px canvas, which put a control at `left: 112%`, gave the page a
+         horizontal scrollbar, and let one arrow key both turn the room and
+         scroll the picture 40 px sideways — on a phone, most of the way off
+         the narration line. A control is a handle on a thing, not a claim
+         about where the thing is; the thing's own rectangle is what the
+         picture and the hit test read. */
+      var cx = (rect.x + rect.w / 2) / scene.width * 100;
+      var cy = (rect.y + rect.h / 2) / scene.height * 100;
+      btn.style.left = Math.max(0, Math.min(100, cx)) + "%";
+      btn.style.top = Math.max(0, Math.min(100, cy)) + "%";
+    }
+
+    /* Rebuilt every repaint, from the same currentLayout the hover halo
+       already reads — no second data source. Mouse behaviour is completely
+       unaffected: every button here is pointer-events:none, so a click
+       always passes through to the canvas and the existing resolve()/
+       hitTest() path never sees these elements at all. Focus identity is
+       preserved across the rebuild (the id last focused, if it still has a
+       control, gets it back) — without this a keyboard user's focus was
+       dropped to <body> on every single turn/open/take, forcing a full
+       re-Tab after every intent. */
+    function syncControls() {
+      if (!entityControlsEl) return;
+      var focusedId = null, focusedWasGo = false;
+      if (entityControlsEl.contains(document.activeElement)) {
+        focusedId = document.activeElement.getAttribute("data-target-id");
+        focusedWasGo = document.activeElement.getAttribute("data-go") === "1";
+      }
+      while (entityControlsEl.firstChild) entityControlsEl.removeChild(entityControlsEl.firstChild);
+      var refocus = null;
+
+      function wireFocus(btn, target) {
+        btn.addEventListener("focus", function () { focusTarget = target; paintOverlay(); });
+        btn.addEventListener("blur", function () { focusTarget = null; paintOverlay(); });
+      }
+
+      if (currentLayout) {
+        for (var i = 0; i < currentLayout.length; i++) {
+          var entry = currentLayout[i];
+          var entity = entityById(entry.id);
+          if (!entity) continue;
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "entity-control chrome";
+          btn.setAttribute("data-target-id", entity.id);
+          btn.setAttribute("aria-label", controlLabel(entity));
+          positionControl(btn, entryRect(entry));
+          (function (id, takeable) {
+            btn.addEventListener("click", function () {
+              dispatch(takeable ? { type: "take", entity: id } : { type: "toggle", entity: id });
+            });
+          })(entity.id, !!entity.takeable);
+          wireFocus(btn, { kind: "entity", id: entity.id });
+          entityControlsEl.appendChild(btn);
+          if (!focusedWasGo && focusedId === entity.id) refocus = btn;
+        }
+      }
+
+      /* The go-control: present whenever a pointer could travel here, which
+         is resolve()'s own doorway branch exactly — a shut leaf has no
+         separate opening-target there and has none here either, and [row 21]
+         an opening with NO leaf is always a way through, so it always has
+         one. Row 10's rule is that every intent a pointer can emit is
+         reachable by keyboard alone, and an empty painted room would
+         otherwise be walkable by mouse and by nothing else. */
+      var apList = window.HOLO.renderer.apertures(
+        harness.world, harness.staging, library, metaFor(harness.viewstate), harness.viewstate);
+      for (var j = 0; j < apList.length; j++) {
+        var ap = apList[j];
+        var leaf = entityById(ap.leaf);
+        if (leaf && leaf.state !== "open") continue;
+        var goBtn = document.createElement("button");
+        goBtn.type = "button";
+        goBtn.className = "entity-control chrome";
+        goBtn.setAttribute("data-target-id", ap.exit);
+        goBtn.setAttribute("data-go", "1");
+        goBtn.setAttribute("aria-label", goLabel(leaf, ap));
+        positionControl(goBtn, ap);
+        (function (thisAp) {
+          goBtn.addEventListener("click", function () { walkThrough(thisAp); });
+        })(ap);
+        wireFocus(goBtn, { kind: "doorway", aperture: ap });
+        entityControlsEl.appendChild(goBtn);
+        if (focusedWasGo && focusedId === ap.exit) refocus = goBtn;
+      }
+
+      if (refocus) refocus.focus();
+    }
+
+    /* [Row 25] WALKING A WAY THROUGH, IN ONE PLACE, because a flight can be
+       seen from a facing it is not walked from.
+       `apertures` carries the exit's own facing as `turn_to` where that is not
+       the one you are standing on — which happens for a flight and for nothing
+       else, since every other way through is a hole in the wall you are facing.
+       A click on a staircase beside you is then the two intents a keyboard user
+       already presses: turn to it, then climb it. Both go through `dispatch`,
+       both are ordinary events, and the harness is not asked to accept a `go`
+       from a facing the world does not put it on. Returns the travel envelope,
+       so the double-click guard still arms on the gesture that travelled. */
+    var FACING_ORDER = ["N", "E", "S", "W"];
+    function walkThrough(ap) {
+      if (ap && ap.turn_to) {
+        var from = FACING_ORDER.indexOf(harness.viewstate.facing);
+        var to = FACING_ORDER.indexOf(ap.turn_to);
+        if (from >= 0 && to >= 0) {
+          var right = (to - from + 4) % 4;
+          var dir = right <= 2 ? "right" : "left";
+          var steps = right <= 2 ? right : 4 - right;
+          for (var t = 0; t < steps; t++) dispatch({ type: "turn", dir: dir });
+        }
+      }
+      return dispatch({ type: "go", exit: ap.exit });
+    }
+
+    /* Click -> intent. The doorway and its leaf are two different targets,
+       which is what gives the door a way back: click through the OPENING to
+       `go`, click the LEAF to toggle it (open it when shut, pull it to when
+       it stands open). Before this split an opened exit door answered every
+       click with `go` and no pointer path could ever close it again, while
+       `go` itself had no target but the edge-on sliver of the swung leaf.
+       Takeable -> take; anything else -> toggle (a chair click is the
+       UI-emittable refusal). A click that hits neither a drawn entity nor an
+       open doorway dispatches nothing — dead space is dead. */
+    scene.addEventListener("click", function (e) {
+      var r;
+      try {
+        r = resolve(canvasPoint(e));
+      } catch (err) {
+        /* Same rule as the harness path: every route from a real input event
+           to the surface ends in a change or a product-voiced sentence. A
+           throw in hitTest/apertures/stamp used to take the click, say no
+           word, change no pixel, and do the same forever after. */
+        fault(err);
+        return;
+      }
+      // Any deliberate click ends the double-click echo window, including one
+      // that resolves to nothing: dead space dispatches no intent by design,
+      // so keying the window on dispatched intents alone left it armed after
+      // a click on nothing, and the next doorway click 250 ms later — a real
+      // gesture with a real destination — vanished.
+      if (r.kind !== "doorway") lastGo = null;
+      if (r.kind === "doorway") {
+        /* Swallow only the second half of a double-click: ANY doorway,
+           within the double-click window, with nothing else done in
+           between — not only the SAME doorway. Two things made this
+           necessary and row 13 changed exactly one of them. Before row 13,
+           `arrive_facing` turned the player to face back at the very
+           doorway they had just come through, so the second click of a
+           real double-click landed on that same doorway — passage now
+           maintaining orientation (blueprint §3) means arrival faces the
+           direction of travel instead, so that specific coincidence cannot
+           happen on M0's two single-exit rooms any more. It was tempting to
+           read that as the whole justification for this guard and delete
+           it (row 13 briefly did); it is not. This guard was never scoped
+           to "the same doorway" — `r.kind === "doorway"` matches ANY
+           doorway the second click resolves to, and a corridor whose next
+           room's own door sits on the facing you arrive with (exactly what
+           "continues the direction of travel" produces, one hop later) puts
+           a DIFFERENT doorway under that second click: without this guard,
+           one double-click gesture walks through two doors and two rooms,
+           the middle one never seen, behind a veil never lifted on it. Row
+           13 makes this *more* likely, not less, since every arrival now
+           faces forward into whatever the next room has to offer on that
+           same facing. M0 itself has no corridor, but `walkthrough.spec.mjs`
+           ("the double-click guard against a corridor's aligned doorway")
+           builds one as a doctored third room chained off the shipped hall
+           and drives a real double-click against it, proving both this
+           swallow AND the `lastGo = null` clearing above it — the risk is
+           real, tested, and named again where rows 11/12 will read it
+           (design/architecture.md), not papered over by deleting the one
+           thing standing in front of it.
+           A blanket half-second lock on the only way between rooms is the
+           opposite error — walk in, look back, walk out is a real thing to
+           do, and it was silently dropped. So: the window is a double-click
+           window, and ANY other intent ends it. The exit ids differ across
+           the two halves of an echo (the two rooms' exits), so the window
+           is what identifies it, not the target. */
+        var echo = lastGo && (Date.now() - lastGo) < DOUBLE_CLICK_MS;
+        if (!echo) {
+          var env = walkThrough(r.aperture);
+          // Armed only by a click that actually travelled, so the echo window
+          // belongs to the gesture that can echo.
+          if (env && env.events && env.events.length) lastGo = Date.now();
+        }
+        return;
+      }
+      if (r.kind !== "entity") return;
+      var entity = entityById(r.id);
+      if (!entity) return;
+      if (entity.takeable) {
+        dispatch({ type: "take", entity: r.id });
+      } else {
+        dispatch({ type: "toggle", entity: r.id });
+      }
+    });
+
+    /* The hover highlight traces the SILHOUETTE, not a bounding box: the
+       entity's own drawn pixels are stamped into a scratch canvas, smeared
+       one ring outward, tinted, and the interior punched back out, leaving a
+       thin halo along the real edge. A rectangle around the sprite reads as
+       an editor selecting an asset — it includes empty space and crosses
+       whatever stands behind — and this highlight is the only thing on
+       screen that tells a player anything here can be touched. */
+    var HILITE = "rgba(226, 208, 160, 0.9)";
+    var OUTLINE_PX = 3;
+    var haloA = null;
+    var haloB = null;
+
+    /* The doorway's highlight is the opening's own edge — there is no
+       silhouette to trace, the shape IS the rectangle in the wall. */
+    function outlineRect(a) {
+      overlayCtx.save();
+      overlayCtx.strokeStyle = HILITE;
+      overlayCtx.lineWidth = OUTLINE_PX;
+      /* [Row 15] The highlight traces what the resolver claims. A doorway's
+         shape IS the rectangle in the wall; a flight's is its own outline, and
+         a rectangle around it would promise the bare floor beside it — the
+         same divergence between the halo and the hit region that made an
+         entity's rectangle read as an editor selecting an asset.
+         [Row 25] A flight's outline is now the rings the picture draws it with,
+         so the halo traces every one of them: the promise and the region are
+         the same set of pixels rather than two shapes that agree on this
+         corpus. */
+      if (a.polys && a.polys.length) {
+        for (var pi = 0; pi < a.polys.length; pi++) {
+          var ring = a.polys[pi];
+          if (!ring || ring.length < 3) continue;
+          overlayCtx.beginPath();
+          for (var i = 0; i < ring.length; i++) {
+            if (i === 0) overlayCtx.moveTo(ring[i][0], ring[i][1]);
+            else overlayCtx.lineTo(ring[i][0], ring[i][1]);
+          }
+          overlayCtx.closePath();
+          overlayCtx.stroke();
+        }
+      } else {
+        overlayCtx.strokeRect(
+          a.x + OUTLINE_PX / 2, a.y + OUTLINE_PX / 2,
+          a.w - OUTLINE_PX, a.h - OUTLINE_PX);
+      }
+      overlayCtx.restore();
+    }
+
+    /* The scratch canvases are sized to the hovered entity's own rectangle,
+       not to the frame. At full size this ran ~93 ms per mousemove on an
+       unthrottled desktop — sixteen 1536×1024 blits and two full-frame
+       composite passes for every pointer sample — which dropped the page to
+       ~10 fps while the cursor was over anything. It is chrome, outside the
+       scene hash, so bounding it costs nothing that is guaranteed. */
+    function outline(entry) {
+      var r = entryRect(entry);
+      var pad = OUTLINE_PX + 2;
+      var ox = Math.floor(r.x) - pad;
+      var oy = Math.floor(r.y) - pad;
+      var ow = Math.ceil(r.w) + pad * 2;
+      var oh = Math.ceil(r.h) + pad * 2;
+      if (ow <= 0 || oh <= 0) return;
+      if (!haloA) {
+        haloA = document.createElement("canvas");
+        haloB = document.createElement("canvas");
+      }
+      if (haloA.width < ow || haloA.height < oh) {
+        haloA.width = haloB.width = ow;
+        haloA.height = haloB.height = oh;
+      }
+      var ac = haloA.getContext("2d");
+      var bc = haloB.getContext("2d");
+      ac.clearRect(0, 0, haloA.width, haloA.height);
+      bc.clearRect(0, 0, haloB.width, haloB.height);
+      ac.save();
+      ac.translate(-ox, -oy);
+      window.HOLO.renderer.stamp(ac, entry, {});
+      ac.restore();
+      for (var a = 0; a < 8; a++) {
+        var ang = a * Math.PI / 4;
+        bc.drawImage(haloA, OUTLINE_PX * Math.cos(ang), OUTLINE_PX * Math.sin(ang));
+      }
+      bc.globalCompositeOperation = "source-in";
+      bc.fillStyle = HILITE;
+      bc.fillRect(0, 0, haloB.width, haloB.height);
+      bc.globalCompositeOperation = "destination-out";
+      bc.drawImage(haloA, 0, 0);
+      bc.globalCompositeOperation = "source-over";
+      overlayCtx.save();
+      if (entry.clip) {
+        overlayCtx.beginPath();
+        overlayCtx.rect(entry.clip.x, entry.clip.y, entry.clip.w, entry.clip.h);
+        overlayCtx.clip();
+      }
+      overlayCtx.drawImage(haloB, 0, 0, ow, oh, ox, oy, ow, oh);
+      overlayCtx.restore();
+    }
+
+    /* Hover AND keyboard focus, one overlay (row 10). Originally two
+       independent clear-and-redraw paths — showHover(p)/clearHover() — that
+       would have raced against each other the moment a second, focus-driven
+       source of the same outline existed: a mouse hover clearing the canvas
+       would have erased a keyboard user's focus ring, and the reverse. Both
+       now draw through this one function, which clears once and then draws
+       whichever of the two (or both, if they coincide) currently apply — a
+       sighted keyboard user tabbing while the mouse still rests somewhere
+       sees both outlines, not one silently overwriting the other. */
+    function drawResolved(r) {
+      if (!r || r.kind === "none") return;
+      if (r.kind === "doorway") {
+        /* The way between rooms answers the cursor like everything else.
+           Without this the one thing that moves you had no highlight and no
+           pointer, while every object in the room had both. */
+        outlineRect(r.aperture);
+        return;
+      }
+      var entry = entryOf(r.id);
+      if (entry) outline(entry);
+    }
+
+    function paintOverlay() {
+      overlayCtx.clearRect(0, 0, overlay.width, overlay.height);
+      if (!currentLayout) { scene.style.cursor = ""; return; }
+      var hoverR = lastPointer ? resolve(lastPointer) : null;
+      if (focusTarget) drawResolved(focusTarget);
+      if (hoverR) drawResolved(hoverR);
+      scene.style.cursor = (hoverR && hoverR.kind !== "none") ? "pointer" : "";
+    }
+
+    /* Touch never sends `mouseleave`, and a refused tap does not repaint, so
+       without help every refused tap leaves a glowing halo around the thing it
+       refused until the next tap somewhere else. Clearing on `pointerup` is
+       not enough: the real event order on a touch device is
+       pointerdown → pointerup → mousemove → mousedown → mouseup → click, so
+       the compatibility `mousemove` arrives AFTER the clear and re-inks it.
+       (A hand-built sequence in the other order made a test green over this
+       for a while — synthetic events can always be arranged into the order
+       the code happens to handle.) So a non-mouse pointer sets a flag, and
+       the next mousemove spends it instead of drawing. */
+    var swallowNextMove = false;
+
+    scene.addEventListener("mousemove", function (e) {
+      if (swallowNextMove) { swallowNextMove = false; lastPointer = null; paintOverlay(); return; }
+      try {
+        lastPointer = canvasPoint(e);
+        paintOverlay();
+      } catch (err) {
+        fault(err);
+      }
+    });
+    /* The pane's promise is about what a reader can SEE, and the box changes
+       size after load: rotate a phone, or bump the browser's text size, and
+       the scroll position computed for the old box leaves the newest line
+       out of view until the next message arrives. Rotating a phone is the
+       most ordinary thing a stranger does. */
+    window.addEventListener("resize", scrollNarration);
+    window.addEventListener("orientationchange", scrollNarration);
+
+    scene.addEventListener("mouseleave", function () { lastPointer = null; paintOverlay(); });
+    scene.addEventListener("pointerdown", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") swallowNextMove = true;
+    });
+    scene.addEventListener("pointerup", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") {
+        swallowNextMove = true; lastPointer = null; paintOverlay();
+      }
+    });
+
+    /* [Row 15] A CHEVRON YIELDS TO A WAY THROUGH UNDERNEATH IT.
+     *
+     * The chevrons are chrome laid over the picture — 6 % opaque, so the room
+     * shows THROUGH them — and they sit at the frame's edges at eye height,
+     * which is exactly where a doorway on a side wall is drawn. At the manor's
+     * scale that stopped being theoretical: a real click at the exact middle of
+     * the only visible part of the cross passage's north doorway TURNED THE
+     * VIEWER EAST instead of walking them through it, at both viewports, and on
+     * a phone the right chevron covered a quarter of the great hall's garden
+     * door. Four ways through the building were behind a button that meant
+     * something else.
+     *
+     * A person clicking a doorway they can plainly see is asking to walk
+     * through it, whatever is layered over the pixels. So the chevron asks the
+     * picture first: a point inside a way through dispatches that way, and only
+     * a point that is over no way at all turns the room. The test is the
+     * APERTURE POLYGON — a definite walkable target — and not `resolve()`
+     * generally, because a chevron should not become a way of picking up a
+     * teacup. Where nothing is behind it, which is the ordinary case on 84 of
+     * the 88 facings, it turns exactly as before. */
+    /* [Row 25] AND IT NEVER GIVES UP ITS WHOLE SELF.
+     *
+     * The yield above is right about a doorway and wrong about a MOUTH. The
+     * entrance court's south side is a 20.4 m opening whose rectangle is
+     * 3095 px wide on a 1536 px frame: every pixel of both chevrons is inside a
+     * way through, so both of them walked the player out of the court over
+     * their whole area and neither turned — a room a pointer could not look
+     * around in. The yield's own justification is that the chrome is IN THE WAY
+     * of a target ("a person clicking a doorway they can plainly see"), and
+     * nothing is in the way of a mouth that fills the frame.
+     *
+     * So the test is the button, not the target: if some part of the chevron is
+     * over no way through at all, the part that IS over one yields and the rest
+     * still turns — which is every case round four found, the great hall's
+     * garden door at 26 % of a phone chevron included. If the ways through
+     * cover the button entirely, the chevron keeps its own meaning, because the
+     * alternative is a facing with no pointer turn on it.
+     *
+     * Sampled rather than solved: a way through may be a rectangle or a
+     * flight's own rings, and a coverage test that only knew rectangles would
+     * be a second answer to "what is inside a way through". */
+    function chevronFullyCovered(el) {
+      var box = el.getBoundingClientRect();
+      var r = scene.getBoundingClientRect();
+      if (!(r.width > 0 && r.height > 0)) return false;
+      var list;
+      try { list = apertureList(); } catch (err) { return false; }
+      if (!list.length) return false;
+      for (var iy = 0; iy <= 6; iy++) {
+        for (var ix = 0; ix <= 6; ix++) {
+          var cx = box.left + (box.width * ix) / 6;
+          var cy = box.top + (box.height * iy) / 6;
+          var p = { x: ((cx - r.left) * scene.width) / r.width,
+            y: ((cy - r.top) * scene.height) / r.height };
+          var covered = false;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].exit && apertureHolds(list[i], p.x, p.y, 0)) { covered = true; break; }
+          }
+          if (!covered) return false;
+        }
+      }
+      return true;
+    }
+
+    /* AND THE QUESTION IS ASKED OF THE FACING, NOT OF ONE BUTTON. A chevron
+       wholly inside a way through has no turn left in it — but the room still
+       has one as long as the OTHER chevron is free, and a player who can turn
+       left can reach every facing. So a covered chevron still yields while its
+       partner can turn, and only when BOTH are covered do they both keep their
+       own meaning, because that is the one case where yielding leaves a facing
+       with no pointer turn at all.
+       Six chevrons in this manor are wholly covered: both of the entrance
+       court's (a 3095 px mouth over a 1536 px frame — the facing the row was
+       allocated for) and four sitting on flights. Under the per-button rule
+       those four turned, and turning on a drawn staircase is this row's own
+       defect in miniature: 2–3 % of a flight's body lies under a chevron. Under
+       this one they climb, and the court still turns. */
+    function turnOrGoThrough(dir, e) {
+      var ap = null;
+      try { ap = apertureAt(canvasPoint(e)); } catch (err) { ap = null; }
+      if (ap && ap.exit) {
+        var bothCovered = chevronFullyCovered(document.getElementById("chevron-left")) &&
+          chevronFullyCovered(document.getElementById("chevron-right"));
+        if (!bothCovered) { walkThrough(ap); return; }
+      }
+      dispatch({ type: "turn", dir: dir });
+    }
+    document.getElementById("chevron-left").addEventListener("click", function (e) {
+      turnOrGoThrough("left", e);
+    });
+    document.getElementById("chevron-right").addEventListener("click", function (e) {
+      turnOrGoThrough("right", e);
+    });
+    document.getElementById("chevron-forward").addEventListener("click", function () {
+      var ex = document.getElementById("chevron-forward").dataset.exit;
+      if (ex) dispatch({ type: "go", exit: ex });
+    });
+
+    /* Row 8: fullscreen. One state (real OS fullscreen OR the in-page
+       maximize fallback) drives html.fs-active and the button's label
+       together, so the two mechanisms can never disagree (an earlier draft
+       let them). Real API preferred; a rejection falls through to the same
+       fallback flag a missing API uses. */
+    var manualMaximize = false;
+    function requestFS() {
+      var el = document.documentElement;
+      if (el.requestFullscreen) return el.requestFullscreen();
+      if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+      return null;
+    }
+    function exitFS() {
+      if (document.exitFullscreen) return document.exitFullscreen();
+      if (document.webkitExitFullscreen) return document.webkitExitFullscreen();
+      return null;
+    }
+    function isFullscreenActive() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement || manualMaximize);
+    }
+    function syncFullscreenUI() {
+      var active = isFullscreenActive();
+      document.documentElement.classList.toggle("fs-active", active);
+      /* The visible icon has to move with the same one state the label
+         reads from, or the picture and the string contradict each other —
+         an artifact critic caught the icon frozen on "expand" while the
+         label already said "leave the full screen". */
+      fullscreenBtn.classList.toggle("active", active);
+      fullscreenBtn.setAttribute("aria-label", active ? "leave the full screen" : "fill the screen");
+    }
+    fullscreenBtn.addEventListener("click", function () {
+      var real = document.fullscreenElement || document.webkitFullscreenElement;
+      if (real) {
+        manualMaximize = false;
+        var p = exitFS();
+        /* BELT AND BRACES, and the record says so rather than claiming a fix.
+           A critic caught the button still reading "leave the full screen"
+           after `document.fullscreenElement` was already null, and this
+           promise sync was added alongside a test change. A later critic then
+           showed the honest thing: delete these two lines and the suite still
+           passes, because `fullscreenchange` was already wired and the test's
+           condition-wait resolves exactly when the queued listener would have
+           healed it. What removed the flake was the TEST becoming a condition
+           instead of a timer. This stays because it is a real second chance on
+           a path where the label is what a screen-reader user is told — but it
+           is not load-bearing, and no check here can prove it is. */
+        if (p && p.then) p.then(syncFullscreenUI, function () { manualMaximize = false; syncFullscreenUI(); });
+        else syncFullscreenUI();
+        return;
+      }
+      if (manualMaximize) {
+        manualMaximize = false;
+        syncFullscreenUI();
+        return;
+      }
+      var req = requestFS();
+      if (req && req.then) {
+        req.then(syncFullscreenUI, function () { manualMaximize = true; syncFullscreenUI(); });
+      } else if (!req) {
+        manualMaximize = true;
+      }
+      syncFullscreenUI();
+    });
+    document.addEventListener("fullscreenchange", syncFullscreenUI);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenUI);
+    syncFullscreenUI();
+    window.addEventListener("keydown", function (e) {
+      if (e.altKey || e.ctrlKey || e.metaKey) return; // browser gestures stay the browser's
+      /* The transcript is a focusable scrollable region, so while it holds
+         focus the arrows are its own — otherwise two keyboard affordances
+         claim the same key and the room turns while a reader is trying to
+         move through the prose. */
+      if (document.activeElement === narrationEl) return;
+      /* [Row 15] AND THE KEY IS CONSUMED. An arrow that turns the room is the
+         room's; leaving the default in place meant the same press ALSO scrolled
+         the document, which is invisible until something makes the page wider
+         than the window — and row 15's off-frame control did exactly that. Two
+         effects from one press is one too many whatever the page's width. */
+      if (e.key === "ArrowUp") {
+        var fex = document.getElementById("chevron-forward").dataset.exit;
+        if (fex) { dispatch({ type: "go", exit: fex }); e.preventDefault(); return; }
+      }
+      if (e.key === "ArrowLeft") { dispatch({ type: "turn", dir: "left" }); e.preventDefault(); }
+      else if (e.key === "ArrowRight") { dispatch({ type: "turn", dir: "right" }); e.preventDefault(); }
+    });
+
+    /* The developer witness, at boot, always — on the console, which is
+       where speech about this project's construction belongs. It used to be
+       a line of chrome under the picture: a fingerprint, a repository path
+       and a shell command, read by every stranger who opened the public
+       link and addressed to none of them.
+       console.info, not warn/error: the console is now the load-bearing
+       developer channel, and a channel that is already noisy is one nobody
+       reads — a shell.spec guard holds a healthy run to no warnings and no
+       errors. The explicit MISSING marker exists because a witness whose
+       failure mode is the token "undefined" can be dead with nobody
+       alerted. */
+    console.info(
+      "holo-emitter — fixture bake fp " +
+        (fixture.fp || "MISSING (the bake wrote none)") + "\n" +
+      /* [Row 15] THE WORLD IT ACTUALLY BOOTED, and the command that re-bakes
+         THAT one. These two lines named `demo-study` whatever was on screen,
+         so a person editing the world the bare link serves and following the
+         page's own instruction re-baked the other fixture and left this one
+         stale in silence — the console being the load-bearing developer
+         channel, that is the one place it may not be wrong. */
+      "truth: fixtures/" + fixture.id + "/*.json (world, staging, narration, viewstate)\n" +
+      "after editing a fixture, re-bake: node tools/bake-fixtures.mjs" +
+        (fixture.id === "demo-study" ? "" : " --fixture-dir fixtures/" + fixture.id));
+
+    var boot = harness.viewstate;
+    var bootLoc = fixture.world.locations.filter(function (l) {
+      return l.id === boot.location;
+    })[0];
+    var bootFault = (!bootLoc || bootLoc.facings.indexOf(boot.facing) === -1);
+    if (bootFault) {
+      /* A genuine fault, so it stays visible — but player-voiced, with the
+         mechanics on the console. The bake refuses an invalid boot viewstate
+         and the bootstrap re-checks, so this arises only from a hand-edited
+         or corrupted fixture.js; the page still paints (grid mode resolves
+         an unknown location) and every turn is refused, so the player is
+         told here and again by the turn refusal.
+         "view", not "place": the viewstate can name a location the world
+         lacks OR a facing that location lacks, and on the second branch the
+         place exists and only the aim within it is wrong. */
+      console.error(
+        "BOOT ERROR: viewstate " + JSON.stringify(boot) +
+        " names no location/facing in world.json — every turn will be refused. " +
+        /* THE WORLD THAT ACTUALLY BOOTED, not the one this page shipped with.
+           The line fourteen lines above learned this; this one had not, and
+           told a reader of the manor's console to go and edit the study. */
+        "Fix fixtures/" + fixture.id + "/viewstate.json and run: " +
+        "node tools/bake-fixtures.mjs" +
+          (fixture.id === "demo-study" ? "" : " --fixture-dir fixtures/" + fixture.id));
+    }
+    window.HOLO_APP = {
+      harness: harness, paints: 0, library: library, dispatch: dispatch,
+      /* `resolve` is where a click's meaning is decided — entity, doorway or
+         nothing — and it is what a pointer-driven test should ask.
+         `hitAtPoint` is only its entity half and returns null inside an open
+         doorway; `apertureAt` is only the doorway half. Both are exposed
+         because helpers use the difference between them to find a point that
+         means travel, but a test that reaches for `hitAtPoint` expecting the
+         page's routing will assert the wrong thing. */
+      /* [Row 45] The delivery, for the cases that are about it: which walls
+         have been asked for, how many repaints a picture's arrival has caused,
+         and the manifest the page booted from. */
+      requested: requested, manifest: manifest, repaints: 0,
+      requestPainting: requestPainting, neighbourKeys: neighbourKeys,
+      hitAtPoint: hitAtPoint, apertureAt: apertureAt, resolve: resolve,
+      /* [Row 15] The whole aperture list, so a test can ask where every way
+         through this facing is drawn and put a real click in the middle of
+         it. Without this a pointer test has to guess at coordinates, which is
+         how four ways through ended up behind a button nothing noticed. */
+      apertureList: apertureList,
+      /* The page's own meta resolution, exposed because a test that reaches
+         for GRID_META on a facing the plan holds is asking about geometry the
+         picture is not drawn with. Since row 11 that is every shipped
+         facing. */
+      backdrops: backdrops, metaFor: metaFor
+    };
+    function bootPaint() {
+      harness.subscribe(paint);
+      harness.redraw();
+      updateChrome(null);
+      /* [Row 45] THE NEIGHBOURS ARE ASKED FOR AFTER THE LOAD EVENT, never
+         before it. The first frame is already up by then; what this buys is
+         that a turn or a step lands on a picture that is already in, and what
+         it costs the visitor's first wall is nothing — one request stands
+         between them and a painted room, and the browser's own `load` still
+         means exactly that one wall is in. */
+      var arm = function () { prefetching = true; warm(harness.viewstate); };
+      if (document.readyState === "complete") setTimeout(arm, 0);
+      else window.addEventListener("load", function () { setTimeout(arm, 0); });
+      /* After the first paint, so a page that faulted on the way up shows its
+         own fault line last rather than this one. `halted` is set by fault(). */
+      if (bootFault && !halted) {
+        appendNarration("The projection was set to a view this pattern does not hold.");
+      }
+    }
+    if (pendingImages.length === 0) {
+      bootPaint();
+    } else {
+      /* [Row 45] The first frame waits for the SPRITES, and only for them.
+         They are `data:` URIs in a 0.58 MB script that is already parsed by
+         the time this runs — no network, no wire, microseconds — and a leaf
+         drawn from an undecoded PNG is a hole in a doorway rather than a wall
+         that has not arrived yet.
+         The paintings are no longer in this list at all: waiting for one is
+         what made the page sit there, and a wall that is not in yet has an
+         honest picture of its own (the grid) and a note in the readout that
+         says so. */
+      var left = pendingImages.length;
+      var settle = function (ev) {
+        if (ev && ev.type === "error") {
+          var ds = (ev.target && ev.target.dataset) || {};
+          /* [row 42] Two kinds of image are in this list now and they fail
+             differently. A painting that will not decode drops to the grid,
+             which is a room the visitor can still walk. A SPRITE that will
+             not decode leaves a canvas of the right size and no pixels — an
+             invisible leaf standing in a doorway that still hit-tests — so
+             it says which bake to re-run and by which id. Neither is a
+             surface string: the picture's own honesty is the product's
+             answer, and this is the developer's half. */
+          if (ds.sprite != null) {
+            console.error("SPRITE ERROR: the baked sprite " + ds.sprite +
+              " did not decode — it will draw as nothing. Re-run: node tools/bake-library.mjs");
+          } else {
+            console.error("IMAGE ERROR: an image the first frame waited for did " +
+              "not decode:", ev.target && ev.target.src && ev.target.src.slice(0, 64));
+          }
+        }
+        if (--left === 0) bootPaint();
+      };
+      for (var pi = 0; pi < pendingImages.length; pi++) {
+        pendingImages[pi].addEventListener("load", settle);
+        pendingImages[pi].addEventListener("error", settle);
+      }
+    }
+  })();
+  </script>
+<script>
+  /* [Kabe, 2026-08-30] The world switch: filled from the baked list, marked at
+     the world this page booted, and a change is a plain navigation — a world
+     is a different baked fixture, and a reload is the honest way between two.
+     With one world (or none listed) the control stays hidden. */
+  (function () {
+    "use strict";
+    var sel = document.getElementById("world-switch");
+    var list = window.HOLO_WORLDS;
+    if (!sel || !Array.isArray(list) || list.length < 2) return;
+    var m = /[?&]world=([^&]*)/.exec(window.location.search || "");
+    var here = "nav-manor";
+    try { if (m) here = decodeURIComponent(m[1]); } catch (ignored) { /* the default stands */ }
+    for (var i = 0; i < list.length; i++) {
+      var o = document.createElement("option");
+      o.value = list[i].id;
+      o.textContent = list[i].title;
+      if (list[i].id === here) o.selected = true;
+      sel.appendChild(o);
+    }
+    sel.hidden = false;
+    sel.addEventListener("change", function () {
+      if (/^[A-Za-z0-9_-]+$/.test(sel.value)) window.location.search = "?world=" + sel.value;
+    });
+  })();
+  </script>
+</body>
+</html>

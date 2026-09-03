@@ -1,0 +1,11 @@
+{
+  "schema": "library-promotion/0.1",
+  "note": "WHICH INGESTED RECORDS THE PAGE DRAWS. `library/<id>/` is everything the replicator has ever certified; this list is what has been PROMOTED into the product, and `tools/bake-library.mjs` bakes only these. It is the same separation `backdrops/source/` keeps from `backdrops/<location>/<facing>.png`: passing the gates makes an artifact admissible, and a separate act makes it the thing a visitor sees.",
+  "promoted": [
+    "casement-leaded-v1",
+    "door-leaf-plank-oak-v1"
+  ],
+  "held": {
+    "desk-joined-oak-1660": "Row 3 ingested the corpus desk and row 3's own closing report left it unshipped; row 42 is about the two leaves and does not decide it. Promoting it is a bigger move than it looks: the ingested record is 481 x 384 px against the placeholder's 280 x 156, it carries a derived `drawer_cavity` and a `slide` the row-2 world's heights and mechanisms cases measure against the PROCEDURAL numbers, and the desk stands in a room whose frames nothing has measured. It needs its own flip test and its own row."
+  }
+}

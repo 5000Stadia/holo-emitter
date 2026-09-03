@@ -1,0 +1,94 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "desk-reception",
+ "noun": "reception desk",
+ "dims_m": {
+  "h": 1.1,
+  "w": 2.4,
+  "d": 1.0
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   3.508,
+   1.1,
+   3.473
+  ],
+  "source_faces": 600
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/desk-reception/model.glb",
+  "triangles": 600,
+  "bbox_min": [
+   -1.7542015314102173,
+   0.0,
+   -1.7363052368164062
+  ],
+  "bbox_max": [
+   1.7542015314102173,
+   1.100000023841858,
+   1.7363052368164062
+  ],
+  "size": [
+   3.5084030628204346,
+   1.100000023841858,
+   3.4726104736328125
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.652,
+  "images": 2,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/desk-reception/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 152,
+  "size_m": [
+   3.508,
+   1.1,
+   3.473
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 600
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "d23cfdf8128345d7b886ebb9affad2e8",
+  "name": "Reception Desk",
+  "author": "Yvonne DeBandi",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-d23cfdf8128345d7b886ebb9affad2e8",
+  "query": "reception desk",
+  "pick": 0,
+  "candidates": 10,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.0,
+  "map": 1.1,
+  "download": 3.7,
+  "stand": 1.9,
+  "gate": 0.0,
+  "request_to_library": 7.8
+ }
+}

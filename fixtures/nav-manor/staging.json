@@ -1,0 +1,25 @@
+{
+  "schema": "holo-emitter-staging/0.1",
+  "placements": {
+    "casement_win10": {
+      "facing": "kitchen/E",
+      "attachment": "wall_mounted",
+      "u": 0.6358381502890174,
+      "v": 0.9
+    },
+    "leaf_op22": [
+      {
+        "facing": "solar/E",
+        "attachment": "wall_mounted",
+        "u": 0.7956989247311828,
+        "v": 0
+      },
+      {
+        "facing": "muniment_room/W",
+        "attachment": "wall_mounted",
+        "u": 0.3958333333333333,
+        "v": 0
+      }
+    ]
+  }
+}

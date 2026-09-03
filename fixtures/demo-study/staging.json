@@ -1,0 +1,55 @@
+{
+  "schema": "holo-emitter-staging/0.1",
+  "placements": {
+    "desk1": {
+      "facing": "study/N",
+      "attachment": "floor_against",
+      "u": 0.844036697248,
+      "mirror": false
+    },
+    "chair1": {
+      "facing": "study/N",
+      "attachment": "floor_free",
+      "u": 0.834495412844,
+      "depth_m": 1.2
+    },
+    "door1": [
+      {
+        "facing": "study/E",
+        "attachment": "wall_mounted",
+        "u": 0.729166666667,
+        "v": 0.0
+      },
+      {
+        "facing": "hall/W",
+        "attachment": "wall_mounted",
+        "u": 0.5,
+        "v": 0.0
+      }
+    ],
+    "note1": {
+      "anchor_on": "desk1.surface_top",
+      "t": 0.35
+    },
+    "key1": {
+      "anchor_on": "desk1.drawer_cavity",
+      "t": 0.5
+    },
+    "shelf1": {
+      "facing": "hall/E",
+      "attachment": "floor_against",
+      "u": 0.403846153846,
+      "mirror": false
+    },
+    "stick1": {
+      "facing": "hall/E",
+      "attachment": "floor_free",
+      "u": 0.480769230769,
+      "depth_m": 1.78
+    },
+    "coin1": {
+      "anchor_on": "shelf1.surface_top",
+      "t": 0.6
+    }
+  }
+}

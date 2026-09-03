@@ -1,0 +1,72 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "basket-liner-1934-waste",
+ "noun": "wastepaper basket",
+ "dims_m": {
+  "h": 0.32,
+  "w": 0.26,
+  "d": 0.26
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/basket-liner-1934-waste/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.10568687319755554,
+   0.0,
+   -0.1231500580906868
+  ],
+  "bbox_max": [
+   0.10568687319755554,
+   0.3199999928474426,
+   0.1231500580906868
+  ],
+  "size": [
+   0.21137374639511108,
+   0.3199999928474426,
+   0.2463001161813736
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.187,
+  "images": 0,
+  "materials": 0,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/basket-liner-1934-waste/model.glb",
+  "tilt_corrected_deg": 25.4,
+  "support_vertices": 736,
+  "size_m": [
+   0.211,
+   0.32,
+   0.246
+  ],
+  "lowest_1pct_spread_m": 0.0004,
+  "level_rule": "base",
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 16000
+ },
+ "level": "base",
+ "timings": {
+  "s_triposr": 115.5,
+  "s_stand_gate": 0.9,
+  "s_request_to_library": 116.4,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/basket-liner-1934-waste/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 116.4
+ }
+}

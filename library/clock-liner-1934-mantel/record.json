@@ -1,0 +1,74 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "clock-liner-1934-mantel",
+ "noun": "mantel clock",
+ "dims_m": {
+  "h": 0.22,
+  "w": 0.3,
+  "d": 0.1
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": false,
+  "glb": "/home/k/Projects/holo-emitter/library/clock-liner-1934-mantel/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.08766087144613266,
+   0.0,
+   -0.11814246326684952
+  ],
+  "bbox_max": [
+   0.08766087144613266,
+   0.2199999988079071,
+   0.11814246326684952
+  ],
+  "size": [
+   0.17532174289226532,
+   0.2199999988079071,
+   0.23628492653369904
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.632,
+  "images": 0,
+  "materials": 0,
+  "failures": [
+   "shape off: side/height ratios 0.74,0.93 vs declared 0.45,1.36 (err 0.63 > 0.35)"
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/clock-liner-1934-mantel/model.glb",
+  "tilt_corrected_deg": 2.25,
+  "support_vertices": 957,
+  "size_m": [
+   0.175,
+   0.22,
+   0.236
+  ],
+  "lowest_1pct_spread_m": 0.003,
+  "level_rule": "base",
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 16000
+ },
+ "level": "base",
+ "timings": {
+  "s_triposr": 114.5,
+  "s_stand_gate": 0.9,
+  "s_request_to_library": 115.4,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/clock-liner-1934-mantel/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 115.4
+ }
+}

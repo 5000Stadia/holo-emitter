@@ -1,0 +1,199 @@
+{
+  "schema": "holo-emitter/0.1",
+  "locations": [
+    {
+      "id": "writing_room",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_writing_room_gallery",
+          "from": "writing_room",
+          "facing": "N",
+          "to": "gallery",
+          "arrive_facing": "N",
+          "via": "door01"
+        }
+      ]
+    },
+    {
+      "id": "gallery",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_gallery_writing_room",
+          "from": "gallery",
+          "facing": "S",
+          "to": "writing_room",
+          "arrive_facing": "S",
+          "via": "door01"
+        },
+        {
+          "id": "door_gallery_saloon",
+          "from": "gallery",
+          "facing": "N",
+          "to": "saloon",
+          "arrive_facing": "N",
+          "via": "door02"
+        },
+        {
+          "id": "way_gallery_gallery_far",
+          "from": "gallery",
+          "facing": "E",
+          "to": "gallery_far",
+          "arrive_facing": "E",
+          "via": "way01"
+        }
+      ]
+    },
+    {
+      "id": "gallery_far",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "way_gallery_far_gallery",
+          "from": "gallery_far",
+          "facing": "W",
+          "to": "gallery",
+          "arrive_facing": "W",
+          "via": "way01"
+        }
+      ]
+    },
+    {
+      "id": "saloon",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_saloon_gallery",
+          "from": "saloon",
+          "facing": "S",
+          "to": "gallery",
+          "arrive_facing": "S",
+          "via": "door02"
+        },
+        {
+          "id": "way_saloon_saloon_e",
+          "from": "saloon",
+          "facing": "E",
+          "to": "saloon_e",
+          "arrive_facing": "E",
+          "via": "way02"
+        },
+        {
+          "id": "way_saloon_saloon_n",
+          "from": "saloon",
+          "facing": "N",
+          "to": "saloon_n",
+          "arrive_facing": "N",
+          "via": "way04"
+        }
+      ]
+    },
+    {
+      "id": "saloon_e",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "way_saloon_e_saloon",
+          "from": "saloon_e",
+          "facing": "W",
+          "to": "saloon",
+          "arrive_facing": "W",
+          "via": "way02"
+        },
+        {
+          "id": "way_saloon_e_saloon_ne",
+          "from": "saloon_e",
+          "facing": "N",
+          "to": "saloon_ne",
+          "arrive_facing": "N",
+          "via": "way05"
+        }
+      ]
+    },
+    {
+      "id": "saloon_n",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "way_saloon_n_saloon_ne",
+          "from": "saloon_n",
+          "facing": "E",
+          "to": "saloon_ne",
+          "arrive_facing": "E",
+          "via": "way03"
+        },
+        {
+          "id": "way_saloon_n_saloon",
+          "from": "saloon_n",
+          "facing": "S",
+          "to": "saloon",
+          "arrive_facing": "S",
+          "via": "way04"
+        }
+      ]
+    },
+    {
+      "id": "saloon_ne",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "way_saloon_ne_saloon_n",
+          "from": "saloon_ne",
+          "facing": "W",
+          "to": "saloon_n",
+          "arrive_facing": "W",
+          "via": "way03"
+        },
+        {
+          "id": "way_saloon_ne_saloon_e",
+          "from": "saloon_ne",
+          "facing": "S",
+          "to": "saloon_e",
+          "arrive_facing": "S",
+          "via": "way05"
+        }
+      ]
+    }
+  ],
+  "entities": [],
+  "relations": [],
+  "knowledge": {
+    "player": []
+  }
+}

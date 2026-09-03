@@ -1,0 +1,72 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "table-liner-1934-side",
+ "noun": "side table",
+ "dims_m": {
+  "h": 0.6,
+  "w": 0.5,
+  "d": 0.5
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/table-liner-1934-side/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.24392226338386536,
+   0.0,
+   -0.24539996683597565
+  ],
+  "bbox_max": [
+   0.24392226338386536,
+   0.6000000238418579,
+   0.24539996683597565
+  ],
+  "size": [
+   0.4878445267677307,
+   0.6000000238418579,
+   0.4907999336719513
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.024,
+  "images": 0,
+  "materials": 0,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/table-liner-1934-side/model.glb",
+  "tilt_corrected_deg": 23.99,
+  "support_vertices": 912,
+  "size_m": [
+   0.488,
+   0.6,
+   0.491
+  ],
+  "lowest_1pct_spread_m": 0.0018,
+  "level_rule": "top",
+  "level_corrected_deg": 2.54,
+  "level_surface_vertices": 1255,
+  "faces": 16000
+ },
+ "level": "top",
+ "timings": {
+  "s_triposr": 116.1,
+  "s_stand_gate": 1.0,
+  "s_request_to_library": 117.1,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/table-liner-1934-side/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 117.1
+ }
+}
