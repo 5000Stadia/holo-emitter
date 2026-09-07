@@ -1,0 +1,660 @@
+diff --git a/design/architecture.md b/design/architecture.md
+index 9b519d43..981767f4 100644
+--- a/design/architecture.md
++++ b/design/architecture.md
+@@ -3628,8 +3628,9 @@ never re-asks a promoted wall, and it never raises `attempts` — that is the sw
+ 
+ ### The flight language — the ask learns the staircase
+ 
+-**The gate knew something the generation method did not.** `promote-backdrop.mjs` refuses a
+-promotion whose room draws a flight the painting has none of (`row32:stair.painted_flight_lost`), and
++**The gate knew something the generation method did not.** `promote-backdrop.mjs` refused a
++promotion whose room draws a flight the painting has none of (row 32's clause, since retired — see
++*The flight a painting has or has not* below), and
+ six manor walls snapped geometrically clean and were refused by it — `back_stair/W`,
+ `back_stair_head/S`, `back_stair_head/W`, `great_stair_hall/W`, `stair_landing/N`,
+ `stair_landing/W`. Every one of them had been painted from a prompt in which the word *stair* does
+@@ -3691,6 +3692,86 @@ more than one of a kind each sentence now takes its ordinal (left-hand / right-h
+ position in the picture, stated in the columns `coordinateLines` states every other figure in. A
+ facing carrying one of a kind is untouched, so eighty of the eighty-eight prompts are byte-identical.
+ 
++### The flight a painting has or has not
++
++**A promoted wall carries its own staircase.** `promote-backdrop.mjs` writes `meta.stairs` from
++`stairsForFacing` — the identical shape `deriveMeta` bakes, `raw_w`/`raw_h` and all, so the
++renderer, `meta.stairs_list` and the ledger read a promoted flight exactly as they read a derived
++one and nothing learns a second vocabulary. Row 32's refusal is retired rather than softened: it
++existed *because* nothing attached a flight, and with the attachment there is no longer a way for
++the tool to write a meta that loses one. Ten manor walls could not be painted at all while it stood,
++however good the painting.
++
++**It is projected at the promoted meta, not at the derived one**, because the promoted meta is what
++the page draws this wall with: the scale, the floor line and the corners the painting fixed are the
++terms `groundplane` puts the flight on the frame with, and a flight projected at any other camera
++lands beside its own painted treads. On `library/E`'s own doctored case the two differ by 212 px of
++body and 96 px on the first tread nose. On a **snapped** wall (`row35_snap.py`) and on one promoted
++through the **declared** camera the projection is exact by construction — the snap rectifies the
++picture onto the declared camera and writes the corners, floor line and scale that camera states,
++and the declared route takes its horizon from `deriveMeta` itself — so on those routes the flight
++the meta carries and the flight the plan projection draws are the same numbers, not close ones.
++
++**Exactness is a fact about the geometry and says nothing about the paint.** A meta can be perfectly
++right about where the flight stands and the pixels under it still be bare plaster, which is a click
++travelling through a staircase that is not in the picture. So two questions are asked of every
++promotion on every camera source, and they are separate clauses because different evidence answers
++them and they cost different things:
++
++| clause | evidence | what it costs to be wrong |
++|---|---|---|
++| `row32:stair.flightless_ask` | the PROMPT beside the candidate, which must carry `frame-language.FLIGHT_ASK`'s own mark | a re-ask of a wall whose painter was never told about the stair — which is the re-ask the content-gap grant exists to give |
++| `row32:stair.painting_has_no_flight` | the PICTURE, read by `tools/flight-in-frame.mjs` | a re-ask of art that was right |
++
++**The ask arm is row 29(a)'s reasoning applied to a staircase**: the ask is checked, not the picture.
++Every manor stair wall on disk was painted from a prompt that never mentioned one, so whatever
++stands in that region got there by accident while the meta says where the *building* puts it — those
++two agreeing is luck. `frame-language.mjs` asserts the mark against its own sentence as it writes
++it, so the emitter refuses itself rather than leaving the promotion hunting a sentence nobody writes.
++
++**The picture arm is a rank, not a threshold.** A painted flight is a stack of parallel lines: its
++edge energy concentrates ACROSS the tread noses and starves the direction ALONG them, so
++`E(across)/E(along)` taken over the flight's projected body should stand near the top of the same
++ratio taken at all 180 orientations. On bare board or plaster the grain has its own direction, which
++has nothing to do with where the plan puts this staircase. What is reported is the RANK, which under
++*this region holds no flight* is uniform — a p-value by construction, with no magnitude to calibrate
++against a corpus that will keep changing. The region is the flight's own body (`treads_poly` ∪
++`mass_poly`), never `poly`: the hull covers the bare wall behind a rising flight and the bare floor
++in front of a descending one, which is most of it, and every statistic taken over the hull was
++diluted to nothing.
++
++**The labelled corpus, and what it says the arm can and cannot do.** Ten manor walls whose plan draws
++a flight, each labelled by eye off the projection drawn over the frame:
++
++| | rank |
++|---|---|
++| frames that DO paint a flight in the region | 0.061 0.094 0.111 0.150 0.411 |
++| frames that do NOT | 0.439 0.489 0.711 |
++| bodies too small to read (withheld) | `back_stair_head/W`, both rolls, 29,766 px |
++
++The cut is `RANK_LEVEL`, the median, **because that is the boundary the null itself names** — not
++because it is where this corpus splits, which is 0.43 and would be eight points of tuning. So the
++arm refuses the frame whose flight lands on bare plaster over bare floor (`back_stair/E`) and lets
++two further bare frames through, whose projected bodies are narrow strips of floorboard whose grain
++happens to run across the noses. **It is deliberately one-sided and the separation is not clean**;
++a sharper instrument is a row, not a threshold move. Where the body on frame is under
++`MIN_READABLE_BODY_PX` the reading WITHHOLDS and the promotion attaches — the same shape as every
++other WITHHELD in this project, a refusal to speak rather than a finding.
++
++**Why the reading is in the promotion and not in the measurement.** `door_measure.py`'s rule — the
++reading goes in the measurement — protects two things and this breaks neither: nothing computed here
++reaches the meta (the output is a yes or a no), and the answer is a pure function of the candidate's
++bytes, whose sha256 the measurement already pins, so `fixtures.spec`'s staleness re-run answers
++identically or the image changed. What could not be done is put it in the measurement: the region it
++asks about is the region **this promotion's own geometry** projects, and a reading taken before the
++promotion exists cannot name it. A door's void is found without the plan; a flight's region is
++nothing but the plan.
++
++**The decoder is checked against one nobody here wrote.** `readLumaPng` is ~60 lines of PNG defilter
++over `zlib.inflateSync`, because this repository has no runtime dependencies. A misread frame would
++change every number the instrument produces and nothing downstream would notice, so `flight.spec`
++decodes a shipped backdrop in Node and in the browser and compares a coprime grid of samples.
++
+ ### The content-gap re-ask (`tools/grant-content-gap.mjs`)
+ 
+ An ordinary re-ask says *"you painted this wrong, here is the measurement"*. A content-gap re-ask
+@@ -3851,14 +3932,16 @@ not say before.
+   produces — probe first, `style_block` extracted, the probe pair passed by Kabe — and a manor sweep
+   promoting one walks through that order. The camera is admitted and said to be; the ROUTE is row
+   4's. `hall/E` and `hall/W` sit at `admitted-not-promoted` and row 4 deletes the fence.
+-- **A painting that loses the staircase** (`promote-backdrop.mjs`, clause
+-  `row32:stair.painted_flight_lost`). The renderer draws a flight out of the meta's own `stairs` and
+-  a promoted meta has none, so painting a facing whose room draws one deletes the staircase and the
+-  polygon a click travels through. Five walls were in that state, `back_stair/W` since the first
+-  harvest, and `manor.spec`'s "a flight seen across its run is a body, not a line" had stopped having
+-  a subject at all rather than gone red. The validator's row-21 exit-via clause speaks only where an
+-  EXIT goes through the flight; a flight you merely LOOK at from this facing had nobody speaking for
+-  it. All five are back on the grid, which draws the stair.
++- **A painting that loses the staircase** (`promote-backdrop.mjs`, row 32's clause). The renderer
++  draws a flight out of the meta's own `stairs` and a promoted meta had none, so painting a facing
++  whose room draws one deleted the staircase and the polygon a click travels through. Five walls
++  were in that state, `back_stair/W` since the first harvest, and `manor.spec`'s "a flight seen
++  across its run is a body, not a line" had stopped having a subject at all rather than gone red.
++  The validator's row-21 exit-via clause speaks only where an EXIT goes through the flight; a flight
++  you merely LOOK at from this facing had nobody speaking for it. **This fence is gone**: the
++  promotion attaches the flight now, so there is no longer a way for it to write a meta that loses
++  one, and what stands in its place is the pair of clauses in *The flight a painting has or has not*
++  below.
+ 
+ **And `--recheck-doors` is every promoted wall now, not the door-bearing ones.** It was cut for row
+ 27's painted-door rule and filtered on `openings` because that was the only clause it answered, so a
+diff --git a/design/plan-draft/measured/misses.jsonl b/design/plan-draft/measured/misses.jsonl
+index 8a417662..eb73f821 100644
+--- a/design/plan-draft/measured/misses.jsonl
++++ b/design/plan-draft/measured/misses.jsonl
+@@ -67,3 +67,4 @@
+ {"_record": "held_promotion", "round": "cand-6", "facing": "study/E", "candidate": "backdrops/source/study-E/cand-6.png", "verdict": "PASS", "promoted": false, "_law": "design/production-law.md clause 2 \u2014 a miss is logged with its diagnosed cause. This is not a camera miss and it is recorded here so it is not read as one.", "why": "ADMITTED AND HELD. The camera is right: +1.9 % focal and -3.8 % eye against the standing camera reference, both well inside the band. What holds it is that the painting draws the study's doorway dead centre of frame (x 673-860, centre 766.5) and the approved plan puts it 1.11 m to the right (centre 992.6 px). apertures() resolves a facing that has a staged LEAF through the leaf's placement rectangle, which is authored off the plan, so promoting the wall cuts the furnished world's hole 1.11 m from the hole the painting draws - a hole in the paint beside a painted door that does not open. Blueprint \u00a711: the painted opening must coincide with the click target.", "blocked_on": "row 22 - the plan amends to the painting. Blueprint \u00a75 makes the approved image the geometric authority, so the drawing is the document that moves, and that redline is Kabe's. The wall promotes by re-running tools/promote-backdrop.mjs --facing study/E --candidate backdrops/source/study-E/cand-6.png --round cand6 the day it lands; nothing else about it changes.", "measured": {"painted_opening_px": [673, 860], "painted_centre_px": 766.5, "plan_centre_px": 992.6, "centre_delta_m": -1.107, "px_per_m_at_wall": 204.211, "implied_focal_px": 835.2, "eye_height_m": 1.138}, "status": "open", "baked_in": null}
+ {"_record":"miss","round":"row32","gate":"tools/make-scaffold.mjs (the emitter)","artifact":"back_stair/W, back_stair_head/S, back_stair_head/W, great_stair_hall/W, stair_landing/N, stair_landing/W","_law":"design/production-law.md clause 6 — a correction lands in the EMITTER, a GATE or the INSTRUMENT. This is the emitter half of the clause the entry above baked into the gate, and it stood open while that entry read CLOSED.","measured":{"walls_refused_by_stair_painted_flight_lost":6,"those_whose_prompt_contained_the_word_stair":0,"facings_in_this_plan_that_draw_a_flight":12,"those_that_named_it_in_the_ask_before_this_fix":0},"cause":"The gate learned the flight and the ask never did. `plan.stairs` reached the renderer, `deriveMeta`, the fixture validator and the row-32 promotion refusal; `manorPrompt`'s carrier language covered doors, windows and fireplaces and stopped there, and `scaffoldRects` stamps only wall carriers — a flight stands on the FLOOR, so it appeared in no carrier list anywhere. Six walls were painted from an ask that never mentioned a staircase, obeyed it, and were refused promotion for obeying it. A retry charged to those walls is a retry charged for our own omission.","baked_in":"`plan-projection.flightsForFacing` — the same projection the row-32 refusal reads — enriched with the flight's width, how many treads are in the frame, the sense of the climb (run axis against the facing's normal; depth from the wall line, no threshold and nothing read off the pixels) and which edges the frame cut it on. `make-scaffold.flightRects` stamps that rect as a labelled FLIGHT region carrying its climb and its cut; `frame-language.flightLines` composes the Stairs paragraph in row 34's g4 register, carrying the unlit-space rule the door sentence has carried since row 27 and the open surface overhead a rising flight needs. `manorPrompt` derives the flights itself rather than being handed them, so every caller of the composer asks for the staircase. Guarded by tests/playwright/flight.spec.mjs, including the climb checked against pixel evidence that did not derive it.","status":"CLOSED"}
+ {"_record":"miss","round":"row32","gate":"tools/make-scaffold.mjs (the emitter)","artifact":"great_hall/W, long_gallery/W","_law":"design/production-law.md clause 6.","measured":{"ways_the_plan_rules":2,"distinct_sentences_the_ask_used":1,"ways_the_paintings_returned":{"great_hall/W":0,"long_gallery/W":1}},"cause":"A wall carrying two doorways was asked for them in a byte-identical sentence twice. `CARRIER_SENTENCE.door` took only a width, so two 1.00 m doors on one wall produced one instruction printed twice — and a duplicated instruction is one instruction. Both walls came back with fewer holes than the plan rules and both were refused promotion for it.","baked_in":"`manorPrompt` groups the ruled carriers by kind and, where a kind occurs more than once, gives each its ordinal (left-hand / right-hand) and its own position in the picture stated in the register's own units — the columns `coordinateLines` states every other figure in. A wall carrying one of a kind is unchanged, so eighty of the eighty-eight prompts are byte-identical and the change clocks against nothing it did not have to move. Guarded by tests/playwright/flight.spec.mjs.","status":"CLOSED"}
++{"_record": "miss", "round": "row32", "gate": "tools/promote-backdrop.mjs", "artifact": "back_stair/E, back_stair/S, back_stair/W, back_stair_head/E, back_stair_head/S, back_stair_head/W, great_stair_hall/W, stair_landing/N, stair_landing/S, stair_landing/W", "_law": "design/production-law.md clause 6 - a correction lands in the emitter, a gate or the instrument, and it lands ONCE. Third bite of one subject: the gate learned the flight, then the ask learned it, and the PROMOTION still had no way to write one.", "measured": {"walls_whose_plan_draws_a_flight_in_view": 12, "walls_the_refusal_held": 10, "walls_it_could_ever_have_released": 0}, "cause": "The row-32 clause refused every promotion of a flight-bearing facing because a promoted meta carried no `stairs`, and NOTHING attached one - so the refusal was unconditional on those walls whatever the painting showed. Doors were answered at row 27 by measuring the painted void; flights had no equivalent, so ten manor walls were unpaintable by construction and the flight-language re-asks that came back with staircases in them were refused in the same words as the frames that had none.", "baked_in": "promote-backdrop.mjs writes meta.stairs from stairsForFacing AT THE PROMOTED META'S OWN GEOMETRY (the identical shape deriveMeta bakes, raw_w/raw_h included), exact by construction on a snapped or declared-camera wall. Row 32's clause is RETIRED - it has no subject left - and two clauses replace it, each with its own ledger arm: row32:stair.flightless_ask (the prompt must carry frame-language.FLIGHT_ASK's mark, row 29(a)'s ask-not-picture reasoning) and row32:stair.painting_has_no_flight (tools/flight-in-frame.mjs: the edge energy across the tread noses must rank in the better half of 180 orientations over the flight's own projected body). The second is one-sided and its labelled corpus, its misses and the reason the cut is the null's median are in design/architecture.md, 'The flight a painting has or has not'.", "status": "CLOSED"}
+diff --git a/tests/playwright/flight.spec.mjs b/tests/playwright/flight.spec.mjs
+index 4f2d003c..9a750d08 100644
+--- a/tests/playwright/flight.spec.mjs
++++ b/tests/playwright/flight.spec.mjs
+@@ -1,8 +1,9 @@
+ /* The flight language — the emitter learns to ask for a staircase.
+  *
+- * WHAT WENT WRONG. `promote-backdrop.mjs` refuses a promotion whose room draws
+- * a flight the painting has none of (the row-32 clause,
+- * `stair.painted_flight_lost`). Six manor walls snapped geometrically clean and
++ * WHAT WENT WRONG. `promote-backdrop.mjs` refused a promotion whose room draws
++ * a flight the painting has none of (row 32's clause, since replaced by
++ * `stair.flightless_ask` and `stair.painting_has_no_flight` once the promotion
++ * learned to ATTACH a flight). Six manor walls snapped geometrically clean and
+  * were refused by it — and every one of them had been painted from a prompt in
+  * which the word `stair` does not occur. `plan.stairs` reached the renderer, the
+  * fixture validator and the refusal; it never reached the ask. That is
+@@ -40,7 +41,9 @@ import {
+ } from "../../tools/make-scaffold.mjs";
+ import { deriveMeta, stairsForFacing, flightsForFacing, stairPlanFacts }
+   from "../../tools/plan-projection.mjs";
+-import { flightLines } from "../../tools/frame-language.mjs";
++import { flightLines, FLIGHT_ASK } from "../../tools/frame-language.mjs";
++import { readLumaPng, flightReading, MIN_READABLE_BODY_PX }
++  from "../../tools/flight-in-frame.mjs";
+ import {
+   REASONS, GRANTS_KEY, eligible, grant, spentPromptPath, DEFAULT_OUT
+ } from "../../tools/grant-content-gap.mjs";
+@@ -685,3 +688,105 @@ test.describe("the content-gap grant", () => {
+ test("the run state the grant reads exists", () => {
+   expect(existsSync(STATE), `${STATE} is missing and the grant cases prove nothing`).toBe(true);
+ });
++
++/* ------------------------------------------------------------------ */
++/* Reading a flight off the painting                                   */
++/* ------------------------------------------------------------------ */
++/* The promotion attaches a flight to a promoted meta, and the one thing it
++ * cannot take on trust is whether the painter drew one. `tools/flight-in-frame.mjs`
++ * is what asks the picture. Two things in it can be silently wrong and neither
++ * is visible from the verdict it returns:
++ *
++ *   THE DECODER. A misread PNG changes every number this instrument produces
++ *     and nothing downstream would notice, so it is checked against a decoder
++ *     nobody here wrote — the browser's own, over the same file.
++ *   THE WITHHOLDING. A body too small to read must be a refusal to speak and
++ *     not a "no", because "no" costs a re-ask of art that may be right.
++ */
++test.describe("the flight a painting has or has not", () => {
++  const FRAME = join(repoRoot, "backdrops", "study", "N.png");
++
++  test("the reader agrees with the browser's own decoder", async ({ page }) => {
++    const mine = readLumaPng(readFileSync(FRAME));
++    expect([mine.w, mine.h], "the frame this project paints").toEqual([1536, 1024]);
++    await page.goto(navUrl());
++    const b64 = readFileSync(FRAME).toString("base64");
++    /* A GRID OF POINTS RATHER THAN A CHECKSUM, so a failure says where the two
++       decoders part company. Every 97th column and 89th row — coprime with the
++       frame, so the sample walks the whole picture instead of one band. */
++    const theirs = await page.evaluate(async (data) => {
++      const bin = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
++      const bmp = await createImageBitmap(new Blob([bin], { type: "image/png" }));
++      const cv = new OffscreenCanvas(bmp.width, bmp.height);
++      const ctx = cv.getContext("2d", { willReadFrequently: true });
++      ctx.drawImage(bmp, 0, 0);
++      const px = ctx.getImageData(0, 0, bmp.width, bmp.height).data;
++      const out = [];
++      for (let y = 0; y < bmp.height; y += 89) {
++        for (let x = 0; x < bmp.width; x += 97) {
++          const o = (y * bmp.width + x) * 4;
++          out.push([x, y, 0.2126 * px[o] + 0.7152 * px[o + 1] + 0.0722 * px[o + 2]]);
++        }
++      }
++      return out;
++    }, b64);
++    expect(theirs.length, "the sample actually walked the frame").toBeGreaterThan(150);
++    let worst = 0, at = null;
++    for (const [x, y, v] of theirs) {
++      const d = Math.abs(mine.L[y * mine.w + x] - v);
++      if (d > worst) { worst = d; at = [x, y]; }
++    }
++    expect(worst, `the two decoders disagree at ${JSON.stringify(at)}`).toBeLessThan(0.5);
++  });
++
++  test("a flight too small on the frame is withheld, not denied", () => {
++    /* `back_stair_head/W` looks across a stairwell whose every tread is below
++       the frame: what it shows of the flight is the hole it drops through, and
++       its projected body is under 2 % of the picture. A verdict from that is a
++       verdict from noise, so there is none — and the promotion attaches, the
++       same way a WITHHELD measurement everywhere else in this project is a
++       refusal to speak rather than a finding. */
++    const meta = deriveMeta(PLAN, "back_stair_head", "W");
++    const flight = (meta.stairs || [])[0];
++    expect(flight, "back_stair_head/W draws a flight").toBeTruthy();
++    const picture = readLumaPng(readFileSync(FRAME));
++    const r = flightReading(picture, flight);
++    expect(r.body_px, "and it is under the floor this reading answers above")
++      .toBeLessThan(MIN_READABLE_BODY_PX);
++    expect(r.reads_as_flight, "so the reading withholds").toBe(null);
++    expect(r.why, "and says why").toBeTruthy();
++  });
++
++  test("the reading is the same reading every time it is taken", () => {
++    /* The promotion is re-run from the meta alone by `fixtures.spec`'s
++       staleness case, so a statistic that wandered between runs would turn a
++       promoted wall into a coin toss. The sample is a fixed stride for exactly
++       this reason. */
++    const meta = deriveMeta(PLAN, "great_stair_hall", "W");
++    const flight = (meta.stairs || [])[0];
++    const picture = readLumaPng(readFileSync(FRAME));
++    const a = flightReading(picture, flight);
++    const b = flightReading(readLumaPng(readFileSync(FRAME)), flight);
++    expect(a).toEqual(b);
++    expect(a.readable, "and this one is big enough to have an answer").toBe(true);
++  });
++
++  test("the ask's own mark is what the promotion looks for", () => {
++    /* One rule read in two directions: the sentence the emitter writes must
++       carry the mark the promotion hunts, or the gate is looking for something
++       nobody says any more. `frame-language.mjs` asserts it as it writes it;
++       this asserts it over every facing in the plan that draws a flight, and
++       that a facing which draws none never leaves the mark. */
++    let withFlight = 0;
++    for (const [loc, f] of everyFacing()) {
++      const meta = deriveMeta(PLAN, loc, f);
++      const { rects } = scaffoldRects(PLAN, loc, f, meta);
++      const drawn = (meta.stairs || []).length > 0;
++      expect(FLIGHT_ASK.test(manorPrompt(PLAN, `${loc}/${f}`, meta, rects)),
++        `${loc}/${f} ${drawn ? "draws a flight and its ask must carry the mark" : "draws none and its ask must not"}`)
++        .toBe(drawn);
++      if (drawn) withFlight++;
++    }
++    expect(withFlight, "the manor has flight-bearing facings to check").toBeGreaterThan(4);
++  });
++});
+diff --git a/tests/playwright/guards.spec.mjs b/tests/playwright/guards.spec.mjs
+index f732e5cd..2043fdcf 100644
+--- a/tests/playwright/guards.spec.mjs
++++ b/tests/playwright/guards.spec.mjs
+@@ -399,13 +399,17 @@ export const MECHANISMS = [
+   "door.painted_width",
+   "door.painted_overlap",
+   "door.unmeasured_exit",
+-  /* [Row 32] And the promotion's fourth, minted the day the manor sweep
+-     painted `great_stair_hall/W` and the flight went out of the picture with
+-     it. A promoted meta carries no `stairs`, so a facing whose room draws one
+-     loses it — the validator's `exit.via_unfilled` speaks only where an EXIT
+-     goes through the flight, and a flight you merely LOOK at from this facing
+-     had nobody speaking for it. */
+-  "stair.painted_flight_lost",
++  /* [Row 32, completed] And the promotion's flight arms. Row 32's
++     `stair.painted_flight_lost` refused every promotion of a flight-bearing
++     facing, because a promoted meta carried no `stairs` and painting the wall
++     therefore deleted the staircase and the polygon a click travels through.
++     The promotion attaches the flight now, so that clause has no subject left
++     — not a softened rule, a retired one — and these two are the questions it
++     was standing in for: was the painter ever ASKED for the staircase the meta
++     is about to point at (row 29(a)'s reasoning, the ask checked rather than
++     the picture), and does the PAINTING hold one where the plan projects it. */
++  "stair.flightless_ask",
++  "stair.painting_has_no_flight",
+   /* [Row 29(a)] And the promotion's VISTA arms, minted the day the four `open`
+      facings could first be measured at all. An open facing has no wall plane,
+      no ceiling and no side walls, so three separate things that were true by
+@@ -3093,7 +3097,7 @@ test.describe("row 19's bounds, from both sides", () => {
+  * ruling's own mechanisms need exactly this rig with one more argument: the
+  * declared-camera path is chosen by a FLAG on the command line, so its cases
+  * spoil the flag or the reading rather than the reading alone. */
+-function promoteTokens(key, doctor, planDoctor, extraArgs = []) {
++function promoteTokens(key, doctor, planDoctor, extraArgs = [], promptDoctor = null) {
+   const dir = stageTree();
+   try {
+     const [loc, fac] = key.split("/");
+@@ -3115,6 +3119,19 @@ function promoteTokens(key, doctor, planDoctor, extraArgs = []) {
+     const cand = String(meta.camera_id).replace(/^measured:/, "");
+     mkdirSync(dirname(join(dir, cand)), { recursive: true });
+     cpSync(join(repoRoot, cand), join(dir, cand));
++    /* [Row 32, the flight] AND THE ASK IT WAS PAINTED FROM, because one of the
++       promotion's clauses reads the prompt rather than the picture — the same
++       shape as `vista.indoor_ask`. It comes over whenever it exists so that
++       clause sees what the sweep would see, and `promptDoctor` is how a case
++       reaches it. */
++    const promptRel = cand.replace(/\.png$/i, ".prompt.txt");
++    if (existsSync(join(repoRoot, promptRel))) {
++      cpSync(join(repoRoot, promptRel), join(dir, promptRel));
++      if (promptDoctor) {
++        writeFileSync(join(dir, promptRel),
++          promptDoctor(readFileSync(join(dir, promptRel), "utf8")));
++      }
++    }
+     const docRel = join("design", "plan-draft", "measured",
+       meta.measured_round || "", `${loc}-${fac}.json`);
+     mkdirSync(dirname(join(dir, docRel)), { recursive: true });
+@@ -3174,25 +3191,131 @@ test.describe("the clause ledger — the promotion's painted-door mechanisms", (
+       .toEqual(["door.painted_overlap"]);
+   });
+ 
+-  ledgerCase("stair.painted_flight_lost", () => {
+-    /* [Row 32] A PROMOTED META CARRIES NO `stairs`, so painting a facing whose
+-       room draws a flight deletes the staircase out of the picture — and with
+-       it the polygon a click travels through. `great_stair_hall/W` is the wall
+-       that earned it: the manor sweep promoted it and `manor.spec`'s "a flight
+-       seen across its run is a body, not a line" stopped having a subject at
+-       all, which is a green check standing on a missing staircase rather than
+-       on a drawn one.
+-
+-       The construction moves the great stair into the library, in front of
+-       `library/E`'s own standpoint, and changes nothing else: the reading is
+-       untouched, so the door clauses stay silent and the only thing this wall
+-       has newly done is hold a flight. */
+-    expect(promoteTokens("library/E", () => {}, (plan) => {
+-      const st = plan.stairs.find((s2) => s2.id === "great_stair");
+-      st.rect = { x0: 5.0, x1: 6.6, y0: 16.5, y1: 19.0 };
+-      st.joins = ["library", "stair_landing"];
+-    }), "a wall painted over the staircase its room holds")
+-      .toEqual(["stair.painted_flight_lost"]);
++  /* [Row 32, completed] THE FLIGHT'S TWO CLAUSES.
++   *
++   * Row 32 refused EVERY promotion of a flight-bearing facing, because nothing
++   * attached a flight to a promoted meta and painting the wall therefore
++   * deleted the staircase. That refusal is gone and its mechanism with it —
++   * the promotion now writes `stairs` out of `stairsForFacing` at the promoted
++   * meta's own geometry — so `stair.painted_flight_lost` is not softened, it
++   * has no subject: there is no longer a way for the tool to write a meta that
++   * loses a flight the plan draws. What replaces it is the pair of questions
++   * the old refusal was standing in for, and they are separate clauses because
++   * they are answered by different evidence and cost different things.
++   *
++   * The plan doctor is shared: it moves the great stair into the middle of the
++   * subject's own room and changes nothing else, so the reading is untouched
++   * and every door clause stays silent. */
++  const stairInto = (roomId) => (plan) => {
++    const r = plan.rooms.find((x) => x.id === roomId).rect;
++    const cx = (r.x0 + r.x1) / 2, cy = (r.y0 + r.y1) / 2;
++    const st = plan.stairs.find((s2) => s2.id === "great_stair");
++    st.rect = { x0: cx - 0.8, x1: cx + 0.8, y0: cy - 1.25, y1: cy + 1.25 };
++    st.joins = [roomId, "stair_landing"];
++  };
++  /* The Stairs paragraph as `frame-language.mjs` writes it — the mark arm one
++     looks for. Written out rather than imported so that a case cannot pass by
++     agreeing with a regex that has drifted away from the sentence. */
++  const FLIGHT_SENTENCE =
++    "Stairs: a flight of stairs stands in this view, and it is part of the " +
++    "architecture rather than furniture.\n";
++
++  ledgerCase("stair.flightless_ask", () => {
++    /* THE ASK, and it is row 29(a)'s reasoning about an outdoor wall painted
++       from an indoor ask, applied to a staircase: the ask is checked, not the
++       picture. Every manor stair wall on disk was painted from a prompt that
++       never mentioned a staircase — the emitter's carrier language covered
++       doors, windows and fireplaces and nothing else until 2026-08-24 — so
++       whatever stands in that region got there by accident, while the meta
++       about to be written says where the BUILDING puts it. `library/E`'s own
++       ask names no flight, which is what makes it the subject here. */
++    expect(promoteTokens("library/E", () => {}, stairInto("library")),
++      "a wall whose meta would carry a staircase nobody asked the painter for")
++      .toEqual(["stair.flightless_ask"]);
++  });
++
++  ledgerCase("stair.painting_has_no_flight", () => {
++    /* THE PICTURE, once the ask has been shown to have named the flight. The
++       ask is granted here by writing the Stairs paragraph into the prompt the
++       staged candidate carries, so arm one is satisfied and this is the only
++       thing left that can fire.
++
++       `solar/N` is the subject: a promoted wall on the MEASURED camera (so no
++       tolerance clause can speak) carrying no opening at all (so no door
++       clause can), whose painting flatly contradicts a staircase across it —
++       the flight's own axis ranks LAST of the 180 orientations swept over its
++       projected body (`tools/flight-in-frame.mjs`), against a cut at the
++       null's median. `library/E` is the opposite case and is the positive
++       below: its shelving happens to run across the noses. */
++    expect(promoteTokens("solar/N", () => {}, stairInto("solar"), [],
++      (ask) => FLIGHT_SENTENCE + ask),
++    "a staircase asked for, and a painting with no staircase in it")
++      .toEqual(["stair.painting_has_no_flight"]);
++  });
++
++  test("a flight asked for and painted attaches, and the meta carries it", () => {
++    /* The discrimination the two cases above stand on, and the row's own
++       positive claim: the same doctored plan and the same granted ask on a
++       wall whose paint DOES hold structure along the flight's axis promotes,
++       and what it writes is a `stairs` list in the shape the renderer and
++       `meta.stairs_list` already read. Without this, both cases could be
++       green because a flight-bearing wall never promotes at all — which is
++       exactly the state row 32 left the pipeline in. */
++    expect(promoteTokens("library/E", () => {}, stairInto("library"), [],
++      (ask) => FLIGHT_SENTENCE + ask),
++    "the ask named it and the paint holds it").toEqual([]);
++    const dir = stageTree();
++    try {
++      const planRel = join("fixtures", "demo-study", "plan.json");
++      const plan = JSON.parse(readFileSync(join(dir, planRel), "utf8"));
++      stairInto("library")(plan);
++      writeFileSync(join(dir, planRel), JSON.stringify(plan, null, 2) + "\n");
++      const meta = JSON.parse(readFileSync(
++        join(repoRoot, "backdrops", "library", "E.meta.json"), "utf8"));
++      const cand = String(meta.camera_id).replace(/^measured:/, "");
++      mkdirSync(dirname(join(dir, cand)), { recursive: true });
++      cpSync(join(repoRoot, cand), join(dir, cand));
++      const promptRel = cand.replace(/\.png$/i, ".prompt.txt");
++      writeFileSync(join(dir, promptRel),
++        FLIGHT_SENTENCE + readFileSync(join(repoRoot, promptRel), "utf8"));
++      const docRel = join("design", "plan-draft", "measured", meta.measured_round,
++        "library-E.json");
++      mkdirSync(dirname(join(dir, docRel)), { recursive: true });
++      cpSync(join(repoRoot, docRel), join(dir, docRel));
++      execFileSync("node", [join(dir, "tools", "promote-backdrop.mjs"),
++        "--facing", "library/E", "--candidate", cand,
++        "--round", meta.measured_round, "--reference", meta.camera_reference],
++        { cwd: dir, encoding: "utf8", stdio: "pipe" });
++      const written = JSON.parse(readFileSync(
++        join(dir, "backdrops", "library", "E.meta.json"), "utf8"));
++      expect(Array.isArray(written.stairs), "the meta carries a stairs list").toBe(true);
++      expect(written.stairs.length, "with the flight the plan draws in it").toBe(1);
++      const s = written.stairs[0];
++      expect(s.id).toBe("great_stair");
++      /* The baked shape, field for field — the fields `meta.stairs_list`
++         refuses the absence of, including row 26's unclamped extent. */
++      for (const k of ["direction", "treads", "rise_m", "x", "y", "w", "h",
++        "raw_w", "raw_h", "poly", "floor_poly", "well_poly"]) {
++        expect(s[k], `a promoted flight states ${k}`).not.toBe(undefined);
++      }
++      expect(s.raw_w).toBeGreaterThanOrEqual(s.w);
++      expect(s.raw_h).toBeGreaterThanOrEqual(s.h);
++      /* AND IT IS THIS META'S OWN PROJECTION, not the plan's derived one: the
++         painting fixed the scale and the corners, and a flight projected at
++         any other camera lands beside its own painted treads. */
++      const own = deriveMeta(plan, "library", "E").stairs[0];
++      expect(Math.abs(own.raw_w - s.raw_w) + Math.abs(own.raw_h - s.raw_h),
++        "the derived camera projects this flight to a different body")
++        .toBeGreaterThan(1);
++      expect(Math.abs(own.noses[0][0][0] - s.noses[0][0][0]),
++        "and puts its first tread nose in a different column")
++        .toBeGreaterThan(1);
++      expect(validate(join(dir, "fixtures", "nav-manor"), RECORDS,
++        { "library/E": written }).filter((f) => /row15:meta\.stairs_list/.test(f)),
++      "and the fixture validator accepts the flight it carries").toEqual([]);
++    } finally {
++      removeTree(dir);
++    }
+   });
+ 
+   ledgerCase("door.unmeasured_exit", () => {
+diff --git a/tools/frame-language.mjs b/tools/frame-language.mjs
+index 5f680fa5..57dcf115 100644
+--- a/tools/frame-language.mjs
++++ b/tools/frame-language.mjs
+@@ -370,6 +370,24 @@ const CLIMB_WORDS = {
+     "the steps further up standing wider and further apart than the ones behind them"]
+ };
+ 
++/**
++ * THE MARK A FLIGHT-BEARING ASK LEAVES ON ITS OWN PROMPT.
++ *
++ * `tools/promote-backdrop.mjs` refuses to promote a wall whose plan draws a
++ * flight from a prompt that never mentioned one, exactly as row 29(a) refuses
++ * an outdoor wall painted from an indoor ask — the ask is checked, not the
++ * picture, because a frame painted to an ask that never named the staircase
++ * holds whatever staircase the painter improvised, wherever they improvised it,
++ * and the meta about to be written says where the BUILDING puts it.
++ *
++ * One rule read in two directions: the sentence below is asserted against this
++ * pattern the moment it is written, so the two cannot drift apart — reword the
++ * ask and the emitter refuses itself rather than leaving the promotion looking
++ * for a sentence nobody writes any more.
++ */
++export const FLIGHT_ASK =
++  /^Stairs: (?:a flight of stairs stands|\d+ flights of stairs stand) in this view\b/m;
++
+ export function flightLines(ctx) {
+   const flights = ctx.flights || [];
+   if (!flights.length) return [];
+@@ -379,6 +397,9 @@ export function flightLines(ctx) {
+   L.push(`Stairs: ${many ? `${flights.length} flights of stairs stand` : "a flight of stairs stands"} in this view, ` +
+     `and ${many ? "they are" : "it is"} part of the architecture rather than furniture — ` +
+     `${many ? "they are" : "it is"} built into this ${GROUND === "ground" ? "place" : "room"} and cannot be left out of the picture.`);
++  if (!FLIGHT_ASK.test(L[0])) {
++    throw new Error(`the flight sentence no longer carries the mark the promotion looks for: ${L[0].slice(0, 80)}…`);
++  }
+   for (const s of flights) {
+     const lead = many ? `  The ${s.direction === "up" ? "rising" : "descending"} flight: ` : "  It is ";
+     L.push(`${lead}a straight stair of ${s.treads} steps, ${s.width_m.toFixed(2)} m wide, ` +
+diff --git a/tools/promote-backdrop.mjs b/tools/promote-backdrop.mjs
+index ba96f8ac..b01b5d71 100644
+--- a/tools/promote-backdrop.mjs
++++ b/tools/promote-backdrop.mjs
+@@ -39,6 +39,8 @@ import {
+ } from "./validate-fixtures.mjs";
+ import { openingsForFacing, wallSegments, nearestFloorM, facingCarriers, stairsForFacing, DRAWING_EYE_M, deriveMeta } from "./plan-projection.mjs";
+ import { INTERIOR_FABRIC } from "./room-voices.mjs";
++import { FLIGHT_ASK } from "./frame-language.mjs";
++import { readLumaPng, flightReading, RANK_LEVEL } from "./flight-in-frame.mjs";
+ import * as timings from "./timings.mjs";                 // [row 33] the stopwatch
+ 
+ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+@@ -522,27 +524,79 @@ const plannedDoors = planned.filter((p) => p.kind === "door");
+ const painted = m._measured_px && Array.isArray(m._measured_px.openings)
+   ? m._measured_px.openings : null;
+ const refusals = [];
+-/* [row 32] A PAINTING THAT LOSES THE STAIRCASE IS NOT A PROMOTION.
++/* THE STAIRCASE, ATTACHED — row 32's refusal completed into the thing it was
++ * standing in for.
+  *
+- * The renderer draws a flight from the meta's own `stairs`, and a promoted
+- * meta has none — so promoting a facing whose room draws a flight deletes the
+- * staircase from the picture, and with it the poly the click travels through.
+- * `great_stair_hall/W` is the case: the manor sweep promoted it and
+- * `manor.spec`'s "a flight seen across its run is a body, not a line" stopped
+- * having a subject at all, which is the gates-that-cannot-fail shape rather
+- * than a passing test.
++ * Row 32 refused any promotion of a facing whose room draws a flight, because
++ * the renderer draws a flight from the meta's own `stairs` and a promoted meta
++ * had none: painting the wall deleted the staircase and the poly a click
++ * travels through, and `manor.spec`'s "a flight seen across its run is a body,
++ * not a line" stopped having a subject at all. That refusal was correct and it
++ * was also a hole in the pipeline — nothing ATTACHED a flight to a promoted
++ * meta, so ten manor walls could never be painted at all, however good the
++ * painting. A doorway got its answer at row 27 (the painted door governs its
++ * own rectangle, measured off the frame); this is the flight's, and it is a
++ * different answer because a flight is a different thing.
+  *
+- * The validator already refuses the neighbouring case — an exit whose `via`
+- * names a flight the meta does not carry, the clause `row21` tags
+- * `exit.via_unfilled`, which is what took `back_stair_head/W` back out of the
+- * store — but a flight the
+- * player only LOOKS at from this facing has no exit through it here, so
+- * nothing spoke for it. This does. It is the plan's own geometry, asked of
+- * every promotion on every route, and it lapses by itself the day row 25
+- * gives a painted facing a flight to carry. */
++ * WHERE THE GEOMETRY COMES FROM: the plan, projected AT THIS META. `stairs` is
++ * `stairsForFacing`'s own output — the identical shape `deriveMeta` bakes,
++ * `raw_w`/`raw_h` and all, so the validator's `meta.stairs_list` reads a
++ * promoted flight exactly as it reads a derived one and neither the renderer
++ * nor the ledger learns a second vocabulary. It is projected at the PROMOTED
++ * meta rather than at the derived one, because the promoted meta is what the
++ * page will draw this wall with: the scale, the floor line and the corners the
++ * painting fixed are the terms `groundplane` puts the flight on the frame
++ * with, and a flight projected at any other camera would land beside its own
++ * painted treads. On a SNAPPED wall (`row35_snap.py`) and on a wall promoted
++ * through the DECLARED camera the projection is exact by construction — the
++ * snap rectifies the picture onto the declared camera and writes the corners,
++ * the floor line and the scale that camera states, and the declared route
++ * takes its horizon from `deriveMeta` itself — so on those two routes the
++ * flight the meta carries and the flight the page's own plan projection draws
++ * are the same numbers, not merely close ones.
++ *
++ * WHAT IS ASKED OF THE PICTURE, and why that question is asked of every route.
++ * Being exact is a fact about the GEOMETRY and says nothing about whether the
++ * painter drew a staircase at all: the meta can be perfectly right about where
++ * the flight stands and the paint under it still be bare plaster, which is a
++ * click through a stair that is not in the picture. So both arms below run
++ * wherever the plan draws a flight, on every camera source.
++ */
+ const drawnFlights = stairsForFacing(plan, loc, facing, meta) || [];
+-if (drawnFlights.length && !(Array.isArray(meta.stairs) && meta.stairs.length)) {
+-  refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and a promoted meta carries none — painting this wall deletes the staircase the room holds, and a player is left looking at the place a stair used to be [row32:stair.painted_flight_lost]`);
++const flightReadings = [];
++if (drawnFlights.length) {
++  /* ARM 1 — THE ASK. The backward half of the flight language, and word for
++   * word row 29(a)'s reasoning about an outdoor wall painted from an indoor
++   * ask: the ask is checked, not the picture. Until 2026-08-24 the emitter's
++   * carrier language covered doors, windows and fireplaces and said nothing
++   * about a staircase, so every manor stair wall on disk was painted from a
++   * prompt that never mentioned one — and a frame painted to that ask holds
++   * whatever stair the painter improvised, wherever they improvised it, while
++   * the meta about to be written says where the BUILDING puts it. Those two
++   * agreeing is luck, and this pipeline does not promote luck. Its own re-asks
++   * under the flight language are the candidates for such a wall. The mark is
++   * `frame-language.mjs`'s own (`FLIGHT_ASK`), asserted there as it is written,
++   * so the two ends of one rule cannot drift apart. */
++  const promptPath = join(root, candidate.replace(/\.png$/i, ".prompt.txt"));
++  if (!existsSync(promptPath)) {
++    refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and ${candidate} has no prompt beside it — a wall whose meta is about to carry a staircase is promoted only from an ask that can be shown to have named one [row32:stair.flightless_ask]`);
++  } else if (!FLIGHT_ASK.test(readFileSync(promptPath, "utf8"))) {
++    refusals.push(`${facingArg}: the plan draws ${drawnFlights.length} flight(s) in this view (${drawnFlights.map((s2) => s2.id).join(", ")}) and the prompt ${candidate} was painted from never named a staircase — this candidate was asked for before the emitter had flight language, so whatever stands in that region got there by accident and the meta would be pointing a click at it. Its own re-ask under the flight paragraph is the candidate for this wall [row32:stair.flightless_ask]`);
++  } else {
++    /* ARM 2 — THE PAINTING. The ask having named it, does the frame hold it?
++     * `tools/flight-in-frame.mjs` carries the statistic, what it separates and
++     * what it does not. One-sided on purpose: it refuses where the picture's
++     * own structure contradicts the flight, withholds where the body on frame
++     * is too small to be asked, and never refuses on a close call. */
++    const picture = readLumaPng(readFileSync(join(root, candidate)));
++    for (const s2 of drawnFlights) {
++      const r = flightReading(picture, s2);
++      flightReadings.push([s2, r]);
++      if (r.reads_as_flight === false) {
++        refusals.push(`${facingArg}: the plan draws flight "${s2.id}" across ${r.body_px} px of this frame and the paint there does not hold one — the edge energy across its tread noses ranks ${r.rank} among the frame's own orientations over that region (${RANK_LEVEL} is the null's median; a painted flight on this corpus reads 0.06–0.41), so the picture's structure is aligned against the staircase rather than with it. Attaching it would stroke a stair over bare surface and hand a click through it [row32:stair.painting_has_no_flight]`);
++      }
++    }
++  }
+ }
+ /* Assigned by id, so the loop that writes the openings and the loop that writes
+  * the carrier record read one answer rather than each computing its own. */
+@@ -652,6 +706,12 @@ if (refusals.length) {
+   for (const r of refusals) console.error("promote refused: " + r);
+   process.exit(1);
+ }
++/* AND THE STAIRCASE GOES ON THE RECORD — after the refusals, because a meta
++ * that was never written cannot carry anything, and because attaching before
++ * them would leave a half-built `stairs` in a file the tool then declines to
++ * write. Written only where the plan draws one, so no promoted meta of a
++ * stairless wall gains an empty list and moves its own bytes. */
++if (drawnFlights.length) meta.stairs = drawnFlights;
+ 
+ /* [F1] WHERE THE PLAN PUTS THIS WALL'S CARRIERS, AND WHERE THE PAINTING PUT
+  * THEM. The gate asks whether a candidate was painted at the project's camera.
+@@ -737,6 +797,16 @@ for (const c of carriers) {
+     console.log(`  carrier ${c.kind}${c.id ? " " + c.id : ""}: the plan centres it at ${c.plan_centre_px} px, the painting at ${c.painted_centre_px} — ${c.centre_delta_m} m apart (${c.painted_feature})`);
+   }
+ }
++/* THE FLIGHTS THIS META NOW CARRIES, with what the picture was asked and what
++ * it answered — printed because the reading itself never lands in the meta
++ * (see `tools/flight-in-frame.mjs`), so this line is where a reader of the run
++ * log finds out on what evidence a staircase was attached. */
++for (const [s2, r] of flightReadings) {
++  const read = r.reads_as_flight === null
++    ? `withheld — ${r.why}`
++    : `rank ${r.rank} of the frame's own orientations over ${r.body_px} px of body (${RANK_LEVEL} is the null's median)`;
++  console.log(`  flight ${s2.id}: ${s2.direction === "up" ? "climbing" : "descending"}, ${s2.treads} treads, ${round(s2.raw_w, 0)}×${round(s2.raw_h, 0)} px of body of which ${round(s2.w, 0)}×${round(s2.h, 0)} on the frame; the painting reads ${read}`);
++}
+ 
+ function round(v, n) {
+   const f = Math.pow(10, n);

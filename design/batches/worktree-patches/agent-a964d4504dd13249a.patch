@@ -1,0 +1,1393 @@
+diff --git a/design/architecture.md b/design/architecture.md
+index 9e4cc25a..54538731 100644
+--- a/design/architecture.md
++++ b/design/architecture.md
+@@ -5280,20 +5280,48 @@ still reads 673..861.
+ 
+ Turned round, brightness is much less discriminating: over the store a bright piece of wall lifts up
+ to **85** above its own median and a window lifts from **54**, and two walls with no window at all
+-carry the brightest columns in their band. So a candidate is admitted on TWO things —
+-
+-- **the lift**, at least `ADMIT_LIFT` = 60 above the wall's own median; and
+-- **the lattice**, a periodicity score of at least `LATTICE_MIN` = 0.20. §11's glazing is leaded
+-  lights in a came grid, so a window's light is crossed by fine edges that REPEAT at the quarry
+-  pitch (0.04–0.30 m), which rough plaster does not. The score is the mean of the two axes and the
+-  alternative was measured rather than argued: taking the WEAKER axis at the same floor loses nine
+-  painted windows to remove one false positive, while the mean loses one and removes two.
+-
+-**Said plainly, because the row asked for the lattice to be the discriminator and on this store it
+-is the junior one:** the lift does most of the separating. Both are kept because they fail
+-differently, and row 37 is about to change what a painted wall's brightness means — when
+-illumination becomes a runtime pass over neutral backdrops the lift stops separating and the
+-lattice, which is a fact about the GLAZING rather than about the light on it, does not.
++carry the brightest columns in their band.
++
++**The first draft admitted on the LIFT, at an absolute floor of 60, and that was the wrong reading
++of the row.** It cost `servants_hall/E` on 2026-08-25. That room is limewashed, so its wall sits at
++101 rather than at the corpus's usual 20–45, and on `scafink-372cda37` a plainly painted three-light
++leaded window stands 57 over it and was refused by name — while a 0.35 m sliver of lit plaster
++beside it was admitted, so the frame even reported the right COUNT. On the same wall's
++`row23-230bb67d`, painted with no window at all, a piece of lit plaster between two doorways stands
++62 over a 111 wall and was admitted AS a window. One absolute threshold, one room, both answers
++wrong and in opposite directions. The frame the wall was actually promoted from, `row23-ce4ea35f`,
++paints the SAME window and passed only because the painter's key put its wall at 79 and the lift at
++103 — a detector whose answer depends on how the painter lit the wall is not reading the glazing,
++and row 37 makes that reading meaningless everywhere at once.
++
++**So the leading is primary and the light's contrast is a relative secondary.** A candidate is
++admitted on —
++
++- **the leading's depth**, at least `LEAD_DEPTH_MIN` = 0.55: `(p90 − p10) / p90` inside the light's
++  own rectangle at a 12 % inset — the share of the glass's own brightness that the dark structure
++  crossing it takes away. It is a ratio inside ONE rectangle, so no wall key, exposure or lighting
++  pass can move it. Leaded glass scores 0.60–0.96 over this store; a bright panel, a plastered
++  overmantel, a lit half-wall score 0.11–0.47.
++- **that the leading crosses**, at least `LEAD_CROSS_MIN` = 1.6: `min(|dx|, |dy|)` over the same
++  rectangle against the same statistic on the wall's own plaster beside it. Energy only where an
++  edge crosses an edge, so a came grid scores and a single band — a hanging, a shadow, a dark
++  transom — scores nothing however deep it is. Wall-normalised, like the contrast and unlike the
++  lift.
++- **the lattice's period**, at least `LATTICE_MIN` = 0.12: §11's glazing is leaded lights in a came
++  grid, so a window's light is crossed by fine edges that REPEAT at the quarry pitch (0.04–0.30 m).
++  The score is the mean of the two axes; taking the WEAKER axis loses nine painted windows to remove
++  one false positive. **Measured, this separates weakly** — AUC 0.66 against the depth's 0.88 — so
++  the floor is now set under the dimmest leading any painted window in the corpus draws, where it
++  says "no period whatsoever" and nothing more. The old floor of 0.20 was itself costing two
++  correctly painted windows (`dining_parlour/W` at 0.143, `garden_room/N` at 0.142).
++- **the light's contrast**, at least `CONTRAST_MIN` = 0.25: `(light − wall) / (255 − wall)`, the
++  share of the headroom the wall leaves that the light uses. A window is still an opening lighter
++  than its wall and that is worth a test; how many POINTS lighter is not, because a bright limewashed
++  wall leaves 150 points of headroom and a dark panelled one 230. It separates as well as the
++  absolute lift did (AUC 0.939 against 0.947) without depending on the wall's key.
++
++The absolute lift, the glass and came levels, the wall's own crossing energy, the quarry pitch on
++each axis and the lights a mullion merge joined are all still reported, and gate nothing.
+ 
+ **Two more things the doorway did not need.** A window is MULLIONED, so one opening reads as two or
+ three bright runs with a narrow dark bar between them — runs closer than `MULLION_MAX_M` = 0.25 m are
+@@ -5305,15 +5333,35 @@ sill and a head and every overlay showed the paintings drawing them taller than
+ from the middle of the band, stepping over a transom no thicker than a bar and clamped to
+ 1.20–2.80 m of head and 0.20–1.60 m of sill.
+ 
+-**The calibration** (`design/plan-draft/measured/window_calibration.json`, `--calibrate`). Over the
+-24 promoted walls the plan rules a window on — 41 windows — the detector pairs **33** at a median
+-centre distance of **0.635 m** (p90 2.27 m), in metres at the wall's APERTURE scale, which is the
+-space a placed sprite lives in (row 27's ruling). Eight walls disagree on the COUNT, and most of that
+-is the corpus rather than the instrument: `great_hall/S` and `long_gallery/E` are drawn with two
+-windows where the plan rules four, and `solar/S` with three where it rules four. Three overlays were
+-read by eye at the build: `master_bedchamber/E` and `muniment_room/S` sit on their painted windows to
+-within a few pixels in all four edges, and `long_gallery/E` shows the residual false positive — a lit
+-plaster field left of the window.
++**The calibration** (`design/plan-draft/measured/window_calibration.json`, `--calibrate`). It runs
++over ALL 61 promoted walls — the 24 the plan rules a window on and the 37 it rules none on, which are
++the negatives: every glazed opening read on one of those is a false positive and they are counted
++beside the pairs, because a detector that finds every window by finding windows everywhere has not
++been calibrated.
++
++| | first draft (lift ≥ 60, lattice ≥ 0.20) | leading first |
++|---|---|---|
++| ruled windows paired | 33 of 40 | **34** of 40 |
++| unpaired (false negative) | 7 | **6** |
++| false positives on the 37 no-window walls | 0 | **0** |
++| median centre error | 0.635 m | **0.571 m** |
++| worst centre error | 4.604 m | **3.896 m** |
++| within 0.35 m | 13 of 33 | **14** of 34 |
++| held frames read right | 1 of 3 | **3** of 3 |
++
++The centre distance is in metres at the wall's APERTURE scale, which is the space a placed sprite
++lives in (row 27's ruling). Seven walls disagree on the COUNT, and most of that is the corpus rather
++than the instrument: `great_hall/S` and `long_gallery/E` are drawn with two windows where the plan
++rules four, and `solar/S` with three where it rules four. Three overlays were read by eye at the
++build: `master_bedchamber/E` and `muniment_room/S` sit on their painted windows to within a few
++pixels in all four edges.
++
++**The held frames are in the calibration and are the miss's own evidence.** `HELD_FRAMES` names one
++wall painted three times — `servants_hall/E` with its window under a bright key, the same wall with
++no window in it, and the frame the wall was promoted from — and each carries the COLUMNS its window
++occupies, not a count, because the first draft got the count right on the frame it read wrongest. No
++sweep can see them, since none of the three is a promoted meta, so the calibration reads them itself
++every time it runs.
+ 
+ **What the promotion does with it** (`tools/promote-backdrop.mjs`). `windowsForFacing` in
+ `plan-projection.mjs` projects the plan's windows in APERTURE space and mints their ids — `win01`
+@@ -5328,6 +5376,29 @@ LIGHT and the plan rules the OPENING). The other direction is RECORDED and gates
+ `meta.window_evidence` lists every glazed opening the painting shows that the plan does not rule,
+ because the plan amends to the painting (row 22) and an extra painted window is something to look at.
+ 
++**`--check` decides and writes nothing**, which is how a change to any of these clauses is shown to
++be safe. Every gate runs, a refusal still refuses and still exits 1, and the two `writeFileSync`
++calls at the foot of the file are the only thing skipped — so re-deciding the whole store no longer
++means moving it. Re-decided over all 61 promoted walls with the leading-first detector, four walls
++change verdict and none of them is a wall the plan rules no window on:
++
++| wall | before | after |
++|---|---|---|
++| `dining_parlour/W` | `window.unpainted` (0 painted) | **promotable** — its window is read |
++| `garden_room/N` | `window.unpainted` (0 painted) | `window.painted_width` — the window is now read, and its 3.31 m at that wall's corner scale is 2.21× the plan's 1.50 m; that wall's aperture scale (122.8 px/m) and its own ruler (332.6 px/m) disagree, which is not this clause's business |
++| `closet_chamber/E` | `window.painted_width` (1 painted) | `window.painted_width` (3 painted — the three lights of one window, too far apart to merge; the paired centre error falls from −0.89 m to +0.01 m) |
++| `long_gallery/E` | `window.unpainted` (3 of 4 painted) | `window.unpainted` (2 of 4 — the third was a 0.58 m sliver of lit plaster with no leading in it) |
++
++Seven walls in the store refused under the first draft's window clause and six do now. The remaining
++six are the corpus rather than the instrument, except the two width refusals above.
++
++That sweep is reproducible and touches nothing: for each `backdrops/<loc>/<F>.meta.json`, copy its
++measurement (the `measured_round` and `<loc>-<F>.json` its `camera_id` names) into a throwaway round
++directory, run `window_measure.patch` on the copy, and run `promote-backdrop.mjs --facing <loc>/<F>
++--candidate <its camera_id> --round <the throwaway> --check` with the meta's own `--reference` and
++`--camera-source`. `recheck_doors` in `row23_run.py` is the same walk done for real — it demotes and
++writes run state — and is deliberately NOT what answers this question.
++
+ **The row's stated edge.** `meta.windows` is written where the MEASUREMENT carries a window reading
+ and is absent where it does not, so a wall measured before this row promotes byte-identically to
+ before it. What closes the gap is the sweep: `row23_run.py`'s `window_reading` now runs beside
+diff --git a/design/batches/row42-leaves/demo/README.md b/design/batches/row42-leaves/demo/README.md
+index f0fba0ec..01ac585b 100644
+--- a/design/batches/row42-leaves/demo/README.md
++++ b/design/batches/row42-leaves/demo/README.md
+@@ -70,8 +70,10 @@ and runs the real pipeline on it, in order:
+ 
+ ```
+ kitchen/E: 1 glazed opening(s), off backdrops/source/kitchen-E/row23-94a463ee.png
+-    x  868..1101 (1.33 m, 233 px)  y 394..586  light 169.8 against a 26.4 wall,
+-    lattice 0.493 (x 0.308 y 0.678, pitch 0.063/0.114 m), confidence 0.91
++    x  868..1101 (1.33 m, 233 px)  y 394..586  leading 0.89 deep (23 came under
++    217 glass, crossing 9.4x the wall's), lattice 0.493 (x 0.308 y 0.678, pitch
++    0.063/0.114 m), light 169.8 against a 26.4 wall = 0.63 of its headroom,
++    confidence 1.00
+ 
+ promoted kitchen/E: backdrops/source/kitchen-E/row23-94a463ee.png -> backdrops/kitchen/E.png
+ meta.windows = [{"id":"win10","kind":"window","x":868,"y":394,"w":233,"h":192,
+diff --git a/design/plan-draft/measured/derived-state.json b/design/plan-draft/measured/derived-state.json
+index fd669d19..fb370403 100644
+--- a/design/plan-draft/measured/derived-state.json
++++ b/design/plan-draft/measured/derived-state.json
+@@ -52,11 +52,11 @@
+     },
+     "window_calibration": {
+       "artifacts": {
+-        "design/plan-draft/measured/window_calibration.json": "6906e39afb73c2975c9ef7a31e96a5574b3837d0b6d9471012e4b5bbd61146df"
++        "design/plan-draft/measured/window_calibration.json": "a38e5391c47191d6fe0b2057844fc55cc7e503509bd79ed02780ce8932e00cc4"
+       },
+-      "at": "2026-08-25T07:43:23",
+-      "input_digest": "b24571b4860996118f438edfeb813b99948b36904d72eb7977e66c3ac1e6b0bd",
+-      "inputs": 125
++      "at": "2026-08-25T08:40:53",
++      "input_digest": "8a22f9215eff4cd419d8121219722854479d5198b35612ba891f2402adb9bdcf",
++      "inputs": 128
+     }
+   }
+ }
+diff --git a/design/plan-draft/measured/derived.py b/design/plan-draft/measured/derived.py
+index 4b93df59..02252e54 100644
+--- a/design/plan-draft/measured/derived.py
++++ b/design/plan-draft/measured/derived.py
+@@ -37,7 +37,10 @@ ARTIFACT EACH ACT INVALIDATES. This file is that knowledge, in one place.
+     room_consistency.json        any promotion or supersede in a measured room
+     row40-consistency/README.md  the same (its hand-written tail is kept)
+     window_calibration.json      any promotion or supersede (it is the list of
+-                                 promoted walls the window clause cannot see)
++                                 promoted walls the window clause cannot see),
++                                 and a repaint of one of the three HELD FRAMES
++                                 it reads off backdrops/source/, which no sweep
++                                 over the store can reach
+     row35snap/<loc>-<F>.json     a re-snap: the frame a reading describes is
+       + its snapped.png          rewritten under the reading that describes it
+     row36doors/<loc>-<F>.json    a re-repair, or a change to the snapped frame
+@@ -1035,9 +1038,18 @@ ARTIFACTS = [
+         "paths": ["design/plan-draft/measured/window_calibration.json"],
+         "invalidated_by": "any promotion or supersede — it is the list of "
+                           "promoted walls the window clause cannot yet see",
++        # AND THE HELD FRAMES, which are inputs the store glob cannot reach:
++        # `window_measure.HELD_FRAMES` reads three CANDIDATE frames off
++        # `backdrops/source/`, none of them promoted, because they are the
++        # 2026-08-25 miss's own evidence and no sweep over the store can see
++        # them. Undeclared, a repaint of one of them would leave the calibration
++        # silently stale.
+         "inputs": STORE + ["design/plan-draft/measured/window_measure.py",
+                            "design/plan-draft/measured/measure_lib.py",
+-                           "fixtures/demo-study/plan.json"],
++                           "fixtures/demo-study/plan.json",
++                           "backdrops/source/servants_hall-E/scafink-372cda37.png",
++                           "backdrops/source/servants_hall-E/row23-230bb67d.png",
++                           "backdrops/source/servants_hall-E/row23-ce4ea35f.png"],
+         "action": "window_calibration", "deep": _deep_window_calibration,
+         "regen": "python3 design/plan-draft/measured/window_measure.py --calibrate "
+                  "--write design/plan-draft/measured/window_calibration.json",
+diff --git a/design/plan-draft/measured/test_window_measure.py b/design/plan-draft/measured/test_window_measure.py
+index 23aa0059..9dbbaee6 100644
+--- a/design/plan-draft/measured/test_window_measure.py
++++ b/design/plan-draft/measured/test_window_measure.py
+@@ -4,23 +4,31 @@
+     python3 design/plan-draft/measured/test_window_measure.py
+ 
+ WHY SYNTHETIC FRAMES AND NOT THE CORPUS. The corpus is the CALIBRATION and it
+-lives in `window_calibration.json`: 33 of the 41 windows the plan rules on
+-promoted walls, paired, at a median centre distance of 0.635 m. What a
+-calibration cannot do is go red on a change, because every one of those numbers
+-is a fact about paintings nobody can re-make. These frames can: each is drawn
+-here from three parameters, each has exactly one right answer, and the three
+-together are the discrimination the row asked for —
++lives in `window_calibration.json`. What a calibration cannot do is go red on a
++change, because every one of those numbers is a fact about paintings nobody can
++re-make. These frames can: each is drawn here from a handful of parameters, each
++has exactly one right answer, and together they are the discrimination the row
++asked for —
+ 
+     a leaded window       must be FOUND, at the columns it was drawn at
+     a wall with none      must yield nothing
+-    a plain BRIGHT panel  must yield nothing, and this is the case the whole
+-                          lattice test exists for: it is as bright as the
+-                          window and it is not one
+-
+-THE THIRD IS THE ONE THAT MATTERS. Brightness alone cannot separate a window
+-from a lit wall — measured over the store, a bright piece of wall lifts up to
+-85 above its own median and a window lifts from 54 — so if the lattice test
+-were deleted or inverted this case is what goes red.
++    a plain BRIGHT panel  must yield nothing: it is as bright as the window and
++                          nothing dark crosses it
++    ONE DARK BAND across  must yield nothing: it is as DEEP as leading and it
++    a bright opening      runs one way, so it is a hanging and not glass
++    a leaded window on a  must be FOUND, and this is the case the detector was
++    BRIGHT LIMEWASH wall  rebuilt for
++    a plain bright panel  must yield nothing on that same bright wall
++    on that same wall
++
++THE LAST TWO ARE THE ONES THAT MATTER, and they are one room's two frames.
++`servants_hall/E` is limewashed: on `scafink-372cda37` a plainly painted
++three-light window stands 57 above a 101 wall and on `row23-230bb67d` — the same
++room, no window in it at all — a piece of lit plaster stands 62 above a 111 wall.
++An ABSOLUTE lift threshold gets both of those wrong, in opposite directions, and
++did: it read the window as no window and the plaster as a window. So a rule that
++went back to reading brightness against a fixed floor turns these two red
++together, which is what they are here for.
+ """
+ import os
+ import sys
+@@ -41,18 +49,21 @@ W_PX, H_PX = 1536, 1024
+ PPM = 150.0
+ FLOOR_Y = 700.0
+ WALL_L = 40.0            # a dark oak-panelled wall, at the corpus's low end
++LIMEWASH_L = 115.0       # servants_hall's own, at the corpus's high end
+ 
+ 
+-def _frame(tmp, name, panels):
++def _frame(tmp, name, panels, wall=WALL_L):
+     """A wall, with `panels` painted on it. Each panel is a dict:
+ 
+         x0, x1     columns
+         lum        its luminance
+         lattice    the quarry pitch in px, or None for a flat panel
++        came       the leading's luminance (default: 30 % of the glass, which is
++                   about where this corpus's paintings draw it)
+     """
+-    a = np.full((H_PX, W_PX, 3), WALL_L, np.float64)
++    a = np.full((H_PX, W_PX, 3), wall, np.float64)
+     # a little wall texture, so "no fine edges at all" is never the reason a
+-    # flat panel is rejected — it has to be rejected for having no PERIOD.
++    # flat panel is rejected — it has to be rejected for having no leading.
+     rng = np.random.default_rng(7)
+     a += rng.normal(0.0, 6.0, a.shape)
+     y0 = int(FLOOR_Y - 2.10 * PPM)
+@@ -69,8 +80,14 @@ def _frame(tmp, name, panels):
+             yy, xx = np.mgrid[y0:y1, p["x0"]:p["x1"]]
+             came = (((xx + yy) % q) < 2) | (((xx - yy) % q) < 2)
+             block = a[y0:y1, p["x0"]:p["x1"], :]
+-            block[came] = WALL_L * 0.6
++            block[came] = p.get("came", p["lum"] * 0.30)
+             a[y0:y1, p["x0"]:p["x1"], :] = block
++        elif p.get("blot"):
++            # ONE BROAD DARK BAND ACROSS A LIGHT, which is a hanging, a shadow
++            # or a dark transom and is not leading: as deep as a came grid, and
++            # running one way only.
++            h = y1 - y0
++            a[y0 + h // 3:y0 + h // 2, p["x0"]:p["x1"], :] = p.get("came", p["lum"] * 0.2)
+         else:
+             a[y0:y1, p["x0"]:p["x1"], :] += rng.normal(0.0, 5.0,
+                                                        (y1 - y0, p["x1"] - p["x0"], 3))
+@@ -95,6 +112,44 @@ class WindowMeasure(unittest.TestCase):
+     def read(self, path):
+         return W.measure_windows(path, 100, W_PX - 100, FLOOR_Y, PPM)
+ 
++    # ------------------------------------------------ the limewash pair
++    # servants_hall/E, 2026-08-25, and the reason this detector was rebuilt.
++
++    def test_a_leaded_window_on_a_bright_limewash_wall_is_found(self):
++        """THE MISS. The window is modest against a wall that is already bright,
++        so it lifts LESS than the absolute floor the first draft admitted on —
++        and it is a window, painted, three lights of leaded glass. What says so
++        is the leading, which does not know what the wall is doing."""
++        png = _frame(self.tmp, "limewash.png",
++                     [{"x0": 600, "x1": 810, "lum": 170.0, "came": 68.0,
++                       "lattice": 18}],
++                     wall=LIMEWASH_L)
++        found, note = self.read(png)
++        self.assertEqual(len(found), 1, note)
++        got = found[0]
++        self.assertLess(abs(got["x0_px"] - 600), 12, got)
++        self.assertLess(abs(got["x1_px"] - 810), 12, got)
++        # ...and it would have been missed on the old absolute floor of 60,
++        # which is what makes this case discriminating rather than merely green.
++        self.assertLess(got["lift"], 60.0, got)
++        self.assertGreaterEqual(got["leading"]["depth"], W.LEAD_DEPTH_MIN)
++        self.assertGreaterEqual(got["contrast"], W.CONTRAST_MIN)
++
++    def test_a_plain_bright_panel_on_a_bright_wall_is_not_a_window(self):
++        """ITS OTHER HALF. The same limewashed room with no window in it: a
++        piece of lit plaster that stands FURTHER off its wall than the window
++        above stands off its own, and is not glass. The old absolute floor
++        admitted this one and refused that one."""
++        png = _frame(self.tmp, "limewash-none.png",
++                     [{"x0": 600, "x1": 810, "lum": 180.0, "lattice": None}],
++                     wall=LIMEWASH_L)
++        found, note = self.read(png)
++        self.assertEqual(found, [], note)
++        self.assertEqual(len(note["rejected"]), 1, note)
++        self.assertIn("nothing dark crosses it", note["rejected"][0]["rejected"])
++        # it lifts further than the window of the case above, and it is still not one
++        self.assertGreater(note["rejected"][0]["lift"], 60.0, note)
++
+     # ------------------------------------------------------------------ found
+ 
+     def test_a_leaded_window_is_found_where_it_was_drawn(self):
+@@ -106,7 +161,8 @@ class WindowMeasure(unittest.TestCase):
+         self.assertLess(abs(got["x0_px"] - 600), 12, got)
+         self.assertLess(abs(got["x1_px"] - 810), 12, got)
+         self.assertGreaterEqual(got["lattice"]["score"], W.LATTICE_MIN)
+-        self.assertGreaterEqual(got["lift"], W.ADMIT_LIFT)
++        self.assertGreaterEqual(got["leading"]["depth"], W.LEAD_DEPTH_MIN)
++        self.assertGreaterEqual(got["contrast"], W.CONTRAST_MIN)
+ 
+     def test_two_windows_are_two_and_not_one(self):
+         png = _frame(self.tmp, "two.png",
+@@ -135,7 +191,7 @@ class WindowMeasure(unittest.TestCase):
+         self.assertEqual(found, [], note)
+ 
+     def test_a_plain_bright_panel_is_not_a_window(self):
+-        """THE CASE THE LATTICE TEST EXISTS FOR.
++        """THE CASE THE LEADING TEST EXISTS FOR.
+ 
+         The same rectangle, at the same luminance, with no came grid in it. It
+         passes every brightness test the detector has and it must still be
+@@ -146,10 +202,29 @@ class WindowMeasure(unittest.TestCase):
+         found, note = self.read(png)
+         self.assertEqual(found, [], note)
+         self.assertEqual(len(note["rejected"]), 1, note)
+-        self.assertIn("lattice", note["rejected"][0]["rejected"])
++        self.assertIn("nothing dark crosses it", note["rejected"][0]["rejected"])
+         # ...and it was bright enough to have been admitted on brightness alone,
+         # so the case is discriminating rather than merely passing.
+-        self.assertGreaterEqual(note["rejected"][0]["lift"], W.ADMIT_LIFT)
++        self.assertGreaterEqual(note["rejected"][0]["contrast"], W.CONTRAST_MIN)
++
++    def test_one_broad_dark_band_across_a_light_is_not_leading(self):
++        """WHAT THE CROSSING TEST IS FOR, AND WHY THE DEPTH NEEDS IT.
++
++        A hanging, a shadow or a dark transom across a bright opening is as DEEP
++        as a came grid — deeper — so the depth alone calls it glazing. What it
++        cannot do is cross itself, and that is the half of the leading test that
++        catches it. (The period does not: one band has two edges and two edges
++        autocorrelate, which is exactly the trap this case was written to find.)
++        """
++        png = _frame(self.tmp, "blot.png",
++                     [{"x0": 600, "x1": 810, "lum": 190.0, "blot": True}])
++        found, note = self.read(png)
++        self.assertEqual(found, [], note)
++        self.assertEqual(len(note["rejected"]), 1, note)
++        rec = note["rejected"][0]
++        self.assertGreaterEqual(rec["leading"]["depth"], W.LEAD_DEPTH_MIN, rec)
++        self.assertLess(rec["leading"]["crossing"], W.LEAD_CROSS_MIN, rec)
++        self.assertIn("runs one way only", rec["rejected"])
+ 
+     def test_a_dim_lattice_is_reported_rather_than_swallowed(self):
+         """A window painted too dimly is a reading nobody can use, not silence."""
+@@ -158,7 +233,7 @@ class WindowMeasure(unittest.TestCase):
+         found, note = self.read(png)
+         self.assertEqual(found, [], note)
+         self.assertEqual(len(note["rejected"]), 1, note)
+-        self.assertIn("stands only", note["rejected"][0]["rejected"])
++        self.assertIn("of the headroom", note["rejected"][0]["rejected"])
+ 
+     # ------------------------------------------------------- the measured band
+ 
+diff --git a/design/plan-draft/measured/window_calibration.json b/design/plan-draft/measured/window_calibration.json
+index 99785268..04832d8b 100644
+--- a/design/plan-draft/measured/window_calibration.json
++++ b/design/plan-draft/measured/window_calibration.json
+@@ -1,9 +1,11 @@
+ {
+-  "_what_this_is": "[row 42] Every promoted wall the plan rules a window on, read off its own painting by window_measure.py, against what the drawing rules. The centre distance is in metres at the wall's APERTURE scale (row 27's ruling: the space a placed target lives in is the corner span, not the ruler), because metres is the unit a sprite is placed in and pixels is not.",
++  "_what_this_is": "[row 42] EVERY promoted wall, read off its own painting by window_measure.py against what the drawing rules \u2014 the walls the plan rules a window on and, as the negatives, the walls it rules none on, where every reading is a false positive. The centre distance is in metres at the wall's APERTURE scale (row 27's ruling: the space a placed target lives in is the corner span, not the ruler), because metres is the unit a sprite is placed in and pixels is not. `held_frames` is the 2026-08-25 miss's own evidence: one limewashed wall painted twice, once with its window and once without, which the absolute lift threshold got wrong both ways.",
+   "_why_it_is_committed": "promote-backdrop.mjs writes meta.windows only where the measurement carries a window reading, and no measurement taken before this row has one. This file is the list of walls that clause cannot yet see; row23_run.py runs window_reading on every reading from here on, so the list can only shrink.",
+   "instrument": {
+-    "lattice_min": 0.2,
+-    "admit_lift": 60.0,
++    "lead_depth_min": 0.55,
++    "lead_cross_min": 1.6,
++    "lattice_min": 0.12,
++    "contrast_min": 0.25,
+     "sweep_lift": 12.0,
+     "mullion_max_m": 0.25,
+     "min_enumerated_m": 0.2,
+@@ -16,25 +18,117 @@
+       0.3
+     ]
+   },
+-  "paired": 33,
+-  "median_centre_distance_m": 0.635,
+-  "within_0_35_m": 13,
+-  "of": 33,
+-  "count_mismatches": [
++  "paired": 34,
++  "median_centre_distance_m": 0.571,
++  "within_0_35_m": 14,
++  "of": 34,
++  "ruled": 40,
++  "false_negatives": 6,
++  "no_window_walls": 37,
++  "false_positives": 0,
++  "false_positive_walls": [],
++  "held_frames": [
+     {
+-      "facing": "great_hall/S",
+-      "ruled": 4,
+-      "painted": 2
++      "facing": "servants_hall/E",
++      "frame": "backdrops/source/servants_hall-E/scafink-372cda37.png",
++      "want_px": [
++        [
++          411,
++          675
++        ]
++      ],
++      "got": 1,
++      "right": true,
++      "why": "a three-light leaded window on a bright limewash wall, lifting 57 over a 101 wall \u2014 the window the absolute floor of 60 refused, while admitting a sliver of plaster beside it",
++      "wall_luminance": 101.32,
++      "lights": [
++        {
++          "x": [
++            411,
++            675
++          ],
++          "width_m": 1.475,
++          "depth": 0.6024,
++          "crossing": 3.06,
++          "lattice": 0.3208,
++          "contrast": 0.3719,
++          "lift": 57.15
++        }
++      ],
++      "refused": [
++        {
++          "x": [
++            210,
++            273
++          ],
++          "lift": 74.24,
++          "why": "bright, but nothing dark crosses it: the darkest tenth of this light stands at 163 against a 189 glass, 0.14 of its own brightness, under the 0.55 a leaded light's cames take"
++        }
++      ]
+     },
+     {
+-      "facing": "dining_parlour/W",
+-      "ruled": 1,
+-      "painted": 0
++      "facing": "servants_hall/E",
++      "frame": "backdrops/source/servants_hall-E/row23-230bb67d.png",
++      "want_px": [],
++      "got": 0,
++      "right": true,
++      "why": "the same wall painted with no window in it \u2014 lit plaster between two doorways, lifting 62, which that same floor read AS a window",
++      "wall_luminance": 111.12,
++      "lights": [],
++      "refused": [
++        {
++          "x": [
++            230,
++            285
++          ],
++          "lift": 52.29,
++          "why": "bright, but nothing dark crosses it: the darkest tenth of this light stands at 150 against a 171 glass, 0.12 of its own brightness, under the 0.55 a leaded light's cames take"
++        },
++        {
++          "x": [
++            419,
++            687
++          ],
++          "lift": 62.18,
++          "why": "bright, but nothing dark crosses it: the darkest tenth of this light stands at 158 against a 187 glass, 0.15 of its own brightness, under the 0.55 a leaded light's cames take"
++        }
++      ]
+     },
+     {
+-      "facing": "garden_room/N",
+-      "ruled": 1,
+-      "painted": 0
++      "facing": "servants_hall/E",
++      "frame": "backdrops/source/servants_hall-E/row23-ce4ea35f.png",
++      "want_px": [
++        [
++          268,
++          697
++        ]
++      ],
++      "got": 1,
++      "right": true,
++      "why": "the frame this wall was promoted from: the SAME window under a darker key, lifting 103 over a 79 wall, which is the only reason it passed",
++      "wall_luminance": 78.89,
++      "lights": [
++        {
++          "x": [
++            268,
++            697
++          ],
++          "width_m": 2.397,
++          "depth": 0.7262,
++          "crossing": 3.973,
++          "lattice": 0.2405,
++          "contrast": 0.587,
++          "lift": 103.38
++        }
++      ],
++      "refused": []
++    }
++  ],
++  "count_mismatches": [
++    {
++      "facing": "great_hall/S",
++      "ruled": 4,
++      "painted": 2
+     },
+     {
+       "facing": "privy_garden/S",
+@@ -49,7 +143,7 @@
+     {
+       "facing": "long_gallery/E",
+       "ruled": 4,
+-      "painted": 3
++      "painted": 2
+     },
+     {
+       "facing": "long_gallery/N",
+@@ -60,6 +154,11 @@
+       "facing": "long_gallery/S",
+       "ruled": 1,
+       "painted": 2
++    },
++    {
++      "facing": "closet_chamber/E",
++      "ruled": 1,
++      "painted": 3
+     }
+   ],
+   "walls": [
+@@ -303,13 +402,18 @@
+           3.9
+         ]
+       ],
+-      "painted_m": [],
++      "painted_m": [
++        [
++          3.047,
++          4.587
++        ]
++      ],
+       "pairs": [
+         {
+           "plan_centre_m": 3.15,
+-          "painted_centre_m": null,
+-          "distance_m": null,
+-          "width_delta_m": null
++          "painted_centre_m": 3.817,
++          "distance_m": 0.667,
++          "width_delta_m": 0.041
+         }
+       ]
+     },
+@@ -358,13 +462,18 @@
+           2.9
+         ]
+       ],
+-      "painted_m": [],
++      "painted_m": [
++        [
++          0.13,
++          3.443
++        ]
++      ],
+       "pairs": [
+         {
+           "plan_centre_m": 2.15,
+-          "painted_centre_m": null,
+-          "distance_m": null,
+-          "width_delta_m": null
++          "painted_centre_m": 1.787,
++          "distance_m": -0.363,
++          "width_delta_m": 1.813
+         }
+       ]
+     },
+@@ -542,10 +651,6 @@
+         ]
+       ],
+       "painted_m": [
+-        [
+-          1.619,
+-          3.201
+-        ],
+         [
+           4.268,
+           6.825
+@@ -558,15 +663,15 @@
+       "pairs": [
+         {
+           "plan_centre_m": 1.65,
+-          "painted_centre_m": 2.41,
+-          "distance_m": 0.76,
+-          "width_delta_m": 0.082
++          "painted_centre_m": 5.546,
++          "distance_m": 3.896,
++          "width_delta_m": 1.057
+         },
+         {
+           "plan_centre_m": 10.15,
+-          "painted_centre_m": 5.546,
+-          "distance_m": -4.604,
+-          "width_delta_m": 1.057
++          "painted_centre_m": null,
++          "distance_m": null,
++          "width_delta_m": null
+         },
+         {
+           "plan_centre_m": 16.15,
+@@ -782,14 +887,22 @@
+         [
+           1.107,
+           1.421
++        ],
++        [
++          1.553,
++          1.873
++        ],
++        [
++          2.008,
++          2.314
+         ]
+       ],
+       "pairs": [
+         {
+           "plan_centre_m": 2.15,
+-          "painted_centre_m": 1.264,
+-          "distance_m": -0.886,
+-          "width_delta_m": -1.185
++          "painted_centre_m": 2.161,
++          "distance_m": 0.011,
++          "width_delta_m": -1.194
+         }
+       ]
+     },
+diff --git a/design/plan-draft/measured/window_measure.py b/design/plan-draft/measured/window_measure.py
+index f85a5abe..b1a2da84 100644
+--- a/design/plan-draft/measured/window_measure.py
++++ b/design/plan-draft/measured/window_measure.py
+@@ -34,12 +34,70 @@ cannot separate those.
+ 
+ WHAT ONLY A WINDOW HAS IS THE LEADED LATTICE. This building's glazing is §11's
+ leaded lights: small quarries in a came grid, roughly 0.08–0.25 m across, so a
+-window's light is crossed by a FINE PERIODIC set of edges in both directions and
+-a bright piece of wall is not. That is the discriminator, and it is measured as
+-periodicity rather than as edge count on purpose: a rough plaster field has
+-plenty of fine edges and no period at all, while a leaded light's edges repeat.
+-The reading carries the score, both axes of it, and the quarry pitch it found,
+-so a refusal downstream can be read rather than guessed at.
++window's light is crossed by a FINE set of DARK edges in both directions and a
++bright piece of wall is not. That is the discriminator and it is the PRIMARY
++one, which this file's first draft said and did not do.
++
++WHY IT DID NOT, AND WHAT THE MISS COST (2026-08-25). That draft made the LIFT —
++how many luminance points the light stands above its wall — the admitting test,
++at an absolute floor of 60, and left the lattice as a junior veto. Then
++`servants_hall/E` arrived, and that room is limewashed: its wall reads 101
++rather than the corpus's usual 20-45.
++
++  - `scafink-372cda37` paints a three-light leaded window standing 57 over that
++    wall. It was refused BY NAME ("its light stands only 57.2 above a 101.3
++    wall"), while a 0.35 m sliver of lit plaster beside it, lifting 74, was
++    admitted — so the frame even reported the right COUNT with the wrong
++    rectangle in it, which is why nothing downstream noticed.
++  - `row23-230bb67d` paints that same wall with NO window in it at all, and a
++    field of lit plaster between its two doorways stands 62 over a 111 wall. It
++    was admitted AS a window.
++  - `row23-ce4ea35f`, the frame the wall was promoted from, paints the SAME
++    window as the first — and passed, because the painter's key put its wall at
++    79 and the lift at 103. Nothing about the glazing differed. The wall's light
++    did.
++
++One absolute threshold, one room, both answers wrong and in opposite
++directions. A detector whose verdict depends on how the painter lit the WALL is
++not reading the glazing, and row 37 — illumination becomes a runtime pass over
++neutral backdrops — is about to make that reading meaningless everywhere at
++once. All three frames are `HELD_FRAMES` below, read by every calibration run.
++
++SO THE TESTS ARE, IN THIS ORDER, AND ALL OF THEM MEASURED OVER THE WHOLE STORE:
++
++  1. THE LEADING, and it is the PRIMARY test, in two halves that fail
++     differently.
++     (a) ITS DEPTH, and scale-free: inside the light's own rectangle,
++         `(p90 − p10) / p90` — the share of the glass's own brightness that the
++         dark structure crossing it takes away. A leaded light is dark lines on
++         bright quarries and scores 0.60–0.96 across this corpus; a limewashed
++         panel, a plastered overmantel, a lit half-wall are FLAT inside and
++         score 0.11–0.47 wherever they are bright enough to be candidates at
++         all. It is a ratio inside one rectangle, so nothing about the wall's
++         own key can move it — which is exactly what the lift could not say.
++     (b) THAT IT CROSSES, and wall-normalised: `min(|dx|, |dy|)` over the same
++         rectangle, against the same statistic on the wall's own plaster beside
++         it. Energy only where an edge crosses an edge, so a came grid scores
++         and a single band — a hanging, a shadow, a dark transom — scores
++         nothing however deep it is.
++  2. THE LATTICE'S PERIOD (both axes). The autocorrelation peak of each axis's
++     fine-edge profile at quarry pitch: a rough plaster field has plenty of fine
++     edges and no period at all, while a leaded light's edges repeat. Measured
++     over the store this separates far less sharply than the leading does (see
++     `LATTICE_MIN`), so its floor is now set where it rejects "no period
++     whatsoever" and nothing else, and it is reported in full.
++  3. THE LIGHT'S CONTRAST (secondary, and RELATIVE). `(light − wall) /
++     (255 − wall)`: how much of the headroom the wall leaves is used up by the
++     light standing off it. On a dark panelled wall and on a bright limewashed
++     one the same painted window scores the same, which is the whole point of
++     the change. Measured over the store it separates as well as the absolute
++     lift did (AUC 0.94 against 0.95) and does not depend on the wall's key.
++
++REPORTED AND NEVER GATED, so that a refusal downstream can be read rather than
++guessed at and this file's own calibration can be re-argued from its output: the
++glass and came levels the depth came from, the wall's own crossing energy, the
++lights a mullion merge joined, the quarry pitch found on each axis, and the old
++absolute lift.
+ 
+ THE VERTICAL BAND IS THE PLAN'S, and this file borrows it rather than deciding
+ it. `tools/room-voices.mjs` rules every window in the manor with its sill 0.90 m
+@@ -123,40 +181,77 @@ QUARRY_LO_M, QUARRY_HI_M = 0.04, 0.30
+ #: between two SEPARATE windows is over a metre, so nothing here is close.
+ MULLION_MAX_M = 0.25
+ 
+-#: The lattice floor. A candidate whose periodicity score is under this is a
+-#: bright piece of wall, not a window. Calibrated on the store, and the
+-#: calibration is in the row's own report: at this floor the detector pairs 30
+-#: of the 41 windows the plan rules on promoted walls and finds 2 the plan does
+-#: not, against 31 and 4 with the lattice test switched off entirely. See the
+-#: `--calibrate` table, and `test_window_measure.py`'s synthetic cases, which
+-#: hold a plain bright rectangle on one side of it and a leaded one on the other.
+-LATTICE_MIN = 0.20
+-
+-#: THE LIFT — how much brighter than its wall the light is — and on this store it
+-#: is the STRONGER of the two discriminators, which is worth saying plainly
+-#: rather than leaving the lattice to carry a weight it does not. Over all 24
+-#: promoted window walls and the 30 promoted walls the plan rules no window on,
+-#: a merged candidate on a WINDOW wall lifts 78-147 above its wall median and one
+-#: on a wall with no window lifts 21-85. Two numbers are used because they fail
+-#: differently: a wall in strong sunlight can lift, and a dim window in a dark
+-#: room can be crossed by a lattice; only a leaded light does both.
++#: THE LEADING'S DEPTH, and the primary test. `(p90 - p10) / p90` over the
++#: light's own rectangle at a 12 % inset, so the surround and its reveals stay
++#: out of it: the share of the glass's brightness that the dark structure
++#: crossing it takes away.
+ #:
+-#: `SWEEP_LIFT` is the floor on ENUMERATION and is deliberately far below
+-#: `ADMIT_LIFT`, which is the floor on being called a window. A candidate
+-#: between them is reported as rejected WITH its numbers, because a window the
+-#: painting drew too dimly must arrive at the guard as a reading nobody could
+-#: use and not as silence.
++#: MEASURED OVER THE WHOLE STORE — 24 promoted walls the plan rules a window on,
++#: 37 it rules none on, and the two `servants_hall/E` frames the miss was found
++#: on — every painted window scores 0.60 or better (the dimmest-drawn is the
++#: limewash frame's own, at 0.602) and every bright piece of wall that is not
++#: one scores 0.47 or less ONCE the contrast floor below has removed the dim
++#: fields. The floor sits between them with room on both sides.
+ #:
+-#: SAID PLAINLY, BECAUSE THE ROW ASKED FOR THE LATTICE TO BE THE DISCRIMINATOR
+-#: AND ON THIS STORE IT IS THE JUNIOR ONE: the lift does most of the separating
+-#: (54-147 against 21-85), and the lattice removes two of the four bright pieces
+-#: of wall the lift alone lets through, at the cost of one painted window. Both
+-#: are kept because they fail differently and row 37 is about to change what a
+-#: painted wall's brightness means — when illumination becomes a runtime pass
+-#: over neutral backdrops, the lift will stop separating and the lattice, which
+-#: is a fact about the GLAZING rather than about the light on it, will not.
++#: IT IS A RATIO INSIDE ONE RECTANGLE. Nothing about the wall's own key, the
++#: painter's exposure or row 37's coming lighting pass can move it, which is the
++#: property the absolute lift did not have and the reason the limewash window
++#: was read as no window at all.
++LEAD_DEPTH_MIN = 0.55
++
++#: AND IT CROSSES, which is the other half of the primary test and the half that
++#: knows a lattice from a BLOT. The depth above says only that something dark
++#: lies over the glass; a hanging, a shadow across a light or a dark transom
++#: says that too. What no single band can say is that the dark structure runs
++#: BOTH WAYS at once, so what is scored is `min(|dx|, |dy|)` — energy only where
++#: an edge crosses an edge — against the same statistic taken on the wall's own
++#: plaster beside the candidate, so the number is wall-normalised like the
++#: contrast and unlike the lift.
++#:
++#: Over the store a painted window crosses 2.3-24.6 times its own wall's texture
++#: and a bright piece of wall 0.8-4.9, so this does not separate cleanly ENOUGH
++#: to be the primary test on its own — the floor is set below every painted
++#: window in the corpus and is there to refuse structure that runs one way only.
++LEAD_CROSS_MIN = 1.6
++
++#: The lattice's PERIOD floor, and the honest statement of what it is worth.
++#: Both axes' fine-edge profiles are autocorrelated at quarry pitch and the mean
++#: is scored. Over the same store the score separates weakly — a window runs
++#: 0.14-0.76 and a bright piece of wall 0.06-0.51, an AUC of 0.66 against the
++#: depth's 0.88 and the contrast's 0.94 — so it is NOT where the discrimination
++#: comes from, and the first draft's floor of 0.20 was costing two correctly
++#: painted windows (`dining_parlour/W` at 0.143, `garden_room/N` at 0.142) to
++#: buy nothing the depth does not already buy.
++#:
++#: The floor is therefore set where it says only "this light shows no period
++#: whatsoever": under the dimmest leading any painted window in the corpus
++#: draws, and no lower. It is kept rather than dropped because it is the only
++#: test here that is about REPETITION at all, and repetition is what the row
++#: names; what it is NOT is the thing that catches a smooth dark blot — one band
++#: has two edges and two edges autocorrelate, which `test_window_measure.py`'s
++#: blot case demonstrates. That one is `LEAD_CROSS_MIN`'s.
++LATTICE_MIN = 0.12
++
++#: THE LIGHT'S CONTRAST, secondary, and RELATIVE TO THE WALL'S OWN HEADROOM:
++#: `(light - wall) / (255 - wall)`. A window is still an opening LIGHTER than
++#: the wall it stands in and that fact is worth a test; what is not worth a test
++#: is how many luminance points lighter, because a bright limewashed wall has
++#: only 150 points of headroom above it and a dark panelled one has 230.
++#:
++#: Measured over the store: a candidate on a window wall uses 0.32-0.65 of the
++#: headroom and one on a wall with no window uses 0.09-0.47, and once the
++#: leading tests above have run, everything left above 0.25 is a window and
++#: everything below it is not. Compare the absolute lift the first draft used:
++#: it separated no better (AUC 0.947 against 0.939) and it was a fact about the
++#: PAINTER'S LIGHT rather than about the wall.
++#:
++#: `SWEEP_LIFT` is the floor on ENUMERATION and is deliberately far below this,
++#: still in absolute points because the threshold sweep it feeds walks absolute
++#: thresholds. A candidate enumerated and then refused here is reported WITH its
++#: numbers, because a window the painting drew too dimly must arrive at the
++#: guard as a reading nobody could use and not as silence.
++CONTRAST_MIN = 0.25
+ SWEEP_LIFT = 12.0
+-ADMIT_LIFT = 60.0
+ 
+ 
+ def _body_rows(shape_h, floor_y, ppm):
+@@ -265,6 +360,102 @@ def lattice(L, x0, x1, y0, y1, ppm):
+     }
+ 
+ 
++def _crossing(patch):
++    """Fine-edge energy where BOTH axes have an edge at once.
++
++    A came grid crosses itself; a run of boards, a shelf edge or a chair rail
++    does not. So what is summed is `min(|dx|, |dy|)` rather than either gradient
++    on its own — a horizontal moulding scores nothing here however strong it is.
++    """
++    if patch.shape[0] < 8 or patch.shape[1] < 8:
++        return 0.0
++    gx = np.abs(patch[:, 2:] - patch[:, :-2])
++    gy = np.abs(patch[2:, :] - patch[:-2, :])
++    h = min(gx.shape[0] - 2, gy.shape[0])
++    w = min(gx.shape[1], gy.shape[1] - 2)
++    if h < 1 or w < 1:
++        return 0.0
++    return float(np.minimum(gx[2:2 + h, :w], gy[:h, 2:2 + w]).mean())
++
++
++def _inset(x0, x1, y0, y1, f=0.12):
++    """The light's INSIDE, with its surround and reveals left out.
++
++    A stone surround is the brightest edge on the wall and its reveals are the
++    darkest, so a rectangle read to its own stable edges carries both — and the
++    leading's depth, which is a statistic about what is INSIDE the glass, would
++    read the surround's shadow as came. The inset is small enough to keep the
++    outermost quarries and large enough to drop the frame.
++    """
++    ix = int(round(f * (x1 - x0)))
++    iy = int(round(f * (y1 - y0)))
++    if x1 - x0 - 2 * ix < 12 or y1 - y0 - 2 * iy < 12:
++        return x0, x1, y0, y1
++    return x0 + ix, x1 - ix, y0 + iy, y1 - iy
++
++
++def leading(L, x0, x1, y0, y1, wall_crossing):
++    """How much of this light's own brightness the dark structure in it takes.
++
++    THE PRIMARY TEST, and a ratio inside one rectangle on purpose: `depth` is
++    `(p90 - p10) / p90`, so it says "the glass here is crossed by lines that are
++    60 % darker than the glass" without ever consulting the wall, the painter's
++    key or row 37's lighting pass. Leaded glass scores 0.60-0.96 on this store
++    and flat bright plaster 0.11-0.47.
++
++    `crossing` is the same rectangle's both-axis fine-edge energy against the
++    WALL's own plaster texture, and it is the depth's other half: the depth says
++    something dark lies over the glass and the crossing says it runs both ways.
++    A window runs 2.3-24 times its wall's texture and a bright piece of wall
++    0.8-4.9, so it does not hold the discrimination on its own — its floor is
++    set below every painted window in the corpus and refuses only structure that
++    runs one way.
++    """
++    px0, px1, py0, py1 = _inset(x0, x1, y0, y1)
++    patch = L[py0:py1, px0:px1].astype(float)
++    if patch.shape[0] < 8 or patch.shape[1] < 8:
++        return {"depth": 0.0, "glass": 0.0, "came": 0.0,
++                "crossing": 0.0, "wall_crossing": round(wall_crossing, 3)}
++    p10, p90 = np.percentile(patch, [10, 90])
++    cross = _crossing(patch)
++    return {
++        "depth": round(float(p90 - p10) / max(float(p90), 1.0), 4),
++        "glass": round(float(p90), 2),
++        "came": round(float(p10), 2),
++        "crossing": round(cross / max(wall_crossing, 0.5), 3),
++        "wall_crossing": round(wall_crossing, 3),
++    }
++
++
++def _wall_crossing(L, y0, y1, x0, x1, spans):
++    """The wall's OWN plaster texture, in the same units the light is read in.
++
++    Every enumerated candidate is cut out of the band first, with a small
++    margin, and the widest surviving block of plain wall is what is measured —
++    so this is the texture of the wall BESIDE the windows, not of a band that
++    still has one in it.
++    """
++    keep = np.ones(L.shape[1], bool)
++    keep[:x0] = False
++    keep[x1:] = False
++    for a, b in spans:
++        keep[max(0, a - 4):min(L.shape[1], b + 4)] = False
++    runs, s = [], None
++    for i in range(x0, x1):
++        if keep[i] and s is None:
++            s = i
++        elif not keep[i] and s is not None:
++            runs.append((s, i))
++            s = None
++    if s is not None:
++        runs.append((s, x1))
++    runs = [r for r in runs if r[1] - r[0] >= 24]
++    if not runs or y1 - y0 < 8:
++        return float("nan")
++    a, b = max(runs, key=lambda r: r[1] - r[0])
++    return _crossing(L[y0:y1, a:b].astype(float))
++
++
+ def _merge_lights(runs, ppm):
+     """One window's lights, joined across their mullions.
+ 
+@@ -390,11 +581,17 @@ def measure_windows(png_path, corner_x0, corner_x1, floor_y, ppm, storey_m=None)
+     merged = _merge_lights(lights, ppm)
+     y_head = int(round(max(0, floor_y - WINDOW_HEAD_M * ppm)))
+     y_sill = int(round(min(H - 1, floor_y - WINDOW_SILL_M * ppm)))
++    wall_cross = _wall_crossing(L, body[0], body[1], x0, x1,
++                                [g["span"] for g in merged])
++    headroom = max(1.0, 255.0 - wall_median)
+     out, rejected = [], []
+     for g in merged:
+         a, b = g["span"]
+         lat = lattice(L, a, b, body[0], body[1], ppm)
++        lead = leading(L, a, b, body[0], body[1],
++                       wall_cross if wall_cross == wall_cross else 0.5)
+         lit = float(np.median(v[a:b]))
++        contrast = (lit - wall_median) / headroom
+         ext = _extent(L, (a, b), g["t"], floor_y, ppm, body)
+         rec = {
+             "x0_px": int(a), "x1_px": int(b),
+@@ -412,43 +609,66 @@ def measure_windows(png_path, corner_x0, corner_x1, floor_y, ppm, storey_m=None)
+             "lights": g["lights"],
+             "light_luminance": round(lit, 2),
+             "wall_luminance": round(wall_median, 2),
++            "contrast": round(contrast, 4),
+             "lift": round(lit - wall_median, 2),
+             "threshold": g["t"], "threshold_span": [g["t_lo"], g["t_hi"]],
+             "stability": g["stability"],
++            "leading": lead,
+             "lattice": lat,
+         }
++        # THE ORDER IS THE ARGUMENT'S. The leading is what makes a light glass
++        # and it is asked first; the contrast only asks whether the opening is
++        # lighter than the wall it stands in, and it is asked last.
+         why = []
+-        if lit - wall_median < ADMIT_LIFT:
+-            why.append("its light stands only %.1f above a %.1f wall, under the %.0f a "
+-                       "painted window lifts on this store"
+-                       % (lit - wall_median, wall_median, ADMIT_LIFT))
++        if lead["depth"] < LEAD_DEPTH_MIN:
++            why.append("nothing dark crosses it: the darkest tenth of this light "
++                       "stands at %.0f against a %.0f glass, %.2f of its own "
++                       "brightness, under the %.2f a leaded light's cames take"
++                       % (lead["came"], lead["glass"], lead["depth"], LEAD_DEPTH_MIN))
++        elif lead["crossing"] < LEAD_CROSS_MIN:
++            why.append("what darkens it runs one way only: its edges cross each "
++                       "other %.2f× as hard as the plaster beside it, under the "
++                       "%.1f a came grid crosses at — that is a band, a shadow "
++                       "or a hanging, not leading"
++                       % (lead["crossing"], LEAD_CROSS_MIN))
+         if lat["score"] < LATTICE_MIN:
+-            why.append("its light is not crossed by a repeating lattice in both "
+-                       "directions: %.3f against the %.2f a leaded light scores"
++            why.append("what crosses it does not repeat at any quarry pitch in "
++                       "either direction: %.3f against the %.2f the dimmest "
++                       "painted leading in this store scores"
+                        % (lat["score"], LATTICE_MIN))
++        if contrast < CONTRAST_MIN:
++            why.append("it uses only %.2f of the headroom its %.1f wall leaves "
++                       "(a %.1f light), under the %.2f a painted window uses"
++                       % (contrast, wall_median, lit, CONTRAST_MIN))
+         if why:
+             rec["rejected"] = "bright, but " + "; and ".join(why)
+             rejected.append(rec)
+         else:
+-            rec["confidence"] = round(min(1.0, (lat["score"] / 0.6) * 0.5 +
+-                                          min(1.0, (lit - wall_median) / 120.0) * 0.5), 3)
++            rec["confidence"] = round(min(1.0, min(1.0, lead["depth"] / 0.85) * 0.6 +
++                                          min(1.0, contrast / 0.55) * 0.4), 3)
+             out.append(rec)
+     note = {
+         "method": ("the maximally stable BRIGHT run in each column's median "
+                    "luminance over the middle %d%% of the plan's %.2f-%.2f m "
+-                   "window band, admitted only where the light is crossed by a "
+-                   "repeating lattice in both directions and lifts clear of its "
+-                   "own wall; a window's lights are joined across their "
++                   "window band, admitted only where dark leading takes %.2f of "
++                   "the light's own brightness, crosses itself in both "
++                   "directions and repeats at a quarry pitch — and, "
++                   "secondarily, where the light uses %.2f of the headroom its "
++                   "own wall leaves, so that a bright wall and a dark one are "
++                   "read alike; a window's lights are joined across their "
+                    "mullions; nothing here is told what width to look for"
+                    % (round(100 * (BODY_HI - BODY_LO)),
+-                      WINDOW_SILL_M, WINDOW_HEAD_M)),
++                      WINDOW_SILL_M, WINDOW_HEAD_M, LEAD_DEPTH_MIN, CONTRAST_MIN)),
+         "body_rows": [int(body[0]), int(body[1])],
+         "wall_band_px": [x0, x1],
+         "window_band_px": [y_head, y_sill],
+         "wall_median_luminance": round(wall_median, 2),
++        "wall_crossing": (round(wall_cross, 3) if wall_cross == wall_cross else None),
+         "min_enumerated_px": minw,
++        "lead_depth_min": LEAD_DEPTH_MIN,
++        "lead_cross_min": LEAD_CROSS_MIN,
+         "lattice_min": LATTICE_MIN,
+-        "admit_lift": ADMIT_LIFT,
++        "contrast_min": CONTRAST_MIN,
+         "sweep_lift": SWEEP_LIFT,
+         "mullion_max_m": MULLION_MAX_M,
+         "lights_before_merge": len(runs),
+@@ -584,12 +804,92 @@ def _assign(ruled, got):
+     return out
+ 
+ 
++#: THE FRAMES THE 2026-08-25 MISS WAS FOUND ON, read every time the calibration
++#: runs. None of the three is promoted, so the store sweep above cannot see any
++#: of them, and together they pin the failure exactly: ONE ROOM, ONE WALL,
++#: painted three times. `scafink-372cda37` paints a three-light leaded window
++#: under a bright key and must be found; `row23-230bb67d` paints that same wall
++#: with no window at all and a piece of lit plaster between its two doorways
++#: standing FURTHER off the wall than the window does, which must not be;
++#: `row23-ce4ea35f` paints the same window under a darker key and is the frame
++#: the wall was promoted from. An absolute lift threshold got the first two
++#: wrong in opposite directions and the third right for the wrong reason. They
++#: are read against the promoted wall's own meta because that is the scale a
++#: candidate for this facing would be measured at.
++#:
++#: THE COUNT IS NOT THE TEST AND SAYING SO IS THE POINT. On `scafink-372cda37`
++#: the old rule reported ONE glazed opening and would have passed a check that
++#: counted — the one it reported was a 0.35 m sliver of lit plaster at x 210-273
++#: and the window at x 411-675 was refused by name. So each frame carries the
++#: COLUMNS the window is painted at, read off the frame, and a reading is right
++#: only if it lands inside them.
++HELD_FRAMES = [
++    ("servants_hall/E", "backdrops/source/servants_hall-E/scafink-372cda37.png",
++     [[411, 675]],
++     "a three-light leaded window on a bright limewash wall, lifting 57 over a "
++     "101 wall — the window the absolute floor of 60 refused, while admitting a "
++     "sliver of plaster beside it"),
++    ("servants_hall/E", "backdrops/source/servants_hall-E/row23-230bb67d.png",
++     [],
++     "the same wall painted with no window in it — lit plaster between two "
++     "doorways, lifting 62, which that same floor read AS a window"),
++    ("servants_hall/E", "backdrops/source/servants_hall-E/row23-ce4ea35f.png",
++     [[268, 697]],
++     "the frame this wall was promoted from: the SAME window under a darker "
++     "key, lifting 103 over a 79 wall, which is the only reason it passed"),
++]
++
++
++def held_frames():
++    """The miss's own frames, read at the promoted wall's scale. [row 42]
++
++    A frame is right when it reads exactly as many glazed openings as the frame
++    was painted with AND each one lands inside the columns the window occupies.
++    """
++    out = []
++    for key, rel, want, why in HELD_FRAMES:
++        loc, facing = key.split("/")
++        metap = os.path.join(ROOT, "backdrops", loc, "%s.meta.json" % facing)
++        png = os.path.join(ROOT, rel)
++        if not (os.path.exists(metap) and os.path.exists(png)):
++            out.append({"frame": rel, "want": want, "got": None, "why": why,
++                        "right": None,
++                        "note": "neither the frame nor the wall's meta is on disk"})
++            continue
++        meta = json.load(open(metap))
++        ppm = meta.get("px_per_m_at_wall")
++        floor_y = meta.get("floor_line_y", 0) * meta.get("image_h_px", 1024)
++        found, note = measure_windows(png, meta.get("corner_x0_px"),
++                                      meta.get("corner_x1_px"), floor_y, ppm)
++        right = len(found) == len(want) and all(
++            w[0] <= f["centre_px"] <= w[1] for f, w in zip(found, want))
++        out.append({
++            "facing": key, "frame": rel, "want_px": want, "got": len(found),
++            "right": right, "why": why,
++            "wall_luminance": note["wall_median_luminance"],
++            "lights": [{"x": [f["x0_px"], f["x1_px"]], "width_m": f["width_m"],
++                        "depth": f["leading"]["depth"],
++                        "crossing": f["leading"]["crossing"],
++                        "lattice": f["lattice"]["score"],
++                        "contrast": f["contrast"], "lift": f["lift"]}
++                       for f in found],
++            "refused": [{"x": [f["x0_px"], f["x1_px"]], "lift": f["lift"],
++                         "why": f["rejected"]} for f in note["rejected"]],
++        })
++    return out
++
++
+ def calibrate(plan, only=None):
+     """The whole store's window walls, plan against painting. [row 42]
+ 
+     The same shape as row 27's door log: what the drawing rules, what the
+     painting shows, and how far apart their centres are in metres — because
+     metres is the unit a sprite is placed in and pixels is not.
++
++    A wall the plan rules NO window on is in this sweep too and carries its own
++    verdict: every glazed opening read there is a FALSE POSITIVE, and those are
++    counted beside the pairs, because a detector that finds every window by
++    finding windows everywhere has not been calibrated.
+     """
+     rows, misses = [], []
+     for room in plan.get("rooms", []):
+@@ -668,23 +968,52 @@ def main():
+                 cells.append("%.2f/%.2f/%+.2f/%+.2f" % (pm, gm, gm - pm, dw))
+             print("%-24s %5d %5d  %s" % (r["key"], len(r["ruled"]), len(r["found"]),
+                                          "  ".join(cells)))
++        fp = [(r["key"], len(r["found"])) for r in rows
++              if not r["ruled"] and r["found"]]
++        fn = sum(1 for r in rows for (_pm, gm, _dw) in r["pairs"] if gm is None)
++        neg_walls = sum(1 for r in rows if not r["ruled"])
++        ruled_total = sum(len(r["ruled"]) for r in rows)
+         if dists:
+             ds = sorted(dists)
+             print("\n%d window(s) paired; median centre distance %.3f m, "
+                   "p90 %.3f m, worst %.3f m; %d of %d within 0.35 m"
+                   % (len(ds), ds[len(ds) // 2], ds[int(0.9 * (len(ds) - 1))], ds[-1],
+                      n_close, n_pair))
++        print("%d ruled window(s) over %d wall(s); %d unpaired (false negative)"
++              % (ruled_total, len(rows) - neg_walls, fn))
++        print("%d false positive(s) over the %d wall(s) the plan rules no window on%s"
++              % (sum(k for _key, k in fp), neg_walls,
++                 (": " + ", ".join("%s×%d" % (key, k) for key, k in fp)) if fp else ""))
+         for key, want, got in misses:
+             print("  COUNT %s: the plan rules %d, the painting shows %d" % (key, want, got))
++        print("\nheld frames — the 2026-08-25 miss's own, read at the promoted wall's scale")
++        for h in held_frames():
++            print("  %-34s want %d at %s, read %d  %s"
++                  % (os.path.basename(h["frame"]), len(h.get("want_px") or []),
++                     h.get("want_px") or "no columns at all",
++                     h["got"] if h["got"] is not None else -1,
++                     "OK" if h["right"] else "WRONG"))
++            for g in h.get("lights", []):
++                print("      x %4d..%-4d %.2f m  leading %.2f deep, crossing %.2f×, "
++                      "lattice %.3f, contrast %.2f (absolute lift %.1f)"
++                      % (g["x"][0], g["x"][1], g["width_m"], g["depth"], g["crossing"],
++                         g["lattice"], g["contrast"], g["lift"]))
++            for g in h.get("refused", []):
++                print("      x %4d..%-4d REFUSED (lift %.1f) — %s"
++                      % (g["x"][0], g["x"][1], g["lift"], g["why"]))
+         if a.write:
+             doc = {
+                 "_what_this_is":
+-                    "[row 42] Every promoted wall the plan rules a window on, read off "
+-                    "its own painting by window_measure.py, against what the drawing "
+-                    "rules. The centre distance is in metres at the wall's APERTURE "
+-                    "scale (row 27's ruling: the space a placed target lives in is the "
+-                    "corner span, not the ruler), because metres is the unit a sprite is "
+-                    "placed in and pixels is not.",
++                    "[row 42] EVERY promoted wall, read off its own painting by "
++                    "window_measure.py against what the drawing rules — the walls the "
++                    "plan rules a window on and, as the negatives, the walls it rules "
++                    "none on, where every reading is a false positive. The centre "
++                    "distance is in metres at the wall's APERTURE scale (row 27's "
++                    "ruling: the space a placed target lives in is the corner span, not "
++                    "the ruler), because metres is the unit a sprite is placed in and "
++                    "pixels is not. `held_frames` is the 2026-08-25 miss's own evidence: "
++                    "one limewashed wall painted twice, once with its window and once "
++                    "without, which the absolute lift threshold got wrong both ways.",
+                 "_why_it_is_committed":
+                     "promote-backdrop.mjs writes meta.windows only where the measurement "
+                     "carries a window reading, and no measurement taken before this row "
+@@ -692,7 +1021,9 @@ def main():
+                     "row23_run.py runs window_reading on every reading from here on, so "
+                     "the list can only shrink.",
+                 "instrument": {
+-                    "lattice_min": LATTICE_MIN, "admit_lift": ADMIT_LIFT,
++                    "lead_depth_min": LEAD_DEPTH_MIN,
++                    "lead_cross_min": LEAD_CROSS_MIN,
++                    "lattice_min": LATTICE_MIN, "contrast_min": CONTRAST_MIN,
+                     "sweep_lift": SWEEP_LIFT, "mullion_max_m": MULLION_MAX_M,
+                     "min_enumerated_m": MIN_ENUMERATED_M,
+                     "window_band_m": [WINDOW_SILL_M, WINDOW_HEAD_M],
+@@ -701,6 +1032,12 @@ def main():
+                 "paired": len(dists),
+                 "median_centre_distance_m": round(ds[len(ds) // 2], 3) if dists else None,
+                 "within_0_35_m": n_close, "of": n_pair,
++                "ruled": ruled_total,
++                "false_negatives": fn,
++                "no_window_walls": neg_walls,
++                "false_positives": sum(k for _key, k in fp),
++                "false_positive_walls": [{"facing": key, "painted": k} for key, k in fp],
++                "held_frames": held_frames(),
+                 "count_mismatches": [
+                     {"facing": k, "ruled": w, "painted": g} for k, w, g in misses],
+                 "walls": [
+@@ -739,13 +1076,16 @@ def main():
+     print("%s: %d glazed opening(s), off %s" % (a.facing, len(found), png))
+     print("  %s" % note["method"])
+     for f in found:
+-        lat = f["lattice"]
+-        print("    x %4d..%4d (%.2f m, %d px)  y %d..%d  light %.1f against a %.1f wall, "
+-              "lattice %.3f (x %.3f y %.3f, pitch %s/%s m), confidence %.2f"
++        lat, lead = f["lattice"], f["leading"]
++        print("    x %4d..%4d (%.2f m, %d px)  y %d..%d  leading %.2f deep "
++              "(%.0f came under %.0f glass, crossing %.1f× the wall's), lattice "
++              "%.3f (x %.3f y %.3f, pitch %s/%s m), light %.1f against a %.1f "
++              "wall = %.2f of its headroom, confidence %.2f"
+               % (f["x0_px"], f["x1_px"], f["width_m"], f["width_px"],
+-                 f["y0_px"], f["y1_px"], f["light_luminance"], f["wall_luminance"],
+-                 lat["score"], lat["x"], lat["y"], lat["pitch_x_m"], lat["pitch_y_m"],
+-                 f["confidence"]))
++                 f["y0_px"], f["y1_px"], lead["depth"], lead["came"], lead["glass"],
++                 lead["crossing"], lat["score"], lat["x"], lat["y"],
++                 lat["pitch_x_m"], lat["pitch_y_m"], f["light_luminance"],
++                 f["wall_luminance"], f["contrast"], f["confidence"]))
+     for f in note["rejected"]:
+         print("    x %4d..%4d  REJECTED — %s" % (f["x0_px"], f["x1_px"], f["rejected"]))
+     if not found:
+diff --git a/design/specs/42-first-wall-leads.md b/design/specs/42-first-wall-leads.md
+index c1826439..d3e8fc0b 100644
+--- a/design/specs/42-first-wall-leads.md
++++ b/design/specs/42-first-wall-leads.md
+@@ -46,8 +46,9 @@ enumerates every glazed opening it can see, and it refuses nothing — the plan
+ 
+ The discriminator is the leaded lattice. A window in this corpus is a bright rectangle between the
+ plan's sill (0.90 m) and head (2.00 m) bands, and so is a limewashed wall in sunlight; what only
+-the window has is a fine periodic edge signature — the quarries of a leaded light — so the reading
+-carries a `lattice` score and the candidate is admitted on brightness AND lattice together.
++the window has is dark leading crossing it — the cames of a leaded light — so the reading carries
++the leading's DEPTH and its CROSSING energy and the candidate is admitted on those first, with the
++light's contrast against its own wall as a relative second test.
+ 
+ **`meta.windows`** is written by `promote-backdrop.mjs` in the same shape as `meta.openings`
+ (`id/kind/x/y/w/h/measured`), with a `[row42:window.*]` clause family: the plan-ruled-missing case
+@@ -69,11 +70,18 @@ through. Nothing new is drawn.
+ 
+ ## What the build settled that the plan left open
+ 
+-- **The lattice is the JUNIOR discriminator on this store, and it is said so in the file.** Measured
+-  over all 24 promoted window walls and the 30 promoted walls the plan rules no window on, the LIFT
+-  separates 54–147 against 21–85 and does most of the work; the lattice removes two of the four
+-  bright pieces of wall the lift alone admits, at the cost of one painted window. Both are kept
+-  because they fail differently and row 37 is about to make brightness meaningless.
++- **The first draft made the LIFT the discriminator, at an absolute floor of 60, and said so — and
++  that was the wrong reading of the row. Corrected 2026-08-25.** It cost `servants_hall/E`: that
++  room is limewashed, so a plainly painted three-light window stood 57 over a 101 wall and was
++  refused while a sliver of lit plaster beside it was admitted, and on the same wall's other frame
++  — painted with no window at all — a lit plaster field standing 62 over a 111 wall was admitted AS
++  a window. The instrument now admits on the LEADING first (its depth inside the light, a ratio no
++  wall key can move; and that it crosses in both directions, against the wall's own plaster), with
++  the light's contrast as a RELATIVE second test — `(light − wall) / (255 − wall)` — so a bright
++  wall and a dark one are read alike. The lattice's periodicity is kept at a floor that says only
++  "no period whatsoever", because measured over the store it separates at AUC 0.66 against the
++  depth's 0.88 and its old floor was itself costing two painted windows. See `window_measure.py`'s
++  header and the before/after table in `design/architecture.md`.
+ - **A window is mullioned and a window floats.** Neither was in the plan. One opening reads as two or
+   three bright runs with a bar between them (merged under 0.25 m), and the paintings draw their sills
+   and heads outside the plan's ruled band — so the band bounds the SEARCH and the light's own edges
+diff --git a/tools/promote-backdrop.mjs b/tools/promote-backdrop.mjs
+index a1ff6d8d..f2c61120 100644
+--- a/tools/promote-backdrop.mjs
++++ b/tools/promote-backdrop.mjs
+@@ -54,6 +54,15 @@ const argOf = (flag, dflt) => {
+ 
+ const facingArg = argOf("--facing");
+ const candidate = argOf("--candidate");
++/* [row 42] DECIDE AND SAY SO, WRITE NOTHING. Every clause below is a verdict on
++ * a wall, and re-deciding the whole store is how a change to one of them is
++ * shown to be safe — but running the promotion to find that out MOVES the
++ * store, so the sweep that answers the question is the one nobody dares run.
++ * `--check` runs every gate and prints what the meta WOULD carry, and the two
++ * `writeFileSync` calls at the foot of this file are the only thing it skips.
++ * A refusal still refuses and still exits 1, because a check that softened the
++ * verdict would be measuring a promotion nobody performs. */
++const checkOnly = args.includes("--check");
+ 
+ /* [row 33] THE CLOCK IS AN EXIT HANDLER, and that is not laziness: this script
+  * refuses from fifteen different places, and a refusal is the outcome most
+@@ -75,7 +84,7 @@ const planPath = argOf("--plan", join(root, "fixtures", "demo-study", "plan.json
+  * and the meta's shape are the same whichever round produced the numbers. */
+ const roundDir = argOf("--round", "");
+ if (!facingArg || !candidate) {
+-  console.error("usage: promote-backdrop.mjs --facing <loc>/<F> --candidate <png> [--plan <plan.json>] [--round cand5ref|cand6] [--reference ruled|measured] [--camera-source measured|declared]");
++  console.error("usage: promote-backdrop.mjs --facing <loc>/<F> --candidate <png> [--plan <plan.json>] [--round cand5ref|cand6] [--reference ruled|measured] [--camera-source measured|declared] [--check]");
+   process.exit(2);
+ }
+ if (roundDir && !/^[a-z0-9]+$/.test(roundDir)) {
+@@ -915,10 +924,18 @@ if (paintedWindows !== null) {
+     read_by: "design/plan-draft/measured/window_measure.py",
+     ruled: plannedWindows.length,
+     painted: paintedWindows.length,
++    /* THE NUMBERS THAT ADMITTED IT, so a human amending the plan from this list
++     * reads what actually decided rather than what used to. The leading is the
++     * primary test since 2026-08-25 and the contrast is the relative secondary;
++     * the absolute lift is carried too, because it is what the first draft
++     * decided on and the list is read against both. */
+     unruled: extra.map((c) => ({
+       x: round(c.x0_px, 2), y: round(c.y0_px, 2),
+       w: round(c.width_px, 2), h: round(c.y1_px - c.y0_px, 2),
+-      lattice: c.lattice ? c.lattice.score : null, lift: c.lift ?? null
++      leading: c.leading ? c.leading.depth : null,
++      crossing: c.leading ? c.leading.crossing : null,
++      lattice: c.lattice ? c.lattice.score : null,
++      contrast: c.contrast ?? null, lift: c.lift ?? null
+     })),
+     note: extra.length
+       ? "the painting shows glazed opening(s) the plan does not rule; recorded, never gated - the plan amends to the painting (row 22) and this is the list to amend from"
+@@ -1102,16 +1119,21 @@ function groundplaneX(u) {
+ }
+ 
+ const outDir = join(root, "backdrops", loc);
+-mkdirSync(outDir, { recursive: true });
+ const png = join(outDir, `${facing}.png`);
+ const src = join(root, candidate);
+ if (!existsSync(src)) {
+   console.error(`promote refused: ${candidate} is not a file`);
+   process.exit(1);
+ }
+-writeFileSync(png, readFileSync(src));
+-writeFileSync(join(outDir, `${facing}.meta.json`), JSON.stringify(meta, null, 2) + "\n");
+-console.log(`promoted ${facingArg}: ${candidate} -> backdrops/${loc}/${facing}.png`);
++if (!checkOnly) {
++  mkdirSync(outDir, { recursive: true });
++  writeFileSync(png, readFileSync(src));
++  writeFileSync(join(outDir, `${facing}.meta.json`), JSON.stringify(meta, null, 2) + "\n");
++}
++if (checkOnly && meta.windows) {
++  console.log(`WINDOWS ${facingArg} ${JSON.stringify(meta.windows)}`);
++}
++console.log(`${checkOnly ? "would promote" : "promoted"} ${facingArg}: ${candidate} -> backdrops/${loc}/${facing}.png`);
+ console.log(`  ${ppm.toFixed(3)} px/m at the drawn ${drawn} m = a ${focal.toFixed(1)} px lens (${((focal - MEASURED_REFERENCE_PX) / MEASURED_REFERENCE_PX * 100).toFixed(1)}% from the approved ${MEASURED_REFERENCE_PX})`);
+ console.log(`  eye ${eyeM.toFixed(4)} m, horizon ${(horizonY * imageH).toFixed(1)} px (${declaredCamera ? `DECLARED — the page's own derived camera for this facing, under the tolerance ruling; this frame's own ${holdFamily}` : isOpen ? "declared eye line, far-line ruler" : "ceiling ramp"}), ${isOpen ? "far-line ground row" : "floor line"} ${(floorLineY * imageH).toFixed(0)} px`);
+ if (isOpen) {
