@@ -1,19 +1,84 @@
 {
-  "_what": "The muniment room as a schematic: every element in metres, in each wall's own frame (r along the wall from the left corner as you face it, z up). Placed where the paintings put them, so the zero-asset build and the painted shell can be flipped between.",
-  "room": { "w": 4.85, "d": 4.87, "h": 3.1 },
+  "_what": "The muniment room as a schematic: every element in metres, in each wall's own frame (r along the wall from the left corner as you face it, z up). Placed where the paintings put them, so the zero-asset build and the painted shell can be flipped between. Firebox springing re-read 2026-09-28: the jambs end at ~0.83 m (N.png row ~640), giving the painted four-centred arch its 0.38 m rise.",
+  "room": {
+    "w": 4.85,
+    "d": 4.87,
+    "h": 3.1
+  },
   "style": "oak-panelled-1660",
   "walls": {
     "N": [
-      { "id": "chimneypiece", "kind": "chimneypiece", "r0": 1.33, "r1": 3.54, "surround_top": 1.356,
-        "mantel": { "r0": 1.144, "r1": 3.702, "top": 1.761, "depth": 0.17 },
-        "firebox": { "r0": 1.698, "r1": 3.161, "spring": 1.033, "apex": 1.219, "depth": 0.5 },
-        "hearth": { "r0": 1.24, "r1": 3.63, "out": 0.4 } }
+      {
+        "id": "chimneypiece",
+        "kind": "chimneypiece",
+        "r0": 1.33,
+        "r1": 3.54,
+        "surround_top": 1.356,
+        "mantel": {
+          "r0": 1.144,
+          "r1": 3.702,
+          "top": 1.761,
+          "depth": 0.17
+        },
+        "firebox": {
+          "r0": 1.698,
+          "r1": 3.161,
+          "spring": 0.83,
+          "apex": 1.219,
+          "depth": 0.5
+        },
+        "hearth": {
+          "r0": 1.24,
+          "r1": 3.63,
+          "out": 0.4
+        }
+      }
     ],
-    "E": [ { "id": "door_e", "kind": "door", "r0": 2.722, "r1": 3.577, "top": 2.358 } ],
+    "E": [
+      {
+        "id": "door_e",
+        "kind": "door",
+        "r0": 2.722,
+        "r1": 3.577,
+        "top": 2.358
+      }
+    ],
     "S": [
-      { "id": "window_sw", "kind": "window", "r0": 0.63, "r1": 1.72, "sill": 0.997, "top": 2.718, "splay": 0.15, "lights": [2, 2] },
-      { "id": "window_se", "kind": "window", "r0": 3.096, "r1": 4.183, "sill": 0.997, "top": 2.718, "splay": 0.15, "lights": [2, 2] }
+      {
+        "id": "window_sw",
+        "kind": "window",
+        "r0": 0.63,
+        "r1": 1.72,
+        "sill": 0.997,
+        "top": 2.718,
+        "splay": 0.15,
+        "lights": [
+          2,
+          2
+        ]
+      },
+      {
+        "id": "window_se",
+        "kind": "window",
+        "r0": 3.096,
+        "r1": 4.183,
+        "sill": 0.997,
+        "top": 2.718,
+        "splay": 0.15,
+        "lights": [
+          2,
+          2
+        ]
+      }
     ],
-    "W": [ { "id": "door_w", "kind": "door", "r0": 1.644, "r1": 2.592, "top": 2.281 } ]
+    "W": [
+      {
+        "id": "door_w",
+        "kind": "door",
+        "r0": 1.644,
+        "r1": 2.592,
+        "top": 2.281
+      }
+    ]
   }
 }

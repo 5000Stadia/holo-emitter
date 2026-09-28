@@ -423,15 +423,28 @@ function grime(THREE, mat, soot = null, walls = true) {
   return mat;
 }
 // the carved vine and leaves as a height, X metres along the band, Y 0..1 up it
-function carveHeight(X, Y, rep = 0.26) {
-  const ph = (X / rep) * Math.PI * 2, vine = 0.5 + 0.22 * Math.sin(ph);
-  let hgt = Math.exp(-Math.pow(Math.abs(Y - vine) / 0.06, 2));
+function carveHeight(X, Y, rep = 0.11) {
+  // a hand-cut vine: each repeat swings a little differently, and its leaves come and go
+  const cell = Math.floor(X / rep), amp = 0.17 + 0.1 * hash(cell, 3, 71), ph = (X / rep) * Math.PI * 2 + 0.6 * (hash(cell, 5, 73) - 0.5);
+  const vine = 0.5 + amp * Math.sin(ph) + 0.03 * Math.sin(X * 37);
+  // curls off the stem at each crest, and small leaves between: the density of acanthus, not a line
+  let curl = 0;
   for (const k of [0.25, 0.75]) {
-    const cx = (Math.floor(X / rep) + k) * rep, cy = k < 0.5 ? 0.78 : 0.22;
-    const ex = (X - cx) / (rep * 0.2), ey = (Y - cy) / 0.14;
-    hgt = Math.max(hgt, (1 - Math.min(1, ex * ex + ey * ey)) * (0.8 + 0.2 * Math.cos(ex * 6)));
+    const ccx = (cell + k) * rep, ccy = k < 0.5 ? 0.7 : 0.3, dx = (X - ccx) / rep, dy = (Y - ccy) / 0.5;
+    const rr = Math.hypot(dx, dy), th = Math.atan2(dy, dx) + (k < 0.5 ? 1 : -1) * rr * 14;
+    curl = Math.max(curl, Math.exp(-Math.pow((rr - 0.12) / 0.04, 2)) * (0.6 + 0.4 * Math.cos(th * 3)) * (rr < 0.2 ? 1 : 0));
   }
-  return (Y < 0.08 || Y > 0.92) ? 1 : hgt;
+  let hgt = Math.max(curl, Math.exp(-Math.pow(Math.abs(Y - vine) / (0.05 + 0.02 * hash(cell, 7, 79)), 2)));
+  for (const k of [0.25, 0.75]) {
+    if (hash(cell, k * 8, 83) < 0.18) continue;                       // a leaf the carver left out
+    const cx = (cell + k + 0.08 * (hash(cell, k * 4, 89) - 0.5)) * rep, cy = k < 0.5 ? 0.78 : 0.22;
+    const sz = 0.8 + 0.4 * hash(cell, k * 6, 97);
+    const ex = (X - cx) / (rep * 0.2 * sz), ey = (Y - cy) / (0.14 * sz);
+    hgt = Math.max(hgt, (1 - Math.min(1, ex * ex + ey * ey)) * (0.75 + 0.25 * Math.cos(ex * 6 + hash(cell, 9, 101) * 3)));
+  }
+  // the tool's own texture: veins and nicks in every leaf, so the band reads as carving, not a line
+  const cut = hgt > 0.2 ? 0.22 * (vnoise(X * 90, Y * 14, 100000, 100000, 111) - 0.5) : 0;
+  return (Y < 0.08 || Y > 0.92) ? 1 : Math.max(0, hgt + cut);
 }
 // keep the part of a polygon between x = xa and x = xb (Sutherland-Hodgman, two half-planes)
 function clipX(poly, xa, xb) {
@@ -684,22 +697,23 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
       if (e.kind === "chimneypiece") {
         const fb = e.firebox, cx = (fb.r0 + fb.r1) / 2, half = (fb.r1 - fb.r0) / 2;
         // four-centred (Tudor) arch: quarter-ish arcs off the springing, flat-pointed at the apex
-        const arch = [], rr = 0.16;
-        for (let k = 1; k <= 8; k++) { const f = k / 8 * Math.PI / 3; arch.push([fb.r0 + rr - rr * Math.cos(f), fb.spring + rr * Math.sin(f)]); }
+        const arch = [], rise = fb.apex - fb.spring, rr = Math.min(0.2, rise * 0.8), turn = 70 * Math.PI / 180;
+        for (let k = 1; k <= 10; k++) { const f = k / 10 * turn; arch.push([fb.r0 + rr - rr * Math.cos(f), fb.spring + rr * Math.sin(f)]); }
         const [sx, sy] = arch[arch.length - 1];
-        for (let k = 1; k <= 6; k++) { const a = k / 6; arch.push([sx + (cx - sx) * a, sy + (fb.apex - sy) * (1 - (1 - a) * (1 - a) * 0.15) * a / (a + 0.0001) * (0.85 + 0.15 * a)]); }
+        // the upper arcs of a Tudor arch are of long radius: a gentle bow from the shoulder to the point
+        for (let k = 1; k <= 8; k++) { const a = k / 8; arch.push([sx + (cx - sx) * a, sy + (fb.apex - sy) * a]); }   // straight rises: the point reads as a point
         const archR = arch.slice(0, -1).reverse().map(([x, y]) => [2 * cx - x, y]);
         const opening = [[fb.r0, 0], [fb.r0, fb.spring], ...arch, ...archR, [fb.r1, fb.spring], [fb.r1, 0]];
         const SD = 0.2, MO = 0.075, J = 0.002;
         // dressed limestone, each block its own tone, a soot plume over the opening
         const dressed = stoneTexture(THREE, 512, [104, 92, 74]);     // v2: warmer, darker, weathered limestone
         const stoneS = grime(THREE, new THREE.MeshStandardMaterial({ ...dressed, roughness: 0.88, vertexColors: true, normalScale: new THREE.Vector2(0.9, 0.9) }),
-          [cx, fb.apex + 0.14, half * 0.95, 0.3, 0.5], false);
+          [cx, fb.apex + 0.16, half * 1.05, 0.34, 0.6], false);
         stoneS.userData.cls = "stone";
-        const mortar = new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 1 }); mortar.userData.cls = "stone";
+        const mortar = new THREE.MeshStandardMaterial({ map: M.stone.map, color: 0x8a8070, roughness: 1 }); mortar.userData.cls = "stone";   // lime mortar, weathered: a joint, not a groove
         const g = offsetLine(opening, MO, false), gl = g[0][0], gr = g[g.length - 1][0];
         // a mortar bed behind the blocks, so every joint reads as a joint
-        add(slab(THREE, [[e.r0, 0], [gl, 0], ...g.slice(1, -1), [gr, 0], [e.r1, 0], [e.r1, e.surround_top], [e.r0, e.surround_top]], [], SD - 0.03), mortar);
+        add(slab(THREE, [[e.r0, 0], [gl, 0], ...g.slice(1, -1), [gr, 0], [e.r1, 0], [e.r1, e.surround_top], [e.r0, e.surround_top]], [], SD - 0.012), mortar);
         // the moulded border round the opening: a hollow chamfer, a fillet, a bead standing proud
         add(loft(THREE, opening, [[0, 0], [0, 0.1], [0.018, 0.12], [0.03, 0.125], [0.045, 0.15], [0.055, 0.172], [0.062, SD], [MO, SD]], false, false), stoneS, 0.08);
         // the jambs: ashlar courses up to the springing
@@ -714,6 +728,17 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
           const piece = clipX(lintel, a, b);
           if (piece.length >= 3) add(block(THREE, piece, SD, 0.14), stoneS, 0.16);
         }
+        // a square-headed frame round the whole opening, a moulding standing proud of the stone, and the
+        // spandrels between it and the arch sunk a little, as masons cut them
+        { const fx0 = gl - 0.05, fx1 = gr + 0.05, ft = fb.apex + MO + 0.06;
+          add(loft(THREE, [[fx0, 0], [fx0, ft], [fx1, ft], [fx1, 0]], [[0, SD], [0, SD + 0.012], [0.01, SD + 0.02], [0.022, SD + 0.02], [0.03, SD + 0.01], [0.034, SD]], false, false), stoneS, 0.06);
+          for (const side of [-1, 1]) {
+            const pts = side < 0 ? archG.filter(p => p[0] <= cx) : archG.filter(p => p[0] >= cx);
+            const corner = side < 0 ? [[fx0 + 0.035, ft - 0.035], [fx0 + 0.035, fb.spring + MO]] : [[fx1 - 0.035, fb.spring + MO], [fx1 - 0.035, ft - 0.035]];
+            const poly = side < 0 ? [...corner, ...pts, [cx, ft - 0.035]] : [[cx, ft - 0.035], ...pts, ...corner];
+            if (poly.length >= 3) add(slab(THREE, poly, [], SD + 0.001), K.spandrel || (K.spandrel = grime(THREE, new THREE.MeshStandardMaterial({ map: M.stone.map, roughness: 0.9, color: 0x9a9080 }), null, false)), 0);
+          }
+        }
         // the mantel: a timber body, fillets, a frieze carved in relief, a boss at each end, a shelf
         const m = e.mantel, fz = m.depth + 0.05, z0 = e.surround_top, zt = m.top - 0.1, mh = zt - z0;
         add(block(THREE, rect(m.r0, m.r1, z0, zt), fz, fz - 0.02, 0.006), M.oakH, 0.1);
@@ -721,11 +746,11 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         for (const y of [cy - ch / 2 - 0.018, cy + ch / 2 + 0.006])
           add(run(THREE, m.r0 + 0.03, m.r1 - 0.03, y, [[0, fz], [0, fz + 0.012], [0.006, fz + 0.016], [0.012, fz + 0.012], [0.012, fz]]), M.oak, 0.05);
         { // the carving itself: a grid displaced by the vine's height, so it catches real light and shadow
-          const nx = Math.round(len * 200), ny = Math.round(ch * 200);
+          const nx = Math.round(len * 320), ny = Math.round(ch * 320);
           const cg = new THREE.PlaneGeometry(len, ch, nx, ny), pa = cg.attributes.position;
           for (let i = 0; i < pa.count; i++) {
             const X = pa.getX(i) + len / 2, Y = pa.getY(i) / ch + 0.5;
-            pa.setZ(i, carveHeight(X, Y) * 0.016);
+            pa.setZ(i, carveHeight(X, Y) * 0.011);
           }
           cg.computeVertexNormals(); cg.translate((m.r0 + m.r1) / 2, cy, fz + 0.002);
           const carv = carvedTextures(THREE, oak, len, ch);
@@ -746,6 +771,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
           add(ring, M.oak, 0.04);
         }
         add(run(THREE, m.r0 - 0.05, m.r1 + 0.05, zt, [[0, 0], [0, fz + 0.01], [0.012, fz + 0.014], [0.03, fz + 0.035], [0.055, fz + 0.058], [0.075, fz + 0.078], [0.085, fz + 0.085], [0.1, fz + 0.085], [0.1, 0]]), M.oak, 0.05);
+        // a dentil course under the shelf
+        for (let x = m.r0 + 0.02; x < m.r1 - 0.02; x += 0.034) add(block(THREE, rect(x, x + 0.018, zt - 0.03, zt - 0.002), fz + 0.022, 0.02, 0.002), M.oak, 0.04);
         // the firebox: brick, splayed, sooted, going back into the wall
         const bd = fb.depth, bs = 0.16, top = fb.apex;
         add(quad(THREE, [fb.r0, 0, 0], [fb.r0 + bs, 0, -bd], [fb.r0 + bs, top, -bd], [fb.r0, top, 0]), M.brick);

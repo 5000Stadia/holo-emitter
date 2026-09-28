@@ -184,6 +184,8 @@ for (const [F, wall] of Object.entries(shell.walls)) {
 RectAreaLightUniformsLib.init();
 const statusText = document.getElementById("statusText");
 const schem = await (await fetch(base + "schematic.json")).json();
+// v1 is frozen as first graded, schematic and all
+const schemV1 = await (await fetch(base + "schematic-v1.json")).json().catch(() => schem);
 // two code builds live side by side: v1 exactly as first graded (frozen), v2 the rework.
 // Each keeps its own light levels (?sun=&sky=&fill=&bounce= override the one ?code= names).
 const BUILDS = {
@@ -192,7 +194,7 @@ const BUILDS = {
 };
 const CODE = Q.get("code") === "v1" ? "v1" : "v2";
 for (const [k, B] of Object.entries(BUILDS)) {
-  B.code = await B.build(THREE, schem, (what) => { statusText.textContent = `${k}: ${what}…`; });
+  B.code = await B.build(THREE, k === "v1" ? schemV1 : schem, (what) => { statusText.textContent = `${k}: ${what}…`; });
   B.lv = { ...(B.lv || B.code.defaults) };
   if (k === CODE) for (const key of Object.keys(B.lv)) if (Q.get(key)) B.lv[key] = +Q.get(key);
   B.composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));

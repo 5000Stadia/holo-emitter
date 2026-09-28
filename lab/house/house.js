@@ -48,7 +48,7 @@ export function compileRoom(plan, room) {
     const wd = w.r1 - w.r0, c = (w.r0 + w.r1) / 2, s = Math.min(1.3, Math.max(0.85, wd / 2.21));
     walls[w.F].push({ kind: "chimneypiece", id: `hearth${i}`, r0: w.r0, r1: w.r1, surround_top: 1.356 * s,
       mantel: { r0: w.r0 - 0.19, r1: w.r1 + 0.19, top: 1.761 * s, depth: 0.17 },
-      firebox: { r0: c - wd * 0.33, r1: c + wd * 0.33, spring: 1.033 * s, apex: 1.219 * s, depth: Math.min(0.5, Math.max(0.3, w.T - 0.06)) },
+      firebox: { r0: c - wd * 0.33, r1: c + wd * 0.33, spring: 0.83 * s, apex: 1.219 * s, depth: Math.min(0.5, Math.max(0.3, w.T - 0.06)) },
       hearth: { r0: w.r0 - 0.09, r1: w.r1 + 0.09, out: 0.4 },
       breast: Math.max(0, w.T - 0.02) });       // the plan's fireplace rect is the breast standing into the room
   }
