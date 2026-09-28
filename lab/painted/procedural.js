@@ -771,9 +771,75 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   // levels matched to the paintings' luminance percentiles (p10 / p50 / p90) at the four painting poses
   const defaults = { sun: 1.7, sky: 6, fill: 0.25, bounce: 0, floorB: 1.3, patchB: 1.8, ceilB: 0.45, northB: 0.8 };
 
-  return { scene, lights: { sun, hemi, bounce, areas: lights, apply }, defaults,
+  return { scene, kit: K, lights: { sun, hemi, bounce, areas: lights, apply }, defaults,
     gtao: { radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 }, gtaoBlend: 1.0,
     stats: { parts, ms: Math.round(performance.now() - t0) } };
+}
+
+// ---------------------------------------------------------------- furniture: a joined oak table with a drawer
+// c. 1660: four turned baluster legs squared where the rails and stretchers join, moulded aprons, a
+// moulded top, one drawer in the front apron with a turned knob. Built in its own frame: back at
+// z = 0 (against a wall), front toward +z, centred on x = 0. Returns the group, the drawer (a group
+// that slides along +z) and the point inside the drawer where something can lie.
+export function buildDesk(THREE, K, { W = 1.1, D = 0.56, H = 0.76 } = {}) {
+  const { M, board } = K;
+  const g = new THREE.Group(), drawer = new THREE.Group();
+  const part = (geo, mat = M.oak, spread = 0.14, into = g) => { if (mat.vertexColors) board(geo, spread); const m = new THREE.Mesh(geo, mat); m.castShadow = m.receiveShadow = true; into.add(m); return m; };
+  const box = (w, h, d, x, y, z, mat = M.oak, into = g) => { const b = metric(new THREE.BoxGeometry(w, h, d)); b.translate(x, y, z); return part(b, mat, 0.14, into); };
+  const T = 0.032, AP = 0.12, LEG = 0.058, legH = H - T;
+  // legs: a lathe profile between a square block under the top and a square foot
+  const prof = [[0, 0.1], [0.022, 0.1], [0.025, 0.12], [0.02, 0.15], [0.026, 0.2], [0.03, 0.26], [0.028, 0.31], [0.021, 0.36], [0.017, 0.4], [0.02, 0.43], [0.026, 0.46], [0.022, 0.49], [0.025, legH - AP - 0.02], [0.02, legH - AP], [0, legH - AP]].map(([r, y]) => new THREE.Vector2(r, y));
+  for (const sx of [-1, 1]) for (const sz of [0, 1]) {
+    const x = sx * (W / 2 - 0.05), z = sz ? D - 0.05 : 0.05;
+    const lathe = new THREE.LatheGeometry(prof, 20); lathe.translate(x, 0, z); part(lathe, M.oak, 0.1);
+    box(LEG, AP, LEG, x, legH - AP / 2, z);                     // the block the rails tenon into
+    box(LEG, 0.1, LEG, x, 0.05, z);                              // the foot the stretchers join
+  }
+  // stretchers low down, all four sides
+  box(W - 0.1, 0.035, 0.035, 0, 0.07, 0.05); box(W - 0.1, 0.035, 0.035, 0, 0.07, D - 0.05);
+  for (const sx of [-1, 1]) box(0.035, 0.035, D - 0.1, sx * (W / 2 - 0.05), 0.07, D / 2);
+  // aprons: back and sides whole; the front framed round the drawer opening
+  const dw = 0.62, dh = 0.085, y0 = legH - AP / 2 - dh / 2;
+  box(W - 0.1, AP, 0.022, 0, legH - AP / 2, 0.05);
+  for (const sx of [-1, 1]) box(0.022, AP, D - 0.1, sx * (W / 2 - 0.05), legH - AP / 2, D / 2);
+  const fz = D - 0.05, side = (W - 0.1 - dw) / 2;
+  for (const sx of [-1, 1]) box(side, AP, 0.022, sx * (dw / 2 + side / 2), legH - AP / 2, fz);
+  box(dw, legH - (y0 + dh), 0.022, 0, (y0 + dh + legH) / 2, fz);
+  box(dw, y0 - (legH - AP), 0.022, 0, (legH - AP + y0) / 2, fz);
+  // the top: a board with a moulded edge, overhanging
+  const top = metric(new THREE.BoxGeometry(W + 0.06, T, D + 0.04)); top.translate(0, legH + T / 2, D / 2 + 0.01);
+  part(top, M.oakH, 0.1);
+  // the drawer: front with a turned knob, sides, back and bottom; it slides out along +z
+  const dd = D - 0.12, t = 0.014;
+  box(dw - 0.006, dh - 0.006, 0.02, 0, y0 + dh / 2, fz + 0.001, M.oakH, drawer);
+  const knob = new THREE.LatheGeometry([[0, 0], [0.012, 0], [0.012, 0.004], [0.006, 0.01], [0.009, 0.018], [0.013, 0.026], [0.01, 0.032], [0, 0.034]].map(([r, y]) => new THREE.Vector2(r, y)), 16);
+  knob.rotateX(Math.PI / 2); knob.translate(0, y0 + dh / 2, fz + 0.011); part(knob, M.oak, 0.05, drawer);
+  for (const sx of [-1, 1]) box(t, dh - 0.02, dd, sx * (dw / 2 - 0.02), y0 + dh / 2 - 0.005, fz - dd / 2, M.oak, drawer);
+  box(dw - 0.04, dh - 0.02, t, 0, y0 + dh / 2 - 0.005, fz - dd + t / 2, M.oak, drawer);
+  box(dw - 0.04, 0.008, dd, 0, y0 + 0.008, fz - dd / 2, M.oakH, drawer);
+  // a dark cavity behind the drawer, so the opening never shows through the table
+  box(dw, dh, 0.01, 0, y0 + dh / 2, fz - dd - 0.012, M.dark);
+  g.add(drawer);
+  for (const o of g.children) if (o.isMesh) o.userData.entity = "desk1";
+  drawer.traverse(o => { o.userData.entity = "desk1"; });
+  return { group: g, drawer, travel: dd * 0.7, cavity: new THREE.Vector3(0, y0 + 0.016, fz - dd / 2) };
+}
+
+// an iron key, about 11 cm: a looped bow, a round shank, a warded bit
+export function buildKey(THREE) {
+  // worn wrought iron: a dull grey-brown that still reads without an environment to reflect
+  const iron = new THREE.MeshStandardMaterial({ color: 0x6a6259, metalness: 0.45, roughness: 0.48 });
+  iron.userData.cls = "iron";
+  const g = new THREE.Group(), add = (geo) => { const m = new THREE.Mesh(geo, iron); m.castShadow = true; m.userData.entity = "key1"; g.add(m); };
+  const bow = new THREE.TorusGeometry(0.016, 0.0038, 10, 28); bow.rotateX(Math.PI / 2); bow.translate(-0.055, 0, 0); add(bow);
+  const shank = new THREE.CylinderGeometry(0.0032, 0.0034, 0.08, 12); shank.rotateZ(Math.PI / 2); shank.translate(0.001, 0, 0); add(shank);
+  const collar = new THREE.CylinderGeometry(0.0048, 0.0048, 0.006, 12); collar.rotateZ(Math.PI / 2); collar.translate(-0.036, 0, 0); add(collar);
+  for (const [w, d, x, z] of [[0.016, 0.02, 0.034, 0.01], [0.004, 0.012, 0.03, 0.016]]) { const b = new THREE.BoxGeometry(w, 0.003, d); b.translate(x, 0, z); add(b); }
+  // a hand's-width pick area round it, unseen: an 11 cm key is a small thing to put a pointer on
+  const pick = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.08), new THREE.MeshBasicMaterial({ visible: false }));
+  pick.userData.entity = "key1"; g.add(pick);
+  g.userData.entity = "key1";
+  return g;
 }
 
 // the kit's parts, for builders of more than one room (lab/house)

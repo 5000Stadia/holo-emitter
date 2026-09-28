@@ -39,7 +39,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 - [x] R29 The same room from its schematic with zero assets; P flips between the two; you approved the direction (`lab/painted/procedural-v1.js`, NOTES "The zero-asset build")
 - [~] R43 v2 of the code room: the twin's ranked critique applied (light matched to the paintings' percentiles, quieter materials with grime, the chimney-piece rebuilt in ashlar with carved relief); P cycles painted → v1 → v2 (NOTES "v2 of the zero-asset room")
 - [ ] R31 A real light bake for the code room: a path-traced "stand still" mode or baked lightmaps (NOTES "Not yet")
-- [ ] R35 The drawer and the hidden key working in the code room: a desk you open, a key you did not know was there until it is (blueprint §3; row 2's behaviour carried over)
+- [?] R35 The drawer and the hidden key working in the code room: a joined oak table with a drawer, built from code; the key exists for you only once the drawer is first opened; take it and you carry it; the room stays as you left it (the harness and world document of §3/§8; `lab/painted/muniment_room/world/`, tests `code-room.spec.mjs`)
 - [~] R44 The whole manor from its plan, in code: every room compiled from packs/manor with no per-room images, with each stage timed so real-time production can be planned (`lab/house/`)
 
 ## Later

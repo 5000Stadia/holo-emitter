@@ -27,6 +27,12 @@
   #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; z-index: 3; text-align: center; padding: 24px; }
   #status .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
   #status .s { margin-top: 12px; color: var(--ink-dim); }
+  #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(236,228,210,0.7); z-index: 1; pointer-events: none; }
+  #hint { position: fixed; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 4px 10px; z-index: 1; pointer-events: none; font-size: 12px; letter-spacing: 0.04em; }
+  #line { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 10px 16px; z-index: 1; pointer-events: none; font-family: "Josefin Sans", sans-serif; font-size: 16px; letter-spacing: 0.02em; line-height: 1.45; transition: opacity 0.6s; }
+  #held { position: fixed; right: 18px; bottom: 18px; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; z-index: 1; pointer-events: none; }
+  #held b { color: var(--brass); font-weight: 500; }
+  #cross[hidden], #hint[hidden], #line[hidden], #held[hidden] { display: none !important; }
   #ghost { position: fixed; inset: 0; pointer-events: none; background-size: cover; background-position: center; opacity: 0.5; z-index: 1; }
   @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } .note { display: none; } #gate { top: 70px; } }
 </style>
@@ -34,6 +40,10 @@
 <body>
 <div id="status"><div><div class="t">Muniment Room</div><div class="s" id="statusText">loading the room…</div></div></div>
 <div id="ghost" hidden></div>
+<div id="cross" hidden></div>
+<div id="hint" hidden></div>
+<div id="line" hidden></div>
+<div id="held" hidden></div>
 <div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
 <div class="hud">
   <div class="top">
@@ -43,13 +53,14 @@
   <div></div>
   <div class="bottom">
     <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride<br>
-      <kbd>1</kbd>–<kbd>4</kbd> stand where the N / E / S / W painting was painted from &nbsp; <kbd>G</kbd> ghost the painting over it<br><kbd>P</kbd> cycle: the paintings → zero assets v1 → zero assets v2</div>
+      <kbd>1</kbd>–<kbd>4</kbd> stand where the N / E / S / W painting was painted from &nbsp; <kbd>G</kbd> ghost the painting over it<br><kbd>P</kbd> cycle: the paintings → zero assets v1 → zero assets v2<br>click (or <kbd>E</kbd>) what is in front of you: the desk's drawer opens</div>
   </div>
 </div>
 <script>
   window.__fail = (why) => { const s = document.getElementById("status"); s.hidden = false; document.getElementById("statusText").innerHTML = why; };
   window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error: " + (e.message || e.type)); });
 </script>
+<script src="../../src/harness.js"></script>
 <script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 import * as THREE from "three";
@@ -59,7 +70,7 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { buildProcedural as buildV1 } from "./procedural-v1.js";
-import { buildProcedural as buildV2 } from "./procedural.js";
+import { buildProcedural as buildV2, buildDesk, buildKey } from "./procedural.js";
 
 // ?room=muniment_room (the folder beside this page that tools/paint-shell.py baked)
 const Q = new URLSearchParams(location.search);
@@ -209,6 +220,58 @@ const modeName = document.getElementById("modeName");
 const showMode = () => { modeName.textContent = mode === "painted" ? "the paintings, projected" : BUILDS[mode].label; };
 showMode();
 
+// ---- the world: the desk, the drawer and the key, as truth (world.json) driven by the harness (§8)
+const WK = `holo-emitter/${ROOM}/world`;
+const fx = {};
+for (const n of ["world", "staging", "narration", "viewstate"]) fx[n] = await (await fetch(`${base}world/${n}.json`)).json();
+try { if (!Q.has("fresh")) { const saved = localStorage.getItem(WK); if (saved) fx.world = JSON.parse(saved); } else localStorage.removeItem(WK); } catch (_) {}
+const harness = window.HOLO.harness.create(fx);
+const W2 = BUILDS.v2.code, spot = fx.staging.code_room.desk1;
+const desk = buildDesk(THREE, W2.kit);
+{ // stand the desk against its wall, in that wall's frame (as the walls are placed)
+  const PLACE = { N: [[0, 0, -D], 0], S: [[W, 0, 0], Math.PI], E: [[W, 0, -D], -Math.PI / 2], W: [[0, 0, 0], Math.PI / 2] }[spot.wall];
+  const holder = new THREE.Group(); holder.position.set(...PLACE[0]); holder.rotation.y = PLACE[1];
+  desk.group.position.set(spot.r, 0, 0.04); holder.add(desk.group); W2.scene.add(holder);
+}
+const known = (id) => harness.world.knowledge.player.includes(id);
+const heldByMe = (id) => harness.world.relations.some(r => r[0] === "held_by" && r[1] === id && r[2] === "player");
+const stateOf = (id) => harness.world.entities.find(e => e.id === id).state;
+let key = null, drawerAt = stateOf("desk1") === "open" ? 1 : 0, drawerTo = drawerAt;
+const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); key.position.copy(desk.cavity); key.rotation.y = 0.35; desk.drawer.add(key); };
+const heldEl = document.getElementById("held"), lineEl = document.getElementById("line");
+const showHeld = () => { const items = harness.world.relations.filter(r => r[0] === "held_by" && r[2] === "player").map(r => r[1]); heldEl.hidden = !items.length; heldEl.innerHTML = "you carry: " + items.map(i => `<b>${{ key1: "an iron key" }[i] || i}</b>`).join(", "); };
+let lineTimer = null;
+const say = (text) => { if (!text) return; lineEl.textContent = text; lineEl.hidden = false; lineEl.style.opacity = 1; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.style.opacity = 0; setTimeout(() => { lineEl.hidden = true; }, 700); }, 4200); };
+placeKey(); showHeld();
+// the picture is a projection of the document: after any change, re-derive what is drawn from the world
+function project() {
+  drawerTo = stateOf("desk1") === "open" ? 1 : 0;
+  if (known("key1") && !heldByMe("key1")) placeKey();                      // the key exists for you only now
+  if (heldByMe("key1") && key) { key.parent.remove(key); key = null; }
+  showHeld();
+  try { localStorage.setItem(WK, JSON.stringify(harness.world)); } catch (_) {}
+}
+harness.subscribe(project);
+const dispatch = (intent) => { const env = harness.dispatch(intent); say(env.narration); return env; };
+window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray(), parent: key.parent && key.parent.type, children: key.children.length } : null;
+window.__world = () => JSON.parse(JSON.stringify(harness.world));
+window.__dispatch = (intent) => dispatch(intent);
+// what the eye is on: a ray from the eye (the crosshair, or the pointer when dragging), 2.3 m long
+const ray = new THREE.Raycaster(); ray.far = 2.3;
+const pickables = () => [desk.group, ...(key ? [key] : [])];
+function aimAt(ndc) {
+  if (mode !== "v2") return null;
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(pickables(), true)[0];
+  if (!hit) return null;
+  let o = hit.object; while (o && !o.userData.entity) o = o.parent;
+  return o ? o.userData.entity : null;
+}
+const intentFor = (id) => id === "key1" ? { type: "take", entity: "key1" } : id === "desk1" ? { type: "toggle", entity: "desk1" } : null;
+const hintFor = (id) => id === "key1" ? "take the key" : id === "desk1" ? (stateOf("desk1") === "open" ? "close the drawer" : "open the drawer") : "";
+function act(ndc) { const id = aimAt(ndc); const it = intentFor(id); if (it) dispatch(it); return !!it; }
+window.__act = (x = 0, y = 0) => act(new THREE.Vector2(x, y));
+
 // where each painting was painted from, in room metres (from the bake's cameras)
 const cams = shell.cameras;
 function paintingPose(F) {
@@ -247,7 +310,21 @@ document.addEventListener("pointerlockchange", () => { gate.hidden = document.po
 const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); pose = null; ghost.hidden = true; };
 document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
 let drag = null;
-renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
+let downAt = null;
+renderer.domElement.addEventListener("pointerdown", e => {
+  downAt = { x: e.clientX, y: e.clientY };
+  if (document.pointerLockElement === renderer.domElement) { act(new THREE.Vector2(0, 0)); return; }
+  drag = { x: e.clientX, y: e.clientY };
+  if (e.pointerType === "mouse" && !aimAt(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1))) lock();
+});
+renderer.domElement.addEventListener("pointerup", e => {
+  if (downAt && document.pointerLockElement !== renderer.domElement && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 5)
+    act(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
+  downAt = null;
+});
+let hoverNdc = new THREE.Vector2(0, 0);
+renderer.domElement.addEventListener("mousemove", e => { if (document.pointerLockElement !== renderer.domElement) hoverNdc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
+addEventListener("keydown", e => { if (e.code === "KeyE" || e.code === "Enter") act(document.pointerLockElement === renderer.domElement ? new THREE.Vector2(0, 0) : hoverNdc); });
 renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
 addEventListener("pointerup", () => { drag = null; });
 renderer.domElement.style.touchAction = "none";
@@ -353,6 +430,12 @@ function step(now) {
   camera.updateProjectionMatrix();
   camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (frozen) { requestAnimationFrame(step); return; }
+  drawerAt += (drawerTo - drawerAt) * Math.min(1, dt * 7);
+  desk.drawer.position.z = drawerAt * desk.travel;
+  { const locked = document.pointerLockElement === renderer.domElement;
+    document.getElementById("cross").hidden = !(locked && mode === "v2");
+    const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");
+    hEl.hidden = !h; hEl.textContent = h; }
   if (mode !== "painted") { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE; composer.render(); }
   else { renderer.toneMapping = THREE.NoToneMapping; renderer.render(scene, camera); }
   if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }

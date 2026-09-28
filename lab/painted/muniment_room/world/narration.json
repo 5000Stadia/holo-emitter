@@ -1,0 +1,19 @@
+{
+ "schema": "holo-emitter-narration/0.1",
+ "lines": {
+  "toggle.desk1.open_reveal": "The drawer resists, then gives. Inside, an iron key.",
+  "toggle.desk1.open": "The drawer slides out along its runners, easy with long use.",
+  "toggle.desk1.closed": "You press the drawer home, and it seats with a soft knock of oak on oak.",
+  "toggle.desk1.refused_unreachable": "The desk is beyond your reach from where you stand.",
+  "toggle.key1.refused_static": "The key holds no working of its own; it is made for a lock, not to be one.",
+  "take.key1.taken": "You take the iron key. It is cold, and lighter than it looks.",
+  "take.key1.refused_held": "The iron key is already in your keeping.",
+  "take.key1.refused_unreachable": "The key is not within reach of your hand from here.",
+  "take.key1.refused_contained": "The drawer is shut over the key; it must be opened again first.",
+  "take.desk1.refused_fixed": "The desk is heavy joined oak, pegged at every corner; it will not be carried.",
+  "toggle.*.refused_unknown": "Nothing of that description offers itself to your hand.",
+  "take.*.refused_unknown": "You reach, and your hand closes on nothing of the sort.",
+  "go.*.refused_unknown": "No such passage is to be found; the walls keep their counsel.",
+  "turn.*.refused": "The room offers no other aspect; you face all there is to face."
+ }
+}
