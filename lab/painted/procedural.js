@@ -106,7 +106,7 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
   const w = Math.round(W * ppm), h = Math.round(D * ppm), r = rng(7);
   const rows = []; let y = 0;
   while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = periodic ? r() * 1.8 : -r() * 2.2;
-    while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.72 + r() * 0.4 }); x += 1.3 + r() * 1.9; }
+    while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.72 + r() * 0.4, sc: 0.65 + r() * 0.7, ac: 0.12 + r() * 0.16 }); x += 1.3 + r() * 1.9; }
     rows.push({ y0: y, y1: Math.min(D, y + bw), joints }); y += bw; }
   if (periodic) {   // a tile: the rows fill D exactly; each row's boards wrap round the tile's edge, so no joint lines up
     const k = D / rows[rows.length - 1].y1; let acc = 0;
@@ -128,7 +128,7 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
         const wrap = periodic && X < b.joints[0].x, J = wrap ? b.joints[b.joints.length - 1] : b.joints[j];
         const Xg = wrap ? X + W : X;
         // sample the oak tile with the grain along X
-        const su = mod(Math.floor((across * 0.19 + J.rot) * N), N), sv = mod(Math.floor((Xg + J.off) * N * 0.7), N);
+        const su = mod(Math.floor((across * J.ac + J.rot) * N), N), sv = mod(Math.floor((Xg + J.off) * N * 0.7 * J.sc), N);
         const s = (sv * N + su) * 3;
         const edge = Math.min(across, 1 - across) * (b.y1 - b.y0), jd = Math.abs(Xg - J.x);
         const gap = (edge < 0.0022 ? 0.25 : edge < 0.004 ? 0.7 : 1) * (jd < 0.0022 ? 0.3 : 1);
@@ -250,7 +250,7 @@ function leadedTexture(THREE, wM, hM, shield, seed) {
   const c = document.createElement("canvas"); c.width = w; c.height = h;
   const g = c.getContext("2d"), r = rng(seed);
   const grad = g.createLinearGradient(0, 0, 0, h);            // v2: crown glass is hazy, not white
-  grad.addColorStop(0, "rgba(236,240,232,0.30)"); grad.addColorStop(1, "rgba(214,224,208,0.38)");
+  grad.addColorStop(0, "rgba(236,240,232,0.16)"); grad.addColorStop(1, "rgba(214,224,208,0.2)");
   g.fillStyle = grad; g.fillRect(0, 0, w, h);
   // each quarry a slightly different glass
   for (let j = -1; j < hM / qh * 2 + 2; j++) for (let i = -1; i < wM / qw + 2; i++) {
@@ -288,8 +288,8 @@ function outsideTexture(THREE) {
       const ridge = 0.5 + 0.07 * (fbm(u * 6, 0.5, 6, 1, 4, 301) - 0.5) * 4;       // the tree line's top edge
       let r, g2, b;
       if (v < ridge) { const k = v / ridge; r = 200 - 40 * k; g2 = 214 - 30 * k; b = 226 - 34 * k; }     // sky, hazed toward the horizon
-      else if (v < 0.66) { const m = fbm(u * 30, v * 20, 30, 20, 3, 303); r = 58 + 30 * m; g2 = 74 + 34 * m; b = 58 + 22 * m; }  // trees
-      else { const m = fbm(u * 12, v * 24, 12, 24, 3, 307); r = 104 + 30 * m; g2 = 126 + 30 * m; b = 78 + 18 * m; }            // lawn
+      else if (v < 0.66) { const m = fbm(u * 30, v * 20, 30, 20, 3, 303); r = 40 + 26 * m; g2 = 54 + 30 * m; b = 42 + 18 * m; }  // trees: the one value break that must read
+      else { const m = fbm(u * 12, v * 24, 12, 24, 3, 307); r = 82 + 26 * m; g2 = 100 + 26 * m; b = 62 + 16 * m; }             // lawn
       const haze = 0.18; d[o] = r * (1 - haze) + 214 * haze; d[o + 1] = g2 * (1 - haze) + 222 * haze; d[o + 2] = b * (1 - haze) + 226 * haze; d[o + 3] = 255;
     }
   }, { repeat: false });
@@ -481,7 +481,7 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
   const M = {
     oak: grime(THREE, new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
     oakH: grime(THREE, new THREE.MeshStandardMaterial({ ...oakH, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
-    oakDim: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.7, color: 0x6a6a6a, vertexColors: true, emissive: 0x160d07, emissiveIntensity: 1 }),
+    oakDim: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.7, color: 0x6a6a6a, vertexColors: true, emissive: 0x0a0604, emissiveIntensity: 1 }),
   };
   onStep("laying the floor");
   await new Promise(r => setTimeout(r));
@@ -503,7 +503,9 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
   // give a geometry its own cut of the timber (a UV shift) and its own tone (vertex colour)
   const board = (g, spread = 0.22) => {
     const uv = g.attributes.uv, du = vr() * 5, dv = vr() * 5;
-    if (uv) for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) + du, uv.getY(i) + dv);
+    // each member its own cut: grain phase, grain scale across and along, and a slight slope of the grain
+    const su = 0.75 + vr() * 0.55, sv = 0.8 + vr() * 0.5, slope = (vr() - 0.5) * 0.08;
+    if (uv) for (let i = 0; i < uv.count; i++) { const x = uv.getX(i), y = uv.getY(i); uv.setXY(i, x * su + y * slope + du, y * sv + dv); }
     const k = 1 - spread / 2 + vr() * spread, warm = 1 + (vr() - 0.5) * 0.08;
     const n = g.attributes.position.count, c = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) { c[i * 3] = k * warm; c[i * 3 + 1] = k; c[i * 3 + 2] = k / warm; }
@@ -626,7 +628,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         add(quad(THREE, [e.r1, 0, -T - P], [e.r1, 0, -T], [e.r1, t, -T], [e.r1, t, -T - P]), M.oakDim);
         add(quad(THREE, [e.r0, t, -T], [e.r0, t, -T - P], [e.r1, t, -T - P], [e.r1, t, -T]), M.oakDim);
         add(quad(THREE, [e.r0, 0.001, -T - P], [e.r0, 0.001, -T], [e.r1, 0.001, -T], [e.r1, 0.001, -T - P]), M.floor);
-        add(quad(THREE, [e.r0, 0, -T - P], [e.r1, 0, -T - P], [e.r1, t, -T - P], [e.r0, t, -T - P]), M.oakDim);
+        K.farWall = K.farWall || new THREE.MeshStandardMaterial({ map: M.oak.map, roughness: 0.8, vertexColors: true, color: 0x7a7a7a, emissive: 0x2a1c12 });
+        add(quad(THREE, [e.r0, 0, -T - P], [e.r1, 0, -T - P], [e.r1, t, -T - P], [e.r0, t, -T - P]), K.farWall);
         // a dark sleeve just outside the lining and passage, so their shared edges never open onto nothing
         ctx = e.id + "/sleeve";
         { const g = new THREE.BoxGeometry(e.r1 - e.r0 + 0.08, t + 0.08, T + P + 0.04); g.translate((e.r0 + e.r1) / 2, t / 2, -(T + P) / 2 - 0.01);
@@ -653,7 +656,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         const lightsIn = [[gx0, mx - mw, ty + mw, gy1, 1], [mx + mw, gx1, ty + mw, gy1, 2], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
-          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.1, 1.08, 1.0), transparent: true, depthWrite: false });
+          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
