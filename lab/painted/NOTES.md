@@ -64,7 +64,7 @@ between the two; the `1`–`4` poses work in both. `compare-painted-vs-code.jpg`
 shows four matched views, painted on the left and code on the right.
 
 What the library is:
-- **Schematic** (1.9 KB): the room's size, plus each wall's elements (chimney-piece,
+- **Schematic** (1.2 KB): the room's size, plus each wall's elements (chimney-piece,
   doors, windows) in metres in that wall's own frame.
 - **Style** (`STYLE` in procedural.js, a few hundred bytes): the heights of skirting,
   dado, frieze and cornice; stile, rail and bay widths; and the profiles, each a list
@@ -87,7 +87,7 @@ What the library is:
   matches the paintings at the painting poses.
 
 Build time in the browser: about 2.5 s, most of it growing the oak. Size:
-procedural.js is about 30 KB of code, and nothing else is fetched.
+procedural.js is about 35 KB of code, and nothing else is fetched.
 
 Not yet: a real light bake. Indirect light is a fill, not computed, so corners
 and undersides are brighter and flatter than the paintings. The fireplace is
