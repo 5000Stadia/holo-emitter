@@ -354,6 +354,9 @@ window.__packet = async (F, scale = 1) => {
   // beauty_lit: the build as it is, fixed exposure, no UI
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE;
   composer.render(); out.passes.beauty_lit = shot();
+  // the painted shell from the very same camera, for zone-by-zone comparison (tools/zones.mjs)
+  renderer.toneMapping = THREE.NoToneMapping; renderer.render(scene, camera); out.passes.painted = shot();
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
   // beauty_neutral: soft even light, no cast shadows, no AO
   const keep = { ...LV }, hemi = code.lights.hemi, hc = [hemi.color.clone(), hemi.groundColor.clone()];
   setLights({ ...Object.fromEntries(Object.keys(LV).map(k => [k, 0])), fill: Math.PI });

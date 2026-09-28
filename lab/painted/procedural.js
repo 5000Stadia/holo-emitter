@@ -78,9 +78,10 @@ function oakField(N) {
     const i = (y * N + x) * 3;
     // dark English oak, aged: warm brown; fleck paler, a touch of gold
     // sRGB fractions: aged dark oak, olive-brown more than red, about (84, 59, 36)
-    A[i] = 0.33 * k + fleck * 0.07;
-    A[i + 1] = 0.232 * k + fleck * 0.055;
-    A[i + 2] = 0.14 * k + fleck * 0.03;
+    // (zone-matched: the panelling read 15-50 % bright against the painting; this is 0.84 of the first pass)
+    A[i] = 0.277 * k + fleck * 0.06;
+    A[i + 1] = 0.195 * k + fleck * 0.046;
+    A[i + 2] = 0.118 * k + fleck * 0.025;
     H[y * N + x] = -late * 0.35 + fibre * 0.2 + fleck * 0.15;
   }
   return { A, H, N };
@@ -133,9 +134,12 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
         const gap = (edge < 0.0022 ? 0.25 : edge < 0.004 ? 0.7 : 1) * (jd < 0.0022 ? 0.3 : 1);
         const wear = 1 + 0.12 * Math.exp(-Math.pow((Y - D * 0.45) / 1.1, 2)) * Math.exp(-Math.pow((X - W * 0.5) / 1.6, 2));
         const k = J.tone * gap * wear, o = (py * w + px) * 4;
-        d[o] = Math.min(255, oak.A[s] * 1.05 * k * 255);
-        d[o + 1] = Math.min(255, oak.A[s + 1] * 1.0 * k * 255);
-        d[o + 2] = Math.min(255, oak.A[s + 2] * 0.95 * k * 255);
+        // the floor is the same oak, worn lighter and waxed: the painting's boards sit well above its panelling
+        // ...and greyed by wear and dust: pulled a third of the way toward its own grey
+        const fr = oak.A[s] * 1.9 * k, fg = oak.A[s + 1] * 1.85 * k, fb = oak.A[s + 2] * 1.8 * k, fy = 0.3 * fr + 0.55 * fg + 0.15 * fb;
+        d[o] = Math.min(255, (fr * 0.64 + fy * 0.36) * 255);
+        d[o + 1] = Math.min(255, (fg * 0.64 + fy * 0.36) * 255);
+        d[o + 2] = Math.min(255, (fb * 0.64 + fy * 0.36) * 255);
         d[o + 3] = 255;
         H[py * w + px] = gap < 1 ? -1.2 : oak.H[sv * N + su] * 0.4;
       }
@@ -463,7 +467,7 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
   const M = {
     oak: grime(THREE, new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
     oakH: grime(THREE, new THREE.MeshStandardMaterial({ ...oakH, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
-    oakDim: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.7, color: 0x6a6a6a, vertexColors: true }),
+    oakDim: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.7, color: 0x6a6a6a, vertexColors: true, emissive: 0x160d07, emissiveIntensity: 1 }),
   };
   onStep("laying the floor");
   await new Promise(r => setTimeout(r));
@@ -781,13 +785,16 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   const hemi = new THREE.HemisphereLight(0x9a8a78, 0x2a1a0e, 0.35); scene.add(hemi);
   const bounce = new THREE.PointLight(0xffc890, 0, 7, 1.6); bounce.position.set(W / 2, 1.0, -1.2); scene.add(bounce);
   const area = (color, w, h, pos, look) => { const l = new THREE.RectAreaLight(color, 1, w, h); l.position.set(...pos); l.lookAt(...look); scene.add(l); return l; };
-  const floorB = area(0xffcf9a, W * 0.9, D * 0.9, [W / 2, 0.03, -D / 2], [W / 2, 5, -D / 2]);
-  const patchB = area(0xffd6a0, 3.0, 1.0, [W / 2, 0.04, -0.9], [W / 2, 5, -0.9]);
-  const ceilB = area(0xfff0dd, W * 0.8, D * 0.8, [W / 2, H - 0.03, -D / 2], [W / 2, -5, -D / 2]);
-  const northB = area(0xffd2a0, W * 0.8, H * 0.6, [W / 2, H * 0.45, -D + 0.08], [W / 2, H * 0.45, 5]);
-  const apply = (lv) => { floorB.intensity = lv.floorB; patchB.intensity = lv.patchB; ceilB.intensity = lv.ceilB; northB.intensity = lv.northB; };
+  // each is named for the surface that GIVES the light back, and faces away from it:
+  const floorB = area(0xffcf9a, W * 0.9, D * 0.9, [W / 2, 0.03, -D / 2], [W / 2, 5, -D / 2]);         // the floor's bounce: lights the ceiling
+  const patchB = area(0xffd6a0, 3.0, 1.0, [W / 2, 0.04, -0.9], [W / 2, 5, -0.9]);                  // the sunlit patch: lights ceiling and south wall
+  const ceilB = area(0xfff0dd, W * 0.8, D * 0.8, [W / 2, H - 0.03, -D / 2], [W / 2, -5, -D / 2]);   // the ceiling's bounce: lights the floor
+  const northB = area(0xffd2a0, W * 0.8, H * 0.6, [W / 2, H * 0.45, -D + 0.08], [W / 2, H * 0.45, 5]);  // the north wall's bounce: lights the south
+  const southFill = area(0xffd8aa, W * 0.6, 1.3, [W / 2, 1.1, -1.5], [W / 2, 1.1, -10]);            // the sunlit floor's glow, carried north: the far wall and the fire
+  const apply = (lv) => { floorB.intensity = lv.floorB; patchB.intensity = lv.patchB; ceilB.intensity = lv.ceilB; northB.intensity = lv.northB; southFill.intensity = lv.southFill ?? 0; };
   // levels matched to the paintings' luminance percentiles (p10 / p50 / p90) at the four painting poses
-  const defaults = { sun: 1.7, sky: 7, fill: 0.3, bounce: 0, floorB: 1.2, patchB: 1.8, ceilB: 0.22, northB: 0.45 };
+  // zone-matched (tools/zones.mjs): floor was a fifth of the painting's value, the south ceiling half again too bright
+  const defaults = { sun: 1.7, sky: 4.2, fill: 0.3, bounce: 0, floorB: 1.0, patchB: 0.3, ceilB: 1.5, northB: 0.25, southFill: 1.0 };
 
   return { scene, kit: K, lights: { sun, hemi, bounce, areas: lights, apply }, defaults,
     gtao: { radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 }, gtaoBlend: 1.0,

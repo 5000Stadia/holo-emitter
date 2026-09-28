@@ -164,3 +164,34 @@ v1 is frozen in `procedural-v1.js`, exactly as first shown for grading. v2 lives
    bosses and a deeper shelf.
 
 `compare-painted-v1-v2.jpg` shows painted, v1 and v2, in four matched views.
+
+# Zone-matched light (tools/zones.mjs)
+
+`node tools/zones.mjs muniment_room --code v2` renders the painted shell and
+the code room from each painting's exact camera. It splits every view into
+zones using the code room's own instance IDs: ceiling, target wall, left and
+right returns, floor near and far, windows, doors, fireplace. It then compares
+low-pass luminance per zone and writes `zones/v2/zones.json` and `zones.png`
+(red = code too bright, blue = too dark).
+
+What it found that the eye had not:
+- The floor was a fifth of the painting's value.
+- The bounce rig was named backwards: the light called "ceiling bounce" hangs at
+  the ceiling facing down, so it lights the floor. It was being dimmed to calm the
+  ceiling.
+- The walls sat 15–50 % bright, a material fault, not a light one: the oak is
+  now 0.84 of the first pass, and the floorboards are lighter and greyed.
+
+Code-to-painted ratios now (1.0 = a match):
+
+| pose | ceiling | target wall | left return | right return | doors | fireplace | floor near/far |
+|---|---|---|---|---|---|---|---|
+| N | 0.89 | 1.00 | 1.03 | 0.66 | – | 1.04 | 0.84 / 1.28 |
+| E | 0.89 | 0.99 | 0.74 | 0.65 | 0.98 | 0.96 | 0.92 / 0.98 |
+| S | 1.15 | 1.14 | 1.47 | 0.80 | – | – | 1.22 / 1.49 |
+| W | 0.94 | 1.29 | 0.76 | 0.53 | 0.89 | 0.63 | 1.04 / 1.28 |
+
+The residue is pose-dependent: the same wall reads bright from one side and
+dark from the other. Part of that is the four paintings disagreeing with each
+other, since each was lit on its own. The next gain is a proper light bake,
+not more hand levels.

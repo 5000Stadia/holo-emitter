@@ -6,3 +6,4 @@ __pycache__/
 backdrops/served.building-*/
 .venv-shell/
 lab/painted/*/packet/
+lab/painted/*/zones/
