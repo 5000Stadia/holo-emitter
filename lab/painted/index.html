@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Muniment Room · Painted Shell</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --ink: #ece4d2; --ink-dim: #a89e88; --panel: rgba(22, 19, 16, 0.72); --line: rgba(236, 228, 210, 0.2); --brass: #c9a961; }
+  html, body { height: 100%; margin: 0; background: #0c0a08; color: var(--ink); overflow: hidden;
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
+  canvas { display: block; }
+  .hud { position: fixed; inset: 0; pointer-events: none; display: grid; grid-template-rows: auto 1fr auto; padding: 18px; gap: 12px; }
+  .top, .bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .bottom { align-items: flex-end; }
+  .room { background: var(--panel); border: 1px solid var(--line); padding: 12px 16px 10px; }
+  .room .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); }
+  .room .name { font-family: "Josefin Sans", sans-serif; font-weight: 600; font-size: 24px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; color: var(--brass); }
+  .keys { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); line-height: 1.8; }
+  .keys kbd { font-family: inherit; color: var(--ink); border: 1px solid var(--line); padding: 0 5px; border-radius: 2px; }
+  .note { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); max-width: 42ch; line-height: 1.55; }
+  .note b { color: var(--ink); font-weight: 500; }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
+  #gate .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #gate .s { margin-top: 4px; color: var(--ink-dim); }
+  #gate[hidden], #status[hidden], #ghost[hidden] { display: none !important; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; z-index: 3; text-align: center; padding: 24px; }
+  #status .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #status .s { margin-top: 12px; color: var(--ink-dim); }
+  #ghost { position: fixed; inset: 0; pointer-events: none; background-size: cover; background-position: center; opacity: 0.5; z-index: 1; }
+  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } .note { display: none; } #gate { top: 70px; } }
+</style>
+</head>
+<body>
+<div id="status"><div><div class="t">Muniment Room</div><div class="s" id="statusText">loading the room…</div></div></div>
+<div id="ghost" hidden></div>
+<div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
+<div class="hud">
+  <div class="top">
+    <div class="room"><div class="eyebrow">you are in</div><div class="name">Muniment Room</div></div>
+    <div class="note" id="note"></div>
+  </div>
+  <div></div>
+  <div class="bottom">
+    <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride<br>
+      <kbd>1</kbd>–<kbd>4</kbd> stand where the N / E / S / W painting was painted from &nbsp; <kbd>G</kbd> ghost the painting over it</div>
+  </div>
+</div>
+<script>
+  window.__fail = (why) => { const s = document.getElementById("status"); s.hidden = false; document.getElementById("statusText").innerHTML = why; };
+  window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error: " + (e.message || e.type)); });
+</script>
+<script type="importmap">{"imports": {"three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"}}</script>
+<script type="module">
+import * as THREE from "three";
+
+// ?room=muniment_room (the folder beside this page that tools/paint-shell.py baked)
+const Q = new URLSearchParams(location.search);
+const ROOM = Q.get("room") || "muniment_room";
+const base = `./${ROOM}/`;
+const shell = await (await fetch(base + "shell.json")).json();
+const { w: W, d: D, h: H } = shell.room_m;
+const EYE = 1.5, T = 0.22, PASSAGE = 1.6;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NoToneMapping;       // the paintings already carry their light: show them as painted
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0c0a08);
+const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 60);
+
+const loader = new THREE.TextureLoader();
+const aniso = renderer.capabilities.getMaxAnisotropy();
+const tex = (f) => new Promise((ok, bad) => loader.load(base + f, t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; ok(t); }, undefined, bad));
+const painted = (t) => new THREE.MeshBasicMaterial({ map: t });
+const flat = (rgb) => new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, THREE.SRGBColorSpace) });
+
+// plan metres: X east, Y north. three: x = X, z = -Y, y up.
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), painted(await tex(shell.floor.tex)));
+floor.rotation.x = -Math.PI / 2; floor.position.set(W / 2, 0, -D / 2); scene.add(floor);
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, D), painted(await tex(shell.ceiling.tex)));
+ceil.rotation.x = Math.PI / 2; ceil.position.set(W / 2, H, -D / 2); scene.add(ceil);
+
+// each wall is built in its own frame: r along the wall from the painting's left corner, up is up,
+// the painted face toward the room; then turned and set in place
+const PLACE = {
+  N: { pos: [0, 0, -D], rot: 0 },
+  S: { pos: [W, 0, 0], rot: Math.PI },
+  E: { pos: [W, 0, -D], rot: -Math.PI / 2 },
+  W: { pos: [0, 0, 0], rot: Math.PI / 2 },
+};
+for (const [F, wall] of Object.entries(shell.walls)) {
+  const L = wall.width_m;
+  const wallTex = await tex(wall.tex);
+  const reliefs = (wall.reliefs || []).map(r => ({ ...r, a: r.u0 * L, b: r.u1 * L, z0: r.v0 * H, z1: r.v1 * H }));
+  const ops = wall.openings.map(o => ({ ...o, a: o.u0 * L, b: o.u1 * L, t: o.top * H })).sort((p, q) => p.a - q.a);
+  // how far proud of the wall an opening's mouth stands: the relief it is cut through, if any
+  for (const o of ops) o.front = Math.max(0, ...reliefs.filter(r => r.z0 === 0 && r.a <= o.a && r.b >= o.b).map(r => r.depth));
+  // a rectangle [a,b]x[z0,z1] in the wall's frame, notched by every floor-standing opening inside it,
+  // UV'd so it shows the wall painting exactly where it stands
+  const panel = (a, b, z0, z1) => {
+    const s = new THREE.Shape(); s.moveTo(a, z0);
+    if (z0 === 0) for (const o of ops) if (o.a >= a && o.b <= b) { s.lineTo(o.a, 0); s.lineTo(o.a, o.t); s.lineTo(o.b, o.t); s.lineTo(o.b, 0); }
+    s.lineTo(b, z0); s.lineTo(b, z1); s.lineTo(a, z1); s.lineTo(a, z0);
+    const g = new THREE.ShapeGeometry(s);
+    const uv = g.attributes.uv, p = g.attributes.position;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / L, p.getY(i) / H);
+    return new THREE.Mesh(g, painted(wallTex));
+  };
+  const grp = new THREE.Group();
+  grp.add(panel(0, L, 0, H));
+  const add = (geo, mat, x, y, z, ry = 0, rx = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); grp.add(m); };
+  // reliefs stand proud: the painting on their face, their own paint on their sides and top
+  for (const r of reliefs) {
+    const face = panel(r.a, r.b, r.z0, r.z1); face.position.z = r.depth; grp.add(face);
+    const tp = flat(r.top_rgb), h = r.z1 - r.z0, w = r.b - r.a;
+    // a side is the face's own edge strip of paint, drawn back into the wall and dimmed as a turned face is
+    const side = (x, inward, ry) => {
+      const g = new THREE.PlaneGeometry(r.depth, h), uv = g.attributes.uv;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, (x + inward * 0.04 * uv.getX(i)) / L, (r.z0 + uv.getY(i) * h) / H);
+      const m = new THREE.MeshBasicMaterial({ map: wallTex, color: new THREE.Color(0.55, 0.55, 0.55) });
+      add(g, m, x, r.z0 + h / 2, r.depth / 2, ry);
+    };
+    side(r.a, 1, -Math.PI / 2);
+    side(r.b, -1, Math.PI / 2);
+    add(new THREE.PlaneGeometry(w, r.depth), tp, r.a + w / 2, r.z1, r.depth / 2, 0, -Math.PI / 2);
+    if (r.z0 > 0) add(new THREE.PlaneGeometry(w, r.depth), flat(r.side_rgb.map(v => v * 0.6)), r.a + w / 2, r.z0, r.depth / 2, 0, Math.PI / 2);
+  }
+  if (wall.hearth) {
+    const hw = (wall.hearth.u1 - wall.hearth.u0) * L, hd = wall.hearth.out_m + 0.12;
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(hw, hd), painted(await tex(wall.hearth.tex)));
+    top.rotation.x = -Math.PI / 2; top.position.set(wall.hearth.u0 * L + hw / 2, 0.03, hd / 2); grp.add(top);
+    const lip = new THREE.Mesh(new THREE.PlaneGeometry(hw, 0.03), flat([30, 26, 21]));
+    lip.position.set(wall.hearth.u0 * L + hw / 2, 0.015, hd); grp.add(lip);
+    for (const [x, ry] of [[wall.hearth.u0 * L, -Math.PI / 2], [wall.hearth.u0 * L + hw, Math.PI / 2]]) {
+      const e = new THREE.Mesh(new THREE.PlaneGeometry(hd, 0.03), flat([30, 26, 21])); e.position.set(x, 0.015, hd / 2); e.rotation.y = ry; grp.add(e);
+    }
+  }
+  for (const o of ops) {
+    const wd = o.b - o.a, rv = flat(o.reveal_rgb), dark = flat(o.reveal_rgb.map(v => v * 0.35));
+    const deep = o.kind === "recess" ? o.depth : T + PASSAGE, zf = o.front, zb = zf - deep;
+    const mid = (zf + zb) / 2, len = zf - zb;
+    // jambs and head through the wall (and any relief), in the frame's own colour; beyond a door, a dark passage
+    add(new THREE.PlaneGeometry(len, o.t), o.kind === "recess" ? rv : dark, o.a, o.t / 2, mid, Math.PI / 2);
+    add(new THREE.PlaneGeometry(len, o.t), o.kind === "recess" ? rv : dark, o.b, o.t / 2, mid, -Math.PI / 2);
+    add(new THREE.PlaneGeometry(wd, len), o.kind === "recess" ? rv : dark, o.a + wd / 2, o.t, mid, 0, Math.PI / 2);
+    add(new THREE.PlaneGeometry(wd, len), dark, o.a + wd / 2, 0.001, mid, 0, -Math.PI / 2);
+    if (o.kind !== "recess") {
+      add(new THREE.PlaneGeometry(T, o.t), rv, o.a + 0.001, o.t / 2, -T / 2, Math.PI / 2);
+      add(new THREE.PlaneGeometry(T, o.t), rv, o.b - 0.001, o.t / 2, -T / 2, -Math.PI / 2);
+    }
+    // at the far end, what the painting showed through the opening, enlarged to fill the same angle
+    const k = 1 + deep / 4;
+    add(new THREE.PlaneGeometry(wd * k, o.t * k), painted(await tex(o.beyond)), o.a + wd / 2, o.t * k / 2, zb + 0.002);
+  }
+  grp.position.set(...PLACE[F].pos); grp.rotation.y = PLACE[F].rot;
+  scene.add(grp);
+}
+
+// where each painting was painted from, in room metres (from the bake's cameras)
+const cams = shell.cameras;
+function paintingPose(F) {
+  const c = cams[F];
+  const L = F === "N" || F === "S" ? W : D;
+  let X, Y, yaw;
+  if (F === "N") { X = c.rcam; Y = D - c.d; yaw = 0; }
+  if (F === "S") { X = W - c.rcam; Y = c.d; yaw = Math.PI; }
+  if (F === "E") { X = W - c.d; Y = D - c.rcam; yaw = -Math.PI / 2; }
+  if (F === "W") { X = c.d; Y = c.rcam; yaw = Math.PI / 2; }
+  return { X, Y, yaw, e: c.e, vfov: 2 * Math.atan(512 / c.f) * 180 / Math.PI };
+}
+
+// the walker
+let px = W / 2, py = 1.2, yaw = 0, pitch = 0, pose = null;
+// ?x=&y=&yaw=&pitch= (metres, degrees; yaw 0 = north, 90 = west) opens the page placed, for grading links
+if (Q.get("x")) px = +Q.get("x"); if (Q.get("y")) py = +Q.get("y");
+if (Q.get("yaw")) yaw = +Q.get("yaw") * Math.PI / 180; if (Q.get("pitch")) pitch = +Q.get("pitch") * Math.PI / 180;
+window.__place = (x, y, yd, pd = 0) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; pose = null; };
+const keys = {};
+const inside = (x, y) => x > 0.3 && x < W - 0.3 && y > 0.3 && y < D - 0.3;
+const ghost = document.getElementById("ghost");
+addEventListener("keydown", e => {
+  keys[e.code] = true;
+  const F = { Digit1: "N", Digit2: "E", Digit3: "S", Digit4: "W" }[e.code];
+  if (F) { pose = paintingPose(F); pose.F = F; px = pose.X; py = pose.Y; yaw = pose.yaw; pitch = 0;
+    ghost.style.backgroundImage = `url(../../${shell.source}/${F}.png)`; }
+  if (e.code === "KeyG" && pose) ghost.hidden = !ghost.hidden;
+});
+addEventListener("keyup", e => { keys[e.code] = false; });
+const gate = document.getElementById("gate");
+const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
+gate.addEventListener("click", lock);
+document.addEventListener("pointerlockchange", () => { gate.hidden = document.pointerLockElement === renderer.domElement; });
+const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); pose = null; ghost.hidden = true; };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
+let drag = null;
+renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
+renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
+addEventListener("pointerup", () => { drag = null; });
+renderer.domElement.style.touchAction = "none";
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+
+document.getElementById("note").innerHTML =
+  `Every surface here is the painting: walls are the four facings' back walls cropped square, the floor and ceiling are projected out of them, and the doorways are cut through with the painted passage set behind. <b>No model, no prompt.</b>`;
+
+let last = performance.now();
+function step(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const speed = (keys.ShiftLeft || keys.ShiftRight) ? 2.6 : 1.3;
+  const fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; }
+  if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
+  if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  const n = Math.hypot(dx, dy);
+  if (n > 0) {
+    pose = null; ghost.hidden = true;
+    dx = dx / n * speed * dt; dy = dy / n * speed * dt;
+    if (inside(px + dx, py)) px += dx;
+    if (inside(px, py + dy)) py += dy;
+  }
+  if (pose) {
+    // exactly the painting's camera: its eye height and its lens, framed as the painting was
+    camera.fov = pose.vfov; camera.aspect = innerWidth / innerHeight;
+    camera.position.set(pose.X, pose.e, -pose.Y);
+  } else {
+    camera.fov = 62;
+    camera.position.set(px, EYE, -py);
+  }
+  camera.updateProjectionMatrix();
+  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  renderer.render(scene, camera);
+  if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+</script>
+</body>
+</html>
