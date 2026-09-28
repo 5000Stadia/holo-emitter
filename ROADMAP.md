@@ -21,7 +21,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 - [x] R12 Instruments: boarded-ceiling horizon, pipeline stopwatch, the snap, flight attachment (rows 32, 33, 35, 39)
 - [x] R13 Paintings served per wall by URL; the critical path cut from 45 MB to 1.4 MB (row 45; registry L-DELIVERY)
 - [~] R14 Live builders to land or close: the floor-line reader, the traced aperture as THE aperture, the warp as the one exit (registry "Live builders": B-FLOOR, B-TRACE-WIRE, B-WIRE)
-- [ ] R15 Fix the crash in `deepViewOf`/`sameWallImageFor` on `entrance_court/S` (`STATUS.md` "Found, and NOT fixed here")
+- [x] R15 Fix the crash in `deepViewOf`/`sameWallImageFor` on `entrance_court/S`: guarded in 9ab57241, now pinned by a test (`STATUS.md` "Found, and NOT fixed here — since fixed")
 - [ ] R16 Open rows: the voice sweep never leaves the study (14), verification completeness from emit sites (18), a leaf a frame can eat (28) (`design/intention.md` spec list)
 - [ ] R17 The plan amends to the painting (the hearth); waits on your redline (row 22; `design/intention.md`)
 - [ ] R18 Verdicts owed by you: five AWAITING KABE batches and eight `+` junctions (`design/approvals.log`; architecture "The `+` junction guard finds eight")
@@ -32,7 +32,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 - [x] R20 Packs beyond the manor: probe station, cyberpunk, hospital, underground, liner (`packs/`; registry RUN-HOSPITAL, L-LONGROOM)
 - [x] R21 The deep-view standard, the through-view threshold, run walls, the facing playbook (registry L-DEEPDRAFT, L-THRESHOLD, L-RUNWALL, L-PLAYBOOK; `design/playbook-facings.md`)
 - [ ] R22 One-command pipeline: `build packs/<name>`, `--reask`, `--rebuild`, derived standpoints, parallel painters (`design/audit/two-room-proof-2026-08-29.md` "What is still not clean")
-- [ ] R23 Registry brought current: RUN-HOSPITAL finished 12/12; SVC-SITE is up again (`design/registry.md`)
+- [x] R23 Registry brought current: RUN-HOSPITAL finished 12/12; SVC-SITE is up again (`design/registry.md`)
 
 ## M4 — Engine rooms and the object catalogue
 

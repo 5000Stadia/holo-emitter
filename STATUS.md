@@ -49,7 +49,12 @@ the register SAYS "there is no window" out loud, because a wall that does not sa
 it gets one painted into it. A said absence is an instruction; an unsaid one is
 not.
 
-## Found, and NOT fixed here
+## Found, and NOT fixed here — since fixed
+
+**Fixed (9ab57241, pinned by a test 2026-09-28):** `deepViewOf` now returns null when
+either side lacks `camera_wall_m`, so `sameWallImageFor(plan, "entrance_court/S")`
+returns null instead of throwing (`tests/playwright/playbook.spec.mjs`, "re-emitting
+entrance_court/S no longer crashes"). The account below is the original finding.
 
 `deepViewOf(plan, "entrance_court/S")` (manor) matches `entrance_approach/S`.
 Both are `open` facings, which carry `camera_far_m` and no `camera_wall_m`, so it

@@ -19,6 +19,7 @@ import { readFileSync } from "node:fs";
 import { situationsOf, situationsReport, facingKeys, TAGS, tagKey, EMITTED_BY, GIST }
   from "../../tools/playbook.mjs";
 import { loadPack } from "../../tools/pack.mjs";
+import { deepViewOf, sameWallImageFor } from "../../tools/make-scaffold.mjs";
 
 const PACKS = ["manor", "underground-2", "hospital-3", "cyberpunk-2"];
 const planOf = (name) => loadPack(name).plan;
@@ -104,6 +105,15 @@ test.describe("the facing playbook", () => {
        too and carries no `camera_wall_m`, so `sameWallImageFor` throws on it.
        The index refuses to claim an instruction set the emitter cannot compose. */
     expect(s).not.toContain("same-wall-image");
+  });
+
+  test("re-emitting entrance_court/S no longer crashes: an open facing has no deep view", () => {
+    /* STATUS.md's "Found, and NOT fixed here": sameWallImageFor threw on the undefined
+       cameras deepViewOf returned for two open facings. The guard (9ab57241) returns null. */
+    const plan = planOf("manor");
+    expect(deepViewOf(plan, "entrance_court/S")).toBeNull();
+    expect(() => sameWallImageFor(plan, "entrance_court/S")).not.toThrow();
+    expect(sameWallImageFor(plan, "entrance_court/S")).toBeNull();
   });
 
   test("the manor's entrance_approach/N carries the open-side set", () => {

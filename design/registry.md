@@ -14,7 +14,7 @@ keeps it current at every board change; reports cite these handles.
 | SVC-SEAT | the painter (Codex image seat) | tmux `holoemitter-assets` |
 | SVC-WATCH | the baton watchdog: who owes the next action, nudges stalls | tmux `seat-watch`, writes `baton.json` |
 | SVC-TICK | the Navigator's 2-hour performance sampler | session cron |
-| SVC-SITE | the live site + one-command publisher — DOWN since the repo became PRIVATE (GitHub Pages needs a paid plan on a private repo; the API refuses to recreate the site); Kabe's call: public repo, or another host | `tools/publish-site.sh` |
+| SVC-SITE | the live site + one-command publisher — UP again (checked 2026-09-28: the repo is PUBLIC, https://5000stadia.github.io/holo-emitter/ answers 200) | `tools/publish-site.sh` |
 | SVC-UP | the idempotent bring-up after ANY restart: starts only what is absent, never a duplicate | `tools/services.sh up` (status/down too) |
 
 ## Live builders (change often — the Navigator updates on spawn/land)
@@ -22,7 +22,7 @@ keeps it current at every board change; reports cite these handles.
 | handle | task | state |
 |---|---|---|
 | B-FLOOR | theme-neutral floor-line reader — capped at ba0a323 on `floor-line-witnesses`: reader + 14 tests green, NOT wired (corner witness spurious; manor regression 4/61); STATUS.md on the branch names the two next steps | capped, awaiting builder 2 |
-| RUN-HOSPITAL | the three-room hospital pack (`packs/hospital-3`, reception ↔ treatment room ↔ ward, handrail ruler 0.90 m): 12 packets emitted 2026-08-30 02:00, painter typed-in via its pane, loop `tmux hospital-loop`; every step and hang-up logged in `design/batches/hospital-3/STEPS.md` | painting |
+| RUN-HOSPITAL | the three-room hospital pack (`packs/hospital-3`, reception ↔ treatment room ↔ ward, handrail ruler 0.90 m): 12 packets emitted 2026-08-30 02:00, painter typed-in via its pane, loop `tmux hospital-loop`; every step and hang-up logged in `design/batches/hospital-3/STEPS.md` | done 2026-08-30: 12/12 re-promoted with stamped readings (6 warped from the true foot rows, 6 measured); the loop is no longer needed |
 | B-TRACE-WIRE | the traced aperture polygon becomes THE aperture: promotion writes meta.openings[].polygon (+confidence, head_kind), the warp pins its corners, the page clips the through-view and fits the leaf to it; a low-confidence trace falls back to the rectangle, recorded — capped | building |
 | B-WIRE | warp wired as the one exit (merged); first held-wall passes promoted 0: ask file fixed, lens band no longer judges a warped frame; remaining: the warp's targets are in the painting's space, not the declared camera's (door reads 2.03× plan width after warp) — closure builder capped | building (closure) |
 
