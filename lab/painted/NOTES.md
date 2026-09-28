@@ -216,3 +216,16 @@ eye's adaptation. `?gi=0` shows v2 without the bake.
 Cost: 75 probes × 6 faces × 2 bounces ≈ 900 small renders at load. About 35 s on
 this CPU-only machine (SwiftShader); on a real GPU, an estimated 1–3 s. The
 bake belongs to the room and can be cached with it.
+
+# Later polish (raised, not done: M5 went to Kabe as is)
+
+- A local-adaptation tone operator in place of the measured fill lights, as the
+  honest way to get the painting's readability out of physical light: an
+  edge-aware, clamped, temporally smoothed exposure field before ACES. Reject it
+  if it pumps or halos (holo-emitter-codex, me263e6).
+- At room distance the frieze still reads somewhat as a zigzag band rather than
+  foliage (m544ba8).
+- The recessed far plane of each passage is plain; it should come from the
+  adjoining room's own values once rooms know their neighbours (m5a175e).
+- Irradiance per vertex rather than 72 texel fetches per fragment, if the bake
+  moves to lower-end hardware (m544ba8).
