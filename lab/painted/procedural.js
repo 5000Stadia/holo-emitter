@@ -385,6 +385,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   M.dark = new THREE.MeshStandardMaterial({ color: 0x050403, roughness: 1 });
   M.lead = new THREE.MeshStandardMaterial({ color: 0x2c2824, roughness: 0.6, metalness: 0.3 });
 
+  const CLASS = new Map();       // material object -> class name, filled once M exists
   const cast = (m) => { m.castShadow = true; m.receiveShadow = true; return m; };
   const vr = rng(1660);
   // give a geometry its own cut of the timber (a UV shift) and its own tone (vertex colour)
@@ -397,10 +398,13 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     g.setAttribute("color", new THREE.BufferAttribute(c, 3));
     return g;
   };
+  for (const [k, v] of Object.entries(M)) CLASS.set(v, k === "oakH" || k === "oakDim" ? "oak" : k);
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), M.floor);
+  floor.userData = { instance: "floor", material: "floor", owner: "floor" };
   floor.rotation.x = -Math.PI / 2; floor.position.set(W / 2, 0, -D / 2); floor.receiveShadow = true; scene.add(floor);
   const ceilG = new THREE.PlaneGeometry(W, D); { const uv = ceilG.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * W, uv.getY(i) * D); }
   const ceil = new THREE.Mesh(ceilG, M.plaster);
+  ceil.userData = { instance: "ceiling", material: "plaster", owner: "ceiling" };
   ceil.rotation.x = Math.PI / 2; ceil.position.set(W / 2, H, -D / 2); ceil.receiveShadow = ceil.castShadow = true; scene.add(ceil);
 
   const PLACE = { N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } };
@@ -412,7 +416,14 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   for (const [F, elems] of Object.entries(schem.walls)) {
     const L = F === "N" || F === "S" ? W : D;
     const grp = new THREE.Group();
-    const add = (g, m, spread) => { if (m.vertexColors) board(g, spread); const mesh = cast(new THREE.Mesh(g, m)); grp.add(mesh); parts++; return mesh; };
+    let ctx = "panelling"; const count = {};
+    const add = (g, m, spread) => {
+      if (m.vertexColors) board(g, spread);
+      const mesh = cast(new THREE.Mesh(g, m)); grp.add(mesh); parts++;
+      count[ctx] = (count[ctx] || 0) + 1;
+      mesh.userData = { instance: `${F}/${ctx}/${count[ctx]}`, material: CLASS.get(m) || m.userData.cls || "other", owner: F };
+      return mesh;
+    };
 
     // what interrupts the panelling: [a, b] x [z0, z1] boxes
     const obst = [];
@@ -461,12 +472,15 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     }
     add(slab(THREE, outline, [...holes, ...panelRects]), M.oak, 0.02);
     // horizontal runs, broken where something stands in their way
+    ctx = "skirting";
     for (const [a, b] of free(0, STYLE.skirting.top)) add(run(THREE, a, b, 0, STYLE.skirting.profile), M.oak);
+    ctx = "dado";
     for (const [a, b] of free(STYLE.dado.base, STYLE.dado.base + 0.08)) add(run(THREE, a, b, STYLE.dado.base, STYLE.dado.profile), M.oak);
-    add(run(THREE, 0, L, STYLE.frieze.base, STYLE.frieze.profile), M.oak);
-    add(run(THREE, 0, L, STYLE.cornice.base, STYLE.cornice.profile), M.oak);
+    ctx = "frieze"; add(run(THREE, 0, L, STYLE.frieze.base, STYLE.frieze.profile), M.oak);
+    ctx = "cornice"; add(run(THREE, 0, L, STYLE.cornice.base, STYLE.cornice.profile), M.oak);
 
     for (const e of elems) {
+      ctx = e.id;
       if (e.kind === "door") {
         const T = STYLE.wallT, t = e.top;
         // architrave round three sides, lofted outward from the opening
@@ -503,7 +517,8 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
           const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + parts), color: new THREE.Color(2.1, 2.1, 2.0) });
-          grp.add(new THREE.Mesh(g, m));
+          const glass = new THREE.Mesh(g, m); grp.add(glass);
+          glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
         // daylight through the glass: an area light filling the opening, facing the room
         const al = new THREE.RectAreaLight(0xfff0dc, 5.5, gx1 - gx0, gy1 - gy0);
@@ -534,7 +549,8 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         add(body, M.oakH);
         const carv = carvedTextures(THREE, oak, m.r1 - m.r0 - 0.5, mh * 0.62);
         const cg = new THREE.PlaneGeometry(m.r1 - m.r0 - 0.5, mh * 0.62); cg.translate((m.r0 + m.r1) / 2, e.surround_top + mh * 0.5, fz + 0.002);
-        add(cg, new THREE.MeshStandardMaterial({ ...carv, roughness: 0.5, normalScale: new THREE.Vector2(1, 1) }));
+        const carvM = new THREE.MeshStandardMaterial({ ...carv, roughness: 0.5, normalScale: new THREE.Vector2(1, 1) }); carvM.userData.cls = "oak_carved";
+        add(cg, carvM);
         for (const x of [m.r0 + 0.13, m.r1 - 0.13]) {         // a boss at each end
           const b = metric(new THREE.BoxGeometry(0.18, mh * 0.62, 0.03)); b.translate(x, e.surround_top + mh * 0.5, fz + 0.015); add(b, M.oak);
           const r = loft(THREE, rect(x - 0.07, x + 0.07, e.surround_top + mh * 0.5 - 0.07, e.surround_top + mh * 0.5 + 0.07), [[0, fz + 0.03], [0.02, fz + 0.045], [0.05, fz + 0.035], [0.07, fz + 0.05]], true, true);

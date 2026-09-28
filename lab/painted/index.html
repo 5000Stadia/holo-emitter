@@ -240,6 +240,72 @@ document.getElementById("note").innerHTML =
   `Every surface here is the painting: walls are the four facings' back walls cropped square, the floor and ceiling are projected out of them, and the doorways are cut through with the painted passage set behind. <b>No model, no prompt.</b>`;
 
 const EXPOSURE = +(Q.get("exposure") || 0.9);
+let frozen = false;
+
+// ---- the render packet (tools/render-packet.mjs drives this): every pass for one painting's camera,
+// at an exact 3:2 frame, from the zero-asset room. Contract: holo-emitter-codex's, 2026-09-28.
+const b64 = (buf) => { const u = new Uint8Array(buf.buffer || buf); let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+window.__packet = async (F, scale = 1) => {
+  frozen = true;
+  const w = 1536 * scale, h = 1024 * scale, sc = code.scene;
+  renderer.setPixelRatio(1); renderer.setSize(w, h, false); composer.setSize(w, h);
+  const pz = paintingPose(F);
+  camera.aspect = w / h; camera.fov = pz.vfov; camera.near = 0.03; camera.far = 60;
+  camera.position.set(pz.X, pz.e, -pz.Y); camera.rotation.set(0, pz.yaw, 0, "YXZ");
+  camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+  const out = { passes: {} };
+  const shot = () => renderer.domElement.toDataURL("image/png");
+  // beauty_lit: the build as it is, fixed exposure, no UI
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE;
+  composer.render(); out.passes.beauty_lit = shot();
+  // beauty_neutral: soft even light, no cast shadows, no AO
+  const keep = { ...LV }, hemi = code.lights.hemi, hc = [hemi.color.clone(), hemi.groundColor.clone()];
+  setLights({ sun: 0, sky: 0, bounce: 0, fill: Math.PI });
+  hemi.color.set(0xffffff); hemi.groundColor.set(0x6e6e6e);   // up-facing brighter than down-facing: form without shadows
+  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.render(sc, camera); out.passes.beauty_neutral = shot();
+  hemi.color.copy(hc[0]); hemi.groundColor.copy(hc[1]); setLights(keep);
+  // flat passes: swap every mesh's material, render, swap back
+  const meshes = []; sc.traverse(o => { if (o.isMesh) meshes.push(o); });
+  const swap = (make) => { const was = meshes.map(m => m.material); meshes.forEach(m => { m.material = make(m); }); return () => meshes.forEach((m, i) => { m.material = was[i]; }); };
+  renderer.toneMapping = THREE.NoToneMapping;
+  let undo = swap(m => new THREE.MeshBasicMaterial({ map: m.material.map || null, vertexColors: !!m.material.vertexColors, color: m.material.isMeshBasicMaterial ? 0xffffff : m.material.color }));
+  renderer.render(sc, camera); out.passes.albedo = shot(); undo();
+  // data passes into a float target: camera distance, camera-space normal, world position
+  const rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.FloatType, format: THREE.RGBAFormat, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+  const bg = sc.background; sc.background = null; renderer.setClearColor(0x000000, 0);
+  const read = () => { const a = new Float32Array(w * h * 4); renderer.readRenderTargetPixels(rt, 0, 0, w, h, a); return a; };
+  const data = (frag) => new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+    vertexShader: `varying vec3 vView; varying vec3 vWorld; varying vec3 vN;
+      void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vWorld = wp.xyz; vec4 vp = viewMatrix * wp; vView = vp.xyz;
+      vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * vp; }`,
+    fragmentShader: `varying vec3 vView; varying vec3 vWorld; varying vec3 vN; void main(){ ${frag} }` });
+  const pass = (frag) => { undo = swap(() => data(frag)); renderer.setRenderTarget(rt); renderer.clear(); renderer.render(sc, camera); renderer.setRenderTarget(null); undo(); return read(); };
+  const dist = pass(`gl_FragColor = vec4(length(vView), 0.0, 0.0, 1.0);`);
+  const nrm = pass(`vec3 n = normalize(vN); if (!gl_FrontFacing) n = -n; gl_FragColor = vec4(n, 1.0);`);
+  const wpos = pass(`gl_FragColor = vec4(vWorld, 1.0);`);
+  const pick = (a, ch) => { const o = new Float32Array(w * h * ch.length); for (let i = 0, j = 0; i < w * h; i++) for (const c of ch) o[j++] = a[i * 4 + c]; return o; };
+  out.depth_f32 = b64(pick(dist, [0])); out.normal_f32 = b64(pick(nrm, [0, 1, 2])); out.world_f32 = b64(pick(wpos, [0, 1, 2])); out.hit_f32 = b64(pick(dist, [3]));
+  // id passes: flat lossless colours, no AA, no tone mapping
+  const inst = [], mats = [];
+  const idOf = (list, key) => { let i = list.indexOf(key); if (i < 0) { list.push(key); i = list.length - 1; } return i + 1; };
+  const rgb = (n) => new THREE.Color().setRGB(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+  const spread = (i) => (i * 2654435761) % 16777213 || 1;          // distinct-looking, still one-to-one for i < 2^24
+  const idTarget = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+  const readU8 = () => { const a = new Uint8Array(w * h * 4); renderer.readRenderTargetPixels(idTarget, 0, 0, w, h, a); return a; };
+  const idPass = (make) => { undo = swap(make); renderer.setRenderTarget(idTarget); renderer.clear(); renderer.render(sc, camera); renderer.setRenderTarget(null); undo(); return readU8(); };
+  const instMap = {}, matMap = {};
+  out.instance_u8 = b64(idPass(m => { const d = m.userData || {}; const k = d.instance || m.uuid; const i = idOf(inst, k); const c = spread(i); instMap[c] = { id: k, material: d.material, owner: d.owner }; return new THREE.MeshBasicMaterial({ color: rgb(c), side: THREE.DoubleSide }); }));
+  out.material_u8 = b64(idPass(m => { const k = (m.userData || {}).material || "other"; const i = idOf(mats, k); const c = spread(i * 7919); matMap[c] = k; return new THREE.MeshBasicMaterial({ color: rgb(c), side: THREE.DoubleSide }); }));
+  sc.background = bg; rt.dispose(); idTarget.dispose();
+  out.ids = { instance: instMap, material: matMap };
+  out.camera = { facing: F, width: w, height: h, position: camera.position.toArray(), quaternion: camera.quaternion.toArray(),
+    fov_v_deg: camera.fov, near: camera.near, far: camera.far,
+    matrixWorld: camera.matrixWorld.toArray(), matrixWorldInverse: camera.matrixWorldInverse.toArray(), projectionMatrix: camera.projectionMatrix.toArray(),
+    exposure: EXPOSURE, lights: { ...LV }, room: shell.room_m };
+  return out;
+};
+window.__thaw = () => { frozen = false; renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; };
 window.__mode = (m) => { mode = m; showMode(); };
 let last = performance.now();
 function step(now) {
@@ -268,6 +334,7 @@ function step(now) {
   }
   camera.updateProjectionMatrix();
   camera.rotation.set(pitch, yaw, 0, "YXZ");
+  if (frozen) { requestAnimationFrame(step); return; }
   if (mode === "code") { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE; composer.render(); }
   else { renderer.toneMapping = THREE.NoToneMapping; renderer.render(scene, camera); }
   if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }

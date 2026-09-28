@@ -5,3 +5,4 @@ __pycache__/
 *.pyc
 backdrops/served.building-*/
 .venv-shell/
+lab/painted/*/packet/

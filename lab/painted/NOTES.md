@@ -111,3 +111,32 @@ code room) and returns a painting that matches it. The options:
 
 The code side is ready for any of them: the page knows every camera exactly,
 so a painting of a known view projects back with no hand-measuring.
+
+# The render packet (for a structure-preserving paintover)
+
+`node tools/render-packet.mjs muniment_room --scales 1,2` renders the zero-asset
+room from each painting's camera at an exact 1536×1024 (and a 3072×2048
+master). `tools/render-packet.py` then writes, per
+`muniment_room/packet/<scale>x/<F>/`:
+
+- **Colour:** `beauty_lit`, `beauty_neutral` (even hemisphere fill, no cast
+  shadows, no AO), `albedo`.
+- **Data:** `depth_u16` (euclidean metres × 1000, 0 = no hit) and
+  `depth_preview`; `normal_camera_u16` (camera space, +X right, +Y up, +Z toward
+  the viewer).
+- **Edges:** `edges`, `edges_silhouette`, `edges_crease`.
+- **IDs:** `material_id`, `instance_id`, and `id-map.json` (RGB → instance, material,
+  owning facing). Every mesh the build makes is named, e.g. `N/chimneypiece/7`,
+  `S/window_sw/glass2`.
+- **Ownership masks:** `owner.png`; for the order N → E → S → W (lead N),
+  `editable_mask` (this facing's own surfaces), `preserve_mask` (surfaces of
+  facings painted earlier) and `later_mask`. Floor and ceiling texels belong to
+  the nearest wall.
+- **Camera:** `camera.json` has position, quaternion, look-at and up, both
+  FOVs, focal px, principal point, near/far, the world-from-camera, view and
+  projection matrices (row-major, plus three.js column-major), tone mapping and
+  colour space per pass, the depth and normal decode rules, room size, and the
+  sha256 of the schematic, procedural.js and the page.
+
+It takes about 2.5 min for both scales; the packet is gitignored
+(1x ≈ 50 MB, 2x ≈ 160 MB). The contract is holo-emitter-codex's, 2026-09-28.
