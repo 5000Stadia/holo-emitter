@@ -55,3 +55,59 @@ No model, no prompt, zero LLM cost per room once measured.
 
 Built 2026-09-28, about 25 min wall-clock from go to walkable, including
 the calibration detour.
+
+# The zero-asset build (press P)
+
+`procedural.js` builds the same room from `muniment_room/schematic.json` alone.
+It uses no mesh, texture file or prompt. Press `P` in the page to flip
+between the two; the `1`–`4` poses work in both. `compare-painted-vs-code.jpg`
+shows four matched views, painted on the left and code on the right.
+
+What the library is:
+- **Schematic** (1.9 KB): the room's size, plus each wall's elements (chimney-piece,
+  doors, windows) in metres in that wall's own frame.
+- **Style** (`STYLE` in procedural.js, a few hundred bytes): the heights of skirting,
+  dado, frieze and cornice; stile, rail and bay widths; and the profiles, each a list
+  of (offset, depth) points: fielded panel, architrave, skirting, dado rail,
+  cornice, mantel shelf.
+- **Geometry**: one routine, `loft`, sweeps a profile along any path by offsetting
+  the path per profile point, which mitres every corner. The same routine builds
+  panels (closed rectangles), architraves (open U paths) and the chamfered
+  four-centred arch. Panels are laid out by subtracting openings from each zone
+  and dividing what is left into bays; overmantel and over-door panels fill
+  whatever an opening leaves above it.
+- **Materials**: generated on load from periodic noise. Quarter-sawn oak with
+  latewood lines, ray fleck and figure; E-W floorboards cut from the same oak;
+  lime plaster; limestone; sooted brick; carved vine frieze; leaded quarries with
+  a shield of arms. Every panel and member takes its own cut of timber and its
+  own tone.
+- **Light**: a low sun through the south windows (shadow-mapped), an area light
+  in each window's glass, hemisphere fill, a warm floor bounce, and screen-space
+  ambient occlusion (GTAO). Levels were tuned so the code room's brightness
+  matches the paintings at the painting poses.
+
+Build time in the browser: about 2.5 s, most of it growing the oak. Size:
+procedural.js is about 30 KB of code, and nothing else is fetched.
+
+Not yet: a real light bake. Indirect light is a fill, not computed, so corners
+and undersides are brighter and flatter than the paintings. The fireplace is
+the weakest part: the stone is flat and the carving is simple. The next step is
+a path-traced "stand still" mode, or a baked lightmap.
+
+# What painting over the code room would need (step 2, not set up)
+
+The Codex seat was reached through AgentPost, which is retired, and the Codex
+Remote bridge is gone. To paint over a render and project the paint back, we
+need an image model that takes a structure guide (a depth or edge map from the
+code room) and returns a painting that matches it. The options:
+
+- **A hosted Flux or SDXL depth-ControlNet endpoint** (fal.ai, Replicate):
+  seconds per image, about $0.03–0.06 each, about 4 per room. Needs an API key
+  from Kabe and a spending decision.
+- **OpenAI gpt-image with the render as an edit reference**: follows structure
+  more loosely, about $0.04–0.19 an image. Needs a key.
+- **A local model**: this machine has no GPU, so minutes to hours per image on
+  CPU. Not practical without a GPU box.
+
+The code side is ready for any of them: the page knows every camera exactly,
+so a painting of a known view projects back with no hand-measuring.
