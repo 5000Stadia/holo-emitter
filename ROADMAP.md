@@ -45,6 +45,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 
 - [x] R28 The painting is the texture: the muniment room walkable from its four facings; you graded it "Phenomenal" (`lab/painted/NOTES.md`)
 - [?] R29 The same room from its schematic with zero assets; P flips between the two (`lab/painted/procedural.js`, NOTES "The zero-asset build")
+- [~] R43 v2 of the code room: the twin's ranked critique applied (light matched to the paintings' percentiles, quieter materials with grime, the chimney-piece rebuilt in ashlar with carved relief); P cycles painted → v1 → v2 (NOTES "v2 of the zero-asset room")
 - [~] R30 A reliable calibration tool, so painted shells scale to the other 30+ rooms without hand-measuring: ceiling within 2 px, corners mostly within 10 px, floor line still from the meta; paint-over-code (R32) removes the need, because its cameras are known (`tools/paint-calibrate.py` docstring; NOTES "Limits seen")
 - [ ] R31 A real light bake for the code room: a path-traced "stand still" mode or baked lightmaps (NOTES "Not yet")
 - [~] R32 Paint over the code room, then project it back, with holo-emitter-codex as the painter: the render packet is built to its contract; the painting waits on your yes to image spend (NOTES "The render packet", "What painting over the code room would need")

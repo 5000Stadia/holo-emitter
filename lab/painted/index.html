@@ -43,7 +43,7 @@
   <div></div>
   <div class="bottom">
     <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride<br>
-      <kbd>1</kbd>–<kbd>4</kbd> stand where the N / E / S / W painting was painted from &nbsp; <kbd>G</kbd> ghost the painting over it<br><kbd>P</kbd> flip between the paintings and the zero-asset build</div>
+      <kbd>1</kbd>–<kbd>4</kbd> stand where the N / E / S / W painting was painted from &nbsp; <kbd>G</kbd> ghost the painting over it<br><kbd>P</kbd> cycle: the paintings → zero assets v1 → zero assets v2</div>
   </div>
 </div>
 <script>
@@ -58,7 +58,8 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
-import { buildProcedural } from "./procedural.js";
+import { buildProcedural as buildV1 } from "./procedural-v1.js";
+import { buildProcedural as buildV2 } from "./procedural.js";
 
 // ?room=muniment_room (the folder beside this page that tools/paint-shell.py baked)
 const Q = new URLSearchParams(location.search);
@@ -172,23 +173,40 @@ for (const [F, wall] of Object.entries(shell.walls)) {
 RectAreaLightUniformsLib.init();
 const statusText = document.getElementById("statusText");
 const schem = await (await fetch(base + "schematic.json")).json();
-const code = await buildProcedural(THREE, schem, (what) => { statusText.textContent = what + "…"; });
-// light levels (tuned by eye against the paintings; ?sun=&sky=&fill=&bounce= override)
-const LV = { sun: 2.2, sky: 18, fill: 1.0, bounce: 2 };
-for (const k of Object.keys(LV)) if (Q.get(k)) LV[k] = +Q.get(k);
-const setLights = (lv) => { Object.assign(LV, lv); code.lights.sun.intensity = LV.sun; code.lights.hemi.intensity = LV.fill; code.lights.bounce.intensity = LV.bounce; for (const a of code.lights.areas) a.intensity = LV.sky; };
-setLights({});
+// two code builds live side by side: v1 exactly as first graded (frozen), v2 the rework.
+// Each keeps its own light levels (?sun=&sky=&fill=&bounce= override the one ?code= names).
+const BUILDS = {
+  v1: { build: buildV1, lv: { sun: 2.2, sky: 18, fill: 1.0, bounce: 2 }, label: "zero assets, v1 (as first graded)" },
+  v2: { build: buildV2, lv: null, label: "zero assets, v2 (reworked)" },
+};
+const CODE = Q.get("code") === "v1" ? "v1" : "v2";
+for (const [k, B] of Object.entries(BUILDS)) {
+  B.code = await B.build(THREE, schem, (what) => { statusText.textContent = `${k}: ${what}…`; });
+  B.lv = { ...(B.lv || B.code.defaults) };
+  if (k === CODE) for (const key of Object.keys(B.lv)) if (Q.get(key)) B.lv[key] = +Q.get(key);
+  B.composer = new EffectComposer(renderer);
+  B.composer.addPass(new RenderPass(B.code.scene, camera));
+  const g = new GTAOPass(B.code.scene, camera, innerWidth, innerHeight);
+  g.updateGtaoMaterial(B.code.gtao || { radius: 0.35, distanceExponent: 1.4, thickness: 1.2, scale: 1.2, samples: 16 });
+  g.blendIntensity = B.code.gtaoBlend ?? 1.0;
+  B.composer.addPass(g);
+  B.composer.addPass(new OutputPass());
+}
+let code, LV, composer;
+const setLights = (lv) => {
+  Object.assign(LV, lv); const L = code.lights;
+  L.sun.intensity = LV.sun; L.hemi.intensity = LV.fill; L.bounce.intensity = LV.bounce;
+  for (const a of L.areas) a.intensity = LV.sky;
+  if (L.apply) L.apply(LV);                        // a build may carry further lights of its own
+};
+const use = (v) => { const B = BUILDS[v]; code = B.code; LV = B.lv; composer = B.composer; setLights({}); };
+for (const v of ["v1", "v2"]) use(v);              // apply each build's levels once
+use(CODE);
 window.__lights = setLights;
-const composer = new EffectComposer(renderer);
-composer.addPass(new RenderPass(code.scene, camera));
-const gtao = new GTAOPass(code.scene, camera, innerWidth, innerHeight);
-gtao.updateGtaoMaterial({ radius: 0.35, distanceExponent: 1.4, thickness: 1.2, scale: 1.2, samples: 16 });
-gtao.blendIntensity = 1.0;
-composer.addPass(gtao);
-composer.addPass(new OutputPass());
-let mode = Q.get("mode") === "code" ? "code" : "painted";
+let mode = Q.get("mode") === "code" ? CODE : ["v1", "v2"].includes(Q.get("mode")) ? Q.get("mode") : "painted";
+if (mode !== "painted") use(mode);
 const modeName = document.getElementById("modeName");
-const showMode = () => { modeName.textContent = mode === "code" ? "zero assets · built from the schematic" : "the paintings, projected"; };
+const showMode = () => { modeName.textContent = mode === "painted" ? "the paintings, projected" : BUILDS[mode].label; };
 showMode();
 
 // where each painting was painted from, in room metres (from the bake's cameras)
@@ -219,7 +237,7 @@ addEventListener("keydown", e => {
   if (F) { pose = paintingPose(F); pose.F = F; px = pose.X; py = pose.Y; yaw = pose.yaw; pitch = 0;
     ghost.style.backgroundImage = `url(../../${shell.source}/${F}.png)`; }
   if (e.code === "KeyG" && pose) ghost.hidden = !ghost.hidden;
-  if (e.code === "KeyP") { mode = mode === "code" ? "painted" : "code"; showMode(); }
+  if (e.code === "KeyP") { mode = { painted: "v1", v1: "v2", v2: "painted" }[mode]; if (mode !== "painted") use(mode); showMode(); }
 });
 addEventListener("keyup", e => { keys[e.code] = false; });
 const gate = document.getElementById("gate");
@@ -233,7 +251,7 @@ renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX
 renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
 addEventListener("pointerup", () => { drag = null; });
 renderer.domElement.style.touchAction = "none";
-addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); for (const B of Object.values(BUILDS)) B.composer.setSize(innerWidth, innerHeight); });
 
 document.getElementById("note").hidden = true;
 document.getElementById("note").innerHTML =
@@ -260,7 +278,7 @@ window.__packet = async (F, scale = 1) => {
   composer.render(); out.passes.beauty_lit = shot();
   // beauty_neutral: soft even light, no cast shadows, no AO
   const keep = { ...LV }, hemi = code.lights.hemi, hc = [hemi.color.clone(), hemi.groundColor.clone()];
-  setLights({ sun: 0, sky: 0, bounce: 0, fill: Math.PI });
+  setLights({ ...Object.fromEntries(Object.keys(LV).map(k => [k, 0])), fill: Math.PI });
   hemi.color.set(0xffffff); hemi.groundColor.set(0x6e6e6e);   // up-facing brighter than down-facing: form without shadows
   renderer.toneMapping = THREE.NoToneMapping;
   renderer.render(sc, camera); out.passes.beauty_neutral = shot();
@@ -306,7 +324,7 @@ window.__packet = async (F, scale = 1) => {
   return out;
 };
 window.__thaw = () => { frozen = false; renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; };
-window.__mode = (m) => { mode = m; showMode(); };
+window.__mode = (m) => { mode = m === "code" ? CODE : m; if (mode !== "painted") use(mode); showMode(); };
 let last = performance.now();
 function step(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
@@ -335,7 +353,7 @@ function step(now) {
   camera.updateProjectionMatrix();
   camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (frozen) { requestAnimationFrame(step); return; }
-  if (mode === "code") { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE; composer.render(); }
+  if (mode !== "painted") { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE; composer.render(); }
   else { renderer.toneMapping = THREE.NoToneMapping; renderer.render(scene, camera); }
   if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }
   requestAnimationFrame(step);

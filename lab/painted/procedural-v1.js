@@ -1,3 +1,4 @@
+// FROZEN: v1 of the zero-asset room, as graded side by side with the painted shell (R29). Do not edit; v2 lives in procedural.js.
 // Zero-asset room: every surface of the muniment room built from its schematic in code.
 // No mesh, no texture file, no prompt. Materials are generated on load from noise; mouldings
 // are 2D profiles lofted along paths; light comes in through the windows.
@@ -159,8 +160,7 @@ function stoneTexture(THREE, N = 512, base = [118, 108, 90]) {
       const m = fbm(u * 5, v * 5, 5, 5, 4, 51), f = fbm(u * 80, v * 80, 80, 80, 2, 57);
       const pit = smooth(0.9, 0.97, vnoise(u * 90, v * 90, 90, 90, 61));
       const tool = 0.03 * Math.sin((u * 0.7 + v) * 380 + m * 6);
-      const blot = smooth(0.55, 0.8, fbm(u * 9, v * 9, 9, 9, 3, 67));      // lichen-dark weathering blots
-      const k = (0.78 + 0.38 * m + 0.1 * f + 1.6 * tool) * (1 - 0.22 * pit) * (1 - 0.25 * blot), o = (y * N + x) * 4;
+      const k = (0.84 + 0.26 * m + 0.06 * f + tool) * (1 - 0.18 * pit), o = (y * N + x) * 4;
       d[o] = base[0] * k; d[o + 1] = base[1] * k; d[o + 2] = base[2] * k; d[o + 3] = 255;
       H[y * N + x] = m * 0.4 + f * 0.4 - pit;
     }
@@ -342,59 +342,6 @@ function quad(THREE, A, B, C, D) {
   return g;
 }
 
-// ---------------------------------------------------------------- v2 helpers
-// grime and soot in world space: scuffed low on the walls, smoke under the ceiling, and (for the
-// chimney-piece's stone) a soot plume over the fire opening. soot = [x, y, rx, ry, strength]
-function grime(THREE, mat, soot = null, walls = true) {
-  mat.onBeforeCompile = (sh) => {
-    sh.uniforms.uSoot = { value: new THREE.Vector4(...(soot ? soot.slice(0, 4) : [0, 0, 1, 1])) };
-    sh.uniforms.uSootK = { value: soot ? soot[4] : 0 };
-    sh.uniforms.uWalls = { value: walls ? 1 : 0 };
-    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vGW;")
-      .replace("#include <project_vertex>", "#include <project_vertex>\nvGW = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vGW; uniform vec4 uSoot; uniform float uSootK; uniform float uWalls;")
-      .replace("#include <color_fragment>", `#include <color_fragment>
-        float g = 1.0 - uWalls * (0.16 * (1.0 - smoothstep(0.0, 0.55, vGW.y)) + 0.12 * smoothstep(2.3, 3.1, vGW.y));
-        vec2 sd = (vGW.xy - uSoot.xy) / uSoot.zw;
-        g *= 1.0 - uSootK * exp(-dot(sd, sd));
-        diffuseColor.rgb *= g;`);
-  };
-  mat.customProgramCacheKey = () => "grime" + (soot ? "s" : "") + (walls ? "w" : "");
-  return mat;
-}
-// the carved vine and leaves as a height, X metres along the band, Y 0..1 up it
-function carveHeight(X, Y, rep = 0.26) {
-  const ph = (X / rep) * Math.PI * 2, vine = 0.5 + 0.22 * Math.sin(ph);
-  let hgt = Math.exp(-Math.pow(Math.abs(Y - vine) / 0.06, 2));
-  for (const k of [0.25, 0.75]) {
-    const cx = (Math.floor(X / rep) + k) * rep, cy = k < 0.5 ? 0.78 : 0.22;
-    const ex = (X - cx) / (rep * 0.2), ey = (Y - cy) / 0.14;
-    hgt = Math.max(hgt, (1 - Math.min(1, ex * ex + ey * ey)) * (0.8 + 0.2 * Math.cos(ex * 6)));
-  }
-  return (Y < 0.08 || Y > 0.92) ? 1 : hgt;
-}
-// keep the part of a polygon between x = xa and x = xb (Sutherland-Hodgman, two half-planes)
-function clipX(poly, xa, xb) {
-  const cut = (pts, keep, at) => {
-    const out = [];
-    for (let i = 0; i < pts.length; i++) {
-      const P = pts[i], Q = pts[(i + 1) % pts.length], kp = keep(P), kq = keep(Q);
-      if (kp) out.push(P);
-      if (kp !== kq) { const t = (at - P[0]) / (Q[0] - P[0]); out.push([at, P[1] + t * (Q[1] - P[1])]); }
-    }
-    return out;
-  };
-  return cut(cut(poly, p => p[0] >= xa, xa), p => p[0] <= xb, xb);
-}
-// a dressed stone or timber block: the outline inset by its bevel, extruded, the face at zFront
-function block(THREE, poly, zFront, depth, bevel = 0.007) {
-  const inner = offsetLine(poly, bevel + 0.002, true);
-  const shape = new THREE.Shape(inner.map(p => new THREE.Vector2(p[0], p[1])));
-  const g = new THREE.ExtrudeGeometry(shape, { depth, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, curveSegments: 6 });
-  g.translate(0, 0, zFront - depth - bevel);
-  return g;
-}
-
 // ---------------------------------------------------------------- the style: oak panelling, c. 1660
 const STYLE = {
   skirting: { top: 0.18, profile: [[0, 0], [0, 0.022], [0.14, 0.022], [0.15, 0.03], [0.165, 0.03], [0.18, 0.012], [0.18, 0]] },
@@ -421,14 +368,14 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   const oak = oakField(1024);
   const oakV = oakTextures(THREE, oak), oakH = oakTextures(THREE, oak, { rotate: true });
   const M = {
-    oak: grime(THREE, new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
-    oakH: grime(THREE, new THREE.MeshStandardMaterial({ ...oakH, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
+    oak: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.55, vertexColors: true, normalScale: new THREE.Vector2(0.3, 0.3) }),
+    oakH: new THREE.MeshStandardMaterial({ ...oakH, roughness: 0.55, vertexColors: true, normalScale: new THREE.Vector2(0.3, 0.3) }),
     oakDim: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.7, color: 0x6a6a6a, vertexColors: true }),
   };
   onStep("laying the floor");
   await new Promise(r => setTimeout(r));
   const fl = floorTexture(THREE, oak, W, D, 360);
-  M.floor = new THREE.MeshStandardMaterial({ ...fl, roughness: 0.64, normalScale: new THREE.Vector2(0.4, 0.4) });
+  M.floor = new THREE.MeshStandardMaterial({ ...fl, roughness: 0.42, normalScale: new THREE.Vector2(0.6, 0.6) });
   onStep("plaster, stone and brick");
   await new Promise(r => setTimeout(r));
   M.plaster = new THREE.MeshStandardMaterial({ ...plasterTexture(THREE), roughness: 0.95 });
@@ -583,13 +530,13 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         const lightsIn = [[gx0, mx - mw, ty + mw, gy1, 1], [mx + mw, gx1, ty + mw, gy1, 2], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
-          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + parts), color: new THREE.Color(1.15, 1.13, 1.02) });
+          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + parts), color: new THREE.Color(2.1, 2.1, 2.0) });
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
         ctx = e.id + "/glassback";
         { const g = new THREE.PlaneGeometry(i[1][0] - i[0][0], i[2][1] - i[0][1]); g.translate((i[0][0] + i[1][0]) / 2, (i[0][1] + i[2][1]) / 2, G - 0.03);
-          const pane = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: new THREE.Color(1.05, 1.03, 0.93) })); grp.add(pane);
+          const pane = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: new THREE.Color(2.0, 2.0, 1.9) })); grp.add(pane);
           pane.userData = { instance: `${F}/${e.id}/glassback`, material: "glass", owner: F }; }
         ctx = e.id;
         // daylight through the glass: an area light filling the opening, facing the room
@@ -606,62 +553,30 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         for (let k = 1; k <= 6; k++) { const a = k / 6; arch.push([sx + (cx - sx) * a, sy + (fb.apex - sy) * (1 - (1 - a) * (1 - a) * 0.15) * a / (a + 0.0001) * (0.85 + 0.15 * a)]); }
         const archR = arch.slice(0, -1).reverse().map(([x, y]) => [2 * cx - x, y]);
         const opening = [[fb.r0, 0], [fb.r0, fb.spring], ...arch, ...archR, [fb.r1, fb.spring], [fb.r1, 0]];
-        const SD = 0.2, MO = 0.075, J = 0.002;
-        // dressed limestone, each block its own tone, a soot plume over the opening
-        const dressed = stoneTexture(THREE, 512, [104, 92, 74]);     // v2: warmer, darker, weathered limestone
-        const stoneS = grime(THREE, new THREE.MeshStandardMaterial({ ...dressed, roughness: 0.88, vertexColors: true, normalScale: new THREE.Vector2(0.9, 0.9) }),
-          [cx, fb.apex + 0.14, half * 0.95, 0.3, 0.5], false);
-        stoneS.userData.cls = "stone";
-        const mortar = new THREE.MeshStandardMaterial({ color: 0x3a342c, roughness: 1 }); mortar.userData.cls = "stone";
-        const g = offsetLine(opening, MO, false), gl = g[0][0], gr = g[g.length - 1][0];
-        // a mortar bed behind the blocks, so every joint reads as a joint
-        add(slab(THREE, [[e.r0, 0], [gl, 0], ...g.slice(1, -1), [gr, 0], [e.r1, 0], [e.r1, e.surround_top], [e.r0, e.surround_top]], [], SD - 0.03), mortar);
-        // the moulded border round the opening: a hollow chamfer, a fillet, a bead standing proud
-        add(loft(THREE, opening, [[0, 0], [0, 0.1], [0.018, 0.12], [0.03, 0.125], [0.045, 0.15], [0.055, 0.172], [0.062, SD], [MO, SD]], false, false), stoneS, 0.08);
-        // the jambs: ashlar courses up to the springing
-        const courses = [0, 0.36, 0.7, fb.spring];
-        for (let k = 0; k < 3; k++) for (const [a, b] of [[e.r0, gl], [gr, e.r1]])
-          add(block(THREE, rect(a, b, courses[k] + J, courses[k + 1] - J), SD, 0.14), stoneS, 0.16);
-        // the lintel over the arch, in three stones
-        const archG = g.filter(p => p[1] >= fb.spring - 1e-6);
-        const lintel = [[e.r0, fb.spring + J], ...archG.map(([x, y]) => [x, Math.max(y, fb.spring + J)]), [e.r1, fb.spring + J], [e.r1, e.surround_top], [e.r0, e.surround_top]];
-        const c1 = cx - half * 0.55, c2 = cx + half * 0.55;
-        for (const [a, b] of [[e.r0, c1 - J], [c1 + J, c2 - J], [c2 + J, e.r1]]) {
-          const piece = clipX(lintel, a, b);
-          if (piece.length >= 3) add(block(THREE, piece, SD, 0.14), stoneS, 0.16);
+        const SD = 0.12;
+        // the stone surround: a slab notched by the opening grown 5 cm, and a chamfer lofted back to it
+        const grown = offsetLine(opening, 0.05, false);
+        const outline = [[e.r0, 0], [grown[0][0], 0], ...grown.slice(1, -1), [grown[grown.length - 1][0], 0], [e.r1, 0], [e.r1, e.surround_top], [e.r0, e.surround_top]];
+        add(slab(THREE, outline, [], SD), M.stone);
+        add(loft(THREE, opening, [[0, 0.0], [0, 0.07], [0.05, SD]], false, false), M.stone);
+        add(quad(THREE, [e.r0, 0, 0], [e.r0, 0, SD], [e.r0, e.surround_top, SD], [e.r0, e.surround_top, 0]), M.stone);
+        add(quad(THREE, [e.r1, 0, SD], [e.r1, 0, 0], [e.r1, e.surround_top, 0], [e.r1, e.surround_top, SD]), M.stone);
+        // the mantel: a carved frieze between fillets, a shelf over it
+        const m = e.mantel, mh = m.top - e.surround_top - 0.1, fz = m.depth;
+        const body = metric(new THREE.BoxGeometry(m.r1 - m.r0, m.top - e.surround_top - 0.1, fz));
+        body.translate((m.r0 + m.r1) / 2, e.surround_top + mh / 2, fz / 2);
+        add(body, M.oakH);
+        const carv = carvedTextures(THREE, oak, m.r1 - m.r0 - 0.5, mh * 0.62);
+        const cg = new THREE.PlaneGeometry(m.r1 - m.r0 - 0.5, mh * 0.62); cg.translate((m.r0 + m.r1) / 2, e.surround_top + mh * 0.5, fz + 0.002);
+        const carvM = new THREE.MeshStandardMaterial({ ...carv, roughness: 0.5, normalScale: new THREE.Vector2(1, 1) }); carvM.userData.cls = "oak_carved";
+        add(cg, carvM);
+        for (const x of [m.r0 + 0.13, m.r1 - 0.13]) {         // a boss at each end
+          const b = metric(new THREE.BoxGeometry(0.18, mh * 0.62, 0.03)); b.translate(x, e.surround_top + mh * 0.5, fz + 0.015); add(b, M.oak);
+          const r = loft(THREE, rect(x - 0.07, x + 0.07, e.surround_top + mh * 0.5 - 0.07, e.surround_top + mh * 0.5 + 0.07), [[0, fz + 0.03], [0.02, fz + 0.045], [0.05, fz + 0.035], [0.07, fz + 0.05]], true, true);
+          add(r, M.oak);
         }
-        // the mantel: a timber body, fillets, a frieze carved in relief, a boss at each end, a shelf
-        const m = e.mantel, fz = m.depth + 0.05, z0 = e.surround_top, zt = m.top - 0.1, mh = zt - z0;
-        add(block(THREE, rect(m.r0, m.r1, z0, zt), fz, fz - 0.02, 0.006), M.oakH, 0.1);
-        const ch = mh * 0.62, len = m.r1 - m.r0 - 0.52, cy = z0 + mh * 0.5;
-        for (const y of [cy - ch / 2 - 0.018, cy + ch / 2 + 0.006])
-          add(run(THREE, m.r0 + 0.03, m.r1 - 0.03, y, [[0, fz], [0, fz + 0.012], [0.006, fz + 0.016], [0.012, fz + 0.012], [0.012, fz]]), M.oak, 0.05);
-        { // the carving itself: a grid displaced by the vine's height, so it catches real light and shadow
-          const nx = Math.round(len * 200), ny = Math.round(ch * 200);
-          const cg = new THREE.PlaneGeometry(len, ch, nx, ny), pa = cg.attributes.position;
-          for (let i = 0; i < pa.count; i++) {
-            const X = pa.getX(i) + len / 2, Y = pa.getY(i) / ch + 0.5;
-            pa.setZ(i, carveHeight(X, Y) * 0.016);
-          }
-          cg.computeVertexNormals(); cg.translate((m.r0 + m.r1) / 2, cy, fz + 0.002);
-          const carv = carvedTextures(THREE, oak, len, ch);
-          const carvM = grime(THREE, new THREE.MeshStandardMaterial({ map: carv.map, roughness: 0.55 }));
-          carvM.userData.cls = "oak_carved";
-          add(cg, carvM);
-        }
-        for (const x of [m.r0 + 0.13, m.r1 - 0.13]) {
-          add(block(THREE, rect(x - 0.09, x + 0.09, cy - ch / 2, cy + ch / 2), fz + 0.03, 0.03, 0.004), M.oak, 0.06);
-          const R = 0.065;
-          const ring = new THREE.PlaneGeometry(2 * R, 2 * R, 48, 48), q = ring.attributes.position;
-          for (let i = 0; i < q.count; i++) {
-            const u = q.getX(i), v = q.getY(i), r = Math.hypot(u, v) / R, th = Math.atan2(v, u);
-            const petal = r < 1 ? (1 - r) * (0.55 + 0.45 * Math.cos(th * 8)) + Math.max(0, 0.3 - r) * 1.5 : 0;
-            q.setZ(i, petal * 0.018);
-          }
-          ring.computeVertexNormals(); ring.translate(x, cy, fz + 0.031);
-          add(ring, M.oak, 0.04);
-        }
-        add(run(THREE, m.r0 - 0.05, m.r1 + 0.05, zt, [[0, 0], [0, fz + 0.01], [0.012, fz + 0.014], [0.03, fz + 0.035], [0.055, fz + 0.058], [0.075, fz + 0.078], [0.085, fz + 0.085], [0.1, fz + 0.085], [0.1, 0]]), M.oak, 0.05);
+        const shelf = run(THREE, m.r0 - 0.05, m.r1 + 0.05, m.top - 0.1, [[0, 0], [0, fz + 0.01], [0.02, fz + 0.03], [0.05, fz + 0.05], [0.08, fz + 0.07], [0.1, fz + 0.07], [0.1, 0]]);
+        add(shelf, M.oak);
         // the firebox: brick, splayed, sooted, going back into the wall
         const bd = fb.depth, bs = 0.16, top = fb.apex;
         add(quad(THREE, [fb.r0, 0, 0], [fb.r0 + bs, 0, -bd], [fb.r0 + bs, top, -bd], [fb.r0, top, 0]), M.brick);
@@ -670,7 +585,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         add(quad(THREE, [fb.r1, top, 0], [fb.r0, top, 0], [fb.r0 + bs, top, -bd], [fb.r1 - bs, top, -bd]), M.dark);
         add(quad(THREE, [fb.r0 + bs, 0.002, -bd], [fb.r0, 0.002, 0], [fb.r1, 0.002, 0], [fb.r1 - bs, 0.002, -bd]), M.hearth);
         // the hearth stone, proud of the floor
-        const h = e.hearth, hg = metric(new THREE.BoxGeometry(h.r1 - h.r0, 0.035, h.out + SD));   // SD is the v2 surround depth
+        const h = e.hearth, hg = metric(new THREE.BoxGeometry(h.r1 - h.r0, 0.035, h.out + SD));
         hg.translate((h.r0 + h.r1) / 2, 0.0175, (h.out + SD) / 2);
         add(hg, M.hearth);
       }
@@ -679,26 +594,14 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     scene.add(grp);
   }
 
-  // the light, shaped the way bounced light falls: a low sun through the south windows, the sky in
-  // the glass, and broad warm sources where the room hands light back: the floor, the sunlit patch
-  // under the windows, the ceiling, and the north wall the windows face. Analytic, not computed GI.
-  const sun = new THREE.DirectionalLight(0xffe2b8, 1.8);
+  // the light: a low sun through the south windows, sky fill through the glass, and the room's own bounce
+  const sun = new THREE.DirectionalLight(0xffe2b8, 2.6);
   sun.position.set(W * 0.5 + 2.5, 3.8, 5.5); sun.target.position.set(W * 0.45, 0, -D * 0.45);
   sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
   Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 0.5, far: 20 });
   scene.add(sun, sun.target);
-  const hemi = new THREE.HemisphereLight(0x9a8a78, 0x2a1a0e, 0.35); scene.add(hemi);
-  const bounce = new THREE.PointLight(0xffc890, 0, 7, 1.6); bounce.position.set(W / 2, 1.0, -1.2); scene.add(bounce);
-  const area = (color, w, h, pos, look) => { const l = new THREE.RectAreaLight(color, 1, w, h); l.position.set(...pos); l.lookAt(...look); scene.add(l); return l; };
-  const floorB = area(0xffcf9a, W * 0.9, D * 0.9, [W / 2, 0.03, -D / 2], [W / 2, 5, -D / 2]);
-  const patchB = area(0xffd6a0, 3.0, 1.0, [W / 2, 0.04, -0.9], [W / 2, 5, -0.9]);
-  const ceilB = area(0xfff0dd, W * 0.8, D * 0.8, [W / 2, H - 0.03, -D / 2], [W / 2, -5, -D / 2]);
-  const northB = area(0xffd2a0, W * 0.8, H * 0.6, [W / 2, H * 0.45, -D + 0.08], [W / 2, H * 0.45, 5]);
-  const apply = (lv) => { floorB.intensity = lv.floorB; patchB.intensity = lv.patchB; ceilB.intensity = lv.ceilB; northB.intensity = lv.northB; };
-  // levels matched to the paintings' luminance percentiles (p10 / p50 / p90) at the four painting poses
-  const defaults = { sun: 1.7, sky: 6, fill: 0.25, bounce: 0, floorB: 1.3, patchB: 1.8, ceilB: 0.45, northB: 0.8 };
+  const hemi = new THREE.HemisphereLight(0x9a8a78, 0x2a1a0e, 0.55); scene.add(hemi);
+  const bounce = new THREE.PointLight(0xffc890, 0.9, 7, 1.6); bounce.position.set(W / 2, 1.0, -1.2); scene.add(bounce);
 
-  return { scene, lights: { sun, hemi, bounce, areas: lights, apply }, defaults,
-    gtao: { radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 }, gtaoBlend: 1.0,
-    stats: { parts, ms: Math.round(performance.now() - t0) } };
+  return { scene, lights: { sun, hemi, bounce, areas: lights }, stats: { parts, ms: Math.round(performance.now() - t0) } };
 }

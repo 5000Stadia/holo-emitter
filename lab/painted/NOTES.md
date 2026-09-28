@@ -140,3 +140,27 @@ master). `tools/render-packet.py` then writes, per
 
 It takes about 2.5 min for both scales; the packet is gitignored
 (1x ≈ 50 MB, 2x ≈ 160 MB). The contract is holo-emitter-codex's, 2026-09-28.
+
+# v2 of the zero-asset room (P cycles painted → v1 → v2)
+
+v1 is frozen in `procedural-v1.js`, exactly as first shown for grading. v2 lives in
+`procedural.js` and applies holo-emitter-codex's ranked critique:
+
+1. **Light, shaped like bounced light.** A softer sun, dimmer sky in the glass,
+   and broad warm area lights where the room hands light back: the floor, the
+   sunlit patch under the windows, the ceiling, and the north wall. Stronger
+   GTAO. The levels are matched to the paintings' luminance percentiles
+   (p10/p50/p90) at the four painting poses: painted N 8/27/64 against v2 7/22/60.
+   The south view is still brighter (22 against 30 at p50). This is analytic
+   light, not computed GI.
+2. **Quieter materials.** Oak normal contrast is down and the oak is matte; the
+   floor is less glossy; glass is dimmer. World-space grime is scuffed low on the
+   walls with smoke under the ceiling.
+3. **The chimney-piece rebuilt.** Dressed limestone in ashlar: jamb courses and
+   a three-stone lintel, bevelled, each block its own tone, set in a mortar bed
+   so the joints read, with weathering blots and a soot plume over the opening.
+   The opening has a moulded border (hollow chamfer, fillet, bead). The frieze is
+   carved in real relief (a displaced grid) between fillets, with carved rosette
+   bosses and a deeper shelf.
+
+`compare-painted-v1-v2.jpg` shows painted, v1 and v2, in four matched views.
