@@ -47,7 +47,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 - [?] R29 The same room from its schematic with zero assets; P flips between the two (`lab/painted/procedural.js`, NOTES "The zero-asset build")
 - [ ] R30 A reliable calibration tool, so painted shells scale to the other 30+ rooms without hand-measuring (`tools/paint-calibrate.py`; NOTES "Limits seen")
 - [ ] R31 A real light bake for the code room: a path-traced "stand still" mode or baked lightmaps (NOTES "Not yet")
-- [ ] R32 Paint over the code room, then project it back, through the Codex twin once colony introduces it; any image spend needs your yes (NOTES "What painting over the code room would need")
+- [~] R32 Paint over the code room, then project it back, with holo-emitter-codex as the painter: the render packet is built to its contract; the painting waits on your yes to image spend (NOTES "The render packet", "What painting over the code room would need")
 - [ ] R33 An upscale pass so painted walls hold up at arm's length (NOTES "Limits seen")
 
 ## Later
