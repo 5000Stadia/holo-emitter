@@ -184,7 +184,7 @@ for (const [k, B] of Object.entries(BUILDS)) {
   B.code = await B.build(THREE, schem, (what) => { statusText.textContent = `${k}: ${what}…`; });
   B.lv = { ...(B.lv || B.code.defaults) };
   if (k === CODE) for (const key of Object.keys(B.lv)) if (Q.get(key)) B.lv[key] = +Q.get(key);
-  B.composer = new EffectComposer(renderer);
+  B.composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
   B.composer.addPass(new RenderPass(B.code.scene, camera));
   const g = new GTAOPass(B.code.scene, camera, innerWidth, innerHeight);
   g.updateGtaoMaterial(B.code.gtao || { radius: 0.35, distanceExponent: 1.4, thickness: 1.2, scale: 1.2, samples: 16 });

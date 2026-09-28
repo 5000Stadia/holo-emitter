@@ -60,7 +60,7 @@ document.body.prepend(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.03, 120);
 const house = await buildHouse(plan, (what) => { statusText.textContent = what + "…"; });
 const { scene, rooms, rig, level } = house;
-const composer = new EffectComposer(renderer);
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
 composer.addPass(new RenderPass(scene, camera));
 const gtao = new GTAOPass(scene, camera, innerWidth, innerHeight);
 gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 });

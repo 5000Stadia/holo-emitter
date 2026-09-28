@@ -104,10 +104,10 @@ function oakTextures(THREE, oak, { tint = [1, 1, 1], rotate = false } = {}) {
 function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
   const w = Math.round(W * ppm), h = Math.round(D * ppm), r = rng(7);
   const rows = []; let y = 0;
-  while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = periodic ? 0 : -r() * 2.2;
+  while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = periodic ? r() * 1.8 : -r() * 2.2;
     while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.72 + r() * 0.4 }); x += 1.3 + r() * 1.9; }
     rows.push({ y0: y, y1: Math.min(D, y + bw), joints }); y += bw; }
-  if (periodic) {   // a tile: the rows fill D exactly, and every row starts on a butt joint at X = 0
+  if (periodic) {   // a tile: the rows fill D exactly; each row's boards wrap round the tile's edge, so no joint lines up
     const k = D / rows[rows.length - 1].y1; let acc = 0;
     for (const row of rows) { const bw = (row.y1 - row.y0) * k; row.y0 = acc; row.y1 = acc = acc + bw; }
     rows[rows.length - 1].y1 = D;
@@ -123,11 +123,13 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
       for (let px = 0; px < w; px++) {
         const X = (px + 0.5) / ppm;
         let j = b.joints.length - 1; while (j > 0 && b.joints[j].x > X) j--;
-        const J = b.joints[j];
+        // in a tile, a board that crosses the edge carries on from the row's last joint
+        const wrap = periodic && X < b.joints[0].x, J = wrap ? b.joints[b.joints.length - 1] : b.joints[j];
+        const Xg = wrap ? X + W : X;
         // sample the oak tile with the grain along X
-        const su = mod(Math.floor((across * 0.19 + J.rot) * N), N), sv = mod(Math.floor((X + J.off) * N * 0.7), N);
+        const su = mod(Math.floor((across * 0.19 + J.rot) * N), N), sv = mod(Math.floor((Xg + J.off) * N * 0.7), N);
         const s = (sv * N + su) * 3;
-        const edge = Math.min(across, 1 - across) * (b.y1 - b.y0), jd = Math.abs(X - J.x);
+        const edge = Math.min(across, 1 - across) * (b.y1 - b.y0), jd = Math.abs(Xg - J.x);
         const gap = (edge < 0.0022 ? 0.25 : edge < 0.004 ? 0.7 : 1) * (jd < 0.0022 ? 0.3 : 1);
         const wear = 1 + 0.12 * Math.exp(-Math.pow((Y - D * 0.45) / 1.1, 2)) * Math.exp(-Math.pow((X - W * 0.5) / 1.6, 2));
         const k = J.tone * gap * wear, o = (py * w + px) * 4;
