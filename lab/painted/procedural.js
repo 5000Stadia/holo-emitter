@@ -245,8 +245,8 @@ function leadedTexture(THREE, wM, hM, shield, seed) {
   const ppm = 300, w = Math.round(wM * ppm), h = Math.round(hM * ppm), qw = 0.085, qh = 0.13;
   const c = document.createElement("canvas"); c.width = w; c.height = h;
   const g = c.getContext("2d"), r = rng(seed);
-  const grad = g.createLinearGradient(0, 0, 0, h);
-  grad.addColorStop(0, "#f4f6ef"); grad.addColorStop(1, "#dfe6da");
+  const grad = g.createLinearGradient(0, 0, 0, h);            // v2: crown glass is hazy, not white
+  grad.addColorStop(0, "rgba(236,240,232,0.30)"); grad.addColorStop(1, "rgba(214,224,208,0.38)");
   g.fillStyle = grad; g.fillRect(0, 0, w, h);
   // each quarry a slightly different glass
   for (let j = -1; j < hM / qh * 2 + 2; j++) for (let i = -1; i < wM / qw + 2; i++) {
@@ -257,7 +257,7 @@ function leadedTexture(THREE, wM, hM, shield, seed) {
   if (shield) {
     const sw = Math.min(w * 0.42, 0.16 * ppm), sh = sw * 1.2, sx = w / 2 - sw / 2, sy = h * 0.28;
     const path = () => { g.beginPath(); g.moveTo(sx, sy); g.lineTo(sx + sw, sy); g.lineTo(sx + sw, sy + sh * 0.55); g.quadraticCurveTo(sx + sw, sy + sh * 0.9, sx + sw / 2, sy + sh); g.quadraticCurveTo(sx, sy + sh * 0.9, sx, sy + sh * 0.55); g.closePath(); };
-    const cols = shield === 1 ? ["#3a6fb0", "#e6c35a", "#b8322a", "#f0ece0"] : ["#b8322a", "#f0ece0", "#3a6fb0", "#e6c35a"];
+    const cols = shield === 1 ? ["#4d6a8c", "#c7ad6a", "#94443a", "#ddd8cc"] : ["#94443a", "#ddd8cc", "#4d6a8c", "#c7ad6a"];   // stained glass, aged: muted
     g.save(); path(); g.clip();
     g.fillStyle = cols[0]; g.fillRect(sx, sy, sw / 2, sh / 2); g.fillStyle = cols[1]; g.fillRect(sx + sw / 2, sy, sw / 2, sh / 2);
     g.fillStyle = cols[1]; g.fillRect(sx, sy + sh / 2, sw / 2, sh / 2); g.fillStyle = cols[0]; g.fillRect(sx + sw / 2, sy + sh / 2, sw / 2, sh / 2);
@@ -274,6 +274,21 @@ function leadedTexture(THREE, wM, hM, shield, seed) {
   g.lineWidth = 6; g.strokeRect(0, 0, w, h);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   return t;
+}
+// what lies beyond the south windows: sky, a far line of trees, a lawn, soft and low in detail
+function outsideTexture(THREE) {
+  const w = 1024, h = 512;
+  return canvasTex(THREE, w, h, (d) => {
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const u = x / w, v = y / h, o = (y * w + x) * 4;
+      const ridge = 0.5 + 0.07 * (fbm(u * 6, 0.5, 6, 1, 4, 301) - 0.5) * 4;       // the tree line's top edge
+      let r, g2, b;
+      if (v < ridge) { const k = v / ridge; r = 200 - 40 * k; g2 = 214 - 30 * k; b = 226 - 34 * k; }     // sky, hazed toward the horizon
+      else if (v < 0.66) { const m = fbm(u * 30, v * 20, 30, 20, 3, 303); r = 58 + 30 * m; g2 = 74 + 34 * m; b = 58 + 22 * m; }  // trees
+      else { const m = fbm(u * 12, v * 24, 12, 24, 3, 307); r = 104 + 30 * m; g2 = 126 + 30 * m; b = 78 + 18 * m; }            // lawn
+      const haze = 0.18; d[o] = r * (1 - haze) + 214 * haze; d[o + 1] = g2 * (1 - haze) + 222 * haze; d[o + 2] = b * (1 - haze) + 226 * haze; d[o + 3] = 255;
+    }
+  }, { repeat: false });
 }
 
 // ---------------------------------------------------------------- geometry
@@ -592,8 +607,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         add(quad(THREE, [e.r0, 0, -T], [e.r0, 0, -T - P], [e.r0, t, -T - P], [e.r0, t, -T]), M.oakDim);
         add(quad(THREE, [e.r1, 0, -T - P], [e.r1, 0, -T], [e.r1, t, -T], [e.r1, t, -T - P]), M.oakDim);
         add(quad(THREE, [e.r0, t, -T], [e.r0, t, -T - P], [e.r1, t, -T - P], [e.r1, t, -T]), M.oakDim);
-        add(quad(THREE, [e.r0, 0.001, -T - P], [e.r0, 0.001, -T], [e.r1, 0.001, -T], [e.r1, 0.001, -T - P]), M.oakDim);
-        add(quad(THREE, [e.r0, 0, -T - P], [e.r1, 0, -T - P], [e.r1, t, -T - P], [e.r0, t, -T - P]), M.dark);
+        add(quad(THREE, [e.r0, 0.001, -T - P], [e.r0, 0.001, -T], [e.r1, 0.001, -T], [e.r1, 0.001, -T - P]), M.floor);
+        add(quad(THREE, [e.r0, 0, -T - P], [e.r1, 0, -T - P], [e.r1, t, -T - P], [e.r0, t, -T - P]), M.oakDim);
         // a dark sleeve just outside the lining and passage, so their shared edges never open onto nothing
         ctx = e.id + "/sleeve";
         { const g = new THREE.BoxGeometry(e.r1 - e.r0 + 0.08, t + 0.08, T + P + 0.04); g.translate((e.r0 + e.r1) / 2, t / 2, -(T + P) / 2 - 0.01);
@@ -620,17 +635,20 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         const lightsIn = [[gx0, mx - mw, ty + mw, gy1, 1], [mx + mw, gx1, ty + mw, gy1, 2], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
-          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.15, 1.13, 1.02) });
+          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.1, 1.08, 1.0), transparent: true, depthWrite: false });
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
         ctx = e.id + "/glassback";
-        { const g = new THREE.PlaneGeometry(i[1][0] - i[0][0], i[2][1] - i[0][1]); g.translate((i[0][0] + i[1][0]) / 2, (i[0][1] + i[2][1]) / 2, G - 0.03);
-          const pane = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: new THREE.Color(1.05, 1.03, 0.93) })); grp.add(pane);
-          pane.userData = { instance: `${F}/${e.id}/glassback`, material: "glass", owner: F }; }
+        { // v2: no opaque backing: the world outside, 2.5 m beyond the glass, wide enough for any angle in
+          K.outside = K.outside || new THREE.MeshBasicMaterial({ map: outsideTexture(THREE), color: new THREE.Color(1.06, 1.06, 1.06) });
+          const ow = (e.r1 - e.r0) + 5.2, oh = 4.2, g = new THREE.PlaneGeometry(ow, oh);
+          g.translate((e.r0 + e.r1) / 2, e.sill + 0.4, G - 2.5);
+          const pane = new THREE.Mesh(g, K.outside); grp.add(pane);
+          pane.userData = { instance: `${F}/${e.id}/outside`, material: "glass", owner: F }; }
         ctx = e.id;
         // daylight through the glass: an area light filling the opening, facing the room
-        const al = new THREE.RectAreaLight(0xfff0dc, 5.5, gx1 - gx0, gy1 - gy0);
+        const al = new THREE.RectAreaLight(0xe9eef0, 5.5, gx1 - gx0, gy1 - gy0);   // v2: daylight is cool; the warmth is in the bounce
         al.position.set(mx, (gy0 + gy1) / 2, G + 0.06); al.lookAt(mx, (gy0 + gy1) / 2, 5);
         grp.add(al); lights.push(al);
       }
@@ -769,7 +787,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   const northB = area(0xffd2a0, W * 0.8, H * 0.6, [W / 2, H * 0.45, -D + 0.08], [W / 2, H * 0.45, 5]);
   const apply = (lv) => { floorB.intensity = lv.floorB; patchB.intensity = lv.patchB; ceilB.intensity = lv.ceilB; northB.intensity = lv.northB; };
   // levels matched to the paintings' luminance percentiles (p10 / p50 / p90) at the four painting poses
-  const defaults = { sun: 1.7, sky: 6, fill: 0.25, bounce: 0, floorB: 1.3, patchB: 1.8, ceilB: 0.45, northB: 0.8 };
+  const defaults = { sun: 1.7, sky: 7, fill: 0.3, bounce: 0, floorB: 1.2, patchB: 1.8, ceilB: 0.22, northB: 0.45 };
 
   return { scene, kit: K, lights: { sun, hemi, bounce, areas: lights, apply }, defaults,
     gtao: { radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 }, gtaoBlend: 1.0,
