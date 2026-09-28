@@ -73,15 +73,15 @@ function oakField(N) {
     const figure = fbm(u * 7 + warp, v * 0.6, 7, 1, 3, 29);
     const fl = vnoise(u * 50 + warp * 4, v * 12, 50, 12, 31);
     const fleck = smooth(0.8, 0.92, fl) * (0.5 + 0.5 * vnoise(u * 140, v * 36, 140, 36, 37));
-    const tone = 0.78 + 0.44 * figure;
-    const k = (0.7 + 0.3 * fibre) * (1 - 0.3 * late) * tone;
+    const tone = 0.72 + 0.56 * figure;                       // v2: the broad figure carries the wood; the fine grain whispers
+    const k = (0.82 + 0.18 * fibre) * (1 - 0.18 * late) * tone;
     const i = (y * N + x) * 3;
     // dark English oak, aged: warm brown; fleck paler, a touch of gold
     // sRGB fractions: aged dark oak, olive-brown more than red, about (84, 59, 36)
     // (zone-matched: the panelling read 15-50 % bright against the painting; this is 0.84 of the first pass)
-    A[i] = 0.277 * k + fleck * 0.06;
-    A[i + 1] = 0.195 * k + fleck * 0.046;
-    A[i + 2] = 0.118 * k + fleck * 0.025;
+    A[i] = 0.277 * k + fleck * 0.03;          // (fleck halved with the quieter grain, or it spots)
+    A[i + 1] = 0.195 * k + fleck * 0.023;
+    A[i + 2] = 0.118 * k + fleck * 0.012;
     H[y * N + x] = -late * 0.35 + fibre * 0.2 + fleck * 0.15;
   }
   return { A, H, N };
@@ -368,6 +368,11 @@ function slab(THREE, outline, holes = [], z = 0) {
   for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i), p.getY(i));
   return g;
 }
+// any geometry: metre UVs projected per face (normals must exist)
+function metricAny(g) {
+  if (!g.attributes.normal) g.computeVertexNormals();
+  return metric(g);
+}
 // boxes: replace the 0..1 face UVs with metres, projected per face
 function metric(g) {
   const p = g.attributes.position, n = g.attributes.normal, uv = g.attributes.uv;
@@ -398,14 +403,23 @@ function grime(THREE, mat, soot = null, walls = true) {
     sh.uniforms.uWalls = { value: walls ? 1 : 0 };
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vGW;")
       .replace("#include <project_vertex>", "#include <project_vertex>\nvGW = (modelMatrix * vec4(transformed, 1.0)).xyz;");
-    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", "#include <common>\nvarying vec3 vGW; uniform vec4 uSoot; uniform float uSootK; uniform float uWalls;")
+    sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
+        varying vec3 vGW; uniform vec4 uSoot; uniform float uSootK; uniform float uWalls;
+        float hh3(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
+        float vn3(vec3 x) { vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f);
+          return mix(mix(mix(hh3(i), hh3(i + vec3(1,0,0)), f.x), mix(hh3(i + vec3(0,1,0)), hh3(i + vec3(1,1,0)), f.x), f.y),
+                     mix(mix(hh3(i + vec3(0,0,1)), hh3(i + vec3(1,0,1)), f.x), mix(hh3(i + vec3(0,1,1)), hh3(i + vec3(1,1,1)), f.x), f.y), f.z); }`)
+      .replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
+        roughnessFactor = clamp(roughnessFactor * (0.8 + 0.4 * vn3(vGW * 2.3 + 7.0)), 0.2, 1.0);   // wax worn unevenly`)
       .replace("#include <color_fragment>", `#include <color_fragment>
+        float pat = 0.86 + 0.2 * vn3(vGW * 1.6) + 0.08 * vn3(vGW * 5.3 + 3.0);                          // patina: each stretch of wood its own age
+        diffuseColor.rgb *= pat;
         float g = 1.0 - uWalls * (0.16 * (1.0 - smoothstep(0.0, 0.55, vGW.y)) + 0.12 * smoothstep(2.3, 3.1, vGW.y));
         vec2 sd = (vGW.xy - uSoot.xy) / uSoot.zw;
         g *= 1.0 - uSootK * exp(-dot(sd, sd));
         diffuseColor.rgb *= g;`);
   };
-  mat.customProgramCacheKey = () => "grime" + (soot ? "s" : "") + (walls ? "w" : "");
+  mat.customProgramCacheKey = () => "grime2" + (soot ? "s" : "") + (walls ? "w" : "");
   return mat;
 }
 // the carved vine and leaves as a height, X metres along the band, Y 0..1 up it
@@ -810,7 +824,16 @@ export function buildDesk(THREE, K, { W = 1.1, D = 0.56, H = 0.76 } = {}) {
   const { M, board } = K;
   const g = new THREE.Group(), drawer = new THREE.Group();
   const part = (geo, mat = M.oak, spread = 0.14, into = g) => { if (mat.vertexColors) board(geo, spread); const m = new THREE.Mesh(geo, mat); m.castShadow = m.receiveShadow = true; into.add(m); return m; };
-  const box = (w, h, d, x, y, z, mat = M.oak, into = g) => { const b = metric(new THREE.BoxGeometry(w, h, d)); b.translate(x, y, z); return part(b, mat, 0.14, into); };
+  // every member's arrises rolled by a few millimetres, as hands and years leave joinery
+  const box = (w, h, d, x, y, z, mat = M.oak, into = g) => {
+    const r = Math.min(0.004, w / 4, h / 4, d / 4);
+    const shape = new THREE.Shape(); shape.moveTo(-w / 2 + r, -h / 2); shape.lineTo(w / 2 - r, -h / 2); shape.quadraticCurveTo(w / 2, -h / 2, w / 2, -h / 2 + r);
+    shape.lineTo(w / 2, h / 2 - r); shape.quadraticCurveTo(w / 2, h / 2, w / 2 - r, h / 2); shape.lineTo(-w / 2 + r, h / 2); shape.quadraticCurveTo(-w / 2, h / 2, -w / 2, h / 2 - r);
+    shape.lineTo(-w / 2, -h / 2 + r); shape.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
+    const b = new THREE.ExtrudeGeometry(shape, { depth: Math.max(0.001, d - 2 * r), bevelEnabled: true, bevelThickness: r, bevelSize: 0, bevelSegments: 2, curveSegments: 3 });
+    b.translate(0, 0, -(d - 2 * r) / 2); metricAny(b); b.translate(x, y, z);
+    return part(b, mat, 0.14, into);
+  };
   const T = 0.032, AP = 0.12, LEG = 0.058, legH = H - T;
   // legs: a lathe profile between a square block under the top and a square foot
   const prof = [[0, 0.1], [0.022, 0.1], [0.025, 0.12], [0.02, 0.15], [0.026, 0.2], [0.03, 0.26], [0.028, 0.31], [0.021, 0.36], [0.017, 0.4], [0.02, 0.43], [0.026, 0.46], [0.022, 0.49], [0.025, legH - AP - 0.02], [0.02, legH - AP], [0, legH - AP]].map(([r, y]) => new THREE.Vector2(r, y));
@@ -836,12 +859,17 @@ export function buildDesk(THREE, K, { W = 1.1, D = 0.56, H = 0.76 } = {}) {
   part(top, M.oakH, 0.1);
   // the drawer: front with a turned knob, sides, back and bottom; it slides out along +z
   const dd = D - 0.12, t = 0.014;
-  box(dw - 0.006, dh - 0.006, 0.02, 0, y0 + dh / 2, fz + 0.001, M.oakH, drawer);
+  box(dw - 0.006, dh - 0.006, 0.028, 0, y0 + dh / 2, fz + 0.005, M.oakH, drawer);
+  // a raised field on the drawer front, as its panels are raised on the walls
+  { const f = loft(THREE, rect(-dw / 2 + 0.03, dw / 2 - 0.03, y0 + 0.018, y0 + dh - 0.018), [[0, 0], [0.004, 0.003], [0.012, 0.005], [0.014, 0.005]], true, true);
+    f.translate(0, 0, fz + 0.019); part(f, M.oakH, 0.05, drawer); }
   const knob = new THREE.LatheGeometry([[0, 0], [0.012, 0], [0.012, 0.004], [0.006, 0.01], [0.009, 0.018], [0.013, 0.026], [0.01, 0.032], [0, 0.034]].map(([r, y]) => new THREE.Vector2(r, y)), 16);
-  knob.rotateX(Math.PI / 2); knob.translate(0, y0 + dh / 2, fz + 0.011); part(knob, M.oak, 0.05, drawer);
+  knob.rotateX(Math.PI / 2); knob.translate(0, y0 + dh / 2, fz + 0.024); part(knob, M.oak, 0.05, drawer);
   for (const sx of [-1, 1]) box(t, dh - 0.02, dd, sx * (dw / 2 - 0.02), y0 + dh / 2 - 0.005, fz - dd / 2, M.oak, drawer);
   box(dw - 0.04, dh - 0.02, t, 0, y0 + dh / 2 - 0.005, fz - dd + t / 2, M.oak, drawer);
-  box(dw - 0.04, 0.008, dd, 0, y0 + 0.008, fz - dd / 2, M.oakH, drawer);
+  // the drawer's inside: paler, unwaxed, catching what little light reaches it
+  K.drawerIn = K.drawerIn || new THREE.MeshStandardMaterial({ map: M.oakH.map, roughness: 0.85, vertexColors: true, color: new THREE.Color(1.5, 1.4, 1.25), emissive: 0x120a05 });
+  box(dw - 0.04, 0.008, dd, 0, y0 + 0.008, fz - dd / 2, K.drawerIn, drawer);
   // a dark cavity behind the drawer, so the opening never shows through the table
   box(dw, dh, 0.01, 0, y0 + dh / 2, fz - dd - 0.012, M.dark);
   g.add(drawer);
@@ -860,6 +888,12 @@ export function buildKey(THREE) {
   const shank = new THREE.CylinderGeometry(0.0032, 0.0034, 0.08, 12); shank.rotateZ(Math.PI / 2); shank.translate(0.001, 0, 0); add(shank);
   const collar = new THREE.CylinderGeometry(0.0048, 0.0048, 0.006, 12); collar.rotateZ(Math.PI / 2); collar.translate(-0.036, 0, 0); add(collar);
   for (const [w, d, x, z] of [[0.016, 0.02, 0.034, 0.01], [0.004, 0.012, 0.03, 0.016]]) { const b = new THREE.BoxGeometry(w, 0.003, d); b.translate(x, 0, z); add(b); }
+  // where it touches the drawer's bottom, a soft dark contact
+  { const c = document.createElement("canvas"); c.width = c.height = 64; const x = c.getContext("2d");
+    const gr = x.createRadialGradient(32, 32, 2, 32, 32, 31); gr.addColorStop(0, "rgba(0,0,0,0.55)"); gr.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = gr; x.fillRect(0, 0, 64, 64);
+    const sh = new THREE.Mesh(new THREE.PlaneGeometry(0.15, 0.05), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthWrite: false }));
+    sh.rotation.x = -Math.PI / 2; sh.position.set(-0.008, -0.0036, 0.004); sh.renderOrder = 1; sh.userData.entity = "key1"; g.add(sh); }
   // a hand's-width pick area round it, unseen: an 11 cm key is a small thing to put a pointer on
   const pick = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.05, 0.08), new THREE.MeshBasicMaterial({ visible: false }));
   pick.userData.entity = "key1"; g.add(pick);
