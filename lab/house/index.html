@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Manor, From Its Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --ink: #ece4d2; --ink-dim: #a89e88; --panel: rgba(22, 19, 16, 0.72); --line: rgba(236, 228, 210, 0.2); --brass: #c9a961; }
+  html, body { height: 100%; margin: 0; background: #0c0a08; color: var(--ink); overflow: hidden; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 13px; }
+  canvas { display: block; }
+  .hud { position: fixed; inset: 0; pointer-events: none; display: grid; grid-template-rows: auto 1fr auto; padding: 18px; gap: 12px; }
+  .top, .bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .bottom { align-items: flex-end; }
+  .box { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); line-height: 1.6; }
+  .room .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+  .room .name { font-family: "Josefin Sans", sans-serif; font-weight: 600; font-size: 22px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; color: var(--brass); }
+  kbd { font-family: inherit; color: var(--ink); border: 1px solid var(--line); padding: 0 5px; border-radius: 2px; }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
+  #gate .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #gate[hidden], #status[hidden] { display: none !important; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; z-index: 3; text-align: center; padding: 24px; }
+  #status .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .stats { display: none; } }
+</style>
+</head>
+<body>
+<div id="status"><div><div class="t">The Manor</div><div id="statusText" style="margin-top:12px;color:var(--ink-dim)">loading…</div></div></div>
+<div id="gate" tabindex="0"><div class="t">click to walk</div><div style="color:var(--ink-dim)">esc releases the mouse · or drag to look</div></div>
+<div class="hud">
+  <div class="top">
+    <div class="box room"><div class="eyebrow" id="floorName">you are in</div><div class="name" id="roomName">—</div></div>
+    <div class="box stats" id="stats"></div>
+  </div>
+  <div></div>
+  <div class="bottom"><div class="box"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride &nbsp; walk into a stair to climb it</div></div>
+</div>
+<script>window.addEventListener("error", (e) => { if (!window.__ok) document.getElementById("statusText").textContent = "error: " + (e.message || e.type); });</script>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { buildHouse } from "./house.js";
+
+const Q = new URLSearchParams(location.search);
+const statusText = document.getElementById("statusText");
+const tLoad = performance.now();
+// the plan: packs/manor's, exactly as the painted pipeline reads it (tools/pack.mjs), baked to plan.json
+const plan = await (await fetch("./plan.json")).json();
+RectAreaLightUniformsLib.init();
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.03, 120);
+const house = await buildHouse(plan, (what) => { statusText.textContent = what + "…"; });
+const { scene, rooms, rig, level } = house;
+const composer = new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene, camera));
+const gtao = new GTAOPass(scene, camera, innerWidth, innerHeight);
+gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 });
+composer.addPass(gtao); composer.addPass(new OutputPass());
+
+// where you can stand: any room of your floor (a hand's breadth off its walls), any doorway, any stair
+const LEVEL_GAP = 3.1, EYE = 1.6;
+const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
+const stairAt = (x, y) => plan.stairs.find(s => inRect(s.rect, x, y));
+const stairHeight = (s, x, y) => { const R = s.rect; const t = s.up === "N" ? (y - R.y0) / (R.y1 - R.y0) : s.up === "S" ? (R.y1 - y) / (R.y1 - R.y0) : s.up === "E" ? (x - R.x0) / (R.x1 - R.x0) : (R.x1 - x) / (R.x1 - R.x0); return Math.max(0, Math.min(1, t)) * LEVEL_GAP; };
+let floorId = "ground";
+const floorOf = (h) => h > LEVEL_GAP / 2 ? "upper" : "ground";
+function standable(x, y, h) {
+  const f = floorOf(h);
+  if (stairAt(x, y)) return true;
+  if (plan.rooms.some(r => r.floor === f && inRect(r.rect, x, y, 0.2))) return true;
+  return plan.openings.some(o => o.floor === f && o.rect && inRect({ x0: o.rect.x0 - 0.05, x1: o.rect.x1 + 0.05, y0: o.rect.y0 - 0.05, y1: o.rect.y1 + 0.05 }, x, y));
+}
+const roomAt = (x, y, h) => rooms.find(r => r.room.floor === floorOf(h) && inRect(r.room.rect, x, y));
+
+const start = plan.rooms.find(r => r.id === (Q.get("room") || "great_hall"));
+let px = Q.get("x") ? +Q.get("x") : (start.rect.x0 + start.rect.x1) / 2, py = Q.get("y") ? +Q.get("y") : (start.rect.y0 + start.rect.y1) / 2;
+let ph = start.floor === "upper" ? LEVEL_GAP : 0, yaw = (+Q.get("yaw") || 0) * Math.PI / 180, pitch = (+Q.get("pitch") || 0) * Math.PI / 180;
+window.__place = (x, y, yd, pd = 0, floor = null) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = floor === "upper" ? LEVEL_GAP : 0; };
+
+const keys = {};
+addEventListener("keydown", e => { keys[e.code] = true; });
+addEventListener("keyup", e => { keys[e.code] = false; });
+const gate = document.getElementById("gate");
+const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
+gate.addEventListener("click", lock);
+document.addEventListener("pointerlockchange", () => { gate.hidden = document.pointerLockElement === renderer.domElement; });
+const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
+let drag = null;
+renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
+renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
+addEventListener("pointerup", () => { drag = null; });
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+
+const st = house.stats;
+st.first_frame_ms = null;
+document.getElementById("stats").innerHTML = `built from the plan in <b>${(st.total_ms / 1000).toFixed(1)} s</b><br>${st.rooms} rooms · ${st.windows} windows<br>${st.meshes_before_merge} parts → ${st.draw_meshes} draws`;
+window.__stats = st;
+// time an edit: rebuild one room, e.g. with its windows made taller, and draw it
+window.__rebuild = async (id) => {
+  const ms = await house.rebuildRoom(id, (spec) => { for (const F of "NESW") for (const e of spec.walls[F]) if (e.kind === "window") e.top = Math.min(spec.H - 0.2, e.top + 0.15); return spec; });
+  const t = performance.now(); composer.render(); const draw = Math.round(performance.now() - t);
+  if (cur && cur.room.id === id) rig(house.rooms.find(r => r.room.id === id));
+  return { rebuild_ms: ms, first_draw_ms: draw };
+};
+const roomName = document.getElementById("roomName"), floorName = document.getElementById("floorName");
+let last = performance.now(), cur = null;
+function step(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const speed = (keys.ShiftLeft || keys.ShiftRight) ? 3.0 : 1.5;
+  const fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; }
+  if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
+  if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  const n = Math.hypot(dx, dy);
+  if (n > 0) {
+    dx = dx / n * speed * dt; dy = dy / n * speed * dt;
+    if (standable(px + dx, py, ph)) px += dx;
+    if (standable(px, py + dy, ph)) py += dy;
+  }
+  const s = stairAt(px, py);
+  if (s) ph = stairHeight(s, px, py);
+  const r = roomAt(px, py, ph);
+  if (r && r !== cur) { cur = r; rig(r); roomName.textContent = r.room.name; floorName.textContent = (r.room.floor === "upper" ? "upper floor" : "ground floor") + " · you are in"; }
+  camera.position.set(px, ph + EYE, -py);
+  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  composer.render();
+  if (!window.__ok) { window.__ok = true; st.first_frame_ms = Math.round(performance.now() - tLoad); document.getElementById("status").hidden = true; }
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+</script>
+</body>
+</html>

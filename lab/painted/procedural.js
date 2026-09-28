@@ -101,12 +101,17 @@ function oakTextures(THREE, oak, { tint = [1, 1, 1], rotate = false } = {}) {
 
 // Floor: boards running east-west, 160-240 mm wide, butt-jointed at random lengths; each
 // board a different cut of the same oak, darker and more worn than the panelling.
-function floorTexture(THREE, oak, W, D, ppm) {
+function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
   const w = Math.round(W * ppm), h = Math.round(D * ppm), r = rng(7);
   const rows = []; let y = 0;
-  while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = -r() * 2.2;
+  while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = periodic ? 0 : -r() * 2.2;
     while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.72 + r() * 0.4 }); x += 1.3 + r() * 1.9; }
     rows.push({ y0: y, y1: Math.min(D, y + bw), joints }); y += bw; }
+  if (periodic) {   // a tile: the rows fill D exactly, and every row starts on a butt joint at X = 0
+    const k = D / rows[rows.length - 1].y1; let acc = 0;
+    for (const row of rows) { const bw = (row.y1 - row.y0) * k; row.y0 = acc; row.y1 = acc = acc + bw; }
+    rows[rows.length - 1].y1 = D;
+  }
   const H = new Float32Array(w * h), N = oak.N;
   const map = canvasTex(THREE, w, h, (d) => {
     let ri = 0;
@@ -133,7 +138,7 @@ function floorTexture(THREE, oak, W, D, ppm) {
         H[py * w + px] = gap < 1 ? -1.2 : oak.H[sv * N + su] * 0.4;
       }
     }
-  }, { repeat: false });
+  }, { repeat: periodic });
   return { map, normalMap: normalFrom(THREE, H, w, h, 2.2) };
 }
 
@@ -151,7 +156,7 @@ function plasterTexture(THREE, N = 512) {
   });
   return { map, normalMap: normalFrom(THREE, H, N, N, 0.8) };
 }
-function stoneTexture(THREE, N = 512, base = [118, 108, 90]) {
+function stoneTexture(THREE, N = 512, base = [118, 108, 90], blots = true) {
   const H = new Float32Array(N * N);
   const map = canvasTex(THREE, N, N, (d) => {
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
@@ -159,13 +164,33 @@ function stoneTexture(THREE, N = 512, base = [118, 108, 90]) {
       const m = fbm(u * 5, v * 5, 5, 5, 4, 51), f = fbm(u * 80, v * 80, 80, 80, 2, 57);
       const pit = smooth(0.9, 0.97, vnoise(u * 90, v * 90, 90, 90, 61));
       const tool = 0.03 * Math.sin((u * 0.7 + v) * 380 + m * 6);
-      const blot = smooth(0.55, 0.8, fbm(u * 9, v * 9, 9, 9, 3, 67));      // lichen-dark weathering blots
+      const blot = blots ? smooth(0.55, 0.8, fbm(u * 9, v * 9, 9, 9, 3, 67)) : 0;      // lichen-dark weathering blots
       const k = (0.78 + 0.38 * m + 0.1 * f + 1.6 * tool) * (1 - 0.22 * pit) * (1 - 0.25 * blot), o = (y * N + x) * 4;
       d[o] = base[0] * k; d[o + 1] = base[1] * k; d[o + 2] = base[2] * k; d[o + 3] = 255;
       H[y * N + x] = m * 0.4 + f * 0.4 - pit;
     }
   });
   return { map, normalMap: normalFrom(THREE, H, N, N, 1.2) };
+}
+function flagTexture(THREE, N = 768) {
+  const H = new Float32Array(N * N), r = rng(51);
+  const rows = [0, 0.52, 1.0, 1.46, 2.0].map(v => v / 2);     // course lines in tile units (tile = 2 m)
+  const cuts = rows.slice(0, -1).map(() => { const c = [0]; let x = 0.25 + r() * 0.1; while (x < 0.95) { c.push(x); x += 0.28 + r() * 0.12; } return c; });
+  const map = canvasTex(THREE, N, N, (d) => {
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const u = x / N, v = y / N, row = rows.findIndex((a, i) => v >= a && v < rows[i + 1]);
+      const cs = cuts[row]; let j = cs.length - 1; while (j > 0 && cs[j] > u) j--;
+      const next = j + 1 < cs.length ? cs[j + 1] : 1;
+      const eu = Math.min(u - cs[j], next - u), ev = Math.min(v - rows[row], rows[row + 1] - v);
+      const joint = eu < 0.004 || ev < 0.004;
+      const t = hash(j, row, 53), m = fbm(u * 10, v * 10, 10, 10, 4, 57), f = fbm(u * 90, v * 90, 90, 90, 2, 59);
+      const k = joint ? 0.35 : (0.72 + 0.3 * t + 0.25 * m + 0.08 * f) * (1 - 0.3 * smooth(0.6, 0.85, fbm(u * 6, v * 6, 6, 6, 3, 61)));
+      const o = (y * N + x) * 4;
+      d[o] = 118 * k; d[o + 1] = 110 * k; d[o + 2] = 96 * k; d[o + 3] = 255;
+      H[y * N + x] = joint ? -1 : m * 0.3 + f * 0.3;
+    }
+  });
+  return { map, normalMap: normalFrom(THREE, H, N, N, 2) };
 }
 function brickTexture(THREE, N = 512) {
   // 1 m tile: 4 bricks of 0.25 m per course (incl. joint), 13 courses of ~0.077 m
@@ -409,13 +434,11 @@ const STYLE = {
   wallT: 0.32,
 };
 
-// ---------------------------------------------------------------- the build
-export async function buildProcedural(THREE, schem, onStep = () => {}) {
-  const t0 = performance.now();
-  const { w: W, d: D, h: H } = schem.room;
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x07060a);
-
+// ---------------------------------------------------------------- the kit
+// Everything a room is made from, built once: materials grown from noise, and the helpers that give
+// each part its own cut of timber. floor = [W, D] for a floor texture sized to one room, or null for a
+// 4 m periodic tile (a house of many rooms).
+export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
   onStep("growing oak");
   await new Promise(r => setTimeout(r));
   const oak = oakField(1024);
@@ -427,7 +450,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   };
   onStep("laying the floor");
   await new Promise(r => setTimeout(r));
-  const fl = floorTexture(THREE, oak, W, D, 360);
+  const fl = floor ? floorTexture(THREE, oak, floor[0], floor[1], 360, floor[2]) : floorTexture(THREE, oak, 4, 4, 256, true);
   M.floor = new THREE.MeshStandardMaterial({ ...fl, roughness: 0.64, normalScale: new THREE.Vector2(0.4, 0.4) });
   onStep("plaster, stone and brick");
   await new Promise(r => setTimeout(r));
@@ -452,28 +475,25 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     g.setAttribute("color", new THREE.BufferAttribute(c, 3));
     return g;
   };
+  M.limewash = new THREE.MeshStandardMaterial({ ...plasterTexture(THREE), roughness: 0.97, color: new THREE.Color(1.12, 1.1, 1.04) });
+  M.flags = new THREE.MeshStandardMaterial({ ...flagTexture(THREE), roughness: 0.8 });
   for (const [k, v] of Object.entries(M)) CLASS.set(v, k === "oakH" || k === "oakDim" ? "oak" : k);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), M.floor);
-  floor.userData = { instance: "floor", material: "floor", owner: "floor" };
-  floor.rotation.x = -Math.PI / 2; floor.position.set(W / 2, 0, -D / 2); floor.receiveShadow = true; scene.add(floor);
-  const ceilG = new THREE.PlaneGeometry(W, D); { const uv = ceilG.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * W, uv.getY(i) * D); }
-  const ceil = new THREE.Mesh(ceilG, M.plaster);
-  ceil.userData = { instance: "ceiling", material: "plaster", owner: "ceiling" };
-  ceil.rotation.x = Math.PI / 2; ceil.position.set(W / 2, H, -D / 2); ceil.receiveShadow = ceil.castShadow = true; scene.add(ceil);
+  return { M, oak, CLASS, cast, board, parts: 0 };
+}
 
-  const PLACE = { N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } };
-  const lights = [];
-  let parts = 0;
-
-  onStep("raising the walls");
-  await new Promise(r => setTimeout(r));
-  for (const [F, elems] of Object.entries(schem.walls)) {
-    const L = F === "N" || F === "S" ? W : D;
-    const grp = new THREE.Group();
+// ---------------------------------------------------------------- a wall
+// One wall of one room, in the wall's own frame: r along it from the left corner as you face it,
+// up is up, +z toward the room. elems: doors, open edges, windows, a chimney-piece (schematic.json's
+// shapes; T, lining and passage on an opening override the single-room defaults). style: "panelled"
+// or "limewashed". Returns the group, and the window lights it made.
+export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {}) {
+  const { M, oak, CLASS, cast, board } = K;
+  const grp = new THREE.Group(), lights = [];
+  const plain = style === "limewashed";
     let ctx = "panelling"; const count = {};
     const add = (g, m, spread) => {
       if (m.vertexColors) board(g, spread);
-      const mesh = cast(new THREE.Mesh(g, m)); grp.add(mesh); parts++;
+      const mesh = cast(new THREE.Mesh(g, m)); grp.add(mesh); K.parts++;
       count[ctx] = (count[ctx] || 0) + 1;
       mesh.userData = { instance: `${F}/${ctx}/${count[ctx]}`, material: CLASS.get(m) || m.userData.cls || "other", owner: F };
       return mesh;
@@ -483,6 +503,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     const obst = [];
     for (const e of elems) {
       if (e.kind === "door") obst.push({ a: e.r0 - 0.12, b: e.r1 + 0.12, z0: 0, z1: e.top + 0.12 });
+      if (e.kind === "open") obst.push({ a: e.r0, b: e.r1, z0: 0, z1: H });
       if (e.kind === "window") obst.push({ a: e.r0, b: e.r1, z0: e.sill, z1: e.top });
       if (e.kind === "chimneypiece") { obst.push({ a: e.r0, b: e.r1, z0: 0, z1: e.surround_top }); obst.push({ a: e.mantel.r0, b: e.mantel.r1, z0: e.surround_top, z1: e.mantel.top }); }
     }
@@ -494,10 +515,10 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
       return out.filter(([a, b]) => b - a > 0.02);
     };
     const fields = [];
-    for (const [z0, z1] of [STYLE.lower, STYLE.upper]) for (const [a, b] of free(z0, z1)) fields.push({ a, b, z0, z1 });
+    if (!plain) for (const [z0, z1] of [STYLE.lower, STYLE.upper]) for (const [a, b] of free(z0, z1)) fields.push({ a, b, z0, z1 });
     // above an obstacle that stops short of the zone's top: its own run of panels (overmantel, over-door)
-    for (const o of obst) {
-      const z1 = STYLE.upper[1];
+    for (const o of plain ? [] : obst) {
+      const z1 = Math.min(STYLE.upper[1], H - 0.26);
       if (o.z1 > z1 - 0.2 || obst.some(p => p !== o && p.z0 >= o.z1 - 0.01 && p.a < o.b && p.b > o.a)) continue;
       fields.push({ a: o.a, b: o.b, z0: o.z1 + 0.03, z1 });
     }
@@ -505,7 +526,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     const holes = [], notches = [];
     for (const e of elems) {
       if (e.kind === "window") holes.push(rect(e.r0, e.r1, e.sill, e.top));
-      if (e.kind === "door") notches.push([e.r0, e.r1, e.top]);
+      if (e.kind === "door" || e.kind === "open") notches.push([e.r0, e.r1, e.top]);
       if (e.kind === "chimneypiece") notches.push([e.firebox.r0, e.firebox.r1, e.firebox.apex]);
     }
     const outline = [[0, 0]];
@@ -524,7 +545,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         panelRects.push(path);
       }
     }
-    add(slab(THREE, outline, [...holes, ...panelRects]), M.oak, 0.02);
+    add(slab(THREE, outline, [...holes, ...panelRects]), plain ? M.limewash : M.oak, 0.02);
     // the wall's core: a hidden face just behind the panels, run past the corners, under the floor and
     // over the ceiling, so no seam in the visible faces can ever show through to nothing
     ctx = "core";
@@ -536,22 +557,36 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     ctx = "skirting";
     for (const [a, b] of free(0, STYLE.skirting.top)) add(run(THREE, a, b, 0, STYLE.skirting.profile), M.oak);
     ctx = "dado";
-    for (const [a, b] of free(STYLE.dado.base, STYLE.dado.base + 0.08)) add(run(THREE, a, b, STYLE.dado.base, STYLE.dado.profile), M.oak);
-    ctx = "frieze"; add(run(THREE, 0, L, STYLE.frieze.base, STYLE.frieze.profile), M.oak);
-    ctx = "cornice"; add(run(THREE, 0, L, STYLE.cornice.base, STYLE.cornice.profile), M.oak);
+    if (!plain) for (const [a, b] of free(STYLE.dado.base, STYLE.dado.base + 0.08)) add(run(THREE, a, b, STYLE.dado.base, STYLE.dado.profile), M.oak);
+    // frieze and cornice sit under the ceiling, whatever the storey
+    const top = (y) => y - (3.1 - H);
+    for (const [a, b] of free(top(STYLE.frieze.base), H)) { ctx = "frieze"; if (!plain) add(run(THREE, a, b, top(STYLE.frieze.base), STYLE.frieze.profile), M.oak); }
+    for (const [a, b] of free(top(STYLE.cornice.base), H)) { ctx = "cornice"; add(run(THREE, a, b, top(STYLE.cornice.base), STYLE.cornice.profile), plain ? M.limewash : M.oak); }
 
     for (const e of elems) {
       ctx = e.id;
+      if (e.kind === "open" && e.lining !== false) {
+        // a wide opening with no door: the wall's own thickness, plastered, round three sides
+        const T = e.T ?? STYLE.wallT, t = e.top;
+        add(quad(THREE, [e.r0, 0, 0], [e.r0, 0, -T], [e.r0, t, -T], [e.r0, t, 0]), plain ? M.limewash : M.oak);
+        add(quad(THREE, [e.r1, 0, -T], [e.r1, 0, 0], [e.r1, t, 0], [e.r1, t, -T]), plain ? M.limewash : M.oak);
+        if (t < H - 0.01) add(quad(THREE, [e.r0, t, 0], [e.r0, t, -T], [e.r1, t, -T], [e.r1, t, 0]), plain ? M.limewash : M.oak);
+      }
       if (e.kind === "door") {
-        const T = STYLE.wallT, t = e.top;
+        const T = e.T ?? STYLE.wallT, t = e.top;
         // architrave round three sides, lofted outward from the opening
         add(loft(THREE, [[e.r0, 0], [e.r0, t], [e.r1, t], [e.r1, 0]], STYLE.casing, false, false), M.oak);
-        // lining through the wall, and a dark passage beyond
+      }
+      if (e.kind === "door" && e.lining !== false) {
+        const T = e.T ?? STYLE.wallT, t = e.top;
+        // lining through the wall (and, for a room on its own, a dark passage beyond)
         add(quad(THREE, [e.r0, 0, 0], [e.r0, 0, -T], [e.r0, t, -T], [e.r0, t, 0]), M.oak);
         add(quad(THREE, [e.r1, 0, -T], [e.r1, 0, 0], [e.r1, t, 0], [e.r1, t, -T]), M.oak);
         add(quad(THREE, [e.r0, t, 0], [e.r0, t, -T], [e.r1, t, -T], [e.r1, t, 0]), M.oak);
         add(quad(THREE, [e.r0, 0.001, -T], [e.r0, 0.001, 0], [e.r1, 0.001, 0], [e.r1, 0.001, -T]), M.floor);
-        const P = 1.8;
+      }
+      if (e.kind === "door" && e.passage !== false) {
+        const T = e.T ?? STYLE.wallT, t = e.top, P = 1.8;
         add(quad(THREE, [e.r0, 0, -T], [e.r0, 0, -T - P], [e.r0, t, -T - P], [e.r0, t, -T]), M.oakDim);
         add(quad(THREE, [e.r1, 0, -T - P], [e.r1, 0, -T], [e.r1, t, -T], [e.r1, t, -T - P]), M.oakDim);
         add(quad(THREE, [e.r0, t, -T], [e.r0, t, -T - P], [e.r1, t, -T - P], [e.r1, t, -T]), M.oakDim);
@@ -565,7 +600,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         ctx = e.id;
       }
       if (e.kind === "window") {
-        const T = STYLE.wallT, sp = e.splay, G = -T;
+        const T = e.T ?? STYLE.wallT, sp = e.splay, G = -T;
         const o = [[e.r0, e.sill], [e.r1, e.sill], [e.r1, e.top], [e.r0, e.top]];
         const i = [[e.r0 + sp, e.sill], [e.r1 - sp, e.sill], [e.r1 - sp, e.top - 0.08], [e.r0 + sp, e.top - 0.08]];
         // splayed reveals and sill
@@ -583,7 +618,7 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         const lightsIn = [[gx0, mx - mw, ty + mw, gy1, 1], [mx + mw, gx1, ty + mw, gy1, 2], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
-          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + parts), color: new THREE.Color(1.15, 1.13, 1.02) });
+          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.15, 1.13, 1.02) });
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
@@ -597,6 +632,14 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         al.position.set(mx, (gy0 + gy1) / 2, G + 0.06); al.lookAt(mx, (gy0 + gy1) / 2, 5);
         grp.add(al); lights.push(al);
       }
+      if (e.kind === "chimneypiece" && e.breast) {
+        // a chimney breast standing out into the room: its two returns and its face above the mantel
+        const B = e.breast, faceM = plain ? M.limewash : M.oak;
+        add(quad(THREE, [e.r0, 0, 0], [e.r0, 0, B], [e.r0, H, B], [e.r0, H, 0]), faceM, 0.05);
+        add(quad(THREE, [e.r1, 0, B], [e.r1, 0, 0], [e.r1, H, 0], [e.r1, H, B]), faceM, 0.05);
+        add(slab(THREE, rect(e.r0, e.r1, e.mantel.top - 0.1, H), [], B), faceM, 0.05);
+      }
+      const chimneyStart = grp.children.length;
       if (e.kind === "chimneypiece") {
         const fb = e.firebox, cx = (fb.r0 + fb.r1) / 2, half = (fb.r1 - fb.r0) / 2;
         // four-centred (Tudor) arch: quarter-ish arcs off the springing, flat-pointed at the apex
@@ -673,11 +716,39 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         const h = e.hearth, hg = metric(new THREE.BoxGeometry(h.r1 - h.r0, 0.035, h.out + SD));   // SD is the v2 surround depth
         hg.translate((h.r0 + h.r1) / 2, 0.0175, (h.out + SD) / 2);
         add(hg, M.hearth);
+        if (e.breast) for (const o of grp.children.slice(chimneyStart)) o.position.z += e.breast;
       }
     }
-    grp.position.set(...PLACE[F].pos); grp.rotation.y = PLACE[F].rot;
-    scene.add(grp);
+  return { grp, lights };
+}
+
+// ---------------------------------------------------------------- the single room
+export async function buildProcedural(THREE, schem, onStep = () => {}) {
+  const t0 = performance.now();
+  const { w: W, d: D, h: H } = schem.room;
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x07060a);
+  const K = await makeKit(THREE, { floor: [W, D], onStep });
+  const { M } = K;
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), M.floor);
+  floor.userData = { instance: "floor", material: "floor", owner: "floor" };
+  floor.rotation.x = -Math.PI / 2; floor.position.set(W / 2, 0, -D / 2); floor.receiveShadow = true; scene.add(floor);
+  const ceilG = new THREE.PlaneGeometry(W, D); { const uv = ceilG.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * W, uv.getY(i) * D); }
+  const ceil = new THREE.Mesh(ceilG, M.plaster);
+  ceil.userData = { instance: "ceiling", material: "plaster", owner: "ceiling" };
+  ceil.rotation.x = Math.PI / 2; ceil.position.set(W / 2, H, -D / 2); ceil.receiveShadow = ceil.castShadow = true; scene.add(ceil);
+
+  const PLACE = { N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } };
+  const lights = [];
+  onStep("raising the walls");
+  await new Promise(r => setTimeout(r));
+  for (const [F, elems] of Object.entries(schem.walls)) {
+    const L = F === "N" || F === "S" ? W : D;
+    const w = buildWall(THREE, K, F, L, H, elems);
+    w.grp.position.set(...PLACE[F].pos); w.grp.rotation.y = PLACE[F].rot;
+    scene.add(w.grp); lights.push(...w.lights);
   }
+  const parts = K.parts;
 
   // the light, shaped the way bounced light falls: a low sun through the south windows, the sky in
   // the glass, and broad warm sources where the room hands light back: the floor, the sunlit patch
@@ -702,3 +773,6 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     gtao: { radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 }, gtaoBlend: 1.0,
     stats: { parts, ms: Math.round(performance.now() - t0) } };
 }
+
+// the kit's parts, for builders of more than one room (lab/house)
+export { STYLE, rect, loft, run, slab, quad, metric, block, offsetLine, canvasTex, normalFrom, fbm, vnoise, hash, rng, smooth, stoneTexture, plasterTexture, brickTexture };
