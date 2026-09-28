@@ -471,6 +471,13 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
       }
     }
     add(slab(THREE, outline, [...holes, ...panelRects]), M.oak, 0.02);
+    // the wall's core: a hidden face just behind the panels, run past the corners, under the floor and
+    // over the ceiling, so no seam in the visible faces can ever show through to nothing
+    ctx = "core";
+    const X = 0.04, core = [[-X, -X]];
+    for (const [a, b, t] of notches) core.push([a, -X], [a, t], [b, t], [b, -X]);
+    core.push([L + X, -X], [L + X, H + X], [-X, H + X]);
+    add(slab(THREE, core, holes, -0.03), M.oak, 0.02);
     // horizontal runs, broken where something stands in their way
     ctx = "skirting";
     for (const [a, b] of free(0, STYLE.skirting.top)) add(run(THREE, a, b, 0, STYLE.skirting.profile), M.oak);
@@ -496,6 +503,12 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
         add(quad(THREE, [e.r0, t, -T], [e.r0, t, -T - P], [e.r1, t, -T - P], [e.r1, t, -T]), M.oakDim);
         add(quad(THREE, [e.r0, 0.001, -T - P], [e.r0, 0.001, -T], [e.r1, 0.001, -T], [e.r1, 0.001, -T - P]), M.oakDim);
         add(quad(THREE, [e.r0, 0, -T - P], [e.r1, 0, -T - P], [e.r1, t, -T - P], [e.r0, t, -T - P]), M.dark);
+        // a dark sleeve just outside the lining and passage, so their shared edges never open onto nothing
+        ctx = e.id + "/sleeve";
+        { const g = new THREE.BoxGeometry(e.r1 - e.r0 + 0.08, t + 0.08, T + P + 0.04); g.translate((e.r0 + e.r1) / 2, t / 2, -(T + P) / 2 - 0.01);
+          const sl = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x050403, roughness: 1, side: THREE.BackSide })); grp.add(sl);
+          sl.userData = { instance: `${F}/${e.id}/sleeve`, material: "dark", owner: F }; }
+        ctx = e.id;
       }
       if (e.kind === "window") {
         const T = STYLE.wallT, sp = e.splay, G = -T;
@@ -520,6 +533,11 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
+        ctx = e.id + "/glassback";
+        { const g = new THREE.PlaneGeometry(i[1][0] - i[0][0], i[2][1] - i[0][1]); g.translate((i[0][0] + i[1][0]) / 2, (i[0][1] + i[2][1]) / 2, G - 0.03);
+          const pane = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: new THREE.Color(2.0, 2.0, 1.9) })); grp.add(pane);
+          pane.userData = { instance: `${F}/${e.id}/glassback`, material: "glass", owner: F }; }
+        ctx = e.id;
         // daylight through the glass: an area light filling the opening, facing the room
         const al = new THREE.RectAreaLight(0xfff0dc, 5.5, gx1 - gx0, gy1 - gy0);
         al.position.set(mx, (gy0 + gy1) / 2, G + 0.06); al.lookAt(mx, (gy0 + gy1) / 2, 5);
