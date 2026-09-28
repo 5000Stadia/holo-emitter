@@ -106,7 +106,7 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
   const w = Math.round(W * ppm), h = Math.round(D * ppm), r = rng(7);
   const rows = []; let y = 0;
   while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = periodic ? r() * 1.8 : -r() * 2.2;
-    while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.72 + r() * 0.4, sc: 0.65 + r() * 0.7, ac: 0.12 + r() * 0.16 }); x += 1.3 + r() * 1.9; }
+    while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.88 + r() * 0.2, sc: 0.65 + r() * 0.7, ac: 0.12 + r() * 0.16 }); x += 1.3 + r() * 1.9; }
     rows.push({ y0: y, y1: Math.min(D, y + bw), joints }); y += bw; }
   if (periodic) {   // a tile: the rows fill D exactly; each row's boards wrap round the tile's edge, so no joint lines up
     const k = D / rows[rows.length - 1].y1; let acc = 0;
@@ -133,7 +133,8 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
         const edge = Math.min(across, 1 - across) * (b.y1 - b.y0), jd = Math.abs(Xg - J.x);
         const gap = (edge < 0.0022 ? 0.25 : edge < 0.004 ? 0.7 : 1) * (jd < 0.0022 ? 0.3 : 1);
         const wear = 1 + 0.12 * Math.exp(-Math.pow((Y - D * 0.45) / 1.1, 2)) * Math.exp(-Math.pow((X - W * 0.5) / 1.6, 2));
-        const k = J.tone * gap * wear, o = (py * w + px) * 4;
+        const drift = 0.94 + 0.12 * fbm((Xg + J.off) * 0.6, across * 0.3 + J.rot * 5, 1000, 1000, 2, 131);   // slow, along the board
+        const k = J.tone * drift * gap * wear, o = (py * w + px) * 4;
         // the floor is the same oak, worn lighter and waxed: the painting's boards sit well above its panelling
         // ...and greyed by wear and dust: pulled a third of the way toward its own grey
         const fr = oak.A[s] * 1.9 * k, fg = oak.A[s + 1] * 1.85 * k, fb = oak.A[s + 2] * 1.8 * k, fy = 0.3 * fr + 0.55 * fg + 0.15 * fb;
@@ -412,7 +413,8 @@ function grime(THREE, mat, soot = null, walls = true) {
       .replace("#include <roughnessmap_fragment>", `#include <roughnessmap_fragment>
         roughnessFactor = clamp(roughnessFactor * (0.8 + 0.4 * vn3(vGW * 2.3 + 7.0)), 0.2, 1.0);   // wax worn unevenly`)
       .replace("#include <color_fragment>", `#include <color_fragment>
-        float pat = 0.86 + 0.2 * vn3(vGW * 1.6) + 0.08 * vn3(vGW * 5.3 + 3.0);                          // patina: each stretch of wood its own age
+        mat3 prot = mat3(0.80, 0.36, -0.48, -0.60, 0.48, -0.64, 0.0, 0.80, 0.60);                           // turn the noise lattice off every axis
+        float pat = 0.9 + 0.13 * vn3(prot * vGW * 1.6) + 0.05 * vn3(prot * vGW * 5.3 + 3.0);             // patina: each stretch of wood its own age
         diffuseColor.rgb *= pat;
         float g = 1.0 - uWalls * (0.16 * (1.0 - smoothstep(0.0, 0.55, vGW.y)) + 0.12 * smoothstep(2.3, 3.1, vGW.y));
         vec2 sd = (vGW.xy - uSoot.xy) / uSoot.zw;
@@ -666,7 +668,10 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         const mx = (gx0 + gx1) / 2, ty = gy0 + (gy1 - gy0) * 0.62, mw = 0.028;
         const box = (a, b, y0, y1) => { const g = metric(new THREE.BoxGeometry(b - a, y1 - y0, 0.05)); g.translate((a + b) / 2, (y0 + y1) / 2, G + 0.02); add(g, b - a > y1 - y0 ? M.oakH : M.oak); };
         box(mx - mw, mx + mw, gy0, gy1); box(gx0, gx1, ty - mw, ty + mw);
-        const lightsIn = [[gx0, mx - mw, ty + mw, gy1, 1], [mx + mw, gx1, ty + mw, gy1, 2], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
+        // plain quarries: armorial glass was a luxury set sparingly (a panel in the hall or great chamber),
+        // not a shield in every light of every window; e.arms opts a window in
+        const arms = e.arms ? [1, 2] : [0, 0];
+        const lightsIn = [[gx0, mx - mw, ty + mw, gy1, arms[0]], [mx + mw, gx1, ty + mw, gy1, arms[1]], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
           const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });

@@ -206,22 +206,7 @@ for (const [k, B] of Object.entries(BUILDS)) {
   B.composer.addPass(g);
   B.composer.addPass(new OutputPass());
 }
-// v2's light: baked from the room itself (gi.js). The hand-placed bounce softboxes go dark; the grid
-// carries the bounce, two passes of it. ?gi=0 falls back to the softboxes for comparison.
-const useGI = Q.get("gi") !== "0";
-if (useGI) {
-  const B2 = BUILDS.v2, L = B2.code.lights;
-  const gi = makeGI({ min: [0.3, 0.25, -D + 0.3], max: [W - 0.3, H - 0.25, -0.3], n: [5, 3, 5] });
-  B2.code.scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
-  // the computed bounce carries direction; a measured fill stands in for the eye's adaptation, which the
-  // painting renders and a physical room at this light level does not (NOTES "The light bake")
-  const giDefaults = { sun: 2.0, sky: 7, floorB: 0.5, patchB: 0, ceilB: 0.9, northB: 0, southFill: 0.6, fill: 0.3, gi: 0.9 };
-  for (const [k, v] of Object.entries(giDefaults)) B2.lv[k] = Q.has(k) ? +Q.get(k) : v;     // a level in the URL wins
-  if (Q.has("giScale")) B2.lv.gi = +Q.get("giScale");
-  L.sun.intensity = B2.lv.sun; L.hemi.intensity = B2.lv.fill; for (const a of L.areas) a.intensity = B2.lv.sky; L.apply(B2.lv);
-  const gs = await gi.bake(renderer, B2.code.scene, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: B2.lv.gi });
-  B2.code.gi = gi; B2.code.giStats = gs; window.__gi = gs;
-}
+
 let code, LV, composer;
 const setLights = (lv) => {
   Object.assign(LV, lv); const L = code.lights;
@@ -257,11 +242,30 @@ const known = (id) => harness.world.knowledge.player.includes(id);
 const heldByMe = (id) => harness.world.relations.some(r => r[0] === "held_by" && r[1] === id && r[2] === "player");
 const stateOf = (id) => harness.world.entities.find(e => e.id === id).state;
 let key = null, drawerAt = stateOf("desk1") === "open" ? 1 : 0, drawerTo = drawerAt;
-const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); key.position.copy(desk.cavity); key.rotation.y = 0.35; desk.drawer.add(key); };
+const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); if (W2.gi) key.traverse(o => { if (o.isMesh) W2.gi.install(o.material); }); key.position.copy(desk.cavity); key.rotation.y = 0.35; desk.drawer.add(key); };
 const heldEl = document.getElementById("held"), lineEl = document.getElementById("line");
 const showHeld = () => { const items = harness.world.relations.filter(r => r[0] === "held_by" && r[2] === "player").map(r => r[1]); heldEl.hidden = !items.length; heldEl.innerHTML = "you carry: " + items.map(i => `<b>${{ key1: "an iron key" }[i] || i}</b>`).join(", "); };
 let lineTimer = null;
 const say = (text) => { if (!text) return; lineEl.textContent = text; lineEl.hidden = false; lineEl.style.opacity = 1; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.style.opacity = 0; setTimeout(() => { lineEl.hidden = true; }, 700); }, 4200); };
+// ---- v2's light: baked from the room itself (gi.js), with the desk in it. The probes see DIRECT light
+// only (sun and window daylight): no fill, no softbox, so the bake holds first and second bounce of the
+// room's real sources and nothing of the rig. The measured fill is applied after the coefficients are
+// frozen, as the eye's adaptation (NOTES "The light bake"). ?gi=0 shows v2 without the bake.
+const useGI = Q.get("gi") !== "0";
+if (useGI) {
+  const B2 = BUILDS.v2, L = B2.code.lights;
+  const gi = makeGI({ min: [0.3, 0.25, -D + 0.3], max: [W - 0.3, H - 0.25, -0.3], n: [5, 3, 5] });
+  B2.code.scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
+  const giDefaults = { sun: 2.0, sky: 7, floorB: 0.5, patchB: 0, ceilB: 0.9, northB: 0, southFill: 0.6, fill: 0.3, gi: 0.9 };
+  for (const [k, v] of Object.entries(giDefaults)) B2.lv[k] = Q.has(k) ? +Q.get(k) : v;     // a level in the URL wins
+  if (Q.has("giScale")) B2.lv.gi = +Q.get("giScale");
+  // bake: direct sources on, everything else off
+  L.sun.intensity = B2.lv.sun; for (const a of L.areas) a.intensity = B2.lv.sky;
+  L.hemi.intensity = 0; L.apply({ ...B2.lv, floorB: 0, patchB: 0, ceilB: 0, northB: 0, southFill: 0 });
+  const gs = await gi.bake(renderer, B2.code.scene, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: B2.lv.gi });
+  B2.code.gi = gi; B2.code.giStats = gs; window.__gi = gs;
+  if (code === B2.code) setLights({}); else { L.hemi.intensity = B2.lv.fill; L.apply(B2.lv); }   // the fill, after the freeze
+}
 placeKey(); showHeld();
 // the picture is a projection of the document: after any change, re-derive what is drawn from the world
 function project() {
