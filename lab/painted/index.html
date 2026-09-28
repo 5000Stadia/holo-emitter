@@ -253,6 +253,7 @@ function project() {
 }
 harness.subscribe(project);
 const dispatch = (intent) => { const env = harness.dispatch(intent); say(env.narration); return env; };
+window.__settled = () => Math.abs(drawerTo - drawerAt) < 0.003;
 window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray(), parent: key.parent && key.parent.type, children: key.children.length } : null;
 window.__world = () => JSON.parse(JSON.stringify(harness.world));
 window.__dispatch = (intent) => dispatch(intent);
