@@ -195,3 +195,24 @@ The residue is pose-dependent: the same wall reads bright from one side and
 dark from the other. Part of that is the four paintings disagreeing with each
 other, since each was lit on its own. The next gain is a proper light bake,
 not more hand levels.
+
+# The light bake (lab/painted/gi.js)
+
+v2's indirect light is computed. 75 probes on a 5×3×5 grid each render a small
+cube map of the room as it is lit (sun, the sky seen in the glass, the window
+light). Each capture becomes 9 spherical-harmonic coefficients in a float
+texture, and every standard material adds the trilinear blend of its 8 nearest
+probes as indirect diffuse light. A second pass re-captures with the first
+bounce on. It hooks into the same shader chain as the patina, so nothing is lost.
+
+What it showed: physically, a dark panelled room lit by two windows is very
+high-contrast. The window wall goes black against the glass and the side walls
+drop away. The painting is lit as the eye adapts to such a room, evenly
+readable. So v2 keeps the computed bounce for direction and plausibility (light
+pooling where it lands, darker corners and undersides) and adds a measured
+fill (hemisphere 0.3, a softened version of the zone-matched softboxes) as the
+eye's adaptation. `?gi=0` shows v2 without the bake.
+
+Cost: 75 probes × 6 faces × 2 bounces ≈ 900 small renders at load. About 35 s on
+this CPU-only machine (SwiftShader); on a real GPU, an estimated 1–3 s. The
+bake belongs to the room and can be cached with it.

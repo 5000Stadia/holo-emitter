@@ -69,6 +69,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { makeGI } from "./gi.js";
 import { buildProcedural as buildV1 } from "./procedural-v1.js";
 import { buildProcedural as buildV2, buildDesk, buildKey } from "./procedural.js";
 
@@ -205,12 +206,29 @@ for (const [k, B] of Object.entries(BUILDS)) {
   B.composer.addPass(g);
   B.composer.addPass(new OutputPass());
 }
+// v2's light: baked from the room itself (gi.js). The hand-placed bounce softboxes go dark; the grid
+// carries the bounce, two passes of it. ?gi=0 falls back to the softboxes for comparison.
+const useGI = Q.get("gi") !== "0";
+if (useGI) {
+  const B2 = BUILDS.v2, L = B2.code.lights;
+  const gi = makeGI({ min: [0.3, 0.25, -D + 0.3], max: [W - 0.3, H - 0.25, -0.3], n: [5, 3, 5] });
+  B2.code.scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
+  // the computed bounce carries direction; a measured fill stands in for the eye's adaptation, which the
+  // painting renders and a physical room at this light level does not (NOTES "The light bake")
+  const giDefaults = { sun: 2.0, sky: 7, floorB: 0.5, patchB: 0, ceilB: 0.9, northB: 0, southFill: 0.6, fill: 0.3, gi: 0.9 };
+  for (const [k, v] of Object.entries(giDefaults)) B2.lv[k] = Q.has(k) ? +Q.get(k) : v;     // a level in the URL wins
+  if (Q.has("giScale")) B2.lv.gi = +Q.get("giScale");
+  L.sun.intensity = B2.lv.sun; L.hemi.intensity = B2.lv.fill; for (const a of L.areas) a.intensity = B2.lv.sky; L.apply(B2.lv);
+  const gs = await gi.bake(renderer, B2.code.scene, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: B2.lv.gi });
+  B2.code.gi = gi; B2.code.giStats = gs; window.__gi = gs;
+}
 let code, LV, composer;
 const setLights = (lv) => {
   Object.assign(LV, lv); const L = code.lights;
   L.sun.intensity = LV.sun; L.hemi.intensity = LV.fill; L.bounce.intensity = LV.bounce;
   for (const a of L.areas) a.intensity = LV.sky;
   if (L.apply) L.apply(LV);                        // a build may carry further lights of its own
+  if (code.gi && LV.gi !== undefined) code.gi.setScale(LV.gi);
 };
 const use = (v) => { const B = BUILDS[v]; code = B.code; LV = B.lv; composer = B.composer; setLights({}); };
 for (const v of ["v1", "v2"]) use(v);              // apply each build's levels once

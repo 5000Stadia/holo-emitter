@@ -12,13 +12,13 @@ import { fileURLToPath } from "node:url";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2), opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const room = args.find(a => !a.startsWith("--") && !args[args.indexOf(a) - 1]?.startsWith("--")) || "muniment_room";
-const code = opt("--code", "v2"), url = opt("--url", "http://192.168.68.58:8793/lab/painted/");
+const code = opt("--code", "v2"), url = opt("--url", "http://192.168.68.58:8793/lab/painted/"), extra = opt("--q", "");
 const b = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 const p = await b.newPage({ viewport: { width: 1536, height: 1024 } });
-await p.goto(`${url}?room=${room}&mode=${code}&code=${code}&fresh`, { waitUntil: "networkidle" });
+await p.goto(`${url}?room=${room}&mode=${code}&code=${code}&fresh${extra ? "&" + extra : ""}`, { waitUntil: "networkidle" });
 await p.waitForFunction(() => window.__ok, null, { timeout: 180000 });
 p.setDefaultTimeout(600000);
-const outDir = join(root, "lab/painted", room, "zones", code);
+const outDir = join(root, "lab/painted", room, "zones", code + (extra ? "-" + extra.replace(/[^a-z0-9.=]/gi, "_") : ""));
 for (const F of ["N", "E", "S", "W"]) {
   const out = await p.evaluate(f => window.__packet(f, 1), F);
   const dir = join(outDir, F); mkdirSync(dir, { recursive: true });
