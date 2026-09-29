@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>The Manor, From Its Plan</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -21,7 +25,7 @@
   #gate[hidden], #status[hidden] { display: none !important; }
   #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; z-index: 3; text-align: center; padding: 24px; }
   #status .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
-  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .stats { display: none; } }
+  @media (max-width: 640px), (pointer: coarse) { .hud { padding: 10px; font-size: 11px; } .stats { display: none; } }
 </style>
 </head>
 <body>
@@ -46,6 +50,8 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { buildHouse } from "./house.js";
 import { generatePlan } from "./plan-gen.js";
+import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+fullscreenButton();
 
 const Q = new URLSearchParams(location.search);
 const statusText = document.getElementById("statusText");
@@ -59,7 +65,8 @@ const tPlan = performance.now();
 RectAreaLightUniformsLib.init();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 // ?lite=1 for a modest machine: pixel ratio 1, no ambient-occlusion pass, a smaller sun shadow
-const LITE = Q.get("lite") === "1";
+const TOUCH = isTouch();
+const LITE = Q.get("lite") === "1" || (TOUCH && Q.get("lite") !== "0");      // phones get the light mode unless ?lite=0
 renderer.setPixelRatio(LITE ? 1 : Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -120,7 +127,13 @@ document.addEventListener("pointerlockchange", () => { gate.hidden = document.po
 const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); };
 document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
 let drag = null;
-renderer.domElement.addEventListener("pointerdown", e => { if (document.pointerLockElement === renderer.domElement) { toggleDoor(new THREE.Vector2(0, 0)); return; } drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
+renderer.domElement.addEventListener("pointerdown", e => { if (e.pointerType === "touch") return; if (document.pointerLockElement === renderer.domElement) { toggleDoor(new THREE.Vector2(0, 0)); return; } drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
+// phones and tablets: left thumb walks, right thumb looks, a tap opens or shuts the door under it
+const touch = touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx, dy), onTap: (x, y) => toggleDoor(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) });
+if (TOUCH) {
+  gate.hidden = true;
+  document.querySelector(".bottom .box").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap a door to open or shut it";
+}
 renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
 addEventListener("pointerup", () => { drag = null; });
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
@@ -142,7 +155,9 @@ const roomName = document.getElementById("roomName"), floorName = document.getEl
 let last = performance.now(), cur = null, cullT = 0, cullN = -1, shown = 0;
 renderer.info.autoReset = false;
 // the performance panel: frame rate, frame time, draw calls, triangles, rooms built and drawn, memory
-const perfEl = document.createElement("div"); perfEl.className = "box"; perfEl.style.cssText = "position:fixed;right:18px;bottom:18px;font-size:12px;line-height:1.55;pointer-events:none";
+const perfEl = document.createElement("div"); perfEl.className = "box";
+perfEl.style.cssText = isTouch() ? "position:fixed;left:10px;bottom:74px;font-size:10px;line-height:1.4;padding:4px 8px;pointer-events:none;white-space:nowrap"
+                                 : "position:fixed;right:18px;bottom:18px;font-size:12px;line-height:1.55;pointer-events:none";
 document.body.appendChild(perfEl);
 const fr = []; let perfT = 0;
 window.__perf = {};
@@ -163,9 +178,11 @@ function step(now) {
   if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
   if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
   const n = Math.hypot(dx, dy);
   if (n > 0) {
-    dx = dx / n * speed * dt; dy = dy / n * speed * dt;
+    const amt = Math.min(1, n);                           // a stick pushed halfway walks at half pace
+    dx = dx / n * amt * speed * dt; dy = dy / n * amt * speed * dt;
     if (standable(px + dx, py, ph)) px += dx;
     if (standable(px, py + dy, ph)) py += dy;
   }

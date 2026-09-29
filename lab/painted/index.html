@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Muniment Room · Painted Shell</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
@@ -34,7 +38,7 @@
   #held b { color: var(--brass); font-weight: 500; }
   #cross[hidden], #hint[hidden], #line[hidden], #held[hidden] { display: none !important; }
   #ghost { position: fixed; inset: 0; pointer-events: none; background-size: cover; background-position: center; opacity: 0.5; z-index: 1; }
-  @media (max-width: 640px) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } .note { display: none; } #gate { top: 70px; } }
+  @media (max-width: 640px), (pointer: coarse) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } .note { display: none; } #gate { top: 70px; } }
 </style>
 </head>
 <body>
@@ -70,6 +74,8 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { makeGI } from "./gi.js";
+import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+fullscreenButton();
 import { buildProcedural as buildV1 } from "./procedural-v1.js";
 import { buildProcedural as buildV2, buildDesk, buildKey } from "./procedural.js";
 
@@ -82,7 +88,7 @@ const { w: W, d: D, h: H } = shell.room_m;
 const EYE = 1.5, T = 0.22, PASSAGE = 1.6;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setPixelRatio(isTouch() ? 1 : Math.min(devicePixelRatio, 2));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.NoToneMapping;       // the paintings already carry their light: show them as painted
@@ -203,7 +209,7 @@ for (const [k, B] of Object.entries(BUILDS)) {
   const g = new GTAOPass(B.code.scene, camera, innerWidth, innerHeight);
   g.updateGtaoMaterial(B.code.gtao || { radius: 0.35, distanceExponent: 1.4, thickness: 1.2, scale: 1.2, samples: 16 });
   g.blendIntensity = B.code.gtaoBlend ?? 1.0;
-  B.composer.addPass(g);
+  if (!isTouch()) B.composer.addPass(g);                  // phones: no ambient-occlusion pass
   B.composer.addPass(new OutputPass());
 }
 
@@ -251,7 +257,7 @@ const say = (text) => { if (!text) return; lineEl.textContent = text; lineEl.hid
 // only (sun and window daylight): no fill, no softbox, so the bake holds first and second bounce of the
 // room's real sources and nothing of the rig. The measured fill is applied after the coefficients are
 // frozen, as the eye's adaptation (NOTES "The light bake"). ?gi=0 shows v2 without the bake.
-const useGI = Q.get("gi") !== "0";
+const useGI = Q.get("gi") === "1" || (Q.get("gi") !== "0" && !isTouch());     // phones skip the bake unless ?gi=1
 if (useGI) {
   const B2 = BUILDS.v2, L = B2.code.lights;
   const gi = makeGI({ min: [0.3, 0.25, -D + 0.3], max: [W - 0.3, H - 0.25, -0.3], n: [5, 3, 5] });
@@ -336,13 +342,19 @@ const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Mat
 document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
 let drag = null;
 let downAt = null;
+// phones and tablets: left thumb walks, right thumb looks, a tap acts on what is under it (the drawer, the key)
+const TOUCH = isTouch();
+const touch = touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx, dy), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) });
+if (TOUCH) { gate.hidden = true; document.querySelector(".keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap the drawer, or the key"; }
 renderer.domElement.addEventListener("pointerdown", e => {
+  if (e.pointerType === "touch") return;
   downAt = { x: e.clientX, y: e.clientY };
   if (document.pointerLockElement === renderer.domElement) { act(new THREE.Vector2(0, 0)); return; }
   drag = { x: e.clientX, y: e.clientY };
   if (e.pointerType === "mouse" && !aimAt(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1))) lock();
 });
 renderer.domElement.addEventListener("pointerup", e => {
+  if (e.pointerType === "touch") return;
   if (downAt && document.pointerLockElement !== renderer.domElement && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 5)
     act(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
   downAt = null;
@@ -440,10 +452,12 @@ function step(now) {
   if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
   if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
   const n = Math.hypot(dx, dy);
   if (n > 0) {
     pose = null; ghost.hidden = true;
-    dx = dx / n * speed * dt; dy = dy / n * speed * dt;
+    const amt = Math.min(1, n);
+    dx = dx / n * amt * speed * dt; dy = dy / n * amt * speed * dt;
     if (inside(px + dx, py)) px += dx;
     if (inside(px, py + dy)) py += dy;
   }
