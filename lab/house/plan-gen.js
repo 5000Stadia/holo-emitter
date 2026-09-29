@@ -117,15 +117,29 @@ export function generatePlan({ seed = 1660, length = 64, wing = 24, floors = 3 }
       winAlong(room.rect.y0, room.rect.y1, c => plan.windows.push({ floor, rect: { x0: x, x1: x + EXT, y0: c - 0.7, y1: c + 0.7 } }));
       void outer;
     }
-    // ---- hearths: principal rooms and the kitchen, on a side wall
+    // ---- hearths: principal rooms and the kitchen, on a wall with nothing else on it where the hearth
+    // would stand (no door, no window, a hand clear either side); tried side walls first, then the rest
+    const blocks = (room, F, a, b) => [...plan.openings.filter(o => o.floor === floor && o.rect), ...plan.windows.filter(w => w.floor === floor)].some(o => {
+      const R = o.rect, q = room.rect, pad = 0.3;
+      if (F === "W" && Math.abs(R.x1 - q.x0) < 0.7 && R.x0 < q.x0 + 0.01) return R.y1 > a - pad && R.y0 < b + pad;
+      if (F === "E" && Math.abs(R.x0 - q.x1) < 0.7 && R.x1 > q.x1 - 0.01) return R.y1 > a - pad && R.y0 < b + pad;
+      if (F === "S" && Math.abs(R.y1 - q.y0) < 0.7 && R.y0 < q.y0 + 0.01) return R.x1 > a - pad && R.x0 < b + pad;
+      if (F === "N" && Math.abs(R.y0 - q.y1) < 0.7 && R.y1 > q.y1 - 0.01) return R.x1 > a - pad && R.x0 < b + pad;
+      return false;
+    });
     for (const room of plan.rooms.filter(q => q.floor === floor && (q.archetype === "hall" || (q.archetype === "chamber" && r() < 0.8) || /Kitchen/.test(q.name)))) {
-      const { x0, x1, y0, y1 } = room.rect, alongX = room.rect.y1 - room.rect.y0 < x1 - x0;
+      const { x0, x1, y0, y1 } = room.rect;
       if (y1 - y0 < 3.6 || x1 - x0 < 3.6) continue;
       const w = room.archetype === "hall" || /Kitchen/.test(room.name) ? 3.0 : 2.2;
-      // on the west wall (or, in the wings, the wall away from the corridor end), centred
       const cy = (y0 + y1) / 2, cx = (x0 + x1) / 2;
-      const rect = alongX || (y1 - y0) > w + 1 ? { x0, x1: x0 + 0.5, y0: cy - w / 2, y1: cy + w / 2 } : { x0: cx - w / 2, x1: cx + w / 2, y0: y1 - 0.5, y1 };
-      plan.fireplaces.push({ floor, room: room.id, rect });
+      const tries = [
+        ["W", { x0, x1: x0 + 0.5, y0: cy - w / 2, y1: cy + w / 2 }, cy - w / 2, cy + w / 2, y1 - y0],
+        ["E", { x0: x1 - 0.5, x1, y0: cy - w / 2, y1: cy + w / 2 }, cy - w / 2, cy + w / 2, y1 - y0],
+        ["N", { x0: cx - w / 2, x1: cx + w / 2, y0: y1 - 0.5, y1 }, cx - w / 2, cx + w / 2, x1 - x0],
+        ["S", { x0: cx - w / 2, x1: cx + w / 2, y0, y1: y0 + 0.5 }, cx - w / 2, cx + w / 2, x1 - x0],
+      ];
+      const pick = tries.find(([F, rect, a, b, len]) => len > w + 0.8 && !blocks(room, F, a, b));
+      if (pick) plan.fireplaces.push({ floor, room: room.id, rect: pick[1] });
     }
     // ---- writing tables: studies, libraries and chambers, under a window
     for (const room of plan.rooms.filter(q => q.floor === floor && q.archetype === "chamber")) {
