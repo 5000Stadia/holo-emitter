@@ -53,3 +53,50 @@ tool calls of code and review. The style work before it was several times that.
 - One style for the whole house: rooms differ by plan, archetype and fireplace,
   not yet by character.
 - The rooms are empty. Furnishing (catalogue or code-built objects) is the next layer.
+
+# The grand manor: 111 rooms from a generated plan (2026-09-28)
+
+Kabe asked: with only the existing kit (walls, openings, windows, chimney-pieces,
+the desk), how long from conception to a finished large manor, and how does it
+run? Open `lab/house/?plan=grand`.
+
+**The building** (`plan-gen.js`): an H-plan with a 64 m main range and two
+24 m wings, three floors of rooms either side of central corridors, a great hall
+and great chamber, two stair halls, windows on every outside wall, hearths in
+the principal rooms, writing tables under windows. The plan has 111 rooms,
+119 openings (113 with door leaves), 138 windows, 66 hearths, 37 tables and
+2 stairs.
+
+## Time, conception to done
+
+| step | time |
+|---|---|
+| my design and implementation of the building (the plan generator), from a blank page to a validated plan | **2 min 09 s** (17:49:16 → 17:51:25) |
+| compile the plan into every wall's elements | **9 ms** |
+| materials, once | **2.3 s** |
+| build every room (geometry, merge), clean, nothing drawing in between (`&near=999`) | **16.3 s** (≈ 147 ms a room) |
+| **plan → whole house built, clean** | **18.8 s** |
+| default: walkable (the 11 rooms round you) | **4.7 s** to walkable; first frame 7.8 s with shader compiles |
+| default: the rest streamed in behind you | whole house by **27.4 s** |
+
+These are on this box, headless Chromium with SwiftShader (the CPU plays the GPU),
+so the build figures are CPU/JS time, which a normal machine matches or beats.
+Frame rates cannot be measured here; the page's performance panel shows them live.
+
+**Not counted, as Kabe asked:** the pieces made for this. They took about 24 min:
+door leaves, tables placed under windows, stairs between any two floors,
+streaming, culling, the performance panel, and the fixes below.
+
+## Running it (what a demo needs)
+
+- **Streaming:** the rooms within 14 m of the start are built first; the rest
+  follow, nearest first, one room between frames.
+- **Culling:** only rooms on your floor within 26 m are drawn, plus the floors
+  either side within 6 m. In the great hall that is 26 of 111 rooms: about 1,000
+  draw calls and 1.6 M triangles (with shadows and ambient occlusion).
+- **Fixed on the way:** each hearth's carving was 64 k triangles (4 M across the
+  house); it is ~7 k at house density. Each window light had its own glass
+  texture (630 textures, 760 MB heap); textures are now shared by size (40–85
+  textures, ~255 MB).
+- **For a modest machine,** `&lite=1` turns off the ambient-occlusion pass, halves
+  the sun's shadow map and draws at pixel ratio 1.

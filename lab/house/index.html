@@ -33,7 +33,7 @@
     <div class="box stats" id="stats"></div>
   </div>
   <div></div>
-  <div class="bottom"><div class="box"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride &nbsp; walk into a stair to climb it</div></div>
+  <div class="bottom"><div class="box"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride &nbsp; walk into a stair to climb it &nbsp; click or <kbd>E</kbd> opens or shuts a door</div></div>
 </div>
 <script>window.addEventListener("error", (e) => { if (!window.__ok) document.getElementById("statusText").textContent = "error: " + (e.message || e.type); });</script>
 <script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
@@ -45,49 +45,73 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { buildHouse } from "./house.js";
+import { generatePlan } from "./plan-gen.js";
 
 const Q = new URLSearchParams(location.search);
 const statusText = document.getElementById("statusText");
 const tLoad = performance.now();
 // the plan: packs/manor's, exactly as the painted pipeline reads it (tools/pack.mjs), baked to plan.json
-const plan = await (await fetch("./plan.json")).json();
+// ?plan=grand builds a generated manor (plan-gen.js: ?seed, ?length, ?wing, ?floors); otherwise the manor pack's
+const plan = Q.get("plan") === "grand"
+  ? generatePlan({ seed: +(Q.get("seed") || 1660), length: +(Q.get("length") || 64), wing: +(Q.get("wing") || 24), floors: +(Q.get("floors") || 3) })
+  : await (await fetch("./plan.json")).json();
+const tPlan = performance.now();
 RectAreaLightUniformsLib.init();
 const renderer = new THREE.WebGLRenderer({ antialias: true });
-renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
+// ?lite=1 for a modest machine: pixel ratio 1, no ambient-occlusion pass, a smaller sun shadow
+const LITE = Q.get("lite") === "1";
+renderer.setPixelRatio(LITE ? 1 : Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.9;
 renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 document.body.prepend(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.03, 120);
-const house = await buildHouse(plan, (what) => { statusText.textContent = what + "…"; });
+const startId = Q.get("room") || plan.entrance || "great_hall";
+// ?near=999 builds every room before the first frame (a clean measure of the whole build); the default
+// builds the rooms within 14 m of where you start, then streams the rest in behind you
+const house = await buildHouse(plan, (what) => { statusText.textContent = what + "…"; }, { startId, nearFirst: +(Q.get("near") || 14) });
 const { scene, rooms, rig, level } = house;
 const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
 composer.addPass(new RenderPass(scene, camera));
 const gtao = new GTAOPass(scene, camera, innerWidth, innerHeight);
 gtao.updateGtaoMaterial({ radius: 0.5, distanceExponent: 1.6, thickness: 1.5, scale: 1.5, samples: 16 });
-composer.addPass(gtao); composer.addPass(new OutputPass());
+if (!LITE) composer.addPass(gtao);
+composer.addPass(new OutputPass());
+if (LITE) scene.traverse(o => { if (o.isDirectionalLight) { o.shadow.mapSize.set(2048, 2048); } });
 
 // where you can stand: any room of your floor (a hand's breadth off its walls), any doorway, any stair
 const LEVEL_GAP = 3.1, EYE = 1.6;
 const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
-const stairAt = (x, y) => plan.stairs.find(s => inRect(s.rect, x, y));
-const stairHeight = (s, x, y) => { const R = s.rect; const t = s.up === "N" ? (y - R.y0) / (R.y1 - R.y0) : s.up === "S" ? (R.y1 - y) / (R.y1 - R.y0) : s.up === "E" ? (x - R.x0) / (R.x1 - R.x0) : (R.x1 - x) / (R.x1 - R.x0); return Math.max(0, Math.min(1, t)) * LEVEL_GAP; };
-let floorId = "ground";
-const floorOf = (h) => h > LEVEL_GAP / 2 ? "upper" : "ground";
+const levelOf = (f) => plan.floors.find(q => q.id === f).level * LEVEL_GAP;
+const floorsUp = [...plan.floors].sort((a, b) => a.level - b.level);
+const floorOf = (h) => { let f = floorsUp[0].id; for (const q of floorsUp) if (q.level * LEVEL_GAP <= h + 1.2) f = q.id; return f; };
+const stairAt = (x, y, h) => plan.stairs.find(s => inRect(s.rect, x, y) && [house.stairFrom(s), house.stairTo(s)].includes(floorOf(h)));
+const stairHeight = (s, x, y) => { const R = s.rect; const t = s.up === "N" ? (y - R.y0) / (R.y1 - R.y0) : s.up === "S" ? (R.y1 - y) / (R.y1 - R.y0) : s.up === "E" ? (x - R.x0) / (R.x1 - R.x0) : (R.x1 - x) / (R.x1 - R.x0);
+  const b = levelOf(house.stairFrom(s)); return b + Math.max(0, Math.min(1, t)) * (levelOf(house.stairTo(s)) - b); };
+const doorOf = (id) => house.doors.find(d => d.id === id);
 function standable(x, y, h) {
   const f = floorOf(h);
-  if (stairAt(x, y)) return true;
+  if (stairAt(x, y, h)) return true;
   if (plan.rooms.some(r => r.floor === f && inRect(r.rect, x, y, 0.2))) return true;
-  return plan.openings.some(o => o.floor === f && o.rect && inRect({ x0: o.rect.x0 - 0.05, x1: o.rect.x1 + 0.05, y0: o.rect.y0 - 0.05, y1: o.rect.y1 + 0.05 }, x, y));
+  return plan.openings.some(o => o.floor === f && o.rect && inRect({ x0: o.rect.x0 - 0.05, x1: o.rect.x1 + 0.05, y0: o.rect.y0 - 0.05, y1: o.rect.y1 + 0.05 }, x, y)
+    && (!doorOf(o.id) || doorOf(o.id).angle > 0.8));                 // a shut door is a wall
 }
 const roomAt = (x, y, h) => rooms.find(r => r.room.floor === floorOf(h) && inRect(r.room.rect, x, y));
 
-const start = plan.rooms.find(r => r.id === (Q.get("room") || "great_hall"));
+const start = plan.rooms.find(r => r.id === startId) || plan.rooms[0];
 let px = Q.get("x") ? +Q.get("x") : (start.rect.x0 + start.rect.x1) / 2, py = Q.get("y") ? +Q.get("y") : (start.rect.y0 + start.rect.y1) / 2;
-let ph = start.floor === "upper" ? LEVEL_GAP : 0, yaw = (+Q.get("yaw") || 0) * Math.PI / 180, pitch = (+Q.get("pitch") || 0) * Math.PI / 180;
-window.__place = (x, y, yd, pd = 0, floor = null) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = floor === "upper" ? LEVEL_GAP : 0; };
+let ph = levelOf(start.floor), yaw = (+Q.get("yaw") || 0) * Math.PI / 180, pitch = (+Q.get("pitch") || 0) * Math.PI / 180;
+window.__place = (x, y, yd, pd = 0, floor = null) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = levelOf(floor === "upper" && !plan.floors.some(q => q.id === "upper") ? "first" : floor); };
 
 const keys = {};
-addEventListener("keydown", e => { keys[e.code] = true; });
+const ray = new THREE.Raycaster(); ray.far = 2.6;
+function toggleDoor(ndc) {
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(house.doors.filter(d => d.holder.visible).map(d => d.leaf), false)[0];
+  let d = hit ? doorOf(hit.object.userData.door) : null;
+  if (!d) { let best = 2.0; for (const q of house.doors) { const c = { x: (q.rect.x0 + q.rect.x1) / 2, y: (q.rect.y0 + q.rect.y1) / 2 }; const dd = Math.hypot(c.x - px, c.y - py); if (q.floor === floorOf(ph) && dd < best) { best = dd; d = q; } } }
+  if (d) d.target = d.target > 0.8 ? 0 : 1.62;
+}
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE") toggleDoor(new THREE.Vector2(0, 0)); });
 addEventListener("keyup", e => { keys[e.code] = false; });
 const gate = document.getElementById("gate");
 const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
@@ -96,14 +120,16 @@ document.addEventListener("pointerlockchange", () => { gate.hidden = document.po
 const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); };
 document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
 let drag = null;
-renderer.domElement.addEventListener("pointerdown", e => { drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
+renderer.domElement.addEventListener("pointerdown", e => { if (document.pointerLockElement === renderer.domElement) { toggleDoor(new THREE.Vector2(0, 0)); return; } drag = { x: e.clientX, y: e.clientY }; if (e.pointerType === "mouse") lock(); });
 renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
 addEventListener("pointerup", () => { drag = null; });
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
 
 const st = house.stats;
 st.first_frame_ms = null;
-document.getElementById("stats").innerHTML = `built from the plan in <b>${(st.total_ms / 1000).toFixed(1)} s</b><br>${st.rooms} rooms · ${st.windows} windows<br>${st.meshes_before_merge} parts → ${st.draw_meshes} draws`;
+const statsEl = document.getElementById("stats");
+const showStats = () => { statsEl.innerHTML = `walking in <b>${(st.first_ready_ms / 1000).toFixed(1)} s</b> (${st.rooms_first} rooms)` + (st.all_rooms_ms ? `<br>whole house <b>${(st.all_rooms_ms / 1000).toFixed(1)} s</b> · ${st.rooms} rooms` : `<br>building the rest…`) + `<br>${st.windows} windows · ${st.doors} doors${st.desks !== undefined ? ` · ${st.desks} desks` : ""}`; };
+showStats(); house.rest.then(showStats);
 window.__stats = st;
 // time an edit: rebuild one room, e.g. with its windows made taller, and draw it
 window.__rebuild = async (id) => {
@@ -113,7 +139,21 @@ window.__rebuild = async (id) => {
   return { rebuild_ms: ms, first_draw_ms: draw };
 };
 const roomName = document.getElementById("roomName"), floorName = document.getElementById("floorName");
-let last = performance.now(), cur = null;
+let last = performance.now(), cur = null, cullT = 0, cullN = -1, shown = 0;
+renderer.info.autoReset = false;
+// the performance panel: frame rate, frame time, draw calls, triangles, rooms built and drawn, memory
+const perfEl = document.createElement("div"); perfEl.className = "box"; perfEl.style.cssText = "position:fixed;right:18px;bottom:18px;font-size:12px;line-height:1.55;pointer-events:none";
+document.body.appendChild(perfEl);
+const fr = []; let perfT = 0;
+window.__perf = {};
+function perf(now) {
+  fr.push(now); while (fr.length && now - fr[0] > 2000) fr.shift();
+  if (now - perfT < 500) return; perfT = now;
+  const fps = fr.length > 1 ? (fr.length - 1) / ((fr[fr.length - 1] - fr[0]) / 1000) : 0;
+  const mem = performance.memory ? Math.round(performance.memory.usedJSHeapSize / 1048576) : null;
+  Object.assign(window.__perf, { fps: +fps.toFixed(1), calls: renderer.info.render.calls, tris: renderer.info.render.triangles, built: house.rooms.length, of: plan.rooms.length, drawn: shown, heapMB: mem, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures });
+  perfEl.innerHTML = `<b>${fps.toFixed(0)}</b> fps · ${renderer.info.render.calls} draws · ${(renderer.info.render.triangles / 1000).toFixed(0)}k tris<br>rooms built ${house.rooms.length}/${plan.rooms.length} · drawn ${shown}${mem ? ` · heap ${mem} MB` : ""}`;
+}
 function step(now) {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   const speed = (keys.ShiftLeft || keys.ShiftRight) ? 3.0 : 1.5;
@@ -129,13 +169,16 @@ function step(now) {
     if (standable(px + dx, py, ph)) px += dx;
     if (standable(px, py + dy, ph)) py += dy;
   }
-  const s = stairAt(px, py);
+  const s = stairAt(px, py, ph);
   if (s) ph = stairHeight(s, px, py);
+  for (const d of house.doors) if (d.angle !== d.target) { d.angle += Math.sign(d.target - d.angle) * Math.min(Math.abs(d.target - d.angle), dt * 3); d.pivot.rotation.y = -d.angle; }
+  if (now - cullT > 250 || house.rooms.length !== cullN) { cullT = now; cullN = house.rooms.length; shown = house.cull(px, py, floorOf(ph)); }   // real time, not frame time
   const r = roomAt(px, py, ph);
-  if (r && r !== cur) { cur = r; rig(r); roomName.textContent = r.room.name; floorName.textContent = (r.room.floor === "upper" ? "upper floor" : "ground floor") + " · you are in"; }
+  if (r && r !== cur) { cur = r; rig(r); roomName.textContent = r.room.name; floorName.textContent = ({ ground: "ground floor", upper: "upper floor", first: "first floor", second: "second floor" }[r.room.floor] || r.room.floor) + " · you are in"; }
   camera.position.set(px, ph + EYE, -py);
   camera.rotation.set(pitch, yaw, 0, "YXZ");
-  composer.render();
+  renderer.info.reset(); composer.render();
+  perf(now);
   if (!window.__ok) { window.__ok = true; st.first_frame_ms = Math.round(performance.now() - tLoad); document.getElementById("status").hidden = true; }
   requestAnimationFrame(step);
 }

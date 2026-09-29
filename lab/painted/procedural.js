@@ -219,7 +219,13 @@ function brickTexture(THREE, N = 512) {
   return { map, normalMap: normalFrom(THREE, H, N, N, 2.5) };
 }
 // carved frieze: a running vine with leaves between two fillets, as a height field on oak
+const CARVED = new Map();
 function carvedTextures(THREE, oak, len, ht, ppm = 400) {
+  const key = `${len.toFixed(2)}x${ht.toFixed(3)}`;
+  if (!CARVED.has(key)) CARVED.set(key, carvedTexturesNew(THREE, oak, len, ht, ppm));
+  return CARVED.get(key);
+}
+function carvedTexturesNew(THREE, oak, len, ht, ppm) {
   const w = Math.round(len * ppm), h = Math.round(ht * ppm), N = oak.N;
   const Hc = new Float32Array(w * h), rep = 0.26;
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
@@ -246,7 +252,13 @@ function carvedTextures(THREE, oak, len, ht, ppm = 400) {
   return { map, normalMap: normalFrom(THREE, Hc, w, h, 3) };
 }
 // leaded lights: diamond quarries in lead cames, a shield of arms in the upper lights
+const LEADED = new Map();
 function leadedTexture(THREE, wM, hM, shield, seed) {
+  const key = `${wM.toFixed(2)}x${hM.toFixed(2)}/${shield}`;
+  if (LEADED.has(key)) return LEADED.get(key);
+  const t = leadedTextureNew(THREE, wM, hM, shield, seed); LEADED.set(key, t); return t;
+}
+function leadedTextureNew(THREE, wM, hM, shield, seed) {
   const ppm = 300, w = Math.round(wM * ppm), h = Math.round(hM * ppm), qw = 0.085, qh = 0.13;
   const c = document.createElement("canvas"); c.width = w; c.height = h;
   const g = c.getContext("2d"), r = rng(seed);
@@ -751,7 +763,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         for (const y of [cy - ch / 2 - 0.018, cy + ch / 2 + 0.006])
           add(run(THREE, m.r0 + 0.03, m.r1 - 0.03, y, [[0, fz], [0, fz + 0.012], [0.006, fz + 0.016], [0.012, fz + 0.012], [0.012, fz]]), M.oak, 0.05);
         { // the carving itself: a grid displaced by the vine's height, so it catches real light and shadow
-          const nx = Math.round(len * 320), ny = Math.round(ch * 320);
+          const dens = K.carveDensity || 320, nx = Math.round(len * dens), ny = Math.round(ch * dens);
           const cg = new THREE.PlaneGeometry(len, ch, nx, ny), pa = cg.attributes.position;
           for (let i = 0; i < pa.count; i++) {
             const X = pa.getX(i) + len / 2, Y = pa.getY(i) / ch + 0.5;
@@ -766,7 +778,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         for (const x of [m.r0 + 0.13, m.r1 - 0.13]) {
           add(block(THREE, rect(x - 0.09, x + 0.09, cy - ch / 2, cy + ch / 2), fz + 0.03, 0.03, 0.004), M.oak, 0.06);
           const R = 0.065;
-          const ring = new THREE.PlaneGeometry(2 * R, 2 * R, 48, 48), q = ring.attributes.position;
+          const rs = K.carveDensity ? 20 : 48, ring = new THREE.PlaneGeometry(2 * R, 2 * R, rs, rs), q = ring.attributes.position;
           for (let i = 0; i < q.count; i++) {
             const u = q.getX(i), v = q.getY(i), r = Math.hypot(u, v) / R, th = Math.atan2(v, u);
             const petal = r < 1 ? (1 - r) * (0.55 + 0.45 * Math.cos(th * 8)) + Math.max(0, 0.3 - r) * 1.5 : 0;

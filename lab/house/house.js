@@ -3,7 +3,7 @@
 // lab/painted/procedural.js's kit builds them. One style for the house, varied by room archetype.
 import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { makeKit, buildWall, slab, rect, run, block, canvasTex, normalFrom, fbm, rng, smooth, hash, stoneTexture } from "../painted/procedural.js";
+import { makeKit, buildWall, buildDesk, slab, rect, run, block, loft, metric, canvasTex, normalFrom, fbm, rng, smooth, hash, stoneTexture } from "../painted/procedural.js";
 
 const LEVEL_GAP = 3.1;                     // storey 2.8 + a 0.3 floor between
 const EPS = 0.06;
@@ -82,11 +82,12 @@ function gravelTexture(N = 512) {
 }
 
 // ---------------------------------------------------------------- the house
-export async function buildHouse(plan, onStep = () => {}) {
+export async function buildHouse(plan, onStep = () => {}, { startId = null, nearFirst = 14 } = {}) {
   const t0 = performance.now(), timing = {};
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xa9b7c4);
   const K = await makeKit(THREE, { onStep });
+  K.carveDensity = 110;             // 66 hearths: carving at a third of the single room's density (~7k tris each, not 64k)
   const { M } = K;
   timing.materials_ms = Math.round(performance.now() - t0);
   const tileUV = (g, k) => { const uv = g.attributes.uv, p = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / k, p.getY(i) / k); return g; };
@@ -96,6 +97,22 @@ export async function buildHouse(plan, onStep = () => {}) {
     glassOut: new THREE.MeshStandardMaterial({ color: 0x1c2328, roughness: 0.12, metalness: 0.7 }) };
   out.ashlar.map.repeat.set(0.5, 0.5); out.ashlar.normalMap.repeat.set(0.5, 0.5);
   const level = (f) => plan.floors.find(x => x.id === f).level * LEVEL_GAP;
+  const stairFrom = (s) => s.from || plan.floors[0].id, stairTo = (s) => s.to || plan.floors[1].id;
+  const doors = [];                                   // door leaves: hinged, animated, not merged
+  const PLACE0 = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
+  // a panelled door leaf, w x h, 45 mm thick, hinged at its left edge (x = 0), lying in the wall's plane
+  const leafGeo = (w, h) => {
+    const parts = [];
+    const fr = metric(new THREE.BoxGeometry(w, h, 0.045)); fr.translate(w / 2, h / 2, 0); parts.push(fr);
+    for (const [y0, y1] of [[0.12, h * 0.42], [h * 0.48, h - 0.12]]) {
+      const pan = loft(THREE, rect(0.1, w - 0.1, y0, y1), [[0, 0.0225], [0.012, 0.03], [0.03, 0.033]], true, true);
+      parts.push(pan);
+      const back = pan.clone(); back.scale(1, 1, -1); parts.push(back);
+    }
+    const knob = new THREE.SphereGeometry(0.025, 10, 8); knob.translate(w - 0.07, 1.0, 0.045); parts.push(knob);
+    const flat = parts.map(g => { const q = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(q.attributes)) if (!["position", "normal", "uv"].includes(k)) q.deleteAttribute(k); if (!q.attributes.uv) q.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(q.attributes.position.count * 2), 2)); q.clearGroups(); return q; });
+    return mergeGeometries(flat, false);
+  };
   const rooms = [], windowsWorld = [];
   // stage: compile the plan into every wall's elements (no geometry yet)
   const tc = performance.now();
@@ -149,9 +166,9 @@ export async function buildHouse(plan, onStep = () => {}) {
     }
     const spec = specs.get(room.id), H = spec.H;
     // floor (with a hole where a stair comes up through it) and ceiling (with a hole where one goes up)
-    const up = stairsHere.filter(() => room.floor !== "ground").map(holeOf);
+    const up = stairsHere.filter(s => stairTo(s) === room.floor).map(holeOf);
     // the ceiling slab is turned face-down, which mirrors it north-south: mirror its holes to match
-    const downTo = stairsHere.filter(() => room.floor === "ground").map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
+    const downTo = stairsHere.filter(s => stairFrom(s) === room.floor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
     const fg = tileUV(slab(THREE, rect(0, W, 0, D), up), spec.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
     const fm = new THREE.Mesh(fg, spec.floor === "flags" ? M.flags : M.floor); fm.receiveShadow = true; grp.add(fm);
     const cg = tileUV(slab(THREE, rect(0, W, 0, D), downTo), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
@@ -167,6 +184,26 @@ export async function buildHouse(plan, onStep = () => {}) {
       // leaded glass seen from the courts too
       // where each window's daylight comes from, in world space, fixed now (the wall groups are merged away)
       scene.add(grp); grp.updateMatrixWorld(true);
+      // door leaves, one per doorway (the room that lines it hangs it), and writing tables under windows
+      const P = PLACE0(W, D)[F];
+      for (const e of spec.walls[F]) if (e.kind === "door" && e.lining !== false) {
+        const holder = new THREE.Group(); holder.position.set(x0 + P.pos[0], Y, -y0 + P.pos[2]); holder.rotation.y = P.rot;
+        const pivot = new THREE.Group(); pivot.position.set(e.r0 + 0.005, 0, -e.T / 2); holder.add(pivot);
+        const g = leafGeo(e.r1 - e.r0 - 0.01, e.top - 0.01); K.board(g, 0.18);
+        const leaf = new THREE.Mesh(g, M.oakH); leaf.castShadow = leaf.receiveShadow = true; leaf.userData.door = e.id; pivot.add(leaf);
+        scene.add(holder);
+        const o = plan.openings.find(q => q.id === e.id);
+        doors.push({ id: e.id, pivot, holder, leaf, floor: room.floor, rect: o.rect, angle: 1.62, target: 1.62, room: room.id });
+        pivot.rotation.y = -1.62;
+      }
+      for (const ob of (plan.objects || []).filter(q => q.kind === "desk" && q.room === room.id && !q.placed)) {
+        const win = spec.walls[F].find(e => e.kind === "window" && e.r1 - e.r0 > 1.0);
+        if (!win) continue;
+        const d = buildDesk(THREE, K);
+        const holder = new THREE.Group(); holder.position.set(...P.pos); holder.rotation.y = P.rot;
+        d.group.position.set((win.r0 + win.r1) / 2, 0, 0.04); holder.add(d.group); grp.add(holder);
+        ob.placed = true;
+      }
       for (const e of spec.walls[F]) if (e.kind === "window") {
         const c = new THREE.Vector3((e.r0 + e.r1) / 2, (e.sill + e.top) / 2, -e.T + 0.06).applyMatrix4(w.grp.matrixWorld);
         const into = new THREE.Vector3((e.r0 + e.r1) / 2, (e.sill + e.top) / 2, 5).applyMatrix4(w.grp.matrixWorld);
@@ -176,14 +213,9 @@ export async function buildHouse(plan, onStep = () => {}) {
     scene.add(grp);
     return { room, grp, H, spec };
   }
-  for (const room of plan.rooms) {
-    onStep(`raising ${room.name.toLowerCase()}`);
-    await new Promise(r => setTimeout(r));
-    rooms.push(await makeRoom(room));
-  }
   // stairwells: the 0.3 m between a ceiling and the floor above, closed round each stair opening
   for (const s of plan.stairs) {
-    const R = s.rect, y0 = 2.8, y1 = LEVEL_GAP;
+    const R = s.rect, y0 = level(stairFrom(s)) + 2.8, y1 = level(stairTo(s));
     const sides = [[[R.x0, R.y1], [R.x1, R.y1]], [[R.x1, R.y1], [R.x1, R.y0]], [[R.x1, R.y0], [R.x0, R.y0]], [[R.x0, R.y0], [R.x0, R.y1]]];
     for (const [[ax, ay], [bx, by]] of sides) {
       const len = Math.hypot(bx - ax, by - ay), g = new THREE.PlaneGeometry(len, y1 - y0);
@@ -195,7 +227,7 @@ export async function buildHouse(plan, onStep = () => {}) {
   }
   // stairs: solid oak treads rising from the ground floor to the upper
   for (const s of plan.stairs) {
-    const n = s.treads, R = s.rect, rise = LEVEL_GAP / n, along = s.up === "N" || s.up === "S" ? R.y1 - R.y0 : R.x1 - R.x0, run_ = along / n;
+    const base = level(stairFrom(s)), n = s.treads, R = s.rect, rise = (level(stairTo(s)) - base) / n, along = s.up === "N" || s.up === "S" ? R.y1 - R.y0 : R.x1 - R.x0, run_ = along / n;
     for (let i = 0; i < n; i++) {
       const hgt = (i + 1) * rise;
       let bx0 = R.x0, bx1 = R.x1, by0 = R.y0, by1 = R.y1;
@@ -203,7 +235,7 @@ export async function buildHouse(plan, onStep = () => {}) {
       if (s.up === "S") { by1 = R.y1 - i * run_; by0 = by1 - run_; }
       if (s.up === "E") { bx0 = R.x0 + i * run_; bx1 = bx0 + run_; }
       if (s.up === "W") { bx1 = R.x1 - i * run_; bx0 = bx1 - run_; }
-      const g = new THREE.BoxGeometry(bx1 - bx0, hgt, by1 - by0); g.translate((bx0 + bx1) / 2, hgt / 2, -(by0 + by1) / 2);
+      const g = new THREE.BoxGeometry(bx1 - bx0, hgt, by1 - by0); g.translate((bx0 + bx1) / 2, base + hgt / 2, -(by0 + by1) / 2);
       K.board(g, 0.2);
       const m = new THREE.Mesh(g, M.oakH); m.castShadow = m.receiveShadow = true; scene.add(m);
     }
@@ -235,16 +267,17 @@ export async function buildHouse(plan, onStep = () => {}) {
     while (r.grp.children.length) r.grp.remove(r.grp.children[0]);
     for (const m of keep) r.grp.add(m);
   }
-  for (const r of rooms) mergeRoom(r);
   timing.merge_ms = Math.round(performance.now() - t2);
 
   // light: one sun for the house, a sky fill, and a small rig that follows you room to room
   const tl = performance.now();
-  const bb = { w: 40, d: 26 };
+  const ext = plan.rooms.reduce((b, q) => ({ x0: Math.min(b.x0, q.rect.x0), x1: Math.max(b.x1, q.rect.x1), y0: Math.min(b.y0, q.rect.y0), y1: Math.max(b.y1, q.rect.y1) }), { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 });
+  const bb = { w: ext.x1 - ext.x0, d: ext.y1 - ext.y0, cx: (ext.x0 + ext.x1) / 2, cy: (ext.y0 + ext.y1) / 2 };
+  const reach = Math.hypot(bb.w, bb.d) / 2 + 4;
   const sun = new THREE.DirectionalLight(0xffe2b8, 1.8);
-  sun.position.set(bb.w * 0.5 + 12, 16, 14); sun.target.position.set(bb.w * 0.5, 0, -bb.d * 0.5);
+  sun.position.set(bb.cx + 12, 16 + plan.floors.length * LEVEL_GAP, -bb.cy + 30); sun.target.position.set(bb.cx, 0, -bb.cy);
   sun.castShadow = true; sun.shadow.mapSize.set(4096, 4096); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
-  Object.assign(sun.shadow.camera, { left: -26, right: 26, top: 22, bottom: -22, near: 1, far: 70 });
+  Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
   scene.add(sun, sun.target);
   const hemi = new THREE.HemisphereLight(0xb8c4d0, 0x3a2a1c, 0.45); scene.add(hemi);
   const slots = Array.from({ length: 4 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
@@ -274,7 +307,34 @@ export async function buildHouse(plan, onStep = () => {}) {
     const r = await makeRoom(old.room); mergeRoom(r); rooms[i] = r;
     return Math.round(performance.now() - t);
   }
+  function cull(x, y, floorId, near = 26) {
+    const lv = plan.floors.find(f => f.id === floorId).level; let shown = 0;
+    for (const r of rooms) {
+      const q = r.room.rect, dx = Math.max(q.x0 - x, 0, x - q.x1), dy = Math.max(q.y0 - y, 0, y - q.y1), dist = Math.hypot(dx, dy);
+      const dl = Math.abs(plan.floors.find(f => f.id === r.room.floor).level - lv);
+      r.grp.visible = dl === 0 ? dist < near : dl === 1 ? dist < 6 : false;
+      shown += r.grp.visible;
+    }
+    for (const d of doors) { const q = d.rect, dist = Math.hypot(Math.max(q.x0 - x, 0, x - q.x1), Math.max(q.y0 - y, 0, y - q.y1)); d.holder.visible = d.floor === floorId && dist < near; }
+    return shown;
+  }
   timing.lighting_setup_ms = +(performance.now() - tl).toFixed(1);
-  const stats = { rooms: rooms.length, meshes_before_merge: before, draw_meshes: after, windows: windowsWorld.length, total_ms: Math.round(performance.now() - t0), ...timing };
-  return { scene, rooms, rig, LV, level, stats, rebuildRoom };
+  // rooms: the ones round where you start first (so the first frame waits for those alone), then the
+  // rest of the house streamed in behind, nearest first, a room at a time between frames
+  const startRoom = plan.rooms.find(q => q.id === startId) || plan.rooms[0];
+  const sx = (startRoom.rect.x0 + startRoom.rect.x1) / 2, sy = (startRoom.rect.y0 + startRoom.rect.y1) / 2, slv = plan.floors.find(f => f.id === startRoom.floor).level;
+  const distOf = (q) => Math.hypot(Math.max(q.rect.x0 - sx, 0, sx - q.rect.x1), Math.max(q.rect.y0 - sy, 0, sy - q.rect.y1)) + 40 * Math.abs(plan.floors.find(f => f.id === q.floor).level - slv);
+  const order = [...plan.rooms].sort((a, b) => distOf(a) - distOf(b));
+  const stats = { rooms: plan.rooms.length, windows: 0, ...timing };
+  const buildOne = async (room) => { const r = await makeRoom(room); mergeRoom(r); r.grp.visible = distOf(room) < nearFirst; rooms.push(r); stats.windows = windowsWorld.length; stats.meshes_before_merge = before; stats.draw_meshes = after; };
+  const near = order.filter(q => distOf(q) < nearFirst);
+  for (const room of near) { onStep(`raising ${room.name.toLowerCase()}`); await buildOne(room); }
+  stats.first_ready_ms = Math.round(performance.now() - t0); stats.rooms_first = near.length;
+  const rest = (async () => {
+    for (const room of order.slice(near.length)) { await new Promise(r => setTimeout(r, 0)); await buildOne(room); }
+    stats.all_rooms_ms = Math.round(performance.now() - t0);
+    stats.doors = doors.length; stats.desks = (plan.objects || []).filter(o => o.placed).length;
+  })();
+  stats.doors = doors.length;
+  return { scene, rooms, rig, LV, level, stats, rebuildRoom, doors, cull, stairFrom, stairTo, rest };
 }
