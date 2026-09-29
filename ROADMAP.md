@@ -40,11 +40,12 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 - [x] R43 The code room, finished for your eye: v2 with the twin's critique applied (zone-matched light with a two-bounce bake, per-member oak, a period chimney-piece, glazing onto an outside, passages with depth, plain quarries) — screenshots in `lab/painted/review/` (NOTES "v2 of the zero-asset room", "The light bake") — approved by you, 2026-09-28 ("Looks pretty great")
 - [x] R31 A real light bake for the code room: a two-bounce irradiance grid (75 probes, SH per probe, sampled per fragment) computed from the room's own sun and window light, blended with a measured fill for the eye's adaptation (`lab/painted/gi.js`, NOTES "The light bake")
 - [x] R35 The drawer and the hidden key working in the code room: a joined oak table with a drawer, built from code; the key exists for you only once the drawer is first opened; take it and you carry it; the room stays as you left it (the harness and world document of §3/§8; `lab/painted/muniment_room/world/`, tests `code-room.spec.mjs`) — approved by you, 2026-09-28
-- [~] R44 The whole manor from its plan, in code: every room compiled from packs/manor with no per-room images, with each stage timed so real-time production can be planned (`lab/house/`)
+- [x] R44 The whole manor from its plan, in code: every room compiled from packs/manor with no per-room images, with each stage timed so real-time production can be planned (`lab/house/`); timed: plan compile 1.5 ms, 22 rooms in 3.3 s, one-room rebuild ~0.5 s, 22 min of my time (`lab/house/TIMING.md`)
 
 ## M6 — Many looks, one world (proposed; waits on your decision)
 
 - [ ] R45 A period brief before any asset: the place's period, region, status and each room's real function (a muniment room is a fireproof strongroom: iron-bound door, small barred lights, presses, no hearth), and the room rebuilt from the brief rather than from a painting
+- [ ] R47 Each room type its own grammar (hall, gallery, chamber, service, stair, exterior as coherent parameter families, including the hall's height), and doorways that show the next room's own light: the twin's manor critique (`lab/house/`, holo-emitter-codex m1e9ea4)
 - [ ] R46 Look packages, seams and streaming: the manor's approach opening onto a hillside package and a London street package, blended at natural boundaries, neighbouring places built while you stand in one room, every stage timed
 
 ## Later
