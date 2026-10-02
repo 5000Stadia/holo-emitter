@@ -1,6 +1,21 @@
-holo-emitter: a Myst-like browser world you walk through, built from generated paintings and code, where one world document is the truth and the picture is its projection.
+holo-emitter: a first-person browser world, desktop and phone, built live in code from descriptions and plans, where one world document is the truth and the picture is its projection.
 
 Rows are the project's own work units (`design/intention.md` "The spec list"; detail in `design/architecture.md` under each row's heading). Handles like L-PACK are in `design/registry.md`.
+
+
+## Vision
+
+**holo-emitter: walk into any place, and it's there.**
+
+A browser world you walk through in first person, on a desktop or a phone, that makes you feel you're standing somewhere real, not looking at a diagram. Places are built live, in code, from a description of them: a period and a place set the look, a plan sets the rooms, and the world assembles around you in seconds as you walk. A manor leads out onto a hillside, and its drive leads into a London street, with no seams and no loading screens.
+
+One world document is the only truth, and the picture is its projection. Leave a room and come back, and it's exactly as you left it. What you don't know yet doesn't exist on screen: the key isn't in the drawer until you open it. Space that hasn't been established yet shows as the holodeck grid.
+
+Fundamentals every milestone keeps:
+- **It must feel like standing somewhere.** Nothing reads as a sticker, a kit or a diagram.
+- **The document is the truth.** The picture never lies about it, and changes only through the world's own rules.
+- **Places come from descriptions.** No hand-made assets per place. Each look is authored once for its period and place; after that, building a place costs seconds and no AI calls.
+- **It's ready for the family.** pattern-buffer will supply the truth and construct the drama; holo-emitter projects them.
 
 ## M1 — The M0 demo: two rooms, four facings, a drawer that opens, a key you did not know existed
 
