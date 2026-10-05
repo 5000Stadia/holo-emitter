@@ -29,3 +29,9 @@ The approach he wants is "a rigorous rule set and separation of object types, an
    - **My reading:** what joins the library is the recipe (a kind), not a rendered result.
    - **Consequence for now:** kinds should be declarative recipes over a vetted parts library, not free code, so they can be checked, versioned, shared and served safely later.
    - The measure that matters is the **gap rate**: the share of a new world's needs the library can't yet fill.
+10. **Ground that isn't flat; outdoors.** In his words: "we may in the future not want an endless flat walking plane … Majestic Hills. How do we even start to work with that?"
+    - **My reading:** terrain is a height function of world position, and both the picture and the walker use it.
+    - It comes in chunks with levels of detail, and seams agree because everything is evaluated in world coordinates.
+    - A landform kind takes settings plus authored constraints (ridges, rivers, terraces for buildings), as in Worldspring's sketch.
+    - Ground cover follows slope, height and wetness. Vegetation is instanced recipes.
+    - Sky and haze carry the sense of distance. Far hills are cheap stand-ins.
