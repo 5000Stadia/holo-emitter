@@ -29,12 +29,12 @@ import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUnifo
 import { makeKit } from "../painted/procedural.js";
 import { strongroomMaterials } from "./strongroom.js";
 import { buildBookpress, buildLibraryWall } from "./bookpress.js";
-import { buildBook, bookSpec } from "./book.js";
+import { buildBook, bookSpec, bookContext, titleOf } from "./book.js";
 
 const Q = new URLSearchParams(location.search);
 const OBJECTS = {
   bookpress: (K) => buildBookpress(THREE, K, {}),
-  library: (K) => buildLibraryWall(THREE, K, {}),
+  library: (K) => buildLibraryWall(THREE, K, { ctx: bookContext(Q.get("means") || "gentry", Q.get("purpose")), seed: +(Q.get("seed") || 1668) }),
   book: (K) => { const b = buildBook(THREE, K, bookSpec(Q.get("size") || "quarto", +(Q.get("seed") || 7))); b.position.set(0, 0.8 + b.scale.y / 2, 0.6); b.rotation.y = -0.5; return b; },
 };
 const kind = Q.get("o") || "bookpress";

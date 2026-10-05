@@ -19,6 +19,7 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 | Date | Piece | Wall-clock | New pieces | New lines | Compile | Build | Walkable (no bake) |
 |---|---|---|---|---|---|---|---|
+| 2026-10-05 | Live titles; shelves filled by the owner's means and the room's purpose | 4.5 min | title atlas, 4 bindings, contexts | ~170 | – | 0.16 s (wall) | – |
 | 2026-10-05 | The book as its own recipe; a 581-book library wall from it | 5 min | 1 recipe (book) + library wall | ~230 | – | 0.12 s (wall) | – |
 | 2026-10-05 | A bookpress full of books, c. 1666 (one object, conception to checked) | 9 min | 1 object (+ spine atlas, acanthus) | ~200 (+84 stage) | – | 0.18 s | – |
 | 2026-10-05 | R45 fixes from your review (rolls, corners, stonework, floor) | 7 min | 1 (flagstones) | ~110 | 11 ms | 1.38 s | 5.8 s |
@@ -26,7 +27,40 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 ---
 
-## The book as its own recipe (2026-10-05)
+## Live titles, and shelves filled by context (2026-10-05)
+
+You noticed every white vellum book said "Placita". You also asked whether a shelf could be filled to suit its setting: how full, which subjects, which bindings, wealthy against squalor.
+
+**Wall-clock: 4.5 min, from 14:38:16 to 14:42:39**, including two renders.
+
+**Titles are live text:**
+- 59 period titles (Coke's *Reports*, Camden's *Britannia*, Year Books, Hooker, almanacs, chapbooks …) are drawn once per look into a title atlas, in three styles:
+  - gilt capitals on a lettering-piece, with volume numbers for sets;
+  - ink on a pasted paper label;
+  - ink written down a vellum spine.
+- The shader lays each book's title onto its spine. A book's title comes from its seed and the context's subjects.
+
+**Context is a fill profile from the brief:** the owner's means (`great`, `gentry`, `middling`, `poor`) plus the room's purpose (a muniment room leans to law and estate papers). It sets:
+- fullness;
+- order (by size, or mixed);
+- the share of each binding: gilt calf, plain sheep, vellum, paper pamphlets;
+- multi-volume sets kept together;
+- heaps lying flat;
+- subjects;
+- wear.
+
+It's only probabilities fed to the same recipe, so it costs nothing extra at runtime.
+
+| Same wall, same seed | Books | Build | Geometry |
+|---|---|---|---|
+| `great` | 600: full, ordered by size, mostly gilt calf, sets such as *Camden Britannia* I–IV and *Year Books* I–IV | 0.16 s | 100 KB |
+| `poor` | 273: sparse, mixed, pamphlets in wrappers, plain sheep, heaps lying flat, darker with wear | 0.16 s | 60 KB |
+
+No fit faults in either.
+
+**Left for later:** a lone thin pamphlet can stand upright in a gap. It should lean or lie flat. That's a rule for unsupported thin books.
+
+ (2026-10-05)
 
 You asked for sub-components to be objects of their own. The book is now the catalogue's first recipe (`lab/brief/book.js`):
 - A book is a **size class plus a seed**; height, thickness, binding, spine design and tone all follow from them.

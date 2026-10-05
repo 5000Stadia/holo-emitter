@@ -6,7 +6,7 @@
 // Frame: back against a wall at z = 0, front toward +z, centred on x = 0, standing on y = 0.
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { metric, run, rng, hash } from "../painted/procedural.js";
-import { fillRow, booksMesh } from "./book.js";
+import { fillRow, booksMesh, bookContext } from "./book.js";
 
 // ---- carving: a running band of acanthus. u across one leaf's repeat (0..1), Y up the band (0..1);
 // returns relief 0..1. Each leaf a rounded tongue with a sunk midrib and lobed edges, its tip turning over;
@@ -27,7 +27,7 @@ function acanthus(u, Y) {
   return Math.max(0, h);
 }
 
-export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666 } = {}) {
+export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666, ctx = bookContext("great") } = {}) {
   const { M } = K, r = rng(seed), parts = new Map();
   const add = (g, mat, spread = 0.16) => { if (mat.vertexColors && !g.attributes.color) K.board(g, spread); if (!parts.has(mat)) parts.set(mat, []); parts.get(mat).push(g.index ? g.toNonIndexed() : g); };
   const box = (w, h, d, x, y, z, mat = M.oak, spread = 0.16) => { const g = metric(new THREE.BoxGeometry(w, h, d)); g.translate(x, y, z); add(g, mat, spread); };
@@ -77,7 +77,7 @@ export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666 } = {}
   const inner = W - 2 * side - 0.01, faults = [], placements = [];
   ROWS.forEach((size, k) => {
     const res = fillRow(THREE, { size, seed: hash(seed, k, 11) * 1e9 | 0, x0: -inner / 2, x1: inner / 2, y: rowsY[k], zFront: (k === 0 ? Db : Du) - 0.035,
-      depthMax: (k === 0 ? Db : Du) - 0.06, clear: k === 0 ? waist - 0.003 - rowsY[0] : (k + 1 < rowsY.length ? rowsY[k + 1] - 0.02 : upperTop - 0.025) - rowsY[k] });
+      depthMax: (k === 0 ? Db : Du) - 0.06, ctx, clear: k === 0 ? waist - 0.003 - rowsY[0] : (k + 1 < rowsY.length ? rowsY[k + 1] - 0.02 : upperTop - 0.025) - rowsY[k] });
     placements.push(...res.placements); faults.push(...res.faults);
   });
   const booksM = booksMesh(THREE, K, placements);
@@ -122,7 +122,7 @@ export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666 } = {}
 
 // A library wall: open oak shelving in bays, every shelf filled from the same book recipe. The test of
 // the recipe: a wall of a thousand books should cost about what one bookcase costs.
-export function buildLibraryWall(THREE, K, { W = 4.2, H = 2.5, bays = 4, D = 0.32, seed = 1668 } = {}) {
+export function buildLibraryWall(THREE, K, { W = 4.2, H = 2.5, bays = 4, D = 0.32, seed = 1668, ctx = bookContext("gentry") } = {}) {
   const { M } = K, parts = new Map();
   const add = (g, mat, spread = 0.16) => { if (mat.vertexColors && !g.attributes.color) K.board(g, spread); if (!parts.has(mat)) parts.set(mat, []); parts.get(mat).push(g.index ? g.toNonIndexed() : g); };
   const box = (w, h, d, x, y, z, mat = M.oak, spread = 0.16) => { const g = metric(new THREE.BoxGeometry(w, h, d)); g.translate(x, y, z); add(g, mat, spread); };
@@ -143,7 +143,7 @@ export function buildLibraryWall(THREE, K, { W = 4.2, H = 2.5, bays = 4, D = 0.3
   for (let b = 0; b < bays; b++) {
     const x0 = -W / 2 + up + b * (bw + up) + 0.005, x1 = x0 + bw - 0.01;
     used.forEach((size, k) => {
-      const res = fillRow(THREE, { size, seed: hash(seed + b, k, 13) * 1e9 | 0, x0, x1, y: ys[k], zFront: D - 0.03, depthMax: D - 0.05, clear: ys[k + 1] - 0.022 - ys[k] });
+      const res = fillRow(THREE, { size, seed: hash(seed + b, k, 13) * 1e9 | 0, x0, x1, y: ys[k], zFront: D - 0.03, depthMax: D - 0.05, ctx, clear: ys[k + 1] - 0.022 - ys[k] });
       placements.push(...res.placements); faults.push(...res.faults);
     });
   }
@@ -153,6 +153,6 @@ export function buildLibraryWall(THREE, K, { W = 4.2, H = 2.5, bays = 4, D = 0.3
     const m = new THREE.Mesh(mergeGeometries(keep, false), mat); m.castShadow = m.receiveShadow = true; grp.add(m);
   }
   grp.add(booksMesh(THREE, K, placements));
-  grp.userData = { kind: "library_wall", books: placements.length, faults, size: [W + 0.1, H, D + 0.08] };
+  grp.userData = { kind: "library_wall", means: ctx.means, books: placements.length, faults, size: [W + 0.1, H, D + 0.08] };
   return grp;
 }

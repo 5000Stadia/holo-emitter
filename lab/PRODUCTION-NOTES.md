@@ -35,3 +35,6 @@ The approach he wants is "a rigorous rule set and separation of object types, an
     - A landform kind takes settings plus authored constraints (ridges, rivers, terraces for buildings), as in Worldspring's sketch.
     - Ground cover follows slope, height and wetness. Vegetation is instanced recipes.
     - Sky and haze carry the sense of distance. Far hills are cheap stand-ins.
+11. **Context fills containers.** In his words: "The fullness or emptiness of a bookshelf, desk or refrigerator is likely notably different between someone in squalor and one who is wealthy."
+    - **Built for books:** `bookContext(means, purpose)` sets fullness, order, bindings, sets, heaps, subjects and wear.
+    - **The general rule:** every container kind takes the same context from the brief: the owner's means and the room's purpose.
