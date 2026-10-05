@@ -57,11 +57,14 @@ Fundamentals every milestone keeps:
 - [x] R35 The drawer and the hidden key working in the code room: a joined oak table with a drawer, built from code; the key exists for you only once the drawer is first opened; take it and you carry it; the room stays as you left it (the harness and world document of §3/§8; `lab/painted/muniment_room/world/`, tests `code-room.spec.mjs`) — approved by you, 2026-09-28
 - [x] R44 The whole manor from its plan, in code: every room compiled from packs/manor with no per-room images, with each stage timed so real-time production can be planned (`lab/house/`); timed: plan compile 1.5 ms, 22 rooms in 3.3 s, one-room rebuild ~0.5 s, 22 min of my time (`lab/house/TIMING.md`)
 
-## M6 — Many looks, one world (proposed; waits on your decision)
+## M6 — Many looks, one world
 
-- [ ] R45 A period brief before any asset: the place's period, region, status and each room's real function (a muniment room is a fireproof strongroom: iron-bound door, small barred lights, presses, no hearth), and the room rebuilt from the brief rather than from a painting
-- [ ] R47 Each room type its own grammar (hall, gallery, chamber, service, stair, exterior as coherent parameter families, including the hall's height), and doorways that show the next room's own light: the twin's manor critique (`lab/house/`, holo-emitter-codex m1e9ea4)
-- [ ] R46 Look packages, seams and streaming: the manor's approach opening onto a hillside package and a London street package, blended at natural boundaries, neighbouring places built while you stand in one room, every stage timed
+Agreed with you 2026-10-05 ("Just use those inspiring anchors for reference and determine the best code that serves our project"): M6 goes ahead, reshaped by what github.com/Dun-John/worldspring does well (`lab/WORLDSPRING.md`). Its code is a reference, not a source; ours is written for this project. Three pauses for your eye: after R45, after R47, after R46.
+
+- [~] R45 A period brief before any asset: the place's period, region, status and each room's real function (a muniment room is a fireproof strongroom: iron-bound door, small barred lights, presses, no hearth), written as pins the generator must honour, with a report of any it could not; the room rebuilt from the brief rather than from a painting
+- [ ] R47 A building's purpose decides its rooms: a c.1660 manor's program per floor (hall, parlour, great chamber, gallery, kitchen, buttery, muniment room…) lays out the plan, then each room type builds by its own grammar (heights, finishes, light, furniture), and doorways show the next room's own light (the twin's manor critique, holo-emitter-codex m1e9ea4); checks that always hold: every room reachable, nothing standing in an opening, the same plan always builds the same house
+- [ ] R48 The pipeline every place builds on: each room and place a pure function of (world document, key), depending only on coarser or parent pieces, positioned in world coordinates so neighbours agree at seams; built in workers off the main thread; the generator's version recorded in the world so a saved world never shifts under a player; a `?bench` walk you run on your own laptop and phone (two outside views before this is fixed)
+- [ ] R46 Look packages, seams and streaming: the manor's approach opening onto a hillside package and a London street package, blended by world position at natural boundaries, neighbouring places built while you stand in one room, every stage timed
 
 ## Later
 
