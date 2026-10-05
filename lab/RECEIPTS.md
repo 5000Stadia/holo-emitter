@@ -42,7 +42,7 @@ You asked for sub-components to be objects of their own. The book is now the cat
 | Bookpress, 152–154 books | books ≈ 240 KB of geometry, merged | books ≈ 15 KB (one shape + 92 bytes a copy) |
 | Bookpress whole | 7.07 MB geometry, 0.13–0.18 s | 6.84 MB (the carving is now nearly all of it), 0.19 s |
 | **Library wall, 4.2 m, 4 bays, 581 books** | – | **0.12 s, 3 meshes, 80 KB geometry, 7k triangles, no faults** |
-| Book recipe | – | 13 KB, 4.5 KB compressed |
+| Book recipe | – | 10.5 KB, 4.2 KB compressed |
 
 **What it shows:**
 - A wall of 581 books costs less than the one bookpress, whose carving dominates.
