@@ -7,7 +7,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 
 **holo-emitter: walk into any place, and it's there.**
 
-A browser world you walk through in first person, on a desktop or a phone, that makes you feel you're standing somewhere real, not looking at a diagram. Places are built live, in code, from a description of them: a period and a place set the look, a plan sets the rooms, and the world assembles around you in seconds as you walk. A manor leads out onto a hillside, and its drive leads into a London street, with no seams and no loading screens.
+A browser world you walk through in first person, on a desktop or a phone, that makes you feel you're standing somewhere real, not looking at a diagram. Places are built live, in code, from a description of them: a period and a place set the look, a plan sets the rooms, and the world assembles around you in seconds as you walk. A manor leads out onto a hillside, and its drive leads into a London street, with no seams and no loading screens. Describe a world and it renders live: hand pattern-buffer a book such as *Alice in Wonderland*, and holo-emitter turns it into a world you can walk through and play.
 
 One world document is the only truth, and the picture is its projection. Leave a room and come back, and it's exactly as you left it. What you don't know yet doesn't exist on screen: the key isn't in the drawer until you open it. Space that hasn't been established yet shows as the holodeck grid.
 
