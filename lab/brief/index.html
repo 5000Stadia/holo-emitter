@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Muniment Room · From the Brief</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --ink: #ece4d2; --ink-dim: #a89e88; --panel: rgba(22, 19, 16, 0.78); --line: rgba(236, 228, 210, 0.2); --brass: #c9a961; --ok: #9fbf7a; --adj: #d9b25a; --bad: #d97a5a; }
+  html, body { height: 100%; margin: 0; background: #0c0a08; color: var(--ink); overflow: hidden;
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
+  canvas { display: block; }
+  .hud { position: fixed; inset: 0; pointer-events: none; display: grid; grid-template-rows: auto 1fr auto; padding: 18px; gap: 12px; }
+  .top, .bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .bottom { align-items: flex-end; }
+  .room, .keys, #brief, #perf { background: var(--panel); border: 1px solid var(--line); }
+  .room { padding: 12px 16px 10px; }
+  .room .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); }
+  .room .name { font-family: "Josefin Sans", sans-serif; font-weight: 600; font-size: 24px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; color: var(--brass); }
+  .keys { padding: 10px 14px; color: var(--ink-dim); line-height: 1.8; }
+  .keys kbd { font-family: inherit; color: var(--ink); border: 1px solid var(--line); padding: 0 5px; border-radius: 2px; }
+  #brief { pointer-events: auto; max-width: 54ch; max-height: calc(100vh - 220px); overflow: auto; padding: 12px 14px; line-height: 1.5; color: var(--ink-dim); }
+  #brief h3 { margin: 0 0 6px; font: 600 12px "Josefin Sans", sans-serif; letter-spacing: 0.14em; text-transform: uppercase; color: var(--brass); }
+  #brief .fn { color: var(--ink); margin-bottom: 10px; }
+  #brief .pin { margin: 8px 0; padding-left: 10px; border-left: 2px solid var(--line); }
+  #brief .pin b { font-weight: 500; text-transform: uppercase; font-size: 10px; letter-spacing: 0.12em; margin-right: 6px; }
+  #brief .honoured { border-color: var(--ok); } #brief .honoured b { color: var(--ok); }
+  #brief .adjusted { border-color: var(--adj); } #brief .adjusted b { color: var(--adj); }
+  #brief .conflict { border-color: var(--bad); } #brief .conflict b { color: var(--bad); }
+  #brief .src { font-size: 11px; opacity: 0.75; margin-top: 2px; }
+  #perf { padding: 6px 10px; color: var(--ink-dim); font-size: 11px; line-height: 1.5; white-space: pre; }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
+  #gate .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #gate .s { margin-top: 4px; color: var(--ink-dim); }
+  #gate[hidden], #status[hidden], #brief[hidden] { display: none !important; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; z-index: 3; text-align: center; padding: 24px; }
+  #status .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #status .s { margin-top: 12px; color: var(--ink-dim); }
+  #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(236,228,210,0.7); z-index: 1; pointer-events: none; }
+  #hint { position: fixed; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 4px 10px; z-index: 1; pointer-events: none; font-size: 12px; }
+  #line { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 10px 16px; z-index: 1; pointer-events: none; font-family: "Josefin Sans", sans-serif; font-size: 16px; line-height: 1.45; transition: opacity 0.6s; }
+  #held { position: fixed; right: 18px; bottom: 18px; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; z-index: 1; pointer-events: none; }
+  #held b { color: var(--brass); font-weight: 500; }
+  #cross[hidden], #hint[hidden], #line[hidden], #held[hidden] { display: none !important; }
+  @media (max-width: 640px), (pointer: coarse) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } #brief { max-width: 40ch; font-size: 11px; max-height: 45vh; } #gate { top: 70px; } }
+</style>
+</head>
+<body>
+<div id="status"><div><div class="t">Muniment Room</div><div class="s" id="statusText">reading the brief…</div></div></div>
+<div id="cross" hidden></div>
+<div id="hint" hidden></div>
+<div id="line" hidden></div>
+<div id="held" hidden></div>
+<div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
+<div class="hud">
+  <div class="top">
+    <div class="room"><div class="eyebrow">you are in</div><div class="name">Muniment Room</div><div class="eyebrow" style="margin-top:6px">built from the period brief, c. 1660</div></div>
+    <div id="brief" hidden></div>
+  </div>
+  <div></div>
+  <div class="bottom">
+    <div class="keys" id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride<br>
+      click (or <kbd>E</kbd>) what is in front of you: the table's drawer opens<br><kbd>B</kbd> the brief and what the build did with it &nbsp; <kbd>\</kbd> timings</div>
+    <div id="perf" hidden></div>
+  </div>
+</div>
+<script>
+  window.__fail = (why) => { const s = document.getElementById("status"); s.hidden = false; document.getElementById("statusText").innerHTML = why; };
+  window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error: " + (e.message || e.type)); });
+</script>
+<script src="../../src/harness.js"></script>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { makeKit, buildKey } from "../painted/procedural.js";
+import { makeGI } from "../painted/gi.js";
+import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+import { compileBrief } from "./brief.js";
+import { buildStrongroom } from "./strongroom.js";
+
+const Q = new URLSearchParams(location.search);
+const ROOM = Q.get("room") || "muniment_room";
+const statusText = document.getElementById("statusText");
+const step = (w) => { statusText.textContent = w + "…"; return new Promise(r => setTimeout(r)); };
+const T = { start: performance.now() }, mark = (k) => { T[k] = Math.round(performance.now() - T.start); };
+
+// ---- the brief, compiled against the plan
+const [plan, brief] = await Promise.all([fetch("../house/plan.json").then(r => r.json()), fetch("./manor-1660.json").then(r => r.json())]);
+mark("fetched");
+const spec = compileBrief(plan, ROOM, brief);
+mark("compiled");
+const { W, D, H } = spec.room;
+document.querySelector(".room .name").textContent = spec.room.name || ROOM;
+
+// ---- the picture
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(isTouch() ? 1 : Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(Q.get("exposure") || 1.0);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 60);
+RectAreaLightUniformsLib.init();
+
+await step("growing oak, laying flags, slaking lime");
+const K = await makeKit(THREE, { floor: [W, D], onStep: (w) => { statusText.textContent = w + "…"; } });
+mark("kit");
+await step("raising the strongroom");
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x07060a);
+const room = buildStrongroom(THREE, K, spec, brief.manors || ["Manor"]);
+scene.add(room.group);
+mark("built");
+
+// light: a low sun through the south lights, the sky in each, and the eye's adaptation as fill
+const sun = new THREE.DirectionalLight(0xffe2b8, 2.0);
+sun.position.set(W * 0.5 + 2.5, 3.6, 5.5); sun.target.position.set(W * 0.45, 0, -D * 0.45);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
+Object.assign(sun.shadow.camera, { left: -5, right: 5, top: 5, bottom: -5, near: 0.5, far: 20 });
+scene.add(sun, sun.target);
+const hemi = new THREE.HemisphereLight(0xd6d8d6, 0x4a4036, 0); scene.add(hemi);
+const fill = new THREE.RectAreaLight(0xf2e6d4, 0, W * 0.8, D * 0.8); fill.position.set(W / 2, 0.05, -D / 2); fill.lookAt(W / 2, 5, -D / 2); scene.add(fill);
+const LV = { sun: +(Q.get("sun") || 2.0), sky: +(Q.get("sky") || 12), fill: +(Q.get("fill") || 0.7), floorB: +(Q.get("floorB") || 0.7), gi: +(Q.get("gi") || 1.1) };
+const setLights = () => { sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky; hemi.intensity = LV.fill; fill.intensity = LV.floorB; if (gi) gi.setScale(LV.gi); };
+let gi = null;
+const useGI = Q.get("gi") !== "0" && (Q.get("gi") === "1" || !isTouch());
+if (useGI) {
+  gi = makeGI({ min: [0.35, 0.3, -D + 0.35], max: [W - 0.35, 2.5, -0.35], n: [5, 3, 5] });
+  scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
+  sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky; hemi.intensity = 0; fill.intensity = 0;
+  T.giStats = await gi.bake(renderer, scene, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: LV.gi });
+  mark("baked");
+}
+setLights();
+window.__lights = (o) => { Object.assign(LV, o); setLights(); };
+
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
+composer.addPass(new RenderPass(scene, camera));
+if (!isTouch()) { const g = new GTAOPass(scene, camera, innerWidth, innerHeight); g.updateGtaoMaterial({ radius: 0.45, distanceExponent: 1.6, thickness: 1.4, scale: 1.4, samples: 16 }); composer.addPass(g); }
+composer.addPass(new OutputPass());
+
+// ---- the world: the table, its drawer and the key, as truth (world.json) driven by the harness (§8)
+const fxBase = "../painted/muniment_room/world/";
+const WK = `holo-emitter/brief/${ROOM}/world`;
+const fx = {};
+for (const n of ["world", "staging", "narration", "viewstate"]) fx[n] = await (await fetch(`${fxBase}${n}.json`)).json();
+try { if (!Q.has("fresh")) { const saved = localStorage.getItem(WK); if (saved) fx.world = JSON.parse(saved); } else localStorage.removeItem(WK); } catch (_) {}
+const harness = window.HOLO.harness.create(fx);
+const desk = room.desk;
+const known = (id) => harness.world.knowledge.player.includes(id);
+const heldByMe = (id) => harness.world.relations.some(r => r[0] === "held_by" && r[1] === id && r[2] === "player");
+const stateOf = (id) => harness.world.entities.find(e => e.id === id).state;
+let key = null, drawerAt = stateOf("desk1") === "open" ? 1 : 0, drawerTo = drawerAt;
+const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); if (gi) key.traverse(o => { if (o.isMesh) gi.install(o.material); }); key.position.copy(desk.cavity); key.rotation.y = 0.35; desk.drawer.add(key); };
+const heldEl = document.getElementById("held"), lineEl = document.getElementById("line");
+const showHeld = () => { const items = harness.world.relations.filter(r => r[0] === "held_by" && r[2] === "player").map(r => r[1]); heldEl.hidden = !items.length; heldEl.innerHTML = "you carry: " + items.map(i => `<b>${{ key1: "an iron key" }[i] || i}</b>`).join(", "); };
+let lineTimer = null;
+const say = (text) => { if (!text) return; lineEl.textContent = text; lineEl.hidden = false; lineEl.style.opacity = 1; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.style.opacity = 0; setTimeout(() => { lineEl.hidden = true; }, 700); }, 4200); };
+placeKey(); showHeld();
+function project() {
+  drawerTo = stateOf("desk1") === "open" ? 1 : 0;
+  if (known("key1") && !heldByMe("key1")) placeKey();
+  if (heldByMe("key1") && key) { key.parent.remove(key); key = null; }
+  showHeld();
+  try { localStorage.setItem(WK, JSON.stringify(harness.world)); } catch (_) {}
+}
+harness.subscribe(project);
+const dispatch = (intent) => { const env = harness.dispatch(intent); say(env.narration); return env; };
+window.__settled = () => Math.abs(drawerTo - drawerAt) < 0.003;
+window.__world = () => JSON.parse(JSON.stringify(harness.world));
+window.__dispatch = (intent) => dispatch(intent);
+window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray() } : null;
+const ray = new THREE.Raycaster(); ray.far = 2.3;
+function aimAt(ndc) {
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects([desk.group, ...(key ? [key] : [])], true)[0];
+  if (!hit) return null;
+  let o = hit.object; while (o && !o.userData.entity) o = o.parent;
+  return o ? o.userData.entity : null;
+}
+const intentFor = (id) => id === "key1" ? { type: "take", entity: "key1" } : id === "desk1" ? { type: "toggle", entity: "desk1" } : null;
+const hintFor = (id) => id === "key1" ? "take the key" : id === "desk1" ? (stateOf("desk1") === "open" ? "close the drawer" : "open the drawer") : "";
+function act(ndc) { const it = intentFor(aimAt(ndc)); if (it) dispatch(it); return !!it; }
+window.__act = (x = 0, y = 0) => act(new THREE.Vector2(x, y));
+
+// ---- the brief panel: the function, and each pin as honoured, adjusted or in conflict
+const esc = (s) => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
+const briefEl = document.getElementById("brief");
+briefEl.innerHTML = `<h3>The brief</h3><div class="fn">${esc(spec.function || "")}</div>` +
+  spec.report.map(r => `<div class="pin ${r.status}"><b>${r.status}</b>${esc(r.text)}<div class="src">${esc(r.source || "")}</div></div>`).join("");
+if (Q.has("brief")) briefEl.hidden = false;
+
+// ---- walking: the room's bounds, and the furniture as boxes you cannot walk through
+const R = 0.22;
+const colliders = room.colliders;
+const free = (x, y) => x > R && x < W - R && y > R && y < D - R && !colliders.some(c => x > c.x0 - R && x < c.x1 + R && y > c.y0 - R && y < c.y1 + R);
+// start just inside the door from the solar, looking in
+const door = Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "door").map(e => ({ F, e }))).find(d => d.e.joins?.includes("solar"));
+let px = W / 2, py = D / 2, yaw = 0, pitch = -0.05;
+if (door && door.F === "W") { px = 0.9; py = (door.e.r0 + door.e.r1) / 2; yaw = -Math.PI / 2 + 0.3; }
+if (Q.get("x")) px = +Q.get("x"); if (Q.get("y")) py = +Q.get("y");
+if (Q.get("yaw")) yaw = +Q.get("yaw") * Math.PI / 180; if (Q.get("pitch")) pitch = +Q.get("pitch") * Math.PI / 180;
+window.__place = (x, y, yd, pd = 0) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; };
+window.__pos = () => [px, py];
+const EYE = 1.55;
+const keys = {};
+const perfEl = document.getElementById("perf");
+addEventListener("keydown", e => {
+  keys[e.code] = true;
+  if (e.code === "KeyB") briefEl.hidden = !briefEl.hidden;
+  if (e.code === "Backslash") perfEl.hidden = !perfEl.hidden;
+  if (e.code === "KeyE" || e.code === "Enter") act(document.pointerLockElement === renderer.domElement ? new THREE.Vector2(0, 0) : hoverNdc);
+});
+addEventListener("keyup", e => { keys[e.code] = false; });
+const gate = document.getElementById("gate");
+const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
+gate.addEventListener("click", lock);
+document.addEventListener("pointerlockchange", () => { gate.hidden = document.pointerLockElement === renderer.domElement; });
+const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
+let drag = null, downAt = null, hoverNdc = new THREE.Vector2(0, 0);
+const TOUCH = isTouch();
+const touch = touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx, dy), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) });
+if (TOUCH) { gate.hidden = true; document.getElementById("keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap the drawer, or the key"; }
+fullscreenButton();
+renderer.domElement.addEventListener("pointerdown", e => {
+  if (e.pointerType === "touch") return;
+  downAt = { x: e.clientX, y: e.clientY };
+  if (document.pointerLockElement === renderer.domElement) { act(new THREE.Vector2(0, 0)); return; }
+  drag = { x: e.clientX, y: e.clientY };
+  if (e.pointerType === "mouse" && !aimAt(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1))) lock();
+});
+renderer.domElement.addEventListener("pointerup", e => {
+  if (e.pointerType === "touch") return;
+  if (downAt && document.pointerLockElement !== renderer.domElement && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 5)
+    act(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
+  downAt = null;
+});
+renderer.domElement.addEventListener("mousemove", e => { if (document.pointerLockElement !== renderer.domElement) hoverNdc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
+renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
+addEventListener("pointerup", () => { drag = null; });
+renderer.domElement.style.touchAction = "none";
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+
+// ---- the receipt: what this build cost, stage by stage
+let tris = 0, draws = 0; scene.traverse(o => { if (o.isMesh) { draws++; tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; } });
+window.__receipt = () => ({ compile_ms: spec.ms, fetch_ms: T.fetched, kit_ms: T.kit - T.compiled, build_ms: T.built - T.kit, bake_ms: T.baked ? T.baked - T.built : 0, walkable_ms: T.walkable,
+  meshes: draws, tris: Math.round(tris), parts: room.stats.parts, presses: room.stats.presses, drawers: room.stats.drawers, report: spec.report.map(r => `${r.status} ${r.pin}`) });
+let frames = 0, fpsAt = performance.now(), fps = 0;
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const speed = (keys.ShiftLeft || keys.ShiftRight) ? 2.6 : 1.3;
+  const fx2 = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (keys.KeyW || keys.ArrowUp) { dx += fx2; dy += fy; }
+  if (keys.KeyS || keys.ArrowDown) { dx -= fx2; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
+  if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  if (touch.active) { dx += fx2 * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
+  const n = Math.hypot(dx, dy);
+  if (n > 0) {
+    const amt = Math.min(1, n); dx = dx / n * amt * speed * dt; dy = dy / n * amt * speed * dt;
+    if (free(px + dx, py)) px += dx;
+    if (free(px, py + dy)) py += dy;
+  }
+  camera.position.set(px, EYE, -py);
+  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  drawerAt += (drawerTo - drawerAt) * Math.min(1, dt * 7);
+  desk.drawer.position.z = drawerAt * desk.travel;
+  { const locked = document.pointerLockElement === renderer.domElement;
+    document.getElementById("cross").hidden = !locked;
+    const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");
+    hEl.hidden = !h; hEl.textContent = h; }
+  composer.render();
+  frames++; if (now - fpsAt > 500) { fps = Math.round(frames * 1000 / (now - fpsAt)); frames = 0; fpsAt = now;
+    const r = window.__receipt(); perfEl.textContent = `${fps} fps · ${r.meshes} meshes · ${(r.tris / 1000).toFixed(0)}k tris\ncompile ${r.compile_ms} ms · kit ${r.kit_ms} ms · build ${r.build_ms} ms · bake ${r.bake_ms} ms\nwalkable at ${r.walkable_ms} ms`; }
+  if (!window.__ok) { window.__ok = true; mark("walkable"); document.getElementById("status").hidden = true; }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

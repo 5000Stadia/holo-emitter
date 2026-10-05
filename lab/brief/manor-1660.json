@@ -1,0 +1,48 @@
+{
+  "_what": "The period brief for the manor (R45): what the place is and what each room is for, before any asset. A room's pins are rules its build must honour; brief.js compiles a room from the plan plus its pins and reports each pin as honoured, adjusted or in conflict. Only the muniment room is briefed so far; the rest of the house comes with R47.",
+  "place": {
+    "period": "c. 1660, the Restoration",
+    "region": "English Midlands, limestone and gritstone country",
+    "status": "a great gentry seat, title to many manors, its deeds the family's wealth",
+    "building": "a stone house, hall and solar on the first floor, a long gallery along the east"
+  },
+  "rooms": {
+    "muniment_room": {
+      "function": "The evidence house: the estate's title deeds, court rolls, leases, surveys and accounts, kept against fire, damp, rats and theft. Entered from the lord's own rooms, seldom by anyone else. Deeds are sorted by manor into labelled drawers; the most precious lie in an iron-bound chest under more than one lock. A table under the light, for reading a deed out of its drawer.",
+      "pins": [
+        { "id": "no_fire", "rule": "no hearth and no flame", "hearth": false,
+          "why": "fire is what the room guards against",
+          "source": "Steane 2010, New College muniment tower: 'There was no heating.'" },
+        { "id": "incombustible", "rule": "stone walls limewashed, a stone floor, a stone vault overhead",
+          "walls": "limewash", "floor": "flags", "ceiling": "vault", "vault": { "spring": 2.1 },
+          "why": "nothing in the shell can burn",
+          "source": "Steane 2010: New College upper rooms 'fire proofed by floors paved in Penn tiles and stone-vaulted ceilings'; Merton (Mob Quad) 'paved with glazed tiles resting on a stone vault'" },
+        { "id": "one_way_in", "rule": "a single door", "doors_max": 1, "prefer_from": "solar",
+          "why": "difficulty of access was one facet of security",
+          "source": "Steane 2010: 'Difficulty of access was one facet of security'; Mob Quad 'approached by only one narrow stone-built newel staircase barred by solid doors'" },
+        { "id": "iron_door", "rule": "the door oak boarded and iron-bound, a heavy lock", "door": "iron",
+          "why": "strength and fire",
+          "source": "Steane 2010, New College: doors 'immensely strong and rendered fireproof by being sheathed in iron'" },
+        { "id": "small_barred", "rule": "small windows, high, an iron grid over them, inside shutters",
+          "window": { "w_max": 0.7, "sill": 1.2, "top": 2.0, "grille": true, "shutters": true },
+          "why": "light enough to read by, no way in",
+          "source": "Hardwick Hall evidence room 'fitted up with shelves, drawers and iron bars to the windows in 1603' (Archives Hub, Hardwick Manuscripts); Steane 2010, New College: 'Iron bars formed a grid over the shuttered windows'" },
+        { "id": "presses", "rule": "presses of labelled drawers on every wall free of an opening, pigeonholes over",
+          "press": { "height": 2.0, "depth": 0.42, "drawer": [0.26, 0.14], "pigeonholes": 2, "labels": "manors" },
+          "why": "deeds kept by manor, found by label",
+          "source": "Steane 2010, Windsor Aerary (1422-3): a nest of 63 drawers, 2.14 m high, 'labelled with the names of manors', pulled by iron rings; Hardwick: 'lined with drawers labeled with the names of the Cavendish properties', 'presses with drawers and pigeon holes'" },
+        { "id": "chest", "rule": "an iron-bound chest under two locks", "chest": { "w": 1.2, "d": 0.56, "h": 0.62, "locks": 2 },
+          "why": "the greatest deeds, opened only by two keyholders together",
+          "source": "Steane 2010: chests 'often had more than one lock so that several keyholders had to open it at the same time'" },
+        { "id": "table", "rule": "the table with the drawer stands under the light", "keep": "desk1",
+          "why": "the world document's desk and its hidden key",
+          "source": "lab/painted/muniment_room/world/world.json" }
+      ]
+    }
+  },
+  "manors": ["Ashover", "Baslow", "Chelmorton", "Edensor", "Hartington", "Langwith", "Mapleton", "Oldcotes", "Pilsley", "Rowsley", "Stanton", "Tideswell", "Whitwell", "Youlgreave", "Ault Hucknall", "Beeley", "Calver", "Darley", "Elton", "Froggatt", "Glapwell", "Hathersage", "Ible", "Kirk Ireton", "Litton", "Monyash", "Norbury", "Over Haddon", "Parwich", "Rowland", "Sheldon", "Taddington", "Upper Langwith", "Wardlow", "Abney", "Bradwell", "Curbar", "Dethick", "Eyam", "Foolow", "Grindleford", "Hassop", "Ilam", "Kniveton", "Longstone", "Matlock", "Nether Haddon", "Offerton", "Pleasley", "Rowthorne", "Snitterton", "Tansley", "Unstone", "Wensley", "Ashford", "Birchover", "Chatsworth", "Doveridge", "Eaton", "Flagg", "Great Hucklow", "Holmesfield", "Ingleby"],
+  "sources": {
+    "Steane 2010": "John Steane, 'Medieval Muniment Rooms, their Furniture, Fittings and Information Retrieval Systems', vol. 54 (2010), https://hbap.pdfsrv.co.uk/customers/HBAP/CQ56690/Vol%2054%202010/2/",
+    "Hardwick": "Hardwick Manuscripts, Archives Hub, https://archiveshub.jisc.ac.uk/search/archives/d1440e25-c6d9-34da-a1ba-c7e42de6ac22; Folger Collation, 'Filing, seventeenth-century style'"
+  }
+}

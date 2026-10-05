@@ -949,4 +949,4 @@ export function buildKey(THREE) {
 }
 
 // the kit's parts, for builders of more than one room (lab/house)
-export { STYLE, rect, loft, run, slab, quad, metric, block, offsetLine, canvasTex, normalFrom, fbm, vnoise, hash, rng, smooth, stoneTexture, plasterTexture, brickTexture };
+export { STYLE, rect, loft, run, slab, quad, metric, metricAny, block, offsetLine, canvasTex, normalFrom, fbm, vnoise, hash, rng, smooth, stoneTexture, plasterTexture, brickTexture, flagTexture, leadedTexture, outsideTexture, grime };
