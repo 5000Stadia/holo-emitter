@@ -2,10 +2,11 @@
 // first English glazed bookcases: oak; a low, deeper base with glazed doors for folios; above it paired
 // glazed doors of 21 small panes (3 × 7) between heavy glazing bars; carved acanthus on the base moulding
 // and the cornice. Books stand spine out, ordered by size so their heads make a level line (Pepys raised
-// small ones on wooden blocks); calf bindings with raised bands, gilt panels and a lettering-piece.
+// small ones on wooden blocks). The books themselves are the book recipe's (book.js): this case only packs them.
 // Frame: back against a wall at z = 0, front toward +z, centred on x = 0, standing on y = 0.
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { metric, run, rng } from "../painted/procedural.js";
+import { metric, run, rng, hash } from "../painted/procedural.js";
+import { fillRow, booksMesh } from "./book.js";
 
 // ---- carving: a running band of acanthus. u across one leaf's repeat (0..1), Y up the band (0..1);
 // returns relief 0..1. Each leaf a rounded tongue with a sunk midrib and lobed edges, its tip turning over;
@@ -24,59 +25,6 @@ function acanthus(u, Y) {
   }
   if (cu > 0.9 && Y < 0.65) h = Math.max(h, (1 - (1 - cu) / 0.1) * (0.65 - Y) * 0.9);   // the dart
   return Math.max(0, h);
-}
-
-// ---- the spines: one atlas, a cell per binding
-function spineAtlas(THREE, n, seed) {
-  const cw = 48, ch = 384, cols = 32, rows = Math.ceil((n + 2) / cols);
-  const c = document.createElement("canvas"); c.width = cols * cw; c.height = rows * ch;
-  const g = c.getContext("2d"), r = rng(seed);
-  // calf in its range: tan, brown, dark brown; now and then vellum or a red morocco
-  const leather = () => { const t = r(); if (t < 0.08) return [214, 200, 170]; if (t < 0.14) return [118, 42, 32]; const k = 0.45 + r() * 0.55; return [118 * k + 30, 74 * k + 18, 42 * k + 10]; };
-  const gilt = (a) => `rgba(${196 + r() * 30},${158 + r() * 24},${70 + r() * 20},${a})`;
-  const cells = [];
-  for (let k = 0; k < n; k++) {
-    const x = (k % cols) * cw, y = Math.floor(k / cols) * ch, L = leather(), vellum = L[0] > 200;
-    g.fillStyle = `rgb(${L[0]},${L[1]},${L[2]})`; g.fillRect(x, y, cw, ch);
-    // wear: rubbed at the head and tail, darker in the grain
-    for (let q = 0; q < 160; q++) { g.fillStyle = `rgba(${r() < 0.5 ? "0,0,0" : "255,240,220"},${0.03 + r() * 0.05})`; g.fillRect(x + r() * cw, y + r() * ch, 1 + r() * 3, 1 + r() * 6); }
-    const rub = g.createLinearGradient(0, y, 0, y + ch); rub.addColorStop(0, "rgba(240,220,190,0.22)"); rub.addColorStop(0.06, "rgba(0,0,0,0)"); rub.addColorStop(0.94, "rgba(0,0,0,0)"); rub.addColorStop(1, "rgba(240,220,190,0.22)");
-    g.fillStyle = rub; g.fillRect(x, y, cw, ch);
-    // five raised bands make six panels; gilt fillets either side of each band, a fleuron in each panel
-    const bands = 5, top = 0.06, bot = 0.94, step = (bot - top) / (bands + 1);
-    if (!vellum) for (let b = 1; b <= bands; b++) {
-      const by = y + ch * (top + step * b);
-      g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(x, by - 3, cw, 6);
-      g.fillStyle = gilt(0.85); g.fillRect(x + 3, by - 6, cw - 6, 1.4); g.fillRect(x + 3, by + 5, cw - 6, 1.4);
-    }
-    // the lettering-piece in the second panel: red or black morocco, its title as gilt marks
-    const lp = y + ch * (top + step * 1) + 8, lh = ch * step - 16;
-    if (!vellum) {
-      g.fillStyle = r() < 0.6 ? "rgb(120,30,24)" : "rgb(26,20,16)"; g.fillRect(x + 4, lp, cw - 8, lh);
-      g.fillStyle = gilt(0.9); for (let l = 0; l < 2; l++) for (let q = 0; q < 4 + r() * 3; q++) g.fillRect(x + 8 + q * 5 + r() * 2, lp + lh * (0.32 + l * 0.32), 3, 3 + r() * 2);
-      for (let p = 2; p <= bands; p++) { const py = y + ch * (top + step * p + step / 2); g.fillStyle = gilt(0.7); g.beginPath(); g.arc(x + cw / 2, py, 3.5, 0, 7); g.fill(); g.fillRect(x + cw / 2 - 7, py - 0.6, 14, 1.2); g.fillRect(x + cw / 2 - 0.6, py - 7, 1.2, 14); }
-    } else { g.fillStyle = "rgba(60,40,20,0.75)"; g.font = "italic 12px Georgia, serif"; g.save(); g.translate(x + cw / 2 + 4, y + ch * 0.6); g.rotate(-Math.PI / 2); g.fillText("Placita", 0, 0); g.restore(); }
-    cells.push([x / c.width, 1 - (y + ch) / c.height, (x + cw) / c.width, 1 - y / c.height]);
-  }
-  // two plain cells: the page block (cream, faint lines) and the boards' leather
-  const px = (n % cols) * cw, py = Math.floor(n / cols) * ch;
-  g.fillStyle = "rgb(222,210,182)"; g.fillRect(px, py, cw, ch);
-  for (let q = 0; q < ch; q += 2) { g.fillStyle = `rgba(120,100,70,${0.05 + r() * 0.08})`; g.fillRect(px, py + q, cw, 1); }
-  cells.push([px / c.width, 1 - (py + ch) / c.height, (px + cw) / c.width, 1 - py / c.height]);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-  const m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.7, vertexColors: true }); m.userData.cls = "books";
-  return { m, cells, pages: cells[n] };
-}
-
-// a book: a box whose spine (+z) shows its cell, whose top and bottom show the page block, whose sides
-// take the edge of its own leather
-function book(THREE, w, h, d, cell, pages) {
-  const g = new THREE.BoxGeometry(w, h, d), uv = g.attributes.uv;
-  const set = (face, [u0, v0, u1, v1], side = false) => { for (let i = face * 4; i < face * 4 + 4; i++) { const a = uv.getX(i), b = uv.getY(i); uv.setXY(i, side ? u0 + (u1 - u0) * 0.1 : u0 + (u1 - u0) * a, v0 + (v1 - v0) * b); } };
-  set(4, cell);                 // +z, the spine
-  set(0, cell, true); set(1, cell, true); set(5, cell, true);   // the boards and the fore-edge's far side take the leather
-  set(2, pages); set(3, pages);  // head and tail: the page block
-  return g;
 }
 
 export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666 } = {}) {
@@ -123,41 +71,17 @@ export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666 } = {}
   const rowsY = [plinth + 0.025]; let y = waist + 0.06 + 0.012;
   rowsY.push(y); for (let k = 2; k < heads.length; k++) { y += heads[k - 1] + 0.02; rowsY.push(y); }
   for (let k = 1; k < rowsY.length; k++) box(W - 2 * side, 0.02, Du - 0.03, 0, rowsY[k] - 0.01, (Du - 0.03) / 2, M.oak, 0.12);
-  // the books
-  const sizes = [[0.36, 0.42, 0.05, 0.09], [0.27, 0.31, 0.04, 0.07], [0.22, 0.26, 0.03, 0.055], [0.19, 0.22, 0.025, 0.045], [0.16, 0.19, 0.022, 0.04], [0.13, 0.16, 0.018, 0.034]];  // hmin, hmax, wmin, wmax
-  const estimate = Math.round((W - 2 * side) / 0.04 * heads.length * 1.1) + 10;
-  const A = spineAtlas(THREE, estimate, seed + 1);
-  let cell = 0, books = 0;
-  const inner = W - 2 * side - 0.01, x0 = -inner / 2;
-  const faults = [];
-  for (let k = 0; k < heads.length; k++) {
-    const [hmin, hmax, wmin, wmax] = sizes[k], depthOf = (h) => Math.min(k === 0 ? Db - 0.06 : Du - 0.05, h * 0.72);
-    const row = [], gapEnd = 0.02 + r() * 0.07;
-    let x = x0;
-    // Pepys's order: tallest to the left, falling gently, so the heads run nearly level
-    const want = []; while (true) { const w = wmin + r() * (wmax - wmin); if (x + w > x0 + inner - gapEnd) break; want.push(w); x += w + 0.001; }
-    const hs = want.map(() => hmin + r() * (hmax - hmin)).sort((a, b) => b - a);
-    x = x0;
-    want.forEach((w, i) => { row.push({ x: x + w / 2, w, h: Math.min(hs[i], heads[k] - 0.012) }); x += w + 0.001; });
-    // the last book leans into the gap at the end of the row: it pivots on its foot by the books, its
-    // other foot stays on the shelf, and its head comes to rest against the case's end
-    const last = row[row.length - 1], room = x0 + inner - (last.x + last.w / 2);
-    const reach = (a) => last.w * Math.cos(a) + last.h * Math.sin(a);       // width it takes when leaning by a
-    let lo = 0, hi = 0.4; for (let q = 0; q < 30; q++) { const m = (lo + hi) / 2; if (reach(m) < last.w + room - 0.004) lo = m; else hi = m; }
-    const lean = lo;
-    for (const b of row) {
-      const d = depthOf(b.h), z = (k === 0 ? Db : Du) - 0.035 - d / 2;
-      const g = book(THREE, b.w, b.h, d, A.cells[cell++ % (A.cells.length - 1)], A.pages);
-      if (b === last && lean > 0.05) { g.translate(b.w / 2, b.h / 2, 0); g.rotateZ(-lean); g.translate(b.x - b.w / 2, rowsY[k] + b.w * Math.sin(lean), z); }
-      else g.translate(b.x, rowsY[k] + b.h / 2, z);
-      { const n = g.attributes.position.count, c = new Float32Array(n * 3), k = 0.86 + r() * 0.24; c.fill(k); g.setAttribute("color", new THREE.BufferAttribute(c, 3)); }   // its own tone; its atlas UVs untouched
-      g.computeBoundingBox(); const bb = g.boundingBox, ceil = k === 0 ? waist - 0.003 : k + 1 < rowsY.length ? rowsY[k + 1] - 0.02 : upperTop - 0.025;
-      if (bb.max.y > ceil + 1e-4) faults.push(`row ${k} book ${books} ${(bb.max.y - ceil).toFixed(3)} m into the shelf above`);
-      if (bb.min.x < -W / 2 + side - 1e-4 || bb.max.x > W / 2 - side + 1e-4) faults.push(`row ${k} book ${books} through the case's end`);
-      if (bb.min.y < rowsY[k] - 1e-4) faults.push(`row ${k} book ${books} sunk in its shelf`);
-      add(g, A.m); books++;
-    }
-  }
+  // the books: asked for from the book recipe by size class and seed, packed row by row, drawn as one
+  // instanced mesh; a fault in any row (a book through a shelf or an end) is reported, not hidden
+  const ROWS = ["folio", "quarto", "small_quarto", "octavo", "small_octavo", "duodecimo"];
+  const inner = W - 2 * side - 0.01, faults = [], placements = [];
+  ROWS.forEach((size, k) => {
+    const res = fillRow(THREE, { size, seed: hash(seed, k, 11) * 1e9 | 0, x0: -inner / 2, x1: inner / 2, y: rowsY[k], zFront: (k === 0 ? Db : Du) - 0.035,
+      depthMax: (k === 0 ? Db : Du) - 0.06, clear: k === 0 ? waist - 0.003 - rowsY[0] : (k + 1 < rowsY.length ? rowsY[k + 1] - 0.02 : upperTop - 0.025) - rowsY[k] });
+    placements.push(...res.placements); faults.push(...res.faults);
+  });
+  const booksM = booksMesh(THREE, K, placements);
+  const books = placements.length;
 
   // the doors: paired leaves on the upper case, 3 × 7 panes each between heavy bars; the folio base's
   // glazed doors below, 3 × 2. Stiles and rails in oak, glass a breath behind the bars.
@@ -190,7 +114,45 @@ export function buildBookpress(THREE, K, { W = 1.2, H = 2.28, seed = 1666 } = {}
     if (mat === glass) m.renderOrder = 2;
     grp.add(m);
   }
+  grp.add(booksM);
   grp.userData = { kind: "bookpress", books, faults, size: [W + 0.08, H, Db + 0.03] };
   return grp;
 }
 
+
+// A library wall: open oak shelving in bays, every shelf filled from the same book recipe. The test of
+// the recipe: a wall of a thousand books should cost about what one bookcase costs.
+export function buildLibraryWall(THREE, K, { W = 4.2, H = 2.5, bays = 4, D = 0.32, seed = 1668 } = {}) {
+  const { M } = K, parts = new Map();
+  const add = (g, mat, spread = 0.16) => { if (mat.vertexColors && !g.attributes.color) K.board(g, spread); if (!parts.has(mat)) parts.set(mat, []); parts.get(mat).push(g.index ? g.toNonIndexed() : g); };
+  const box = (w, h, d, x, y, z, mat = M.oak, spread = 0.16) => { const g = metric(new THREE.BoxGeometry(w, h, d)); g.translate(x, y, z); add(g, mat, spread); };
+  const up = 0.05, bw = (W - (bays + 1) * up) / bays, plinth = 0.1, cornice = 0.12;
+  const rows = ["folio", "quarto", "quarto", "small_quarto", "octavo", "octavo", "small_octavo", "duodecimo"];
+  const clear = { folio: 0.44, quarto: 0.33, small_quarto: 0.28, octavo: 0.24, small_octavo: 0.21, duodecimo: 0.18 };
+  const top = H - cornice;
+  for (let i = 0; i <= bays; i++) box(up, H - 0.02, D, -W / 2 + up / 2 + i * (bw + up), (H - 0.02) / 2, D / 2);
+  box(W, H, 0.018, 0, H / 2, 0.009, M.oakH, 0.08);
+  box(W + 0.02, plinth, D + 0.01, 0, plinth / 2, (D + 0.01) / 2, M.oakH, 0.1);
+  box(W + 0.06, 0.05, D + 0.05, 0, top + 0.025, (D + 0.05) / 2, M.oakH, 0.08);
+  box(W + 0.1, 0.07, D + 0.08, 0, H - 0.035, (D + 0.08) / 2, M.oakH, 0.08);
+  // shelves: as many rows of the size sequence as fit, largest low
+  const ys = [plinth]; let used = [];
+  for (const sz of rows) { const y = ys[ys.length - 1]; if (y + clear[sz] + 0.022 > top) break; used.push(sz); ys.push(y + clear[sz] + 0.022); }
+  const faults = [], placements = [];
+  for (let k = 1; k < ys.length; k++) box(W - 0.02, 0.022, D - 0.02, 0, ys[k] - 0.011, (D - 0.02) / 2, M.oak, 0.12);
+  for (let b = 0; b < bays; b++) {
+    const x0 = -W / 2 + up + b * (bw + up) + 0.005, x1 = x0 + bw - 0.01;
+    used.forEach((size, k) => {
+      const res = fillRow(THREE, { size, seed: hash(seed + b, k, 13) * 1e9 | 0, x0, x1, y: ys[k], zFront: D - 0.03, depthMax: D - 0.05, clear: ys[k + 1] - 0.022 - ys[k] });
+      placements.push(...res.placements); faults.push(...res.faults);
+    });
+  }
+  const grp = new THREE.Group();
+  for (const [mat, gs] of parts) {
+    const keep = gs.map(g => { for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv", "color"].includes(k)) g.deleteAttribute(k); if (!g.attributes.normal) g.computeVertexNormals(); return g; });
+    const m = new THREE.Mesh(mergeGeometries(keep, false), mat); m.castShadow = m.receiveShadow = true; grp.add(m);
+  }
+  grp.add(booksMesh(THREE, K, placements));
+  grp.userData = { kind: "library_wall", books: placements.length, faults, size: [W + 0.1, H, D + 0.08] };
+  return grp;
+}

@@ -28,10 +28,15 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { makeKit } from "../painted/procedural.js";
 import { strongroomMaterials } from "./strongroom.js";
-import { buildBookpress } from "./bookpress.js";
+import { buildBookpress, buildLibraryWall } from "./bookpress.js";
+import { buildBook, bookSpec } from "./book.js";
 
 const Q = new URLSearchParams(location.search);
-const OBJECTS = { bookpress: (K) => buildBookpress(THREE, K, {}) };
+const OBJECTS = {
+  bookpress: (K) => buildBookpress(THREE, K, {}),
+  library: (K) => buildLibraryWall(THREE, K, {}),
+  book: (K) => { const b = buildBook(THREE, K, bookSpec(Q.get("size") || "quarto", +(Q.get("seed") || 7))); b.position.set(0, 0.8 + b.scale.y / 2, 0.6); b.rotation.y = -0.5; return b; },
+};
 const kind = Q.get("o") || "bookpress";
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
@@ -51,7 +56,7 @@ const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.2), S.lime); wall.posit
 { const g = new THREE.PlaneGeometry(6, 4); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 4);
   const f = new THREE.Mesh(g, S.flags); f.rotation.x = -Math.PI / 2; f.position.set(0, 0, 2); f.receiveShadow = true; scene.add(f); }
 const tB = performance.now();
-const obj = OBJECTS[kind](K); scene.add(obj);
+const obj = OBJECTS[kind](K); scene.add(obj); window.__obj = obj;
 const tObj = performance.now();
 // light: a window's daylight from the left front, a soft fill, a little bounce
 const sun = new THREE.DirectionalLight(0xfff0dc, 2.2); sun.position.set(-2.5, 3.2, 3.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.02;
@@ -74,8 +79,10 @@ addEventListener("pointermove", e => { if (!drag) return; az -= (e.clientX - dra
 addEventListener("wheel", e => { dist = Math.max(0.4, Math.min(8, dist * (1 + e.deltaY * 0.001))); aim(); });
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
 aim();
-let tris = 0, meshes = 0; obj.traverse(o => { if (o.isMesh) { meshes++; tris += o.geometry.attributes.position.count / 3; } });
-window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), meshes, tris: Math.round(tris), ...obj.userData });
+let tris = 0, meshes = 0, bytes = 0; obj.traverse(o => { if (!o.isMesh) return; meshes++;
+  const t = (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; tris += o.isInstancedMesh ? t * o.count : t;
+  for (const a of Object.values(o.geometry.attributes)) bytes += a.array.byteLength; if (o.isInstancedMesh) bytes += o.instanceMatrix.array.byteLength + (o.instanceColor ? o.instanceColor.array.byteLength : 0); });
+window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), meshes, tris: Math.round(tris), geometry_bytes: bytes, ...obj.userData });
 document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer`;
 function loop() { composer.render(); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } requestAnimationFrame(loop); }
 loop();

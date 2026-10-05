@@ -19,13 +19,37 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 | Date | Piece | Wall-clock | New pieces | New lines | Compile | Build | Walkable (no bake) |
 |---|---|---|---|---|---|---|---|
+| 2026-10-05 | The book as its own recipe; a 581-book library wall from it | 5 min | 1 recipe (book) + library wall | ~230 | – | 0.12 s (wall) | – |
 | 2026-10-05 | A bookpress full of books, c. 1666 (one object, conception to checked) | 9 min | 1 object (+ spine atlas, acanthus) | ~200 (+84 stage) | – | 0.18 s | – |
 | 2026-10-05 | R45 fixes from your review (rolls, corners, stonework, floor) | 7 min | 1 (flagstones) | ~110 | 11 ms | 1.38 s | 5.8 s |
 | 2026-10-05 | R45 muniment room from the period brief | 19 min | 7 | ~1,000 | 10 ms | 0.43 s | 5.1 s |
 
 ---
 
-## A bookpress full of books (2026-10-05)
+## The book as its own recipe (2026-10-05)
+
+You asked for sub-components to be objects of their own. The book is now the catalogue's first recipe (`lab/brief/book.js`):
+- A book is a **size class plus a seed**; height, thickness, binding, spine design and tone all follow from them.
+- Takeable is decided from size (`takeable()`).
+- Shelves get packed by `fillRow()`, which reports any book through a shelf or an end.
+- `buildBook()` builds one book alone, as the thing a player picks up.
+- Many books are drawn as one shape repeated, each copy with its own size, place, spine and tone.
+
+**Wall-clock: about 5 min, 14:08 to 14:13**, including both renders.
+
+| | Before (books inline) | After (book recipe, instanced) |
+|---|---|---|
+| Bookpress, 152–154 books | books ≈ 240 KB of geometry, merged | books ≈ 15 KB (one shape + 92 bytes a copy) |
+| Bookpress whole | 7.07 MB geometry, 0.13–0.18 s | 6.84 MB (the carving is now nearly all of it), 0.19 s |
+| **Library wall, 4.2 m, 4 bays, 581 books** | – | **0.12 s, 3 meshes, 80 KB geometry, 7k triangles, no faults** |
+| Book recipe | – | 13 KB, 4.5 KB compressed |
+
+**What it shows:**
+- A wall of 581 books costs less than the one bookpress, whose carving dominates.
+- The spine designs (256 per look) are made once per look, so variety costs nothing per book.
+- The next cost to cut is carving. A carved band could take the same treatment: one leaf drawn many times, or a relief done in the shader instead of 40,000 triangles.
+
+ (2026-10-05)
 
 You asked how long one period object takes from conception to completion, quality checks included.
 
