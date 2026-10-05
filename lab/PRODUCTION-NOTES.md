@@ -25,3 +25,7 @@ The approach he wants is "a rigorous rule set and separation of object types, an
    - **My reading:** "takeable" is worked out from the kind's size, and whether it's fixed down, not declared per object.
    - Dressing becomes an entity at the moment it's picked up. Its kind, settings and seed are written into the world document, so any one of a library's 5,000 books can be taken and remembered.
 8. **Stand-ins for unbuilt and distant space.** He asked how we handle them. Today we don't: the house simply hides rooms it hasn't built. This needs designing.
+9. **The shared, growing library: his most advanced form.** In his words: "a web hosted engine, like what we are building with an endlessly curating library of objects from any situation than any user engages with such that a whole world could potentially be made with only one or two assets, not having already been rendered, and those one or two assets upon render immediately join the library server side."
+   - **My reading:** what joins the library is the recipe (a kind), not a rendered result.
+   - **Consequence for now:** kinds should be declarative recipes over a vetted parts library, not free code, so they can be checked, versioned, shared and served safely later.
+   - The measure that matters is the **gap rate**: the share of a new world's needs the library can't yet fill.
