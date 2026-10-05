@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Object Stage</title>
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(22, 19, 16, 0.78); --line: rgba(236, 228, 210, 0.2); }
+  html, body { height: 100%; margin: 0; background: #0c0a08; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; touch-action: none; }
+  #info { position: fixed; left: 12px; bottom: 12px; background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; color: var(--dim); white-space: pre; line-height: 1.5; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; color: var(--dim); }
+  #status[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="status">building…</div>
+<div id="info"></div>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+// An object on its own, against a limewashed wall on flags, for building and checking it: drag to turn
+// round it, wheel to come closer. ?o=bookpress. window.__view(az, el, dist, ty) aims the camera.
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { makeKit } from "../painted/procedural.js";
+import { strongroomMaterials } from "./strongroom.js";
+import { buildBookpress } from "./bookpress.js";
+
+const Q = new URLSearchParams(location.search);
+const OBJECTS = { bookpress: (K) => buildBookpress(THREE, K, {}) };
+const kind = Q.get("o") || "bookpress";
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+RectAreaLightUniformsLib.init();
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0c0a08);
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.02, 40);
+
+const t0 = performance.now();
+const K = await makeKit(THREE, { floor: [6, 4] });
+const S = strongroomMaterials(THREE, K);
+const tKit = performance.now();
+// the stage: a back wall, a side wall, flags
+const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.2), S.lime); wall.position.set(0, 1.6, 0); wall.receiveShadow = true; scene.add(wall);
+{ const g = new THREE.PlaneGeometry(6, 4); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 4);
+  const f = new THREE.Mesh(g, S.flags); f.rotation.x = -Math.PI / 2; f.position.set(0, 0, 2); f.receiveShadow = true; scene.add(f); }
+const tB = performance.now();
+const obj = OBJECTS[kind](K); scene.add(obj);
+const tObj = performance.now();
+// light: a window's daylight from the left front, a soft fill, a little bounce
+const sun = new THREE.DirectionalLight(0xfff0dc, 2.2); sun.position.set(-2.5, 3.2, 3.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.02;
+Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 3, bottom: -1, near: 0.5, far: 12 }); scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xdcd8d0, 0x4a4036, 0.9));
+const win = new THREE.RectAreaLight(0xe8eef2, 3.5, 1.2, 1.6); win.position.set(-2.4, 1.6, 2); win.lookAt(0, 1.2, 0.4); scene.add(win);
+
+const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
+composer.addPass(new RenderPass(scene, camera));
+const ao = new GTAOPass(scene, camera, innerWidth, innerHeight); ao.updateGtaoMaterial({ radius: 0.3, distanceExponent: 1.6, thickness: 1.2, scale: 1.3, samples: 16 }); composer.addPass(ao);
+composer.addPass(new OutputPass());
+
+let az = 0.35, el = 0.12, dist = 3.6, ty = 1.15;
+const aim = () => { camera.position.set(Math.sin(az) * Math.cos(el) * dist, ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); camera.lookAt(0, ty, 0.2); };
+window.__view = (a, e, d, y = ty) => { az = a; el = e; dist = d; ty = y; aim(); };
+let drag = null;
+renderer.domElement.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY]; });
+addEventListener("pointerup", () => { drag = null; });
+addEventListener("pointermove", e => { if (!drag) return; az -= (e.clientX - drag[0]) * 0.006; el = Math.max(-0.3, Math.min(1.2, el + (e.clientY - drag[1]) * 0.004)); drag = [e.clientX, e.clientY]; aim(); });
+addEventListener("wheel", e => { dist = Math.max(0.4, Math.min(8, dist * (1 + e.deltaY * 0.001))); aim(); });
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+aim();
+let tris = 0, meshes = 0; obj.traverse(o => { if (o.isMesh) { meshes++; tris += o.geometry.attributes.position.count / 3; } });
+window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), meshes, tris: Math.round(tris), ...obj.userData });
+document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer`;
+function loop() { composer.render(); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } requestAnimationFrame(loop); }
+loop();
+</script>
+</body>
+</html>

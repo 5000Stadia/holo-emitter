@@ -19,8 +19,46 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 | Date | Piece | Wall-clock | New pieces | New lines | Compile | Build | Walkable (no bake) |
 |---|---|---|---|---|---|---|---|
+| 2026-10-05 | A bookpress full of books, c. 1666 (one object, conception to checked) | 9 min | 1 object (+ spine atlas, acanthus) | ~200 (+84 stage) | – | 0.18 s | – |
 | 2026-10-05 | R45 fixes from your review (rolls, corners, stonework, floor) | 7 min | 1 (flagstones) | ~110 | 11 ms | 1.38 s | 5.8 s |
 | 2026-10-05 | R45 muniment room from the period brief | 19 min | 7 | ~1,000 | 10 ms | 0.43 s | 5.1 s |
+
+---
+
+## A bookpress full of books (2026-10-05)
+
+You asked how long one period object takes from conception to completion, quality checks included.
+
+**What it is:** a glazed bookpress after Samuel Pepys's of 1666, the first English glazed bookcases ([Sympson the Joiner](https://en.wikipedia.org/wiki/Sympson_the_Joiner); [Magdalene College](https://www.magd.cam.ac.uk/alumni/supporting-magdalene/making-gift/pepys-restoration-project/preserve-press)):
+- oak, with a low, deeper glazed base for folios;
+- paired upper doors of 21 small panes each between heavy glazing bars;
+- carved leaf bands on the cornice and the base;
+- brass escutcheons and knobs;
+- 152 books shelved by size, as Pepys did, folios at the bottom. They're calf bound, with now and then a vellum or red morocco binding, each with five raised bands, gilt fillets and fleurons, and a red or black lettering-piece. The last book in each row leans into the gap.
+
+**Wall-clock: 9 min 01 s, from 10:52:36 to 11:01:37.** That covers research to a checked object. The receipt and commit took about 1.5 min more.
+
+| Stage | Time | What |
+|---|---|---|
+| Research | 1 min | Pepys's presses: form, glazing, carving, shelving by size |
+| Design and piece | 1.2 min | `lab/brief/bookpress.js`: carcass, mouldings, carving, shelves sized to the books, books packed by row, the leaning book solved so its head rests on the case's end, doors, spine atlas |
+| Stage | 0.7 min | `lab/brief/object.html`: any object against a limewashed wall on flags, with aimable cameras. One-off; every later object reuses it |
+| Quality, 3 rounds | 6 min | **Round 1:** the spines were blank, because the kit's wood variation shifts texture coordinates and that scrambled the spine atlas; the carving read as a zigzag; the glass was milky. **Round 2:** spines right; the carving read as eggs. **Round 3:** pointed leaves with a midrib, plus a fit check built into the object: every book clear of the shelf above, inside the case's ends, not sunk in its shelf. No faults. |
+
+**Runtime:**
+- built in 0.13–0.18 s after the kit;
+- 6 meshes, merged per material;
+- 54k triangles, about 40k of them the carving.
+
+**What the next object reuses:**
+- the stage;
+- the merge-per-material pattern;
+- the rule that atlas-mapped parts (spines, labels) never take the wood variation;
+- the built-in fit check.
+
+**What would cut the time:**
+- The fit check found nothing this time. The 6 min of checking was mostly render-and-look rounds, at about 40 s per render here.
+- With a GPU, or a lighter render for checking, each round drops to seconds. That is the largest lever left for objects of this size.
 
 ---
 
