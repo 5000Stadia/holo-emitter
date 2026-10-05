@@ -49,3 +49,7 @@ The approach he wants is "a rigorous rule set and separation of object types, an
     - **Identity** (kind, quality, style, owner) is set once by its provenance: the influence it came from, its maker or owner. It travels with it.
     - **A place's influences** apply only to dressing generated in that place, and to **patina** (dust, soot, mud, fading), which builds up with time spent there.
     - **Influences reach two ways:** by space (a street, weather, a room) and by **possession** (an owner's things, wherever they are). In a shared room, each container or surface has a keeper: Holmes's bench, Watson's desk, a shared mantel blending both.
+14. **Checks belong to kinds.** In his words: "tests should likely be performed kind testing. Bookshelf tests vs car tests look different." Each new check goes to him for vetting before joining the list (2026-10-05).
+    - **My reading:** a kind carries its own checks, which travel with it in the library.
+    - Checks also attach to the parts and slots a kind uses. A packed row's "nothing scattered" applies to every shelf, a pantry, a shop counter.
+    - Only a very small universal core applies to everything: rests on something, passes through nothing, stays within its budget.
