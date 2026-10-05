@@ -38,3 +38,9 @@ The approach he wants is "a rigorous rule set and separation of object types, an
 11. **Context fills containers.** In his words: "The fullness or emptiness of a bookshelf, desk or refrigerator is likely notably different between someone in squalor and one who is wealthy."
     - **Built for books:** `bookContext(means, purpose)` sets fullness, order, bindings, sets, heaps, subjects and wear.
     - **The general rule:** every container kind takes the same context from the brief: the owner's means and the room's purpose.
+12. **One pass per household, then generalised.** He asked for one AI pass per location to set its items' details from their owner: "a felt provenance". Then he asked whether ownership is elegant at all, since a London street or a hillside has no owner, "unless we are establishing some nuance of the effect of the factions that influence and shape the area."
+    - **My reading:** generalise owner into **influences**: the hands and forces that shaped a place. A household owner, a guild, a parish, the poor, traffic, shepherds and grazing, the estate's stewards, weather, time, an event (the Fire, the Restoration).
+    - Each influence has a reach (rooms, a region, a falloff), a weight, traits that set context (means, care, wear, purpose, signs of use) and a few hero items with history.
+    - Context at any point is the weighted blend of the influences that reach it, then inherited down: place → region → building → room → container → item.
+    - The one AI pass per location writes its influences, not its items.
+    - The same blend by world position is what makes seams between looks soft.
