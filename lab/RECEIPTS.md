@@ -19,6 +19,7 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 | Date | Piece | Wall-clock | New pieces | New lines | Compile | Build | Walkable (no bake) |
 |---|---|---|---|---|---|---|---|
+| 2026-10-05 | Owners: the widow, the smith, Sir Fancy-Pants (habit rules + 13 trinket recipes) | 5 min | owner profiles, 13 trinkets | ~260 | – | 0.17 s (three shelves) | – |
 | 2026-10-05 | Live titles; shelves filled by the owner's means and the room's purpose | 4.5 min | title atlas, 4 bindings, contexts | ~170 | – | 0.16 s (wall) | – |
 | 2026-10-05 | The book as its own recipe; a 581-book library wall from it | 5 min | 1 recipe (book) + library wall | ~230 | – | 0.12 s (wall) | – |
 | 2026-10-05 | A bookpress full of books, c. 1666 (one object, conception to checked) | 9 min | 1 object (+ spine atlas, acanthus) | ~200 (+84 stage) | – | 0.18 s | – |
@@ -27,7 +28,35 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 ---
 
-## Live titles, and shelves filled by context (2026-10-05)
+## Owners and their shelves (2026-10-05)
+
+You pointed out that a person, poor or not, keeps their books together, and that the empty part of a shelf holds other things. Asked: what does the poor widow have on her shelf, the blacksmith, Sir Fancy-Pants?
+
+**Wall-clock: about 5 min, from 15:05:58 to 15:10:33**, including two renders and two fixes.
+
+**Built:**
+- **An owner profile (`lab/brief/owners.js`).** This is the part the one AI call would write, here written by hand: means, subjects, what else they keep, what's in daily use, what's heavy enough to hold books, how they keep things.
+- **13 trinket recipes (`lab/brief/trinkets.js`):** candlestick, jug, tankard, bottle, bowl, box, horseshoe, pot of nails, globe, lantern clock, porcelain, shell, letters.
+- **Habit rules, the same for everyone:**
+  - books stay together in one run, tucked to the left;
+  - few books go on the shelf nearest the eye;
+  - a run that stops short is held by something heavy, or by books laid flat;
+  - daily things go at hand height;
+  - a great house keeps its top shelf for display.
+
+| Owner | Books | Things |
+|---|---|---|
+| The widow | 4, at eye level | candlesticks, jugs, a bottle, a box |
+| The smith | 7, the last laid flat | horseshoes, pots of nails, tankards, bottles |
+| Sir Fancy-Pants | 159 | porcelain and a shell on the display shelf |
+
+No fit faults. All three shelves build in 0.17 s.
+
+**Fixed on the way:**
+- The shelves rendered black, because merging dropped their wood's per-board tones.
+- The gentleman's curiosities had nowhere to go until display became a rule.
+
+ filled by context (2026-10-05)
 
 You noticed every white vellum book said "Placita". You also asked whether a shelf could be filled to suit its setting: how full, which subjects, which bindings, wealthy against squalor.
 

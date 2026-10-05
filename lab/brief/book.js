@@ -247,19 +247,22 @@ export function buildBook(THREE, K, spec, id = null) {
 }
 
 // fill one shelf row from a context: how full, in what order, sets kept together, now and then a stack
-// lying flat, the last upright book leaning into a small gap. Returns placements and any fault found.
-export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear, ctx = bookContext() }) {
+// lying flat. Two habits: a full shelf runs end to end, its last book leaning into any small gap; a shelf
+// with few books keeps them TUCKED together in one run from the left, and the run's open end is held,
+// either by a heap of books laid flat or (holder) by something heavy the owner puts against it.
+// count caps the books; sorted orders the run by height. Returns placements, faults, and where the run
+// ends (end), so the rest of the shelf can take other things.
+export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear, ctx = bookContext(), count = Infinity, tuck = false, holder = false, sorted = ctx.ordered }) {
   const r = rng(seed), out = [], faults = [], span = x1 - x0;
   const fullness = ctx.fullness[0] + r() * (ctx.fullness[1] - ctx.fullness[0]);
   const smaller = ORDER.slice(ORDER.indexOf(size));
   const fits = (s) => { s.h = Math.min(s.h, clear - 0.012); s.d = Math.min(s.d, depthMax); return s; };
   const specs = [];
   let used = 0, i = 0;
-  while (used < span * fullness && i < 400) {
-    // a set: several volumes of one work, one binding, one size, numbered
-    if (r() < ctx.sets * 0.25) {
+  while (used < span * fullness && specs.length < count && i < 400) {
+    if (r() < ctx.sets * 0.25) {         // a set: several volumes of one work, one binding, one size, numbered
       const first = fits(bookSpec(size, hash(seed, i++, 7) * 1e9 | 0, ctx, { binding: "gilt" })), n = 3 + Math.floor(r() * 3);
-      for (let v = 1; v <= n && used + first.w + 0.001 < span * fullness; v++) { const s = { ...first, seed: first.seed + v, vol: v, tone: first.tone * (0.97 + r() * 0.06) }; specs.push(s); used += s.w + 0.001; }
+      for (let v = 1; v <= n && used + first.w + 0.001 < span * fullness && specs.length < count; v++) { const s = { ...first, seed: first.seed + v, vol: v, tone: first.tone * (0.97 + r() * 0.06) }; specs.push(s); used += s.w + 0.001; }
       continue;
     }
     const sz = ctx.ordered ? size : smaller[Math.floor(r() * Math.min(3, smaller.length))];
@@ -267,27 +270,27 @@ export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear,
     if (used + s.w > span - 0.01) break;
     specs.push(s); used += s.w + 0.001;
   }
-  if (ctx.ordered) { // tallest first, sets kept together: sort runs, not books
+  if (sorted) { // tallest first, sets kept together: sort runs, not books
     const runs = []; for (const s of specs) { const last = runs[runs.length - 1]; if (s.vol > 1 && last) last.push(s); else runs.push([s]); }
     runs.sort((a, b) => b[0].h - a[0].h); specs.length = 0; for (const run of runs) specs.push(...run);
   }
-  // books that lie flat: in a poor house, part of the row is a heap rather than a rank
+  // a heap laid flat: in a poor house part of the row is a heap; in a tucked run with nothing to hold its
+  // end, the last books are laid flat to hold it
   const flat = [];
-  if (r() < ctx.flat && specs.length > 2) { const k = 2 + Math.floor(r() * 3); for (let q = 0; q < k && specs.length; q++) flat.push(specs.pop()); }
-  // the heap takes the free end; the upright books keep clear of it
-  const heapW = flat.length ? Math.max(...flat.map(f => f.h)) + 0.006 : 0, xu1 = x1 - heapW;
-  while (specs.length && specs.reduce((a, s) => a + s.w + 0.001, 0) > xu1 - x0) specs.pop();
+  const runEndsOpen = tuck && !holder && used < span - 0.05;
+  if ((r() < ctx.flat || runEndsOpen) && specs.length > 1) { const k = runEndsOpen ? 1 + Math.floor(r() * 2) : 2 + Math.floor(r() * 3); for (let q = 0; q < k && specs.length > 1; q++) flat.push(specs.pop()); }
+  flat.sort((a, b) => b.h - a.h);
+  const heapW = flat.length ? flat[0].h + 0.006 : 0, xu1 = tuck ? x1 : x1 - heapW;
+  while (specs.length && specs.reduce((a, s) => a + s.w + 0.001, 0) + (tuck ? heapW : 0) > xu1 - x0) specs.pop();
   used = specs.reduce((a, s) => a + s.w + 0.001, 0);
-  // upright books, with the gaps of a thin shelf spread among them
-  const slack = Math.max(0, xu1 - x0 - used - 0.004), gaps = ctx.ordered ? 0 : Math.min(3, Math.floor(slack / 0.08));
+  // gaps belong to a careless, half-empty shelf; a tucked run has none
+  const slack = Math.max(0, xu1 - x0 - used - 0.004), gaps = sorted || tuck ? 0 : Math.min(3, Math.floor(slack / 0.08));
   const gapAfter = new Set(); for (let q = 0; q < gaps; q++) gapAfter.add(Math.floor(r() * specs.length));
   let x = x0;
   specs.forEach((s, j) => {
     let lean = 0;
-    const nextX = x + s.w;
-    const gapNext = gapAfter.has(j) ? slack / Math.max(1, gaps + 1) : 0;
-    const isLast = j === specs.length - 1, room = isLast ? xu1 - nextX : gapNext;
-    // lean only into a gap narrow enough to catch the book's head (against the end or the next book)
+    const nextX = x + s.w, gapNext = gapAfter.has(j) ? slack / Math.max(1, gaps + 1) : 0;
+    const isLast = j === specs.length - 1, room = isLast ? (tuck ? 0 : xu1 - nextX) : gapNext;
     if ((isLast || gapNext) && room > 0.01 && room < s.h * Math.sin(0.4)) {
       const reach = (a) => s.w * Math.cos(a) + s.h * Math.sin(a);
       let lo = 0, hi = 0.4; for (let q = 0; q < 30; q++) { const m = (lo + hi) / 2; if (reach(m) < s.w + room - 0.004) lo = m; else hi = m; }
@@ -299,13 +302,13 @@ export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear,
       if (p.x < x0 - 1e-4 || p.x > xu1 + 1e-4) faults.push(`book ${s.seed} through the end`); }
     out.push({ spec: s, matrix: M }); x = nextX + 0.001 + gapNext;
   });
-  // the heap: biggest at the bottom, laid at the free end if it fits there, each spine outward
-  flat.sort((a, b) => b.h - a.h);
-  let hy = y;
+  // the heap: biggest at the bottom; against the run's end when tucked, else at the shelf's free end
+  let hy = y, end = x;
+  const hx = tuck ? x + 0.002 + heapW / 2 : x1 - heapW / 2;
   for (const s of flat) {
-    const cx = x1 - s.h / 2 - 0.004;
-    if (cx - s.h / 2 < x - 0.0005 || hy + s.w > y + clear) continue;    // no room: it stays off this shelf
-    out.push({ spec: s, matrix: bookMatrix(THREE, s, cx, hy, zFront - s.d / 2, 0, true) }); hy += s.w;
+    if (hy + s.w > y + clear) continue;
+    out.push({ spec: s, matrix: bookMatrix(THREE, s, hx, hy, zFront - s.d / 2, 0, true) }); hy += s.w;
+    end = Math.max(end, hx + heapW / 2);
   }
-  return { placements: out, faults };
+  return { placements: out, faults, end: tuck ? end : x1 };
 }
