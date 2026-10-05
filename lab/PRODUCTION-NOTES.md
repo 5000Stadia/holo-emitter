@@ -44,3 +44,8 @@ The approach he wants is "a rigorous rule set and separation of object types, an
     - Context at any point is the weighted blend of the influences that reach it, then inherited down: place → region → building → room → container → item.
     - The one AI pass per location writes its influences, not its items.
     - The same blend by world position is what makes seams between looks soft.
+13. **Provenance travels with the item.** In his words: "a fancy cane left at the crime scene of a poor man doesn't make it an item of the poor mans and it gets un-fancy". Also Sherlock (poor) and Watson (opulently wealthy) sharing one office.
+    - **My reading:** split what an item **is** from what a place **does to it**.
+    - **Identity** (kind, quality, style, owner) is set once by its provenance: the influence it came from, its maker or owner. It travels with it.
+    - **A place's influences** apply only to dressing generated in that place, and to **patina** (dust, soot, mud, fading), which builds up with time spent there.
+    - **Influences reach two ways:** by space (a street, weather, a room) and by **possession** (an owner's things, wherever they are). In a shared room, each container or surface has a keeper: Holmes's bench, Watson's desk, a shared mantel blending both.
