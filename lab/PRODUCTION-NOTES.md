@@ -21,3 +21,7 @@ The approach he wants is "a rigorous rule set and separation of object types, an
    - **My reading:** catalogue the *recipe*, a kind with its settings and a seed, not the *result*. Variety then comes from the seed. A cache keyed by kind, settings and seed gives reuse only when two things really are the same.
 5. **"Very novel ways of minimizing render."**
 6. **When is something on the other side of the world determined, and when is it rendered?** His sketch: "fully rendered before load being your room and each connected space from that location, and 2 locations away in every direction being the live work to render it into existence based on the previous work."
+7. **Takeable by size.** In his words: "anything you could pickup which is just decided on creation/deployment based on size of thing you could put in your backpack/pocket should be able to be picked up."
+   - **My reading:** "takeable" is worked out from the kind's size, and whether it's fixed down, not declared per object.
+   - Dressing becomes an entity at the moment it's picked up. Its kind, settings and seed are written into the world document, so any one of a library's 5,000 books can be taken and remembered.
+8. **Stand-ins for unbuilt and distant space.** He asked how we handle them. Today we don't: the house simply hides rooms it hasn't built. This needs designing.
