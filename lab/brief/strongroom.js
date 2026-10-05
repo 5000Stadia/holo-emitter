@@ -4,7 +4,7 @@
 // pigeonholes of rolled deeds over; an iron-bound chest under two locks; and the table with the drawer
 // (procedural.js). Everything from the kit (procedural.js makeKit): no image, no mesh file.
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { buildDesk, rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm } from "../painted/procedural.js";
+import { buildDesk, rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm, smooth } from "../painted/procedural.js";
 
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
 
@@ -39,23 +39,68 @@ function buckets(THREE, K) {
   };
 }
 
-// limewash over coursed stone: near white, washed on unevenly, the courses faintly showing through
-function limewashTexture(THREE, N = 512) {
-  const H = new Float32Array(N * N), cuts = [];
-  const NC = 6, r = rng(1660); for (let j = 0; j < NC; j++) { const c = []; let x = r() * 0.2; while (x < 1) { c.push(x); x += 0.16 + r() * 0.2; } cuts.push(c); }
+// limewash over coursed ashlar: near white, washed on unevenly, the courses showing through faintly.
+// Stones as a mason lays them: level courses 0.4 m high, each stone 0.75–1.3 m long, every joint
+// broken over the stone below; a 4 m tile, so no wall shows the pattern twice.
+function limewashTexture(THREE, N = 1024) {
+  const TILE = 4, COURSE = 0.4, NC = TILE / COURSE, H = new Float32Array(N * N), cuts = [];
+  const r = rng(1660);
+  for (let j = 0; j < NC; j++) {
+    // joints in tile units, periodic; each course's joints kept clear of the course below's
+    const below = cuts[j - 1] || [], c = [];
+    let x = r() * 0.3;
+    while (x < 1) {
+      let t = x;
+      for (let k = 0; k < 6 && below.some(b => Math.min(Math.abs(t - b), 1 - Math.abs(t - b)) < 0.06); k++) t += 0.035;
+      c.push(t % 1); x = t + (0.75 + r() * 0.55) / TILE;
+    }
+    if (c.length > 1 && 1 - c[c.length - 1] + c[0] < 0.6 / TILE) c.pop();      // no sliver where the course wraps
+    cuts.push(c);
+  }
   const map = canvasTex(THREE, N, N, (d) => {
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const u = x / N, v = y / N, row = Math.floor(v * NC), fv = v * NC - row;
-      const cs = cuts[row]; let du = 1; for (const c of cs) du = Math.min(du, Math.abs(u - c), Math.abs(u - c - 1), Math.abs(u - c + 1));
-      const joint = Math.min(fv, 1 - fv) < 0.025 || du < 0.004;   // the wash has filled the joints: they show as a shallow line
-      const m = fbm(u * 4, v * 4, 4, 4, 4, 71), f = fbm(u * 64, v * 64, 64, 64, 2, 73), wash = fbm(u * 7, v * 7, 7, 7, 3, 79);
-      const k = (0.9 + 0.1 * m + 0.04 * f) * (joint ? 0.95 : 1) * (1 - 0.06 * Math.max(0, wash - 0.55) * 4), o = (y * N + x) * 4;
-      d[o] = 224 * k; d[o + 1] = 219 * k; d[o + 2] = 204 * k; d[o + 3] = 255;
-      H[y * N + x] = (joint ? -0.22 : 0) + m * 0.45 + f * 0.25;
+      let du = 1; for (const c of cuts[row]) { const a = Math.abs(u - c); du = Math.min(du, a, 1 - a); }
+      const jt = Math.min(Math.min(fv, 1 - fv) / NC, du) * TILE;             // metres to the nearest joint
+      const joint = 1 - smooth(0.004, 0.012, jt);                              // the wash has filled it: a soft shallow line
+      const m = fbm(u * 8, v * 8, 8, 8, 4, 71), f = fbm(u * 128, v * 128, 128, 128, 2, 73), wash = fbm(u * 14, v * 14, 14, 14, 3, 79);
+      const k = (0.91 + 0.09 * m + 0.035 * f) * (1 - 0.05 * joint) * (1 - 0.05 * Math.max(0, wash - 0.55) * 4), o = (y * N + x) * 4;
+      d[o] = 226 * k; d[o + 1] = 221 * k; d[o + 2] = 206 * k; d[o + 3] = 255;
+      H[y * N + x] = -0.18 * joint + m * 0.45 + f * 0.22;
     }
   });
-  for (const t of [map]) t.repeat.set(0.5, 0.5);
-  const nm = normalFrom(THREE, H, N, N, 1.2); nm.repeat.set(0.5, 0.5);
+  map.repeat.set(1 / TILE, 1 / TILE);
+  const nm = normalFrom(THREE, H, N, N, 1.2); nm.repeat.set(1 / TILE, 1 / TILE);
+  return { map, normalMap: nm };
+}
+
+// flagstones: large slabs in courses of varied width running across the room, each stone 0.6–1.1 m long,
+// its own tone and wear; joints wrap at the tile's edge (a 4 m tile) so no sliver stone appears
+function flagstoneTexture(THREE, N = 1024) {
+  const TILE = 4, r = rng(1662);
+  // course widths summing exactly to the tile
+  let rows = []; { let y = 0; while (y < TILE - 0.5) { const w = 0.55 + r() * 0.3; rows.push(w); y += w; } const k = TILE / rows.reduce((a, b) => a + b, 0); rows = rows.map(w => w * k); }
+  const edges = [0]; for (const w of rows) edges.push(edges[edges.length - 1] + w / TILE);
+  const cuts = rows.map((_, j) => { const c = []; let x = r() * 0.25; while (x < 1 - 0.0001) { c.push(x); x += (0.6 + r() * 0.5) / TILE; } if (c.length > 1 && 1 - c[c.length - 1] + c[0] < 0.45 / TILE) c.pop(); return c; });
+  const H = new Float32Array(N * N);
+  const map = canvasTex(THREE, N, N, (d) => {
+    for (let y = 0; y < N; y++) {
+      const v = y / N; let row = 0; while (row < rows.length - 1 && v >= edges[row + 1]) row++;
+      const dv = Math.min(v - edges[row], edges[row + 1] - v) * TILE, cs = cuts[row];
+      for (let x = 0; x < N; x++) {
+        const u = x / N;
+        let k0 = cs.length - 1; for (let q = 0; q < cs.length; q++) if (cs[q] <= u) k0 = q;      // which stone (wrapping)
+        let du = 1; for (const c of cs) { const a = Math.abs(u - c); du = Math.min(du, a, 1 - a); }
+        const jt = Math.min(dv, du * TILE), joint = 1 - smooth(0.002, 0.009, jt), edge = 1 - smooth(0.008, 0.05, jt);
+        const t = hash(k0, row, 53), m = fbm(u * 16 + k0 * 0.37, v * 16, 16, 16, 4, 57 + (k0 % 5)), f = fbm(u * 160, v * 160, 160, 160, 2, 59);
+        const stone = (0.78 + 0.22 * t + 0.16 * m + 0.06 * f) * (1 - 0.1 * edge), k = stone + (0.56 - stone) * joint, o = (y * N + x) * 4;   // lime-pointed joints: darker, not black
+        d[o] = 122 * k; d[o + 1] = 114 * k; d[o + 2] = 100 * k; d[o + 3] = 255;
+        H[y * N + x] = -0.6 * joint - 0.25 * edge + m * 0.3 + f * 0.2 + t * 0.1;
+      }
+    }
+  });
+  map.repeat.set(1 / TILE, 1 / TILE);
+  const nm = normalFrom(THREE, H, N, N, 1.6); nm.repeat.set(1 / TILE, 1 / TILE);
   return { map, normalMap: nm };
 }
 
@@ -72,8 +117,7 @@ export function strongroomMaterials(THREE, K) {
   const parch = new THREE.MeshStandardMaterial({ color: 0xcdb98e, roughness: 0.92, vertexColors: true }); parch.userData.cls = "parchment";
   const tape = new THREE.MeshStandardMaterial({ color: 0x7a2a22, roughness: 0.8 }); tape.userData.cls = "tape";
   const dark = new THREE.MeshStandardMaterial({ color: 0x0b0806, roughness: 1 }); dark.userData.cls = "dark";
-  const flags = new THREE.MeshStandardMaterial({ map: M.flags.map, normalMap: M.flags.normalMap, roughness: 0.82 }); flags.userData.cls = "flags";
-  for (const t of [flags.map, flags.normalMap]) { t.wrapS = t.wrapT = THREE.RepeatWrapping; }
+  const flags = new THREE.MeshStandardMaterial({ ...flagstoneTexture(THREE), roughness: 0.8 }); flags.userData.cls = "flags";
   return (K.SR = { iron, dressed, lime, vault, parch, tape, dark, flags, doorOak });
 }
 
@@ -254,20 +298,27 @@ function press(THREE, K, S, B, e, labels) {
     const pl = new THREE.CylinderGeometry(0.011, 0.011, 0.004, 10); pl.rotateX(Math.PI / 2); pl.translate(cx, cy - 0.022, fz + 0.002); B.add(pl, S.iron, 0.15);
     const ring = new THREE.TorusGeometry(0.016, 0.0028, 6, 16, Math.PI * 2); ring.rotateX(-0.35); ring.translate(cx, cy - 0.038, fz + 0.007); B.add(ring, S.iron, 0.15);
   }
-  // pigeonholes: rolled deeds and folded bundles, tied with tape, lying deep in each hole
+  // pigeonholes: rolled deeds and folded bundles, tied with tape, lying deep in each hole. Packed, not
+  // scattered: rolls of one size lie side by side on the floor of the hole, a few more rest in the
+  // grooves between them, and a bundle takes whatever width the rolls leave.
   for (let j = 0; j < e.pigeonholes; j++) for (let i = 0; i < e.cols; i++) {
-    const cx = x0 + (i + 0.5) * cw, by = yD + j * ph + 0.008;
-    const nRoll = Math.floor(r() * 4);
-    for (let q = 0; q < nRoll; q++) {
-      const rad = 0.022 + r() * 0.018, len = Dp * (0.55 + r() * 0.35);
-      const g = new THREE.CylinderGeometry(rad, rad, len, 12); g.rotateX(Math.PI / 2);
-      const x = cx - cw / 2 + 0.03 + rad + r() * (cw - 0.06 - 2 * rad), y = by + rad + (q > 1 ? rad * 1.6 : 0);
-      g.translate(x, y, Dp - len / 2 - 0.02 - r() * 0.03); B.add(g, S.parch, 0.24);
-      if (r() < 0.6) { const t = new THREE.TorusGeometry(rad + 0.001, 0.0025, 4, 14); t.translate(x, y, Dp - len * 0.4); B.add(t, S.tape); }
-    }
-    if (r() < 0.55) {
-      const bw = cw * (0.4 + r() * 0.3), bh = 0.03 + r() * 0.08;
-      const g = metric(new THREE.BoxGeometry(bw, bh, Dp * 0.7)); g.translate(cx + (r() - 0.5) * (cw - bw - 0.04) * 0.8, by + bh / 2, Dp * 0.45); B.add(g, S.parch, 0.3);
+    const left = x0 + i * cw + 0.007 + 0.004, right = x0 + (i + 1) * cw - 0.007 - 0.004, by = yD + j * ph + 0.008;
+    const roof = yD + (j + 1) * ph - 0.008 - 0.004;
+    const R = 0.022 + r() * 0.016, fit = Math.floor((right - left) / (2 * R + 0.003));
+    const nLow = Math.min(fit, Math.floor(r() * (fit + 1)));
+    const roll = (x, y) => {
+      const len = Dp * (0.55 + r() * 0.3), z = Dp - len / 2 - 0.025 - r() * 0.03;
+      const g = new THREE.CylinderGeometry(R, R, len, 12); g.rotateX(Math.PI / 2); g.translate(x, y, z); B.add(g, S.parch, 0.24);
+      if (r() < 0.6) { const t = new THREE.TorusGeometry(R + 0.0012, 0.0025, 4, 14); t.translate(x, y, z + len * 0.12); B.add(t, S.tape); }
+    };
+    const xs = [];
+    for (let q = 0; q < nLow; q++) { const x = left + R + q * (2 * R + 0.003); xs.push(x); roll(x, by + R); }
+    // a second tier in the grooves, if the hole is tall enough
+    for (let q = 0; q + 1 < xs.length; q++) if (r() < 0.45 && by + R + Math.sqrt(3) * (R + 0.0015) + R < roof) roll((xs[q] + xs[q + 1]) / 2, by + R + Math.sqrt(3) * (R + 0.0015));
+    const used = nLow ? xs[xs.length - 1] + R + 0.006 : left;
+    if (right - used > 0.06 && r() < 0.7) {
+      const bw = Math.min(right - used, cw * (0.35 + r() * 0.35)), bh = Math.min(roof - by, 0.03 + r() * 0.08);
+      const g = metric(new THREE.BoxGeometry(bw - 0.004, bh, Dp * 0.7)); g.translate(right - bw / 2, by + bh / 2, Dp * 0.45); B.add(g, S.parch, 0.3);
     }
   }
   return { r0: e.r0, r1: e.r1, depth: Dp + 0.06 };
@@ -313,7 +364,7 @@ export function buildStrongroom(THREE, K, spec, names) {
   const v = spec.finish.vault, span = v.axis === "EW" ? D : W;
   const arc = vaultArc(span, v.spring, v.crown);
   // the floor: flags, 2 m to the tile
-  { const g = new THREE.PlaneGeometry(W, D); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * W / 2, uv.getY(i) * D / 2);
+  { const g = new THREE.PlaneGeometry(W, D); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * W, uv.getY(i) * D);
     const f = new THREE.Mesh(g, S.flags); f.rotation.x = -Math.PI / 2; f.position.set(W / 2, 0, -D / 2); f.receiveShadow = true;
     f.userData = { instance: "floor", material: "flags", owner: "floor" }; grp.add(f); }
   // the vault: a segmental barrel from springing wall to springing wall, limewashed stone

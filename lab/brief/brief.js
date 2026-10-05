@@ -43,6 +43,25 @@ function spans(fr, F, elems, taken, depth, tall, clear = 0.12) {
   return out.filter(([a, b]) => b - a > 0.05);
 }
 
+// every floor item's box in plan metres, and the strip in front of it that its use needs clear
+// (drawers pulled, the chest's lid, a chair at the table)
+export function footprints(out) {
+  const room = { rect: out.room.rect }, res = [];
+  const front = { press: 0.4, chest: 0.3, desk: 0.5 };
+  for (const [F, es] of Object.entries(out.walls)) {
+    const fr = wallFrame(room, F);
+    for (const e of es) {
+      if (!(e.kind in front)) continue;
+      const [a, b] = e.kind === "press" ? [e.r0, e.r1] : [e.r - (e.width ?? e.w) / 2, e.r + (e.width ?? e.w) / 2];
+      const d = e.kind === "press" ? e.depth + 0.05 : e.kind === "chest" ? e.d : e.depth;
+      const box = boxOf(fr, a, b, d), all = boxOf(fr, a + 0.02, b - 0.02, d + front[e.kind]);
+      res.push({ id: e.id, F, box, use: all });
+    }
+  }
+  return res;
+}
+export { overlaps };
+
 export function compileBrief(plan, roomId, brief) {
   const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
   const room = plan.rooms.find(r => r.id === roomId);
@@ -149,7 +168,11 @@ export function compileBrief(plan, roomId, brief) {
     let label = 0;
     const order = ["N", "S", "E", "W"].sort((a, b) => walls[a].filter(e => e.kind !== "chimneypiece").length - walls[b].filter(e => e.kind !== "chimneypiece").length);
     for (const F of order) {
-      for (const [a, b] of spans(frames[F], F, walls[F], taken, p.depth, p.height)) {
+      // presses keep out of the corners: one running into a corner would sit behind its neighbour's end,
+      // its last drawers blocked; the corner is left as a square of open floor
+      const cc = p.depth + 0.06, L = frames[F].L;
+      for (let [a, b] of spans(frames[F], F, walls[F], taken, p.depth, p.height)) {
+        a = Math.max(a, cc); b = Math.min(b, L - cc);
         const n = Math.floor((b - a - 0.08) / cols);
         if (n < 3) continue;          // a press narrower than three columns is a cupboard, not a press
         const w = n * cols + 0.08, r0 = a + (b - a - w) / 2;

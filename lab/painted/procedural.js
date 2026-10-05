@@ -182,7 +182,7 @@ function stoneTexture(THREE, N = 512, base = [118, 108, 90], blots = true) {
 function flagTexture(THREE, N = 768) {
   const H = new Float32Array(N * N), r = rng(51);
   const rows = [0, 0.52, 1.0, 1.46, 2.0].map(v => v / 2);     // course lines in tile units (tile = 2 m)
-  const cuts = rows.slice(0, -1).map(() => { const c = [0]; let x = 0.25 + r() * 0.1; while (x < 0.95) { c.push(x); x += 0.28 + r() * 0.12; } return c; });
+  const cuts = rows.slice(0, -1).map(() => { const c = [0]; let x = 0.25 + r() * 0.1; while (x < 0.95) { c.push(x); x += 0.28 + r() * 0.12; } if (1 - c[c.length - 1] < 0.2) c.pop(); return c; });   // no sliver where a course wraps
   const map = canvasTex(THREE, N, N, (d) => {
     for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
       const u = x / N, v = y / N, row = rows.findIndex((a, i) => v >= a && v < rows[i + 1]);

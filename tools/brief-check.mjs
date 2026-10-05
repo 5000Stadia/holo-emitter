@@ -2,7 +2,7 @@
 // checks that must always hold. Usage: node tools/brief-check.mjs [roomId]
 import { readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { compileBrief } from "../lab/brief/brief.js";
+import { compileBrief, footprints, overlaps } from "../lab/brief/brief.js";
 
 const plan = JSON.parse(readFileSync(new URL("../lab/house/plan.json", import.meta.url)));
 const brief = JSON.parse(readFileSync(new URL("../lab/brief/manor-1660.json", import.meta.url)));
@@ -25,6 +25,9 @@ for (const [F, es] of Object.entries(out.walls)) {
     for (const o of es.filter(o => o !== e && items.includes(o.kind))) { const [c, d] = span(o); if (a < d - 1e-6 && b > c + 1e-6) fails.push(`${e.id} overlaps ${o.id} on ${F}`); }
   }
 }
+// nothing stands where another piece needs room to be used
+{ const fp = footprints(out);
+  for (const a of fp) for (const b of fp) if (a !== b && overlaps(a.use, b.box)) fails.push(`${b.id} stands in front of ${a.id}`); }
 // the same plan and brief always compile to the same room
 const h = (o) => createHash("sha256").update(JSON.stringify({ ...o, ms: 0 })).digest("hex").slice(0, 16);
 if (h(out) !== h(compileBrief(plan, id, brief))) fails.push("two compiles of the same brief differ");

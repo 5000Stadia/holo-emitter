@@ -19,7 +19,35 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 | Date | Piece | Wall-clock | New pieces | New lines | Compile | Build | Walkable (no bake) |
 |---|---|---|---|---|---|---|---|
+| 2026-10-05 | R45 fixes from your review (rolls, corners, stonework, floor) | 7 min | 1 (flagstones) | ~110 | 11 ms | 1.38 s | 5.8 s |
 | 2026-10-05 | R45 muniment room from the period brief | 19 min | 7 | ~1,000 | 10 ms | 0.43 s | 5.1 s |
+
+---
+
+## R45, fix round: what your eye caught (2026-10-05)
+
+You found three faults:
+1. rolls and bundles pushed into one another;
+2. presses overlapping at a corner;
+3. the floor's stone chopped into small random rectangles.
+
+**Wall-clock: about 7 min, from 08:36 to 08:43**, with no research or design.
+
+| Fault | Cause | Fix | Now guarded by |
+|---|---|---|---|
+| Rolls and bundles intersecting | Placed at random x in each pigeonhole, with a second tier floating at a fixed height | Packed: rolls of one size side by side, the second tier resting in the grooves, the bundle in the width left | Construction; nothing random is left to collide |
+| A press running behind its neighbour in the corner | The north press ran into the corner; the east press stood in front of its last column, and those drawers couldn't open | Presses stop one press-depth short of every corner, leaving a square of open floor | A new check, run by `tools/brief-check.mjs` and the test: nothing stands where another piece needs room to be used (drawers pulled, a lid raised). It fails on the old build. |
+| Floor chopped into small rectangles | The shared flag texture's joints didn't wrap at the 2 m tile edge, leaving sliver stones; the stones were also small | The strongroom gets its own flags: 0.6–1.1 m slabs in courses running across the room, joints offset, a 4 m tile, lime-pointed joints. The shared texture's sliver is fixed too, which helps the manor's halls. | By eye |
+| Wall stone (I also redid it) | 33 cm near-square blocks, randomly cut | Level ashlar courses 0.4 m high, stones 0.75–1.3 m, every joint broken over the one below, joints filled by the wash | By eye |
+
+**What it costs while you walk:**
+- Build went from 0.43 s to 1.38 s, because the two new 1024² stone textures are generated at build time.
+- They belong to the look, not the room: a house built in this look makes them once.
+- Moving them into the kit, with a cache, is the next step for a multi-room build.
+
+**What this round teaches the pipeline:**
+- Every new piece that holds other pieces (presses holding rolls, walls meeting at corners) needs a packing rule, not scatter, and a check that items don't intrude on each other's clearance.
+- Repeating textures need joints that wrap at the tile edge, or the seam shows as a sliver.
 
 ---
 

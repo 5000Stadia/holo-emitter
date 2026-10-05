@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 const load = (p) => JSON.parse(readFileSync(join(repoRoot, p), "utf8"));
-const { compileBrief } = await import(pathToFileURL(join(repoRoot, "lab/brief/brief.js")).href);
+const { compileBrief, footprints, overlaps } = await import(pathToFileURL(join(repoRoot, "lab/brief/brief.js")).href);
 const plan = load("lab/house/plan.json"), brief = load("lab/brief/manor-1660.json");
 
 test.describe("the muniment room from its brief", () => {
@@ -35,6 +35,14 @@ test.describe("the muniment room from its brief", () => {
       for (const o of all.filter(o => o !== e && o.F === e.F && ["press", "chest", "desk"].includes(o.kind))) {
         const [c, d] = span(o); expect(a < d - 1e-6 && b > c + 1e-6, `${e.id} overlaps ${o.id}`).toBe(false);
       }
+    }
+  });
+
+  test("nothing stands where another piece needs room to be used (drawers pulled, a lid raised): no corner traps", () => {
+    const fp = footprints(out);
+    for (const a of fp) for (const b of fp) if (a !== b) {
+      expect(overlaps(a.box, b.box), `${a.id} overlaps ${b.id}`).toBe(false);
+      expect(overlaps(a.use, b.box), `${b.id} stands in front of ${a.id}`).toBe(false);
     }
   });
 
