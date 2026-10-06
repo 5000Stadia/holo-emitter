@@ -27,7 +27,7 @@
           "window": { "w_max": 0.7, "sill": 1.2, "top": 2.0, "grille": true, "shutters": true },
           "why": "light enough to read by, no way in",
           "source": "Hardwick Hall evidence room 'fitted up with shelves, drawers and iron bars to the windows in 1603' (Archives Hub, Hardwick Manuscripts); Steane 2010, New College: 'Iron bars formed a grid over the shuttered windows'" },
-        { "id": "presses", "rule": "presses of labelled drawers on every wall free of an opening, pigeonholes over",
+        { "id": "presses", "rule": "presses of labelled drawers, as many as the evidences fill with a tenth spare, on the walls free of an opening, pigeonholes over",
           "press": { "height": 2.0, "depth": 0.42, "drawer": [0.26, 0.14], "pigeonholes": 2, "labels": "holdings" },
           "why": "deeds kept by manor, found by label",
           "source": "Steane 2010, Windsor Aerary (1422-3): a nest of 63 drawers, 2.14 m high, 'labelled with the names of manors', pulled by iron rings; Hardwick: 'lined with drawers labeled with the names of the Cavendish properties', 'presses with drawers and pigeon holes'" },
@@ -41,11 +41,15 @@
     }
   },
   "holdings": {
-    "_why": "Whose evidences these are decides every label (first review, 2026-10-05): one family, its manors a cluster of real neighbouring places it could plausibly hold, no other family's seat among them; drawers in proportion to each manor's land and paper, small places sharing one; the family's own papers first; each manor an unbroken numbered run in its press, sorted; spare drawers left for what is bought next.",
+    "_why": "Whose evidences these are decides every label (two review rounds, 2026-10-05). One family; its capital manor first, then its manors in the order they came to it, a few in other counties; each place's spelling as a 1660 clerk wrote it; within a place, its drawers by kind of evidence, overflow numbered; the family's general evidences first; what is most precious (letters patent, the pardon, the uses and entails, the wills) in the chest, not a drawer; presses sized to what they hold plus a tenth spare, spare drawers left blank at the foot of a column; a manor's run down its own columns.",
     "family": "Haywood of Wynstanton",
-    "general": [["Crown Grants", 1], ["Inquisitions", 1], ["Wardship", 1], ["Fines & Recoveries", 3], ["Settlements", 2], ["Marriage Articles", 1], ["Wills", 2], ["Sequestration", 2], ["Composition", 1], ["Pardon 1660", 1]],
-    "manors": [["Wynstanton", 10], ["Ashover", 5], ["Blackwell", 2], ["Brackenfield", 1.5], ["Crich", 4], ["Higham", 0.6], ["Lea", 0.5], ["Morton", 2], ["Ogston", 0.6], ["Pilsley", 1.5], ["Pinxton", 2], ["Shirland", 4], ["South Normanton", 3], ["Stretton", 0.5], ["Tansley", 1.5], ["Tibshelf", 3], ["Wessington", 2.5]],
-    "spare": 0.12
+    "per_weight": 2.2,
+    "spare": 0.12,
+    "general": [["Inquisitions", 1], ["Wardship", 1], ["Fines & Recoveries", 3], ["Sequestration", 2], ["Composition", 1], ["Accompts", 3]],
+    "kinds": [["Feoffments", 0.45], ["Leases", 0.35], ["Rentals & Surveys", 0.2]],
+    "manors": [["Wynstanton", 10, "Derby"], ["Asshover", 5, "Derby"], ["Tibshelfe", 3, "Derby"], ["Shirlande", 4, "Derby"], ["Brackenfeild", 1.5, "Derby"], ["Wessington", 2.5, "Derby"], ["Southnormanton", 3, "Derby"], ["Pinxton", 2, "Derby"], ["Higham", 0.4, "Derby"], ["Ogston", 0.4, "Derby"], ["Blackwell", 2, "Derby"], ["Skegbye", 2, "Nottingham"], ["Elaston", 1.5, "Stafford"], ["Swepston", 1.5, "Leicester"]],
+    "in_chest": ["Letters Patent", "the Pardon, 1660", "Uses & Entails", "Wills"],
+    "on_table": "the calendar of the evidences, a folio in vellum"
   },
   "sources": {
     "Steane 2010": "John Steane, 'Medieval Muniment Rooms, their Furniture, Fittings and Information Retrieval Systems', vol. 54 (2010), https://hbap.pdfsrv.co.uk/customers/HBAP/CQ56690/Vol%2054%202010/2/",

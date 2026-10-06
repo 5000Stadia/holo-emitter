@@ -156,72 +156,96 @@ export function compileBrief(plan, roomId, brief) {
     if (placed) {
       walls[placed.F].push({ kind: "chest", id: "chest1", r: r2(placed.r), ...c });
       taken.push({ id: "chest1", box: boxOf(frames[placed.F], placed.r - c.w / 2, placed.r + c.w / 2, c.d) });
-      say("chest", "honoured", `An iron-bound chest under ${c.locks} locks on the ${placed.F} wall.`);
+      say("chest", "honoured", `An iron-bound chest under ${c.locks} locks on the ${placed.F} wall${brief.holdings?.in_chest ? `, holding ${brief.holdings.in_chest.join(", ")}` : ""}.`);
     } else say("chest", "conflict", "No free wall long enough for the chest.");
   }
 
   // presses on every wall stretch left, deepest wall first, so the corners meet
   if (pin.presses) {
     const p = pin.presses.press, cols = p.drawer[0], made = [];
-    let label = 0;
     const order = ["N", "S", "E", "W"].sort((a, b) => walls[a].filter(e => e.kind !== "chimneypiece").length - walls[b].filter(e => e.kind !== "chimneypiece").length);
+    const rows = Math.floor((p.height - 0.22 - 0.1 - p.pigeonholes * 0.24) / p.drawer[1]);
+    // where a press could stand: every free span, the corners kept clear. Presses keep out of the
+    // corners: one running into a corner would sit behind its neighbour's end, its last drawers
+    // blocked; the corner is left as a square of open floor
+    const room4 = [];
     for (const F of order) {
-      // presses keep out of the corners: one running into a corner would sit behind its neighbour's end,
-      // its last drawers blocked; the corner is left as a square of open floor
       const cc = p.depth + 0.06, L = frames[F].L;
       for (let [a, b] of spans(frames[F], F, walls[F], taken, p.depth, p.height)) {
         a = Math.max(a, cc); b = Math.min(b, L - cc);
         const n = Math.floor((b - a - 0.08) / cols);
-        if (n < 3) continue;          // a press narrower than three columns is a cupboard, not a press
-        const w = n * cols + 0.08, r0 = a + (b - a - w) / 2;
-        const rows = Math.floor((p.height - 0.22 - 0.1 - p.pigeonholes * 0.24) / p.drawer[1]);
-        walls[F].push({ kind: "press", id: `press_${F}${made.length + 1}`, r0: r2(r0), r1: r2(r0 + w), height: p.height, depth: p.depth, cols: n, rows, pigeonholes: p.pigeonholes, label0: label });
-        taken.push({ id: `press_${F}${made.length + 1}`, box: boxOf(frames[F], r0, r0 + w, p.depth) });
-        label += n * rows;
-        made.push(`${F} ${r2(w)} m (${n}×${rows} drawers)`);
+        if (n >= 3) room4.push({ F, a, b, n });          // narrower than three columns is a cupboard, not a press
       }
     }
-    const presses = order.flatMap(F => walls[F].filter(e => e.kind === "press"));
-    const L = brief.holdings ? labelDrawers(presses, brief.holdings) : null;
-    if (L) { labels = L.labels; presses.forEach((e, i) => { e.letter = L.letters[i]; }); }
-    say("presses", made.length ? "honoured" : "conflict", made.length ? `${made.length} presses, ${label} drawers: ${made.join("; ")}.${L ? ` ${L.say}` : ""}` : "No wall left free for a press.");
+    // what they hold decides how many are built and how wide: each press only as wide as its share
+    const lay = brief.holdings ? layEvidences(evidences(brief.holdings), room4.map(s => s.n), rows, brief.holdings.spare) : { cols: room4.map(s => s.n), labels: [], say: "" };
+    let label = 0;
+    labels = [];
+    room4.forEach((sp, i) => {
+      const n = lay.cols[i]; if (!n) return;
+      const w = n * cols + 0.08, r0 = sp.a + (sp.b - sp.a - w) / 2, id = `press_${sp.F}${made.length + 1}`;
+      walls[sp.F].push({ kind: "press", id, letter: String.fromCharCode(65 + made.length), r0: r2(r0), r1: r2(r0 + w), height: p.height, depth: p.depth, cols: n, rows, pigeonholes: p.pigeonholes, label0: label,
+        full: Array.from({ length: n }, (_, c) => (lay.labels[i] || []).some((_, k) => k % n === c && lay.labels[i][k])) });
+      taken.push({ id, box: boxOf(frames[sp.F], r0, r0 + w, p.depth) });
+      labels.push(...(lay.labels[i] || new Array(n * rows).fill("")));
+      label += n * rows;
+      made.push(`${sp.F} ${r2(w)} m (${n}×${rows} drawers)`);
+    });
+    say("presses", made.length ? "honoured" : "conflict", made.length ? `${made.length} press${made.length > 1 ? "es" : ""}, ${label} drawers: ${made.join("; ")}.${lay.say ? ` ${lay.say}` : ""}` : "No wall left free for a press.");
   }
 
   return {
     room: { id: roomId, name: room.name, W: r2(W), D: r2(D), H: r2(H), rect: room.rect, floor: room.floor },
-    walls, finish, report, labels,
+    walls, finish, report, labels, onTable: brief.holdings?.on_table || null,
     function: B?.function || null,
     ms: r2((typeof performance !== "undefined" ? performance.now() : Date.now()) - t0),
   };
 }
 
-// The drawers' labels, from whose evidences they are (holdings): the family's own papers first, then
-// each manor an unbroken run, sorted, numbered from 1 across the rows from the top left; drawers in
-// proportion to each manor's weight, places too small for a drawer of their own sharing one; no run
-// carried from one press to the next; the rest left blank for what is bought next. Labels come out
-// in reading order per press (label0 + row from the top * cols + column); a blank is "".
-export function labelDrawers(presses, H) {
-  const caps = presses.map(e => e.cols * e.rows), total = caps.reduce((a, b) => a + b, 0);
-  const named = (list, scale) => {
-    const runs = [], small = [];
-    for (const [name, w] of list) { const n = Math.round(w * scale); if (n >= 1) runs.push([name, n]); else small.push(name); }
-    for (let i = 0; i < small.length; i += 2) runs.push([small.slice(i, i + 2).join(" & "), 1]);
-    return runs.sort((a, b) => a[0].localeCompare(b[0]));
-  };
-  // the largest scale whose runs pack in order, press by press, leaving the spare share blank
-  for (let scale = total / H.manors.reduce((a, m) => a + m[1], 0); scale > 0.05; scale *= 0.97) {
-    const runs = [...H.general.map(([n, c]) => [n, c]), ...named(H.manors, scale)];
-    const per = presses.map(() => []); let p = 0, used = 0;
-    for (const run of runs) {
-      while (p < presses.length && per[p].reduce((a, r) => a + r[1], 0) + run[1] > caps[p]) p++;
-      if (p >= presses.length) break;
-      per[p].push(run); used += run[1];
-    }
-    if (p >= presses.length || used > total * (1 - H.spare)) continue;
-    const labels = new Array(total).fill("");
-    presses.forEach((e, i) => { let k = e.label0; for (const [name, n] of per[i]) for (let q = 1; q <= n; q++) labels[k++] = n > 1 ? `${name} ${q}` : name; });
-    const letters = presses.map((_, i) => String.fromCharCode(65 + i));
-    return { labels, letters, say: `Labelled for ${H.family}: ${per.map((r, i) => `press ${letters[i]} ${r[0][0]} to ${r[r.length - 1][0]}`).join("; ")}; ${total - used} drawers left blank.` };
+// The evidences, from whose they are (holdings): the family's general evidences first, then the
+// capital manor, then each manor in the order it came to the family. Each is a block of drawers: a
+// place with one drawer is labelled by its name; with more, by kind of evidence under its name
+// (feoffments, leases, rentals and surveys, shared by weight), the overflow of a kind numbered.
+// A label is "place\nkind", drawn as two lines.
+const ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", "xi", "xii"];
+export function evidences(H) {
+  const blocks = [{ name: H.family, labels: H.general.flatMap(([k, n]) => Array.from({ length: n }, (_, q) => n > 1 ? `${k}\n${ROMAN[q]}` : k)) }];
+  for (const [place, w] of H.manors) {
+    const n = Math.max(1, Math.round(w * H.per_weight));
+    if (n === 1) { blocks.push({ name: place, labels: [place] }); continue; }
+    if (n === 2) { blocks.push({ name: place, labels: [`${place}\n${H.kinds[0][0]}`, `${place}\nLeases & Rentals`] }); continue; }
+    // each kind one drawer, the rest by share, largest remainder first
+    const want = H.kinds.map(([, f]) => f * (n - H.kinds.length)), got = want.map(Math.floor);
+    for (const i of want.map((v, i) => [v - Math.floor(v), i]).sort((a, b) => b[0] - a[0]).map(x => x[1]).slice(0, n - H.kinds.length - got.reduce((a, b) => a + b, 0))) got[i]++;
+    blocks.push({ name: place, labels: H.kinds.flatMap(([k], i) => Array.from({ length: got[i] + 1 }, (_, q) => got[i] ? `${place}\n${k} ${ROMAN[q]}` : `${place}\n${k}`)) });
   }
-  return null;
+  return blocks;
+}
+
+// Lay the blocks into presses down the columns, top to bottom, left to right: a block that fits in a
+// column but not in what is left of this one starts the next; a block longer than a column starts a
+// fresh one; none is carried from one press to the next. The leftover foot of a column stays blank,
+// a spare. The last press is cut to what it holds plus the spare share; presses not needed are not
+// built. caps: the most columns each span takes. Returns columns and labels (row-major) per span.
+export function layEvidences(blocks, caps, rows, spare) {
+  const per = caps.map(() => []);
+  let p = 0, col = 0, row = 0;
+  const fresh = () => { if (row) { col++; row = 0; } };
+  for (const b of blocks) {
+    const len = b.labels.length;
+    if (len > rows || row + len > rows) fresh();
+    while (p < caps.length && col + Math.ceil(len / rows) > caps[p]) { p++; col = 0; row = 0; }
+    if (p >= caps.length) return { cols: caps, labels: [], say: `The presses are too few for ${b.name}.` };
+    for (const t of b.labels) { per[p].push({ col, row, t }); if (++row === rows) { row = 0; col++; } }
+  }
+  const used = per.map((cells, i) => cells.length ? Math.max(...cells.map(c => c.col)) + 1 : 0);
+  const filled = per.reduce((a, c) => a + c.length, 0);
+  // the spare share, as whole columns at the end of the last press used
+  const last = used.findLastIndex(u => u > 0), need = Math.ceil(filled / (1 - spare));
+  let total = used.reduce((a, u) => a + u * rows, 0);
+  while (total < need && used[last] < caps[last]) { used[last]++; total += rows; }
+  used[last] = Math.max(3, used[last]);
+  const labels = per.map((cells, i) => { if (!used[i]) return null; const L = new Array(used[i] * rows).fill(""); for (const c of cells) L[c.row * used[i] + c.col] = c.t; return L; });
+  const firsts = per.map(cells => cells.length ? cells[0].t.split("\n")[0] : null);
+  return { cols: used, labels, say: `Labelled for ${blocks[0].name}, ${filled} drawers by place and kind of evidence${used.filter(Boolean).length ? `, ${used.map((u, i) => u ? `press ${String.fromCharCode(65 + used.slice(0, i).filter(Boolean).length)} from ${firsts[i]}` : null).filter(Boolean).join("; ")}` : ""}; ${used.reduce((a, u) => a + u * rows, 0) - filled} spare drawers blank at the foot of the columns and the end.` };
 }

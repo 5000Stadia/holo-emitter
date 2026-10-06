@@ -4,6 +4,7 @@
 // the family's papers and its manors (brief.js labelDrawers), with pigeonholes of bundles and court rolls over; an iron-bound chest under two locks; and the table with the drawer
 // (procedural.js). Everything from the kit (procedural.js makeKit): no image, no mesh file.
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { buildBook, bookSpec } from "./book.js";
 import { buildDesk, drawerInside, rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm, smooth } from "../painted/procedural.js";
 
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
@@ -240,8 +241,9 @@ function barredWindow(THREE, K, S, B, grp, F, e, T) {
 }
 
 // ---------------------------------------------------------------- the labels: one atlas for the room
+const LABEL_H = 72;                                              // a cell is 160 × 72 px
 function labelAtlas(THREE, texts) {
-  const count = Math.max(1, texts.length), cw = 160, ch = 56, cols = 24, rows = Math.ceil(count / cols);
+  const count = Math.max(1, texts.length), cw = 160, ch = LABEL_H, cols = 24, rows = Math.ceil(count / cols);
   const c = document.createElement("canvas"); c.width = cols * cw; c.height = rows * ch;
   const g = c.getContext("2d"), r = rng(1603);
   for (let k = 0; k < count; k++) {
@@ -254,10 +256,16 @@ function labelAtlas(THREE, texts) {
     g.fillStyle = gr; g.fillRect(x, y, cw, ch);
     const name = texts[k] || "", tilt = (r() - 0.5) * 0.05, ink = `rgba(${40 + r() * 20},${26 + r() * 10},${14},0.88)`;
     if (!name) continue;                                         // a spare drawer: the paper pasted, nothing written yet
-    g.save(); g.translate(x + cw / 2, y + ch * 0.62); g.rotate(tilt);
-    g.fillStyle = ink; g.textAlign = "center";
-    let px = 23; do g.font = `italic ${px}px Georgia, "Times New Roman", serif`; while (g.measureText(name).width > cw - 14 && --px > 12);
-    g.fillText(name, 0, 0); g.restore();
+    // a place over its kind of evidence, two lines; the place a little larger
+    const lines = name.split("\n");
+    g.save(); g.translate(x + cw / 2, y + ch / 2); g.rotate(tilt);
+    g.fillStyle = ink; g.textAlign = "center"; g.textBaseline = "middle";
+    lines.forEach((t, q) => {
+      let px = lines.length > 1 ? (q ? 19 : 22) : 25;
+      do g.font = `italic ${px}px Georgia, "Times New Roman", serif`; while (g.measureText(t).width > cw - 14 && --px > 11);
+      g.fillText(t, 0, lines.length > 1 ? (q ? 14 : -12) : 2);
+    });
+    g.restore();
   }
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   const m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 }); m.userData.cls = "paper";
@@ -287,10 +295,11 @@ function press(THREE, K, S, B, e, drawers) {
     const out = r() < 0.06 ? 0.02 + r() * 0.07 : r() * 0.004;
     drawers.push({ id: `${e.id}/${e.rows - j}.${i + 1}`, k: e.label0 + (e.rows - 1 - j) * e.cols + i, F: e.F, x: x0 + (i + 0.5) * cw, y: y0 + (j + 0.5) * rh, z: Dp - 0.012, w: cw, h: rh, depth: Dp - 0.06, ajar: out });
   }
-  // pigeonholes: most hold deeds folded flat, docketed and tied in bundles, stacked side by side; some
+  // pigeonholes, over the columns in use: most hold deeds folded flat, docketed and tied in bundles, stacked side by side; some
   // hold the court rolls, the one record kept rolled, lying packed on the floor of the hole and in the
   // grooves between. Packed, not scattered.
   for (let j = 0; j < e.pigeonholes; j++) for (let i = 0; i < e.cols; i++) {
+    if (e.full && !e.full[i]) continue;                         // nothing yet for the spare columns
     const left = x0 + i * cw + 0.007 + 0.004, right = x0 + (i + 1) * cw - 0.007 - 0.004, by = yD + j * ph + 0.008;
     const roof = yD + (j + 1) * ph - 0.008 - 0.004;
     if (r() < 0.3) {
@@ -340,7 +349,7 @@ function drawerBank(THREE, K, S, L, list) {
       box(fw - 0.04, fh - 0.03, 0.01, 0, -0.006, -0.018 - dd + 0.005)]), M.oak, 0.06), M.oak],
     bottom: [prep(box(fw - 0.03, 0.006, dd, 0, yIn - 0.003, -0.018 - dd / 2), drawerInside(THREE, K), 0.1), drawerInside(THREE, K)],
     deeds: [prep(box(1, 1, 1, 0, 0.5, 0), S.parch, 0), S.parch],
-    label: [(() => { const lw = d0.w * 0.62, g = new THREE.PlaneGeometry(lw, lw * 56 / 160); g.translate(0, 0.022, 0.0015); return g; })(), labelMaterial(L.m)],
+    label: [(() => { const lw = d0.w * 0.58, g = new THREE.PlaneGeometry(lw, lw * LABEL_H / 160); g.translate(0, 0.026, 0.0015); return g; })(), labelMaterial(L.m)],
     plate: [(() => { const g = new THREE.CylinderGeometry(0.011, 0.011, 0.004, 10); g.rotateX(Math.PI / 2); g.translate(0, -0.022, 0.002); return g; })(), S.iron],
     ring: [(() => { const g = new THREE.TorusGeometry(0.016, 0.0028, 6, 16); g.rotateX(-0.35); g.translate(0, -0.038, 0.007); return g; })(), S.iron],
   };
@@ -463,6 +472,9 @@ export function buildStrongroom(THREE, K, spec) {
       if (e.kind === "desk") {
         desk = buildDesk(THREE, K, { W: e.width });
         desk.group.position.set(e.r, 0, 0.04); fur.add(desk.group);
+        // the calendar of the evidences, a folio in vellum, lying to one side of the table
+        if (spec.onTable) { const cal = buildBook(THREE, K, bookSpec("folio", 1660, undefined, { binding: "vellum" }));
+          cal.rotation.set(0, 0.12, Math.PI / 2); cal.position.set(-e.width / 2 + 0.3, 0.76 + cal.scale.x / 2, 0.3); desk.group.add(cal); }
         fp = { r0: e.r - e.width / 2 - 0.03, r1: e.r + e.width / 2 + 0.03, depth: 0.64 };
       }
       if (fp) colliders.push({ F, ...fp });

@@ -307,3 +307,18 @@ The strongroom predates the review rule, so it had never had this pass. **Lesson
 - 82 meshes;
 - walkable 6.3 s, with no bake;
 - the brief-room checks (6) pass.
+
+**Round 2** (a fresh reviewer, 52 s): *mostly right; labels not yet.* The two-round cap was then reached, so its fixes were applied without a third round:
+- **Labels:** each place's drawers by kind of evidence (Feoffments, Leases, Rentals & Surveys), overflow numbered i, ii.
+- **Spelling:** places spelled as in 1660 (Asshover, Tibshelfe, Southnormanton).
+- **New:** Accompts; the vellum calendar of the evidences on the table.
+- **Moved:**
+  - Letters Patent, the Pardon, Uses & Entails and the Wills went into the chest;
+  - Crich went out (its lords were well known);
+  - three manors went out of county (Skegbye, Elaston, Swepston).
+- **Order:** the capital manor first, then the manors in the order they came to the family.
+- **Runs:** each runs down its own columns, never across a press; spares are blank at the column feet.
+- **Presses:** sized to the holdings plus 12% spare. One press of 15×8 now holds all of it, and the E and W walls are left bare.
+- **Not taken:** the secretary hand. There's no font for it, so the labels stay italic.
+
+Added time: about 25 min. The room's checks pass. Build 1.5 s; 73 meshes; 120 drawers.
