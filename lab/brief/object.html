@@ -34,6 +34,7 @@
 // round it, wheel to come closer, click what works. ?o=bookpress|library|owners|shelf|book|kinds|furniture (&k=kind).
 // window.__view(az, el, dist, ty) aims the camera.
 import * as THREE from "three";
+import * as TSL from "three/tsl";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { makeKit } from "../painted/procedural.js";
@@ -86,6 +87,27 @@ const OBJECTS = {
       if (x && x + sz.x > W) flush(); b.node.position.set(x + sz.x / 2, 0, -z); row.push(b.node); x += sz.x + 0.5; depth = Math.max(depth, sz.z); g.add(b.node); }
     if (names.length === 1) { row[0].position.set(0, 0, 0.02); g.userData.view = [0.5, 0.25, 4.2, 0.9]; return g; }
     flush(); g.position.z = z - 0.6 + 0.1; g.userData.view = names.length > 1 ? [0.3, 0.5, 13, 0.6] : [0.5, 0.25, 4.2, 0.9]; return g; },
+  // the test room (R54 step 4; consultation cc8f89b): one kind three ways, as a room will ask of it: back to a
+  // wall, in a corner, and in a narrow passage, each stood off the wall by what swings behind it; its lids and
+  // doors open and close by themselves; ?o=testroom&k=kind
+  testroom: () => { const g = new THREE.Group(), name = Q.get("k") || "chest/boarded", wallM = S.lime;
+    const wall = (w, h, x, z, ry) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallM); m.position.set(x, h / 2, z); m.rotation.y = ry; m.receiveShadow = true; g.add(m); };
+    const probe = make(name, "stage/testroom/probe"); const bb = new THREE.Box3().setFromObject(probe.node), sz = bb.getSize(new THREE.Vector3()); g.remove(probe.node); built.splice(built.indexOf(probe), 1);
+    // what swings behind it: the movers through their travel
+    let back = 0; const k = kindOf(name);
+    for (const a of Object.values(k.affordances || {})) { const mg = a.mover && probe.movers.get(a.mover); if (!mg || !["hinge", "lever"].includes(a.motion)) continue;
+      const ax = new THREE.Vector3(...(a.axis || [0, 1, 0])).normalize(), home = mg.quaternion.clone(), b3 = new THREE.Box3();
+      for (let i = 0; i <= 8; i++) { mg.quaternion.copy(home).multiply(new THREE.Quaternion().setFromAxisAngle(ax, (+a.angle || 0) * i / 8)); probe.node.updateMatrixWorld(true); b3.setFromObject(mg); back = Math.max(back, -b3.min.z); }
+      mg.quaternion.copy(home); }
+    const off = 0.02 + back, W = Math.max(1.4, sz.x + 0.6), gap = 0.9;
+    // the room: a long back wall, a side wall making the corner at the left, a passage on the right
+    const L = W * 2 + gap + sz.x + 1.2; wall(L, 2.6, L / 2 - W, 0, 0); wall(3, 2.6, -W, 1.5, Math.PI / 2);
+    const px = W + 0.6 + sz.x / 2; wall(2.6, 2.6, px + sz.x / 2 + gap + 0.01, 1.3, -Math.PI / 2);
+    const place = (x, label) => { const b = make(name, `stage/testroom/${label}`); b.node.position.set(x, 0, off); g.add(b.node); return b; };
+    const things = [place(-W + sz.x / 2 + 0.02, "corner"), place(0.3 + sz.x / 2, "wall"), place(px, "passage")];
+    g.userData.cycle = things; // on a phone held upright the camera visits each placement in turn, close enough to see it work
+    const xs = things.map(b => b.node.position.x); g.userData.stations = innerWidth < innerHeight ? xs : null;
+    g.userData.view = innerWidth < innerHeight ? [0.35, 0.38, 2.2 + sz.x * 0.8, Math.max(0.35, sz.y * 0.55)] : [0.25, 0.12, Math.max(3.2, L * 0.55), Math.max(0.5, sz.y * 0.7)]; g.userData.testroom = true; return g; },
   // every kind in the catalogue, small things on a bench, large ones standing, for approval in a batch
   kinds: () => { const g = new THREE.Group(), all = kinds().filter(k => k.size && !k.kind.startsWith("shelves/")); let x = -((all.length - 1) * 0.3) / 2;
     for (const k of all) { const b = make(k.kind, `stage/kinds/${k.kind}`); b.node.position.set(x, 0.75, 0.6); g.add(b.node); x += 0.3; }
@@ -125,7 +147,8 @@ const twins = nodeify(scene);
 
 let az = 0.35, el = 0.12, dist = 3.6, ty = 1.15;
 if (obj.userData.view) [az, el, dist, ty] = obj.userData.view;
-const aimCam = () => { camera.position.set(Math.sin(az) * Math.cos(el) * dist, ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); camera.lookAt(0, ty, 0.2); };
+let tx = 0;          // the point looked at slides along x (the test room visits each placement in turn)
+const aimCam = () => { camera.position.set(tx + Math.sin(az) * Math.cos(el) * dist, ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); camera.lookAt(tx, ty, 0.2); };
 window.__view = (a, e, d, y = ty) => { az = a; el = e; dist = d; ty = y; aimCam(); };
 const lineEl = document.getElementById("line"); let lineTimer = null;
 const say = (t) => { if (!t) return; lineEl.textContent = t; lineEl.hidden = false; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.hidden = true; }, 5000); };
@@ -333,9 +356,27 @@ if (Q.get("panel")) {
   let current = obj;
   window.__panelOf = (name) => { scene.remove(current); const b = build(THREE, K, look, name, `stage/furniture/${name}`); b.node.position.set(0, 0, 0.02); nodeify(b.node); scene.add(b.node); current = b.node;
     const w = makeWorks(THREE, {}); w.add(b); return panelOf(b.node, [b], w); };
+  // the diagnostic panel (R54 step 4): each recipe part its own flat colour under even light, faces wound
+  // inside out magenta, parts a check flags red; so a fault is a colour, not a shadow to puzzle over
+  window.__diagPanelOf = async (name) => { scene.remove(current);
+    const r = await window.__partsCheck([name]), flagged = new Set(r.findings.map(f => +(/^#(\d+)/.exec(f.part || "")?.[1] ?? -1)));
+    const { out: b, rec } = auditing(() => build(THREE, K, look, name, `stage/furniture/${name}`)); b.node.position.set(0, 0, 0.02);
+    b.node.traverse(o => { if (o.isMesh || o.isLine) o.visible = false; });
+    const mats = new Map(), matOf = (i) => { if (!mats.has(i)) { const c = flagged.has(i) ? new THREE.Color(0xd02020) : new THREE.Color().setHSL((i * 0.618) % 1, 0.55, 0.55);
+        const m = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide }), shade = TSL.normalWorld.dot(TSL.vec3(0.35, 0.8, 0.48).normalize()).mul(0.35).add(0.65);
+        m.colorNode = TSL.select(TSL.frontFacing, TSL.vec3(c.r, c.g, c.b).mul(shade), TSL.vec3(1, 0, 1)); mats.set(i, m); } return mats.get(i); };
+    for (const q of rec) { const g = q.g.clone(), parent = q.mover ? b.movers.get(q.mover) : b.node;
+      if (q.mover) { const h = parent.userData.home.position; g.translate(-h.x, -h.y, -h.z); }
+      parent.add(new THREE.Mesh(g, matOf(q.index))); }
+    scene.add(b.node); current = b.node;
+    const w = makeWorks(THREE, { ask: () => true }); w.add(b); const ms = panelOf(b.node, [b], w);
+    return { ms, flagged: [...flagged].filter(i => i >= 0), findings: r.findings.length }; };
 }
-let last = performance.now();
-function loop() { const now = performance.now(); works.tick(Math.min(0.05, (now - last) / 1000)); last = now; renderer.render(scene, camera); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } }
+let last = performance.now(), cycleAt = 0;
+function loop() { const now = performance.now(); works.tick(Math.min(0.05, (now - last) / 1000)); last = now;
+  if (obj.userData.cycle && now - cycleAt > 3000) { cycleAt = now; for (const b of obj.userData.cycle) for (const aff of Object.keys(b.kind.affordances || {})) { try { works.act({ b, aff }); } catch (_) {} } }
+  if (obj.userData.testroom && !drag) { az = 0.25 + Math.sin(now / 9000) * 0.45;
+    const st = obj.userData.stations; if (st) { const want = st[Math.floor(now / 7000) % st.length]; tx += (want - tx) * 0.04; } aimCam(); } renderer.render(scene, camera); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } }
 if (!Q.get("panel")) renderer.setAnimationLoop(loop);
 </script>
 </body>
