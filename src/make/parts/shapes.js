@@ -23,3 +23,10 @@ definePart("cone", shape((THREE, { r, h, segments = 8 }) => new THREE.ConeGeomet
 
 // a mover declared in data, for the shapes after it to ride: a lid on its hinge, a globe on its axis
 definePart("mover", { build(c, { name, pivot = [0, 0, 0] }) { c.mover(name, pivot); } });
+
+// a mover that turns steadily while an affordance stands moved (a spit while the jack runs): an
+// animation, so it costs nothing while the thing is out of sight
+definePart("spinner", { build(c, { mover, axis = [1, 0, 0], rate = 1.2, when }) {
+  const v = new c.THREE.Vector3(...axis).normalize(); let last = null;
+  c.animate((t, isMoved, level, movers) => { const g = movers.get(mover); if (!g) return; if (isMoved(when) && last != null) g.rotateOnAxis(v, (t - last) * rate); last = t; });
+} });

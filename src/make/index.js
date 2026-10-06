@@ -11,8 +11,9 @@ import { defineKind } from "./catalogue.js";
 import strongroom1660 from "./kinds/strongroom-1660.js";
 import household1660 from "./kinds/household-1660.js";
 import house1660 from "./kinds/house-1660.js";
+import furniture1660 from "./kinds/furniture-1660.js";
 
-for (const k of [...strongroom1660, ...household1660, ...house1660]) defineKind(k);
+for (const k of [...strongroom1660, ...household1660, ...house1660, ...furniture1660]) defineKind(k);
 
 export { build } from "./build.js";
 export { makeWorks } from "./works.js";

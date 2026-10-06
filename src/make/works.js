@@ -174,6 +174,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     const label = t.i != null && t.b.banks.get(a.mover)?.labelOf?.(t.i);
     let text = (moved(t.b, t.aff, t.i) && a.motion !== "lever" ? undoV : doV) + (label ? ` · ${label}` : "");
     if (unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i)) text += ` (${a.refused || "it won't move"})`;
+    else if (unmet(t.b, a.release) && moved(t.b, t.aff, t.i)) text += ` (${a.held || "it won't go back"})`;
     else if (!moved(t.b, t.aff, t.i)) for (const [need, want] of Object.entries(a.requires || {})) { const w = value(want, t.b.settings); if (!test(need, w, t.b) && canAuto(t.b, need, w)) text += ` (${t.b.kind.affordances[need].done || "unlocking it"})`; }
     return take ? `${text} · G: ${take}` : text;
   }
@@ -182,7 +183,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   function cue(t) {
     if (!t) return null;
     if (!t.aff) return { mode: unmet(t.b, t.b.kind.take?.requires) ? "locked" : "take", label: hint(t) };
-    const a = t.b.kind.affordances[t.aff], shut = unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i);
+    const a = t.b.kind.affordances[t.aff], m = moved(t.b, t.aff, t.i), shut = m ? !!unmet(t.b, a.release) : !!unmet(t.b, a.requires);
     return { mode: shut ? "locked" : "act", label: hint(t) };
   }
   // act on it: refused if a gate is shut, else the state turns over and the motion plays
@@ -191,6 +192,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (!t.aff) return take(t);
     const a = t.b.kind.affordances[t.aff], k = key(t.b.id, t.aff, t.i);
     if (unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i)) return { did: false, refused: a.refused || "It won't move." };
+    // its gate going back: a gate-leg won't fold while the leaf rests on it
+    if (unmet(t.b, a.release) && moved(t.b, t.aff, t.i)) return { did: false, refused: a.held || "It won't go back." };
     const autos = moved(t.b, t.aff, t.i) ? [] : doAutos(t.b, a.requires);
     if (a.motion === "lever") { anim.set(k, { ...t, to: 1, spring: true, at: anim.get(k)?.at ?? 0 }); for (const [name, v] of Object.entries(a.sets || {})) store[`$${name}`] = v; }
     else turn(t.b, t.aff, t.i, moved(t.b, t.aff, t.i) ? statesOf(a)[0] : statesOf(a)[1]);
@@ -219,7 +222,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     }
     for (const [b, name] of procs) drive(b, name);
     const now = clock();
-    for (const b of things.values()) if (b.animate) for (const f of b.animate) f(now, (aff) => moved(b, aff), (name) => level(b, name));
+    for (const b of things.values()) if (b.animate && b.node.visible !== false) for (const f of b.animate) f(now, (aff) => moved(b, aff), (name) => level(b, name), b.movers);
   }
   // put an affordance in a state from outside (a world that owns it, as the harness owns the table's
   // drawer), and play the motion there
@@ -231,7 +234,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     held: () => held().map(id => things.get(id)).filter(Boolean),
     settled: () => anim.size === 0,
     // anything moving, or animated and alive (a lit candle's flame): the picture needs a new frame
-    busy: () => anim.size > 0 || [...things.values()].some(b => b.animate?.length && Object.keys(b.kind.affordances || {}).some(a => moved(b, a))),
+    busy: () => anim.size > 0 || [...things.values()].some(b => b.animate?.length && b.node.visible !== false && Object.keys(b.kind.affordances || {}).some(a => moved(b, a))),
     finish: () => { for (const m of anim.values()) { m.at = m.to; if (m.spring) m.to = 0; } tick(0); tick(0); },
     moving: () => [...anim.values()].map(m => ({ thing: m.b.id, aff: m.aff, i: m.i, at: m.at, to: m.to })),
   };

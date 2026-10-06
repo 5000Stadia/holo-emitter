@@ -31,7 +31,7 @@
 }}</script>
 <script type="module">
 // An object on its own, against a limewashed wall on flags, for building and checking it: drag to turn
-// round it, wheel to come closer, click what works. ?o=bookpress|library|owners|shelf|book|kinds.
+// round it, wheel to come closer, click what works. ?o=bookpress|library|owners|shelf|book|kinds|furniture (&k=kind).
 // window.__view(az, el, dist, ty) aims the camera.
 import * as THREE from "three";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
@@ -39,6 +39,7 @@ import { nodeify } from "../../src/make/nodes.js";
 import { makeKit } from "../painted/procedural.js";
 import { strongroomMaterials } from "./strongroom.js";
 import { buildBook, bookSpec } from "../../src/make/parts/books.js";
+import furniture1660 from "../../src/make/kinds/furniture-1660.js";
 import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES, defineKind, definePart, onPartArrives, kindOf } from "../../src/make/index.js";
 
 const Q = new URLSearchParams(location.search), hintEl = document.getElementById("hint");
@@ -75,6 +76,14 @@ const OBJECTS = {
     const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(0.8, 0.04, 0.4), 0.1), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench);
     const bottle = make("bottle/drink-me", "story:alice/ch1/hall/table/bottle"); bottle.node.position.set(0, 0.75, 0.6); g.add(bottle.node);
     g.userData.view = [0.3, 0.25, 1.4, 0.85]; g.userData.arrives = true; return g; },
+  // the rooms' anchor furniture (R47), in rows by their own sizes; ?k=kind shows one
+  furniture: () => { const g = new THREE.Group(), names = Q.get("k") ? [Q.get("k")] : furniture1660.map(k => k.kind), box = new THREE.Box3(), sz = new THREE.Vector3();
+    let x = 0, z = 0, row = [], depth = 0; const W = 9;
+    const flush = () => { const off = -x / 2; for (const n of row) n.position.x += off; z += depth + 0.6; x = 0; row = []; depth = 0; };
+    for (const name of names) { const b = make(name, `stage/furniture/${name}`); box.setFromObject(b.node).getSize(sz);
+      if (x && x + sz.x > W) flush(); b.node.position.set(x + sz.x / 2, 0, -z); row.push(b.node); x += sz.x + 0.5; depth = Math.max(depth, sz.z); g.add(b.node); }
+    if (names.length === 1) { row[0].position.set(0, 0, 0.02); g.userData.view = [0.5, 0.25, 4.2, 0.9]; return g; }
+    flush(); g.position.z = z - 0.6 + 0.1; g.userData.view = names.length > 1 ? [0.3, 0.5, 13, 0.6] : [0.5, 0.25, 4.2, 0.9]; return g; },
   // every kind in the catalogue, small things on a bench, large ones standing, for approval in a batch
   kinds: () => { const g = new THREE.Group(), all = kinds().filter(k => k.size && !k.kind.startsWith("shelves/")); let x = -((all.length - 1) * 0.3) / 2;
     for (const k of all) { const b = make(k.kind, `stage/kinds/${k.kind}`); b.node.position.set(x, 0.75, 0.6); g.add(b.node); x += 0.3; }

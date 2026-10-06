@@ -26,6 +26,13 @@ export function lookC1660(THREE, K, S) {
       globe: m("globe", { color: 0xc8b48a, roughness: 0.55 }),
       shell: m("shell", { color: 0xe0c8b0, roughness: 0.4 }),
       paper: m("paper", { color: 0xe8dcc0, roughness: 0.6 }),
+      turkey: m("turkey_work", { color: 0x7a2a24, roughness: 0.95 }),            // Turkey-work upholstery
+      hangings: m("hangings", { color: 0x5a2430, roughness: 0.9 }),             // a bed's woollen curtains and valance
+      linen: m("linen", { color: 0xe6e0cf, roughness: 0.85 }),
+      japan: m("japan", { color: 0x141010, roughness: 0.25, metalness: 0.1 }),  // black lacquer
+      gilt: m("gilt", { color: 0xb8964a, roughness: 0.35, metalness: 0.75 }),
+      brick: m("brick", { color: 0x8a4a32, roughness: 0.9 }),
+      canvas: m("canvas", { color: 0x3a2e22, roughness: 0.8 }),
     },
   };
   return K.look1660;
