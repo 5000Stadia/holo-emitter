@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { EPS, onWall, compileRoom } from "./plan-compile.js";
 export { compileRoom };
-import { makeKit, buildWall, buildDesk, slab, rect, run, block, loft, metric, canvasTex, normalFrom, fbm, rng, smooth, hash, stoneTexture } from "../painted/procedural.js";
+import { makeKit, buildWall, buildDesk, slab, rect, run, block, loft, mirror, metric, canvasTex, normalFrom, fbm, rng, smooth, hash, stoneTexture } from "../painted/procedural.js";
 
 const LEVEL_GAP = 3.1;                     // storey 2.8 + a 0.3 floor between
 
@@ -59,7 +59,7 @@ export async function buildHouse(plan, onStep = () => {}, { startId = null, near
     for (const [y0, y1] of [[0.12, h * 0.42], [h * 0.48, h - 0.12]]) {
       const pan = loft(THREE, rect(0.1, w - 0.1, y0, y1), [[0, 0.0225], [0.012, 0.03], [0.03, 0.033]], true, true);
       parts.push(pan);
-      const back = pan.clone(); back.scale(1, 1, -1); parts.push(back);
+      const back = mirror(pan.clone(), 1, 1, -1); parts.push(back);
     }
     const knob = new THREE.SphereGeometry(0.025, 10, 8); knob.translate(w - 0.07, 1.0, 0.045); parts.push(knob);
     const flat = parts.map(g => { const q = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(q.attributes)) if (!["position", "normal", "uv"].includes(k)) q.deleteAttribute(k); if (!q.attributes.uv) q.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(q.attributes.position.count * 2), 2)); q.clearGroups(); return q; });

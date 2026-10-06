@@ -13,7 +13,15 @@ export function material(look, role) {
   return m;
 }
 
-export function build(THREE, K, look, kindName, address, over = {}, context = {}) {
+// at authoring, a build can keep each recipe entry's geometry apart (src/make/audit.js): auditing(f)
+// runs f with every c.add recorded as { index (the recipe entry), mover, g (a copy, in the thing's frame) }
+// (only the thing itself: what it holds, built inside it, is not)
+let AUDIT = null, PART = -1, DEPTH = 0;
+export function auditing(f) { const rec = []; AUDIT = rec; try { return { out: f(), rec }; } finally { AUDIT = null; } }
+
+export function build(...a) { const part = PART; DEPTH++; try { return buildThing(...a); } finally { DEPTH--; PART = part; } }
+
+function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) {
   const kind = kindOf(kindName);
   if (!kind) throw new Error(`no kind called ${kindName}`);
   const seed = seedOf(address), id = idOf(address), s = settle(kind, seed, over);
@@ -33,6 +41,7 @@ export function build(THREE, K, look, kindName, address, over = {}, context = {}
       if (mat.vertexColors && !g.attributes.color) K.board(g, spread);
       if (mover) { if (!movers.has(mover)) throw new Error(`${kindName}: no mover ${mover} declared before its geometry`); into(movers.get(mover).parts, g, mat); }
       else into(body, g, mat);
+      if (AUDIT && DEPTH === 1) AUDIT.push({ index: PART, mover, g: g.clone() });
       K.parts++;
     },
     // a mover turns or slides about its pivot, in the thing's frame
@@ -61,7 +70,8 @@ export function build(THREE, K, look, kindName, address, over = {}, context = {}
     node.userData.make = { id, kind: kind.kind, address, placeholder: missing };
     return { id, address, kind, settings: s, node, movers: new Map(), banks: new Map(), footprint: { w, h, d }, animate: [], slots: new Map(), children: [], info: { placeholder: missing }, placeholder: missing };
   }
-  for (const p of kind.parts) {
+  for (const [i, p] of kind.parts.entries()) {
+    PART = i;
     // a part reads the thing's settings, overridden by its own entry ("$name" a setting, "=expr" arithmetic)
     const params = { ...s, ...value(Object.fromEntries(Object.entries(p).filter(([k]) => k !== "part")), s) };
     partOf(p.part).build(c, params);

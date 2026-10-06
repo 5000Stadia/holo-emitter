@@ -3,7 +3,7 @@
 // Every part works in its thing's frame: back at z = 0 against a wall, front toward +z, x = 0 at
 // the middle, the floor at y = 0 (a door or shutter: the wall's face at z = 0, into the wall -z).
 import { definePart } from "../catalogue.js";
-import { metric, metricAny, loft, rect } from "../../../lab/painted/procedural.js";
+import { metric, metricAny, loft, rect, mirror } from "../../../lab/painted/procedural.js";
 
 // a box with its arrises rolled by a few millimetres, as hands and years leave joinery
 export function rolledBox(THREE, w, h, d, x, y, z) {
@@ -135,7 +135,7 @@ definePart("panelled_leaf", {
     // the panels, raised a little on both faces
     for (const [y0, y1] of [[0.2, h * 0.36 - 0.06], [h * 0.36 + 0.06, h - 0.17]]) for (const side of [1, -1]) {
       const p = loft(THREE, rect(st + 0.02, w - st - 0.02, y0, y1), [[0, 0], [0.006, 0.004], [0.022, 0.008], [0.03, 0.008]], true, true);
-      if (side < 0) { p.scale(1, 1, -1); p.translate(0, 0, 2 * set - thick); } else p.translate(0, 0, set - thick / 2 + 0.002);
+      if (side < 0) { mirror(p, 1, 1, -1); p.translate(0, 0, 2 * set - thick); } else p.translate(0, 0, set - thick / 2 + 0.002);
       c.add(p, "wood_face", { mover, spread: 0.08 });
     }
     box(w - 2 * st, h - 0.2, thick * 0.5, w / 2, h / 2, z, "wood");     // the panels' ground

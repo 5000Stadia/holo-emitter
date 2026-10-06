@@ -325,6 +325,19 @@ function offsetLine(pts, d, closed) {
 }
 // loft a profile [[offset, depth], ...] along a path: ring k is the path offset by profile[k][0]
 // at depth profile[k][1]. Flat-shaded, world-metre UVs on the wall plane.
+// a mirror image of a geometry: scaled by -1 on an odd number of axes, its triangles turned back round so
+// they still face outward (a scale alone leaves them wound inside out: culled from the front, drawn from
+// behind and unlit, black; the panelled door's back, 2026-10-06)
+function mirror(g, sx = 1, sy = 1, sz = 1) {
+  g.scale(sx, sy, sz);
+  if (sx * sy * sz < 0) {
+    if (g.index) { const a = g.index.array; for (let i = 0; i < a.length; i += 3) { const t = a[i + 1]; a[i + 1] = a[i + 2]; a[i + 2] = t; } g.index.needsUpdate = true; }
+    else for (const at of Object.values(g.attributes)) { const a = at.array, n = at.itemSize;
+      for (let i = 0; i < at.count; i += 3) for (let k = 0; k < n; k++) { const p = (i + 1) * n + k, q = (i + 2) * n + k, t = a[p]; a[p] = a[q]; a[q] = t; } at.needsUpdate = true; }
+  }
+  return g;
+}
+
 function loft(THREE, path, profile, closed, cap) {
   const rings = profile.map(([o, z]) => offsetLine(path, o, closed).map(p => [p[0], p[1], z]));
   const pos = [];
@@ -964,4 +977,4 @@ export function buildKey(THREE) {
 }
 
 // the kit's parts, for builders of more than one room (lab/house)
-export { STYLE, rect, loft, run, slab, quad, metric, metricAny, block, offsetLine, canvasTex, normalFrom, fbm, vnoise, hash, rng, smooth, stoneTexture, plasterTexture, brickTexture, flagTexture, leadedTexture, outsideTexture, grime };
+export { STYLE, rect, loft, mirror, run, slab, quad, metric, metricAny, block, offsetLine, canvasTex, normalFrom, fbm, vnoise, hash, rng, smooth, stoneTexture, plasterTexture, brickTexture, flagTexture, leadedTexture, outsideTexture, grime };

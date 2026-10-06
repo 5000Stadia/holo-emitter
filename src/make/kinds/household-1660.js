@@ -14,7 +14,7 @@ export default [
     size: [0.11, 0.02, 0.04], settings: {}, traits: [],
     parts: [
       { part: "torus", role: "iron", r: 0.016, tube: 0.004, radial: 6, tubular: 18, ops: [["rx", P / 2], ["t", -0.04, 0.004, 0]] },
-      { part: "cylinder", role: "iron", r: 0.004, h: 0.075, segments: 8, ops: [["rz", -P / 2], ["t", -0.024, 0.004, 0]] },
+      { part: "cylinder", role: "iron", r: 0.004, h: 0.061, segments: 8, ops: [["rz", -P / 2], ["t", -0.024, 0.004, 0]] },
       { part: "box", role: "iron", size: [0.014, 0.008, 0.02], at: [0.044, 0, 0.01] }] },
   { kind: "jug/earthen", v: 1, noun: "the jug", why: "a jug for ale or water: salt-glazed stoneware, red earthenware or yellow slipware",
     size: [0.16, 0.22, 0.14], settings: { body: { one_of: ["stoneware", "earthenware", "slipware"] } }, traits: ["heavy"],
@@ -67,17 +67,17 @@ export default [
       { part: "box", role: "metal", size: [0.15, 0.24, 0.14], at: [0, 0.04, 0] },
       { part: "cylinder", role: "porcelain", r: 0.06, h: 0.004, segments: 24, ops: [["rx", P / 2], ["t", 0, 0.17, 0.072]] },
       { part: "sphere", role: "metal", r: 0.06, w: 16, h: 8, theta_len: P / 2, at: [0, 0.3, 0] },
-      { part: "cone", role: "metal", r: 0.012, h: 0.05, at: [0, 0.37, 0] }] },
+      { part: "cone", role: "metal", r: 0.012, h: 0.05, at: [0, 0.383, 0] }] },
   { kind: "porcelain/jar", v: 1, noun: "the china jar", why: "a blue-and-white Chinese jar: a rich house's curiosity",
     size: [0.16, 0.18, 0.16], settings: {}, traits: ["fragile"],
     parts: [
       { part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.05, 0], [0.075, 0.06], [0.07, 0.13], [0.04, 0.16], [0.04, 0.17], [0, 0.17]] },
-      { part: "torus", role: "porcelain_blue", r: 0.072, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.09, 0]] }] },
+      { part: "torus", role: "porcelain_blue", r: 0.072, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.09, 0]], within: "a painted band, proud of the glaze by a hair" }] },
   { kind: "porcelain/bowl", v: 1, noun: "the china bowl", why: "a blue-and-white Chinese bowl: a rich house's curiosity",
     size: [0.16, 0.08, 0.16], settings: {}, traits: ["fragile"],
     parts: [
       { part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.035, 0], [0.065, 0.03], [0.08, 0.075], [0.076, 0.077], [0.06, 0.035], [0, 0.012]] },
-      { part: "torus", role: "porcelain_blue", r: 0.079, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.07, 0]] }] },
+      { part: "torus", role: "porcelain_blue", r: 0.079, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.07, 0]], within: "a painted band, proud of the glaze by a hair" }] },
   { kind: "shell/curiosity", v: 1, noun: "the shell", why: "a great shell from the Indies: a curiosity",
     size: [0.16, 0.08, 0.1], settings: {}, traits: [],
     parts: [{ part: "sphere", role: "shell", r: 0.06, w: 16, h: 10, scale: [1.3, 0.6, 0.8], at: [0, 0.035, 0] }] },
@@ -85,7 +85,7 @@ export default [
     size: [0.12, 0.04, 0.09], settings: {}, traits: [],
     parts: [
       { part: "box", role: "paper", size: [0.11, 0.035, 0.08] },
-      { part: "box", role: "tape", size: [0.012, 0.037, 0.082] }] },
+      { part: "box", role: "tape", size: [0.012, 0.037, 0.082], within: "the tape tied round the bundle" }] },
   // shelving and bookcases: the structure, then the habit that dresses it from whoever keeps it
   { kind: "shelves/wall-boards", v: 1, noun: "the shelves", fixed: true, why: "boards on iron brackets fixed to a wall: a poor house's shelves",
     settings: { W: 0.9, D: 0.24, ys: { is: [0.95, 1.25] } }, parts: [{ part: "shelf_boards" }, { part: "shelf_habit" }] },

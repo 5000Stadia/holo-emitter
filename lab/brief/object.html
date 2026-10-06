@@ -40,7 +40,9 @@ import { makeKit } from "../painted/procedural.js";
 import { strongroomMaterials } from "./strongroom.js";
 import { buildBook, bookSpec } from "../../src/make/parts/books.js";
 import furniture1660 from "../../src/make/kinds/furniture-1660.js";
-import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES, defineKind, definePart, onPartArrives, kindOf } from "../../src/make/index.js";
+import { auditing } from "../../src/make/build.js";
+import { seen, apart, viewsOf } from "../../src/make/audit.js";
+import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES, defineKind, definePart, onPartArrives, kindOf, missingParts } from "../../src/make/index.js";
 
 const Q = new URLSearchParams(location.search), hintEl = document.getElementById("hint");
 // every object is a thing built from its kind, in the context of the influences that reach it
@@ -192,6 +194,38 @@ window.__opensOnto = (names = furniture1660.map(k => k.kind).concat(kinds().map(
     }
   }
   return out;
+};
+// 3. __partsCheck([kinds]): checks 13 and 14 (src/make/audit.js): every part the recipe names shows from
+//    some side, at rest or moved, and none sits inside another. Each recipe entry's triangles kept apart
+//    as the thing is built, then arithmetic; no picture.
+window.__partsCheck = (names = [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))], { minSeen = 0.1 } = {}) => {
+  const out = [], times = [];
+  for (const name of names) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+    const t = performance.now();
+    let b, rec; try { ({ out: b, rec } = auditing(() => build(THREE, K, look, name, `check/${name}`))); } catch (e) { out.push({ kind: name, error: String(e) }); continue; }
+    // each recipe entry's triangles, in the thing's frame, at rest and with everything moved
+    const triOf = (g, m) => { const q = g.index ? g.toNonIndexed() : g, pos = q.attributes.position, v = new THREE.Vector3(), a = new Float32Array(pos.count * 3);
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i); if (m) v.applyMatrix4(m); a[i * 3] = v.x; a[i * 3 + 1] = v.y; a[i * 3 + 2] = v.z; } return a; };
+    const partsAt = (moved) => { const by = new Map();
+      for (const r of rec) { let m = null;
+        if (moved && r.mover) { const g = b.movers.get(r.mover); g.updateMatrix(); m = g.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(-g.userData.home.position.x, -g.userData.home.position.y, -g.userData.home.position.z)); }
+        const tr = triOf(r.g, m); (by.get(r.index) || by.set(r.index, []).get(r.index)).push(tr); }
+      return [...by].map(([i, arrs]) => { const n = arrs.reduce((s, x) => s + x.length, 0), tris = new Float32Array(n); let o = 0; for (const x of arrs) { tris.set(x, o); o += x.length; } return { key: i, tris }; }); };
+    const rest = partsAt(false);
+    // everything moved, locks and all: the checker holds every key, and what waits on another (a lid on its
+    // padlocks) is tried again once that has moved
+    const w = makeWorks(THREE, { ask: () => true }); w.add(b); let todo = Object.keys(k.affordances || {});
+    for (let round = 0; round < 3 && todo.length; round++) todo = todo.filter(aff => { try { return w.act({ b, aff })?.did === false; } catch (_) { return false; } });
+    w.finish?.(); for (let i = 0; i < 400; i++) w.tick(0.05);
+    const states = k.affordances ? [rest, partsAt(true)] : [rest];
+    const label = (i) => { const p = k.parts[i]; return `#${i} ${p.part}${p.role ? " " + p.role : ""}${p.name ? " " + p.name : ""}`; };
+    const vis = seen(states, viewsOf({ wall: (k.traits || []).includes("wall") }));
+    for (const [i, v] of vis) if (v.px && v.share < minSeen && k.parts[i].seen !== false) out.push({ kind: name, check: 13, part: label(i), what: `shows ${(v.share * 100).toFixed(0)}% at best` });
+    for (const x of apart(rest)) if (!k.parts[x.a].within) out.push({ kind: name, check: 14, part: label(x.a), what: `${(x.share * 100).toFixed(0)}% of it inside ${label(x.b)}` });
+    times.push(performance.now() - t);
+  }
+  const ms = times.reduce((s, x) => s + x, 0);
+  return { findings: out, kinds: times.length, ms: Math.round(ms), perKind: +(ms / Math.max(1, times.length)).toFixed(1) };
 };
 // 2. ?panel=1 (with o=furniture&k=…): the thing from the front, its right, back, left and above, at rest and
 //    with everything that moves moved: one build, ten draws on one page, a few seconds a kind.
