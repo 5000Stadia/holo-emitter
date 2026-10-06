@@ -59,6 +59,9 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     child(b) { children.push(b); node.add(b.node); },
     // a place where something can be put: a point in the thing's frame, riding a mover if it has one
     slot(name, at, mover = null) { slots.set(name, { at, mover }); },
+    // a box the part names for the parts after it to meet (a carcass's hollow: "inside"), as id.name
+    name(n, lo, hi) { c._named.push([n, { lo: [...lo], hi: [...hi] }]); },
+    _named: [],
   };
   // a part not written yet: the thing stands as holodeck grid at its true size, takeable if small
   const missing = missingParts(kind);
@@ -70,12 +73,27 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     node.userData.make = { id, kind: kind.kind, address, placeholder: missing };
     return { id, address, kind, settings: s, node, movers: new Map(), banks: new Map(), footprint: { w, h, d }, animate: [], slots: new Map(), children: [], info: { placeholder: missing }, placeholder: missing };
   }
+  // each entry's geometry is gathered, placed by the relation it states (if any), then added; its box is
+  // kept under its id for the entries after it (design/production/geometry-method.md §1)
+  const placed = new Map(), add = c.add;
   for (const [i, p] of kind.parts.entries()) {
     PART = i;
     // a part reads the thing's settings, overridden by its own entry ("$name" a setting, "=expr" arithmetic)
     const params = { ...s, ...value(Object.fromEntries(Object.entries(p).filter(([k]) => k !== "part")), s) };
-    partOf(p.part).build(c, params);
+    const got = []; c.add = (g, role, o) => got.push([g, role, o]); c._named = [];
+    try { partOf(p.part).build(c, params); } finally { c.add = add; }
+    if (got.length) {
+      const move = relate(THREE, params, got.map(x => x[0]), placed, `${kindName} #${i}`);
+      if (move) for (const [g] of got) g.applyMatrix4(move);
+      placed.set(`#${i}`, boxOf(got.map(x => x[0]))); if (params.id) placed.set(params.id, placed.get(`#${i}`));
+      // the boxes it named, moved as it was
+      for (const [n, b] of c._named) { const v = (q) => move ? new THREE.Vector3(...q).applyMatrix4(move).toArray() : q, a = v(b.lo), z = v(b.hi);
+        placed.set(`${params.id || "#" + i}.${n}`, { lo: [0, 1, 2].map(k => Math.min(a[k], z[k])), hi: [0, 1, 2].map(k => Math.max(a[k], z[k])) }); }
+    }
+    for (const [g, role, o] of got) add(g, role, o);
   }
+  // a mover's pivot may name an edge of a placed part: { at: id, x: "left"|"mid"|"right", y: …, z: … }
+  for (const mv of movers.values()) if (mv.pivot && !Array.isArray(mv.pivot)) mv.pivot = pivotOf(mv.pivot, placed, kindName);
   node.userData.make = { id, kind: kind.kind, address };
   for (const m of meshesOf(THREE, body, id, "body")) node.add(m);
   const moverNodes = new Map();
@@ -92,6 +110,44 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
   const slotsOut = new Map([...slots].map(([n, { at, mover }]) => [n, { node: mover ? moverNodes.get(mover) : node, at: mover ? at.map((v, i) => v - movers.get(mover).pivot[i]) : at }]));
   return { id, address, kind, settings: s, node, movers: moverNodes, banks, footprint, animate, slots: slotsOut, children, info: c.info };
 }
+
+// ---- relations (design/production/geometry-method.md §1): a part says how it meets one already placed, and
+// is moved there in closed form, never solved. Kabe, 2026-10-06: "preventative principles"; after
+// ShapeAssembly's attach and Infinigen's snap_against, one placing relation a part so order can't stretch it.
+//   on: id | "floor"               its underside on the top of id (or the floor, y = 0)
+//   hangs: id | "wall"             its back on the front of id (or the wall, z = 0)
+//   under: id                      its top against the underside of id
+//   in: id.inside                  standing on the floor of a hollow (the meat in a tub, the pan in a stool)
+//   meets: { to, face }            the general form: face "top" | "bottom" | "front" | "back" | "left" | "right"
+//   sink: m                        let into what it meets by so much (a tenon, a leg into its top); default 0
+//   spans: { from, to, axis }      stretched along axis to fill the gap between two placed parts (+ sink each end)
+//   fit: { to, axes: "xz" }        sized and placed to fill another's box on those axes (+ sink each side): a
+//                                  shelf from side to side of a carcass's inside ("carcass.inside")
+//   align: { x|y|z: f }            its centre at fraction f of the other's box on that axis (default: as written)
+const FACE = { top: [1, 1], bottom: [1, -1], front: [2, 1], back: [2, -1], right: [0, 1], left: [0, -1], floor: [1, 1] };
+function boxOf(geos) { const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+  for (const g of geos) { const a = g.attributes.position; for (let i = 0; i < a.count; i++) for (let k = 0; k < 3; k++) { const v = a.array[i * 3 + k]; if (v < lo[k]) lo[k] = v; if (v > hi[k]) hi[k] = v; } }
+  return { lo, hi }; }
+const GROUND = { floor: { lo: [-Infinity, -Infinity, -Infinity], hi: [Infinity, 0, Infinity] }, wall: { lo: [-Infinity, -Infinity, -Infinity], hi: [Infinity, Infinity, 0] } };
+function relate(THREE, p, geos, placed, where) {
+  const rel = p.on != null ? { to: p.on, face: "top" } : p.hangs != null ? { to: p.hangs, face: "front" } : p.under != null ? { to: p.under, face: "bottom" } : p.in != null ? { to: p.in, face: "floor" } : p.meets || null;
+  if (!rel && !p.spans && !p.fit) return null;
+  const get = (id) => { const b = placed.get(id) || GROUND[id]; if (!b) throw new Error(`${where}: no part ${id} placed before it`); return b; };
+  const B = boxOf(geos), m = new THREE.Matrix4(), sink = p.sink || 0, t = [0, 0, 0], sc = [1, 1, 1], piv = [0, 0, 0];
+  if (p.spans) { const ax = "xyz".indexOf(p.spans.axis), A = get(p.spans.from), Z = get(p.spans.to), [a, z] = A.hi[ax] <= Z.lo[ax] + 1e-9 ? [A, Z] : [Z, A];
+    const lo = a.hi[ax] - sink, hi = z.lo[ax] + sink; sc[ax] = (hi - lo) / (B.hi[ax] - B.lo[ax]); piv[ax] = B.lo[ax]; t[ax] = lo - B.lo[ax]; }
+  if (p.fit) { const F = get(p.fit.to); for (const k of p.fit.axes) { const ax = "xyz".indexOf(k), lo = F.lo[ax] - sink, hi = F.hi[ax] + sink;
+    sc[ax] = (hi - lo) / (B.hi[ax] - B.lo[ax]); piv[ax] = B.lo[ax]; t[ax] = lo - B.lo[ax]; } }
+  if (rel) { const [ax, dir] = FACE[rel.face], P = get(rel.to);
+    t[ax] = rel.face === "floor" ? P.lo[ax] - sink - B.lo[ax] : dir > 0 ? P.hi[ax] - sink - B.lo[ax] : P.lo[ax] + sink - B.hi[ax];
+    if (p.align) for (const [k, f] of Object.entries(p.align)) { const q = "xyz".indexOf(k); if (q === ax || !isFinite(P.lo[q])) continue; t[q] = P.lo[q] + f * (P.hi[q] - P.lo[q]) - (B.lo[q] + B.hi[q]) / 2; } }
+  else if (p.fit && p.align) { const F = get(p.fit.to); for (const [k, f] of Object.entries(p.align)) { const q = "xyz".indexOf(k); if (p.fit.axes.includes(k)) continue; t[q] = F.lo[q] + f * (F.hi[q] - F.lo[q]) - (B.lo[q] + B.hi[q]) / 2; } }
+  // scale about the part's own start on the spanned axis, then move
+  m.makeTranslation(-piv[0], -piv[1], -piv[2]).premultiply(new THREE.Matrix4().makeScale(...sc)).premultiply(new THREE.Matrix4().makeTranslation(piv[0] + t[0], piv[1] + t[1], piv[2] + t[2]));
+  return m;
+}
+function pivotOf(pv, placed, kindName) { const b = placed.get(pv.at); if (!b) throw new Error(`${kindName}: a pivot at ${pv.at}, which isn't placed`);
+  return [0, 1, 2].map(k => { const w = pv["xyz"[k]] ?? "mid"; return w === "mid" ? (b.lo[k] + b.hi[k]) / 2 : ["left", "bottom", "back"].includes(w) ? b.lo[k] : b.hi[k]; }); }
 
 // geometry gathered by material, merged into one mesh each
 function meshesOf(THREE, map, id, what) {

@@ -87,6 +87,9 @@ definePart("carcass", { build(c, { size: [w, h, d], at = [0, 0, 0], open = "top"
   add(t, h, d, -w / 2 + t / 2, h / 2, 0, role); add(t, h, d, w / 2 - t / 2, h / 2, 0, role);   // the ends
   add(w - 2 * t, h, t, 0, h / 2, -d / 2 + t / 2, role);                                       // the back
   if (open === "top") add(w - 2 * t, h, t, 0, h / 2, d / 2 - t / 2, role); else add(w, t, d, 0, h - t / 2, 0, role);   // the front, or the top
+  // its hollow, for parts after it to meet or fill (a shelf, the bedding, the brine)
+  const fz = open === "front" ? 0 : t;
+  c.name("inside", [x - w / 2 + t, y + t + 0.002, z - d / 2 + t], [x + w / 2 - t, y + (open === "top" ? h : h - t), z + d / 2 - fz]);
   // the inside faces, a shade apart, so the hollow reads as one
   const g = new THREE.BoxGeometry(w - 2 * t - 0.002, 0.002, d - 2 * t - 0.002); g.translate(x, y + t + 0.001, z + (open === "front" ? t / 2 : 0)); c.add(g, inside, { mover, spread: 0.05 });
 } });

@@ -20,6 +20,8 @@ definePart("press_carcass", {
   build(c, p) {
     const { THREE } = c, G = pressGrid(p), { W, Dp, Hh, x0, y0, yD, yP, cw, rh, ph } = G;
     const box = (w, h, d, x, y, z, role = "wood", spread = 0.12) => c.add(plainBox(THREE, w, h, d, x, y, z), role, { spread });
+    // what it holds must fit inside it, or it is refused, not built inside out (a negative board)
+    if (yP + 0.025 > Hh - 0.1) throw new Error(`press_carcass: ${p.rows} rows of drawers and ${p.pigeonholes} of pigeonholes stand ${(yP + 0.025).toFixed(2)} m, more than its ${Hh} m`);
     for (const x of [-W / 2 + SIDE / 2, W / 2 - SIDE / 2]) box(SIDE, Hh, Dp, x, Hh / 2, Dp / 2);
     box(W, Hh, 0.015, 0, Hh / 2, 0.008, "dark");
     box(W - 0.02, PLINTH, Dp - 0.04, 0, PLINTH / 2, (Dp - 0.04) / 2);
