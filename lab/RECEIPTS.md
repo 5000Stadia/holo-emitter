@@ -449,3 +449,30 @@ The room's tests pass, 10/10.
 | Build | about 40 min |
 | Checks | 15 min |
 | The single landing page and republish (asked for mid-step) | 15 min |
+
+## R48 steps 6 and 7: light by state; play never waits (2026-10-05)
+
+**Light by state** (`lab/painted/gi.js` `bakeGroups` and `setWeights`):
+- The bounce light is baked once per group: the sun, each window's sky, each candle's flame. Every other group stays dark during each bake.
+- The grid shown is their sum, weighted by state:
+  - each window by how far its shutters stand open;
+  - the sun by the windows' mean openness;
+  - each candle by whether it's lit.
+- A state change re-mixes the grid with no new bake.
+- I found and fixed one bug: re-setting the lights had switched the flat fills back on while the bake was in use.
+
+**Measured brightness in the strongroom** (out of 255): daylight 37; all shutters closed 0.4; closed with the candle lit 19.
+
+**Bake cost:** 81 s for 4 groups in SwiftShader, against 33 s for the single bake before. I estimate a few seconds on a GPU, but that is unmeasured; the phone bench (step 8) will measure it. Phones skip the bake.
+
+**Play never waits:**
+- A kind may name a part not written yet if it gives its size. It then builds as holodeck grid at that size, can be taken, and is rebuilt in place, at the same address, when the part is defined.
+- Demo: Alice's DRINK ME bottle (`?o=arrival`). It starts as grid; 3 s later its paper-tag part is defined and the bottle turns real.
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Light by state | about 35 min |
+| Play never waits | about 20 min |
+| Verify | 20 min |

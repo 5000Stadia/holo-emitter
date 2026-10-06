@@ -9,11 +9,16 @@ import { hashOf, streamOf } from "./id.js";
 const PARTS = new Map(), KINDS = new Map();
 
 // a part: build(ctx, params) adds geometry by material role, onto the body or a named mover
+const ARRIVALS = new Set();
 export function definePart(name, part) {
   if (PARTS.has(name)) throw new Error(`part ${name} defined twice`);
   PARTS.set(name, { name, ...part });
+  for (const f of ARRIVALS) f(name);
   return part;
 }
+// the parts a kind still waits for; and a way to hear when one arrives, so what stood as grid turns real
+export const missingParts = (kind) => kind.parts.map(p => p.part).filter(n => !PARTS.has(n));
+export const onPartArrives = (f) => { ARRIVALS.add(f); return () => ARRIVALS.delete(f); };
 export const partOf = (name) => PARTS.get(name) || null;
 
 // what moves a mover: slide along an axis, turn on a hinge, a lever that springs back, a switch,
@@ -29,7 +34,9 @@ export function defineKind(k) {
   if (!Number.isInteger(k.v)) bad("v, its version, is an integer");
   for (const key of Object.keys(k)) if (!KIND_KEYS.has(key)) bad(`unknown field ${key}`);
   if (!Array.isArray(k.parts) || !k.parts.length) bad("it is made of at least one part");
-  for (const p of k.parts) if (!PARTS.has(p.part)) bad(`no part called ${p.part}`);
+  // a part not written yet is allowed if the kind says its size: until the part arrives the thing
+  // stands as holodeck grid at that size (play never waits, plan §5); without a size it is an error
+  for (const p of k.parts) if (!PARTS.has(p.part) && !k.size) bad(`no part called ${p.part}, and no size to stand in at until it arrives`);
   for (const [name, a] of Object.entries(k.affordances || {})) {
     for (const key of Object.keys(a)) if (!AFF_KEYS.has(key)) bad(`affordance ${name}: unknown field ${key}`);
     if (!MOTIONS.includes(a.motion)) bad(`affordance ${name}: motion is one of ${MOTIONS.join(", ")}`);

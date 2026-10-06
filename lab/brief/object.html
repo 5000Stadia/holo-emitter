@@ -36,7 +36,7 @@ import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUnifo
 import { makeKit } from "../painted/procedural.js";
 import { strongroomMaterials } from "./strongroom.js";
 import { buildBook, bookSpec } from "../../src/make/parts/books.js";
-import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES } from "../../src/make/index.js";
+import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES, defineKind, definePart, onPartArrives, kindOf } from "../../src/make/index.js";
 
 const Q = new URLSearchParams(location.search), hintEl = document.getElementById("hint");
 // every object is a thing built from its kind, in the context of the influences that reach it
@@ -53,7 +53,7 @@ const OBJECTS = {
   // gates and rules (Kabe, 2026-10-05): door A is locked and its key lies on the bench; door B is
   // locked and has no key: "light 3 of these candles!" opens it; a burning candle can't be carried off
   puzzle: () => { const g = new THREE.Group();
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.05, 0.42), K.M.oakH); bench.position.set(0, 0.725, 0.75); bench.castShadow = bench.receiveShadow = true; g.add(bench);
+    const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(1.7, 0.05, 0.42), 0.1), K.M.oakH); bench.position.set(0, 0.725, 0.75); bench.castShadow = bench.receiveShadow = true; g.add(bench);
     for (let i = 0; i < 4; i++) { const b = make("candle/stub", `stage/puzzle/bench/candle:${i}`); b.node.position.set(-0.6 + i * 0.3, 0.75, 0.8); g.add(b.node); }
     const key = make("key/iron", "stage/puzzle/bench/key"); key.node.position.set(0.68, 0.75, 0.68); key.node.rotation.y = 0.4; g.add(key.node);
     const a = make("door/boarded-iron-bound", "stage/puzzle/door:a", { lock: "locked", key: "key/iron" }); a.node.position.set(-2.25, 0, 0.15); g.add(a.node);
@@ -62,10 +62,20 @@ const OBJECTS = {
       then: [{ set: { candles_lit: true } }, { do: { thing: "stage/puzzle/door:b", aff: "lock", to: "unlocked" } }, { do: { thing: "stage/puzzle/door:b", aff: "leaf", to: "open" } }],
       say: "Three flames stand up together. Somewhere a bolt draws back, and the right-hand door swings open." }];
     g.userData.view = [0, 0.15, 5.4, 1.15]; return g; },
+  // play never waits (plan §5): a kind whose part is not written yet stands as holodeck grid at its true
+  // size, takeable; when the part arrives (here, three seconds later, as if just authored) it turns real
+  arrival: () => { const g = new THREE.Group();
+    if (!kindOf("bottle/drink-me")) defineKind({ kind: "bottle/drink-me", v: 1, noun: "the little bottle", why: "Alice, ch. 1: a little bottle on the glass table, a paper label round its neck, 'DRINK ME' beautifully printed on it in large letters",
+      size: [0.08, 0.2, 0.08], settings: {}, parts: [
+        { part: "lathe", role: "glass", profile: [[0, 0], [0.036, 0.003], [0.04, 0.06], [0.034, 0.11], [0.012, 0.15], [0.01, 0.185], [0.013, 0.19], [0, 0.19]] },
+        { part: "paper_tag", text: "DRINK ME", at: [0, 0.15, 0] }] });
+    const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(0.8, 0.04, 0.4), 0.1), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench);
+    const bottle = make("bottle/drink-me", "story:alice/ch1/hall/table/bottle"); bottle.node.position.set(0, 0.75, 0.6); g.add(bottle.node);
+    g.userData.view = [0.3, 0.25, 1.4, 0.85]; g.userData.arrives = true; return g; },
   // every kind in the catalogue, small things on a bench, large ones standing, for approval in a batch
   kinds: () => { const g = new THREE.Group(), all = kinds().filter(k => k.size && !k.kind.startsWith("shelves/")); let x = -((all.length - 1) * 0.3) / 2;
     for (const k of all) { const b = make(k.kind, `stage/kinds/${k.kind}`); b.node.position.set(x, 0.75, 0.6); g.add(b.node); x += 0.3; }
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(all.length * 0.3 + 0.2, 0.04, 0.4), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench); return g; },
+    const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(all.length * 0.3 + 0.2, 0.04, 0.4), 0.1), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench); return g; },
 };
 const kind = Q.get("o") || "bookpress";
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -107,6 +117,17 @@ const lineEl = document.getElementById("line"); let lineTimer = null;
 const say = (t) => { if (!t) return; lineEl.textContent = t; lineEl.hidden = false; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.hidden = true; }, 5000); };
 const works = makeWorks(THREE, { say }); for (const b of built) works.add(b); window.__works = works;
 if (obj.userData.rules) works.rules(obj.userData.rules);
+// what stood as grid turns real when its part arrives: rebuilt at the same address, in the same place
+onPartArrives(() => { for (const b of [...built]) if (b.placeholder) { const nb = build(THREE, K, look, b.kind.kind, b.address, {}, {}); if (nb.placeholder) continue;
+  nb.node.position.copy(b.node.position); nb.node.rotation.copy(b.node.rotation); b.node.parent.add(nb.node); b.node.parent.remove(b.node); built.splice(built.indexOf(b), 1, nb); works.add(nb); say(`${nb.kind.noun[0].toUpperCase() + nb.kind.noun.slice(1)} arrives: its last part was written.`); } });
+if (obj.userData.arrives) setTimeout(() => definePart("paper_tag", { build(c, { text, at = [0, 0, 0] }) {
+  // a paper label tied round a neck: a small card with the words, and the string that holds it
+  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 128; const g2 = cv.getContext("2d");
+  g2.fillStyle = "#efe3c4"; g2.fillRect(0, 0, 256, 128); g2.fillStyle = "#2a1c10"; g2.textAlign = "center"; g2.textBaseline = "middle"; g2.font = "bold 46px Georgia, serif"; g2.fillText(text, 128, 66);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; const paper = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, side: THREE.DoubleSide }); paper.userData.cls = "paper";
+  const card = new THREE.PlaneGeometry(0.07, 0.035); card.rotateX(-0.12); card.translate(at[0], at[1] - 0.045, at[2] + 0.04); c.add(card, paper);
+  const loop = new THREE.TorusGeometry(0.0125, 0.0012, 4, 20); loop.rotateX(Math.PI / 2); loop.translate(at[0], at[1] + 0.025, at[2]); c.add(loop, "tape");
+} }), 3000);
 const use = (t) => { if (!t) return; const r = works.act(t); if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); };
 const takeIt = (t) => { if (!t) return; const r = works.take(t); say(r.refused ? r.refused : `You take ${r.took}.`); };
 let pointer = null;

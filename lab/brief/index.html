@@ -139,14 +139,21 @@ scene.add(sun, sun.target);
 const hemi = new THREE.HemisphereLight(0xd6d8d6, 0x4a4036, 0); scene.add(hemi);
 const fill = new THREE.RectAreaLight(0xf2e6d4, 0, W * 0.8, D * 0.8); fill.position.set(W / 2, 0.05, -D / 2); fill.lookAt(W / 2, 5, -D / 2); scene.add(fill);
 const LV = { sun: +(Q.get("sun") || 2.0), sky: +(Q.get("sky") || 12), fill: +(Q.get("fill") || 0.7), floorB: +(Q.get("floorB") || 0.7), gi: +(Q.get("gi") || 1.1) };
-const setLights = () => { sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky * (a.userData.open ?? 1); hemi.intensity = LV.fill; fill.intensity = LV.floorB; if (gi) gi.setScale(LV.gi); };
+// with the bake on, the bounce is the bake's; the flat fills are only for when there is no bake
+const setLights = () => { sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky * (a.userData.open ?? 1); hemi.intensity = gi ? 0 : LV.fill; fill.intensity = gi ? 0 : LV.floorB; if (gi) gi.setScale(LV.gi); };
 let gi = null;
 const useGI = Q.get("gi") !== "0" && (Q.get("gi") === "1" || !isTouch());
 if (useGI) {
   gi = makeGI({ min: [0.35, 0.3, -D + 0.35], max: [W - 0.35, 2.5, -0.35], n: [5, 3, 5] });
   scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
   sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky; hemi.intensity = 0; fill.intensity = 0;
-  T.giStats = await gi.bake(renderer, scene, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: LV.gi });
+  // the bounce light baked by group, so shutters and the candle relight the room without a new bake:
+  // the sun, each window's sky, each candle's flame
+  const groups = { sun: [sun] };
+  room.lights.forEach((l, i) => { groups[`window:${i}`] = [l]; });
+  for (const b of room.things) if (b.kind.kind.startsWith("candle/")) { const g = []; b.node.traverse(o => { if (o.userData.lightGroup === "flame") g.push(o); }); groups[`candle:${b.id}`] = g; }
+  window.__gi = gi;
+  T.giStats = await gi.bakeGroups(renderer, scene, groups, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: LV.gi });
   mark("baked");
 }
 setLights();
@@ -178,8 +185,18 @@ const works = makeWorks(THREE, {
   store: workState, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keepWorld(); },
   ask: (need, want) => need === "holding" && want === "key" ? heldByMe("key1") : false,
   say: (t) => say(t),
-  // the shutters let in the day: the window's light follows how far its leaves stand open
-  onMove: (b) => { const w = room.windows.find(w => w.shutters === b); if (w) { const open = ["left", "right"].reduce((n, a) => n + (works.stateOf(b, a) === "open" ? 0.5 : 0), 0); w.light.userData.open = open; setLights(); } },
+  // the shutters let in the day: the window's light, and its share of the bounce, follow how far its
+  // leaves stand open; the sun's bounce follows them all; a candle's bounce is there while it burns
+  onMove: (b, aff, i, t) => {
+    const w = room.windows.find(w => w.shutters === b);
+    if (w) { w.light.userData.open = ["left", "right"].reduce((n, a) => n + (works.stateOf(b, a) === "open" ? 0.5 : 0), 0); setLights(); }
+    if (gi) {
+      const ws = {}; room.lights.forEach((l, k) => { ws[`window:${k}`] = l.userData.open ?? 1; });
+      ws.sun = room.lights.length ? room.lights.reduce((n, l) => n + (l.userData.open ?? 1), 0) / room.lights.length : 1;
+      if (b.kind.kind.startsWith("candle/") && aff === "light") ws[`candle:${b.id}`] = t > 0.5 ? 1 : 0;
+      gi.setWeights(ws);
+    }
+  },
 });
 for (const b of room.things) works.add(b);
 let key = null;

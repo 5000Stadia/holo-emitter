@@ -23,8 +23,8 @@ R48 builds what `plan.md` describes. Each step is finished and checked before th
    - Relations come with their mechanics.
    - A room is sealed by its inputs the first time it's seen.
    - **The locality case:** a named book repacks its own shelf and changes nothing outside it.
-6. **Light by state.** Light groups summed by state, so a candle, rushlight or fire can be lit or cold without a new bake.
-7. **Play never waits.** A thing whose part is missing stands as holodeck grid at its true size. The four levels of commitment (exists, planned, built, committed) apply as you move between rooms.
+6. **Light by state.** *Done 2026-10-05:* `gi.bakeGroups` and `setWeights`. In the strongroom, closing the shutters takes the room from 37 to 0.4 brightness, and the candle brings it back to 19. No new bake is needed. Light groups summed by state, so a candle, rushlight or fire can be lit or cold without a new bake.
+7. **Play never waits.** *Done for things, 2026-10-05:* a kind whose part isn't written yet builds as holodeck grid at its size, and is rebuilt in place when the part arrives (`?o=arrival`). *The four levels as you move between rooms wait for R47's many rooms.* A thing whose part is missing stands as holodeck grid at its true size. The four levels of commitment (exists, planned, built, committed) apply as you move between rooms.
 8. **The bench.**
    - `?bench` prints two hashes per room: the layout hash and the raw-float hash.
    - It reports the world document's size after walking every room.

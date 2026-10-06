@@ -4,7 +4,7 @@
 // the things that work can move; a bank is many movers drawn as instances (a press's drawers).
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { idOf, seedOf, streamOf } from "./id.js";
-import { kindOf, partOf, settle, value } from "./catalogue.js";
+import { kindOf, partOf, settle, value, missingParts } from "./catalogue.js";
 
 // a look says what each material role is for one period and place: { roles: { wood: material, … } }
 export function material(look, role) {
@@ -51,6 +51,16 @@ export function build(THREE, K, look, kindName, address, over = {}, context = {}
     // a place where something can be put: a point in the thing's frame, riding a mover if it has one
     slot(name, at, mover = null) { slots.set(name, { at, mover }); },
   };
+  // a part not written yet: the thing stands as holodeck grid at its true size, takeable if small
+  const missing = missingParts(kind);
+  if (missing.length) {
+    const [w, h, d] = value(kind.size, s), g = new THREE.BoxGeometry(w, h, d); g.translate(0, h / 2, 0);
+    const m = new THREE.Mesh(g, holodeck(THREE)); m.userData = { instance: `${id}/placeholder`, material: "grid", owner: id };
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g), new THREE.LineBasicMaterial({ color: 0x8fe3c4 }));
+    node.add(m, edges);
+    node.userData.make = { id, kind: kind.kind, address, placeholder: missing };
+    return { id, address, kind, settings: s, node, movers: new Map(), banks: new Map(), footprint: { w, h, d }, animate: [], slots: new Map(), children: [], info: { placeholder: missing }, placeholder: missing };
+  }
   for (const p of kind.parts) {
     // a part reads the thing's settings, overridden by its own entry ("$name" a setting, "=expr" arithmetic)
     const params = { ...s, ...value(Object.fromEntries(Object.entries(p).filter(([k]) => k !== "part")), s) };
@@ -91,4 +101,16 @@ function meshesOf(THREE, map, id, what) {
     out.push(m);
   }
   return out;
+}
+
+// unestablished matter, in-fiction and literal: a faint ruled grid, glowing a little
+let GRID = null;
+function holodeck(THREE) {
+  if (GRID) return GRID;
+  const c = document.createElement("canvas"); c.width = c.height = 128;
+  const g = c.getContext("2d"); g.fillStyle = "#06100d"; g.fillRect(0, 0, 128, 128); g.strokeStyle = "#7fd6b6"; g.lineWidth = 2;
+  for (let i = 0; i <= 128; i += 32) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, 128); g.moveTo(0, i); g.lineTo(128, i); g.stroke(); }
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(2, 2);
+  GRID = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.75 }); GRID.userData.cls = "grid";
+  return GRID;
 }

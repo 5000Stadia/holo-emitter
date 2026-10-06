@@ -15,7 +15,7 @@ for (const k of [...strongroom1660, ...household1660]) defineKind(k);
 
 export { build } from "./build.js";
 export { makeWorks } from "./works.js";
-export { kindOf, kinds, settle } from "./catalogue.js";
+export { kindOf, kinds, settle, defineKind, definePart, onPartArrives, missingParts } from "./catalogue.js";
 export { idOf, seedOf, at, hashOf } from "./id.js";
 export { makeWorld, GENERATOR } from "./world.js";
 export { layoutOf } from "./layout.js";

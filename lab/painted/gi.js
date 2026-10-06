@@ -72,5 +72,29 @@ export function makeGI({ min, max, n = [4, 3, 4] }) {
     U.uGI.value = scale; rt.dispose();
     return { ms: Math.round(performance.now() - t0), probes: probes.length, bounces };
   }
-  return { install, bake, uniforms: U, probes, setScale: (s) => { U.uGI.value = s; } };
+  // Light by state (design/production/plan.md §3): light adds, so each group of lights (the sun, one
+  // window's sky, a candle) is baked on its own, every other group dark, and the grid shown is their
+  // sum, each weighted by its state: a shutter closed, a candle lit. No new bake when a state changes.
+  // groups: { name: [lights and glowing meshes] }; a group's weight starts at 1.
+  const groupData = new Map(), weights = {};
+  async function bakeGroups(renderer, scene, groups, opts = {}) {
+    const all = Object.values(groups).flat(), was = new Map(all.map(o => [o, o.visible]));
+    const out = {};
+    for (const [name, members] of Object.entries(groups)) {
+      for (const o of all) o.visible = members.includes(o);
+      out[name] = await bake(renderer, scene, { ...opts, onStep: (t) => (opts.onStep || (() => {}))(`${t} · ${name}`) });
+      groupData.set(name, data.slice()); if (!(name in weights)) weights[name] = 1;
+    }
+    for (const [o, v] of was) o.visible = v;
+    mix();
+    return out;
+  }
+  function mix() {
+    data.fill(0);
+    for (const [name, d] of groupData) { const w = weights[name] ?? 0; if (w) for (let i = 0; i < d.length; i++) data[i] += w * d[i]; }
+    for (let i = 3; i < data.length; i += 4) data[i] = 1;
+    tex.needsUpdate = true;
+  }
+  const setWeights = (ws) => { let changed = false; for (const [k, v] of Object.entries(ws)) if (weights[k] !== v) { weights[k] = v; changed = true; } if (changed && groupData.size) mix(); };
+  return { install, bake, bakeGroups, setWeights, weights, uniforms: U, probes, setScale: (s) => { U.uGI.value = s; } };
 }
