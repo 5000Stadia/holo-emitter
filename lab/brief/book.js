@@ -24,30 +24,45 @@ const ORDER = ["folio", "quarto", "small_quarto", "octavo", "small_octavo", "duo
 
 // titles a house of the 1650s might own, by subject; each as it would be lettered on a spine (two short
 // lines) and as it would be written out
-const T = (spine, full) => ({ spine, full });
+const T = (spine, full, fmt = "octavo", vols = 1) => ({ spine, full, fmt, vols });   // fmt: the format it was printed in; vols: how many volumes it runs to
 export const TITLES = {
-  law: [T(["COKES", "REPORTS"], "Coke's Reports"), T(["COKE ON", "LITTLETON"], "Coke upon Littleton"), T(["STATUTES", "AT LARGE"], "Statutes at Large"), T(["DALTON", "JUSTICE"], "Dalton's Countrey Justice"),
-    T(["PLACITA", "CORONAE"], "Placita Coronae"), T(["YEAR", "BOOKS"], "Year Books"), T(["FITZHERB", "ABRIDGM"], "Fitzherbert's Abridgment"), T(["LAMBARD", "EIRENAR"], "Lambarde's Eirenarcha"), T(["RASTELL", "ENTRIES"], "Rastell's Entries"), T(["BRACTON", ""], "Bracton")],
-  estate: [T(["COURT", "ROLLS"], "Court Rolls"), T(["RENTALS", ""], "Rentals"), T(["SURVEYS", "OF MANORS"], "Book of Surveys"), T(["TUSSER", "HUSBANDRY"], "Tusser's Five Hundred Points"),
-    T(["MARKHAM", "HUSBANDRY"], "Markham's Farewell to Husbandry"), T(["SURVEYORS", "DIALOGUE"], "The Surveyor's Dialogue"), T(["LEASES", ""], "Leases"), T(["ACCOMPTS", ""], "Accompts")],
-  divinity: [T(["HOLY", "BIBLE"], "The Holy Bible"), T(["COMMON", "PRAYER"], "The Book of Common Prayer"), T(["FOXE", "MARTYRS"], "Foxe's Acts and Monuments"), T(["HOOKER", "ECCL POL"], "Hooker's Ecclesiastical Polity"),
-    T(["TAYLOR", "HOLY LIVING"], "Taylor's Holy Living"), T(["ANDREWES", "SERMONS"], "Andrewes' Sermons"), T(["BAXTER", "SAINTS REST"], "Baxter's Saints' Rest"), T(["DONNE", "SERMONS"], "Donne's Sermons")],
-  history: [T(["HOLINSHED", "CHRONIC"], "Holinshed's Chronicles"), T(["CAMDEN", "BRITANNIA"], "Camden's Britannia"), T(["RALEGH", "HIST WORLD"], "Ralegh's History of the World"), T(["SPEED", "THEATRE"], "Speed's Theatre of Great Britaine"),
-    T(["STOW", "SURVEY"], "Stow's Survey of London"), T(["BACON", "HENRY VII"], "Bacon's Henry VII"), T(["HAKLUYT", "VOYAGES"], "Hakluyt's Voyages"), T(["PURCHAS", "PILGRIMES"], "Purchas his Pilgrimes")],
-  classics: [T(["PLUTARCH", "LIVES"], "Plutarch's Lives"), T(["VIRGIL", "OPERA"], "Virgil"), T(["OVID", "METAM"], "Ovid's Metamorphoses"), T(["LIVY", ""], "Livy"), T(["TACITUS", ""], "Tacitus"),
-    T(["TULLY", "OFFICES"], "Tully's Offices"), T(["SENECA", "MORALS"], "Seneca's Morals"), T(["HOMER", "CHAPMAN"], "Chapman's Homer")],
-  natural: [T(["GERARD", "HERBALL"], "Gerard's Herball"), T(["CULPEPER", "HERBAL"], "Culpeper's Herbal"), T(["BACON", "ADVANCEM"], "Bacon's Advancement of Learning"), T(["HARVEY", "DE MOTU"], "Harvey, De Motu Cordis"),
-    T(["NAPIER", "LOGARITH"], "Napier's Logarithms"), T(["WILKINS", "MAGICK"], "Wilkins' Mathematical Magick")],
-  popular: [T(["ALMANACK", "1659"], "An Almanack for 1659"), T(["ALMANACK", "1660"], "An Almanack for 1660"), T(["WHOLE DUTY", "OF MAN"], "The Whole Duty of Man"), T(["PSALTER", ""], "The Psalter"),
-    T(["PRIMER", ""], "A Primer"), T(["SEVEN", "CHAMPIONS"], "The Seven Champions"), T(["REYNARD", "THE FOX"], "Reynard the Fox"), T(["GESTA", "ROMANOR"], "Gesta Romanorum"), T(["BALLADS", ""], "Ballads")],
+  law: [T(["COKES", "REPORTS"], "Coke's Reports", "folio", 6), T(["COKE ON", "LITTLETON"], "Coke upon Littleton", "folio"), T(["STATUTES", "AT LARGE"], "Statutes at Large", "folio", 3), T(["DALTON", "JUSTICE"], "Dalton's Countrey Justice", "quarto"),
+    T(["PLACITA", "CORONAE"], "Placita Coronae", "octavo"), T(["YEAR", "BOOKS"], "Year Books", "folio", 5), T(["FITZHERB", "ABRIDGM"], "Fitzherbert's Abridgment", "folio"), T(["LAMBARD", "EIRENAR"], "Lambarde's Eirenarcha", "octavo"), T(["RASTELL", "ENTRIES"], "Rastell's Entries", "folio"), T(["BRACTON", ""], "Bracton", "folio")],
+  estate: [T(["COURT", "ROLLS"], "Court Rolls", "folio"), T(["RENTALS", ""], "Rentals", "quarto"), T(["SURVEYS", "OF MANORS"], "Book of Surveys", "folio"), T(["TUSSER", "HUSBANDRY"], "Tusser's Five Hundred Points", "quarto"),
+    T(["MARKHAM", "HUSBANDRY"], "Markham's Farewell to Husbandry", "quarto"), T(["SURVEYORS", "DIALOGUE"], "The Surveyor's Dialogue", "quarto"), T(["LEASES", ""], "Leases", "quarto"), T(["ACCOMPTS", ""], "Accompts", "folio")],
+  divinity: [T(["HOLY", "BIBLE"], "The Holy Bible", "quarto"), T(["COMMON", "PRAYER"], "The Book of Common Prayer", "octavo"), T(["FOXE", "MARTYRS"], "Foxe's Acts and Monuments", "folio", 3), T(["HOOKER", "ECCL POL"], "Hooker's Ecclesiastical Polity", "folio", 2),
+    T(["TAYLOR", "HOLY LIVING"], "Taylor's Holy Living", "duodecimo"), T(["ANDREWES", "SERMONS"], "Andrewes' Sermons", "folio"), T(["BAXTER", "SAINTS REST"], "Baxter's Saints' Rest", "quarto"), T(["DONNE", "SERMONS"], "Donne's Sermons", "folio")],
+  history: [T(["HOLINSHED", "CHRONIC"], "Holinshed's Chronicles", "folio", 3), T(["CAMDEN", "BRITANNIA"], "Camden's Britannia", "folio"), T(["RALEGH", "HIST WORLD"], "Ralegh's History of the World", "folio", 2), T(["SPEED", "THEATRE"], "Speed's Theatre of Great Britaine", "folio"),
+    T(["STOW", "SURVEY"], "Stow's Survey of London", "quarto"), T(["BACON", "HENRY VII"], "Bacon's Henry VII", "folio"), T(["HAKLUYT", "VOYAGES"], "Hakluyt's Voyages", "folio", 3), T(["PURCHAS", "PILGRIMES"], "Purchas his Pilgrimes", "folio", 5)],
+  classics: [T(["PLUTARCH", "LIVES"], "Plutarch's Lives", "folio", 2), T(["VIRGIL", "OPERA"], "Virgil", "octavo"), T(["OVID", "METAM"], "Ovid's Metamorphoses", "octavo"), T(["LIVY", ""], "Livy", "folio", 2), T(["TACITUS", ""], "Tacitus", "duodecimo", 3),
+    T(["TULLY", "OFFICES"], "Tully's Offices", "duodecimo"), T(["SENECA", "MORALS"], "Seneca's Morals", "octavo"), T(["HOMER", "CHAPMAN"], "Chapman's Homer", "folio")],
+  natural: [T(["GERARD", "HERBALL"], "Gerard's Herball", "folio"), T(["CULPEPER", "HERBAL"], "Culpeper's Herbal", "octavo"), T(["BACON", "ADVANCEM"], "Bacon's Advancement of Learning", "quarto"), T(["HARVEY", "DE MOTU"], "Harvey, De Motu Cordis", "quarto"),
+    T(["NAPIER", "LOGARITH"], "Napier's Logarithms", "quarto"), T(["WILKINS", "MAGICK"], "Wilkins' Mathematical Magick", "octavo")],
+  popular: [T(["ALMANACK", "1659"], "An Almanack for 1659", "duodecimo"), T(["ALMANACK", "1660"], "An Almanack for 1660", "duodecimo"), T(["WHOLE DUTY", "OF MAN"], "The Whole Duty of Man", "octavo"), T(["PSALTER", ""], "The Psalter", "duodecimo"),
+    T(["PRIMER", ""], "A Primer", "duodecimo"), T(["SEVEN", "CHAMPIONS"], "The Seven Champions", "quarto"), T(["REYNARD", "THE FOX"], "Reynard the Fox", "quarto"), T(["GESTA", "ROMANOR"], "Gesta Romanorum", "duodecimo"), T(["BALLADS", ""], "Ballads", "duodecimo")],
 };
+// beyond the named works above, each subject grows more from its authors and the works they wrote in
+// (Latin for the classics), so a full library can letter most of its spines without repeating one
+const GROW = {
+  law: [["PLOWDEN", "DYER", "CROKE", "HOBART", "MOORE", "HUTTON", "POPHAM", "BROOKE", "LEONARD", "SAVILE"], [["REPORTS", "folio"], ["ENTRIES", "folio"], ["READINGS", "quarto"], ["CASES", "octavo"], ["TABLES", "duodecimo"]]],
+  divinity: [["HALL", "SANDERSON", "USHER", "PERKINS", "SIBBES", "PRESTON", "HAMMOND", "CHILLINGWORTH", "HERBERT", "FULLER"], [["SERMONS", "folio"], ["WORKS", "folio"], ["ANNOTATIONS", "quarto"], ["MEDITATIONS", "octavo"], ["DEVOTIONS", "duodecimo"]]],
+  history: [["DANIEL", "HEYLYN", "BAKER", "KNOLLES", "HAYWARD", "WEEVER", "SELDEN", "HOWELL", "CAREW", "VERSTEGAN"], [["HISTORY", "folio"], ["CHRONICLE", "folio"], ["ANNALS", "quarto"], ["RELATIONS", "octavo"], ["EPITOME", "duodecimo"]]],
+  classics: [["HORATII", "JUVENALIS", "LUCANI", "TERENTII", "SALLUSTII", "CAESARIS", "MARTIALIS", "LUCRETII", "PLINII", "SUETONII"], [["OPERA", "folio"], ["COMMENT", "quarto"], ["OPERA", "octavo"], ["EPISTOLAE", "duodecimo"], ["SELECTA", "duodecimo"]]],
+  natural: [["DIGBY", "BROWNE", "GILBERT", "BOYLE", "WILKINS", "KEPLER", "GALILEI", "GASSENDI", "CARTESII", "BACONI"], [["OF BODIES", "quarto"], ["EXPERIM", "octavo"], ["DIALOGUES", "quarto"], ["OPERA", "folio"], ["EPISTOLAE", "duodecimo"]]],
+  estate: [["NORDEN", "BLITH", "HARTLIB", "FITZHERB", "LEIGH", "STANDISH"], [["SURVEYING", "quarto"], ["HUSBANDRY", "quarto"], ["IMPROVER", "quarto"], ["PLANTING", "octavo"]]],
+  popular: [["DELONEY", "GREENE", "BRETON", "TAYLOR", "JOHNSON", "PARKER"], [["JESTS", "quarto"], ["HISTORIES", "quarto"], ["MERRY TALES", "duodecimo"], ["GARLAND", "duodecimo"]]],
+};
+for (const [tp, [authors, works]] of Object.entries(GROW)) authors.forEach((a, i) => works.forEach(([w, fmt], j) => {
+  const name = a[0] + a.slice(1).toLowerCase();
+  TITLES[tp].push(T([a, w], `${name}, ${w[0] + w.slice(1).toLowerCase()}`, fmt));
+}));
 const TOPICS = Object.keys(TITLES), FLAT = TOPICS.flatMap(t => TITLES[t].map((x, i) => ({ topic: t, i, ...x })));
-const titleIndex = (topic, i) => FLAT.findIndex(t => t.topic === topic && t.i === i);
+export const titleIndex = (topic, i) => FLAT.findIndex(t => t.topic === topic && t.i === i);
 export const titleOf = (spec) => spec.title >= 0 ? FLAT[spec.title].full + (spec.vol ? `, vol. ${spec.vol}` : "") : null;
 
 // means: how a household of that standing keeps its books
 export const MEANS = {
-  great: { fullness: [0.9, 1.0], ordered: true, bind: { gilt: 0.72, plain: 0.12, vellum: 0.12, paper: 0.04 }, sets: 0.35, flat: 0.0, tone: [0.95, 1.12], topics: { law: 2, history: 2, classics: 2, divinity: 1.5, natural: 1, estate: 1 } },
+  great: { fullness: [0.9, 1.0], ordered: true, bind: { gilt: 0.22, plain: 0.58, vellum: 0.2, paper: 0 }, sets: 0.35, flat: 0.0, tone: [0.95, 1.12], topics: { law: 2, history: 2, classics: 2, divinity: 1.5, natural: 1, estate: 1 } },
   gentry: { fullness: [0.78, 0.95], ordered: true, bind: { gilt: 0.45, plain: 0.33, vellum: 0.16, paper: 0.06 }, sets: 0.2, flat: 0.05, tone: [0.9, 1.06], topics: { law: 1.5, estate: 1.5, divinity: 1.5, history: 1, classics: 1, natural: 0.5 } },
   middling: { fullness: [0.5, 0.8], ordered: false, bind: { gilt: 0.08, plain: 0.55, vellum: 0.2, paper: 0.17 }, sets: 0.05, flat: 0.25, tone: [0.8, 1.0], topics: { divinity: 2, estate: 1.5, popular: 1.5, law: 0.5, history: 0.5 } },
   poor: { fullness: [0.12, 0.42], ordered: false, bind: { gilt: 0, plain: 0.35, vellum: 0.15, paper: 0.5 }, sets: 0, flat: 0.55, tone: [0.58, 0.82], topics: { popular: 3, divinity: 2 } },
@@ -111,8 +126,8 @@ function spineAtlas(THREE, seed) {
 // vellum: written in ink down the spine.
 const VOLS = 6;
 function titleAtlas(THREE) {
-  const hw = 128, hh = 64, hcols = 16, vw = 48, vh = 256, vcols = 40;
-  const nH = FLAT.length * VOLS + FLAT.length, nV = FLAT.length;
+  const hw = 112, hh = 56, hcols = 18, vw = 40, vh = 200, vcols = 50;
+  const nH = FLAT.reduce((a, t) => a + (t.vols > 1 ? t.vols + 1 : 1), 0) + FLAT.length, nV = FLAT.length;
   const hRows = Math.ceil(nH / hcols), vRows = Math.ceil(nV / vcols);
   const W = Math.max(hcols * hw, vcols * vw), Hh = hRows * hh, Hv = vRows * vh;
   const c = document.createElement("canvas"); c.width = W; c.height = Hh + Hv;
@@ -122,12 +137,12 @@ function titleAtlas(THREE) {
   let k = 0;
   FLAT.forEach((t, ti) => {
     cells.gilt[ti] = [];
-    for (let v = 0; v < VOLS; v++, k++) {
+    for (let v = 0; v < (t.vols > 1 ? t.vols + 1 : 1); v++, k++) {
       const x = (k % hcols) * hw, y = Math.floor(k / hcols) * hh;
       g.fillStyle = "rgba(214,174,86,0.95)"; g.textAlign = "center"; g.textBaseline = "middle";
       const lines = t.spine.filter(Boolean);
-      g.font = `bold ${lines.some(l => l.length > 9) ? 15 : 17}px Georgia, "Times New Roman", serif`;
-      lines.forEach((l, i) => g.fillText(l, x + hw / 2, y + hh / 2 + (i - (lines.length - 1) / 2) * 18 - (v ? 6 : 0)));
+      g.font = `bold ${lines.some(l => l.length > 9) ? 13 : 15}px Georgia, "Times New Roman", serif`;
+      lines.forEach((l, i) => g.fillText(l, x + hw / 2, y + hh / 2 + (i - (lines.length - 1) / 2) * 16 - (v ? 6 : 0)));
       if (v) { g.font = "bold 12px Georgia, serif"; g.fillText(roman[v], x + hw / 2, y + hh - 9); }
       cells.gilt[ti][v] = rect(x, y, hw, hh);
     }
@@ -144,7 +159,7 @@ function titleAtlas(THREE) {
   FLAT.forEach((t, ti) => {
     const x = (ti % vcols) * vw, y = Hh + Math.floor(ti / vcols) * vh;
     g.save(); g.translate(x + vw / 2, y + vh / 2); g.rotate(-Math.PI / 2);
-    g.fillStyle = "rgba(60,38,20,0.85)"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = "italic 20px Georgia, serif";
+    g.fillStyle = "rgba(60,38,20,0.85)"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = "italic 17px Georgia, serif";
     g.fillText(t.full.length > 22 ? t.spine.filter(Boolean).map(l => l[0] + l.slice(1).toLowerCase()).join(" ") : t.full, 0, 0); g.restore();
     cells.vellum[ti] = rect(x, y, vw, vh);
   });
@@ -159,12 +174,23 @@ export function bookSpec(size, seed, ctx = bookContext(), over = {}) {
   let h = c.h[0] + r() * (c.h[1] - c.h[0]), w = c.w[0] + r() * (c.w[1] - c.w[0]);
   if (binding === "paper") w = 0.006 + r() * 0.012;                 // a pamphlet in wrappers: thin
   const [b0, b1] = BIND[binding], cell = over.cell ?? (b0 + Math.floor(r() * (b1 - b0)));
-  const topic = pick(r, ctx.topics), list = TITLES[topic];
+  // the book decides its shelf: a shelf asks for a format, and only works printed in it answer, from
+  // the owner's subjects first (the topic drawn, then the others); a library holds each work once
+  const near = { folio: ["folio"], quarto: ["quarto", "folio"], small_quarto: ["quarto"], octavo: ["octavo"], small_octavo: ["octavo", "duodecimo"], duodecimo: ["duodecimo"] }[size];
+  const used = ctx.used || new Set(), wantSet = !!over.set;
+  const of = (tp) => TITLES[tp].map((t, i) => ({ ...t, i, tp })).filter(t => near.includes(t.fmt) && (!wantSet || t.vols > 1) && !used.has(titleIndex(tp, t.i)));
+  let topic = pick(r, ctx.topics), list = of(topic);
+  if (!list.length) for (const tp of [...Object.keys(ctx.topics), ...Object.keys(ctx.more || {})]) if ((list = of(tp)).length) { topic = tp; break; }
   // a gilt book always shows its title; a plain one usually has a label; a pamphlet now and then
   const titled = binding === "gilt" || binding === "vellum" || (binding === "plain" ? r() < 0.7 : r() < 0.3);
-  const title = over.title ?? (titled ? titleIndex(topic, Math.floor(r() * list.length)) : -1);
+  const title = over.title ?? (titled && list.length ? titleIndex(topic, list[Math.floor(r() * list.length)].i) : -1);
+  if (title >= 0 && ctx.used) ctx.used.add(title);
+  // a gilt lettering-piece always names its book; with no work left to name, the book is plain calf,
+  // blind-tooled, its spine unlettered, as most were in 1660
+  let bind = binding, cellF = cell;
+  if (bind === "gilt" && title < 0) { bind = "plain"; cellF = BIND.plain[0] + (cell % (BIND.plain[1] - BIND.plain[0])); }
   const [t0, t1] = ctx.tone;
-  return { kind: "book", size, seed, binding, h, w, d: h * 0.72, cell, title, vol: over.vol || 0, tone: t0 + r() * (t1 - t0) };
+  return { kind: "book", size, seed, binding: bind, h, w, d: h * 0.72, cell: cellF, title, vol: over.vol || 0, tone: t0 + r() * (t1 - t0) };
 }
 
 // what a pocket or a bag can take: decided from size, never listed object by object
@@ -206,7 +232,7 @@ export function bookLook(THREE, K, seed = 1667) {
     m.customProgramCacheKey = () => "book" + (instanced ? "I" : "S");
     return m;
   };
-  const titleRect = (s) => s.title < 0 ? [0, 0, 0, 0] : s.binding === "gilt" ? TA.cells.gilt[s.title][s.vol || 0] : s.binding === "vellum" ? TA.cells.vellum[s.title] : TA.cells.ink[s.title];
+  const titleRect = (s) => s.title < 0 ? [0, 0, 0, 0] : s.binding === "gilt" ? (TA.cells.gilt[s.title][s.vol || 0] || TA.cells.gilt[s.title][0]) : s.binding === "vellum" ? TA.cells.vellum[s.title] : TA.cells.ink[s.title];
   return (K.books = { atlas: A, titles: TA, titleRect, unit: unitBook(THREE), instanced: material(true), material });
 }
 
@@ -261,12 +287,15 @@ export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear,
   let used = 0, i = 0;
   while (used < span * fullness && specs.length < count && i < 400) {
     if (r() < ctx.sets * 0.25) {         // a set: several volumes of one work, one binding, one size, numbered
-      const first = fits(bookSpec(size, hash(seed, i++, 7) * 1e9 | 0, ctx, { binding: "gilt" })), n = 3 + Math.floor(r() * 3);
+      const first = fits(bookSpec(size, hash(seed, i++, 7) * 1e9 | 0, ctx, { binding: r() < 0.5 ? "gilt" : "plain", set: true }));
+      if (first.title < 0 || FLAT[first.title].vols < 2) { if (first.title >= 0) { specs.push(first); used += first.w + 0.001; } continue; }
+      const n = FLAT[first.title].vols;
       for (let v = 1; v <= n && used + first.w + 0.001 < span * fullness && specs.length < count; v++) { const s = { ...first, seed: first.seed + v, vol: v, tone: first.tone * (0.97 + r() * 0.06) }; specs.push(s); used += s.w + 0.001; }
       continue;
     }
     const sz = ctx.ordered ? size : smaller[Math.floor(r() * Math.min(3, smaller.length))];
-    const s = fits(bookSpec(sz, hash(seed, i++, 7) * 1e9 | 0, ctx));
+    const prev = specs[specs.length - 1], alike = ctx.ordered && prev && r() < 0.85 ? { binding: prev.binding, cell: prev.cell } : {};
+    const s = fits(bookSpec(sz, hash(seed, i++, 7) * 1e9 | 0, ctx, alike));
     if (used + s.w > span - 0.01) break;
     specs.push(s); used += s.w + 0.001;
   }
@@ -275,10 +304,11 @@ export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear,
     runs.sort((a, b) => b[0].h - a[0].h); specs.length = 0; for (const run of runs) specs.push(...run);
   }
   // a heap laid flat: in a poor house part of the row is a heap; in a tucked run with nothing to hold its
-  // end, the last books are laid flat to hold it
+  // end, the last books are laid flat to hold it. Pamphlets in paper wrappers never stand: they lie flat.
   const flat = [];
+  for (let q = specs.length - 1; q >= 0; q--) if (specs[q].binding === "paper" && specs.length > 1) flat.push(...specs.splice(q, 1));
   const runEndsOpen = tuck && !holder && used < span - 0.05;
-  if ((r() < ctx.flat || runEndsOpen) && specs.length > 1) { const k = runEndsOpen ? 1 + Math.floor(r() * 2) : 2 + Math.floor(r() * 3); for (let q = 0; q < k && specs.length > 1; q++) flat.push(specs.pop()); }
+  if ((r() < ctx.flat || runEndsOpen) && specs.length > 1 && !flat.length) { const k = runEndsOpen ? 1 + Math.floor(r() * 2) : 2 + Math.floor(r() * 3); for (let q = 0; q < k && specs.length > 1; q++) flat.push(specs.pop()); }
   flat.sort((a, b) => b.h - a.h);
   const heapW = flat.length ? flat[0].h + 0.006 : 0, xu1 = tuck ? x1 : x1 - heapW;
   while (specs.length && specs.reduce((a, s) => a + s.w + 0.001, 0) + (tuck ? heapW : 0) > xu1 - x0) specs.pop();

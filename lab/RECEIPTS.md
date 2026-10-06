@@ -19,6 +19,7 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 | Date | Piece | Wall-clock | New pieces | New lines | Compile | Build | Walkable (no bake) |
 |---|---|---|---|---|---|---|---|
+| 2026-10-05 | A review pass on the shelf recipe (2 rounds, fresh reviewer) and its changes | 11 min + reviewer | 0 new kinds; recipe rules changed | ~150 | – | 0.20 s (three units) | – |
 | 2026-10-05 | Owners: the widow, the smith, Sir Fancy-Pants (habit rules + 13 trinket recipes) | 5 min | owner profiles, 13 trinkets | ~260 | – | 0.17 s (three shelves) | – |
 | 2026-10-05 | Live titles; shelves filled by the owner's means and the room's purpose | 4.5 min | title atlas, 4 bindings, contexts | ~170 | – | 0.16 s (wall) | – |
 | 2026-10-05 | The book as its own recipe; a 581-book library wall from it | 5 min | 1 recipe (book) + library wall | ~230 | – | 0.12 s (wall) | – |
@@ -28,7 +29,40 @@ build a place in the time it takes to walk to it. One receipt per piece, newest 
 
 ---
 
-## Owners and their shelves (2026-10-05)
+## A review pass on a recipe (2026-10-05)
+
+You proposed reviewing the recipe instead of building a test harness first: "is this a correct depiction under criteria X? If not, which step needs adding or changing?", then running the recipe again.
+
+**How it ran:**
+- The owners' shelves were written out as text: every shelf, its items left to right, the gaps.
+- A fresh reviewer (Sonnet 5.5, never shown the code) judged each owner against the recipe's steps S1–S6 and named the step to change.
+- At most two rounds.
+
+**Wall-clock: about 11 min of mine, from 17:20 to 17:31.** The reviewer took about 1, 2 and 0.6 min across three answers, using about 150k tokens in all. My first brief left out the shelf layouts, so its first answer judged the rules alone.
+
+**What it changed in the recipe** (each rule now serves every future shelf):
+
+| Step | Before | After |
+|---|---|---|
+| S3 (its most important) | The shelf's height chose the book's format | Every work carries its own format. A shelf takes only works of its size; folios sit at the bottom. A household Bible (quarto) lies flat at hand. |
+| S1 | Counts were too generous | Counts follow means. The widow owns 0–4 books, most often 1–2. A middling household owns about 2. |
+| S1 / S4 | A jug or tankard held a run of books | Only things that stay put hold a run. Things are drawn without replacement, so no duplicates. |
+| S1 | The smith kept horseshoes and nail pots on the house shelf | His tools stay in the smithy. |
+| S2 | One unit for everyone | The unit comes from means: two wall boards for the widow, a short open unit for the smith, a full press for the gentleman. |
+| S4 | Things placed anywhere | Heavy things go low, daily and breakable things at hand, nothing above 1.3 m in a working house. Things group beside the books. |
+| S5 | Display inside the case; a clock on a shelf | Curiosities stand on top of the case. No clock or candlestick on display. |
+| S6 | Great bindings were mostly gilt, mixed at random; sets of any title | Mostly plain calf in matched runs, gilt a minority, no loose pamphlets. Volumes only for works that ran to them. Each work once per unit. A gilt label always names its book. |
+| S6 | 59 named works | Each subject grows more from its authors and their works, Latin for the classics. Blank spines in the gentleman's press fell from about 90% to 23–28%. |
+
+**Final verdicts:**
+- **Widow:** right.
+- **Smith and gentleman:** "partly", with the round-two fixes applied but not re-reviewed, because of the two-round cap.
+
+**Not yet:** the curiosity kinds the reviewer asked for (skull, dial, telescope, bust, writing box) don't exist.
+
+**Where the cost sits:** this is authoring cost, paid once per recipe. Building the three units still takes 0.2 s and **no AI calls**.
+
+ (2026-10-05)
 
 You pointed out that a person, poor or not, keeps their books together, and that the empty part of a shelf holds other things. Asked: what does the poor widow have on her shelf, the blacksmith, Sir Fancy-Pants?
 
