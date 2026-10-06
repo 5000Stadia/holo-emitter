@@ -641,3 +641,22 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 - **Errors:** none on either backend.
 
 **Time:** about 1 h 20 min.
+
+## Cursor cues, render on change, candles that don't recompile (2026-10-06)
+
+- **Cursor cues** (Kabe: "not pop up text but simply change to a small icon for take and one for act"):
+  - `works.cue(t)` gives take, act or locked; `lab/ui/cues.js` draws a hand, a pointing finger or a padlock.
+  - Pointer-locked, the centre dot becomes the icon; with a free mouse, the cursor does.
+  - The words go only to a visually hidden live label.
+  - Checked: finger on the press drawers, padlock on the locked chest, the plain cursor on the vault.
+- **Render on change:**
+
+  | State | Frames drawn per second |
+  |---|---|
+  | Standing still | 0 |
+  | Walking | 59 |
+  | A lit candle | every frame while visible (its flame flickers) |
+
+- **A light group switches its lights by intensity, not presence.** Lighting a candle used to recompile every material, dropping to 22 fps; it now costs one 23 ms frame.
+
+**Time:** about 40 min.

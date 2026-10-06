@@ -45,6 +45,7 @@
   #line { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 10px 16px; z-index: 1; pointer-events: none; font-family: "Josefin Sans", sans-serif; font-size: 16px; line-height: 1.45; transition: opacity 0.6s; }
   #held { position: fixed; right: 18px; bottom: 18px; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; z-index: 1; pointer-events: none; }
   #held b { color: var(--brass); font-weight: 500; }
+  #cross.icon { width: 24px; height: 24px; margin: -12px 0 0 -12px; background: none; border-radius: 0; filter: drop-shadow(0 0 2px rgba(0,0,0,0.7)); }
   #cross[hidden], #hint[hidden], #line[hidden], #held[hidden] { display: none !important; }
   @media (max-width: 640px), (pointer: coarse) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } #brief { max-width: 40ch; font-size: 11px; max-height: 45vh; } #gate { top: 70px; } }
 </style>
@@ -88,6 +89,7 @@ import { makeKit, buildKey } from "../painted/procedural.js";
 import { makeProbeGI } from "../../src/make/light.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { makeRender } from "../../src/make/render.js";
+import { cues } from "../ui/cues.js";
 import { touchControls, isTouch, fullscreenButton } from "../touch.js";
 import { compileBrief } from "./brief.js";
 import { buildStrongroom } from "./strongroom.js";
@@ -234,6 +236,7 @@ function aimAt(ndc) {
   return works.find(hit);
 }
 const isTableDrawer = (t) => t && t.b === table && t.aff === "drawer";
+const showCue = cues(document.getElementById("cross"), renderer.domElement);
 const hintFor = (t) => !t ? "" : t.key ? "take the key" : works.hint(t);
 function act(ndc) {
   const t = aimAt(ndc);
@@ -337,10 +340,11 @@ function loop(now) {
   camera.position.set(px, EYE, -py);
   camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);
+  // the cursor's cue: a small hand to take, a finger to use, a padlock when shut; no words on screen
   { const locked = document.pointerLockElement === renderer.domElement;
     document.getElementById("cross").hidden = !locked;
-    const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");
-    hEl.hidden = !h; hEl.textContent = h; }
+    const t = aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc);
+    showCue(t ? (t.key ? { mode: "take", label: "take the key" } : works.cue(t)) : null, locked); }
   // drawn only when the view moved or something in the world is moving, burning or flickering
   const drew = ENG.frame(scene, camera, { changed: moved || works.busy() || !window.__ok, post });
   frames += drew ? 1 : 0; if (now - fpsAt > 500) { fps = Math.round(frames * 1000 / (now - fpsAt)); frames = 0; fpsAt = now;

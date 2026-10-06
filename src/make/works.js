@@ -177,6 +177,14 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     else if (!moved(t.b, t.aff, t.i)) for (const [need, want] of Object.entries(a.requires || {})) { const w = value(want, t.b.settings); if (!test(need, w, t.b) && canAuto(t.b, need, w)) text += ` (${t.b.kind.affordances[need].done || "unlocking it"})`; }
     return take ? `${text} · G: ${take}` : text;
   }
+  // what the cursor should say without words: take it, use it, or it's shut against you (the words
+  // stay as a label for screen readers)
+  function cue(t) {
+    if (!t) return null;
+    if (!t.aff) return { mode: unmet(t.b, t.b.kind.take?.requires) ? "locked" : "take", label: hint(t) };
+    const a = t.b.kind.affordances[t.aff], shut = unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i);
+    return { mode: shut ? "locked" : "act", label: hint(t) };
+  }
   // act on it: refused if a gate is shut, else the state turns over and the motion plays
   function act(t) {
     if (!t) return { did: false };
@@ -217,7 +225,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // drawer), and play the motion there
   function set(b, aff, i, state) { if (stateOf(b, aff, i) !== state) { turn(b, aff, i, state); settle(); } }
   return {
-    add, meshes, find, hint, act, take, set, tick, stateOf, level, things,
+    add, meshes, find, hint, cue, act, take, set, tick, stateOf, level, things,
     rules: (list) => { rules = list; settle(); },
     vars: () => Object.fromEntries(Object.entries(store).filter(([k]) => k[0] === "$").map(([k, v]) => [k.slice(1), v])),
     held: () => held().map(id => things.get(id)).filter(Boolean),
