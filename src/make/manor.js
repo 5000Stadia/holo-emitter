@@ -56,7 +56,7 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true }) {
   const t0 = performance.now(), { M } = K;
   const floors = [...plan.floors].sort((a, b) => a.level - b.level), gap = 0.35;
   const levelOf = (id) => { let y = 0; for (const f of floors) { if (f.id === id) return y; y += f.storey_height_m + gap; } return y; };
@@ -147,7 +147,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
       }
     }
     // the anchor furniture, by the furnishing habit (src/make/furnish.js): things that work, drawn with their room
-    const placed = furnish({ room, spec, plan, anchors: T.anchor || [], sizeOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
+    const placed = furnish({ room, spec, plan, anchors: furnished ? T.anchor || [] : [], sizeOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
     placed.forEach((p, i) => {
       const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, p.over || {}), n = b.node, d = sizeOf(p.kind, p.over || {})?.[2] || 0;
       if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }

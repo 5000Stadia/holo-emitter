@@ -660,3 +660,47 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 - **A light group switches its lights by intensity, not presence.** Lighting a candle used to recompile every material, dropping to 22 fps; it now costs one 23 ms frame.
 
 **Time:** about 40 min.
+
+## R47: anchor furniture, the furnishing habit, open hearths, tapestry (2026-10-06)
+
+- **22 furniture kinds as data** (`src/make/kinds/furniture-1660.js`), each from the inventories. Every obvious working part works:
+  - bed curtains fold back round the foot posts;
+  - cupboard, press, cabinet and oven doors open, and lids lift;
+  - the gateleg's gate swings out under its leaf. A new **release** gate stops it folding while the leaf rests on it, and raising the leaf swings the gate out first (auto);
+  - the draw-table's leaves run out and rise level with the top;
+  - the hogshead's tap turns;
+  - the spit goes round while the jack is wound. This uses a new `spinner` part, which only runs while the spit is in sight.
+- **The furnishing habit** (`src/make/furnish.js`):
+  - **Where things stand:** pieces go back to a wall, at the middle of the longest clear run. They keep clear of door swings, the hearth and its fender, stairs, and (if taller than the sill) window light.
+  - **Free tables** take half the room's length, with forms along their sides.
+  - **Hearth and walls:** the spit goes in the fire's mouth, and portraits hang between windows.
+  - **Tight rooms:** a piece gives up to 30% of its width to fit, and may then stand beside a window.
+  - **Doorways:** every placement is refused if any doorway in the room could no longer reach the others (a flood fill at a body's width).
+  - **Result:** all 23 furnished rooms get every anchor. The walker keeps a body's width from furniture.
+- **Open hearths:** the kitchen and bakehouse get a wide square mouth, rubble jambs and an oak bressummer.
+- **Tapestry rooms:** hung with verdure drawn in code, over every clear stretch of wall.
+
+**Measured (headless, WebGL 2):**
+
+| | Build | Things |
+|---|---|---|
+| Unfurnished | 4561 ms | 38 |
+| Furnished | 4759 ms | 121 |
+
+- **Cost of furnishing:** +198 ms for 83 pieces, about 2.4 ms each. Walkable time didn't change (11.1 s against 10.8 s).
+- **The furniture bench** (`object.html?o=furniture&k=…`): each kind builds in 2–42 ms.
+
+**Code:**
+- **New:**
+  - `furnish.js` (~130 lines);
+  - `furniture-1660.js` (~190 lines of data);
+  - hearth and tapestry code in `manor.js` and `procedural.js` (~60 lines).
+- **Reused:** the shape parts, `joined_table`, `boarded_box`, `buildWall`, and the reach rules.
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Kinds, with two render-and-fix rounds | about 1 h 10 min |
+| Habit | about 45 min |
+| Hearth and tapestry | about 30 min |

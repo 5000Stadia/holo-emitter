@@ -77,7 +77,7 @@ THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
 const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
 await step("raising the house, room by room, each by its purpose");
-const manor = buildManor({ plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+const manor = buildManor({ furnished: Q.get("nofurn") !== "1", plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
