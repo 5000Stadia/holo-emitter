@@ -24,6 +24,13 @@ person accepted round one's four points, with two conditions:
 
   A kind is pinned by content hash.
 - **Takeable** is worked out from a kind's size and whether it's fixed. It's never listed per object.
+- **Everything that obviously works, works (the person, 2026-10-05).** Their words: "It makes me want every obvious functional thing to do something. Toilet: 2 hinge lids, 1 flush handle, water is removed and slowly refills kind of thing."
+  - Measured first: a table whose drawer opens costs 0.4 ms more to build than one with a fixed front (4.3 against 3.95 ms), and 3.3 µs a frame while it moves. A fake one saves nothing worth having.
+  - So a door, lid, drawer, shutter, lamp, tap or handle works by default. A kind that has the part but doesn't work must say why (nailed shut, locked, broken), and that reason is itself a state the story can change.
+  - **Motion lives in the parts:** slide, hinge, lever (springs back), switch (a light group on or off, a flame lit or cold), turn, lift-off, take.
+  - **Processes are states that run over time:** a flush empties the bowl and it refills slowly; a candle burns down; a fire dies to embers. A process is data on the kind: a level or amount, the rate it moves at, and what starts and stops it. It runs while you watch and is worked out from elapsed time when you return, never simulated off-screen.
+  - Affordances can chain: the flush handle starts the process, and the cistern refilling is what lets it be used again.
+  - At authoring, the review asks "what would a person expect to work here?", and a missing one is a fault in the recipe. The kind's check drives every state and process through and back home (vetted by the person first).
 - **Looks** are per period and place: materials by role, proportions, palettes. They're made once per look, cached on the device, with GPU texture synthesis as the goal.
 - **The library** is shared and grows, and it holds data. Before a new kind is authored, it's matched against the existing families. The measure of the library is its gap rate.
 
