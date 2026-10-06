@@ -94,7 +94,9 @@ cp backdrops/baked.js "$S"/backdrops/
 cp -r backdrops/served "$S"/backdrops/served
 cp -r library "$S"/library
 # lab/: the inversion experiments (lab/room3d), static pages with no build step
-cp -r lab "$S"/lab
+# [2026-10-06] the render packets and zone comparisons (tools/render-packet.mjs, tools/zones.mjs) are
+# tool output no page reads: 300 MB that made the push fail mid-transfer; Godot's import cache likewise
+rsync -a --exclude 'painted/muniment_room/packet/' --exclude 'painted/muniment_room/zones/' --exclude 'fps/godot/.godot/' lab/ "$S"/lab/
 # [Kabe, 2026-08-30] "Only first rooms images load for me." EVERY PAINTING THE
 # MANIFEST NAMES MUST BE IN THE TREE BEING SHIPPED — the hospital publish copied
 # `served/` while the loop's bake was rebuilding it and shipped a manifest with
