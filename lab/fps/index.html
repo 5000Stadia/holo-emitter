@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPS Lab Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0e0c0a; --panel: #18150f; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a; --line: rgba(236,228,210,0.14); --brass: #c9a35c; --good: #8fd3b8; --bad: #e88a6a; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36,30,22,0.14); --brass: #8a6a2a; --good: #2f7d63; --bad: #b04a2a; } }
+  :root[data-theme="light"] { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36,30,22,0.14); --brass: #8a6a2a; --good: #2f7d63; --bad: #b04a2a; }
+  * { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 16px 56px; }
+  h1 { font: 600 36px/1.1 "Cormorant Garamond", Georgia, serif; margin: 0 0 6px; } h2 { font: 500 12px/1 inherit; text-transform: uppercase; letter-spacing: .14em; color: var(--brass); margin: 30px 0 10px; }
+  p, li { color: var(--dim); max-width: 78ch; } b { color: var(--ink); font-weight: 500; }
+  .wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; min-width: 820px; } th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  th { color: var(--faint); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; } td:first-child, th:first-child, td.l { text-align: left; }
+  td.best { color: var(--good); } .ms { color: var(--faint); font-size: 11px; } .warn { color: var(--bad); font-size: 11px; white-space: normal; max-width: 34ch; text-align: left; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The fps lab ledger</h1>
+  <p>The same scene, built from one spec and one layout (same objects, same polygons, same camera path), changing one thing at a time. Measured on this machine's GPU in headless Chrome. Each cell is frames per second; under it, the milliseconds that change adds to the base frame (negative means it saves time). <b>Green</b> marks the fastest engine for a fair case. Cases marked in red were not drawn the same in both engines, so their number is not a comparison.</p>
+  <div id="machine" class="ms"></div>
+  <div class="wrap"><table><thead><tr><th>case</th><th>three.js · WebGPU</th><th>three.js · WebGL 2</th><th>Godot 4.7 · web</th><th>what changed</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <h2>What it says so far</h2>
+  <ul id="findings">
+    <li><b>How we build beats which engine.</b> Drawing 1,000 spheres as one instanced batch instead of 1,000 meshes is about 10× faster in every engine. 10,000 separate meshes run at 11–24 fps; instanced, 230–340.</li>
+    <li><b>Godot has less overhead per object</b> (217 fps against 135–149 for 1,000 separate meshes), and <b>cheaper shadows</b> in its web renderer.</li>
+    <li><b>three.js is faster on raw geometry and instancing</b> (23M triangles at 66 fps against 44), and <b>Rapier's physics step is faster than Godot's</b> (3.1 ms against 4.7 ms for 500 boxes; 6.5 against 8.2 for 2,000).</li>
+    <li><b>Godot's web export uses its Compatibility renderer.</b> Here it drew no ambient occlusion, no visible point lights, and no clearcoat. Its high-quality Forward+ renderer does not run in a browser.</li>
+    <li><b>Download:</b> Godot's web engine is a 39.5 MB WebAssembly file before any content. three.js's WebGPU build is 0.8 MB (about 0.23 MB gzipped).</li>
+  </ul>
+</main>
+<script type="module">
+const [res, notes, spec] = await Promise.all(["results.json", "notes.json", "spec.json"].map(f => fetch(f).then(r => r.json())));
+const E = ["three-webgpu", "three-webgl2", "godot-web"], run = (e, c) => res.runs[`${e}|${c}`];
+document.getElementById("machine").textContent = `machine: ${res.machine} · ${res.spec.viewport.join("×")} · ${res.spec.seconds} s per case`;
+const rows = document.getElementById("rows");
+for (const c of spec.cases) {
+  const fair = notes.fair.includes(c.id), fps = E.map(e => run(e, c.id)?.fps ?? null), best = fair ? Math.max(...fps.filter(x => x != null)) : null;
+  const cells = E.map((e, i) => { const r = run(e, c.id), b = run(e, "base"); if (!r || r.failed) return `<td class="ms">${r?.failed ? "failed" : "—"}</td>`;
+    const d = c.id === "base" ? "" : `<div class="ms">${(1000 / r.fps - 1000 / b.fps >= 0 ? "+" : "")}${(1000 / r.fps - 1000 / b.fps).toFixed(2)} ms</div>`;
+    return `<td class="${fps[i] === best ? "best" : ""}">${r.fps}${d}${r.physics_ms != null ? `<div class="ms">step ${r.physics_ms} ms</div>` : ""}</td>`; }).join("");
+  rows.insertAdjacentHTML("beforeend", `<tr><td>${c.id}</td>${cells}<td class="l">${c.change}${notes.notes[c.id] && !fair ? `<div class="warn">${notes.notes[c.id]}</div>` : ""}</td></tr>`);
+}
+</script>
+</body>
+</html>

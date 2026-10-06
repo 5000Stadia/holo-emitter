@@ -552,3 +552,25 @@ Before the proportions were fixed and the crowns made finer, it ran at 187 / 143
 **Reading:** the engine has ample room for scale when the scene is batched. The picture is crude: what limits it is how the trees are written, not the renderer.
 
 **Time:** about 50 min.
+
+## The fps lab, first ledger (2026-10-05)
+
+**The setup:**
+- **One scene, defined once:** `lab/fps/spec.json`, with 18 cases each changing one thing, and `layout.json`, the positions from a seed.
+- **Built in:**
+  - three.js r186, on WebGPU and WebGL 2 (`lab/fps/three.html`);
+  - Godot 4.7.2 (`lab/fps/godot/`), exported for the web with the no-threads template from the command line.
+- **Run** by `tools/fps-lab.mjs` in headless Chrome on the RX 460, at 1280×720, 1×, for 6 s after a 2 s warm-up.
+- **Results** in `results.json`; the ledger is `lab/fps/index.html`.
+- **Fairness** was checked by looking at each engine's picture side by side (`notes.json`).
+
+**Findings:**
+- **Instancing:** 10× in every engine.
+- **Godot:** less overhead per object (1,000 meshes at 217 fps against 148 on WebGPU and 135 on WebGL 2) and cheaper shadows.
+- **three.js:** faster on raw triangles (23M at 66 fps against 44) and on instancing (10,000 at 332 against 231).
+- **Physics:** Rapier's step beats Godot's (3.1 against 4.7 ms for 500 boxes).
+- **Not comparable:** Godot's web renderer drew no AO, no visible point lights and no clearcoat, and its bloom is uncalibrated; those cases are marked.
+- **three.js AO** cost about 0.1 ms at 1×, 1280×720. The 4 fps strongroom earlier was AO at double density with 16 samples.
+- **Download:** Godot's web engine is 39.5 MB of WebAssembly; three.js's WebGPU build is 0.8 MB.
+
+**Time:** about 1 h 40 min, including the Godot download (1.4 GB, web templates kept) and the export.

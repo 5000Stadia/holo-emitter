@@ -1,0 +1,15 @@
+{
+ "_what": "What each run's number means, from looking at the pictures (2026-10-05). A case is 'fair' when both engines drew the same thing.",
+ "fair": ["base", "instanced", "objects-10k", "objects-10k-instanced", "tris-5.8M", "tris-23M", "shadows-2048", "shadows-4096", "material-basic", "material-lambert", "msaa", "physics-500", "physics-2000"],
+ "notes": {
+  "post-ao": "three.js draws screen-space AO (visible); Godot's web renderer (Compatibility) draws none: its number is the base scene's.",
+  "lights-32": "three.js shows the coloured pools of 32 point lights; Godot's web build shows none and its draw count is unchanged: not drawn.",
+  "lights-8": "As lights-32: Godot's web build shows no point-light pools.",
+  "post-bloom": "Godot's glow blows the picture to white: not yet calibrated to three's.",
+  "material-physical": "No clearcoat visible in Godot's web build.",
+  "physics-500": "Both step at 60 Hz; physics_ms is the time of one step: Rapier (WASM) in three.js, Godot's own physics in Godot.",
+  "physics-2000": "As physics-500.",
+  "base": "Brightness differs (light units are calibrated differently); the work is the same."
+ },
+ "sizes": { "three-webgpu": "three.webgpu.min.js 0.8 MB (about 0.23 MB gzipped)", "godot-web": "index.wasm 39.5 MB + index.js 0.28 MB + the pack" }
+}

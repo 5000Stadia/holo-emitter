@@ -1,0 +1,176 @@
+{
+ "_what": "The fps lab's test scene, defined once for every engine (Kabe, 2026-10-05: an identical demo scene in both engines, same number of polygons, logging fps with and without each element). Each case changes one thing from the base. layout.json holds the objects' positions, from the seed, so every engine places the same objects in the same places.",
+ "viewport": [
+  1280,
+  720
+ ],
+ "pixel_ratio": 1,
+ "seconds": 6,
+ "warmup_seconds": 2,
+ "camera": {
+  "orbit_radius": 42,
+  "height": 16,
+  "look_at": [
+   0,
+   3,
+   0
+  ],
+  "turn_per_second": 0.25
+ },
+ "base": {
+  "objects": 1000,
+  "mesh": "sphere",
+  "segments": [
+   16,
+   12
+  ],
+  "instanced": false,
+  "material": "standard",
+  "point_lights": 0,
+  "shadows": 0,
+  "post": [],
+  "physics": 0,
+  "msaa": false
+ },
+ "cases": [
+  {
+   "id": "base",
+   "change": "1,000 spheres of 360 triangles, each its own mesh; one sun; no shadows; no post"
+  },
+  {
+   "id": "instanced",
+   "change": "the same, drawn as one instanced mesh",
+   "set": {
+    "instanced": true
+   }
+  },
+  {
+   "id": "objects-10k",
+   "change": "10,000 separate meshes",
+   "set": {
+    "objects": 10000
+   }
+  },
+  {
+   "id": "objects-10k-instanced",
+   "change": "10,000 instanced",
+   "set": {
+    "objects": 10000,
+    "instanced": true
+   }
+  },
+  {
+   "id": "tris-5.8M",
+   "change": "1,000 instanced spheres of 5,760 triangles (64 x 45)",
+   "set": {
+    "segments": [
+     64,
+     45
+    ],
+    "instanced": true
+   }
+  },
+  {
+   "id": "tris-23M",
+   "change": "4,000 instanced spheres of 5,760 triangles",
+   "set": {
+    "objects": 4000,
+    "segments": [
+     64,
+     45
+    ],
+    "instanced": true
+   }
+  },
+  {
+   "id": "lights-8",
+   "change": "8 point lights",
+   "set": {
+    "point_lights": 8
+   }
+  },
+  {
+   "id": "lights-32",
+   "change": "32 point lights",
+   "set": {
+    "point_lights": 32
+   }
+  },
+  {
+   "id": "shadows-2048",
+   "change": "the sun casts shadows, 2048 map",
+   "set": {
+    "shadows": 2048
+   }
+  },
+  {
+   "id": "shadows-4096",
+   "change": "the sun casts shadows, 4096 map",
+   "set": {
+    "shadows": 4096
+   }
+  },
+  {
+   "id": "material-basic",
+   "change": "unlit material",
+   "set": {
+    "material": "basic"
+   }
+  },
+  {
+   "id": "material-lambert",
+   "change": "diffuse-only material",
+   "set": {
+    "material": "lambert"
+   }
+  },
+  {
+   "id": "material-physical",
+   "change": "physical material with clearcoat",
+   "set": {
+    "material": "physical"
+   }
+  },
+  {
+   "id": "msaa",
+   "change": "4x multisample anti-aliasing",
+   "set": {
+    "msaa": true
+   }
+  },
+  {
+   "id": "post-ao",
+   "change": "screen-space ambient occlusion",
+   "set": {
+    "post": [
+     "ao"
+    ]
+   }
+  },
+  {
+   "id": "post-bloom",
+   "change": "bloom (glow)",
+   "set": {
+    "post": [
+     "bloom"
+    ]
+   }
+  },
+  {
+   "id": "physics-500",
+   "change": "500 boxes falling and stacking under rigid-body physics",
+   "set": {
+    "physics": 500,
+    "instanced": true
+   }
+  },
+  {
+   "id": "physics-2000",
+   "change": "2,000 boxes falling and stacking",
+   "set": {
+    "physics": 2000,
+    "instanced": true
+   }
+  }
+ ]
+}
