@@ -49,6 +49,9 @@ import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { buildManor } from "../../src/make/manor.js";
+import { makeWalk } from "../../src/make/walk.js";
+import { soundness } from "../../src/make/sound.js";
+import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
 import { cues } from "../ui/cues.js";
 import { touchControls, isTouch, fullscreenButton, actionButton } from "../touch.js";
@@ -79,7 +82,7 @@ const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE
 await step("raising the house, room by room, each by its purpose");
 const manor = buildManor({ furnished: Q.get("nofurn") !== "1", plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
-const scene = new THREE.Scene(); window.__scene = scene; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
+const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
 ENG.mark("built");
 
@@ -115,25 +118,12 @@ const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 1
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 const EYE = 1.6, floors = [...plan.floors].sort((a, b) => a.level - b.level);
 const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
-const floorOf = (h) => { let f = floors[0].id; for (const q of floors) if (manor.levelOf(q.id) <= h + 1.2) f = q.id; return f; };
-const stairAt = (x, y, h) => plan.stairs.find(s => inRect(s.rect, x, y) && [manor.stairFrom(s), manor.stairTo(s)].includes(floorOf(h)));
-const stairHeight = (s, x, y) => { const R = s.rect, t = s.up === "N" ? (y - R.y0) / (R.y1 - R.y0) : s.up === "S" ? (R.y1 - y) / (R.y1 - R.y0) : s.up === "E" ? (x - R.x0) / (R.x1 - R.x0) : (R.x1 - x) / (R.x1 - R.x0);
-  const b = manor.levelOf(manor.stairFrom(s)); return b + Math.max(0, Math.min(1, t)) * (manor.levelOf(manor.stairTo(s)) - b); };
 const doorThing = new Map(manor.things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
 const isOpen = (b) => works.stateOf(b, "leaf") === "open";
-const strip = (R) => (R.x1 - R.x0) < (R.y1 - R.y0) ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + 0.08, y1: R.y1 - 0.08 } : { x0: R.x0 + 0.08, x1: R.x1 - 0.08, y0: R.y0 - 0.35, y1: R.y1 + 0.35 };
-const roomRect = (r) => r.rect;
-// the furniture stands in the way: a body's width from anything the furnishing habit put down
-const blocked = (f, x, y) => manor.blocks.some(b => b.floor === f && x > b.x0 - 0.18 && x < b.x1 + 0.18 && y > b.y0 - 0.18 && y < b.y1 + 0.18);
-function standable(x, y, h) {
-  const f = floorOf(h);
-  if (stairAt(x, y, h)) return true;
-  if (blocked(f, x, y)) return false;
-  // inside a room of this floor, a hand off its walls; or in a doorway of this floor whose door stands open
-  if (plan.rooms.some(r => r.type !== "open" && r.floor === f && inRect(roomRect(r), x, y, 0.22))) return true;
-  return plan.openings.some(o => o.floor === f && inRect(strip(o.rect), x, y) && (!doorThing.get(o.id) || isOpen(doorThing.get(o.id))));
-}
-const roomAt = (x, y, h) => plan.rooms.find(r => r.type !== "open" && r.floor === floorOf(h) && inRect(r.rect, x, y));
+// the walking rules (src/make/walk.js), shared with the checks that walk the house
+const walk = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: (id) => !doorThing.get(id) || isOpen(doorThing.get(id)) });
+const { floorOf, roomAt } = walk;
+const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 const start = plan.rooms.find(r => r.id === (Q.get("room") || "great_hall"));
 let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
@@ -171,8 +161,15 @@ function refreshView(force = false) {
 }
 // a test hook: walk in a straight line in 5 cm steps under the same rules, on floor; where you stopped
 window.__walk = (x0, y0, x1, y1, floor) => { let x = x0, y = y0, h = manor.levelOf(floor); const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.05);
-  for (let i = 1; i <= n; i++) { const nx = x0 + (x1 - x0) * i / n, ny = y0 + (y1 - y0) * i / n; if (!standable(nx, ny, h)) return { x: +x.toFixed(2), y: +y.toFixed(2), done: false }; x = nx; y = ny; const s = stairAt(x, y, h); if (s) h = stairHeight(s, x, y); }
+  for (let i = 1; i <= n; i++) { const nx = x0 + (x1 - x0) * i / n, ny = y0 + (y1 - y0) * i / n, g = walk.groundAt(nx, ny, h); if (g == null) return { x: +x.toFixed(2), y: +y.toFixed(2), done: false }; x = nx; y = ny; h = g; }
   return { x: +x.toFixed(2), y: +y.toFixed(2), done: true, floor: floorOf(h) }; };
+// walk a path of plan points from floor, carrying your height; where you stopped, at what height
+window.__walkPath = (pts, floor) => { let [x, y] = pts[0], h = manor.levelOf(floor);
+  for (let k = 1; k < pts.length; k++) { const [x1, y1] = pts[k], n = Math.ceil(Math.hypot(x1 - x, y1 - y) / 0.05), xa = x, ya = y;
+    for (let i = 1; i <= n; i++) { const nx = xa + (x1 - xa) * i / n, ny = ya + (y1 - ya) * i / n, g = walk.groundAt(nx, ny, h); if (g == null) return { at: k, x: +x.toFixed(2), y: +y.toFixed(2), h: +h.toFixed(2), done: false }; x = nx; y = ny; h = g; } }
+  return { done: true, x: +x.toFixed(2), y: +y.toFixed(2), h: +h.toFixed(2), floor: floorOf(h) }; };
+// is the house sound to walk into, furniture and all (src/make/sound.js)?
+window.__sound = () => soundness({ plan, compileRoom, blocks: manor.blocks, levelOf: manor.levelOf });
 window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
 
 let last = performance.now();
@@ -185,8 +182,8 @@ renderer.setAnimationLoop((now) => {
   if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
   const n = Math.hypot(dx, dy);
   if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * dt; dy = dy / n * a * sp * dt;
-    if (standable(px + dx, py, ph)) px += dx; if (standable(px, py + dy, ph)) py += dy; }
-  const s = stairAt(px, py, ph); if (s) ph = stairHeight(s, px, py); else ph = manor.levelOf(floorOf(ph));
+    let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; } }
+  { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
   const moved = camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + EYE || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);

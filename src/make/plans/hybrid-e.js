@@ -1,3 +1,4 @@
+import { placeStair } from "./stairs.js";
 // A plan type (design/house/r47-plan.md §2): the Sudbury-style hybrid E-plan of a c.1660 Midlands
 // gentry seat, as an envelope, a section and an access graph, filled from a program
 // (src/make/programs/). Code, because it is geometry shared by every room; the program is data.
@@ -91,31 +92,36 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   const servE = room("servants_chamber_east", "servants_chamber", g, ex0, ex1, yW0, yW1);
   // ---- doors: the access graph; a door sits on the wall the two rooms share
   let n = 0;
-  const door = (a, b, w = 1.1) => { const o = shared(a, b, P); if (!o) throw new Error(`plan: ${a.id} and ${b.id} share no wall`);
-    const c = o.at, rect = o.axis === "x" ? { x0: r3(o.line - o.t / 2), x1: r3(o.line + o.t / 2), y0: r3(c - w / 2), y1: r3(c + w / 2) } : { x0: r3(c - w / 2), x1: r3(c + w / 2), y0: r3(o.line - o.t / 2), y1: r3(o.line + o.t / 2) };
+  // a door in the middle of the wall two rooms share, or at its low or high end ("lo" | "hi": a stair
+  // hall's doors stand at the stair's foot, where you arrive and go on)
+  const door = (a, b, w = 1.1, end = null) => { const o = shared(a, b, P); if (!o) throw new Error(`plan: ${a.id} and ${b.id} share no wall`);
+    const c = end === "lo" ? o.s0 + w / 2 + 0.3 : end === "hi" ? o.s1 - w / 2 - 0.3 : o.at, rect = o.axis === "x" ? { x0: r3(o.line - o.t / 2), x1: r3(o.line + o.t / 2), y0: r3(c - w / 2), y1: r3(c + w / 2) } : { x0: r3(c - w / 2), x1: r3(c + w / 2), y0: r3(o.line - o.t / 2), y1: r3(o.line + o.t / 2) };
     plan.openings.push({ id: `d${++n}`, kind: "door", floor: a.floor, axis: o.axis === "x" ? "EW" : "NS", rect, joins: [a.id, b.id] }); };
   door(court, porch, 1.4); door(porch, passage, 1.4);
   door(passage, hall, 1.3); door(passage, buttery); door(passage, kpass); door(passage, pantry); door(kpass, kitchen); door(kitchen, larder);
-  door(larder, backStair); door(backStair, shall); door(shall, bake); door(court, bake, 1.2);
-  door(hall, stairHall, 1.6); door(stairHall, parlour, 1.3); door(parlour, little); door(little, study);
-  door(landing, greatCh, 1.3); door(greatCh, withdraw); door(withdraw, best); door(best, closetE, 0.9); door(closetE, muniment, 0.9);
+  door(larder, backStair); door(backStair, shall, 1.1, "hi"); door(shall, bake); door(court, bake, 1.2);
+  door(hall, stairHall, 1.6, "lo"); door(stairHall, parlour, 1.3, "lo"); door(parlour, little); door(little, study);
+  door(landing, greatCh, 1.3, "lo"); door(greatCh, withdraw); door(withdraw, best); door(best, closetE, 0.9); door(closetE, muniment, 0.9);
   door(passOver, bedW); door(bedW, closetW, 0.9); door(closetW, cooks, 0.9); door(cooks, overLarder);
   door(nursery, bedSW);
-  // ---- stairs: the great stair in its hall (ground → first → garret); the back stair in its well
-  const flight = (s, from, to, up, rect) => plan.stairs.push({ id: `${s}_${from}`, kind: "straight", treads: 18, from, to, up, rect, joins: [] });
-  { const r = stairHall.rect; flight("great_stair", "ground", "first", "N", { x0: r3(r.x0 + 0.4), x1: r3(r.x0 + 1.9), y0: r3(r.y0 + 0.4), y1: r3(r.y1 - 0.4) });
-    // the upper flight along the landing's north side, rising east, clear of the great chamber's door
-    flight("great_stair", "first", "garret", "E", { x0: r3(r.x0 + 2.2), x1: r3(r.x1 - 0.3), y0: r3(r.y1 - 1.7), y1: r3(r.y1 - 0.3) }); }
-  { const r = backStair.rect; flight("back_stair", "ground", "first", "E", { x0: r3(r.x0 + 0.3), x1: r3(r.x1 - 0.3), y0: r3(r.y0 + 0.2), y1: r3(r.y0 + 1.3) });
-    flight("back_stair", "first", "garret", "W", { x0: r3(r.x0 + 0.3), x1: r3(r.x1 - 0.3), y0: r3(r.y1 - 1.3), y1: r3(r.y1 - 0.2) }); }
-  // stairs carry you between the rooms that share their well on each floor
-  for (const s of plan.stairs) s.joins = plan.rooms.filter(q => (q.floor === s.from || q.floor === s.to) && overlaps(q.rect, s.rect) && q.type !== "open").map(q => q.id);
-  // the back stair's upper landings: a door into the first-floor nursery wing and the garret chambers
+  // the back stair's upper landings: a door into the first-floor nursery wing and the garret chambers;
+  // the great stair's top landing, to the gallery. Every door is hung before a stair is placed.
   const bsFirst = room("back_stair_first", "back_stair", f, backStair.rect.x0, backStair.rect.x1, backStair.rect.y0, backStair.rect.y1, { landing: true });
   const bsGarret = room("back_stair_garret", "back_stair", g, backStair.rect.x0, backStair.rect.x1, backStair.rect.y0, backStair.rect.y1, { landing: true });
-  door(bsFirst, nursery); door(bsFirst, overLarder); door(bsGarret, servW); door(bsGarret, gallery, 1.1);
+  door(bsFirst, nursery, 1.1, "hi"); door(bsFirst, overLarder); door(bsGarret, servW, 1.1, "hi"); door(bsGarret, gallery, 1.1);
   const galLanding = room("gallery_landing", "great_stair", g, stairHall.rect.x0, stairHall.rect.x1, yR0, yR1, { landing: true });
-  door(galLanding, gallery, 1.3); door(galLanding, servE);
+  door(galLanding, gallery, 1.3, "lo"); door(galLanding, servE, 1.1, "lo");
+  // ---- stairs (src/make/plans/stairs.js): a dog-leg to each storey with its half-landing, stacked on one
+  // footprint, set where every door on every floor it touches opens onto floor; the great stair broad and
+  // shallow round an open well, the back stair steep and narrow round a newel
+  plan.wells = [];
+  const rise = (a, b) => { const fa = plan.floors.find(q => q.id === a), i = plan.floors.indexOf(fa); return fa.storey_height_m + D.gap; };
+  for (const [name, well, kind, prefer] of [["great_stair", stairHall, "great", ["y:lo:hi", "y:lo:lo"]], ["back_stair", backStair, "back", ["x:lo:lo", "x:lo:hi"]]]) {
+    const got = placeStair(plan, name, well.rect, [["ground", "first", rise("ground")], ["first", "garret", rise("first")]], kind, prefer);
+    if (!got) throw new Error(`plan: no place in ${name} for its stair that keeps every door clear`);
+    plan.stairs.push(...got.stairs); plan.wells.push(...got.wells);
+  }
+  // stairs carry you between the rooms that share their well on each floor
   for (const s of plan.stairs) s.joins = plan.rooms.filter(q => (q.floor === s.from || q.floor === s.to) && overlaps(q.rect, s.rect) && q.type !== "open").map(q => q.id);
   // ---- hearths, before windows (the chimney decides, the windows keep clear of it): every room whose
   // type keeps a fire (hearths: room type -> "chimneypiece" | "kitchen"), on a wall with no door where the
@@ -123,7 +129,7 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   for (const r of plan.rooms.filter(q => q.type !== "open" && !q.landing && hearths[q.room_type] && hearths[q.room_type] !== "none")) {
     const { x0, x1, y0, y1 } = r.rect, big = hearths[r.room_type] === "kitchen" || r.room_type === "great_hall", w = big ? 3.0 : 2.0;
     const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
-    const blocked = (F, a, b) => plan.openings.filter(o => o.floor === r.floor).some(o => { const R = o.rect, pad = 0.35;
+    const blocked = (F, a, b) => plan.openings.filter(o => o.floor === r.floor).some(o => { const R = o.rect, pad = 0.8;   // a door swings clear of the breast
       if (F === "W") return Math.abs(R.x1 - x0) < 0.8 && R.y1 > a - pad && R.y0 < b + pad; if (F === "E") return Math.abs(R.x0 - x1) < 0.8 && R.y1 > a - pad && R.y0 < b + pad;
       if (F === "S") return Math.abs(R.y1 - y0) < 0.8 && R.x1 > a - pad && R.x0 < b + pad; return Math.abs(R.y0 - y1) < 0.8 && R.x1 > a - pad && R.x0 < b + pad; });
     const tries = [["W", { x0, x1: x0 + 0.5, y0: cy - w / 2, y1: cy + w / 2 }, cy - w / 2, cy + w / 2, y1 - y0], ["E", { x0: x1 - 0.5, x1, y0: cy - w / 2, y1: cy + w / 2 }, cy - w / 2, cy + w / 2, y1 - y0],
@@ -140,8 +146,9 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
     const len = w.b - w.a, k = Math.max(1, Math.floor(len / D.bay));
     for (let i = 0; i < k; i++) { const c = w.a + len * (i + 0.5) / k, half = Math.min(D.window, len / k - 0.6) / 2; if (half < 0.3) continue;
       const R = winRect(w, c, half);
-      if (plan.fireplaces.some(h => h.room === r.id && (w.F === "S" || w.F === "N" ? Math.abs((h.rect.y0 + h.rect.y1) / 2 - w.line) < 1.0 && h.rect.x0 < R.x1 + 0.4 && h.rect.x1 > R.x0 - 0.4
-        : Math.abs((h.rect.x0 + h.rect.x1) / 2 - w.line) < 1.0 && h.rect.y0 < R.y1 + 0.4 && h.rect.y1 > R.y0 - 0.4))) continue;     // the chimney stands here
+      if (plan.fireplaces.some(h => h.room === r.id && (w.F === "S" || w.F === "N" ? Math.abs((h.rect.y0 + h.rect.y1) / 2 - w.line) < 1.5 && h.rect.x0 < R.x1 + CHIMNEY_CLEAR && h.rect.x1 > R.x0 - CHIMNEY_CLEAR
+        : Math.abs((h.rect.x0 + h.rect.x1) / 2 - w.line) < 1.5 && h.rect.y0 < R.y1 + CHIMNEY_CLEAR && h.rect.y1 > R.y0 - CHIMNEY_CLEAR))) continue;     // the chimney stands here
+      if (plan.openings.some(o => o.floor === fl && o.rect && overlaps({ x0: o.rect.x0 - OPENING_CLEAR, x1: o.rect.x1 + OPENING_CLEAR, y0: o.rect.y0 - OPENING_CLEAR, y1: o.rect.y1 + OPENING_CLEAR }, R))) continue;   // a doorway is here
       plan.windows.push({ floor: fl, rect: { x0: r3(R.x0), x1: r3(R.x1), y0: r3(R.y0), y1: r3(R.y1) } }); }
   }
   plan.entrance = "forecourt";
@@ -151,6 +158,11 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
 
 // ---- helpers
 const r3 = (x) => Math.round(x * 1000) / 1000;
+// a window keeps this far from a chimney's footprint: the surround's overhang (0.19), the window's inner
+// splay (up to 0.35 on a thick wall) and a hand between, so the breast's side never stands across the glass
+const CHIMNEY_CLEAR = 0.75;
+// and this far from a doorway in the same wall (a porch's door is not a window's place)
+const OPENING_CLEAR = 0.3;
 const overlaps = (a, b) => a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
 const NAMES = { screens_passage: "SCREENS PASSAGE", great_hall: "GREAT HALL", great_stair: "GREAT STAIR", buttery: "BUTTERY", pantry: "PANTRY", kitchen: "KITCHEN", back_stair: "BACK STAIR",
   larder: "LARDER", servants_hall: "SERVANTS' HALL", great_parlour: "GREAT PARLOUR", little_parlour: "LITTLE PARLOUR", study: "STUDY", porch: "PORCH", great_chamber: "GREAT CHAMBER",
@@ -164,7 +176,7 @@ function shared(a, b, P) {
   const A = a.rect, B = b.rect, eps = 0.05, t = (g) => Math.max(P, g);
   for (const [axis, lo, hi, gap, s0, s1] of [["x", A.x1, B.x0, B.x0 - A.x1, Math.max(A.y0, B.y0), Math.min(A.y1, B.y1)], ["x", B.x1, A.x0, A.x0 - B.x1, Math.max(A.y0, B.y0), Math.min(A.y1, B.y1)],
     ["y", A.y1, B.y0, B.y0 - A.y1, Math.max(A.x0, B.x0), Math.min(A.x1, B.x1)], ["y", B.y1, A.y0, A.y0 - B.y1, Math.max(A.x0, B.x0), Math.min(A.x1, B.x1)]])
-    if (gap > -eps && gap < 1.0 && s1 - s0 > 1.2) return { axis, line: (lo + hi) / 2, t: t(gap), at: (s0 + s1) / 2 };
+    if (gap > -eps && gap < 1.0 && s1 - s0 > 1.2) return { axis, line: (lo + hi) / 2, t: t(gap), at: (s0 + s1) / 2, s0, s1 };
   return null;
 }
 // a room's walls on the outside of the house, each as its line and its span

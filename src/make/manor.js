@@ -120,11 +120,12 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         firebox: { r0: e.r0 + 0.32, r1: e.r1 - 0.32, spring: top, apex: top, depth: (e.breast || 0) > 0.35 ? e.breast - 0.01 : 0.6 }, hearth: { r0: e.r0 + 0.2, r1: e.r1 - 0.2, out: 0.6 } });
     }
     // the floor (with a hole where a stair comes up through it) and the ceiling (with one where it goes up)
-    const stairsHere = plan.stairs.filter(s => s.rect.x0 < x1 && s.rect.x1 > x0 && s.rect.y0 < y1 && s.rect.y1 > y0);
-    const holeOf = (s) => rect(Math.max(0, s.rect.x0 - x0), Math.min(W, s.rect.x1 - x0), Math.max(0, s.rect.y0 - y0), Math.min(D, s.rect.y1 - y0));
-    const up = stairsHere.filter(s => stairTo(s) === room.floor).map(holeOf);
+    // each storey's stair well is cut from the floor it reaches (src/make/plans/stairs.js)
+    const wellsHere = (plan.wells || []).filter(w => w.hole.x0 < x1 && w.hole.x1 > x0 && w.hole.y0 < y1 && w.hole.y1 > y0);
+    const holeOf = (w) => rect(Math.max(0, w.hole.x0 - x0), Math.min(W, w.hole.x1 - x0), Math.max(0, w.hole.y0 - y0), Math.min(D, w.hole.y1 - y0));
+    const up = wellsHere.filter(w => w.to === room.floor).map(holeOf);
     const topFloor = floors[Math.min(floors.length - 1, floors.findIndex(f => f.id === room.floor) + (room.rises || 1) - 1)].id;
-    const down = stairsHere.filter(s => stairFrom(s) === topFloor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
+    const down = wellsHere.filter(w => w.from === topFloor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
     const floorMat = T.floor === "flags" ? M.flags : T.floor === "gypsum" ? mats.gypsum : T.floor === "matting" ? mats.matting : M.floor;
     const fg = tileUV(slab(THREE, rect(0, W, 0, D), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
     grp.add(Object.assign(new THREE.Mesh(fg, floorMat), { receiveShadow: true }));
@@ -159,6 +160,12 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         const holder = new THREE.Group(); holder.position.set(...P[F].pos); holder.rotation.y = P[F].rot; movers.add(holder);
         const b = build(THREE, K, look, "door/panelled", `manor/${room.id}/${e.id}`, { w: r2(e.r1 - e.r0), h: r2(e.top), set: -Math.min(0.1, (e.T || 0.3) / 2) });
         b.node.position.set(e.r0, 0, 0); holder.add(b.node); b.node.userData.opening = e.id; things.push(b);
+        // the reveal through the wall, lined in oak: the door's own, so it is there whenever the door is seen
+        // (from the far room too, when the room that hangs it is not drawn)
+        { const w = e.r1 - e.r0, h = e.top, T = e.T || 0.3, t = 0.025, parts = [new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(w, t, T)];
+          parts[0].translate(t / 2 + 0.004, h / 2, -T / 2); parts[1].translate(w - t / 2 - 0.004, h / 2, -T / 2); parts[2].translate(w / 2, h - t / 2 - 0.004, -T / 2);
+          const g = mergeGeometries(parts.map(q => q.toNonIndexed()), false); if (M.oak.vertexColors) K.board(g, 0.15);
+          const lining = new THREE.Mesh(g, M.oak); lining.receiveShadow = true; b.node.add(lining); }
       }
     }
     // the anchor furniture, by the furnishing habit (src/make/furnish.js): things that work, drawn with their room
@@ -177,19 +184,61 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     scene.add(grp, movers);
     rooms.set(room.id, { room, grp, movers, H, Y, lights: [] });
   }
-  // the stairs: oak treads from floor to floor, and the stairwell's sides between ceiling and floor above
+  // the stairs: each flight its treads and risers on a sloping soffit, open beneath; each half-landing a
+  // slab on newel posts; a balustrade (rail, turned balusters, newels) wherever a flight or a landing or a
+  // floor's well has an open side
+  const stairParts = new Map();                                       // owner room -> [geometries]
+  const partOf = (s) => { const id = s.joins.find(j => plan.rooms.find(q => q.id === j)?.floor === stairFrom(s)) || s.joins[0]; if (!stairParts.has(id)) stairParts.set(id, []); return stairParts.get(id); };
+  const BAL = new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.03, 0.06], [0.018, 0.1], [0.028, 0.32], [0.016, 0.5], [0.022, 0.62], [0.016, 0.72], [0.03, 0.76], [0, 0.76]].map(([r, y]) => new THREE.Vector2(r, y)), 8);
+  const cube = (x0b, x1b, y0b, y1b, z0b, z1b) => { const g = new THREE.BoxGeometry(x1b - x0b, z1b - z0b, y1b - y0b); g.translate((x0b + x1b) / 2, (z0b + z1b) / 2, -(y0b + y1b) / 2); return g; };
+  // a rail from plan point a (at height ha) to b (at hb): balusters along it, a moulded rail on top, a newel at each end
+  const rail = (out, [ax, ay, ha], [bx, by, hb], newels = true) => {
+    const L = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.round(L / 0.26));
+    for (let i = 1; i < n; i++) { const t = i / n, g = BAL.clone(), y = ha + (hb - ha) * t; g.scale(1, (0.86) / 0.76, 1); g.translate(ax + (bx - ax) * t, y, -(ay + (by - ay) * t)); out.push(g); }
+    const g = new THREE.BoxGeometry(0.08, 0.07, 1); const dir = new THREE.Vector3(bx - ax, hb - ha, -(by - ay)), len = dir.length(); g.scale(1, 1, len); g.lookAt(dir); g.translate((ax + bx) / 2, (ha + hb) / 2 + 0.9, -(ay + by) / 2); out.push(g);
+    if (newels) for (const [x, y, h] of [[ax, ay, ha], [bx, by, hb]]) out.push(cube(x - 0.07, x + 0.07, y - 0.07, y + 0.07, h - 0.3, h + 1.05), cube(x - 0.09, x + 0.09, y - 0.09, y + 0.09, h + 1.05, h + 1.12));
+  };
+  const along = (s) => s.up === "N" || s.up === "S";
   for (const s of plan.stairs) {
-    const base = levelOf(stairFrom(s)), top = levelOf(stairTo(s)), n = s.treads, R = s.rect, rise = (top - base) / n;
-    const along = s.up === "N" || s.up === "S" ? R.y1 - R.y0 : R.x1 - R.x0, run = along / n, parts = [];
-    for (let i = 0; i < n; i++) {
-      const hgt = (i + 1) * rise; let bx0 = R.x0, bx1 = R.x1, by0 = R.y0, by1 = R.y1;
-      if (s.up === "N") { by0 = R.y0 + i * run; by1 = by0 + run; } if (s.up === "S") { by1 = R.y1 - i * run; by0 = by1 - run; }
-      if (s.up === "E") { bx0 = R.x0 + i * run; bx1 = bx0 + run; } if (s.up === "W") { bx1 = R.x1 - i * run; bx0 = bx1 - run; }
-      const g = new THREE.BoxGeometry(bx1 - bx0, hgt, by1 - by0); g.translate((bx0 + bx1) / 2, base + hgt / 2, -(by0 + by1) / 2); K.board(g, 0.2); parts.push(g);
+    const base = levelOf(stairFrom(s)), rise = levelOf(stairTo(s)) - base, R = s.rect, out = partOf(s);
+    if (s.kind === "landing") {
+      const h = base + rise * s.z0; out.push(cube(R.x0, R.x1, R.y0, R.y1, h - 0.22, h));
+      for (const [x, y] of [[R.x0 + 0.07, R.y0 + 0.07], [R.x1 - 0.07, R.y0 + 0.07], [R.x0 + 0.07, R.y1 - 0.07], [R.x1 - 0.07, R.y1 - 0.07]]) out.push(cube(x - 0.07, x + 0.07, y - 0.07, y + 0.07, base, h - 0.22));
+      continue;
     }
-    const m = new THREE.Mesh(mergeGeometries(parts.map(g => g.toNonIndexed()), false), M.oakH); m.castShadow = m.receiveShadow = true;
-    const owner = rooms.get(s.joins.find(id => plan.rooms.find(q => q.id === id)?.floor === stairFrom(s)));
-    (owner ? owner.grp : scene).add(owner ? (m.position.set(-owner.grp.position.x, -owner.grp.position.y, -owner.grp.position.z), m) : m);
+    // the flight in its own frame: u up the run, h up, a across; then laid into the plan by the way it rises
+    const n = s.treads, len = along(s) ? R.y1 - R.y0 : R.x1 - R.x0, wid = along(s) ? R.x1 - R.x0 : R.y1 - R.y0, g = len / n, h0 = rise * s.z0, dh = rise * (s.z1 - s.z0) / n, waist = 0.24;
+    const sh = new THREE.Shape(); sh.moveTo(0, Math.max(0, h0 - waist)); sh.lineTo(0, h0 + dh);
+    for (let k = 1; k <= n; k++) { sh.lineTo(k * g, h0 + k * dh); if (k < n) sh.lineTo(k * g, h0 + (k + 1) * dh); }
+    sh.lineTo(len, h0 + n * dh - waist); sh.lineTo(g, h0 + dh - waist); sh.lineTo(0, Math.max(0, h0 - waist));
+    let geo = new THREE.ExtrudeGeometry(sh, { depth: wid, bevelEnabled: false }).toNonIndexed();
+    const map = { E: (u, h, a) => [R.x0 + u, h, -(R.y0 + a)], W: (u, h, a) => [R.x1 - u, h, -(R.y0 + a)], N: (u, h, a) => [R.x0 + a, h, -(R.y0 + u)], S: (u, h, a) => [R.x0 + a, h, -(R.y1 - u)] }[s.up];
+    const P = geo.attributes.position;
+    for (let i = 0; i < P.count; i++) { const [x, y, z] = map(P.getX(i), P.getY(i), P.getZ(i)); P.setXYZ(i, x, base + y, z); }
+    if (s.up === "E" || s.up === "S") for (let i = 0; i < P.count; i += 3) for (const attr of [P, geo.attributes.uv]) { if (!attr) continue; const k = attr.itemSize; for (let c = 0; c < k; c++) { const t = attr.array[(i + 1) * k + c]; attr.array[(i + 1) * k + c] = attr.array[(i + 2) * k + c]; attr.array[(i + 2) * k + c] = t; } }
+    geo.computeVertexNormals(); out.push(geo);
+    // its open side: the side toward the other flight (the well), railed from foot to head
+    const well = (plan.wells || []).find(w => w.id === s.well), other = plan.stairs.find(q => q.well === s.well && q.kind === "flight" && q !== s);
+    if (other) { const toward = along(s) ? (other.rect.x0 > R.x0 ? "hi" : "lo") : (other.rect.y0 > R.y0 ? "hi" : "lo");
+      const a = along(s) ? (toward === "hi" ? R.x1 - 0.05 : R.x0 + 0.05) : (toward === "hi" ? R.y1 - 0.05 : R.y0 + 0.05);
+      const lo = s.up === "N" ? R.y0 : s.up === "S" ? R.y1 : s.up === "E" ? R.x0 : R.x1, hi = s.up === "N" ? R.y1 : s.up === "S" ? R.y0 : s.up === "E" ? R.x1 : R.x0;
+      const pt = (u, h) => along(s) ? [a, u, h] : [u, a, h];
+      rail(out, pt(lo, base + h0 + dh), pt(hi, base + rise * s.z1)); }
+  }
+  // round each floor's well: the open long side and the landing's end, where they stand off a wall
+  for (const w of plan.wells || []) {
+    const room = plan.rooms.find(q => q.floor === w.to && q.rect.x0 <= w.hole.x0 + 0.01 && q.rect.x1 >= w.hole.x1 - 0.01 && q.rect.y0 <= w.hole.y0 + 0.01 && q.rect.y1 >= w.hole.y1 - 0.01); if (!room) continue;
+    const H = levelOf(w.to), Q = room.rect, Rh = w.hole, out = stairParts.get(room.id) || (stairParts.set(room.id, []), stairParts.get(room.id));
+    const foot = (plan.wells.find(v => v.id === w.id).rect), footLo = foot.y0 < Rh.y0 - 0.01 ? "S" : foot.y1 > Rh.y1 + 0.01 ? "N" : foot.x0 < Rh.x0 - 0.01 ? "W" : "E";
+    const edges = { N: [[Rh.x0, Rh.y1], [Rh.x1, Rh.y1], Q.y1 - Rh.y1], S: [[Rh.x0, Rh.y0], [Rh.x1, Rh.y0], Rh.y0 - Q.y0], E: [[Rh.x1, Rh.y0], [Rh.x1, Rh.y1], Q.x1 - Rh.x1], W: [[Rh.x0, Rh.y0], [Rh.x0, Rh.y1], Rh.x0 - Q.x0] };
+    for (const [F, [a, b, gapToWall]] of Object.entries(edges)) if (F !== footLo && gapToWall > 0.2) rail(out, [...a, H], [...b, H]);
+  }
+  for (const [id, parts] of stairParts) {
+    const owner = rooms.get(id), geo = mergeGeometries(parts.map(g => { g = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(k)) g.deleteAttribute(k);
+      if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); if (!g.attributes.normal) g.computeVertexNormals();
+      if (M.oakH.vertexColors) K.board(g, 0.2); return g; }), false);
+    const m = new THREE.Mesh(geo, M.oakH); m.castShadow = m.receiveShadow = true;
+    if (owner) { m.position.set(-owner.grp.position.x, -owner.grp.position.y, -owner.grp.position.z); owner.grp.add(m); } else scene.add(m);
   }
   // what can be seen from a room: itself, every room through an open doorway two deep, and the rooms its stairs join
   const doorOf = new Map(things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));

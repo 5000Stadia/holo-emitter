@@ -723,3 +723,42 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 |---|---|
 | Round 1, with the shot fixes | about 1 h |
 | Round 2 kinds and habit changes | about 50 min |
+
+## R47: stairs as they were built, and a check that the place is sound (2026-10-06)
+
+**What Kabe found walking the manor on his phone:**
+- a stair across the hall door;
+- stairs turning with no landing, and an upper floor you'd climb over the edge to reach;
+- only the first room's doors would open;
+- a wall surface cut wrongly across the porch door;
+- a sheet of geometry over a hall window.
+
+**The root of all of it:** the plan was checked as a graph of rooms, never as a body walking it, or a wall holding its openings.
+
+**Fixed:**
+- **Stairs** (`src/make/plans/stairs.js`):
+  - **Form:** each storey is a dog-leg (flight, half-landing, flight back), with the storeys stacked on one footprint.
+  - **Great stair:** broad and shallow round an open well, 0.165 m risers and 0.28 m goings, which is what a Coleshill-period stair is like.
+  - **Back stair:** steep and narrow round a newel.
+  - **Placement:** the footprint goes where no door on any floor it touches opens onto a flight, a landing or a well. The stair halls' doors now stand at the foot, where you arrive.
+  - **Built** as treads and risers on a sloping soffit, open beneath, with newel posts under the landing. A balustrade (turned balusters, moulded rail, newels) runs up each flight's open side and round each floor's well.
+- **Walking** (`src/make/walk.js`), one set of rules for the player and the checks:
+  - you step only onto a surface within a step of your feet;
+  - you never walk into a well;
+  - a flight overhead stops you only where it leaves less than a head's room.
+- **Doors you can use:** what you can aim at was cached on the first frame, when only the hall's things were visible. It now follows what is in view.
+- **Windows:**
+  - they keep clear of doorways; a window had been put in the porch doorway;
+  - they keep 0.75 m clear of chimneys; the old test never fired on the outer walls;
+  - hearths keep 0.8 m from doors.
+- **Doors own their reveal:** the oak lining through the wall is drawn whenever the door is seen, so no sky shows round a shut door.
+- **The check:** `src/make/sound.js` is proposed as check 11, waiting for Kabe's vetting. It found 28 faults in the morning's plan, and the plan now passes.
+
+**Measured:**
+
+| | Time |
+|---|---|
+| Plan soundness, headless | 0.23 s |
+| Walking the house physically on a 0.2 m grid | under a second |
+
+**Time:** about 2 h.

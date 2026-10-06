@@ -145,15 +145,16 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // every mesh that can be aimed at, for the page's raycaster: what moves, what works by its body,
   // and whatever can be taken
   function meshes() {
-    if (targets) return targets;
-    targets = [];
-    for (const b of things.values()) {
-      if (!b.node.visible) continue;
-      const affs = Object.values(b.kind.affordances || {}), whole = affs.some(a => a.hit === "body") || canTake(b);
-      b.node.traverse(o => { if (!o.isMesh) return; const m = o.userData.make;
-        if (whole || (m && (m.mover || m.bank) && affs.some(a => a.mover === (m.mover || m.bank)))) targets.push(o); });
-    }
-    return targets;
+    // each thing's own meshes are found once; which things count is asked each time, since a room comes
+    // into view (and its things with it) when a door opens
+    if (!targets) { targets = new Map();
+      for (const b of things.values()) { const list = [], affs = Object.values(b.kind.affordances || {}), whole = affs.some(a => a.hit === "body") || canTake(b);
+        b.node.traverse(o => { if (!o.isMesh) return; const m = o.userData.make;
+          if (whole || (m && (m.mover || m.bank) && affs.some(a => a.mover === (m.mover || m.bank)))) list.push(o); });
+        targets.set(b, list); } }
+    const out = [];
+    for (const [b, list] of targets) if (b.node.visible && !held().includes(b.id)) out.push(...list);
+    return out;
   }
   // what a ray hit, as a thing, an affordance (none: it can only be taken) and an index
   function find(hit) {

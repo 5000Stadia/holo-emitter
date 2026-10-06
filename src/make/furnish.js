@@ -25,7 +25,8 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
       keepClear.push({ ...rectOnWall(F, W, D, e.r0 - (swings ? 0.15 : 0.1), e.r1 + (swings ? 0.15 : 0.1), 0, swings ? Math.max(1.0, e.r1 - e.r0 + 0.1) : 0.8), why: "door", F, e }); }
     if (e.kind === "chimneypiece") keepClear.push({ ...rectOnWall(F, W, D, e.mantel.r0 - 0.15, e.mantel.r1 + 0.15, 0, (e.breast || 0) + e.hearth.out + 0.5), why: "hearth", F, e });
   }
-  for (const s of plan.stairs) if (stairFloors(s).includes(room.floor) || room.rises > 1) {
+  // a stair's whole footprint stays clear: its flights, its landing, and the floor you arrive on
+  for (const s of [...plan.stairs, ...(plan.wells || [])]) if (stairFloors(s).includes(room.floor) || room.rises > 1) {
     const R = s.rect; if (R.x1 > x0 && R.x0 < x1 && R.y1 > y0 && R.y0 < y1) keepClear.push({ u0: R.x0 - x0 - 0.3, u1: R.x1 - x0 + 0.3, v0: R.y0 - y0 - 0.3, v1: R.y1 - y0 + 0.3, why: "stair" });
   }
   const windowsOn = (F) => spec.walls[F].filter(e => e.kind === "window");
