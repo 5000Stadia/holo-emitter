@@ -16,9 +16,9 @@ const rectOnWall = (F, W, D, r0, r1, d0, d1) => { const [a, b] = [wallToRoom(F, 
 const hit = (a, b, m = 0) => a.u0 < b.u1 + m && a.u1 > b.u0 - m && a.v0 < b.v1 + m && a.v1 > b.v0 - m;
 
 // size: (kind) => [w, h, d] in its own frame (back at z = 0, front +z); anchors: [kind | [kind, n]]
-export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsOf = () => ({}), stairFloors }) {
+export function furnish({ room, spec, plan, anchors, sizeOf, sweptOf = () => null, traitsOf, settingsOf = () => ({}), stairFloors }) {
   const { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, out = [];
-  const keepClear = [], floorThings = [], hung = [];
+  const keepClear = [], floorThings = [], hung = [], sweeps = [];
   // what stands in the way: doors' swing and the step through, hearths and their fenders, stairs
   for (const F of ["N", "E", "S", "W"]) for (const e of spec.walls[F]) {
     // a door's leaf swings into the room that hangs it (the first it joins); elsewhere, only the step through
@@ -39,16 +39,21 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
   const uses = [];
   const walkable = (extra) => passable({ ...passage, solids: [...passage.solids, ...floorThings, extra].filter(Boolean), points: uses }).ok;
   // a tall piece keeps out of a window's light; in a tight room (tight), only out of its splay
-  const clearOf = (r, tall, tight = false) => !keepClear.some(k => hit(r, k)) && !floorThings.some(t => hit(r, t, 0.08))
+  const clearOf = (r, tall, tight = false, sweep = null) => !keepClear.some(k => hit(r, k)) && !floorThings.some(t => hit(r, t, 0.08) || (sweep && hit(sweep, t, 0.02))) && !sweeps.some(s => hit(r, s, 0.02))
     && (!tall || !Object.keys(spec.walls).some(G => windowsOn(G).some(e => hit(r, rectOnWall(G, W, D, e.r0 - 0.1, e.r1 + 0.1, 0, tight ? 0.3 : 0.7)))));
   // against a wall: walls without windows or a hearth first, then the middle of the longest clear run
+  // what a piece's moving parts sweep (a lid swung back, doors swung out), from its kind: it stands off the
+  // wall by what swings behind it, and its swing stays clear of the walls' ends and of other pieces
+  const swingOf = (kind, over, w, d) => { const S = sweptOf(kind, over); if (!S) return { back: 0, l: 0, r: 0, front: 0 };
+    return { back: Math.max(0, -S.lo[2]), l: Math.max(0, -w / 2 - S.lo[0]), r: Math.max(0, S.hi[0] - w / 2), front: Math.max(0, S.hi[2] - d) }; };
   function onWall(kind, [w, h, d], over = {}, tight = false) {
-    const tall = h > 0.85, best = [];
+    const tall = h > 0.85, best = [], sw = swingOf(kind, over, w, d), off = 0.02 + sw.back;
+    const swingRect = (F, r) => rectOnWall(F, W, D, r - sw.l, r + w + sw.r, 0.02, off + d + sw.front);
     for (const F of ["N", "E", "S", "W"]) {
       const L = F === "N" || F === "S" ? W : D, runs = []; let run = null;
-      for (let r = 0; r + w <= L + 1e-6; r += STEP) {
-        const R = rectOnWall(F, W, D, r, r + w, 0.02, d + 0.02);
-        if (clearOf(R, tall, tight)) { if (!run) runs.push(run = { r0: r, r1: r + w }); else run.r1 = r + w; } else run = null;
+      for (let r = sw.l; r + w + sw.r <= L + 1e-6; r += STEP) {
+        const R = rectOnWall(F, W, D, r, r + w, off, off + d);
+        if (clearOf(R, tall, tight, swingRect(F, r))) { if (!run) runs.push(run = { r0: r, r1: r + w }); else run.r1 = r + w; } else run = null;
       }
       // a wall with the hearth is busy, and with windows for a tall piece (a low table stands under a window, for
       // the light to work by); the wall you come in by is worst (the piece is unseen as you
@@ -59,7 +64,7 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
         best.push({ F, r: Math.round(c / STEP) * STEP, score: busy * 2 - len * 0.5 + Math.abs(c + w / 2 - L / 2) * 0.1 }); }
     }
     best.sort((a, b) => a.score - b.score);
-    for (const c of best) { const R = rectOnWall(c.F, W, D, c.r, c.r + w, 0.02, d + 0.02); if (walkable(R)) return { kind, wall: c.F, r: c.r + w / 2, d: 0.02, rect: R, over }; }
+    for (const c of best) { const R = rectOnWall(c.F, W, D, c.r, c.r + w, off, off + d); if (walkable(R)) return { kind, wall: c.F, r: c.r + w / 2, d: off, rect: R, over, sweep: swingRect(c.F, c.r) }; }
     return null;
   }
   // free-standing: in the middle, along the room's length, nudged along it if the middle is taken
@@ -125,6 +130,7 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
       if (!p) continue;
       if (traits.includes("free") && !table) table = p;
       if (p.rect) floorThings.push(p.rect);
+      if (p.sweep) sweeps.push(p.sweep);
       if (p.wall && p.rect) { const R = p.rect, depth = p.wall === "N" || p.wall === "S" ? R.v1 - R.v0 : R.u1 - R.u0; uses.push({ id: `${kind}:${i}`, at: wallToRoom(p.wall, W, D, p.r, p.d + depth + 0.35) }); }
       out.push(p);
     }
