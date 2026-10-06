@@ -195,20 +195,30 @@ window.__opensOnto = (names = furniture1660.map(k => k.kind).concat(kinds().map(
 };
 // 2. ?panel=1 (with o=furniture&k=…): the thing from the front, its right, back, left and above, at rest and
 //    with everything that moves moved: one build, ten draws on one page, a few seconds a kind.
-if (Q.get("panel")) {
-  wall.visible = false; scene.background = new THREE.Color(0x5a5a5e); document.getElementById("info").hidden = true; document.getElementById("status").hidden = true;   // a grey ground, so black lacquer shows
-  const box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3()), R = box.getSize(new THREE.Vector3()).length() * 0.62 + 0.15;
+// one page, the textures made once, then any number of kinds in turn: __panelOf(kind) -> ms
+const panelLabels = [];
+function panelOf(target, things, w) {
+  const box = new THREE.Box3().setFromObject(target), c = box.getCenter(new THREE.Vector3()), R = box.getSize(new THREE.Vector3()).length() * 0.62 + 0.15;
   const views = [["front", 0, 0.15], ["right", Math.PI / 2, 0.15], ["back", Math.PI, 0.15], ["left", -Math.PI / 2, 0.15], ["above", 0.5, 1.05]];
-  const draw = (row) => { const W = innerWidth / 5, H = innerHeight / 2, dpr = renderer.getPixelRatio();
+  for (const l of panelLabels.splice(0)) l.remove();
+  const draw = (row) => { const W = innerWidth / 5, H = innerHeight / 2;
     views.forEach(([n, a, e], i) => { const cam = new THREE.PerspectiveCamera(40, W / H, 0.02, 40), d = R / Math.tan(20 * Math.PI / 180);
       cam.position.set(c.x + Math.sin(a) * Math.cos(e) * d, c.y + Math.sin(e) * d, c.z + Math.cos(a) * Math.cos(e) * d); cam.lookAt(c);
       const y = row * H; renderer.setViewport(i * W, y, W, H); renderer.setScissor(i * W, y, W, H); renderer.setScissorTest(true); renderer.render(scene, cam);
-      const lab = Object.assign(document.createElement("div"), { textContent: `${n} · ${row ? "moved" : "at rest"}` }); lab.style.cssText = `position:fixed;left:${i * W + 6}px;top:${row * H + 4}px;color:#e8d8a8;font:12px monospace;z-index:9`; document.body.append(lab); }); };
-  renderer.setAnimationLoop(null);
+      const lab = Object.assign(document.createElement("div"), { textContent: `${n} · ${row ? "moved" : "at rest"}` }); lab.style.cssText = `position:fixed;left:${i * W + 6}px;top:${row * H + 4}px;color:#e8d8a8;font:12px monospace;z-index:9`; document.body.append(lab); panelLabels.push(lab); }); };
+  const tp = performance.now();
   draw(0);
-  for (const b of built) for (const aff of Object.keys(b.kind.affordances || {})) { try { if (!b.kind.affordances[aff].requires) works.act({ b, aff }); } catch (_) {} }
-  works.finish?.(); for (let i = 0; i < 400; i++) works.tick(0.05);
-  draw(1); window.__panel = true; window.__ok = true;
+  for (const b of things) for (const aff of Object.keys(b.kind.affordances || {})) { try { if (!b.kind.affordances[aff].requires) w.act({ b, aff }); } catch (_) {} }
+  w.finish?.(); for (let i = 0; i < 400; i++) w.tick(0.05);
+  draw(1); return Math.round(performance.now() - tp);
+}
+if (Q.get("panel")) {
+  wall.visible = false; scene.background = new THREE.Color(0x5a5a5e); document.getElementById("info").hidden = true; document.getElementById("status").hidden = true;   // a grey ground, so black lacquer shows
+  renderer.setAnimationLoop(null);
+  window.__panelMs = panelOf(obj, built, works); window.__panel = true; window.__ok = true;
+  let current = obj;
+  window.__panelOf = (name) => { scene.remove(current); const b = build(THREE, K, look, name, `stage/furniture/${name}`); b.node.position.set(0, 0, 0.02); nodeify(b.node); scene.add(b.node); current = b.node;
+    const w = makeWorks(THREE, {}); w.add(b); return panelOf(b.node, [b], w); };
 }
 let last = performance.now();
 function loop() { const now = performance.now(); works.tick(Math.min(0.05, (now - last) / 1000)); last = now; renderer.render(scene, camera); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } }
