@@ -56,7 +56,11 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
         const R = rectOnWall(F, W, D, r, r + w, 0.02, d + 0.02);
         if (clearOf(R, tall, tight)) { if (!run) runs.push(run = { r0: r, r1: r + w }); else run.r1 = r + w; } else run = null;
       }
-      const busy = windowsOn(F).length + spec.walls[F].filter(e => e.kind === "chimneypiece").length * 2;
+      // a wall with the hearth is busy, and with windows for a tall piece (a low table stands under a window, for
+      // the light to work by); the wall you come in by is worst (the piece is unseen as you
+      // enter, and crowds the door); the wall facing a doorway is best, the piece that names the room is what you see
+      const doorsOn = (G) => spec.walls[G].filter(e => e.kind === "door" || e.kind === "open").length, OPP = { N: "S", S: "N", E: "W", W: "E" };
+      const busy = (tall ? windowsOn(F).length : windowsOn(F).length ? -0.5 : 0) + spec.walls[F].filter(e => e.kind === "chimneypiece").length * 2 + doorsOn(F) * 1.5 - (doorsOn(OPP[F]) ? 1 : 0);
       for (const ru of runs) { const len = ru.r1 - ru.r0, c = (ru.r0 + ru.r1) / 2 - w / 2;
         best.push({ F, r: Math.round(c / STEP) * STEP, score: busy * 2 - len * 0.5 + Math.abs(c + w / 2 - L / 2) * 0.1 }); }
     }

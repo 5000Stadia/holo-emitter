@@ -63,7 +63,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const heightOf = (room) => { const i = floors.findIndex(f => f.id === room.floor), n = room.rises || 1; let h = 0; for (let k = 0; k < n && floors[i + k]; k++) h += floors[i + k].storey_height_m + (k ? gap : 0); return h; };
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
   const mats = {
-    gypsum: Object.assign(new THREE.MeshStandardMaterial({ color: 0xd8ccb0, roughness: 0.45 }), { userData: { cls: "gypsum" } }),
+    gypsum: Object.assign(new THREE.MeshStandardMaterial({ color: 0xa89c86, roughness: 0.7 }), { userData: { cls: "gypsum" } }),
     matting: Object.assign(new THREE.MeshStandardMaterial({ color: 0xa88c58, roughness: 0.95 }), { userData: { cls: "matting" } }),
     plaster: M.plaster, limewash: M.limewash,
   };

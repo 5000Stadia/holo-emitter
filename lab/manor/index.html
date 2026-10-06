@@ -92,9 +92,12 @@ sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone
 Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
 sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
 scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
-const rig = Array.from({ length: 4 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
-function lightRoom(id) {
-  const mine = manor.windows.filter(w => w.room === id).slice(0, rig.length);
+// the window light that follows you: up to four of the room's own windows, then the largest window of each
+// room seen through an open doorway, nearest first, so a doorway shows the next room's own light
+const rig = Array.from({ length: 6 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
+function lightRoom(id, seen = new Set([id])) {
+  const mine = manor.windows.filter(w => w.room === id).slice(0, 4);
+  for (const r of seen) { if (r === id || mine.length >= rig.length) continue; const ws = manor.windows.filter(w => w.room === r).sort((a, b) => b.w * b.h - a.w * a.h); if (ws[0]) mine.push(ws[0]); }
   rig.forEach((l, i) => { const w = mine[i]; if (!w) { l.intensity = 0; return; } l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); l.intensity = 9; });
 }
 
@@ -160,8 +163,7 @@ let here = null;
 function refreshView(force = false) {
   const r = roomAt(px, py, ph);
   if (!r || (!force && r.id === here)) return;
-  if (r.id !== here) lightRoom(r.id);
-  here = r.id; manor.show(manor.visibleFrom(here, isOpen));
+  here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); lightRoom(here, seen);
   $("where").querySelector(".n").textContent = r.name; $("where").querySelector(".f").textContent = `${r.floor} floor`;
   ENG.invalidate();
 }
