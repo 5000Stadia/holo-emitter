@@ -24,7 +24,7 @@ export const partOf = (name) => PARTS.get(name) || null;
 // what moves a mover: slide along an axis, turn on a hinge, a lever that springs back, a switch,
 // or nothing visible (a state only). Each affordance has two states, rest and moved.
 export const MOTIONS = ["slide", "hinge", "lever", "switch", "state"];
-const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take"]);
+const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held"]);
 const AFF_KEYS = new Set(["mover", "motion", "axis", "travel", "angle", "states", "initial", "verbs", "requires", "refused", "starts", "lights", "hit", "speed", "sets", "auto", "done", "release", "held"]);
 const PROC_KEYS = new Set(["initial", "phases", "drives"]);
 

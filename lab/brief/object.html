@@ -229,8 +229,12 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
     for (const x of apart(rest)) if (!k.parts[x.a].within) out.push({ kind: name, check: 14, part: label(x.a), what: `${(x.share * 100).toFixed(0)}% of it inside ${label(x.b)}` });
     // the mesh rules (src/make/mesh-rules.js): closed, outward, inside by volume, shimmer, whole
     const tr = performance.now();
-    for (const f of meshRules(MANIFOLD, rest, { declared: (i) => k.parts[i], support: (k.traits || []).includes("wall") ? ["wall"] : ["floor"] }))
+    const support = k.rests ? [k.rests] : (k.traits || []).includes("wall") ? ["wall"] : ["floor"];
+    for (const f of meshRules(MANIFOLD, rest, { declared: (i) => k.parts[i], support }))
       out.push({ kind: name, check: f.rule, part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
+    // and with everything moved: an opened lid still rests on something, and swings into nothing
+    if (states.length > 1) for (const f of meshRules(MANIFOLD, states[1], { declared: (i) => k.parts[i], support }))
+      if (f.rule === "whole" || f.rule === "inside") out.push({ kind: name, check: f.rule + " (moved)", part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
     ruleMs.push(performance.now() - tr);
     times.push(performance.now() - t);
   }
@@ -240,7 +244,9 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
 // where a kind meets the floor and its wall: each part's lowest point and nearest the back (for finding a fault)
 window.__lowest = (name) => { const k = kindOf(name), { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`)), by = {};
   for (const r of rec) { const bb = new THREE.Box3().setFromBufferAttribute(r.g.attributes.position), q = by[r.index] || (by[r.index] = { y: Infinity, z: Infinity, top: -Infinity });
-    q.y = Math.min(q.y, +bb.min.y.toFixed(3)); q.z = Math.min(q.z, +bb.min.z.toFixed(3)); q.top = Math.max(q.top, +bb.max.y.toFixed(3)); }
+    q.y = Math.min(q.y, +bb.min.y.toFixed(3)); q.z = Math.min(q.z, +bb.min.z.toFixed(3)); q.top = Math.max(q.top, +bb.max.y.toFixed(3));
+    q.box = q.box ? q.box.union(bb) : bb.clone(); }
+  for (const q of Object.values(by)) { q.min = q.box.min.toArray().map(v => +v.toFixed(3)); q.max = q.box.max.toArray().map(v => +v.toFixed(3)); delete q.box; }
   return { traits: k.traits || [], parts: Object.fromEntries(Object.entries(by).map(([i, v]) => [`#${i} ${k.parts[i].part}${k.parts[i].role ? " " + k.parts[i].role : ""}`, v])) }; };
 // which pieces of a part are open: each c.add of one recipe entry tested on its own (for finding a fault)
 window.__openPieces = async (name, index) => { await window.__partsCheck([]); const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));

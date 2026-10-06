@@ -47,7 +47,7 @@ definePart("hasp_locks", {
 definePart("end_handles", {
   build(c, { w, d, h }) {
     const { THREE } = c;
-    for (const sx of [-1, 1]) { const g = ring(THREE, 0.05, 0.007, 6, 16, Math.PI); g.rotateZ(Math.PI); g.rotateY(Math.PI / 2); g.translate(sx * (w / 2 + 0.012), h * 0.62, d / 2); c.add(g, "iron", { spread: 0.2 }); }
+    for (const sx of [-1, 1]) { const g = ring(THREE, 0.05, 0.007, 6, 16, Math.PI); g.rotateZ(Math.PI); g.rotateY(Math.PI / 2); g.translate(sx * (w / 2 + 0.004), h * 0.62, d / 2); c.add(g, "iron", { spread: 0.2 }); }
   },
 });
 

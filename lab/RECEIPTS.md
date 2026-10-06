@@ -808,3 +808,18 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   The differences are within noise. Baked fill per room (a pool of probe grids, each room's bake copied in) stays in reserve: it isn't needed at this cost.
 
 **Time:** about 1 h.
+
+## Sound geometry at creation: checks 13–15 (2026-10-06)
+
+- **Prior art first:** two helpers, about 4 min, found three-mesh-bvh (an inside test in 0.3–1.5 ms where ours took 25 ms) and Manifold (exact volumes; an inside-out mesh reads as negative volume). Relations, from ShapeAssembly, Infinigen and Articraft, come next.
+- **The rules,** for all 55 kinds at rest and moved:
+
+  | Check | Time |
+  |---|---|
+  | 13 and 14, the depth grid and the winding number | about 8.3 s |
+  | 15, the mesh rules by Manifold | 1.2 s |
+
+  Manifold is about 0.5 MB of wasm, loaded only when a kind is checked.
+- **Found and fixed:** 196 findings to none. The fixes were at the source: turned shapes, rings, domes and mouldings are now sound by construction. The rest were fixed in the kinds; see check 15 in `design/production/checks-proposed.md`.
+- **Code:** `src/make/mesh-rules.js` (new, about 150 lines); `audit.js` (new); changes to the shapes, joinery, ironwork and procedural kit.
+- **Time:** about 3 h with the door investigation and the consultation.

@@ -41,7 +41,7 @@ export default [
     kind: "shutters/splay-pair", v: 1, noun: "the shutters", fixed: true,
     why: "inside shutters on a small barred window, folded back on the splays by day (Steane 2010: 'Iron bars formed a grid over the shuttered windows')",
     settings: { x0: 0, x1: 0.4, y0: 1.26, y1: 1.96, G: -0.48, open_left: -2.6, open_right: 2.6 },
-    parts: [{ part: "splay_shutters" }],
+    rests: "held", held: "hung on the window's splays", parts: [{ part: "splay_shutters" }],
     affordances: {
       left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: "$open_left", initial: "open", verbs: ["open the shutter", "close the shutter"] },
       right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: "$open_right", initial: "open", verbs: ["open the shutter", "close the shutter"] },

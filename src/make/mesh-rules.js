@@ -71,11 +71,13 @@ export function meshRules(M, parts, { declared = () => ({}), joint = 0.2, touch 
   }
   // what holds it up: the floor under it (y = 0), the wall behind it (z = 0) for a thing on a wall
   const holds = (b) => (support.includes("floor") && b.lo[1] <= touch) || (support.includes("wall") && b.lo[2] <= touch);
-  const seen = new Set(all.filter(k => holds(box.get(k)))), q = [...seen];
+  // a thing held by something it doesn't own (shutters on a window's splays: kind.rests "held") joins its largest part
+  const seen = new Set(support.includes("held") ? (keys.length ? [keys.reduce((m, k) => vol.get(k) > vol.get(m) ? k : m)] : all.slice(0, 1)) : all.filter(k => holds(box.get(k)))), q = [...seen];
   while (q.length) for (const n of link.get(q.pop())) if (!seen.has(n)) { seen.add(n); q.push(n); }
   for (const k of all) if (!seen.has(k) && !declared(k).loose) out.push({ rule: "whole", a: k, what: seen.size ? "touches nothing joined to what holds the thing up" : "nothing of the thing reaches the floor or its wall" });
   // shimmer: faces of two parts on one plane, facing the same way, overlapping
-  out.push(...shimmer(parts, (key, x) => [...solids].some(([k, sol]) => k !== key && inside(sol, x))));
+  const below = (x) => (support.includes("floor") && x[1] < 0) || (support.includes("wall") && x[2] < 0);      // in the floor or the wall
+  out.push(...shimmer(parts, (key, x) => below(x) || [...solids].some(([k, sol]) => k !== key && inside(sol, x))));
   for (const s of solids.values()) s.delete();
   return out;
 }
