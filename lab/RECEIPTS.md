@@ -476,3 +476,37 @@ The room's tests pass, 10/10.
 | Light by state | about 35 min |
 | Play never waits | about 20 min |
 | Verify | 20 min |
+
+## R48 step 8: the bench (2026-10-05)
+
+`lab/bench/` rebuilds 7 cases with the production system:
+- the strongroom;
+- the three keepers' shelves;
+- the Pepys press;
+- a library wall;
+- every small kind.
+
+For each case it shows the layout hash, a ✓ against `reference.json`, the raw-float hash, the build time, the fps and the 1% low, plus the device's GPU and browser. There's a button to copy the results. `tools/bench-reference.mjs` remakes the reference headless.
+
+**Measured:**
+
+| Engine | Result |
+|---|---|
+| Chromium (reference) | – |
+| Firefox | all 7 layouts match the reference |
+| WebKit | not run: needs `libwoff1` |
+| The phone | Kabe's to run |
+
+Build times in Firefox on software rendering:
+
+| Case | Build |
+|---|---|
+| The strongroom | 617 ms |
+| The widow's shelves | 13 ms |
+| The smith's shelves | 14 ms |
+| The gentleman's case | 52 ms |
+| The bookpress | 112 ms |
+| The library wall | 121 ms |
+| All the kinds | 14 ms |
+
+**Time:** about 25 min.

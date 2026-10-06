@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Holo Emitter Bench</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0e0c0a; --panel: #18150f; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a; --line: rgba(236, 228, 210, 0.14); --brass: #c9a35c; --ok: #8fd3b8; --bad: #e88a6a; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36, 30, 22, 0.14); --brass: #8a6a2a; --ok: #2f7d63; --bad: #b04a2a; } }
+  :root[data-theme="light"] { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36, 30, 22, 0.14); --brass: #8a6a2a; --ok: #2f7d63; --bad: #b04a2a; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; }
+  main { max-width: 900px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font: 600 34px/1.1 "Cormorant Garamond", Georgia, serif; margin: 0 0 6px; }
+  p { color: var(--dim); margin: 0 0 16px; max-width: 70ch; }
+  #verdict { font-size: 15px; padding: 12px 14px; border: 1px solid var(--line); background: var(--panel); border-radius: 6px; margin: 16px 0; }
+  .wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; min-width: 560px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--faint); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; }
+  td.ok { color: var(--ok); } td.bad { color: var(--bad); }
+  .device { color: var(--faint); font-size: 12px; margin-top: 14px; word-break: break-word; }
+  button { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--brass); border-radius: 4px; padding: 7px 12px; cursor: pointer; margin-top: 14px; }
+  canvas { position: fixed; right: 12px; bottom: 12px; width: 160px; height: 100px; border: 1px solid var(--line); border-radius: 4px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>The bench</h1>
+  <p>Builds the same rooms and things here as everywhere else, and checks each one's layout hash against the reference. Every thing's id, kind and position, rounded to 0.1 mm, has to come out identical on every device. It also times each build and how smoothly each one draws on this device. It takes a minute; keep the page in front.</p>
+  <div id="verdict">starting…</div>
+  <div class="wrap"><table><thead><tr><th>case</th><th>layout</th><th>matches</th><th>build</th><th>fps</th><th>1% low</th><th>raw</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <div class="device" id="device"></div>
+  <button id="copy" hidden>copy the results</button>
+</main>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+// The bench (design/production/plan.md §3, R48 step 8). Each case is built from the production system
+// exactly as its page builds it; layoutOf (src/make/layout.js) gives the layout hash, which must
+// match reference.json on every device, and the raw hash over the unrounded floats, which may not.
+// Then each is drawn for a few seconds: frames per second and the 1% low. ?reference prints the
+// results as JSON on window.__bench for tools/bench-reference.mjs.
+import * as THREE from "three";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { makeKit } from "../painted/procedural.js";
+import { strongroomMaterials, buildStrongroom } from "../brief/strongroom.js";
+import { compileBrief } from "../brief/brief.js";
+import { build, lookC1660, blend, OWNERS, PURPOSES, kinds, layoutOf } from "../../src/make/index.js";
+
+const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(160, 100); renderer.shadowMap.enabled = true;
+document.body.append(renderer.domElement);
+RectAreaLightUniformsLib.init();
+const gl = renderer.getContext(), dbg = gl.getExtension("WEBGL_debug_renderer_info");
+const device = { agent: navigator.userAgent, gpu: dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : "unknown", dpr: devicePixelRatio, cores: navigator.hardwareConcurrency || null };
+$("device").textContent = `${device.gpu} · ${device.agent}`;
+const reference = await fetch("./reference.json").then(r => r.ok ? r.json() : {}).catch(() => ({}));
+
+const K = await makeKit(THREE, { floor: [6, 5] }), S = strongroomMaterials(THREE, K), look = lookC1660(THREE, K, S);
+const [plan, brief] = await Promise.all([fetch("../house/plan.json").then(r => r.json()), fetch("../brief/manor-1660.json").then(r => r.json())]);
+const shelves = (who) => { const O = OWNERS[who], { kind, ...over } = O.traits.shelving; return build(THREE, K, look, kind, `bench/${who}`, over, blend([O])).node; };
+const CASES = {
+  "the strongroom": () => buildStrongroom(THREE, K, compileBrief(plan, "muniment_room", brief)).group,
+  "the widow's shelves": () => shelves("widow"),
+  "the smith's shelves": () => shelves("smith"),
+  "the gentleman's case": () => shelves("gentleman"),
+  "Pepys's bookpress": () => build(THREE, K, look, "press/glazed-pepys", "bench/bookpress", {}, blend([OWNERS.gentleman])).node,
+  "a library wall": () => build(THREE, K, look, "shelves/library-bays", "bench/library", {}, blend([{ who: "a household", traits: { means: "gentry" } }, PURPOSES.study])).node,
+  "every small kind": () => { const g = new THREE.Group(); let x = 0; for (const k of kinds().filter(k => k.size && !k.kind.startsWith("shelves/"))) { const b = build(THREE, K, look, k.kind, `bench/kinds/${k.kind}`); b.node.position.x = x; x += 0.3; g.add(b.node); } return g; },
+};
+
+const results = [];
+const frames = (scene, camera, ms) => new Promise(done => {
+  const times = []; let last = performance.now(); const end = last + ms;
+  const step = () => { renderer.render(scene, camera); const now = performance.now(); times.push(now - last); last = now; if (now < end) requestAnimationFrame(step); else done(times.slice(5)); };
+  requestAnimationFrame(step);
+});
+for (const [name, make] of Object.entries(CASES)) {
+  $("verdict").textContent = `building ${name}…`;
+  await new Promise(r => setTimeout(r, 30));
+  const t0 = performance.now(), node = make(), buildMs = performance.now() - t0;
+  const { layout, raw, entries } = layoutOf(THREE, node);
+  const scene = new THREE.Scene(); scene.add(node, new THREE.HemisphereLight(0xffffff, 0x444444, 1.2));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.5); sun.position.set(2, 4, 3); sun.castShadow = true; scene.add(sun);
+  const box = new THREE.Box3().setFromObject(node), c = box.getCenter(new THREE.Vector3()), r = box.getSize(new THREE.Vector3()).length();
+  const camera = new THREE.PerspectiveCamera(55, 1.6, 0.05, 100); camera.position.set(c.x + r * 0.2, c.y + r * 0.15, c.z + r * 0.75); camera.lookAt(c);
+  renderer.setSize(Q.has("reference") ? 160 : Math.min(innerWidth, 960), Q.has("reference") ? 100 : Math.round(Math.min(innerWidth, 960) / 1.6), false);
+  const t = await frames(scene, camera, Q.has("reference") ? 300 : 3000);
+  const sorted = [...t].sort((a, b) => b - a), fps = 1000 / (t.reduce((a, b) => a + b, 0) / t.length), low = 1000 / sorted[Math.max(0, Math.floor(sorted.length / 100))];
+  const want = reference.cases?.[name];
+  results.push({ name, layout, raw, entries: entries.length, build_ms: Math.round(buildMs), fps: Math.round(fps), low_1pct: Math.round(low), match: want ? want === layout : null });
+  const row = results[results.length - 1];
+  $("rows").insertAdjacentHTML("beforeend", `<tr><td>${name}</td><td>${layout}</td><td class="${row.match === false ? "bad" : "ok"}">${row.match === null ? "no reference" : row.match ? "✓ same" : "✗ differs"}</td><td>${row.build_ms} ms</td><td>${row.fps}</td><td>${row.low_1pct}</td><td>${raw}</td></tr>`);
+  scene.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+}
+const bad = results.filter(r => r.match === false).length, known = results.filter(r => r.match !== null).length;
+$("verdict").innerHTML = known ? (bad ? `<b style="color:var(--bad)">${bad} of ${known} layouts differ from the reference.</b> This device builds a different world: send me this page's results.` : `<b style="color:var(--ok)">All ${known} layouts match the reference.</b> This device builds the same world, to the tenth of a millimetre.`) : "No reference yet: these results become it.";
+window.__bench = { device, results, at: new Date().toISOString() };
+$("copy").hidden = false;
+$("copy").onclick = async () => { try { await navigator.clipboard.writeText(JSON.stringify(window.__bench, null, 1)); $("copy").textContent = "copied"; } catch (_) { $("copy").textContent = "couldn't copy: select the table instead"; } };
+</script>
+</body>
+</html>
