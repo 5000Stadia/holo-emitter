@@ -55,3 +55,26 @@ Faults show in diagnostic views: flat light, a colour per part, inside-out faces
 - [Manifold](https://github.com/elalish/manifold), [three-mesh-bvh](https://github.com/gkjohnson/three-mesh-bvh).
 - Validators: Blender's 3D-Print Toolbox, [glTF-Validator](https://github.com/KhronosGroup/glTF-Validator), and Unreal Data Validation, whose model is to run on save and in CI.
 - Benchmarks: `bench.mjs` and `b2.mjs` in the session scratchpad, Node 22 and three 0.186.1.
+
+## 5. Rooms sound by construction, and what fills them (Kabe, 2026-10-06; gate g5d5249, consultation c7dd918)
+
+Kabe's words, then my reading, in the order they came.
+
+- "sims 4 logic, walls are prepped in units of one door width … a grid that can snap … allow cool architectures like a large octagon room"; "Might even work well at half that width … 1/4 1/8". The consult (two families) answered: cracks are prevented by shared structure, not by a grid. The house is one solid with the rooms and openings carved out of it, so a wrong number gives too much wall, never a hole. The grid is a snapping aid at any fineness.
+- "translate this too to grid width on a floors room and thats the path check as well … doors windows and chair sides off desks could claim unavailable the empty area that needs reservation". *Reading:* a claim grid per floor, about 10 cm. Cells are solid (walls, footprints), reserved (door swing, window light, hearth mouth, stair run, drawer pull, a chair's draw-out: nothing placed, still walkable) or free. Placement searches free cells. The path check flood-fills the free cells, kept a body's half-width from anything solid.
+- "you could build initial blueprint in this grid". *Reading:* one grid serves to draw the plan, to carve the house and to check it. Rooms are outlines whose corners snap to grid points, not filled cells, so diagonals stay straight.
+- "hexagonal or octagonal grid". *Reading, my recommendation:* a square grid with corners free in 45° directions, plus declared exact shapes (a regular polygon of any number of sides, an arc). A hex grid loses right angles, and octagons tile only together with squares.
+- "give it that freedom on an endless point grid … circular dome at some point … Walls that cover a space completely are of course unavailable … desks that have a setting to snap their rears to a wall can still snap to that wall as their first anchor point and where that object further covers on the grid … makes that square unavailable". *Reading:*
+  - The blueprint has free shape, stored in whole millimetres.
+  - The walls are the truth, and the grid only keeps the books.
+  - Objects anchor to the exact wall. On a curve they sit tangent, and the spot is refused if the ends stand too far off.
+  - A dome is a 3D cut (Manifold) when its time comes.
+- "objects CAN anchor to the floor and have requirements on proximity to, directional orientation … Coatrack wants to be by the front door … against the wall. A rug wants to be away from the wall and also doesn't want to take up a reserved space so furniture could go on it". *Reading:*
+  - Each kind declares an anchor (floor, wall, ceiling, on a thing), musts (hard rules) and prefers (scores), and its orientation.
+  - Candidate places are computed directly (wall runs, spots by doors, the room's centre and other main points), filtered by the musts and ranked by the prefers. Ties go by the seed.
+  - Claims are kept per layer: floor cover, standing, wall, overhead. A rug takes the floor-cover layer only.
+  - The existing habits (wall, free, beside, hearth, hung) become instances of this. Prior art: Infinigen Indoors' hard and soft constraints; the Sims' rugs.
+- "The context and history of a room should determine its fullness or sparseness … there should be a required layer for furnishing … if the story states that the key to the barn is in the study … required rooms and objects … prioritized first before the additional furnishings is run, to make sure we never have to take the step of finding room for required items". *Reading:* furnishing runs in tiers, and the blueprint is made to fit tier 1.
+  1. **Required.** Assertions from the story (pattern-buffer's entity/assertion shape: key/barn in study, study in house) enter at the blueprint. A required object pulls in its chain of containers (the key needs a desk with a drawer, the desk a wall run), and the blueprint sizes the room to hold the chain with its reservations. That is counted on the grid before anything is built. If the room can't fit it, the plan changes, never the requirement. These are placed first.
+  2. **Anchor.** The piece that names the room.
+  3. **Ordinary furnishing,** to a fullness set by the room's context: its status, use, owner, period and history (lived in, newly let, abandoned, after a fire). Fullness is measured as the share of standing-layer cells claimed, plus the count of small things, and furnishing stops at that target.
