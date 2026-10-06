@@ -762,3 +762,18 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 | Walking the house physically on a 0.2 m grid | under a second |
 
 **Time:** about 2 h.
+
+## A way through every room, escape rooms and hoards (2026-10-06)
+
+- **`src/make/passage.js`:** after anything that stops a body is placed, a body the player's size still reaches every exit, stair and usable piece of the room.
+  - It runs about 1.3 ms a test, at generation only, with nothing rendered.
+  - Rooms may declare separate walkways (regions), and an obstacle may carry a gate (a barricade a prybar clears).
+- **`src/make/reach.js`:** walks room parts, so a barricade works like a lock and a tool left on the far side is a softlock.
+- **The furnishing habit:** uses it for every piece, keeping earlier pieces reachable.
+- **Measured** (`tools/escape-demo.mjs`):
+  - escape room with the prybar inside: escapable;
+  - escape room with the prybar outside: softlock named;
+  - hoard: 60 piles over 52% of a 7.6 × 9.3 m floor, still walkable;
+  - the whole manor's soundness: 0.29 s.
+
+**Time:** about 45 min.

@@ -9,9 +9,13 @@
 //      piece of furniture;
 //   3. walking: with every door open, a body walking (src/make/walk.js: a step at most, headroom, never
 //      into a well) reaches every room from the entrance;
-//   4. stairs: no riser over 0.22 m, no more than 16 risers between floor and landing, a landing at every turn.
+//   4. stairs: no riser over 0.22 m, no more than 16 risers between floor and landing, a landing at every turn;
+//   5. passage: in every room, a body the player's size gets from each exit to every other past what stands
+//      in it (src/make/passage.js), within each walkway the room declares (its regions).
 // soundness({ plan, compileRoom, blocks }) -> { ok, findings: [{ rule, where, what }] }
 import { makeWalk } from "./walk.js";
+import { passable, roomPassage } from "./passage.js";
+import { wallToRoom } from "./furnish.js";
 
 export const levelsOf = (plan, gap = 0.35) => { const fl = [...plan.floors].sort((a, b) => a.level - b.level), at = {}; let y = 0;
   for (const f of fl) { at[f.id] = y; y += f.storey_height_m + gap; } return (id) => at[id]; };
@@ -71,5 +75,13 @@ export function soundness({ plan, compileRoom, blocks = [], levelOf = levelsOf(p
   }
   for (const w of plan.wells || []) if (!plan.stairs.some(s => s.well === w.id && s.kind === "landing")) add("stairs", w.id, "it turns with no landing");
   for (const s of plan.stairs.filter(s => !s.kind)) add("stairs", s.id, "a flight from floor to floor with no landing");
-  return { ok: !findings.length, findings };
+  // 5. passage, room by room, furniture and all
+  let passMs = 0;
+  for (const r of rooms) {
+    const P = roomPassage(plan, r, compileRoom(plan, r), wallToRoom);
+    const mine = blocks.filter(b => b.room === r.id).map(b => ({ u0: b.x0 - r.rect.x0, u1: b.x1 - r.rect.x0, v0: b.y0 - r.rect.y0, v1: b.y1 - r.rect.y0 }));
+    const got = passable({ ...P, solids: [...P.solids, ...mine] }); passMs += got.ms;
+    for (const [a, b] of got.cut) add("passage", r.id, `a body can't get from ${a} to ${b}`);
+  }
+  return { ok: !findings.length, findings, passMs: +passMs.toFixed(1) };
 }

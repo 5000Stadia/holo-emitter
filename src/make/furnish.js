@@ -6,6 +6,7 @@
 // middle of the longest clear run, as a joiner would set it. Every placement is tried against the
 // room's doorways: if any doorway could no longer be walked to from the others, the place is refused.
 // Coordinates: the room's own plan frame, u east from its west wall, v north from its south wall.
+import { passable, roomPassage } from "./passage.js";
 const BODY = 0.22, STEP = 0.05;          // a body's half-width, as the walker keeps it from walls
 
 // a wall's (r along it, d into the room) to the room's (u, v); see PLACE in manor.js and onWall
@@ -30,21 +31,13 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
     const R = s.rect; if (R.x1 > x0 && R.x0 < x1 && R.y1 > y0 && R.y0 < y1) keepClear.push({ u0: R.x0 - x0 - 0.3, u1: R.x1 - x0 + 0.3, v0: R.y0 - y0 - 0.3, v1: R.y1 - y0 + 0.3, why: "stair" });
   }
   const windowsOn = (F) => spec.walls[F].filter(e => e.kind === "window");
-  const doorsIn = keepClear.filter(k => k.why === "door");
   // can every doorway still reach every other across the floor, a body's width from anything?
-  function walkable(extra) {
-    if (doorsIn.length < 2) return true;
-    const n = Math.ceil(W / 0.1), m = Math.ceil(D / 0.1), free = new Uint8Array(n * m), solid = [...floorThings, extra].filter(Boolean);
-    for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) { const u = (i + 0.5) * 0.1, v = (j + 0.5) * 0.1;
-      free[i * m + j] = u > BODY && u < W - BODY && v > BODY && v < D - BODY && !solid.some(r => u > r.u0 - BODY && u < r.u1 + BODY && v > r.v0 - BODY && v < r.v1 + BODY) ? 1 : 0; }
-    // each doorway's threshold cell, just inside the room
-    const cellOf = (k) => { const e = k.e, [u, v] = wallToRoom(k.F, W, D, (e.r0 + e.r1) / 2, BODY + 0.06); return [Math.min(n - 1, Math.max(0, Math.floor(u / 0.1))), Math.min(m - 1, Math.max(0, Math.floor(v / 0.1)))]; };
-    const starts = doorsIn.map(cellOf), seen = new Uint8Array(n * m), q = [starts[0]];
-    if (!free[starts[0][0] * m + starts[0][1]]) return false;
-    seen[starts[0][0] * m + starts[0][1]] = 1;
-    while (q.length) { const [i, j] = q.pop(); for (const [a, b] of [[i + 1, j], [i - 1, j], [i, j + 1], [i, j - 1]]) if (a >= 0 && b >= 0 && a < n && b < m && free[a * m + b] && !seen[a * m + b]) { seen[a * m + b] = 1; q.push([a, b]); } }
-    return starts.every(([i, j]) => seen[i * m + j]);
-  }
+  // after each piece, a body the player's size still gets from every exit of the room to every other
+  // (src/make/passage.js: doorways and stairs; the room's chimney breasts and stairs stand in the way too)
+  const passage = roomPassage(plan, room, spec, wallToRoom);
+  // and every piece already standing can still be come up to (its front, a body's length out)
+  const uses = [];
+  const walkable = (extra) => passable({ ...passage, solids: [...passage.solids, ...floorThings, extra].filter(Boolean), points: uses }).ok;
   // a tall piece keeps out of a window's light; in a tight room (tight), only out of its splay
   const clearOf = (r, tall, tight = false) => !keepClear.some(k => hit(r, k)) && !floorThings.some(t => hit(r, t, 0.08))
     && (!tall || !Object.keys(spec.walls).some(G => windowsOn(G).some(e => hit(r, rectOnWall(G, W, D, e.r0 - 0.1, e.r1 + 0.1, 0, tight ? 0.3 : 0.7)))));
@@ -132,6 +125,7 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
       if (!p) continue;
       if (traits.includes("free") && !table) table = p;
       if (p.rect) floorThings.push(p.rect);
+      if (p.wall && p.rect) { const R = p.rect, depth = p.wall === "N" || p.wall === "S" ? R.v1 - R.v0 : R.u1 - R.u0; uses.push({ id: `${kind}:${i}`, at: wallToRoom(p.wall, W, D, p.r, p.d + depth + 0.35) }); }
       out.push(p);
     }
   }
