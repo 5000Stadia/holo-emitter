@@ -777,3 +777,15 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - the whole manor's soundness: 0.29 s.
 
 **Time:** about 45 min.
+
+## Things that open onto an inside; a panel per kind (2026-10-06)
+
+**Fixed:**
+- **Opening onto solid:** 9 kinds did. They are now built on a new `carcass` part (a hollow case open at the top or front), or turned hollow, each with its contents.
+- **Doors:** shut doors no longer show a slot under the leaf, and each doorway has its own oak threshold.
+
+**New tools:**
+- `__opensOnto()` takes 0.5 s for every kind together. It is proposed as check 12.
+- `tools/kind-panels.mjs` draws a kind from five sides, at rest and moved, in about 6 s a kind.
+
+**Time:** about 50 min.

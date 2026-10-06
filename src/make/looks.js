@@ -34,6 +34,10 @@ export function lookC1660(THREE, K, S) {
       brick: m("brick", { color: 0x8a4a32, roughness: 0.9 }),
       canvas: m("canvas", { color: 0x3a2e22, roughness: 0.8 }),
       bacon: m("bacon", { color: 0x9a5c40, roughness: 0.6 }),                   // a cured flitch
+      brine: m("brine", { color: 0x3a3428, roughness: 0.08, metalness: 0.1 }),   // a powdering tub's pickle
+      dough: m("dough", { color: 0xd8c8a0, roughness: 0.9 }),
+      bread: m("bread", { color: 0x8a5a2a, roughness: 0.8 }),
+      soot: m("soot", { color: 0x141210, roughness: 0.95 }),
       wool: m("wool", { color: 0x4c463a, roughness: 0.95 }),                     // a drab cloak
       carpet: (() => { const x = m("turkey_carpet", { map: turkeyCarpet(THREE), roughness: 0.95 }); return x; })(),
     },

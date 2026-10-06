@@ -30,3 +30,16 @@ definePart("spinner", { build(c, { mover, axis = [1, 0, 0], rate = 1.2, when }) 
   const v = new c.THREE.Vector3(...axis).normalize(); let last = null;
   c.animate((t, isMoved, level, movers) => { const g = movers.get(mover); if (!g) return; if (isMoved(when) && last != null) g.rotateOnAxis(v, (t - last) * rate); last = t; });
 } });
+
+// a hollow case, standing on its "at" like a box, open on one side ("top" or "front", +z): four or five
+// boards of thickness t and a floor, its inside in the inside role. A lid or a door that opens shows an
+// inside, not a solid (Kabe, 2026-10-06, of a powdering tub: "not hollow inside").
+definePart("carcass", { build(c, { size: [w, h, d], at = [0, 0, 0], open = "top", t = 0.02, role = "wood", inside = "wood_inside", mover = null }) {
+  const { THREE } = c, [x, y, z] = at, add = (bw, bh, bd, bx, by, bz, r) => { const g = new THREE.BoxGeometry(bw, bh, bd); g.translate(x + bx, y + by, z + bz); c.add(g, r, { mover, spread: 0.1 }); };
+  add(w, t, d, 0, t / 2, 0, role);                                                          // the floor
+  add(t, h, d, -w / 2 + t / 2, h / 2, 0, role); add(t, h, d, w / 2 - t / 2, h / 2, 0, role);   // the ends
+  add(w - 2 * t, h, t, 0, h / 2, -d / 2 + t / 2, role);                                       // the back
+  if (open === "top") add(w - 2 * t, h, t, 0, h / 2, d / 2 - t / 2, role); else add(w, t, d, 0, h - t / 2, 0, role);   // the front, or the top
+  // the inside faces, a shade apart, so the hollow reads as one
+  const g = new THREE.BoxGeometry(w - 2 * t - 0.002, 0.002, d - 2 * t - 0.002); g.translate(x, y + t + 0.001, z + (open === "front" ? t / 2 : 0)); c.add(g, inside, { mover, spread: 0.05 });
+} });

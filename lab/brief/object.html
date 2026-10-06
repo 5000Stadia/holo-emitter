@@ -159,9 +159,60 @@ let tris = 0, meshes = 0, bytes = 0; obj.traverse(o => { if (!o.isMesh) return; 
   for (const a of Object.values(o.geometry.attributes)) bytes += a.array.byteLength; if (o.isInstancedMesh) bytes += o.instanceMatrix.array.byteLength + (o.instanceColor ? o.instanceColor.array.byteLength : 0); });
 window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), meshes, tris: Math.round(tris), geometry_bytes: bytes, ...obj.userData });
 document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer · click what works · G (or shift-click) to take`;
+// ---- checking a built thing (Kabe, 2026-10-06: "a smart way to check on a built object at multiple angles
+// and in its different toggle states"). Two ways, both at authoring, never in play:
+// 1. __opensOnto([kinds]): no picture. Open everything that opens, then look straight in through each lid,
+//    door or leaf's opening, a grid of rays from outside its closed face, and measure how far you see past
+//    where it stood. A few centimetres means it opens onto solid (a tub turned solid, a cupboard with no
+//    inside). Milliseconds a kind.
+window.__opensOnto = (names = furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)), min = 0.03) => {
+  const out = [], rc = new THREE.Raycaster(), seen = new Set();
+  for (const name of names) { if (seen.has(name)) continue; seen.add(name);
+    const k = kindOf(name); if (!k?.affordances) continue;
+    let b; try { b = build(THREE, K, look, name, `check/${name}`); } catch (e) { out.push({ kind: name, error: String(e) }); continue; }
+    b.node.updateMatrixWorld(true);
+    const all = []; b.node.traverse(o => { if (o.isMesh) all.push(o); });
+    const box = new THREE.Box3().setFromObject(b.node), mid = box.getCenter(new THREE.Vector3());
+    // what opens onto an inside: a hinged door or lid ("open…", "lift…"); not a gate, a padlock, a leaf or a drawer
+    const affs = Object.entries(k.affordances).filter(([, a]) => a.mover && a.motion === "hinge" && /^(open|lift)/.test(a.verbs?.[0] || ""));
+    // where each leaf stood, shut
+    const shut = affs.map(([aff, a]) => { const ms = all.filter(m => m.userData.make?.mover === a.mover); if (!ms.length) return null; const bb = new THREE.Box3(); for (const m of ms) bb.expandByObject(m); return { aff, a, bb, ms }; }).filter(Boolean);
+    const w = makeWorks(THREE, {}); w.add(b); for (const [aff] of Object.entries(k.affordances)) { try { if (!k.affordances[aff].requires) w.act({ b, aff }); } catch (_) {} } w.finish?.(); b.node.updateMatrixWorld(true);
+    for (const { aff, a, bb, ms } of shut) {
+      const size = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3()), ax = size.x <= size.y && size.x <= size.z ? "x" : size.y <= size.z ? "y" : "z";
+      const sgn = Math.sign(c[ax] - mid[ax]) || 1, dir = new THREE.Vector3(); dir[ax] = -sgn;                    // from outside the face, inward
+      const others = all.filter(m => !ms.includes(m)), depths = [];
+      const [u, v] = ["x", "y", "z"].filter(q => q !== ax);
+      for (const fu of [0.25, 0.5, 0.75]) for (const fv of [0.25, 0.5, 0.75]) {
+        const o = c.clone(); o[u] = bb.min[u] + size[u] * fu; o[v] = bb.min[v] + size[v] * fv; o[ax] = (sgn > 0 ? bb.max[ax] : bb.min[ax]) + sgn * 0.5;
+        rc.set(o, dir); const hit = rc.intersectObjects(others, false)[0];
+        depths.push(hit ? hit.distance - 0.5 - size[ax] : 9); }
+      depths.sort((p, q) => p - q); const median = depths[4];
+      if (median < min) out.push({ kind: name, aff, sees: +median.toFixed(3), what: `opening ${aff} shows solid ${(Math.max(0, median) * 100).toFixed(0)} cm in` });
+    }
+  }
+  return out;
+};
+// 2. ?panel=1 (with o=furniture&k=…): the thing from the front, its right, back, left and above, at rest and
+//    with everything that moves moved: one build, ten draws on one page, a few seconds a kind.
+if (Q.get("panel")) {
+  wall.visible = false; scene.background = new THREE.Color(0x5a5a5e); document.getElementById("info").hidden = true; document.getElementById("status").hidden = true;   // a grey ground, so black lacquer shows
+  const box = new THREE.Box3().setFromObject(obj), c = box.getCenter(new THREE.Vector3()), R = box.getSize(new THREE.Vector3()).length() * 0.62 + 0.15;
+  const views = [["front", 0, 0.15], ["right", Math.PI / 2, 0.15], ["back", Math.PI, 0.15], ["left", -Math.PI / 2, 0.15], ["above", 0.5, 1.05]];
+  const draw = (row) => { const W = innerWidth / 5, H = innerHeight / 2, dpr = renderer.getPixelRatio();
+    views.forEach(([n, a, e], i) => { const cam = new THREE.PerspectiveCamera(40, W / H, 0.02, 40), d = R / Math.tan(20 * Math.PI / 180);
+      cam.position.set(c.x + Math.sin(a) * Math.cos(e) * d, c.y + Math.sin(e) * d, c.z + Math.cos(a) * Math.cos(e) * d); cam.lookAt(c);
+      const y = row * H; renderer.setViewport(i * W, y, W, H); renderer.setScissor(i * W, y, W, H); renderer.setScissorTest(true); renderer.render(scene, cam);
+      const lab = Object.assign(document.createElement("div"), { textContent: `${n} · ${row ? "moved" : "at rest"}` }); lab.style.cssText = `position:fixed;left:${i * W + 6}px;top:${row * H + 4}px;color:#e8d8a8;font:12px monospace;z-index:9`; document.body.append(lab); }); };
+  renderer.setAnimationLoop(null);
+  draw(0);
+  for (const b of built) for (const aff of Object.keys(b.kind.affordances || {})) { try { if (!b.kind.affordances[aff].requires) works.act({ b, aff }); } catch (_) {} }
+  works.finish?.(); for (let i = 0; i < 400; i++) works.tick(0.05);
+  draw(1); window.__panel = true; window.__ok = true;
+}
 let last = performance.now();
 function loop() { const now = performance.now(); works.tick(Math.min(0.05, (now - last) / 1000)); last = now; renderer.render(scene, camera); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } }
-renderer.setAnimationLoop(loop);
+if (!Q.get("panel")) renderer.setAnimationLoop(loop);
 </script>
 </body>
 </html>

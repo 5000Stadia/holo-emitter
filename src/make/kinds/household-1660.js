@@ -24,7 +24,8 @@ export default [
   { kind: "tankard/pewter-lidded", v: 1, noun: "the tankard", why: "a pewter tankard with a hinged lid and a thumbpiece",
     size: [0.14, 0.15, 0.1], settings: {}, traits: ["daily"],
     parts: [
-      { part: "lathe", role: "pewter", profile: [[0, 0], [0.048, 0], [0.05, 0.01], [0.044, 0.02], [0.042, 0.13], [0.046, 0.14], [0, 0.14]] },
+      { part: "lathe", role: "pewter", profile: [[0, 0.012], [0.038, 0.012], [0.04, 0.138], [0.046, 0.14], [0.042, 0.13], [0.044, 0.02], [0.05, 0.01], [0.048, 0], [0, 0]] },
+      { part: "cylinder", role: "brine", r: 0.036, h: 0.003, segments: 16, at: [0, 0.1, 0] },
       { part: "mover", name: "lid", pivot: [0.046, 0.142, 0] },
       { part: "lathe", role: "pewter", mover: "lid", profile: [[0, 0.14], [0.048, 0.14], [0.04, 0.152], [0, 0.156]] },
       { part: "box", role: "pewter", mover: "lid", size: [0.016, 0.014, 0.012], at: [0.054, 0.146, 0] },
@@ -39,7 +40,8 @@ export default [
   { kind: "box/oak-lidded", v: 1, noun: "the box", why: "a small oak box with a lid: deeds, letters, a Bible's keeping",
     size: ["$w", 0.1, 0.14], settings: { w: [0.2, 0.3] }, traits: ["heavy", "stays_put"],
     parts: [
-      { part: "box", role: "wood_face", size: ["$w", 0.08, 0.14] },
+      { part: "carcass", size: ["$w", 0.08, 0.14], open: "top", t: 0.012, role: "wood_face" },
+      { part: "box", role: "paper", size: ["=w-0.06", 0.02, 0.09], at: [0, 0.012, 0] },
       { part: "mover", name: "lid", pivot: [0, 0.08, -0.075] },
       { part: "box", role: "wood_face", mover: "lid", size: ["=w+0.01", 0.018, 0.15], at: [0, 0.08, 0] }],
     affordances: { lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.9, verbs: ["open the box", "close the box"] } } },
