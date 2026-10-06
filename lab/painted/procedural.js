@@ -915,8 +915,7 @@ export function buildDesk(THREE, K, { W = 1.1, D = 0.56, H = 0.76 } = {}) {
   for (const sx of [-1, 1]) box(t, dh - 0.02, dd, sx * (dw / 2 - 0.02), y0 + dh / 2 - 0.005, fz - dd / 2, M.oak, drawer);
   box(dw - 0.04, dh - 0.02, t, 0, y0 + dh / 2 - 0.005, fz - dd + t / 2, M.oak, drawer);
   // the drawer's inside: paler, unwaxed, catching what little light reaches it
-  K.drawerIn = K.drawerIn || new THREE.MeshStandardMaterial({ map: M.oakH.map, roughness: 0.85, vertexColors: true, color: new THREE.Color(1.5, 1.4, 1.25), emissive: 0x120a05 });
-  box(dw - 0.04, 0.008, dd, 0, y0 + 0.008, fz - dd / 2, K.drawerIn, drawer);
+  box(dw - 0.04, 0.008, dd, 0, y0 + 0.008, fz - dd / 2, drawerInside(THREE, K), drawer);
   // a dark cavity behind the drawer, so the opening never shows through the table
   box(dw, dh, 0.01, 0, y0 + dh / 2, fz - dd - 0.012, M.dark);
   g.add(drawer);
@@ -924,6 +923,9 @@ export function buildDesk(THREE, K, { W = 1.1, D = 0.56, H = 0.76 } = {}) {
   drawer.traverse(o => { o.userData.entity = "desk1"; });
   return { group: g, drawer, travel: dd * 0.7, cavity: new THREE.Vector3(0, y0 + 0.016, fz - dd / 2) };
 }
+
+// a drawer's inside: paler, unwaxed oak, catching what little light reaches it
+export const drawerInside = (THREE, K) => (K.drawerIn ||= new THREE.MeshStandardMaterial({ map: K.M.oakH.map, roughness: 0.85, vertexColors: true, color: new THREE.Color(1.5, 1.4, 1.25), emissive: 0x120a05 }));
 
 // an iron key, about 11 cm: a looped bow, a round shank, a warded bit
 export function buildKey(THREE) {

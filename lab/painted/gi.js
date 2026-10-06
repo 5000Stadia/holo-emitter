@@ -29,7 +29,7 @@ export function makeGI({ min, max, n = [4, 3, 4] }) {
       if (prev) prev(sh, r);
       Object.assign(sh.uniforms, U);
       sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vGIW;")
-        .replace("#include <project_vertex>", "#include <project_vertex>\nvGIW = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+        .replace("#include <project_vertex>", "#include <project_vertex>\n#ifdef USE_INSTANCING\nvGIW = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n#else\nvGIW = (modelMatrix * vec4(transformed, 1.0)).xyz;\n#endif");
       sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
         varying vec3 vGIW; uniform sampler2D uGITex; uniform float uGI; uniform vec3 uGIMin, uGIMax, uGIN;`)
         .replace("#include <lights_fragment_maps>", `#include <lights_fragment_maps>

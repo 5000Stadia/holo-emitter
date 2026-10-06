@@ -63,6 +63,7 @@ export function footprints(out) {
 export { overlaps };
 
 export function compileBrief(plan, roomId, brief) {
+  let labels = null;
   const t0 = typeof performance !== "undefined" ? performance.now() : Date.now();
   const room = plan.rooms.find(r => r.id === roomId);
   if (!room) throw new Error(`no room ${roomId} in the plan`);
@@ -127,20 +128,17 @@ export function compileBrief(plan, roomId, brief) {
     say("small_barred", changed.length ? "adjusted" : "conflict", changed.length ? `The plan's windows made small, high and barred, on their own centres: ${changed.join("; ")}. Iron grid and inside shutters on each.` : "No window in the plan: the room would be dark.");
   }
 
-  // the table under the light: on the wall with the most window, between the windows when it fits
+  // the table under the light: on the wall with the most window, in the window nearest the wall's middle
   const frames = Object.fromEntries(["N", "E", "S", "W"].map(F => [F, wallFrame(room, F)]));
   if (pin.table) {
     const width = 1.1, depth = 0.6;
     const byLight = Object.entries(walls).map(([F, es]) => [F, es.filter(e => e.kind === "window")]).sort((a, b) => b[1].length - a[1].length);
     const [F, wins] = byLight[0];
-    let r = null;
-    const ws = [...wins].sort((a, b) => a.r0 - b.r0);
-    for (let i = 0; i + 1 < ws.length && r === null; i++) if (ws[i + 1].r0 - ws[i].r1 >= width + 0.1) r = (ws[i].r1 + ws[i + 1].r0) / 2;
-    if (r === null && ws.length) r = (ws[0].r0 + ws[0].r1) / 2;
-    if (r === null) r = frames[F].L / 2;
+    const mid = frames[F].L / 2, ws = [...wins].sort((a, b) => Math.abs((a.r0 + a.r1) / 2 - mid) - Math.abs((b.r0 + b.r1) / 2 - mid));
+    const r = ws.length ? (ws[0].r0 + ws[0].r1) / 2 : mid;
     walls[F].push({ kind: "desk", id: pin.table.keep, r: r2(r), width, depth });
     taken.push({ id: pin.table.keep, box: boxOf(frames[F], r - width / 2, r + width / 2, depth) });
-    say("table", "honoured", `The table with the drawer (${pin.table.keep}) on the ${F} wall, ${ws.length > 1 ? "between the two windows" : ws.length ? "under the window" : "with no window to stand under"}.`);
+    say("table", "honoured", `The table with the drawer (${pin.table.keep}) on the ${F} wall, ${ws.length ? "in the window" : "with no window to stand under"}.`);
   }
 
   // the chest: low, so it may stand under a window; nearest the light that is free
@@ -183,13 +181,47 @@ export function compileBrief(plan, roomId, brief) {
         made.push(`${F} ${r2(w)} m (${n}×${rows} drawers)`);
       }
     }
-    say("presses", made.length ? "honoured" : "conflict", made.length ? `${made.length} presses, ${label} labelled drawers by manor: ${made.join("; ")}.` : "No wall left free for a press.");
+    const presses = order.flatMap(F => walls[F].filter(e => e.kind === "press"));
+    const L = brief.holdings ? labelDrawers(presses, brief.holdings) : null;
+    if (L) { labels = L.labels; presses.forEach((e, i) => { e.letter = L.letters[i]; }); }
+    say("presses", made.length ? "honoured" : "conflict", made.length ? `${made.length} presses, ${label} drawers: ${made.join("; ")}.${L ? ` ${L.say}` : ""}` : "No wall left free for a press.");
   }
 
   return {
     room: { id: roomId, name: room.name, W: r2(W), D: r2(D), H: r2(H), rect: room.rect, floor: room.floor },
-    walls, finish, report,
+    walls, finish, report, labels,
     function: B?.function || null,
     ms: r2((typeof performance !== "undefined" ? performance.now() : Date.now()) - t0),
   };
+}
+
+// The drawers' labels, from whose evidences they are (holdings): the family's own papers first, then
+// each manor an unbroken run, sorted, numbered from 1 across the rows from the top left; drawers in
+// proportion to each manor's weight, places too small for a drawer of their own sharing one; no run
+// carried from one press to the next; the rest left blank for what is bought next. Labels come out
+// in reading order per press (label0 + row from the top * cols + column); a blank is "".
+export function labelDrawers(presses, H) {
+  const caps = presses.map(e => e.cols * e.rows), total = caps.reduce((a, b) => a + b, 0);
+  const named = (list, scale) => {
+    const runs = [], small = [];
+    for (const [name, w] of list) { const n = Math.round(w * scale); if (n >= 1) runs.push([name, n]); else small.push(name); }
+    for (let i = 0; i < small.length; i += 2) runs.push([small.slice(i, i + 2).join(" & "), 1]);
+    return runs.sort((a, b) => a[0].localeCompare(b[0]));
+  };
+  // the largest scale whose runs pack in order, press by press, leaving the spare share blank
+  for (let scale = total / H.manors.reduce((a, m) => a + m[1], 0); scale > 0.05; scale *= 0.97) {
+    const runs = [...H.general.map(([n, c]) => [n, c]), ...named(H.manors, scale)];
+    const per = presses.map(() => []); let p = 0, used = 0;
+    for (const run of runs) {
+      while (p < presses.length && per[p].reduce((a, r) => a + r[1], 0) + run[1] > caps[p]) p++;
+      if (p >= presses.length) break;
+      per[p].push(run); used += run[1];
+    }
+    if (p >= presses.length || used > total * (1 - H.spare)) continue;
+    const labels = new Array(total).fill("");
+    presses.forEach((e, i) => { let k = e.label0; for (const [name, n] of per[i]) for (let q = 1; q <= n; q++) labels[k++] = n > 1 ? `${name} ${q}` : name; });
+    const letters = presses.map((_, i) => String.fromCharCode(65 + i));
+    return { labels, letters, say: `Labelled for ${H.family}: ${per.map((r, i) => `press ${letters[i]} ${r[0][0]} to ${r[r.length - 1][0]}`).join("; ")}; ${total - used} drawers left blank.` };
+  }
+  return null;
 }

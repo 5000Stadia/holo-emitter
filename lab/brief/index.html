@@ -117,7 +117,7 @@ const K = await makeKit(THREE, { floor: [W, D], onStep: (w) => { statusText.text
 mark("kit");
 await step("raising the strongroom");
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x07060a);
-const room = buildStrongroom(THREE, K, spec, brief.manors || ["Manor"]);
+const room = buildStrongroom(THREE, K, spec);
 scene.add(room.group);
 mark("built");
 
@@ -175,21 +175,42 @@ function project() {
 }
 harness.subscribe(project);
 const dispatch = (intent) => { const env = harness.dispatch(intent); say(env.narration); return env; };
-window.__settled = () => Math.abs(drawerTo - drawerAt) < 0.003;
+window.__settled = () => Math.abs(drawerTo - drawerAt) < 0.003 && !pulling.size;
 window.__world = () => JSON.parse(JSON.stringify(harness.world));
 window.__dispatch = (intent) => dispatch(intent);
 window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray() } : null;
 const ray = new THREE.Raycaster(); ray.far = 2.3;
 function aimAt(ndc) {
   ray.setFromCamera(ndc, camera);
-  const hit = ray.intersectObjects([desk.group, ...(key ? [key] : [])], true)[0];
+  const hit = ray.intersectObjects([desk.group, ...room.drawers.meshes, ...(key ? [key] : [])], true)[0];
   if (!hit) return null;
+  if (hit.object.userData.drawers) return `drawer:${hit.instanceId}`;
   let o = hit.object; while (o && !o.userData.entity) o = o.parent;
   return o ? o.userData.entity : null;
 }
 const intentFor = (id) => id === "key1" ? { type: "take", entity: "key1" } : id === "desk1" ? { type: "toggle", entity: "desk1" } : null;
-const hintFor = (id) => id === "key1" ? "take the key" : id === "desk1" ? (stateOf("desk1") === "open" ? "close the drawer" : "open the drawer") : "";
-function act(ndc) { const it = intentFor(aimAt(ndc)); if (it) dispatch(it); return !!it; }
+// the presses' drawers: generated dressing, so their state is an overlay on the world (what was
+// pulled, and how far), not entities in it; each slides home or out on its own
+const DK = `holo-emitter/brief/${ROOM}/drawers`, bank = room.drawers;
+let pulled = {};
+try { if (Q.has("fresh")) localStorage.removeItem(DK); else pulled = JSON.parse(localStorage.getItem(DK) || "{}"); } catch (_) {}
+const pulling = new Map(), drawerOf = (id) => id && id.startsWith("drawer:") ? bank.list[+id.slice(7)] : null;
+bank.list.forEach((d, i) => { if (pulled[d.id]) { bank.set(i, bank.travel); } });
+function pull(i) {
+  const d = bank.list[i], open = !pulled[d.id];
+  if (open) pulled[d.id] = 1; else delete pulled[d.id];
+  pulling.set(i, open ? bank.travel : 0);
+  try { localStorage.setItem(DK, JSON.stringify(pulled)); } catch (_) {}
+}
+window.__drawers = () => ({ count: bank.list.length, open: Object.keys(pulled) });
+window.__pull = (i) => pull(i);
+const hintFor = (id) => id === "key1" ? "take the key" : id === "desk1" ? (stateOf("desk1") === "open" ? "close the drawer" : "open the drawer")
+  : drawerOf(id) ? `${pulled[drawerOf(id).id] ? "close" : "open"} the drawer${room.labelOf(drawerOf(id).k) ? ` · ${room.labelOf(drawerOf(id).k)}` : ""}` : "";
+function act(ndc) {
+  const id = aimAt(ndc);
+  if (drawerOf(id)) { pull(+id.slice(7)); return true; }
+  const it = intentFor(id); if (it) dispatch(it); return !!it;
+}
 window.__act = (x = 0, y = 0) => act(new THREE.Vector2(x, y));
 
 // ---- the brief panel: the function, and each pin as honoured, adjusted or in conflict
@@ -278,6 +299,7 @@ function loop(now) {
   camera.rotation.set(pitch, yaw, 0, "YXZ");
   drawerAt += (drawerTo - drawerAt) * Math.min(1, dt * 7);
   desk.drawer.position.z = drawerAt * desk.travel;
+  for (const [i, to] of pulling) { const d = bank.list[i], at = d.at + (to - d.at) * Math.min(1, dt * 7); bank.set(i, Math.abs(to - at) < 0.0005 ? to : at); if (d.at === to) pulling.delete(i); }
   { const locked = document.pointerLockElement === renderer.domElement;
     document.getElementById("cross").hidden = !locked;
     const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");

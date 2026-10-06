@@ -28,7 +28,7 @@
           "why": "light enough to read by, no way in",
           "source": "Hardwick Hall evidence room 'fitted up with shelves, drawers and iron bars to the windows in 1603' (Archives Hub, Hardwick Manuscripts); Steane 2010, New College: 'Iron bars formed a grid over the shuttered windows'" },
         { "id": "presses", "rule": "presses of labelled drawers on every wall free of an opening, pigeonholes over",
-          "press": { "height": 2.0, "depth": 0.42, "drawer": [0.26, 0.14], "pigeonholes": 2, "labels": "manors" },
+          "press": { "height": 2.0, "depth": 0.42, "drawer": [0.26, 0.14], "pigeonholes": 2, "labels": "holdings" },
           "why": "deeds kept by manor, found by label",
           "source": "Steane 2010, Windsor Aerary (1422-3): a nest of 63 drawers, 2.14 m high, 'labelled with the names of manors', pulled by iron rings; Hardwick: 'lined with drawers labeled with the names of the Cavendish properties', 'presses with drawers and pigeon holes'" },
         { "id": "chest", "rule": "an iron-bound chest under two locks", "chest": { "w": 1.2, "d": 0.56, "h": 0.62, "locks": 2 },
@@ -40,7 +40,13 @@
       ]
     }
   },
-  "manors": ["Ashover", "Baslow", "Chelmorton", "Edensor", "Hartington", "Langwith", "Mapleton", "Oldcotes", "Pilsley", "Rowsley", "Stanton", "Tideswell", "Whitwell", "Youlgreave", "Ault Hucknall", "Beeley", "Calver", "Darley", "Elton", "Froggatt", "Glapwell", "Hathersage", "Ible", "Kirk Ireton", "Litton", "Monyash", "Norbury", "Over Haddon", "Parwich", "Rowland", "Sheldon", "Taddington", "Upper Langwith", "Wardlow", "Abney", "Bradwell", "Curbar", "Dethick", "Eyam", "Foolow", "Grindleford", "Hassop", "Ilam", "Kniveton", "Longstone", "Matlock", "Nether Haddon", "Offerton", "Pleasley", "Rowthorne", "Snitterton", "Tansley", "Unstone", "Wensley", "Ashford", "Birchover", "Chatsworth", "Doveridge", "Eaton", "Flagg", "Great Hucklow", "Holmesfield", "Ingleby"],
+  "holdings": {
+    "_why": "Whose evidences these are decides every label (first review, 2026-10-05): one family, its manors a cluster of real neighbouring places it could plausibly hold, no other family's seat among them; drawers in proportion to each manor's land and paper, small places sharing one; the family's own papers first; each manor an unbroken numbered run in its press, sorted; spare drawers left for what is bought next.",
+    "family": "Haywood of Wynstanton",
+    "general": [["Crown Grants", 1], ["Inquisitions", 1], ["Wardship", 1], ["Fines & Recoveries", 3], ["Settlements", 2], ["Marriage Articles", 1], ["Wills", 2], ["Sequestration", 2], ["Composition", 1], ["Pardon 1660", 1]],
+    "manors": [["Wynstanton", 10], ["Ashover", 5], ["Blackwell", 2], ["Brackenfield", 1.5], ["Crich", 4], ["Higham", 0.6], ["Lea", 0.5], ["Morton", 2], ["Ogston", 0.6], ["Pilsley", 1.5], ["Pinxton", 2], ["Shirland", 4], ["South Normanton", 3], ["Stretton", 0.5], ["Tansley", 1.5], ["Tibshelf", 3], ["Wessington", 2.5]],
+    "spare": 0.12
+  },
   "sources": {
     "Steane 2010": "John Steane, 'Medieval Muniment Rooms, their Furniture, Fittings and Information Retrieval Systems', vol. 54 (2010), https://hbap.pdfsrv.co.uk/customers/HBAP/CQ56690/Vol%2054%202010/2/",
     "Hardwick": "Hardwick Manuscripts, Archives Hub, https://archiveshub.jisc.ac.uk/search/archives/d1440e25-c6d9-34da-a1ba-c7e42de6ac22; Folger Collation, 'Filing, seventeenth-century style'"
