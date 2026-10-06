@@ -73,16 +73,20 @@
   window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error: " + (e.message || e.type)); });
 </script>
 <script src="../../src/harness.js"></script>
-<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
 <script type="module">
 import * as THREE from "three";
-import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
-import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
-import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
-import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
+import { pass, mrt, output, normalView } from "three/tsl";
 import { makeKit, buildKey } from "../painted/procedural.js";
-import { makeGI } from "../painted/gi.js";
+import { makeProbeGI } from "../../src/make/light.js";
+import { nodeify } from "../../src/make/nodes.js";
 import { touchControls, isTouch, fullscreenButton } from "../touch.js";
 import { compileBrief } from "./brief.js";
 import { buildStrongroom } from "./strongroom.js";
@@ -111,15 +115,17 @@ const { W, D, H } = spec.room;
 document.querySelector(".room .name").textContent = spec.room.name || ROOM;
 
 // ---- the picture
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// three's WebGPU renderer (r186), which falls back to WebGL 2 by itself; ?webgl=1 forces the fallback
+const renderer = new THREE.WebGPURenderer({ antialias: Q.get("msaa") !== "0", forceWebGL: Q.get("webgl") === "1" });
 renderer.setPixelRatio(Q.get("dpr") ? +Q.get("dpr") : isTouch() ? 1 : Math.min(devicePixelRatio, 1.5));     // ?dpr= overrides, for the bench
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(Q.get("exposure") || 1.0);
-renderer.shadowMap.enabled = Q.get("shadows") !== "0"; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled = Q.get("shadows") !== "0"; renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.prepend(renderer.domElement);
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 60);
-RectAreaLightUniformsLib.init();
+await renderer.init();
+THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 
 await step("growing oak, laying flags, slaking lime");
 const K = await makeKit(THREE, { floor: [W, D], onStep: (w) => { statusText.textContent = w + "…"; } });
@@ -128,6 +134,7 @@ await step("raising the strongroom");
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x07060a);
 const room = buildStrongroom(THREE, K, spec); window.__room = room;
 scene.add(room.group);
+nodeify(scene);                                  // every material to its node twin (src/make/nodes.js)
 mark("built");
 
 // light: a low sun through the south lights, the sky in each, and the eye's adaptation as fill
@@ -144,8 +151,7 @@ const setLights = () => { sun.intensity = LV.sun; for (const a of room.lights) a
 let gi = null;
 const useGI = Q.get("gi") !== "0" && (Q.get("gi") === "1" || !isTouch());
 if (useGI) {
-  gi = makeGI({ min: [0.35, 0.3, -D + 0.35], max: [W - 0.35, 2.5, -0.35], n: [5, 3, 5] });
-  scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
+  gi = makeProbeGI({ min: [0.35, 0.3, -D + 0.35], max: [W - 0.35, 2.5, -0.35], n: [5, 3, 5] });
   sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky; hemi.intensity = 0; fill.intensity = 0;
   // the bounce light baked by group, so shutters and the candle relight the room without a new bake:
   // the sun, each window's sky, each candle's flame
@@ -159,12 +165,10 @@ if (useGI) {
 setLights();
 window.__lights = (o) => { Object.assign(LV, o); setLights(); };
 
-const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: Q.get("msaa") === "0" ? 0 : 4 }));
-composer.addPass(new RenderPass(scene, camera));
-// screen-space ambient occlusion only on request: measured 2026-10-05 on a Radeon RX 460 it cost 90% of
-// the frame (4 fps against 49 without it); the bounce bake already darkens corners and crevices
-if (Q.get("ao") === "1") { const g = new GTAOPass(scene, camera, innerWidth, innerHeight); g.updateGtaoMaterial({ radius: 0.45, distanceExponent: 1.6, thickness: 1.4, scale: 1.4, samples: 16 }); composer.addPass(g); }
-composer.addPass(new OutputPass());
+// post: none by default; ?ao=1 adds r186's SSAO at half resolution (GTAO cost 90% of a frame here)
+let post = null;
+if (Q.get("ao") === "1") { const { ssao } = await import("three/addons/tsl/display/SSAONode.js"); post = new THREE.PostProcessing(renderer); const sp = pass(scene, camera); sp.setMRT(mrt({ output, normal: normalView }));
+  post.outputNode = sp.getTextureNode("output").mul(ssao(sp.getTextureNode("depth"), sp.getTextureNode("normal"), camera).getTextureNode().r); }
 
 // ---- the world: the table, its drawer and the key, as truth (world.json) driven by the harness (§8)
 const fxBase = "../painted/muniment_room/world/";
@@ -202,7 +206,7 @@ const works = makeWorks(THREE, {
 });
 for (const b of room.things) works.add(b);
 let key = null;
-const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); key.userData.entity = "key1"; if (gi) key.traverse(o => { if (o.isMesh) gi.install(o.material); });
+const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); key.userData.entity = "key1"; nodeify(key);
   const s = table.slots.get("drawer"); key.position.set(...s.at); key.rotation.y = 0.35; s.node.add(key); };
 const heldEl = document.getElementById("held"), lineEl = document.getElementById("line");
 const showHeld = () => { const items = harness.world.relations.filter(r => r[0] === "held_by" && r[2] === "player").map(r => r[1]); heldEl.hidden = !items.length; heldEl.innerHTML = "you carry: " + items.map(i => `<b>${{ key1: "an iron key" }[i] || i}</b>`).join(", "); };
@@ -308,7 +312,7 @@ renderer.domElement.addEventListener("mousemove", e => { if (document.pointerLoc
 renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
 addEventListener("pointerup", () => { drag = null; });
 renderer.domElement.style.touchAction = "none";
-addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 // ---- the receipt: what this build cost, stage by stage
 let tris = 0, draws = 0; scene.traverse(o => { if (o.isMesh) { draws++; tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; } });
@@ -340,13 +344,12 @@ function loop(now) {
     document.getElementById("cross").hidden = !locked;
     const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");
     hEl.hidden = !h; hEl.textContent = h; }
-  composer.render();
+  post ? post.render() : renderer.render(scene, camera);
   frames++; if (now - fpsAt > 500) { fps = Math.round(frames * 1000 / (now - fpsAt)); frames = 0; fpsAt = now;
     const r = window.__receipt(); perfEl.textContent = `${fps} fps · ${r.meshes} meshes · ${(r.tris / 1000).toFixed(0)}k tris\ncompile ${r.compile_ms} ms · kit ${r.kit_ms} ms · build ${r.build_ms} ms · bake ${r.bake_ms} ms\nwalkable at ${r.walkable_ms} ms`; }
   if (!window.__ok) { window.__ok = true; mark("walkable"); document.getElementById("status").hidden = true; }
-  requestAnimationFrame(loop);
 }
-requestAnimationFrame(loop);
+renderer.setAnimationLoop(loop);
 </script>
 </body>
 </html>

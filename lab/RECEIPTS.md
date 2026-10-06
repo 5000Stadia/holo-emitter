@@ -621,3 +621,23 @@ BatchedMesh in WebGPU still issues a draw per object, because WebGPU has no mult
 Also: three.js's core remapped to its minified build, 162 KB less to download.
 
 **Time:** about 35 min.
+
+## The strongroom on WebGPU (2026-10-06)
+
+**Built:**
+- `src/make/nodes.js`: `nodeify(scene)` turns every material into its node twin. Three GLSL hooks were rewritten in TSL:
+  - wood's patina and soot, a `MeshStandardNodeMaterial` subclass overriding `setupDiffuseColor`;
+  - the drawer labels' atlas cells;
+  - the books' spines and titles.
+- **Books** pack their per-instance cell, title and label into one interleaved buffer, and the page/spine flags into one vec2. WebGPU allows 8 vertex buffers; the books needed 9.
+- `src/make/light.js`: bounce light by state through three r186's GPU `LightProbeGrid`, one grid per light group, intensity = state weight × scale. It replaces `gi.js`'s CPU bake.
+- **The strongroom and the object viewer** run on `WebGPURenderer`, falling back to WebGL 2.
+- **Post:** none by default; `?ao=1` gives SSAO at half resolution.
+
+**Measured (RX 460):**
+- **Walkable:** 6.6 s without the bake; 11.8 s with it.
+- **The bake:** 6.3 s on the GPU for 4 groups.
+- **Brightness at the reference view:** daylight 37.3 (37 before); shuttered 2.1; candlelit 19.5. Light by state is intact.
+- **Errors:** none on either backend.
+
+**Time:** about 1 h 20 min.
