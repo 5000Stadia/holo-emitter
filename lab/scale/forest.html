@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Forest Scale Test</title>
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(16, 18, 14, 0.78); --line: rgba(236, 228, 210, 0.2); }
+  html, body { height: 100%; margin: 0; background: #0b0d0a; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; touch-action: none; }
+  #hud { position: fixed; left: 12px; top: 12px; background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; white-space: pre; line-height: 1.5; color: var(--dim); }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0b0d0a; color: var(--dim); }
+  #status[hidden], #hud[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="status">growing the forest…</div>
+<div id="hud" hidden></div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+}}</script>
+<script type="module">
+// The scale test, forest (R46's hillside, brought forward to settle the engine): a kilometre of
+// hillside and about 100,000 trees of three kinds, built in code from a seed, walked at eye height.
+// Every tree is a far impostor (two crossed cards) in one static instanced draw per kind; the GPU
+// folds away the impostors within NEAR metres, where full trees, rebuilt from a grid as you walk,
+// take over. Sun shadows only near you; fog for the distance. ?webgl=1 forces the WebGL 2 fallback;
+// ?trees=, ?near=, ?dpr= change the load. window.__stats() reports fps, draw calls and triangles.
+import * as THREE from "three/webgpu";
+import { attribute, cameraPosition, positionLocal, distance, select, vec3, float } from "three/tsl";
+import { touchControls, isTouch } from "../touch.js";
+
+const Q = new URLSearchParams(location.search), TOUCH = isTouch();
+const SIZE = 1000, TREES = +(Q.get("trees") || 100000), NEAR = +(Q.get("near") || (TOUCH ? 60 : 90)), CELL = 16;
+const t0 = performance.now(), mark = {};
+
+// ---- the land: a height function of world position, shared by the walker and the picture
+const hash = (i, j, s) => { let h = Math.imul(i, 374761393) ^ Math.imul(j, 668265263) ^ Math.imul(s + 1, 1442695041); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const smooth = (t) => t * t * (3 - 2 * t);
+const noise = (x, y, s) => { const xi = Math.floor(x), yi = Math.floor(y), fx = smooth(x - xi), fy = smooth(y - yi);
+  const a = hash(xi, yi, s), b = hash(xi + 1, yi, s), c = hash(xi, yi + 1, s), d = hash(xi + 1, yi + 1, s);
+  return a + (b - a) * fx + (c - a) * fy + (a - b - c + d) * fx * fy; };
+const fbm = (x, y, s, o = 5) => { let v = 0, a = 0.5, f = 1; for (let i = 0; i < o; i++) { v += a * noise(x * f, y * f, s + i); a *= 0.5; f *= 2; } return v; };
+const heightAt = (x, z) => 60 * fbm(x / 400, z / 400, 7) + 8 * fbm(x / 60, z / 60, 31, 3) - 30;
+const density = (x, z) => smooth(Math.min(1, Math.max(0, (fbm(x / 180, z / 180, 91, 3) - 0.35) * 3)));   // glades and thickets
+
+// ---- the renderer: WebGPU, or the WebGL 2 fallback
+const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: Q.get("webgl") === "1" });
+renderer.setPixelRatio(Q.get("dpr") ? +Q.get("dpr") : Math.min(devicePixelRatio, TOUCH ? 1 : 1.5));
+renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = Q.get("shadows") !== "0"; renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+document.body.prepend(renderer.domElement);
+await renderer.init();
+const backend = renderer.backend.isWebGPUBackend ? "WebGPU" : "WebGL 2";
+
+const scene = new THREE.Scene();
+const sky = new THREE.Color(0xa8bccb); scene.background = sky; scene.fog = new THREE.Fog(sky, 60, 520);
+const camera = new THREE.PerspectiveCamera(65, innerWidth / innerHeight, 0.1, 700);
+scene.add(new THREE.HemisphereLight(0xc8d8e8, 0x3a4228, 1.4));
+const sun = new THREE.DirectionalLight(0xfff0d8, 2.4); sun.castShadow = renderer.shadowMap.enabled;
+sun.shadow.mapSize.set(TOUCH ? 1024 : 2048, TOUCH ? 1024 : 2048); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.05;
+Object.assign(sun.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 300 });
+scene.add(sun, sun.target);
+
+// ---- the ground: one mesh, coloured by height and slope
+{ const N = 256, g = new THREE.PlaneGeometry(SIZE, SIZE, N, N); g.rotateX(-Math.PI / 2);
+  const p = g.attributes.position, col = new Float32Array(p.count * 3);
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), z = p.getZ(i), h = heightAt(x, z); p.setY(i, h);
+    const slope = Math.min(1, Math.abs(heightAt(x + 2, z) - heightAt(x - 2, z)) / 3 + Math.abs(heightAt(x, z + 2) - heightAt(x, z - 2)) / 3);
+    const k = 0.75 + 0.35 * fbm(x / 9, z / 9, 5, 2), d = density(x, z);
+    const grass = [0.28 * k, 0.36 * k, 0.16 * k], earth = [0.33 * k, 0.27 * k, 0.18 * k], rock = [0.42 * k, 0.4 * k, 0.36 * k];
+    const m = (a, b, t) => a.map((v, j) => v + (b[j] - v) * t), c = m(m(grass, earth, d * 0.6), rock, smooth(Math.min(1, slope * 1.4)));
+    col.set(c, i * 3);
+  }
+  g.setAttribute("color", new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
+  const N2 = 256, cv = document.createElement("canvas"); cv.width = cv.height = N2; const gx = cv.getContext("2d"), img = gx.createImageData(N2, N2);
+  for (let y = 0; y < N2; y++) for (let x = 0; x < N2; x++) { const v = 150 + 70 * (fbm(x / 9, y / 9, 61, 4) - 0.5) + 40 * (hash(x, y, 63) - 0.5), o = (y * N2 + x) * 4; img.data.set([v, v, v, 255], o); }
+  gx.putImageData(img, 0, 0); const detail = new THREE.CanvasTexture(cv); detail.wrapS = detail.wrapT = THREE.RepeatWrapping; detail.repeat.set(SIZE / 3, SIZE / 3); detail.colorSpace = THREE.SRGBColorSpace; detail.anisotropy = 8;
+  g.setAttribute("uv", g.attributes.uv);
+  const ground = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ vertexColors: true, map: detail })); ground.receiveShadow = true; scene.add(ground); }
+
+// ---- three kinds of tree, each a near model and a far impostor drawn from it
+// proportions as fractions of the tree's height (a 15 m pine has a trunk 0.45 m across, a crown 6 m wide)
+const lumpy = (g, amt, seed) => { const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = 1 + amt * (noise(x * 40 + seed, z * 40, 9) - 0.5) + amt * (noise(y * 40, x * 40 + seed, 10) - 0.5); p.setXYZ(i, x * k, y + amt * 0.2 * (noise(z * 30, y * 30, 11) - 0.5), z * k); } return g; };
+const KINDS = [
+  { name: "pine", h: [11, 20], model(THREE) { const parts = [], trunk = new THREE.CylinderGeometry(0.008, 0.016, 1, 7); trunk.translate(0, 0.5, 0); parts.push([trunk, 0]);
+      for (let k = 0; k < 6; k++) { const r = 0.2 - k * 0.028, c = new THREE.ConeGeometry(r, 0.2, 10, 2); lumpy(c, 0.35, k); c.translate(0, 0.3 + k * 0.105, 0); parts.push([c, 1]); } return parts; },
+    colors: [0x5a4030, 0x2a4a2e] },
+  { name: "oak", h: [9, 15], model(THREE) { const parts = [], trunk = new THREE.CylinderGeometry(0.022, 0.04, 0.55, 8); trunk.translate(0, 0.275, 0); parts.push([trunk, 0]);
+      for (const [x, y, z, r] of [[0, 0.72, 0, 0.24], [0.2, 0.62, 0.08, 0.18], [-0.19, 0.64, -0.06, 0.18], [0.05, 0.6, -0.21, 0.17], [-0.06, 0.62, 0.2, 0.17], [0.02, 0.86, 0.04, 0.17]]) { const s = lumpy(new THREE.IcosahedronGeometry(r, 2), 0.5, x * 10); s.translate(x, y, z); parts.push([s, 1]); } return parts; },
+    colors: [0x4e3a28, 0x47662c] },
+  { name: "birch", h: [11, 17], model(THREE) { const parts = [], trunk = new THREE.CylinderGeometry(0.006, 0.012, 0.85, 6); trunk.translate(0, 0.425, 0); parts.push([trunk, 0]);
+      for (const [x, y, z, r] of [[0, 0.8, 0, 0.1], [0.07, 0.66, 0.04, 0.09], [-0.06, 0.7, -0.04, 0.085], [0.02, 0.56, -0.06, 0.08]]) { const s = lumpy(new THREE.IcosahedronGeometry(r, 2), 0.45, y * 10); s.scale(1, 1.6, 1); s.translate(x, y, z); parts.push([s, 1]); } return parts; },
+    colors: [0xe2ddd0, 0x7a9a40] },
+];
+// a unit-height model in one geometry, its two materials as vertex colours
+function nearGeometry(kind) {
+  const geos = kind.model(THREE).map(([g, m]) => { g = g.toNonIndexed(); const c = new THREE.Color(kind.colors[m]), n = g.attributes.position.count, a = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) { const v = 0.85 + 0.3 * hash(i, m, 3); a.set([c.r * v, c.g * v, c.b * v], i * 3); } g.setAttribute("color", new THREE.BufferAttribute(a, 3)); g.deleteAttribute("uv"); return g; });
+  return mergeGeos(geos);
+}
+function mergeGeos(geos) {
+  const total = geos.reduce((a, g) => a + g.attributes.position.count, 0), out = new THREE.BufferGeometry();
+  for (const name of ["position", "normal", "color"]) { const arr = new Float32Array(total * 3); let o = 0; for (const g of geos) { arr.set(g.attributes[name].array, o); o += g.attributes[name].array.length; } out.setAttribute(name, new THREE.BufferAttribute(arr, 3)); }
+  return out;
+}
+// the impostor: the near model drawn once, side on, into a texture; two crossed cards carry it
+async function impostorTexture(geo) {
+  const rt = new THREE.RenderTarget(256, 256), s = new THREE.Scene(), cam = new THREE.OrthographicCamera(-0.32, 0.32, 1.02, -0.02, 0.1, 10);
+  cam.position.set(0, 0.5, 3); cam.lookAt(0, 0.5, 0);
+  s.add(new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true })), new THREE.HemisphereLight(0xc8d8e8, 0x3a4228, 1.6));
+  const l = new THREE.DirectionalLight(0xfff0d8, 2.2); l.position.set(1, 2, 2); s.add(l);
+  const prev = renderer.getClearAlpha(); renderer.setClearColor(0x000000, 0);
+  renderer.setRenderTarget(rt); await renderer.renderAsync(s, cam); renderer.setRenderTarget(null); renderer.setClearColor(sky, prev);
+  return rt.texture;
+}
+function cards() { const a = new THREE.PlaneGeometry(0.64, 1.04); a.translate(0, 0.5, 0); const b = a.clone(); b.rotateY(Math.PI / 2); return mergeGeos([a, b].map(g => { g = g.toNonIndexed(); g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3)); return g; })).setAttribute("uv", new THREE.BufferAttribute(new Float32Array([...a.toNonIndexed().attributes.uv.array, ...a.toNonIndexed().attributes.uv.array]), 2)); }
+
+// ---- where the trees stand: a jittered grid, thinned by density, three kinds by a second field
+const trees = [], grid = new Map(), key = (i, j) => i * 100000 + j;
+{ const step = Math.sqrt((SIZE * SIZE * 0.55) / TREES);
+  for (let gx = -SIZE / 2 + step / 2; gx < SIZE / 2; gx += step) for (let gz = -SIZE / 2 + step / 2; gz < SIZE / 2; gz += step) {
+    const i = Math.round(gx * 10), j = Math.round(gz * 10);
+    if (hash(i, j, 11) > density(gx, gz) * 1.6) continue;
+    const x = gx + (hash(i, j, 12) - 0.5) * step, z = gz + (hash(i, j, 13) - 0.5) * step;
+    const kf = fbm(x / 120, z / 120, 51, 2), k = kf < 0.42 ? 0 : kf < 0.56 ? 1 : 2, K = KINDS[k];
+    const h = K.h[0] + hash(i, j, 14) * (K.h[1] - K.h[0]);
+    const t = { x, y: heightAt(x, z) - 0.2, z, h, k, rot: hash(i, j, 15) * 6.283 };
+    trees.push(t);
+    const c = key(Math.floor(x / CELL), Math.floor(z / CELL)); if (!grid.has(c)) grid.set(c, []); grid.get(c).push(t);
+  }
+}
+mark.placed = performance.now() - t0;
+
+// ---- the meshes: per kind, one static far batch (every tree) and one near batch (rebuilt as you walk)
+const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0);
+const near = [], far = [];
+for (const [k, K] of KINDS.entries()) {
+  const mine = trees.filter(t => t.k === k), geo = nearGeometry(K);
+  const tex = await impostorTexture(geo);
+  const fg = cards(), centers = new Float32Array(mine.length * 3);
+  const fm = new THREE.MeshLambertNodeMaterial({ map: tex, alphaTest: 0.5, side: THREE.DoubleSide, vertexColors: true });
+  // the GPU folds away every impostor within NEAR metres of the eye: the near trees stand there instead
+  fm.positionNode = select(distance(attribute("aCenter", "vec3"), cameraPosition).lessThan(float(NEAR - 4)), vec3(0, 0, 0), positionLocal);
+  const fi = new THREE.InstancedMesh(fg, fm, mine.length); fi.frustumCulled = false;
+  mine.forEach((t, i) => { m4.compose(new THREE.Vector3(t.x, t.y, t.z), q.setFromAxisAngle(up, t.rot), new THREE.Vector3(t.h, t.h, t.h)); fi.setMatrixAt(i, m4); centers.set([t.x, t.y, t.z], i * 3); });
+  fg.setAttribute("aCenter", new THREE.InstancedBufferAttribute(centers, 3));
+  scene.add(fi); far.push(fi);
+  const ni = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true }), 12000); ni.count = 0; ni.castShadow = ni.receiveShadow = true; ni.frustumCulled = false;
+  scene.add(ni); near.push(ni);
+}
+mark.built = performance.now() - t0;
+// the near trees: every cell within NEAR of you, into its kind's batch; redone when you have moved 4 m
+let lastAt = null;
+function refreshNear(x, z) {
+  if (lastAt && Math.hypot(x - lastAt[0], z - lastAt[1]) < 4) return; lastAt = [x, z];
+  const counts = [0, 0, 0], R = Math.ceil(NEAR / CELL), ci = Math.floor(x / CELL), cj = Math.floor(z / CELL);
+  for (let i = ci - R; i <= ci + R; i++) for (let j = cj - R; j <= cj + R; j++) for (const t of grid.get(key(i, j)) || []) {
+    if (Math.hypot(t.x - x, t.z - z) >= NEAR || counts[t.k] >= 12000) continue;
+    m4.compose(new THREE.Vector3(t.x, t.y, t.z), q.setFromAxisAngle(up, t.rot), new THREE.Vector3(t.h, t.h, t.h)); near[t.k].setMatrixAt(counts[t.k]++, m4);
+  }
+  near.forEach((m, k) => { m.count = counts[k]; m.instanceMatrix.needsUpdate = true; });
+}
+
+// ---- walking: eye height over the land; WASD and the mouse, or thumbs on a phone
+let px = 0, pz = 0, yaw = 0.6, pitch = -0.02; const EYE = 1.65, keys = {};
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "Backslash") $hud.hidden = !$hud.hidden; });
+addEventListener("keyup", e => { keys[e.code] = false; });
+renderer.domElement.addEventListener("click", () => { try { renderer.domElement.requestPointerLock(); } catch (_) {} });
+addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) { yaw -= e.movementX * 0.0022; pitch = Math.max(-1.3, Math.min(1.3, pitch - e.movementY * 0.0022)); } });
+const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => { yaw -= dx * 0.004; pitch = Math.max(-1.3, Math.min(1.3, pitch - dy * 0.004)); } }) : { active: false, stick: { x: 0, y: 0 } };
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+window.__place = (x, z, yd, pd = 0) => { px = x; pz = z; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; lastAt = null; };
+
+const $hud = document.getElementById("hud"); $hud.hidden = false;
+let frames = 0, since = performance.now(), fps = 0, last = performance.now();
+window.__stats = () => ({ backend, fps, calls: renderer.info.render.drawCalls, tris: renderer.info.render.triangles, trees: trees.length, near: near.reduce((a, m) => a + m.count, 0), placed_ms: Math.round(mark.placed), built_ms: Math.round(mark.built) });
+renderer.setAnimationLoop(() => {
+  const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const sp = (keys.ShiftLeft ? 9 : 3.2) * dt, fx = -Math.sin(yaw), fz = -Math.cos(yaw);
+  let mx = 0, mz = 0;
+  if (keys.KeyW || keys.ArrowUp) { mx += fx; mz += fz; } if (keys.KeyS || keys.ArrowDown) { mx -= fx; mz -= fz; }
+  if (keys.KeyD || keys.ArrowRight) { mx -= fz; mz += fx; } if (keys.KeyA || keys.ArrowLeft) { mx += fz; mz -= fx; }
+  if (touch.active) { mx += fx * -touch.stick.y - fz * touch.stick.x; mz += fz * -touch.stick.y + fx * touch.stick.x; }
+  const n = Math.hypot(mx, mz); if (n) { px = Math.max(-SIZE / 2 + 5, Math.min(SIZE / 2 - 5, px + mx / n * sp)); pz = Math.max(-SIZE / 2 + 5, Math.min(SIZE / 2 - 5, pz + mz / n * sp)); }
+  camera.position.set(px, heightAt(px, pz) + EYE, pz); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  refreshNear(px, pz);
+  sun.position.set(px + 80, camera.position.y + 120, pz + 40); sun.target.position.set(px, camera.position.y, pz);
+  renderer.render(scene, camera);
+  frames++; if (now - since > 500) { fps = Math.round(frames * 1000 / (now - since)); frames = 0; since = now;
+    const s = window.__stats(); $hud.textContent = `${s.backend} · ${s.fps} fps · ${s.calls} draws · ${(s.tris / 1e6).toFixed(2)}M tris\n${s.trees.toLocaleString()} trees (${s.near.toLocaleString()} near) · built in ${s.built_ms} ms\nWASD walk, shift run, click to look · \\ hides this`; }
+  if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }
+});
+</script>
+</body>
+</html>

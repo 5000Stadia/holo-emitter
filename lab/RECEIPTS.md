@@ -530,3 +530,25 @@ Headless Chromium can drive this machine's AMD Radeon RX 460, through ANGLE on V
 GTAO (16 samples at double resolution) was over 90% of the frame. It's now off unless `?ao=1`, and laptop density is capped at 1.5. Result: **85 fps** on the laptop (p99 23 ms); the phone-shaped touch page runs at **655 fps** on this GPU.
 
 New switches for the bench: `?dpr=`, `?ao=`, `?msaa=0`, `?shadows=0`, `?area=0`, `?gi=`.
+
+## Scale test: a forest (2026-10-05)
+
+`lab/scale/forest.html` runs on three.js r186 with `WebGPURenderer` and falls back to WebGL 2.
+- **The scene:** a 1 km² hillside with 87,370 trees of three kinds, placed from a seed and built in about 0.4 s.
+- **Far trees:** every tree is a lit impostor (two crossed cards rendered from its model), all in one static instanced draw per kind. The GPU folds away the impostors within 90 m (60 m on phones) through a TSL position node.
+- **Near trees:** full models, rebuilt from a 16 m grid every 4 m you walk.
+- **Shadows** from a 120 m sun box that follows you; fog beyond.
+
+**Measured on the RX 460:**
+
+| Setup | fps | p99 | draws | triangles |
+|---|---|---|---|---|
+| WebGPU, laptop | 140 | 8.7 ms | 11 | 2.8M |
+| WebGL 2, laptop | 121 | 24.8 ms | 11 | 2.8M |
+| WebGPU, phone shape | 405 | 3.2 ms | 11 | 1.6M |
+
+Before the proportions were fixed and the crowns made finer, it ran at 187 / 143 / 659 fps.
+
+**Reading:** the engine has ample room for scale when the scene is batched. The picture is crude: what limits it is how the trees are written, not the renderer.
+
+**Time:** about 50 min.
