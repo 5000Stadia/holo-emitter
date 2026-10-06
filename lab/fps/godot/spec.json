@@ -30,7 +30,16 @@
   "shadows": 0,
   "post": [],
   "physics": 0,
-  "msaa": false
+  "msaa": false,
+  "bundle": false,
+  "batched": false,
+  "shared_material": false,
+  "static": false,
+  "shadows_static": false,
+  "casters": "all",
+  "street": 0,
+  "far": false,
+  "depth": "standard"
  },
  "cases": [
   {
@@ -171,6 +180,154 @@
     "physics": 2000,
     "instanced": true
    }
+  },
+  {
+   "id": "shared-material",
+   "change": "1,000 separate meshes sharing one material",
+   "set": {
+    "shared_material": true
+   }
+  },
+  {
+   "id": "static-matrices",
+   "change": "1,000 separate meshes, matrices frozen (nothing moves)",
+   "set": {
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "bundle",
+   "change": "1,000 separate meshes recorded once as a WebGPU render bundle",
+   "set": {
+    "bundle": true,
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "bundle-10k",
+   "change": "10,000 separate meshes in a render bundle",
+   "set": {
+    "objects": 10000,
+    "bundle": true,
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "shadows-static",
+   "change": "shadows 2048, the sun's shadow map drawn once (light.shadow.autoUpdate off); Godot has no switch for this on a directional light",
+   "set": {
+    "shadows": 2048,
+    "shadows_static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "shadows-big-casters",
+   "change": "shadows 2048, only the biggest fifth of objects cast",
+   "set": {
+    "shadows": 2048,
+    "casters": "big"
+   }
+  },
+  {
+   "id": "street-5k",
+   "change": "a busy street: 5,000 objects of 50 different meshes, each its own mesh",
+   "set": {
+    "street": 5000
+   }
+  },
+  {
+   "id": "street-5k-batched",
+   "change": "the busy street as BatchedMesh in three.js (WebGPU has no multi-draw, so it still issues a draw per object); Godot has no BatchedMesh and runs its MultiMesh per type",
+   "set": {
+    "street": 5000,
+    "batched": true
+   }
+  },
+  {
+   "id": "street-5k-instanced",
+   "change": "the busy street as one instanced mesh per mesh type (50 draws): InstancedMesh in three.js, MultiMesh in Godot",
+   "set": {
+    "street": 5000,
+    "instanced": true
+   }
+  },
+  {
+   "id": "street-5k-bundle",
+   "change": "the busy street, separate meshes in a render bundle",
+   "set": {
+    "street": 5000,
+    "bundle": true,
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "street-5k-batched-shadows",
+   "change": "the batched street with sun shadows 2048",
+   "set": {
+    "street": 5000,
+    "batched": true,
+    "shadows": 2048
+   }
+  },
+  {
+   "id": "street-5k-instanced-shadows",
+   "change": "the street as one instanced mesh per type, with sun shadows 2048",
+   "set": {
+    "street": 5000,
+    "instanced": true,
+    "shadows": 2048
+   }
+  },
+  {
+   "id": "far-standard",
+   "change": "long distance: the base scene plus a 300 m tower and 200 buildings from 1 to 5 km, each with a facade panel 5 cm proud of its wall; ordinary depth",
+   "set": {
+    "far": true
+   }
+  },
+  {
+   "id": "far-log",
+   "change": "long distance, logarithmic depth buffer",
+   "set": {
+    "far": true,
+    "depth": "log"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "far-reversed",
+   "change": "long distance, reversed floating-point depth",
+   "set": {
+    "far": true,
+    "depth": "reversed"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
   }
  ]
 }

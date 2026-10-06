@@ -27,11 +27,14 @@
   <div class="wrap"><table><thead><tr><th>case</th><th>three.js · WebGPU</th><th>three.js · WebGL 2</th><th>Godot 4.7 · web</th><th>what changed</th></tr></thead><tbody id="rows"></tbody></table></div>
   <h2>What it says so far</h2>
   <ul id="findings">
-    <li><b>How we build beats which engine.</b> Drawing 1,000 spheres as one instanced batch instead of 1,000 meshes is about 10× faster in every engine. 10,000 separate meshes run at 11–24 fps; instanced, 230–340.</li>
-    <li><b>Godot has less overhead per object</b> (217 fps against 135–149 for 1,000 separate meshes), and <b>cheaper shadows</b> in its web renderer.</li>
-    <li><b>three.js is faster on raw geometry and instancing</b> (23M triangles at 66 fps against 44), and <b>Rapier's physics step is faster than Godot's</b> (3.1 ms against 4.7 ms for 500 boxes; 6.5 against 8.2 for 2,000).</li>
-    <li><b>Godot's web export uses its Compatibility renderer.</b> Here it drew no ambient occlusion, no visible point lights, and no clearcoat. Its high-quality Forward+ renderer does not run in a browser.</li>
-    <li><b>Download:</b> Godot's web engine is a 39.5 MB WebAssembly file before any content. three.js's WebGPU build is 0.8 MB (about 0.23 MB gzipped).</li>
+    <li><b>How we build beats which engine.</b> In every engine, one batch is about 10× faster than many meshes.</li>
+    <li><b>Godot's lead per object is gone with render bundles.</b> Recording the draws once (WebGPU only): 1,000 separate meshes went from 148 to 1,337 fps, and 10,000 from 12 to 247. The busy street (5,000 objects, 50 meshes) went from 23 to 330; Godot draws it at 35.</li>
+    <li><b>The busy street, batched per mesh type</b> (about 51 draws): three.js 1,342 fps, Godot 658. With shadows: three.js 559, Godot 525.</li>
+    <li><b>Shadows:</b> the sun's shadow map drawn once took three.js from 86 to 136 fps (Godot 170); only big things casting, 86 to 106. Small things can do without casting.</li>
+    <li><b>A shared material</b> took three.js from 148 to 401 fps (Godot 217 to 313). Frozen matrices made no difference.</li>
+    <li><b>Far away</b>, ordinary depth loses detail at 4 km; logarithmic depth holds it at no measurable cost here. Reversed depth is better than ordinary, but not yet clean.</li>
+    <li><b>three.js is faster on raw geometry</b> (23M triangles at 66 fps against 44) <b>and on physics</b> (Rapier 3.1 ms a step against 4.7 for 500 boxes).</li>
+    <li><b>Godot's web export uses its Compatibility renderer:</b> no ambient occlusion, no visible point lights, no clearcoat. Its web engine is a 39.5 MB download; three.js's WebGPU build is 0.8 MB.</li>
   </ul>
 </main>
 <script type="module">

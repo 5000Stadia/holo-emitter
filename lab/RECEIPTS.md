@@ -574,3 +574,35 @@ Before the proportions were fixed and the crowns made finer, it ran at 187 / 143
 - **Download:** Godot's web engine is 39.5 MB of WebAssembly; three.js's WebGPU build is 0.8 MB.
 
 **Time:** about 1 h 40 min, including the Godot download (1.4 GB, web templates kept) and the export.
+
+**fps lab, round 2 (2026-10-06):** 16 new cases, all on the RX 460.
+
+**three.js countermeasures:**
+- **WebGPU render bundles:**
+
+  | Case | Before | Bundled |
+  |---|---|---|
+  | 1,000 separate meshes | 148 fps | 1,337 fps |
+  | 10,000 separate meshes | 12 fps | 247 fps |
+  | Street of 5,000 meshes | 23 fps | 330 fps |
+
+- **Shared material:** 148 to 401 fps.
+- **Static sun shadow** (`light.shadow.autoUpdate`; the renderer-wide switch is ignored by `WebGPURenderer`): 86 to 136 fps.
+- **Big casters only:** 86 to 106 fps.
+- **Frozen matrices:** no effect.
+
+**The busy street:**
+
+| Version | three.js | Godot |
+|---|---|---|
+| Separate meshes | 23 fps | 35 fps |
+| Instanced per type | 1,342 fps | 658 fps |
+| Instanced per type, with shadows | 559 fps | 525 fps |
+
+BatchedMesh in WebGPU still issues a draw per object, because WebGPU has no multi-draw.
+
+**Distance (a telephoto at 4 km):** ordinary depth breaks the facade panels; logarithmic depth holds them at no measurable cost; reversed depth only partly holds; Godot holds.
+
+**C#:** Godot 4's C# can't export to the web as of 4.7. hjoykim/THREE is a desktop-only C# port.
+
+**Time:** about 1 h 15 min.

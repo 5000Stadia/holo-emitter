@@ -24,7 +24,7 @@ import { pass, mrt, output, normalView } from "three/tsl";
 const Q = new URLSearchParams(location.search), $ = (t) => { document.getElementById("hud").textContent = t; };
 const [spec, layout] = await Promise.all(["spec.json", "layout.json"].map(f => fetch(f).then(r => r.json())));
 const cs = spec.cases.find(c => c.id === (Q.get("case") || "base")), C = { ...spec.base, ...(cs.set || {}) };
-const renderer = new THREE.WebGPURenderer({ antialias: C.msaa, forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance" });
+const renderer = new THREE.WebGPURenderer({ antialias: C.msaa, forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance", logarithmicDepthBuffer: C.depth === "log", reversedDepthBuffer: C.depth === "reversed" });
 renderer.setPixelRatio(spec.pixel_ratio); renderer.setSize(spec.viewport[0], spec.viewport[1]);
 renderer.shadowMap.enabled = C.shadows > 0; renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.prepend(renderer.domElement);
@@ -32,7 +32,7 @@ await renderer.init();
 const backend = renderer.backend.isWebGPUBackend ? "three-webgpu" : "three-webgl2";
 
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x8fa3b5);
-const camera = new THREE.PerspectiveCamera(60, spec.viewport[0] / spec.viewport[1], 0.1, 300);
+const camera = new THREE.PerspectiveCamera(60, spec.viewport[0] / spec.viewport[1], 0.1, C.far ? 10000 : 300);
 scene.add(new THREE.HemisphereLight(0xdde6ee, 0x404040, 1.0));
 const sun = new THREE.DirectionalLight(0xffffff, 2.5); sun.position.set(30, 50, 20);
 if (C.shadows) { sun.castShadow = true; sun.shadow.mapSize.set(C.shadows, C.shadows); Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 150 }); }
@@ -43,6 +43,18 @@ const ground = new THREE.Mesh(new THREE.BoxGeometry(200, 1, 200), new THREE.Mesh
 const material = () => C.material === "basic" ? new THREE.MeshBasicMaterial({ color: 0xffffff }) : C.material === "lambert" ? new THREE.MeshLambertMaterial({ color: 0xffffff })
   : C.material === "physical" ? new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.1 }) : new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
 const m4 = new THREE.Matrix4(), col = new THREE.Color(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
+// a static object: its matrix worked out once, never again
+const freeze = (m) => { if (C.static) { m.updateMatrix(); m.updateMatrixWorld(true); m.matrixAutoUpdate = false; m.matrixWorldAutoUpdate = false; } };
+// mesh k of the street's fifty, made the same way in every engine (see godot/main.gd street_shape)
+function streetShape(k) {
+  const w = 0.6 + (k % 7) * 0.15, h = 0.8 + (k % 5) * 0.4, seg = 6 + (k % 6) * 2;
+  switch (k % 4) {
+    case 0: return new THREE.BoxGeometry(w, h, w * 0.8).translate(0, h / 2, 0);
+    case 1: return new THREE.CylinderGeometry(w / 2, w / 2, h, seg).translate(0, h / 2, 0);
+    case 2: return new THREE.ConeGeometry(w / 2, h, seg).translate(0, h / 2, 0);
+    default: return new THREE.SphereGeometry(w / 2, seg, Math.max(4, seg / 2)).translate(0, w / 2, 0);
+  }
+}
 let physics = null, boxes = null;
 if (C.physics) {
   // rigid bodies: Rapier (WASM), the usual physics engine for three.js; boxes of 0.8 m dropped from layout.json
@@ -54,13 +66,51 @@ if (C.physics) {
   layout.boxes.slice(0, C.physics).forEach(([, , , , r, g, b], i) => boxes.setColorAt(i, col.setRGB(r, g, b)));
   scene.add(boxes);
   physics = { world, bodies, ms: [] };
+} else if (C.street) {
+  // the busy street: 50 different meshes (boxes, cylinders, cones, spheres of differing make), each object one of them
+  const geos = Array.from({ length: 50 }, (_, k) => streetShape(k)), list = layout.objects.slice(0, C.street), shared = material();
+  if (C.instanced) {
+    // one instanced mesh per mesh type: 50 draws for the whole street
+    const groups = geos.map(() => []); list.forEach((o, i) => groups[i % 50].push(o));
+    groups.forEach((g, k) => { const im = new THREE.InstancedMesh(geos[k], shared, g.length); im.castShadow = im.receiveShadow = C.shadows > 0;
+      g.forEach(([x, y, z, s, r, gg, b], j) => { im.setMatrixAt(j, m4.compose(v.set(x, y, z), q.identity(), sc.set(s, s, s))); im.setColorAt(j, col.setRGB(r, gg, b)); }); scene.add(im); });
+  } else if (C.batched) {
+    const tri = geos.reduce((a, g) => a + g.attributes.position.count, 0), idx = geos.reduce((a, g) => a + (g.index ? g.index.count : 0), 0);
+    const bm = new THREE.BatchedMesh(list.length, tri, idx, shared); bm.castShadow = bm.receiveShadow = C.shadows > 0;
+    const ids = geos.map(g => bm.addGeometry(g));
+    list.forEach(([x, y, z, s, r, g, b], i) => { const id = bm.addInstance(ids[i % 50]); bm.setMatrixAt(id, m4.compose(v.set(x, y, z), q.identity(), sc.set(s, s, s))); bm.setColorAt(id, col.setRGB(r, g, b)); });
+    scene.add(bm);
+  } else {
+    const holder = C.bundle ? new THREE.BundleGroup() : new THREE.Group(); scene.add(holder);
+    list.forEach(([x, y, z, s, r, g, b], i) => { const mt = C.shared_material ? shared : material(); if (!C.shared_material) mt.color.setRGB(r, g, b); const m = new THREE.Mesh(geos[i % 50], mt); m.position.set(x, y, z); m.scale.setScalar(s); m.castShadow = m.receiveShadow = C.shadows > 0; freeze(m); holder.add(m); });
+  }
 } else {
   const geo = new THREE.SphereGeometry(1, C.segments[0], C.segments[1]), list = layout.objects.slice(0, C.objects);
   if (C.instanced) {
     const im = new THREE.InstancedMesh(geo, material(), list.length); im.castShadow = im.receiveShadow = C.shadows > 0;
     list.forEach(([x, y, z, s, r, g, b], i) => { im.setMatrixAt(i, m4.compose(v.set(x, y, z), q.identity(), sc.set(s, s, s))); im.setColorAt(i, col.setRGB(r, g, b)); });
     scene.add(im);
-  } else for (const [x, y, z, s, r, g, b] of list) { const mt = material(); mt.color.setRGB(r, g, b); const m = new THREE.Mesh(geo, mt); m.position.set(x, y, z); m.scale.setScalar(s); m.castShadow = m.receiveShadow = C.shadows > 0; scene.add(m); }
+  } else {
+    const holder = C.bundle ? new THREE.BundleGroup() : new THREE.Group(), shared = material(); scene.add(holder);
+    for (const [x, y, z, s, r, g, b] of list) { const mt = C.shared_material ? shared : material(); if (!C.shared_material) mt.color.setRGB(r, g, b); const m = new THREE.Mesh(geo, mt); m.position.set(x, y, z); m.scale.setScalar(s);
+      m.castShadow = C.shadows > 0 && (C.casters === "all" || s > 0.88); m.receiveShadow = C.shadows > 0; freeze(m); holder.add(m); }
+  }
+}
+// a still sun over still things: its shadow map drawn once (WebGPURenderer reads this per light)
+if (C.shadows_static) { sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true; }
+// long distance: a tower and buildings out to 5 km, each wall with a panel 5 cm proud of it, where an
+// ordinary depth buffer runs out of precision and the two flicker through each other
+if (C.far) {
+  const wall = new THREE.MeshStandardMaterial({ color: 0xb8a890, roughness: 0.8 }), panel = new THREE.MeshStandardMaterial({ color: 0x5a6e88, roughness: 0.6 });
+  const tower = new THREE.Mesh(new THREE.BoxGeometry(40, 300, 40), wall); tower.position.set(0, 150, -4000); scene.add(tower);
+  const tp = new THREE.Mesh(new THREE.PlaneGeometry(30, 280), panel); tp.position.set(0, 150, -4000 + 20.05); scene.add(tp);
+  const bg = new THREE.BoxGeometry(1, 1, 1), pg = new THREE.PlaneGeometry(1, 1);
+  const bi = new THREE.InstancedMesh(bg, wall, 200), pi = new THREE.InstancedMesh(pg, panel, 200);
+  let s2 = 77; const r2 = () => { s2 = Math.imul(s2 ^ (s2 >>> 15), 2246822507) + 0x9e3779b9 >>> 0; s2 ^= s2 >>> 13; return (s2 >>> 0) / 4294967296; };
+  for (let i = 0; i < 200; i++) { const a = -Math.PI / 2 + (r2() - 0.5) * 1.6, d = 1000 + r2() * 4000, w = 20 + r2() * 40, h = 20 + r2() * 120, x = Math.cos(a) * d, z = Math.sin(a) * d;
+    bi.setMatrixAt(i, m4.compose(v.set(x, h / 2, z), q.identity(), sc.set(w, h, w))); pi.setMatrixAt(i, m4.compose(v.set(x, h / 2, z + w / 2 + 0.05), q.identity(), sc.set(w * 0.8, h * 0.8, 1))); }
+  scene.add(bi, pi);
+  scene.fog = null;
 }
 // post: three's own screen-space ambient occlusion and bloom, through its node post-processing
 let post = null;
@@ -79,6 +129,7 @@ const R = spec.camera, total = (spec.warmup_seconds + spec.seconds) * 1000;
 await new Promise(done => renderer.setAnimationLoop(() => {
   const now = performance.now(), el = (now - t0) / 1000;
   const a = el * R.turn_per_second; camera.position.set(Math.sin(a) * R.orbit_radius, R.height, Math.cos(a) * R.orbit_radius); camera.lookAt(...R.look_at);
+  if (Q.get("aim") === "tower") { camera.fov = 4; camera.updateProjectionMatrix(); camera.position.set(0, 20, 0); camera.lookAt(0, 150, -4000); }     // a telephoto on the tower 4 km off, to see its panel flicker or hold
   if (physics) {
     // a fixed 60 Hz step, as Godot's physics runs, so both engines do the same work per second
     physics.acc = Math.min(4 / 60, (physics.acc || 0) + (now - last) / 1000);

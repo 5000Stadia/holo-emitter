@@ -1,6 +1,26 @@
 {
  "_what": "What each run's number means, from looking at the pictures (2026-10-05). A case is 'fair' when both engines drew the same thing.",
- "fair": ["base", "instanced", "objects-10k", "objects-10k-instanced", "tris-5.8M", "tris-23M", "shadows-2048", "shadows-4096", "material-basic", "material-lambert", "msaa", "physics-500", "physics-2000"],
+ "fair": [
+  "base",
+  "instanced",
+  "objects-10k",
+  "objects-10k-instanced",
+  "tris-5.8M",
+  "tris-23M",
+  "shadows-2048",
+  "shadows-4096",
+  "material-basic",
+  "material-lambert",
+  "msaa",
+  "physics-500",
+  "physics-2000",
+  "shared-material",
+  "shadows-big-casters",
+  "street-5k",
+  "street-5k-instanced",
+  "street-5k-instanced-shadows",
+  "far-standard"
+ ],
  "notes": {
   "post-ao": "three.js draws screen-space AO (visible); Godot's web renderer (Compatibility) draws none: its number is the base scene's.",
   "lights-32": "three.js shows the coloured pools of 32 point lights; Godot's web build shows none and its draw count is unchanged: not drawn.",
@@ -9,7 +29,20 @@
   "material-physical": "No clearcoat visible in Godot's web build.",
   "physics-500": "Both step at 60 Hz; physics_ms is the time of one step: Rapier (WASM) in three.js, Godot's own physics in Godot.",
   "physics-2000": "As physics-500.",
-  "base": "Brightness differs (light units are calibrated differently); the work is the same."
+  "base": "Brightness differs (light units are calibrated differently); the work is the same.",
+  "street-5k-batched": "Not the same mechanism: three.js's BatchedMesh against Godot's MultiMesh per type. Under WebGPU, BatchedMesh still issues a draw per object (WebGPU has no multi-draw); under WebGL 2 it draws in 3. Compare street-5k-instanced instead.",
+  "street-5k-batched-shadows": "As street-5k-batched: different mechanisms.",
+  "bundle": "A WebGPU render bundle: the draws recorded once and replayed. Under WebGL 2 there is no bundle, so it runs as the base.",
+  "bundle-10k": "As bundle.",
+  "street-5k-bundle": "As bundle.",
+  "static-matrices": "Freezing the matrices made no difference: they were not the bottleneck.",
+  "shadows-static": "The sun's shadow map drawn once (light.shadow.autoUpdate off): 86 to 136 fps. The renderer-wide switch (renderer.shadowMap.autoUpdate) does nothing in WebGPURenderer.",
+  "far-standard": "Through a telephoto at 4 km: with ordinary depth, three.js loses one facade panel into its wall and breaks the tower's; Godot's web build holds every panel.",
+  "far-log": "Logarithmic depth: every panel holds at 4 km, at no measurable cost here.",
+  "far-reversed": "Reversed depth: better than ordinary, but the tower's panel still breaks; it needs floating-point depth to pay off. To check."
  },
- "sizes": { "three-webgpu": "three.webgpu.min.js 0.8 MB (about 0.23 MB gzipped)", "godot-web": "index.wasm 39.5 MB + index.js 0.28 MB + the pack" }
+ "sizes": {
+  "three-webgpu": "three.webgpu.min.js 0.8 MB (about 0.23 MB gzipped)",
+  "godot-web": "index.wasm 39.5 MB + index.js 0.28 MB + the pack"
+ }
 }

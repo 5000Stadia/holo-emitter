@@ -15,6 +15,7 @@ const results = existsSync(outFile) ? JSON.parse(readFileSync(outFile)) : { runs
 const b = await chromium.launch({ args: ["--use-angle=vulkan", "--enable-features=Vulkan", "--enable-unsafe-webgpu", "--ignore-gpu-blocklist", "--disable-gpu-vsync", "--disable-frame-rate-limit"], headless: true });
 const gpu = await (async () => { const p = await b.newPage(); await p.goto(`${base}/lab/fps/spec.json`); const g = await p.evaluate(() => { const gl = document.createElement("canvas").getContext("webgl2"), d = gl.getExtension("WEBGL_debug_renderer_info"); return gl.getParameter(d.UNMASKED_RENDERER_WEBGL); }); await p.close(); return g; })();
 for (const e of engines) for (const c of cases) {
+  const sc = spec.cases.find(x => x.id === c); if (sc?.engines && !sc.engines.includes(e)) continue;     // a mechanism only that engine has
   const p = await b.newPage({ viewport: { width: spec.viewport[0], height: spec.viewport[1] } });
   const errs = []; p.on("pageerror", x => errs.push(x.message)); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); });
   let r;
