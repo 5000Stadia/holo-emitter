@@ -29,7 +29,7 @@ export const DIMS = {
   window: 1.4, bay: 3.2,
 };
 
-export function planHybridE(program, { seed = 1660, dims = DIMS } = {}) {
+export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } = {}) {
   const D = { ...DIMS, ...dims }, E = D.ext, P = D.part;
   const plan = { schema: "holo-emitter-plan/0.1", generated: { type: "hybrid-e", program: program.program, seed }, units: "m", north: "+y",
     floors: [], rooms: [], openings: [], windows: [], fireplaces: [], stairs: [], objects: [] };
@@ -116,6 +116,20 @@ export function planHybridE(program, { seed = 1660, dims = DIMS } = {}) {
   const galLanding = room("gallery_landing", "great_stair", g, stairHall.rect.x0, stairHall.rect.x1, yR0, yR1, { landing: true });
   door(galLanding, gallery, 1.3); door(galLanding, servE);
   for (const s of plan.stairs) s.joins = plan.rooms.filter(q => (q.floor === s.from || q.floor === s.to) && overlaps(q.rect, s.rect) && q.type !== "open").map(q => q.id);
+  // ---- hearths, before windows (the chimney decides, the windows keep clear of it): every room whose
+  // type keeps a fire (hearths: room type -> "chimneypiece" | "kitchen"), on a wall with no door where the
+  // fire would stand, a hand clear of each; side walls first
+  for (const r of plan.rooms.filter(q => q.type !== "open" && !q.landing && hearths[q.room_type] && hearths[q.room_type] !== "none")) {
+    const { x0, x1, y0, y1 } = r.rect, big = hearths[r.room_type] === "kitchen" || r.room_type === "great_hall", w = big ? 3.0 : 2.0;
+    const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+    const blocked = (F, a, b) => plan.openings.filter(o => o.floor === r.floor).some(o => { const R = o.rect, pad = 0.35;
+      if (F === "W") return Math.abs(R.x1 - x0) < 0.8 && R.y1 > a - pad && R.y0 < b + pad; if (F === "E") return Math.abs(R.x0 - x1) < 0.8 && R.y1 > a - pad && R.y0 < b + pad;
+      if (F === "S") return Math.abs(R.y1 - y0) < 0.8 && R.x1 > a - pad && R.x0 < b + pad; return Math.abs(R.y0 - y1) < 0.8 && R.x1 > a - pad && R.x0 < b + pad; });
+    const tries = [["W", { x0, x1: x0 + 0.5, y0: cy - w / 2, y1: cy + w / 2 }, cy - w / 2, cy + w / 2, y1 - y0], ["E", { x0: x1 - 0.5, x1, y0: cy - w / 2, y1: cy + w / 2 }, cy - w / 2, cy + w / 2, y1 - y0],
+      ["N", { x0: cx - w / 2, x1: cx + w / 2, y0: y1 - 0.5, y1 }, cx - w / 2, cx + w / 2, x1 - x0], ["S", { x0: cx - w / 2, x1: cx + w / 2, y0, y1: y0 + 0.5 }, cx - w / 2, cx + w / 2, x1 - x0]];
+    const pick = tries.find(([F, , a, b, len]) => len > w + 0.8 && !blocked(F, a, b));
+    if (pick) plan.fireplaces.push({ floor: r.floor, room: r.id, kind: hearths[r.room_type], rect: Object.fromEntries(Object.entries(pick[1]).map(([k, v]) => [k, r3(v)])) });
+  }
   // ---- windows: every outside wall by its own rhythm, one to each bay, centred on the wall's span;
   // the garret is lit from its gable ends and the front and back
   const winRect = (w, c, half) => w.F === "S" ? { x0: c - half, x1: c + half, y0: w.line - E, y1: w.line } : w.F === "N" ? { x0: c - half, x1: c + half, y0: w.line, y1: w.line + E }
@@ -123,7 +137,10 @@ export function planHybridE(program, { seed = 1660, dims = DIMS } = {}) {
   for (const fl of Object.keys(D.floors)) for (const r of plan.rooms.filter(q => q.floor === fl && q.type !== "open" && !q.landing)) for (const w of outsideWalls(r, { L, RD, WW, WP, E })) {
     const len = w.b - w.a, k = Math.max(1, Math.floor(len / D.bay));
     for (let i = 0; i < k; i++) { const c = w.a + len * (i + 0.5) / k, half = Math.min(D.window, len / k - 0.6) / 2; if (half < 0.3) continue;
-      const R = winRect(w, c, half); plan.windows.push({ floor: fl, rect: { x0: r3(R.x0), x1: r3(R.x1), y0: r3(R.y0), y1: r3(R.y1) } }); }
+      const R = winRect(w, c, half);
+      if (plan.fireplaces.some(h => h.room === r.id && (w.F === "S" || w.F === "N" ? Math.abs((h.rect.y0 + h.rect.y1) / 2 - w.line) < 1.0 && h.rect.x0 < R.x1 + 0.4 && h.rect.x1 > R.x0 - 0.4
+        : Math.abs((h.rect.x0 + h.rect.x1) / 2 - w.line) < 1.0 && h.rect.y0 < R.y1 + 0.4 && h.rect.y1 > R.y0 - 0.4))) continue;     // the chimney stands here
+      plan.windows.push({ floor: fl, rect: { x0: r3(R.x0), x1: r3(R.x1), y0: r3(R.y0), y1: r3(R.y1) } }); }
   }
   plan.entrance = "forecourt";
   plan.outline = [[0, -WP], [WW, -WP], [WW, 0], [L - WW, 0], [L - WW, -WP], [L, -WP], [L, RD], [0, RD]];
