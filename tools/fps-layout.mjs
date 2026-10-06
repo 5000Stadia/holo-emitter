@@ -7,6 +7,6 @@ const round = (x) => Math.round(x * 1000) / 1000;
 const objects = [], boxes = [], lights = [];
 for (let i = 0; i < 10000; i++) objects.push([round((r() - 0.5) * 70), round(0.6 + r() * 6), round((r() - 0.5) * 70), round(0.4 + r() * 0.6), round(r()), round(r()), round(r())]);
 for (let i = 0; i < 2000; i++) boxes.push([round((r() - 0.5) * 20), round(4 + i * 0.25), round((r() - 0.5) * 20), round(r() * 3.14), round(r()), round(r()), round(r())]);
-for (let i = 0; i < 32; i++) lights.push([round((r() - 0.5) * 60), round(2 + r() * 5), round((r() - 0.5) * 60), round(r()), round(r()), round(r())]);
+for (let i = 0; i < 64; i++) lights.push([round((r() - 0.5) * 60), round(2 + r() * 5), round((r() - 0.5) * 60), round(r()), round(r()), round(r())]);
 writeFileSync(new URL("../lab/fps/layout.json", import.meta.url), JSON.stringify({ _what: "x, y, z, radius, r, g, b per object; x, y, z, yaw, r, g, b per falling box (0.8 m cubes); x, y, z, r, g, b per point light", objects, boxes, lights }));
 console.log("objects", objects.length, "boxes", boxes.length, "lights", lights.length);

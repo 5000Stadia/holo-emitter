@@ -606,3 +606,18 @@ BatchedMesh in WebGPU still issues a draw per object, because WebGPU has no mult
 **C#:** Godot 4's C# can't export to the web as of 4.7. hjoykim/THREE is a desktop-only C# port.
 
 **Time:** about 1 h 15 min.
+
+**fps lab, round 3 (2026-10-06):** 11 cases from the research.
+
+| Case | Result |
+|---|---|
+| Candles: 64 point lights | 117 fps default; 147 clustered (WebGPU only); 116 dynamic (no faster per frame; its gain is no recompile when lights change) |
+| SSAO at half resolution | about 0.5 ms |
+| Resolution scaling, draw-bound scene | no gain |
+| Pixel-heavy scene: full | 227 fps |
+| Pixel-heavy scene: at 1× density | 721 fps |
+| Pixel-heavy scene: half resolution plus FSR1 | 174 fps; the upscaling costs more than it saves on this GPU |
+
+Also: three.js's core remapped to its minified build, 162 KB less to download.
+
+**Time:** about 35 min.

@@ -26,9 +26,11 @@ const Q = new URLSearchParams(location.search), $ = (t) => { document.getElement
 const [spec, layout] = await Promise.all(["spec.json", "layout.json"].map(f => fetch(f).then(r => r.json())));
 const cs = spec.cases.find(c => c.id === (Q.get("case") || "base")), C = { ...spec.base, ...(cs.set || {}) };
 const renderer = new THREE.WebGPURenderer({ antialias: C.msaa, forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance", logarithmicDepthBuffer: C.depth === "log", reversedDepthBuffer: C.depth === "reversed" });
-renderer.setPixelRatio(spec.pixel_ratio); renderer.setSize(spec.viewport[0], spec.viewport[1]);
+renderer.setPixelRatio(C.pixel_ratio ?? spec.pixel_ratio); renderer.setSize(spec.viewport[0], spec.viewport[1]);
 renderer.shadowMap.enabled = C.shadows > 0; renderer.shadowMap.type = THREE.PCFShadowMap;
 document.body.prepend(renderer.domElement);
+if (C.lighting === "dynamic") { const { DynamicLighting } = await import("three/addons/lighting/DynamicLighting.js"); renderer.lighting = new DynamicLighting({ maxPointLights: 64 }); }
+if (C.lighting === "clustered") { const { ClusteredLighting } = await import("three/addons/lighting/ClusteredLighting.js"); renderer.lighting = new ClusteredLighting(); }
 await renderer.init();
 const backend = renderer.backend.isWebGPUBackend ? "three-webgpu" : "three-webgl2";
 
@@ -115,12 +117,15 @@ if (C.far) {
 }
 // post: three's own screen-space ambient occlusion and bloom, through its node post-processing
 let post = null;
-if (C.post.length) {
+if (C.post.length || C.render_scale !== 1) {
   post = new THREE.PostProcessing(renderer);
   const scenePass = pass(scene, camera);
+  if (C.render_scale !== 1) scenePass.setResolutionScale(C.render_scale);
   let out = scenePass.getTextureNode("output");
+  if (C.post.includes("ssao")) { const { ssao } = await import("three/addons/tsl/display/SSAONode.js"); scenePass.setMRT(mrt({ output, normal: normalView })); const a = ssao(scenePass.getTextureNode("depth"), scenePass.getTextureNode("normal"), camera); out = out.mul(a.getTextureNode().r); }
   if (C.post.includes("ao")) { const { ao } = await import("three/addons/tsl/display/GTAONode.js"); scenePass.setMRT(mrt({ output, normal: normalView })); const a = ao(scenePass.getTextureNode("depth"), scenePass.getTextureNode("normal"), camera); out = out.mul(a.getTextureNode().r); }
   if (C.post.includes("bloom")) { const { bloom } = await import("three/addons/tsl/display/BloomNode.js"); out = out.add(bloom(out, 0.6, 0.4, 0.8)); }
+  if (C.upscale === "fsr1") { const { fsr1 } = await import("three/addons/tsl/display/FSR1Node.js"); out = fsr1(out); }
   post.outputNode = out;
 }
 

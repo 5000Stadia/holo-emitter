@@ -39,7 +39,10 @@
   "casters": "all",
   "street": 0,
   "far": false,
-  "depth": "standard"
+  "depth": "standard",
+  "lighting": "default",
+  "render_scale": 1,
+  "upscale": null
  },
  "cases": [
   {
@@ -323,6 +326,152 @@
    "set": {
     "far": true,
     "depth": "reversed"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "candles-64",
+   "change": "64 point lights (candles), three.js's default lighting",
+   "set": {
+    "point_lights": 64
+   }
+  },
+  {
+   "id": "candles-64-dynamic",
+   "change": "64 point lights batched into uniform arrays (DynamicLighting): light count changes recompile nothing",
+   "set": {
+    "point_lights": 64,
+    "lighting": "dynamic"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "candles-64-clustered",
+   "change": "64 point lights, clustered (ClusteredLighting, WebGPU only)",
+   "set": {
+    "point_lights": 64,
+    "lighting": "clustered"
+   },
+   "engines": [
+    "three-webgpu"
+   ]
+  },
+  {
+   "id": "post-ssao",
+   "change": "SSAO at half resolution (r186's SSAONode)",
+   "set": {
+    "post": [
+     "ssao"
+    ]
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "scale-0.5",
+   "change": "the scene drawn at half resolution, stretched",
+   "set": {
+    "render_scale": 0.5
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "scale-0.5-fsr1",
+   "change": "the scene drawn at half resolution, upscaled and sharpened (FSR1)",
+   "set": {
+    "render_scale": 0.5,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "scale-0.75-fsr1",
+   "change": "the scene drawn at three-quarter resolution, upscaled (FSR1)",
+   "set": {
+    "render_scale": 0.75,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill",
+   "change": "pixel-heavy: 1,000 instanced spheres, physical clearcoat material, 2x pixel density (2560x1440), SSAO",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 2,
+    "post": [
+     "ssao"
+    ]
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill-scale-0.5-fsr1",
+   "change": "the same, drawn at half resolution and upscaled with FSR1",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 2,
+    "post": [
+     "ssao"
+    ],
+    "render_scale": 0.5,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill-scale-0.7-fsr1",
+   "change": "the same at 70% resolution, FSR1",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 2,
+    "post": [
+     "ssao"
+    ],
+    "render_scale": 0.7,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill-dpr1",
+   "change": "the same at 1x pixel density instead (the plain cap)",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 1,
+    "post": [
+     "ssao"
+    ]
    },
    "engines": [
     "three-webgpu",

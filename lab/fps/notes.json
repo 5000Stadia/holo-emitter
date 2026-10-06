@@ -19,7 +19,8 @@
   "street-5k",
   "street-5k-instanced",
   "street-5k-instanced-shadows",
-  "far-standard"
+  "far-standard",
+  "candles-64"
  ],
  "notes": {
   "post-ao": "three.js draws screen-space AO (visible); Godot's web renderer (Compatibility) draws none: its number is the base scene's.",
@@ -39,7 +40,18 @@
   "shadows-static": "The sun's shadow map drawn once (light.shadow.autoUpdate off): 86 to 136 fps. The renderer-wide switch (renderer.shadowMap.autoUpdate) does nothing in WebGPURenderer.",
   "far-standard": "Through a telephoto at 4 km: with ordinary depth, three.js loses one facade panel into its wall and breaks the tower's; Godot's web build holds every panel.",
   "far-log": "Logarithmic depth: every panel holds at 4 km, at no measurable cost here.",
-  "far-reversed": "Reversed depth: better than ordinary, but the tower's panel still breaks; it needs floating-point depth to pay off. To check."
+  "far-reversed": "Reversed depth: better than ordinary, but the tower's panel still breaks; it needs floating-point depth to pay off. To check.",
+  "candles-64": "64 point lights: three.js default 117 fps; Godot's web build again shows no point-light pools, so its number is not a comparison.",
+  "candles-64-dynamic": "DynamicLighting is no faster per frame (and worse at p99); its gain is no shader recompile when lights come and go (a candle lit or put out).",
+  "candles-64-clustered": "Clustered lighting: 147 fps against 117 default for 64 candles. WebGPU only, and only point lights without shadows.",
+  "post-ssao": "SSAO at half resolution: about 0.5 ms here, cheap enough for a laptop tier.",
+  "scale-0.5": "This scene is draw-bound, so drawing fewer pixels gains nothing; see the fill cases.",
+  "scale-0.5-fsr1": "As scale-0.5.",
+  "scale-0.75-fsr1": "As scale-0.5.",
+  "fill": "Pixel-heavy: 2x density, physical material, SSAO.",
+  "fill-scale-0.5-fsr1": "Half resolution plus FSR1 is slower than full resolution here (174 against 227 fps): the upscaling pass at full output size costs more than it saves on this GPU.",
+  "fill-scale-0.7-fsr1": "As fill-scale-0.5-fsr1.",
+  "fill-dpr1": "The plain density cap: 227 to 721 fps, 3.2x. The lever to pull."
  },
  "sizes": {
   "three-webgpu": "three.webgpu.min.js 0.8 MB (about 0.23 MB gzipped)",

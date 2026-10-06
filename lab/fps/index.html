@@ -32,6 +32,8 @@
     <li><b>The busy street, batched per mesh type</b> (about 51 draws): three.js 1,342 fps, Godot 658. With shadows: three.js 559, Godot 525.</li>
     <li><b>Shadows:</b> the sun's shadow map drawn once took three.js from 86 to 136 fps (Godot 170); only big things casting, 86 to 106. Small things can do without casting.</li>
     <li><b>A shared material</b> took three.js from 148 to 401 fps (Godot 217 to 313). Frozen matrices made no difference.</li>
+    <li><b>Pixels:</b> capping pixel density at 1× made a pixel-heavy scene 3.2× faster (227 to 721 fps). Drawing at half resolution and upscaling with FSR1 was slower (174) on this GPU.</li>
+    <li><b>Candles:</b> 64 point lights cost about 25% with three.js's default lighting; clustered lighting (WebGPU only) gets nearly all of it back (147 against 117 fps). Batched dynamic lighting is no faster per frame, but lighting or snuffing a candle recompiles nothing.</li>
     <li><b>Far away</b>, ordinary depth loses detail at 4 km; logarithmic depth holds it at no measurable cost here. Reversed depth is better than ordinary, but not yet clean.</li>
     <li><b>three.js is faster on raw geometry</b> (23M triangles at 66 fps against 44) <b>and on physics</b> (Rapier 3.1 ms a step against 4.7 for 500 boxes).</li>
     <li><b>Godot's web export uses its Compatibility renderer:</b> no ambient occlusion, no visible point lights, no clearcoat. Its web engine is a 39.5 MB download; three.js's WebGPU build is 0.8 MB.</li>
