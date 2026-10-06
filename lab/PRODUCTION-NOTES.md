@@ -53,3 +53,7 @@ The approach he wants is "a rigorous rule set and separation of object types, an
     - **My reading:** a kind carries its own checks, which travel with it in the library.
     - Checks also attach to the parts and slots a kind uses. A packed row's "nothing scattered" applies to every shelf, a pantry, a shop counter.
     - Only a very small universal core applies to everything: rests on something, passes through nothing, stays within its budget.
+15. **Deployment must be AI-free.** In his words: "if we have to do a review pass process like this on every added object we loose sight of the goal of a fast dynamically deployed world … for prebuilt items I'm worried deployment should be llm free from there".
+    - **My reading, and the rule:** a review pass belongs to authoring a recipe, once ever per recipe. It never runs at deployment.
+    - Placing, filling and building known kinds takes zero AI calls. Worldspring makes none live.
+    - At most one ingestion pass per location for new text, and a world already ingested has none.
