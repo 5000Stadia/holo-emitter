@@ -18,6 +18,12 @@ import { kindOf, sizeOf as kindSize } from "./catalogue.js";
 import { furnish } from "./furnish.js";
 import { rng, seedOf } from "./id.js";
 
+// a hearth fire's two looks: flame, drawn additive (it lights, it isn't lit), and embers
+const FIRE = {
+  flame: Object.assign(new THREE.MeshBasicMaterial({ color: 0xc8501a, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), { userData: { cls: "flame" } }),
+  core: Object.assign(new THREE.MeshBasicMaterial({ color: 0xd89a40, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), { userData: { cls: "flame" } }),
+  ember: Object.assign(new THREE.MeshBasicMaterial({ color: 0x7a2410 }), { userData: { cls: "ember" } }),
+};
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
 const WALL_STYLE = { wainscot: "panelled", tapestry: "limewashed", limewash: "limewashed", stone: "limewashed" };
 
@@ -82,7 +88,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     matting: Object.assign(new THREE.MeshStandardMaterial({ map: rushMatting(), roughness: 0.95 }), { userData: { cls: "matting" } }),
     plaster: M.plaster, limewash: M.limewash,
   };
-  const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [];
+  const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [], hearths = [], flames = [];
   // a kind's size in its own frame (from its data, or measured once from a build)
   const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3();
   const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
@@ -154,6 +160,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       const frame = new THREE.Object3D(); frame.position.set(x0 + P[F].pos[0], Y + P[F].pos[1], -y0 + P[F].pos[2]); frame.rotation.y = P[F].rot; frame.updateMatrixWorld(true);
       for (const e of spec.walls[F]) if (e.kind === "window") windows.push({ room: room.id, w: e.r1 - e.r0 - 0.2, h: e.top - e.sill - 0.1,
         c: frame.localToWorld(new THREE.Vector3((e.r0 + e.r1) / 2, (e.sill + e.top) / 2, -(e.T || 0.6) + 0.06)), into: frame.localToWorld(new THREE.Vector3((e.r0 + e.r1) / 2, (e.sill + e.top) / 2, 5)) });
+      // each hearth's fire, where it burns in the world (the firebox stands in the breast), if the room keeps one lit
+      for (const e of spec.walls[F]) if (e.kind === "chimneypiece") { const fb = e.firebox, B = e.breast || 0;
+        hearths.push({ room: room.id, lit: (T.light || []).includes("fire"), big: !!e.open, w: fb.r1 - fb.r0,
+          at: frame.localToWorld(new THREE.Vector3((fb.r0 + fb.r1) / 2, 0.3, B - fb.depth * 0.45)), into: frame.localToWorld(new THREE.Vector3((fb.r0 + fb.r1) / 2, 0.6, B + 2)) }); }
       // the doors this room hangs (the first room an opening joins), as things that work
       // (the strongroom hangs its own iron door)
       for (const e of spec.walls[F]) if (e.kind === "door" && e.joins?.[0] === room.id && !e.joins.some(j => plan.rooms.find(q => q.id === j)?.room_type === "muniment_room")) {
@@ -182,6 +192,18 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       if (p.rect) blocks.push({ floor: room.floor, room: room.id, kind: p.kind, x0: x0 + p.rect.u0, x1: x0 + p.rect.u1, y0: y0 + p.rect.v0, y1: y0 + p.rect.v1 });
     });
     merge(grp, bundles);
+    // the fire in each lit hearth: logs, embers and flames (drawn with the room; they flicker while seen)
+    for (const h of hearths.filter(q => q.room === room.id && q.lit)) {
+      const f = new THREE.Group(), n = h.big ? 5 : 3, span = Math.min(h.w * 0.6, h.big ? 1.4 : 0.55);
+      f.position.set(h.at.x - grp.position.x, h.at.y - 0.3 - grp.position.y, h.at.z - grp.position.z); f.lookAt(new THREE.Vector3(h.into.x - grp.position.x, f.position.y, h.into.z - grp.position.z));
+      for (let k = 0; k < 2; k++) { const log = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, span, 8), M.dark || M.oak); log.rotation.z = Math.PI / 2; log.rotation.y = (k - 0.5) * 0.4; log.position.set(0, 0.06 + k * 0.05, (k - 0.5) * 0.1); f.add(log); }
+      const ember = new THREE.Mesh(new THREE.PlaneGeometry(span, 0.3), FIRE.ember); ember.rotation.x = -Math.PI / 2; ember.position.y = 0.012; f.add(ember);
+      // tongues of flame, each an orange cone round a smaller yellow core, rising from the logs
+      for (let k = 0; k < n; k++) for (const [mat, r, hgt] of [[FIRE.flame, 0.06 + (k % 2) * 0.025, 0.26 + (k % 3) * 0.08], [FIRE.core, 0.03, 0.13 + (k % 2) * 0.05]]) {
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(r, hgt, 7, 1, true), mat); cone.geometry.translate(0, hgt / 2, 0);
+        cone.position.set((k / (n - 1 || 1) - 0.5) * span * 0.8, 0.08, (k % 2) * 0.05); cone.userData.phase = k * 1.7 + (mat === FIRE.core ? 0.6 : 0); f.add(cone); flames.push(cone); }
+      f.userData.fire = true; grp.add(f);
+    }
     scene.add(grp, movers);
     rooms.set(room.id, { room, grp, movers, H, Y, lights: [] });
   }
@@ -262,7 +284,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { scene, rooms, things, windows, blocks, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;

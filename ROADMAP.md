@@ -88,5 +88,7 @@ Agreed with you 2026-10-05 ("Just use those inspiring anchors for reference and 
 - [ ] R38 The full wants solver, seeded and prioritised (`lab/catalogue/ENGINE.md` "Wants")
 - [ ] R39 Light as a layer (row 37; `design/specs/36-plan.md` §6.1)
 - [ ] R40 The speaker layer (row 9) and iOS fullscreen (row 16) (`design/intention.md`)
+- [ ] R52 The warehouse benchmark: once the catalogue of period furniture is large, fill a warehouse with a few hundred objects, then a few hundred more, growing the room until it holds thousands, and measure how the engine stays efficient while busy (only what is seen drawn and lit), as the way to the city streets (you, 2026-10-06: "we could just do a warehouse and throw a few hundred objects in there and then a few hundred more increasing the size of the room until we have thousands of objects … maximize how our benchmark understanding of how to have a efficient but busy engine")
+- [ ] R53 Better surface textures (resolution, bump and roughness maps, close-up detail), chosen by an fps-lab test of their cost per device; deferred by you 2026-10-06 ("let's kick the texture can down the road")
 - [ ] R41 The register driven by the playbook's tags; deep facings composed at draw time (registry L-PLAYBOOK; `design/audit/deep-view-scenarios-2026-08-30.md`)
 - [ ] R42 Test Build 2: the coaching inn (row 31; `design/audit/two-room-proof-2026-08-29.md`)

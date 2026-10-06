@@ -789,3 +789,22 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 - `tools/kind-panels.mjs` draws a kind from five sides, at rest and moved, in about 6 s a kind.
 
 **Time:** about 50 min.
+
+## The cradle; the light follows what you see; fires (2026-10-06)
+
+- **Cradle:** it is now hollow, with bedding, and its rockers are broad and stand past its sides. The panel had shown it as a block.
+- **Light** (Kabe: a room seen through a doorway isn't lit properly until you walk in):
+  - **Window light:** a fixed pool of 8 window lights, up from 6. The room you stand in takes up to 4. Each room seen through an open doorway then takes a window in turn, nearest first, so every visible room shows its own daylight.
+  - **Fires:** a pool of 3 flickering fire lights goes to the lit hearths of the rooms you can see. Each lit hearth has logs, embers and flames, drawn only while its room is.
+  - **No recompiles:** the light count never changes.
+- **Measured** (RX 460, WebGPU, 900 × 560, frame time against the previous version):
+
+  | View | Before | Now |
+  |---|---|---|
+  | The hall | 2.97 ms | 2.50 ms |
+  | Stair hall into the parlours | 3.34 ms | 3.56 ms |
+  | The kitchen | 1.89 ms | 1.72 ms |
+
+  The differences are within noise. Baked fill per room (a pool of probe grids, each room's bake copied in) stays in reserve: it isn't needed at this cost.
+
+**Time:** about 1 h.

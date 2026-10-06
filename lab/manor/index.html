@@ -95,13 +95,30 @@ sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone
 Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
 sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
 scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
-// the window light that follows you: up to four of the room's own windows, then the largest window of each
-// room seen through an open doorway, nearest first, so a doorway shows the next room's own light
-const rig = Array.from({ length: 6 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
+// the light that follows what you see (Kabe, 2026-10-06: "all of the lighting elements should be deployed as
+// long as they are within the visual space"): a fixed pool, so the count of lights never changes and nothing
+// recompiles. Window light: the room you stand in first, then every room seen through an open doorway,
+// nearest first, its windows largest first, until the pool is full. Fire: the lit hearths of the rooms you
+// can see, nearest first, each with its own flicker.
+const rig = Array.from({ length: 8 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
+const fires = Array.from({ length: 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
+let firesOn = [];
 function lightRoom(id, seen = new Set([id])) {
-  const mine = manor.windows.filter(w => w.room === id).slice(0, 4);
-  for (const r of seen) { if (r === id || mine.length >= rig.length) continue; const ws = manor.windows.filter(w => w.room === r).sort((a, b) => b.w * b.h - a.w * a.h); if (ws[0]) mine.push(ws[0]); }
+  const order = [id, ...[...seen].filter(r => r !== id)], per = order.map(r => manor.windows.filter(w => w.room === r).sort((a, b) => b.w * b.h - a.w * a.h));
+  const mine = per[0].slice(0, 4);
+  // then round the rooms seen, a window each turn, so every room in view gets its light before any gets a second
+  for (let k = 0; mine.length < rig.length && k < 6; k++) for (let i = 1; i < per.length && mine.length < rig.length; i++) if (per[i][k]) mine.push(per[i][k]);
+  for (let k = 4; mine.length < rig.length && per[0][k]; k++) mine.push(per[0][k]);
   rig.forEach((l, i) => { const w = mine[i]; if (!w) { l.intensity = 0; return; } l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); l.intensity = 9; });
+  const lit = order.flatMap(r => manor.hearths.filter(h => h.room === r && h.lit)).slice(0, fires.length);
+  firesOn = lit; fires.forEach((l, i) => { const h = lit[i]; if (!h) { l.intensity = 0; return; } l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); l.userData.base = h.big ? 16 : 8; });
+}
+// the fires flicker, and the flames with them, while any is in view
+function flicker(now) {
+  const t = now / 1000; let any = false;
+  fires.forEach((l, i) => { if (!firesOn[i]) return; any = true; l.intensity = l.userData.base * (0.82 + 0.1 * Math.sin(t * 7.3 + i * 2) + 0.08 * Math.sin(t * 13.1 + i)); });
+  for (const f of manor.flames) { if (!f.parent.parent.visible) continue; any = true; const p = f.userData.phase; f.scale.set(1, 0.8 + 0.25 * Math.sin(t * 9 + p) + 0.1 * Math.sin(t * 17 + p * 2), 1); }
+  return any;
 }
 
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
@@ -190,7 +207,8 @@ renderer.setAnimationLoop((now) => {
   refreshView(viewDirty); viewDirty = false;
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
-  ENG.frame(scene, camera, { changed: moved || works.busy() || !window.__ok });
+  const burning = flicker(now);
+  ENG.frame(scene, camera, { changed: moved || burning || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
