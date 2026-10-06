@@ -5,8 +5,10 @@
 // (procedural.js). Everything from the kit (procedural.js makeKit): no image, no mesh file.
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { buildBook, bookSpec } from "./book.js";
-import { buildDesk, drawerInside, rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm, smooth } from "../painted/procedural.js";
+import { build, lookC1660, shutterOpen } from "../../src/make/index.js";
+import { rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm, smooth } from "../painted/procedural.js";
 
+const r2 = (x) => Math.round(x * 1000) / 1000;
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
 
 // the segmental vault's height across its span: chord c, rise h, at s from one springing wall
@@ -152,50 +154,43 @@ function stoneWall(THREE, K, S, F, L, elems, top, vaultTop) {
 
   for (const e of elems) {
     const T = e.T ?? 0.5;
-    if (e.kind === "door") lights.push(...ironDoor(THREE, K, S, B, e, T));
+    if (e.kind === "door") lights.push(...doorReveal(THREE, K, S, B, grp, e, T));
     if (e.kind === "window") lights.push(...barredWindow(THREE, K, S, B, grp, F, e, T));
   }
   B.flush(grp, F);
   return { grp, lights };
 }
 
-// ---------------------------------------------------------------- an oak door bound in iron
-function ironDoor(THREE, K, S, B, e, T) {
-  const { M } = K, t = e.top, w = e.r1 - e.r0, r = rng(Math.round(e.r0 * 1000) + 17);
-  // plain stone reveals, chamfered at the arris
+// ---------------------------------------------------------------- a door's opening in stone
+// Plain stone reveals, chamfered at the arris; the leaf is a thing of its own (door/boarded-iron-bound),
+// hung in the opening by the room. Beyond, until the next room is built, the holodeck grid.
+function doorReveal(THREE, K, S, B, grp, e, T) {
+  const t = e.top;
   B.add(quad(THREE, [e.r0, 0, 0], [e.r0, 0, -T], [e.r0, t, -T], [e.r0, t, 0]), S.dressed);
   B.add(quad(THREE, [e.r1, 0, -T], [e.r1, 0, 0], [e.r1, t, 0], [e.r1, t, -T]), S.dressed);
   B.add(quad(THREE, [e.r0, t, 0], [e.r0, t, -T], [e.r1, t, -T], [e.r1, t, 0]), S.dressed);
   B.add(quad(THREE, [e.r0, 0.003, -T], [e.r0, 0.003, 0], [e.r1, 0.003, 0], [e.r1, 0.003, -T]), S.dressed);
   B.add(loft(THREE, [[e.r0, 0], [e.r0, t], [e.r1, t], [e.r1, 0]], [[0, 0.004], [0.045, -0.04], [0.05, -0.05]], false, false), S.dressed);
-  // the leaf: vertical boards, set back in the reveal where it closes on its rebate
-  const z = -0.12, n = Math.max(4, Math.round(w / 0.17)), bw = w / n, lt = 0.055;
-  for (let i = 0; i < n; i++) {
-    const g = metric(new THREE.BoxGeometry(bw - 0.004, t - 0.01, lt - (i % 2) * 0.004)); g.translate(e.r0 + bw * (i + 0.5), (t - 0.01) / 2, z - lt / 2);
-    B.add(g, S.doorOak, 0.3);
-  }
-  // strap hinges across the leaf, with rounded ends, and nails along them and in rows between
-  const iz = z + 0.004;
-  for (const y of [0.28, t / 2, t - 0.3]) {
-    const g = new THREE.BoxGeometry(w - 0.05, 0.055, 0.008); g.translate(e.r0 + (w - 0.05) / 2 + 0.01, y, iz); B.add(g, S.iron, 0.2);
-    const end = new THREE.CylinderGeometry(0.04, 0.04, 0.008, 16); end.rotateX(Math.PI / 2); end.translate(e.r1 - 0.06, y, iz); B.add(end, S.iron, 0.2);
-    for (let x = e.r0 + 0.06; x < e.r1 - 0.05; x += 0.12) { const h = new THREE.ConeGeometry(0.009, 0.008, 4); h.rotateX(Math.PI / 2); h.rotateZ(Math.PI / 4); h.translate(x, y, iz + 0.008); B.add(h, S.iron, 0.3); }
-  }
-  for (let y = 0.15; y < t - 0.1; y += 0.16) for (let i = 0; i <= n; i++) {
-    if ([0.28, t / 2, t - 0.3].some(s => Math.abs(s - y) < 0.07)) continue;
-    const h = new THREE.ConeGeometry(0.008, 0.007, 4); h.rotateX(Math.PI / 2); h.rotateZ(Math.PI / 4); h.translate(e.r0 + i * bw + (i === 0 ? 0.03 : i === n ? -0.03 : 0), y + (r() - 0.5) * 0.01, z + 0.004); B.add(h, S.iron, 0.3);
-  }
-  // a stock lock: an oak block under an iron plate, a keyhole, a ring to pull by
-  const lx = e.r1 - 0.17, ly = 1.02;
-  { const g = metric(new THREE.BoxGeometry(0.3, 0.2, 0.07)); g.translate(lx, ly, iz + 0.035); B.add(g, M.oakH, 0.2); }
-  { const g = new THREE.BoxGeometry(0.2, 0.13, 0.006); g.translate(lx, ly, iz + 0.073); B.add(g, S.iron, 0.15); }
-  { const g = new THREE.BoxGeometry(0.012, 0.03, 0.004); g.translate(lx + 0.02, ly - 0.01, iz + 0.077); B.add(g, S.dark); }
-  { const g = new THREE.CylinderGeometry(0.008, 0.008, 0.006, 10); g.rotateX(Math.PI / 2); g.translate(lx + 0.02, ly + 0.008, iz + 0.077); B.add(g, S.dark); }
-  { const g = new THREE.TorusGeometry(0.055, 0.007, 8, 24); g.translate(lx - 0.06, ly - 0.16, iz + 0.012); B.add(g, S.iron, 0.2); }
+  const beyond = new THREE.Mesh(new THREE.PlaneGeometry(e.r1 - e.r0 + 2, t + 1.5), holodeckGrid(THREE, K));
+  beyond.position.set((e.r0 + e.r1) / 2, t / 2, -T - 1.2); beyond.userData = { instance: `${e.id}/beyond`, material: "grid", owner: e.id }; grp.add(beyond);
   return [];
 }
 
-// ---------------------------------------------------------------- a small window, barred and shuttered
+// unestablished space, in-fiction and literal: a dark field ruled in a faint grid
+function holodeckGrid(THREE, K) {
+  if (K.grid) return K.grid;
+  const N = 512, map = canvasTex(THREE, N, N, (d) => {
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const i = (y * N + x) * 4, line = x % 64 < 2 || y % 64 < 2;
+      d[i] = line ? 120 : 6; d[i + 1] = line ? 200 : 10; d[i + 2] = line ? 170 : 12; d[i + 3] = 255;
+    }
+  });
+  map.wrapS = map.wrapT = THREE.RepeatWrapping; map.repeat.set(3, 3);
+  K.grid = new THREE.MeshBasicMaterial({ map, color: 0x9fdcc8 });
+  return K.grid;
+}
+
+// ---------------------------------------------------------------- a small window, barred
 function barredWindow(THREE, K, S, B, grp, F, e, T) {
   const sp = e.splay ?? 0.16, G = -T + 0.12;
   const o = [[e.r0, e.sill], [e.r1, e.sill], [e.r1, e.top], [e.r0, e.top]];
@@ -220,212 +215,13 @@ function barredWindow(THREE, K, S, B, grp, F, e, T) {
   const bz = G + 0.05, nb = Math.max(2, Math.round(gw / 0.11));
   for (let k = 1; k < nb + 1; k++) { const x = gx0 + gw * k / (nb + 1); const g = new THREE.CylinderGeometry(0.011, 0.011, gh + 0.1, 8); g.translate(x, (gy0 + gy1) / 2, bz); B.add(g, S.iron, 0.2); }
   for (const f of [0.33, 0.67]) { const g = new THREE.BoxGeometry(gw + 0.08, 0.035, 0.012); g.translate((gx0 + gx1) / 2, gy0 + gh * f, bz + 0.012); B.add(g, S.iron, 0.2); }
-  // inside shutters, folded back against the splays
-  if (e.shutters) {
-    const lw = (i[1][0] - i[0][0]) / 2, lh = i[2][1] - i[0][1] - 0.02;
-    for (const side of [0, 1]) {
-      const a = side ? i[1] : i[0], b = side ? o[1] : o[0];
-      const dir = new THREE.Vector2(b[0] - a[0], T + G).normalize();     // along the splay, glass to room
-      const nrm = side ? new THREE.Vector2(-dir.y, dir.x) : new THREE.Vector2(dir.y, -dir.x);
-      const cx = a[0] + dir.x * (lw / 2 + 0.02) + nrm.x * 0.03 * (side ? -1 : 1), cz = G + 0.02 + dir.y * (lw / 2 + 0.02);
-      const g = metric(new THREE.BoxGeometry(lw, lh, 0.022));
-      g.rotateY(-Math.atan2(dir.y, dir.x)); g.translate(cx + (side ? -0.02 : 0.02), a[1] + lh / 2 + 0.01, cz);
-      B.add(g, K.M.oak, 0.25);
-    }
-  }
   // daylight through the glass, facing the room
   const al = new THREE.RectAreaLight(0xe9eef0, 5.5, gw, gh);
   al.position.set((gx0 + gx1) / 2, (gy0 + gy1) / 2, G + 0.06); al.lookAt((gx0 + gx1) / 2, (gy0 + gy1) / 2, 5);
   grp.add(al);
+  // inside shutters are a thing of their own (shutters/splay-pair), hung here by the room
+  e.light = al; e.splay = { x0: i[0][0], x1: i[1][0], y0: i[0][1], y1: i[2][1], G, ox0: o[0][0], ox1: o[1][0] };
   return [al];
-}
-
-// ---------------------------------------------------------------- the labels: one atlas for the room
-const LABEL_H = 72;                                              // a cell is 160 × 72 px
-function labelAtlas(THREE, texts) {
-  const count = Math.max(1, texts.length), cw = 160, ch = LABEL_H, cols = 24, rows = Math.ceil(count / cols);
-  const c = document.createElement("canvas"); c.width = cols * cw; c.height = rows * ch;
-  const g = c.getContext("2d"), r = rng(1603);
-  for (let k = 0; k < count; k++) {
-    const x = (k % cols) * cw, y = Math.floor(k / cols) * ch;
-    // paper, browned at the edges, pasted on a little askew
-    const tone = 214 + r() * 22;
-    g.fillStyle = `rgb(${tone},${tone - 14},${tone - 42})`; g.fillRect(x, y, cw, ch);
-    const gr = g.createRadialGradient(x + cw / 2, y + ch / 2, 10, x + cw / 2, y + ch / 2, cw * 0.62);
-    gr.addColorStop(0, "rgba(120,80,30,0)"); gr.addColorStop(1, `rgba(110,70,30,${0.25 + r() * 0.25})`);
-    g.fillStyle = gr; g.fillRect(x, y, cw, ch);
-    const name = texts[k] || "", tilt = (r() - 0.5) * 0.05, ink = `rgba(${40 + r() * 20},${26 + r() * 10},${14},0.88)`;
-    if (!name) continue;                                         // a spare drawer: the paper pasted, nothing written yet
-    // a place over its kind of evidence, two lines; the place a little larger
-    const lines = name.split("\n");
-    g.save(); g.translate(x + cw / 2, y + ch / 2); g.rotate(tilt);
-    g.fillStyle = ink; g.textAlign = "center"; g.textBaseline = "middle";
-    lines.forEach((t, q) => {
-      let px = lines.length > 1 ? (q ? 19 : 22) : 25;
-      do g.font = `italic ${px}px Georgia, "Times New Roman", serif`; while (g.measureText(t).width > cw - 14 && --px > 11);
-      g.fillText(t, 0, lines.length > 1 ? (q ? 14 : -12) : 2);
-    });
-    g.restore();
-  }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-  const m = new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 }); m.userData.cls = "paper";
-  return { m, text: (k) => texts[k] || "", uv: (k) => { const u0 = (k % cols) / cols, v1 = 1 - Math.floor(k / cols) / rows; return [u0, v1 - 1 / rows, u0 + 1 / cols, v1]; } };
-}
-
-// ---------------------------------------------------------------- a press of drawers, pigeonholes over
-function press(THREE, K, S, B, e, drawers) {
-  const { M } = K, r = rng(Math.round(e.r0 * 977) + e.label0);
-  const W = e.r1 - e.r0, Dp = e.depth, Hh = e.height, side = 0.035, plinth = 0.1, cornice = 0.12;
-  const cw = (W - 2 * side) / e.cols, rh = 0.14, ph = 0.24;
-  const x0 = e.r0 + side, y0 = plinth, yD = y0 + e.rows * rh, yP = yD + e.pigeonholes * ph;
-  const box = (w, h, d, x, y, z, mat = M.oak, spread = 0.12) => { const g = metric(new THREE.BoxGeometry(w, h, d)); g.translate(x, y, z); B.add(g, mat, spread); };
-  // the carcass: ends, back, a plinth set back, a top under a moulded cornice
-  for (const x of [e.r0 + side / 2, e.r1 - side / 2]) box(side, Hh, Dp, x, Hh / 2, Dp / 2);
-  box(W, Hh, 0.015, (e.r0 + e.r1) / 2, Hh / 2, 0.008, S.dark);
-  box(W - 0.02, plinth, Dp - 0.04, (e.r0 + e.r1) / 2, plinth / 2, (Dp - 0.04) / 2);
-  box(W, 0.025, Dp, (e.r0 + e.r1) / 2, yP + 0.0125, Dp / 2);
-  box(W - 2 * side, Hh - yP - 0.025, 0.02, (e.r0 + e.r1) / 2, (yP + 0.025 + Hh) / 2, Dp - 0.01, M.oakH);
-  B.add(run(THREE, e.r0 - 0.03, e.r1 + 0.03, Hh - cornice + 0.02, [[0, Dp], [0, Dp + 0.01], [0.03, Dp + 0.015], [0.06, Dp + 0.035], [0.09, Dp + 0.05], [0.1, Dp + 0.05], [0.1, 0]]), M.oakH, 0.08);
-  // the grid's front: rails between rows, muntins between columns, a dark void behind each drawer
-  for (let j = 0; j <= e.rows; j++) box(W - 2 * side, 0.014, Dp - 0.02, (e.r0 + e.r1) / 2, y0 + j * rh, (Dp - 0.02) / 2, M.oakH, 0.06);
-  for (let j = 1; j <= e.pigeonholes; j++) box(W - 2 * side, 0.016, Dp - 0.02, (e.r0 + e.r1) / 2, yD + j * ph, (Dp - 0.02) / 2, M.oakH, 0.06);
-  for (let i = 1; i < e.cols; i++) box(0.014, yP - y0, Dp - 0.02, x0 + i * cw, (y0 + yP) / 2, (Dp - 0.02) / 2, M.oak, 0.06);
-  // the drawers: recorded here, built for the whole room at once (drawerBank) so each can be pulled
-  for (let j = 0; j < e.rows; j++) for (let i = 0; i < e.cols; i++) {
-    const out = r() < 0.06 ? 0.02 + r() * 0.07 : r() * 0.004;
-    drawers.push({ id: `${e.id}/${e.rows - j}.${i + 1}`, k: e.label0 + (e.rows - 1 - j) * e.cols + i, F: e.F, x: x0 + (i + 0.5) * cw, y: y0 + (j + 0.5) * rh, z: Dp - 0.012, w: cw, h: rh, depth: Dp - 0.06, ajar: out });
-  }
-  // pigeonholes, over the columns in use: most hold deeds folded flat, docketed and tied in bundles, stacked side by side; some
-  // hold the court rolls, the one record kept rolled, lying packed on the floor of the hole and in the
-  // grooves between. Packed, not scattered.
-  for (let j = 0; j < e.pigeonholes; j++) for (let i = 0; i < e.cols; i++) {
-    if (e.full && !e.full[i]) continue;                         // nothing yet for the spare columns
-    const left = x0 + i * cw + 0.007 + 0.004, right = x0 + (i + 1) * cw - 0.007 - 0.004, by = yD + j * ph + 0.008;
-    const roof = yD + (j + 1) * ph - 0.008 - 0.004;
-    if (r() < 0.3) {
-      const R = 0.022 + r() * 0.016, fit = Math.floor((right - left) / (2 * R + 0.003));
-      const nLow = Math.max(1, Math.min(fit, Math.ceil(fit * (0.5 + r() * 0.5))));
-      const roll = (x, y) => {
-        const len = Dp * (0.55 + r() * 0.3), z = Dp - len / 2 - 0.025 - r() * 0.03;
-        const g = new THREE.CylinderGeometry(R, R, len, 12); g.rotateX(Math.PI / 2); g.translate(x, y, z); B.add(g, S.parch, 0.24);
-        if (r() < 0.6) { const t = new THREE.TorusGeometry(R + 0.0012, 0.0025, 4, 14); t.translate(x, y, z + len * 0.12); B.add(t, S.tape); }
-      };
-      const xs = [];
-      for (let q = 0; q < nLow; q++) { const x = left + R + q * (2 * R + 0.003); xs.push(x); roll(x, by + R); }
-      for (let q = 0; q + 1 < xs.length; q++) if (r() < 0.45 && by + R + Math.sqrt(3) * (R + 0.0015) + R < roof) roll((xs[q] + xs[q + 1]) / 2, by + R + Math.sqrt(3) * (R + 0.0015));
-      continue;
-    }
-    // bundles of folded deeds: one or two stacks across the hole, each a few packets tied with tape
-    const n = r() < 0.5 ? 1 : 2, gap = 0.004, sw = (right - left - gap * (n - 1)) / n;
-    for (let q = 0; q < n; q++) {
-      const cx = left + sw / 2 + q * (sw + gap), d = Dp * (0.5 + r() * 0.2), z = Dp - d / 2 - 0.03 - r() * 0.02;
-      let y = by;
-      const packets = 1 + Math.floor(r() * 4);
-      for (let t = 0; t < packets && y < roof - 0.03; t++) {
-        const h = Math.min(roof - y - 0.004, 0.018 + r() * 0.03), w = sw * (0.82 + r() * 0.16), dz = d * (0.9 + r() * 0.1);
-        const px = cx + (r() - 0.5) * (sw - w), g = metric(new THREE.BoxGeometry(w, h, dz)); g.translate(px, y + h / 2, z); B.add(g, S.parch, 0.3);
-        if (r() < 0.7) { const tp = new THREE.BoxGeometry(w + 0.003, h + 0.003, 0.01); tp.translate(px, y + h / 2, z + dz * 0.15); B.add(tp, S.tape); }
-        y += h + 0.001;
-      }
-    }
-  }
-  return { r0: e.r0, r1: e.r1, depth: Dp + 0.06 };
-}
-
-// ---------------------------------------------------------------- the drawers, every one of them pullable
-// One instanced mesh per part (box, bottom, deeds, label, plate, ring) for the whole room. A drawer is
-// its front, sides and back in oak, a paler bottom, a stack of deeds folded flat and tied, the label
-// pasted above an iron ring on a plate. set(i, t) slides drawer i out by t metres from home.
-function drawerBank(THREE, K, S, L, list) {
-  const grp = new THREE.Group();
-  if (!list.length) return { group: grp, list, meshes: [], set() {}, travel: 0 };
-  const { M } = K, d0 = list[0], fw = d0.w - 0.018, fh = d0.h - 0.018, dd = d0.depth, r = rng(1662);
-  const box = (w, h, d, x, y, z) => { const g = metric(new THREE.BoxGeometry(w, h, d)); g.translate(x, y, z); return g; };
-  const prep = (g, mat, spread) => { if (mat.vertexColors) { if (spread) K.board(g, spread); if (!g.attributes.color) g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3)); } return g; };
-  const yIn = -fh / 2 + 0.015;                                   // the bottom's top face, in the drawer's frame
-  const parts = {
-    box: [prep(mergeGeometries([box(fw, fh, 0.018, 0, 0, -0.009),
-      box(0.01, fh - 0.03, dd, -(fw / 2 - 0.015), -0.006, -0.018 - dd / 2), box(0.01, fh - 0.03, dd, fw / 2 - 0.015, -0.006, -0.018 - dd / 2),
-      box(fw - 0.04, fh - 0.03, 0.01, 0, -0.006, -0.018 - dd + 0.005)]), M.oak, 0.06), M.oak],
-    bottom: [prep(box(fw - 0.03, 0.006, dd, 0, yIn - 0.003, -0.018 - dd / 2), drawerInside(THREE, K), 0.1), drawerInside(THREE, K)],
-    deeds: [prep(box(1, 1, 1, 0, 0.5, 0), S.parch, 0), S.parch],
-    label: [(() => { const lw = d0.w * 0.58, g = new THREE.PlaneGeometry(lw, lw * LABEL_H / 160); g.translate(0, 0.026, 0.0015); return g; })(), labelMaterial(L.m)],
-    plate: [(() => { const g = new THREE.CylinderGeometry(0.011, 0.011, 0.004, 10); g.rotateX(Math.PI / 2); g.translate(0, -0.022, 0.002); return g; })(), S.iron],
-    ring: [(() => { const g = new THREE.TorusGeometry(0.016, 0.0028, 6, 16); g.rotateX(-0.35); g.translate(0, -0.038, 0.007); return g; })(), S.iron],
-  };
-  const meshes = {};
-  for (const [name, [g, mat]] of Object.entries(parts)) {
-    const m = new THREE.InstancedMesh(g, mat, list.length); m.castShadow = m.receiveShadow = true; m.frustumCulled = false;
-    m.userData = { instance: `drawers/${name}`, material: mat.userData.cls || name, owner: "drawers", drawers: true };
-    meshes[name] = m; grp.add(m);
-  }
-  // each drawer its own cut of oak, its own label, its own height of deeds
-  const rect = new Float32Array(list.length * 4), tone = new THREE.Color();
-  list.forEach((d, i) => {
-    const k = 1 - 0.16 + r() * 0.32, warm = 1 + (r() - 0.5) * 0.08; meshes.box.setColorAt(i, tone.setRGB(k * warm, k, k / warm));
-    const [u0, v0, u1, v1] = L.uv(d.k); rect.set([u0, v0, u1, v1], i * 4);
-    d.deeds = Math.min(fh - 0.04, 0.025 + r() * 0.07);
-    d.home = new THREE.Matrix4().multiplyMatrices(d.frame, new THREE.Matrix4().makeTranslation(d.x, d.y, d.z));
-    d.at = d.ajar;
-  });
-  meshes.label.geometry.setAttribute("aRect", new THREE.InstancedBufferAttribute(rect, 4));
-  const m4 = new THREE.Matrix4(), slide = new THREE.Matrix4(), s = new THREE.Matrix4(), q = new THREE.Matrix4();
-  function set(i, t) {
-    const d = list[i], sx = d.w / d0.w; d.at = t;
-    slide.multiplyMatrices(d.home, q.makeTranslation(0, 0, t));
-    meshes.box.setMatrixAt(i, m4.multiplyMatrices(slide, s.makeScale(sx, 1, 1)));
-    meshes.bottom.setMatrixAt(i, m4);
-    meshes.label.setMatrixAt(i, m4.multiplyMatrices(slide, s.makeScale(sx, sx, 1)));
-    meshes.plate.setMatrixAt(i, slide); meshes.ring.setMatrixAt(i, slide);
-    meshes.deeds.setMatrixAt(i, m4.multiplyMatrices(slide, q.makeTranslation(0, yIn, -0.018 - dd * 0.45)).multiply(s.makeScale((fw - 0.07) * sx, d.deeds, dd * 0.78)));
-    for (const m of Object.values(meshes)) { m.instanceMatrix.needsUpdate = true; m.boundingSphere = null; }
-  }
-  list.forEach((d, i) => set(i, d.ajar));
-  meshes.box.instanceColor.needsUpdate = true;
-  return { group: grp, list, meshes: Object.values(meshes), set, travel: dd * 0.7 };
-}
-
-// the label material reads each drawer's own cell of the atlas from a per-instance rectangle
-function labelMaterial(m) {
-  if (m.userData.perDrawer) return m;
-  m.userData.perDrawer = true;
-  m.onBeforeCompile = (sh) => {
-    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nattribute vec4 aRect;")
-      .replace("#include <uv_vertex>", "#include <uv_vertex>\n#ifdef USE_MAP\nvMapUv = mix(aRect.xy, aRect.zw, uv);\n#endif");
-  };
-  m.customProgramCacheKey = () => "drawer-label";
-  return m;
-}
-
-// ---------------------------------------------------------------- an iron-bound chest under two locks
-function chest(THREE, K, S, B, e) {
-  const { M } = K, { w, d, h } = e, x = e.r, z = d / 2 + 0.03;
-  const box = (bw, bh, bd, bx, by, bz, mat = M.oak, spread = 0.18) => { const g = metric(new THREE.BoxGeometry(bw, bh, bd)); g.translate(bx, by, bz); B.add(g, mat, spread); };
-  // skids, a body of wide planks, a lid with a moulded edge
-  for (const sx of [-1, 1]) box(0.08, 0.05, d, x + sx * (w / 2 - 0.1), 0.025, z, M.oakH);
-  const bodyH = h - 0.1;
-  for (let k = 0; k < 3; k++) box(w, bodyH / 3 - 0.004, 0.035, x, 0.05 + bodyH / 3 * (k + 0.5), z + d / 2 - 0.0175, M.oakH, 0.3);
-  box(w, bodyH, d - 0.035, x, 0.05 + bodyH / 2, z - 0.0175, M.oak, 0.2);
-  box(w + 0.03, 0.045, d + 0.03, x, 0.05 + bodyH + 0.0225, z, M.oakH, 0.2);
-  // iron: bands wrapping front, lid and back, a band round the foot, angle irons at the corners
-  for (const f of [-0.36, 0, 0.36]) {
-    const bx = x + f * w;
-    box(0.045, h - 0.05, 0.006, bx, 0.05 + (h - 0.05) / 2, z + d / 2 + 0.003, S.iron, 0.2);
-    box(0.045, 0.006, d + 0.035, bx, h + 0.003, z, S.iron, 0.2);
-    for (let y = 0.12; y < h - 0.05; y += 0.1) { const n = new THREE.ConeGeometry(0.007, 0.006, 4); n.rotateX(Math.PI / 2); n.translate(bx, y, z + d / 2 + 0.009); B.add(n, S.iron, 0.3); }
-  }
-  box(w + 0.01, 0.04, 0.006, x, 0.1, z + d / 2 + 0.004, S.iron, 0.2);
-  for (const sx of [-1, 1]) for (const sz of [-1, 1]) box(0.006, h - 0.06, 0.05, x + sx * (w / 2 + 0.003), 0.05 + (h - 0.06) / 2, z + sz * (d / 2 - 0.02), S.iron, 0.2);
-  // two hasps and two padlocks
-  for (const f of [-0.18, 0.18]) {
-    const hx = x + f * w;
-    box(0.04, 0.14, 0.008, hx, h - 0.06, z + d / 2 + 0.009, S.iron, 0.2);
-    box(0.07, 0.07, 0.025, hx, h - 0.17, z + d / 2 + 0.03, S.iron, 0.2);
-    const sh = new THREE.TorusGeometry(0.024, 0.005, 6, 16, Math.PI); sh.translate(hx, h - 0.135, z + d / 2 + 0.03); B.add(sh, S.iron, 0.2);
-  }
-  // iron handles at the ends
-  for (const sx of [-1, 1]) { const g = new THREE.TorusGeometry(0.05, 0.007, 6, 16, Math.PI); g.rotateZ(Math.PI); g.rotateY(Math.PI / 2); g.translate(x + sx * (w / 2 + 0.012), h * 0.62, z); B.add(g, S.iron, 0.2); }
-  return { r0: x - w / 2 - 0.02, r1: x + w / 2 + 0.02, depth: d + 0.06 };
 }
 
 // ---------------------------------------------------------------- the room
@@ -453,44 +249,58 @@ export function buildStrongroom(THREE, K, spec) {
     }
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2)); g.computeVertexNormals();
     const m = new THREE.Mesh(g, S.vault); m.receiveShadow = m.castShadow = true; m.userData = { instance: "vault", material: "limewash", owner: "ceiling" }; grp.add(m); }
-  // the walls, then what stands against them
-  const stats = { presses: 0, drawers: 0 };
-  const count = Object.values(spec.walls).flat().filter(e => e.kind === "press").reduce((n, e) => n + e.cols * e.rows, 0);
-  const labels = labelAtlas(THREE, spec.labels || new Array(count).fill(""));
-  let desk = null;
-  const drawers = [];
+  // the walls, then what stands against them: every piece of furniture, every door's leaf and every
+  // window's shutters is a thing built from its kind (src/make), and everything on it that looks as if
+  // it works, works
+  const stats = { presses: 0, drawers: 0 }, things = [], windows = [];
+  const look = lookC1660(THREE, K, S), room = `manor/${spec.room.id}`;
+  const make = (kind, id, over, into, at, rot = 0) => {
+    const t = performance.now(), b = build(THREE, K, look, kind, `${room}/${id}`, over);
+    b.node.position.set(...at); b.node.rotation.y = rot; into.add(b.node); things.push(b);
+    stats.things_ms = +((stats.things_ms || 0) + performance.now() - t).toFixed(1);
+    return b;
+  };
+  let table = null;
   for (const F of ["N", "E", "S", "W"]) {
     const L = F === "N" || F === "S" ? W : D, elems = spec.walls[F] || [];
     const spring = v.springWalls.includes(F);
     const w = stoneWall(THREE, K, S, F, L, elems.filter(e => e.kind === "door" || e.kind === "window"), v.spring, spring ? null : (r) => arc.y(F === "E" || F === "S" ? r : r));
     w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot; grp.add(w.grp); lights.push(...w.lights);
-    const fur = new THREE.Group(), B = buckets(THREE, K);
+    for (const e of elems) {
+      if (e.kind === "door") make("door/boarded-iron-bound", e.id, { w: e.r1 - e.r0, h: e.top }, w.grp, [e.r0, 0, 0]);
+      if (e.kind === "window" && e.splay && e.shutters) {
+        const sp = e.splay, sh = make("shutters/splay-pair", `${e.id}/shutters`, { x0: sp.x0, x1: sp.x1, y0: sp.y0, y1: sp.y1, G: sp.G,
+          open_left: shutterOpen("left", sp.x0, sp.ox0, sp.G), open_right: shutterOpen("right", sp.x1, sp.ox1, sp.G) }, w.grp, [0, 0, 0]);
+        windows.push({ shutters: sh, light: e.light });
+      }
+    }
+    const fur = new THREE.Group();
     for (const e of elems) {
       let fp = null;
-      if (e.kind === "press") { fp = press(THREE, K, S, B, { ...e, F }, drawers); stats.presses++; stats.drawers += e.cols * e.rows; }
-      if (e.kind === "chest") fp = chest(THREE, K, S, B, e);
+      if (e.kind === "press") {
+        const n = e.cols * e.rows;
+        make("press/evidence", e.id, { width: r2(e.r1 - e.r0), height: e.height, depth: e.depth, cols: e.cols, rows: e.rows, pigeonholes: e.pigeonholes,
+          labels: (spec.labels || []).slice(e.label0, e.label0 + n), full: e.full }, fur, [(e.r0 + e.r1) / 2, 0, 0]);
+        stats.presses++; stats.drawers += n; fp = { r0: e.r0, r1: e.r1, depth: e.depth + 0.06 };
+      }
+      if (e.kind === "chest") { make("chest/iron-bound", e.id, { w: e.w, d: e.d, h: e.h }, fur, [e.r, 0, e.off]); fp = { r0: e.r - e.w / 2 - 0.02, r1: e.r + e.w / 2 + 0.02, depth: e.off + e.d + 0.03 }; }
       if (e.kind === "desk") {
-        const tDesk = performance.now(); desk = buildDesk(THREE, K, { W: e.width }); stats.desk_ms = +(performance.now() - tDesk).toFixed(1);
-        desk.group.position.set(e.r, 0, 0.04); fur.add(desk.group);
-        // the calendar of the evidences, a folio in vellum, lying to one side of the table
+        table = make("table/joined-with-drawer", e.id, { W: e.width }, fur, [e.r, 0, 0.04]);
+        // on it: the calendar of the evidences, a folio in vellum, to one side; a candle to the other
         if (spec.onTable) { const cal = buildBook(THREE, K, bookSpec("folio", 1660, undefined, { binding: "vellum" }));
-          cal.rotation.set(0, 0.12, Math.PI / 2); cal.position.set(-e.width / 2 + 0.3, 0.76 + cal.scale.x / 2, 0.3); desk.group.add(cal); }
+          cal.rotation.set(0, 0.12, Math.PI / 2); cal.position.set(-e.width / 2 + 0.3, 0.76 + cal.scale.x / 2, 0.3); table.node.add(cal); }
+        make("candle/in-candlestick", `${e.id}/candle`, {}, table.node, [e.width / 2 - 0.2, 0.76, 0.22]);
         fp = { r0: e.r - e.width / 2 - 0.03, r1: e.r + e.width / 2 + 0.03, depth: 0.64 };
       }
       if (fp) colliders.push({ F, ...fp });
     }
-    B.flush(fur, `${F}/furniture`);
     fur.position.copy(w.grp.position); fur.rotation.y = P[F].rot; grp.add(fur);
   }
-  // the drawers, each placed in its wall's frame, one draw call per part for the whole room
-  const tBank = performance.now();
-  const bank = drawerBank(THREE, K, S, labels, drawers.map(d => ({ ...d, frame: new THREE.Matrix4().compose(new THREE.Vector3(...P[d.F].pos), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), P[d.F].rot), new THREE.Vector3(1, 1, 1)) })));
-  grp.add(bank.group); stats.drawers_ms = +(performance.now() - tBank).toFixed(1);
   // colliders in room metres (X east from the west wall, Y north from the south wall)
   const boxes = colliders.map(c => {
     const at = { N: (r, o) => [r, D - o], S: (r, o) => [W - r, o], E: (r, o) => [W - o, D - r], W: (r, o) => [o, r] }[c.F];
     const p = [at(c.r0, 0), at(c.r1, 0), at(c.r0, c.depth), at(c.r1, c.depth)];
     return { x0: Math.min(...p.map(q => q[0])), x1: Math.max(...p.map(q => q[0])), y0: Math.min(...p.map(q => q[1])), y1: Math.max(...p.map(q => q[1])) };
   });
-  return { group: grp, lights, desk, drawers: bank, labelOf: labels.text, colliders: boxes, stats: { ...stats, parts: K.parts, ms: Math.round(performance.now() - t0) } };
+  return { group: grp, lights, things, table, windows, colliders: boxes, stats: { ...stats, things: things.length, parts: K.parts, ms: Math.round(performance.now() - t0) } };
 }

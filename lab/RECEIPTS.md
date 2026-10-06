@@ -327,3 +327,46 @@ Added time: about 25 min. The room's checks pass. Build 1.5 s; 73 meshes; 120 dr
 - **Build, measured A/B:** the same table built with a working drawer and with a fixed drawer front (no sides, back, bottom or cavity), 40 builds × 4 rounds, warm. Working: 4.3 ms, 32 meshes. Fixed: 3.95 ms, 27 meshes. **Difference: about 0.4 ms.** An earlier estimate of 2 ms, made from the share of pieces, was wrong. The table's first build in the room takes 14–23 ms because of one-time warm-up. All 120 press drawers, working, take 3–5 ms together.
 - **Play:** moving one drawer costs 3.3 µs a frame, and only while it moves.
 - **Authoring:** the press drawer bank took about 20 min, written once. That is the real cost.
+
+## R48 steps 1–3: the production system's core, things that work, the strongroom from kinds (2026-10-05)
+
+**Built** (`src/make/`):
+- **Identity:** an id and a seed from the birth address, by integer hashing only.
+- **The catalogue:** parts as code, kinds as data. A kind is checked against its schema and pinned by a content hash. Settings are drawn from the seed to the millimetre, one stream per setting.
+- **Build:** the body merged per material; each mover a group about its pivot; banks of instanced movers; slots; animations.
+- **Looks:** material roles mapped to materials.
+- **Works:** one interaction layer for every thing.
+  - Mechanisms: slide, hinge, lever (springs back), switch, process.
+  - Processes are worked out from elapsed time and pause when switched off.
+  - A need can be another affordance's state, or something the world answers ("@holding: key").
+  - State is an overlay of what someone changed.
+
+**The strongroom is now 8 things from 6 kinds**, all working:
+- 120 press drawers;
+- the table drawer, still owned by the harness, with the key in its slot;
+- the chest: its padlocks need the desk's key, the lid needs the padlocks open, and inside are tied bundles and two letters patent with their seals;
+- two doors, which open onto the holodeck grid (unestablished space);
+- the shutters on both windows. Closing them dims that window's daylight.
+- a tallow candle that lights, flickers and burns down over about 4 hours.
+
+The hand-wired table drawer and press drawers are gone from the room.
+
+**Found by eye:** the open chest lid drove its hasps 2 cm into the wall. Fixed by standing the chest 7 cm off the wall and opening the lid to 95°. This became proposed check 3 (`design/production/checks-proposed.md`).
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Plan the steps | 10 min |
+| Core and works | 35 min |
+| Parts and kinds (ported from strongroom.js and procedural.js) | 40 min |
+| Room and page | 25 min |
+| Verify | 25 min |
+| **Wall clock** | **about 2 h 15 min** |
+
+**Code:** `src/make/` is about 700 lines; about 330 lines left `strongroom.js` and `index.html`.
+
+**Runtime (SwiftShader):**
+- 8 things built from kinds in 98 ms;
+- the room build is 1.46 s, as before (the label atlas and the kit dominate);
+- 10/10 room tests pass; brief-check all holds.

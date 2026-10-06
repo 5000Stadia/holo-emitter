@@ -64,7 +64,7 @@
   <div></div>
   <div class="bottom">
     <div class="keys" id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride<br>
-      click (or <kbd>E</kbd>) what is in front of you: the table's drawer opens<br><kbd>B</kbd> the brief and what the build did with it &nbsp; <kbd>\</kbd> timings</div>
+      click (or <kbd>E</kbd>) what is in front of you: drawers, doors, shutters, the chest, the candle all work<br><kbd>B</kbd> the brief and what the build did with it &nbsp; <kbd>\</kbd> timings</div>
     <div id="perf" hidden></div>
   </div>
 </div>
@@ -86,6 +86,7 @@ import { makeGI } from "../painted/gi.js";
 import { touchControls, isTouch, fullscreenButton } from "../touch.js";
 import { compileBrief } from "./brief.js";
 import { buildStrongroom } from "./strongroom.js";
+import { makeWorks } from "../../src/make/index.js";
 
 const Q = new URLSearchParams(location.search);
 const ROOM = Q.get("room") || "muniment_room";
@@ -130,7 +131,7 @@ scene.add(sun, sun.target);
 const hemi = new THREE.HemisphereLight(0xd6d8d6, 0x4a4036, 0); scene.add(hemi);
 const fill = new THREE.RectAreaLight(0xf2e6d4, 0, W * 0.8, D * 0.8); fill.position.set(W / 2, 0.05, -D / 2); fill.lookAt(W / 2, 5, -D / 2); scene.add(fill);
 const LV = { sun: +(Q.get("sun") || 2.0), sky: +(Q.get("sky") || 12), fill: +(Q.get("fill") || 0.7), floorB: +(Q.get("floorB") || 0.7), gi: +(Q.get("gi") || 1.1) };
-const setLights = () => { sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky; hemi.intensity = LV.fill; fill.intensity = LV.floorB; if (gi) gi.setScale(LV.gi); };
+const setLights = () => { sun.intensity = LV.sun; for (const a of room.lights) a.intensity = LV.sky * (a.userData.open ?? 1); hemi.intensity = LV.fill; fill.intensity = LV.floorB; if (gi) gi.setScale(LV.gi); };
 let gi = null;
 const useGI = Q.get("gi") !== "0" && (Q.get("gi") === "1" || !isTouch());
 if (useGI) {
@@ -155,19 +156,34 @@ const fx = {};
 for (const n of ["world", "staging", "narration", "viewstate"]) fx[n] = await (await fetch(`${fxBase}${n}.json`)).json();
 try { if (!Q.has("fresh")) { const saved = localStorage.getItem(WK); if (saved) fx.world = JSON.parse(saved); } else localStorage.removeItem(WK); } catch (_) {}
 const harness = window.HOLO.harness.create(fx);
-const desk = room.desk;
+const table = room.table;
 const known = (id) => harness.world.knowledge.player.includes(id);
 const heldByMe = (id) => harness.world.relations.some(r => r[0] === "held_by" && r[1] === id && r[2] === "player");
 const stateOf = (id) => harness.world.entities.find(e => e.id === id).state;
-let key = null, drawerAt = stateOf("desk1") === "open" ? 1 : 0, drawerTo = drawerAt;
-const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); if (gi) key.traverse(o => { if (o.isMesh) gi.install(o.material); }); key.position.copy(desk.cavity); key.rotation.y = 0.35; desk.drawer.add(key); };
+// everything that works, through one layer (src/make/works.js); its state is an overlay kept per
+// viewer. The table's drawer and the key are the harness's truth (world.json), so the drawer's state
+// comes from there; the chest's padlocks ask whether you carry the key.
+const MK = `holo-emitter/brief/${ROOM}/works`;
+let workState = {};
+try { if (Q.has("fresh")) localStorage.removeItem(MK); else workState = JSON.parse(localStorage.getItem(MK) || "{}"); } catch (_) {}
+workState[`${table.id}.drawer`] = stateOf("desk1");
+const works = makeWorks(THREE, {
+  store: workState, save: (st) => { try { localStorage.setItem(MK, JSON.stringify(st)); } catch (_) {} },
+  ask: (need, want) => need === "holding" && want === "key" ? heldByMe("key1") : false,
+  // the shutters let in the day: the window's light follows how far its leaves stand open
+  onMove: (b) => { const w = room.windows.find(w => w.shutters === b); if (w) { const open = ["left", "right"].reduce((n, a) => n + (works.stateOf(b, a) === "open" ? 0.5 : 0), 0); w.light.userData.open = open; setLights(); } },
+});
+for (const b of room.things) works.add(b);
+let key = null;
+const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); key.userData.entity = "key1"; if (gi) key.traverse(o => { if (o.isMesh) gi.install(o.material); });
+  const s = table.slots.get("drawer"); key.position.set(...s.at); key.rotation.y = 0.35; s.node.add(key); };
 const heldEl = document.getElementById("held"), lineEl = document.getElementById("line");
 const showHeld = () => { const items = harness.world.relations.filter(r => r[0] === "held_by" && r[2] === "player").map(r => r[1]); heldEl.hidden = !items.length; heldEl.innerHTML = "you carry: " + items.map(i => `<b>${{ key1: "an iron key" }[i] || i}</b>`).join(", "); };
 let lineTimer = null;
 const say = (text) => { if (!text) return; lineEl.textContent = text; lineEl.hidden = false; lineEl.style.opacity = 1; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.style.opacity = 0; setTimeout(() => { lineEl.hidden = true; }, 700); }, 4200); };
 placeKey(); showHeld();
 function project() {
-  drawerTo = stateOf("desk1") === "open" ? 1 : 0;
+  works.set(table, "drawer", null, stateOf("desk1"));
   if (known("key1") && !heldByMe("key1")) placeKey();
   if (heldByMe("key1") && key) { key.parent.remove(key); key = null; }
   showHeld();
@@ -175,41 +191,31 @@ function project() {
 }
 harness.subscribe(project);
 const dispatch = (intent) => { const env = harness.dispatch(intent); say(env.narration); return env; };
-window.__settled = () => Math.abs(drawerTo - drawerAt) < 0.003 && !pulling.size;
+window.__settled = () => works.settled();
 window.__world = () => JSON.parse(JSON.stringify(harness.world));
 window.__dispatch = (intent) => dispatch(intent);
 window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray() } : null;
+window.__works = works;
 const ray = new THREE.Raycaster(); ray.far = 2.3;
+// what is under the aim: the key, or something that works
 function aimAt(ndc) {
   ray.setFromCamera(ndc, camera);
-  const hit = ray.intersectObjects([desk.group, ...room.drawers.meshes, ...(key ? [key] : [])], true)[0];
+  const hit = ray.intersectObjects([...works.meshes(), ...(key ? [key] : [])], true)[0];
   if (!hit) return null;
-  if (hit.object.userData.drawers) return `drawer:${hit.instanceId}`;
   let o = hit.object; while (o && !o.userData.entity) o = o.parent;
-  return o ? o.userData.entity : null;
+  if (o && o.userData.entity === "key1") return { key: true };
+  return works.find(hit);
 }
-const intentFor = (id) => id === "key1" ? { type: "take", entity: "key1" } : id === "desk1" ? { type: "toggle", entity: "desk1" } : null;
-// the presses' drawers: generated dressing, so their state is an overlay on the world (what was
-// pulled, and how far), not entities in it; each slides home or out on its own
-const DK = `holo-emitter/brief/${ROOM}/drawers`, bank = room.drawers;
-let pulled = {};
-try { if (Q.has("fresh")) localStorage.removeItem(DK); else pulled = JSON.parse(localStorage.getItem(DK) || "{}"); } catch (_) {}
-const pulling = new Map(), drawerOf = (id) => id && id.startsWith("drawer:") ? bank.list[+id.slice(7)] : null;
-bank.list.forEach((d, i) => { if (pulled[d.id]) { bank.set(i, bank.travel); } });
-function pull(i) {
-  const d = bank.list[i], open = !pulled[d.id];
-  if (open) pulled[d.id] = 1; else delete pulled[d.id];
-  pulling.set(i, open ? bank.travel : 0);
-  try { localStorage.setItem(DK, JSON.stringify(pulled)); } catch (_) {}
-}
-window.__drawers = () => ({ count: bank.list.length, open: Object.keys(pulled) });
-window.__pull = (i) => pull(i);
-const hintFor = (id) => id === "key1" ? "take the key" : id === "desk1" ? (stateOf("desk1") === "open" ? "close the drawer" : "open the drawer")
-  : drawerOf(id) ? `${pulled[drawerOf(id).id] ? "close" : "open"} the drawer${room.labelOf(drawerOf(id).k) ? ` · ${room.labelOf(drawerOf(id).k)}` : ""}` : "";
+const isTableDrawer = (t) => t && t.b === table && t.aff === "drawer";
+const hintFor = (t) => !t ? "" : t.key ? "take the key" : works.hint(t);
 function act(ndc) {
-  const id = aimAt(ndc);
-  if (drawerOf(id)) { pull(+id.slice(7)); return true; }
-  const it = intentFor(id); if (it) dispatch(it); return !!it;
+  const t = aimAt(ndc);
+  if (!t) return false;
+  if (t.key) { dispatch({ type: "take", entity: "key1" }); return true; }
+  if (isTableDrawer(t)) { dispatch({ type: "toggle", entity: "desk1" }); return true; }
+  const r = works.act(t);
+  if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + ".");
+  return true;
 }
 window.__act = (x = 0, y = 0) => act(new THREE.Vector2(x, y));
 
@@ -251,7 +257,7 @@ document.addEventListener("mousemove", e => { if (document.pointerLockElement ==
 let drag = null, downAt = null, hoverNdc = new THREE.Vector2(0, 0);
 const TOUCH = isTouch();
 const touch = touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx, dy), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) });
-if (TOUCH) { gate.hidden = true; document.getElementById("keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap the drawer, or the key"; }
+if (TOUCH) { gate.hidden = true; document.getElementById("keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap anything that works"; }
 fullscreenButton();
 renderer.domElement.addEventListener("pointerdown", e => {
   if (e.pointerType === "touch") return;
@@ -297,9 +303,7 @@ function loop(now) {
   }
   camera.position.set(px, EYE, -py);
   camera.rotation.set(pitch, yaw, 0, "YXZ");
-  drawerAt += (drawerTo - drawerAt) * Math.min(1, dt * 7);
-  desk.drawer.position.z = drawerAt * desk.travel;
-  for (const [i, to] of pulling) { const d = bank.list[i], at = d.at + (to - d.at) * Math.min(1, dt * 7); bank.set(i, Math.abs(to - at) < 0.0005 ? to : at); if (d.at === to) pulling.delete(i); }
+  works.tick(dt);
   { const locked = document.pointerLockElement === renderer.domElement;
     document.getElementById("cross").hidden = !locked;
     const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");

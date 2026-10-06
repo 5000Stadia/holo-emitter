@@ -53,7 +53,7 @@ export function footprints(out) {
     for (const e of es) {
       if (!(e.kind in front)) continue;
       const [a, b] = e.kind === "press" ? [e.r0, e.r1] : [e.r - (e.width ?? e.w) / 2, e.r + (e.width ?? e.w) / 2];
-      const d = e.kind === "press" ? e.depth + 0.05 : e.kind === "chest" ? e.d : e.depth;
+      const d = e.kind === "press" ? e.depth + 0.05 : e.kind === "chest" ? e.off + e.d : e.depth;
       const box = boxOf(fr, a, b, d), all = boxOf(fr, a + 0.02, b - 0.02, d + front[e.kind]);
       res.push({ id: e.id, F, box, use: all });
     }
@@ -154,8 +154,9 @@ export function compileBrief(plan, roomId, brief) {
       }
     }
     if (placed) {
-      walls[placed.F].push({ kind: "chest", id: "chest1", r: r2(placed.r), ...c });
-      taken.push({ id: "chest1", box: boxOf(frames[placed.F], placed.r - c.w / 2, placed.r + c.w / 2, c.d) });
+      // it stands a hand off the wall, so its lid opens past upright without striking the stone
+      walls[placed.F].push({ kind: "chest", id: "chest1", r: r2(placed.r), off: 0.07, ...c });
+      taken.push({ id: "chest1", box: boxOf(frames[placed.F], placed.r - c.w / 2, placed.r + c.w / 2, 0.07 + c.d) });
       say("chest", "honoured", `An iron-bound chest under ${c.locks} locks on the ${placed.F} wall${brief.holdings?.in_chest ? `, holding ${brief.holdings.in_chest.join(", ")}` : ""}.`);
     } else say("chest", "conflict", "No free wall long enough for the chest.");
   }
