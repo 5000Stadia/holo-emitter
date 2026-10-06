@@ -612,8 +612,9 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
     for (const e of elems) {
       if (e.kind === "window") holes.push(rect(e.r0, e.r1, e.sill, e.top));
       if (e.kind === "door" || e.kind === "open") notches.push([e.r0, e.r1, e.top]);
-      // (an open hearth whose firebox lies wholly in its breast leaves the wall behind it whole)
-      if (e.kind === "chimneypiece" && !(e.open && (e.breast || 0) >= e.firebox.depth)) notches.push([e.firebox.r0, e.firebox.r1, e.firebox.apex]);
+      // (a hearth whose firebox lies wholly in its breast leaves the wall behind it whole: cut through, it showed
+      // the hillside past the jambs, 2026-10-06)
+      if (e.kind === "chimneypiece" && !((e.breast || 0) >= e.firebox.depth)) notches.push([e.firebox.r0, e.firebox.r1, e.firebox.apex]);
     }
     const outline = [[0, 0]];
     for (const [a, b, t] of notches.sort((p, q) => p[0] - q[0])) outline.push([a, 0], [a, t], [b, t], [b, 0]);
@@ -727,9 +728,12 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
       }
       if (e.kind === "chimneypiece" && e.breast) {
         // a chimney breast standing out into the room: its two returns and its face above the mantel
-        const B = e.breast, faceM = plain ? M.limewash : M.oak;
-        add(quad(THREE, [e.r0, 0, 0], [e.r0, 0, B], [e.r0, H, B], [e.r0, H, 0]), faceM, 0.05);
-        add(quad(THREE, [e.r1, 0, B], [e.r1, 0, 0], [e.r1, H, 0], [e.r1, H, B]), faceM, 0.05);
+        // its returns run on past its face to meet the back of the surround's stones (14 cm deep in a 20 cm
+        // surround: the 6 cm between was a slit into the breast, 2026-10-06); above the surround, to its face
+        const B = e.breast, faceM = plain ? M.limewash : M.oak, SB = e.open ? 0.1 : 0.06, st = e.surround_top ?? 0;      // the stones stand 0.14 (arched) or 0.1 (open) deep
+        for (const [r, s] of [[e.r0, 1], [e.r1, -1]]) {
+          const q = (z0, z1, y0, y1) => s > 0 ? quad(THREE, [r, y0, z0], [r, y0, z1], [r, y1, z1], [r, y1, z0]) : quad(THREE, [r, y0, z1], [r, y0, z0], [r, y1, z0], [r, y1, z1]);
+          add(q(0, B + SB, 0, st), faceM, 0.05); add(q(0, B, st, H), faceM, 0.05); }
         add(slab(THREE, rect(e.r0, e.r1, e.mantel.top - 0.1, H), [], B), faceM, 0.05);
       }
       const chimneyStart = grp.children.length;

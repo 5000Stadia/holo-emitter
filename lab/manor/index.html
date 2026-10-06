@@ -187,6 +187,33 @@ window.__walkPath = (pts, floor) => { let [x, y] = pts[0], h = manor.levelOf(flo
   return { done: true, x: +x.toFixed(2), y: +y.toFixed(2), h: +h.toFixed(2), floor: floorOf(h) }; };
 // is the house sound to walk into, furniture and all (src/make/sound.js)?
 window.__sound = () => soundness({ plan, compileRoom, blocks: manor.blocks, levelOf: manor.levelOf });
+// the seal check (Kabe, 2026-10-06: "this crack is there", a slit beside the hall's fireplace to the hillside):
+// from points in every room, rays out in every direction; one that leaves the room other than through a
+// window or a doorway (or a stair's well) is a crack, named with where it got out. Authoring only.
+window.__seal = (ids = [...manor.rooms.keys()]) => { const t0 = performance.now(), rc = new THREE.Raycaster(), out = [], meshes = [];
+  scene.traverse(o => { if (o.isMesh && !o.material?.transparent) meshes.push(o); });
+  const dirs = []; for (let i = 0; i < 64; i++) { const y = 1 - (i + 0.5) / 64 * 2, r = Math.sqrt(1 - y * y), a = i * 2.39996; dirs.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r)); }
+  for (const id of ids) { const R = manor.rooms.get(id); if (!R) continue; const room = R.room, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = manor.levelOf(room.floor), H = R.H;
+    const spec = compileRoom(plan, room), leaks = new Map();
+    const through = (px, py, hy) => { // where a ray crossed the room's bounds: through an opening?
+      const u = px - x0, v = py - y0, h = hy - Y;
+      if (h > H - 0.02 || h < 0.02) return (plan.wells || []).some(w => px > w.hole.x0 && px < w.hole.x1 && py > w.hole.y0 && py < w.hole.y1);
+      const cands = [[Math.abs(v - D), "N", u], [Math.abs(v), "S", W - u], [Math.abs(u - W), "E", D - v], [Math.abs(u), "W", v]].sort((a, b) => a[0] - b[0]);
+      const [, F, r] = cands[0];
+      return spec.walls[F].some(e => (e.kind === "door" || e.kind === "open" || e.kind === "window") && r > e.r0 - 0.05 && r < e.r1 + 0.05 && h < (e.top ?? 2.4) + 0.05 && h > (e.kind === "window" ? (e.sill ?? 0) - 0.05 : -1)); };
+    for (const [fu, fv] of [[0.25, 0.25], [0.75, 0.25], [0.5, 0.5], [0.25, 0.75], [0.75, 0.75]]) for (const hh of [0.5, 1.5]) {
+      const P = new THREE.Vector3(x0 + fu * W, Y + Math.min(hh, H - 0.3), -(y0 + fv * D));
+      for (const d of dirs) { rc.set(P, d); rc.far = 60; const hit = rc.intersectObjects(meshes, false)[0];
+        const q = hit ? hit.point : P.clone().addScaledVector(d, 60), px = q.x, py = -q.z;
+        const inside = px > x0 - 0.9 && px < x1 + 0.9 && py > y0 - 0.9 && py < y1 + 0.9 && q.y > Y - 0.6 && q.y < Y + H + 0.9;
+        if (inside) continue;
+        // where it left the room's box
+        let tl = Infinity; for (const [k, lo, hi] of [["x", x0, x1], ["z", -y1, -y0], ["y", Y, Y + H]]) { const c = d[k]; if (Math.abs(c) < 1e-9) continue; const t = ((c > 0 ? hi : lo) - P[k]) / c; if (t > 0) tl = Math.min(tl, t); }
+        const e = P.clone().addScaledVector(d, tl); if (through(e.x, -e.z, e.y)) continue;
+        const key = `${(e.x).toFixed(1)},${(-e.z).toFixed(1)},${(e.y - Y).toFixed(1)}`; leaks.set(key, hit ? `to ${hit.object.userData?.instance || hit.object.material?.userData?.cls || "?"}` : "to the sky"); } }
+    if (leaks.size) out.push({ room: id, cracks: [...leaks].slice(0, 6).map(([k, v]) => `out at (${k}) ${v}`), n: leaks.size });
+  }
+  return { rooms: ids.length, leaking: out, ms: Math.round(performance.now() - t0) }; };
 window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
 
 let last = performance.now();
