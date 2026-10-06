@@ -5,6 +5,9 @@
 //   outward:   each closed piece of it has positive volume (a mirror left unturned has negative);
 //   inside:    no part shares more than a joint's volume with another, unless it says it is set within;
 //   shimmer:   no two parts lay a face on one plane facing the same way (they flicker as you move);
+//   below:     nothing goes into the floor it stands on, or the wall it hangs on;
+//   through:   no part passes right through another, out on both sides (a leg through a tabletop),
+//              unless it says it is set within;
 //   whole:     every part joins what holds the thing up (the floor it stands on, the wall it hangs on)
 //              through parts that touch, so nothing floats loose of it.
 // A joint is a part let into the next by less than a fifth of itself (measured over the kinds: joinery
@@ -52,12 +55,22 @@ export function meshRules(M, parts, { declared = () => ({}), joint = 0.2, touch 
     if (inward) out.push({ rule: "outward", a: p.key, what: `${inward} of its ${pieces.length} pieces wound inside out` });
     solids.set(p.key, solid); vol.set(p.key, Math.abs(solid.volume()));
   }
+  // below: into the floor or the wall
+  for (const [k2, b] of box) { const d = declared(k2) || {};
+    if (support.includes("floor") && b.lo[1] < -touch && !d.below) out.push({ rule: "below", a: k2, what: `${(-b.lo[1] * 100).toFixed(1)} cm into the floor` });
+    if (support.includes("wall") && b.lo[2] < -touch && !d.below) out.push({ rule: "below", a: k2, what: `${(-b.lo[2] * 100).toFixed(1)} cm into the wall` }); }
   // inside: the volume two parts share, against the smaller; a joint (a tenon, a leg let into its top) is less
   const keys = [...solids.keys()], near = (a, b, m = 0) => [0, 1, 2].every(k => a.lo[k] <= b.hi[k] + m && b.lo[k] <= a.hi[k] + m);
   for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) {
     const a = keys[i], b = keys[j]; if (!near(box.get(a), box.get(b))) continue;
-    const x = solids.get(a).intersect(solids.get(b)), v = x.volume(); x.delete();
+    const x = solids.get(a).intersect(solids.get(b)), v = x.volume(), xb = v > 0 ? x.boundingBox() : null; x.delete();
     const small = Math.min(vol.get(a), vol.get(b)), share = small ? v / small : 0;
+    // through: one comes out of the other on both sides along an axis, its cross-section within the other's
+    // (a leg through a tabletop; not a rail tenoned into a thicker post, nor a hoop round a cask)
+    if (xb && !declared(a).within && !declared(b).within) for (const [p, q] of [[a, b], [b, a]]) { const P = box.get(p), Q = box.get(q);
+      for (let ax = 0; ax < 3; ax++) { const o = [0, 1, 2].filter(k => k !== ax);
+        if (P.lo[ax] < Q.lo[ax] - 0.005 && P.hi[ax] > Q.hi[ax] + 0.005 && xb.max[ax] - xb.min[ax] >= (Q.hi[ax] - Q.lo[ax]) - 0.002
+          && o.every(k => P.lo[k] >= Q.lo[k] - 0.001 && P.hi[k] <= Q.hi[k] + 0.001 && xb.max[k] - xb.min[k] >= 0.5 * (P.hi[k] - P.lo[k]))) { out.push({ rule: "through", a: p, b: q, what: "passes right through" }); ax = 3; } } }
     if (share > joint && !declared(a).within && !declared(b).within) { const [s, l] = vol.get(a) <= vol.get(b) ? [a, b] : [b, a];
       out.push({ rule: "inside", a: s, b: l, what: `${(share * 100).toFixed(0)}% of it lies inside` }); }
   }

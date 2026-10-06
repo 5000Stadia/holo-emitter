@@ -64,10 +64,10 @@ export default [
   { kind: "clock/lantern", v: 1, noun: "the clock", why: "a brass lantern clock; it hangs on the wall, never a shelf",
     size: [0.16, 0.38, 0.15], settings: {}, traits: ["wall"],
     parts: [
-      { part: "box", role: "metal", size: [0.15, 0.24, 0.14], at: [0, 0.04, 0] },
-      { part: "cylinder", role: "porcelain", r: 0.06, h: 0.004, segments: 24, ops: [["rx", P / 2], ["t", 0, 0.17, 0.0695]] },
-      { part: "sphere", role: "metal", r: 0.06, w: 16, h: 8, theta_len: P / 2, at: [0, 0.3, 0] },
-      { part: "cone", role: "metal", r: 0.012, h: 0.05, at: [0, 0.383, 0] }] },
+      { part: "box", role: "metal", size: [0.15, 0.24, 0.14], at: [0, 0.04, 0.07] },
+      { part: "cylinder", role: "porcelain", r: 0.06, h: 0.004, segments: 24, ops: [["rx", P / 2], ["t", 0, 0.17, 0.1395]] },
+      { part: "sphere", role: "metal", r: 0.06, w: 16, h: 8, theta_len: P / 2, at: [0, 0.28, 0.07] },
+      { part: "cone", role: "metal", r: 0.012, h: 0.05, at: [0, 0.363, 0.07] }] },
   { kind: "porcelain/jar", v: 1, noun: "the china jar", why: "a blue-and-white Chinese jar: a rich house's curiosity",
     size: [0.16, 0.18, 0.16], settings: {}, traits: ["fragile"],
     parts: [

@@ -114,10 +114,10 @@ export default [
     affordances: { lid: { mover: "lid", motion: "slide", axis: [1, 0, 0], travel: 0.4, verbs: ["push the lid aside", "put the lid back"] } } },
   { kind: "hearth/kitchen-jack", v: 1, noun: "the spit", fixed: true, traits: ["hearth"], why: "R §2: the kitchen's jack with its weight and chains, spits, racks (Dunkenhalgh 1679); a spit turned by a jack",
     settings: { W: 2.4 },
-    parts: [{ part: "box", role: "iron", size: [0.06, 0.55, 0.06], at: ["=-W/2+0.2", 0, 0.45] }, { part: "box", role: "iron", size: [0.06, 0.55, 0.06], at: ["=W/2-0.2", 0, 0.45] },
+    parts: [{ part: "box", role: "iron", size: [0.06, 0.489, 0.06], at: ["=-W/2+0.2", 0, 0.45] }, { part: "box", role: "iron", size: [0.06, 0.489, 0.06], at: ["=W/2-0.2", 0, 0.45] },
       { part: "mover", name: "spit", pivot: [0, 0.5, 0.45] },
       { part: "cylinder", role: "iron", mover: "spit", r: 0.012, h: "=W-0.2", segments: 8, ops: [["t", 0, "=-(W-0.2)/2", 0], ["rz", P / 2], ["t", 0, 0.5, 0.45]] },
-      { part: "box", role: "iron", mover: "spit", size: [0.16, 0.16, 0.16], at: [0, 0.42, 0.45] },
+      { part: "box", role: "bacon", mover: "spit", size: [0.16, 0.16, 0.16], at: [0, 0.42, 0.45], within: "the joint, skewered on the spit" },
       { part: "spinner", mover: "spit", axis: [1, 0, 0], rate: 1.6, when: "jack" }],
     affordances: { jack: { hit: "body", motion: "state", states: ["still", "turning"], verbs: ["wind the jack", "stop the jack"] } } },
   // ---- chambers: the standing bed with its curtains (Bank Hall Egle Chamber 1632: 'standing bed … 5 silk curtains with rods'), a close stool, a chest
@@ -197,7 +197,7 @@ export default [
     size: [0.95, 0.75, 0.66], settings: {},
     parts: [{ part: "mover", name: "body", pivot: [0, 0, 0.33] },
       // the rockers: broad arcs across the cradle at each end, standing out beyond its sides so they show
-      ...[-0.36, 0.36].map(x => ({ part: "torus", role: "wood_face", mover: "body", r: 0.6, tube: 0.024, radial: 6, tubular: 18, arc: 1.12, ops: [["rz", -P / 2 - 0.56], ["t", 0, 0.62, 0], ["ry", P / 2], ["t", x, 0, 0.33]] })),
+      ...[-0.36, 0.36].map(x => ({ part: "torus", role: "wood_face", mover: "body", r: 0.6, tube: 0.024, radial: 6, tubular: 18, arc: 1.12, ops: [["rz", -P / 2 - 0.56], ["t", 0, 0.6245, 0], ["ry", P / 2], ["t", x, 0, 0.33]] })),
       ...[-0.36, 0.36].map(x => ({ part: "box", role: "wood", mover: "body", size: [0.05, 0.085, 0.05], at: [x, 0.035, 0.33] })),
       { part: "carcass", mover: "body", size: [0.9, 0.3, 0.44], at: [0, 0.12, 0.33], open: "top", role: "wood_face", t: 0.02 },
       { part: "box", role: "linen", mover: "body", size: [0.6, 0.08, 0.38], at: [0.1, 0.14, 0.33] },
@@ -265,6 +265,6 @@ export default [
     size: [2.2, 1.3, 0.3], settings: { at_y: 0.55 },
     parts: [{ part: "box", role: "wood", size: [2.2, 0.08, 0.03], at: [0, "=at_y+1.15", 0.015] },
       ...[-0.9, -0.45, 0, 0.45, 0.9].map(x => ({ part: "cylinder", role: "wood", r: 0.014, h: 0.09, segments: 6, ops: [["rx", P / 2], ["t", x, "=at_y+1.19", 0.03]], ...(x === -0.45 ? { seen: false, within: "the hat hangs on it" } : {}) })),
-      ...[-0.9, 0, 0.45].map(x => ({ part: "cone", role: "wool", r: 0.2, h: 1.05, segments: 10, ops: [["t", x, "=at_y+0.68", 0.16]] })),
-      { part: "cylinder", role: "wool", r: 0.13, r_top: 0.08, h: 0.12, segments: 12, at: [-0.45, "=at_y+1.12", 0.09] }] },
+      ...[-0.9, 0, 0.45].map(x => ({ part: "cone", role: "wool", r: 0.2, h: 1.05, segments: 10, ops: [["t", x, "=at_y+0.68", 0.2]] })),
+      { part: "cylinder", role: "wool", r: 0.13, r_top: 0.08, h: 0.12, segments: 12, at: [-0.45, "=at_y+1.12", 0.135] }] },
 ];

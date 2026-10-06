@@ -200,12 +200,13 @@ window.__opensOnto = (names = furniture1660.map(k => k.kind).concat(kinds().map(
 //    as the thing is built, then arithmetic; no picture.
 import { meshRules } from "../../src/make/mesh-rules.js";
 let MANIFOLD = null;      // loaded the first time a kind is checked, never in play
-window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))], { minSeen = 0.1 } = {}) => {
+window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))], { minSeen = 0.1, mutate = null } = {}) => {
   if (!MANIFOLD) { const { default: Module } = await import("https://cdn.jsdelivr.net/npm/manifold-3d@3.5.4/manifold.js"); MANIFOLD = await Module(); MANIFOLD.setup(); }
   const out = [], times = [], ruleMs = [];
   for (const name of names) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
     const t = performance.now();
     let b, rec; try { ({ out: b, rec } = auditing(() => build(THREE, K, look, name, `check/${name}`))); } catch (e) { out.push({ kind: name, error: String(e) }); continue; }
+    if (mutate) rec = mutate(k, rec, THREE);                    // a planted fault (tools/plant-faults.mjs)
     // each recipe entry's triangles, in the thing's frame, at rest and with everything moved
     const triOf = (g, m) => { const q = g.index ? g.toNonIndexed() : g, pos = q.attributes.position, v = new THREE.Vector3(), a = new Float32Array(pos.count * 3);
       for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i); if (m) v.applyMatrix4(m); a[i * 3] = v.x; a[i * 3 + 1] = v.y; a[i * 3 + 2] = v.z; } return a; };
@@ -223,17 +224,17 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
     for (let round = 0; round < 3 && todo.length; round++) todo = todo.filter(aff => { try { return w.act({ b, aff })?.did === false; } catch (_) { return false; } });
     w.finish?.(); for (let i = 0; i < 400; i++) w.tick(0.05);
     const states = k.affordances ? [rest, partsAt(true)] : [rest];
-    const label = (i) => { const p = k.parts[i]; return `#${i} ${p.part}${p.role ? " " + p.role : ""}${p.name ? " " + p.name : ""}`; };
+    const label = (i) => { const p = k.parts[i]; return p ? `#${i} ${p.part}${p.role ? " " + p.role : ""}${p.name ? " " + p.name : ""}` : `#${i} (planted)`; };
     const vis = seen(states, viewsOf({ wall: (k.traits || []).includes("wall") }));
-    for (const [i, v] of vis) if (v.px && v.share < minSeen && k.parts[i].seen !== false) out.push({ kind: name, check: 13, part: label(i), what: `shows ${(v.share * 100).toFixed(0)}% at best` });
-    for (const x of apart(rest)) if (!k.parts[x.a].within) out.push({ kind: name, check: 14, part: label(x.a), what: `${(x.share * 100).toFixed(0)}% of it inside ${label(x.b)}` });
+    for (const [i, v] of vis) if (v.px && v.share < minSeen && k.parts[i]?.seen !== false) out.push({ kind: name, check: 13, part: label(i), what: `shows ${(v.share * 100).toFixed(0)}% at best` });
+    for (const x of apart(rest)) if (!k.parts[x.a]?.within) out.push({ kind: name, check: 14, part: label(x.a), what: `${(x.share * 100).toFixed(0)}% of it inside ${label(x.b)}` });
     // the mesh rules (src/make/mesh-rules.js): closed, outward, inside by volume, shimmer, whole
     const tr = performance.now();
     const support = k.rests ? [k.rests] : (k.traits || []).includes("wall") ? ["wall"] : ["floor"];
-    for (const f of meshRules(MANIFOLD, rest, { declared: (i) => k.parts[i], support }))
+    for (const f of meshRules(MANIFOLD, rest, { declared: (i) => k.parts[i] || {}, support }))
       out.push({ kind: name, check: f.rule, part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
     // and with everything moved: an opened lid still rests on something, and swings into nothing
-    if (states.length > 1) for (const f of meshRules(MANIFOLD, states[1], { declared: (i) => k.parts[i], support }))
+    if (states.length > 1) for (const f of meshRules(MANIFOLD, states[1], { declared: (i) => k.parts[i] || {}, support }))
       if (f.rule === "whole" || f.rule === "inside") out.push({ kind: name, check: f.rule + " (moved)", part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
     ruleMs.push(performance.now() - tr);
     times.push(performance.now() - t);
@@ -248,6 +249,42 @@ window.__lowest = (name) => { const k = kindOf(name), { rec } = auditing(() => b
     q.box = q.box ? q.box.union(bb) : bb.clone(); }
   for (const q of Object.values(by)) { q.min = q.box.min.toArray().map(v => +v.toFixed(3)); q.max = q.box.max.toArray().map(v => +v.toFixed(3)); delete q.box; }
   return { traits: k.traits || [], parts: Object.fromEntries(Object.entries(by).map(([i, v]) => [`#${i} ${k.parts[i].part}${k.parts[i].role ? " " + k.parts[i].role : ""}`, v])) }; };
+// 4. __plantFaults([kinds]): test the checks themselves (design/production/geometry-method.md §3). In good
+//    kinds, plant one known fault at a time in one part and see which checks catch it; a fault nothing
+//    catches is a class no check covers yet.
+const flip = (g) => { g = g.index ? g.toNonIndexed() : g.clone(); for (const at of Object.values(g.attributes)) { const a = at.array, n = at.itemSize;
+  for (let i = 0; i < at.count; i += 3) for (let k = 0; k < n; k++) { const p = (i + 1) * n + k, q = (i + 2) * n + k, t = a[p]; a[p] = a[q]; a[q] = t; } } return g; };
+const boxOf = (recs) => { const b = new THREE.Box3(); for (const r of recs) b.union(new THREE.Box3().setFromBufferAttribute(r.g.attributes.position)); return b; };
+const PLANTS = {
+  "inside out": (rec, t) => rec.map(r => r.index === t ? { ...r, g: flip(r.g) } : r),
+  "a hole": (rec, t) => { let done = false; return rec.map(r => { if (r.index !== t || done) return r; done = true; const g = r.g.index ? r.g.toNonIndexed() : r.g.clone(), P = g.attributes.position;
+    // the largest triangle, gone
+    let best = 0, at = 0; for (let i = 0; i < P.count; i += 3) { const a = new THREE.Vector3().fromBufferAttribute(P, i), b = new THREE.Vector3().fromBufferAttribute(P, i + 1), c = new THREE.Vector3().fromBufferAttribute(P, i + 2);
+      const s = b.sub(a).cross(c.sub(a)).length(); if (s > best) { best = s; at = i; } }
+    const q = new THREE.BufferGeometry(); for (const [n, A] of Object.entries(g.attributes)) { const k = A.itemSize, arr = A.array; q.setAttribute(n, new THREE.BufferAttribute(new arr.constructor([...arr.slice(0, at * k), ...arr.slice((at + 3) * k)]), k)); }
+    return { ...r, g: q }; }); },
+  "sunk halfway": (rec, t) => { const h = boxOf(rec.filter(r => r.index === t)).getSize(new THREE.Vector3()).y; return rec.map(r => r.index === t ? { ...r, g: r.g.clone().translate(0, -h / 2, 0) } : r); },
+  "lifted 2 cm": (rec, t) => rec.map(r => r.index === t ? { ...r, g: r.g.clone().translate(0, 0.02, 0) } : r),
+  "buried whole": (rec, t, big) => { const c = boxOf(rec.filter(r => r.index === big)).getCenter(new THREE.Vector3()), m = boxOf(rec.filter(r => r.index === t)).getCenter(new THREE.Vector3()).sub(c);
+    return rec.map(r => r.index === t ? { ...r, g: r.g.clone().translate(-m.x, -m.y, -m.z) } : r); },
+  "a doubled face": (rec, t) => [...rec, ...rec.filter(r => r.index === t).map(r => ({ ...r, index: 1000 + t, g: r.g.clone().translate(0.005, 0, 0) }))],
+};
+window.__plantFaults = async (names) => {
+  const rows = [];
+  for (const name of names) {
+    const base = await window.__partsCheck([name]); if (base.findings.length) { rows.push({ kind: name, skipped: "not clean to begin with" }); continue; }
+    // the parts to plant in: two of middling size, never a sheet or the largest
+    const k = kindOf(name), { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+    const sizes = [...new Set(rec.filter(r => !r.sheet).map(r => r.index))].map(i => { const s = boxOf(rec.filter(r => r.index === i)).getSize(new THREE.Vector3()); return [i, s.x * s.y * s.z]; }).sort((a, b) => b[1] - a[1]);
+    if (sizes.length < 2) continue;
+    const big = sizes[0][0], targets = [sizes[Math.floor(sizes.length / 2)][0], sizes[sizes.length - 1][0]].filter((v, i, a) => a.indexOf(v) === i && v !== big);
+    for (const t of targets) for (const [fault, plant] of Object.entries(PLANTS)) {
+      const r = await window.__partsCheck([name], { mutate: (kk, rr) => plant(rr, t, big) });
+      rows.push({ kind: name, part: t, fault, caught: [...new Set(r.findings.map(f => String(f.check ?? "error")))] });
+    }
+  }
+  return rows;
+};
 // which pieces of a part are open: each c.add of one recipe entry tested on its own (for finding a fault)
 window.__openPieces = async (name, index) => { await window.__partsCheck([]); const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
   const M = MANIFOLD, out = [];
