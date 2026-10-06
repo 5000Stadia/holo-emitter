@@ -7,6 +7,7 @@ import "./parts/lights.js";
 import "./parts/shapes.js";
 import "./parts/shelving.js";
 import "./parts/bookcases.js";
+import "./parts/pictures.js";
 import { defineKind } from "./catalogue.js";
 import strongroom1660 from "./kinds/strongroom-1660.js";
 import household1660 from "./kinds/household-1660.js";

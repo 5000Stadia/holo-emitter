@@ -33,7 +33,23 @@ export function lookC1660(THREE, K, S) {
       gilt: m("gilt", { color: 0xb8964a, roughness: 0.35, metalness: 0.75 }),
       brick: m("brick", { color: 0x8a4a32, roughness: 0.9 }),
       canvas: m("canvas", { color: 0x3a2e22, roughness: 0.8 }),
+      bacon: m("bacon", { color: 0x9a5c40, roughness: 0.6 }),                   // a cured flitch
+      wool: m("wool", { color: 0x4c463a, roughness: 0.95 }),                     // a drab cloak
+      carpet: (() => { const x = m("turkey_carpet", { map: turkeyCarpet(THREE), roughness: 0.95 }); return x; })(),
     },
   };
   return K.look1660;
+}
+
+// a Turkey carpet for a table, drawn in code: a madder-red field, a row of blue and gold medallions, a
+// dark border with a running line; tiled across the cloth at about a metre to a repeat
+function turkeyCarpet(THREE) {
+  const cv = document.createElement("canvas"); cv.width = cv.height = 256; const g = cv.getContext("2d");
+  g.fillStyle = "#7a2422"; g.fillRect(0, 0, 256, 256);
+  g.fillStyle = "#1e2440"; g.fillRect(0, 0, 256, 28); g.fillRect(0, 228, 256, 28); g.fillRect(0, 0, 28, 256); g.fillRect(228, 0, 28, 256);
+  g.strokeStyle = "#c8a050"; g.lineWidth = 3; g.strokeRect(14, 14, 228, 228); g.strokeRect(34, 34, 188, 188);
+  for (const [x, y, r, c] of [[128, 128, 52, "#24305a"], [128, 128, 30, "#c8a050"], [128, 128, 12, "#7a2422"], [66, 66, 16, "#c8a050"], [190, 66, 16, "#c8a050"], [66, 190, 16, "#c8a050"], [190, 190, 16, "#c8a050"]]) {
+    g.fillStyle = c; g.beginPath(); for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2, rr = k % 2 ? r * 0.7 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.fill(); }
+  g.globalAlpha = 0.15; g.fillStyle = "#000"; for (let y = 0; y < 256; y += 2) g.fillRect(0, y, 256, 1); g.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
 }

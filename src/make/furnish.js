@@ -94,13 +94,22 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
     const fb = k.e.firebox; return { kind, wall: k.F, r: (fb.r0 + fb.r1) / 2, d: (k.e.breast || 0) - 0.7, over: { W: Math.max(0.9, Math.min(2.4, fb.r1 - fb.r0 - 0.1)) }, inHearth: true };
   }
   // hung: one to a clear stretch of wall, a bay apart, never over a door, window or chimneypiece
-  function hang(kind, [w], n) {
+  // hung: one to a clear stretch of wall, a bay apart, never over a door, window or chimneypiece; a piece
+  // that finds no stretch at its own height goes up over the windows, if the room is tall enough (arms
+  // high in a hall)
+  function hang(kind, [w, h], n, at_y = null) {
     const got = [];
-    for (const F of ["N", "S", "E", "W"]) { const L = F === "N" || F === "S" ? W : D;
-      const blocked = spec.walls[F].map(e => e.kind === "chimneypiece" ? [e.mantel.r0 - 0.2, e.mantel.r1 + 0.2] : [e.r0 - 0.25, e.r1 + 0.25]);
-      for (let r = 0.6 + w / 2; r <= L - 0.6 - w / 2 && got.length < n; r += STEP) {
-        if (blocked.some(([a, b]) => r + w / 2 > a && r - w / 2 < b) || hung.some(g => g.wall === F && Math.abs(g.r - r) < w + 1.2)) continue;
-        const g = { kind, wall: F, r, d: 0 }; hung.push(g); got.push(g);
+    for (const lift of at_y == null ? [null] : [null, "high"]) {
+      const y = lift ? Math.max(...Object.values(spec.walls).flat().map(e => e.kind === "chimneypiece" ? e.mantel.top : e.top || 0)) + 0.3 : at_y;
+      if (lift && (y + h > (room.H || 0) - 0.2 || got.length)) break;
+      const over = lift ? { at_y: Math.round(y * 100) / 100 } : {};
+      for (const F of ["N", "S", "E", "W"]) { const L = F === "N" || F === "S" ? W : D;
+        const blocked = spec.walls[F].filter(e => y == null || (e.kind === "chimneypiece" ? e.mantel.top : e.top || 99) > y - 0.1)
+          .map(e => e.kind === "chimneypiece" ? [e.mantel.r0 - 0.2, e.mantel.r1 + 0.2] : [e.r0 - 0.25, e.r1 + 0.25]);
+        for (let r = 0.6 + w / 2; r <= L - 0.6 - w / 2 && got.length < n; r += STEP) {
+          if (blocked.some(([a, b]) => r + w / 2 > a && r - w / 2 < b) || hung.some(g => g.wall === F && Math.abs(g.r - r) < w + 1.2)) continue;
+          const g = { kind, wall: F, r, d: 0, over }; hung.push(g); got.push(g);
+        }
       }
     }
     return got;
@@ -109,7 +118,7 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
   for (const entry of anchors) {
     const [kind, n = 1] = [].concat(entry), size = sizeOf(kind), traits = traitsOf(kind), W0 = settingsOf(kind).W;
     if (!size) continue;
-    if (traits.includes("wall")) { out.push(...hang(kind, size, n)); continue; }
+    if (traits.includes("wall")) { out.push(...hang(kind, size, n, settingsOf(kind).at_y ?? null)); continue; }
     for (let i = 0; i < n; i++) {
       let p = null;
       // a free table takes half the room's length (a hall's table 'eight yards long', Worden 1643), within reason

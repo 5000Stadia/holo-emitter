@@ -21,6 +21,21 @@ import { rng, seedOf } from "./id.js";
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
 const WALL_STYLE = { wainscot: "panelled", tapestry: "limewashed", limewash: "limewashed", stone: "limewashed" };
 
+// rush matting (R §2: the long gallery matted, Hardwick): plaits a hand wide, sewn edge to edge, each
+// a herringbone of rushes; the texture covers four metres of floor
+function rushMatting() {
+  const cv = document.createElement("canvas"); cv.width = cv.height = 512; const g = cv.getContext("2d"), r = rng(seedOf("floor/matting"));
+  g.fillStyle = "#9a8456"; g.fillRect(0, 0, 512, 512);
+  const band = 512 / 16;
+  for (let b = 0; b < 16; b++) for (let y = 0; y < 512; y += 6) for (const side of [0, 1]) {
+    const x0 = b * band + side * band / 2, tone = 120 + Math.floor(r() * 40);
+    g.strokeStyle = `rgb(${tone + 30},${tone + 12},${tone - 40})`; g.lineWidth = 3; g.beginPath();
+    g.moveTo(x0, y + (side ? 6 : 0)); g.lineTo(x0 + band / 2, y + (side ? 0 : 6)); g.stroke();
+  }
+  g.fillStyle = "rgba(60,44,20,0.5)"; for (let b = 0; b <= 16; b++) g.fillRect(b * band - 1, 0, 2, 512);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t;
+}
+
 // verdure tapestry (R §2: the great chamber hung with tapestry, Hardwick), drawn in code: a ground of
 // dark blue-green, leaves in greens, olives and faded blues, crowded as weavers crowded them, and a
 // border of flowers top and bottom. One cloth, tiled along the wall a metre and a half to a repeat.
@@ -64,7 +79,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
   const mats = {
     gypsum: Object.assign(new THREE.MeshStandardMaterial({ color: 0xa89c86, roughness: 0.7 }), { userData: { cls: "gypsum" } }),
-    matting: Object.assign(new THREE.MeshStandardMaterial({ color: 0xa88c58, roughness: 0.95 }), { userData: { cls: "matting" } }),
+    matting: Object.assign(new THREE.MeshStandardMaterial({ map: rushMatting(), roughness: 0.95 }), { userData: { cls: "matting" } }),
     plaster: M.plaster, limewash: M.limewash,
   };
   const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [];
@@ -147,7 +162,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       }
     }
     // the anchor furniture, by the furnishing habit (src/make/furnish.js): things that work, drawn with their room
-    const placed = furnish({ room, spec, plan, anchors: furnished ? T.anchor || [] : [], sizeOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
+    const placed = furnish({ room: { ...room, H }, spec, plan, anchors: furnished ? T.anchor || [] : [], sizeOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
     placed.forEach((p, i) => {
       const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, p.over || {}), n = b.node, d = sizeOf(p.kind, p.over || {})?.[2] || 0;
       if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
