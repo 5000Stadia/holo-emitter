@@ -470,7 +470,7 @@ export function buildStrongroom(THREE, K, spec) {
       if (e.kind === "press") { fp = press(THREE, K, S, B, { ...e, F }, drawers); stats.presses++; stats.drawers += e.cols * e.rows; }
       if (e.kind === "chest") fp = chest(THREE, K, S, B, e);
       if (e.kind === "desk") {
-        desk = buildDesk(THREE, K, { W: e.width });
+        const tDesk = performance.now(); desk = buildDesk(THREE, K, { W: e.width }); stats.desk_ms = +(performance.now() - tDesk).toFixed(1);
         desk.group.position.set(e.r, 0, 0.04); fur.add(desk.group);
         // the calendar of the evidences, a folio in vellum, lying to one side of the table
         if (spec.onTable) { const cal = buildBook(THREE, K, bookSpec("folio", 1660, undefined, { binding: "vellum" }));
@@ -483,8 +483,9 @@ export function buildStrongroom(THREE, K, spec) {
     fur.position.copy(w.grp.position); fur.rotation.y = P[F].rot; grp.add(fur);
   }
   // the drawers, each placed in its wall's frame, one draw call per part for the whole room
+  const tBank = performance.now();
   const bank = drawerBank(THREE, K, S, labels, drawers.map(d => ({ ...d, frame: new THREE.Matrix4().compose(new THREE.Vector3(...P[d.F].pos), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), P[d.F].rot), new THREE.Vector3(1, 1, 1)) })));
-  grp.add(bank.group);
+  grp.add(bank.group); stats.drawers_ms = +(performance.now() - tBank).toFixed(1);
   // colliders in room metres (X east from the west wall, Y north from the south wall)
   const boxes = colliders.map(c => {
     const at = { N: (r, o) => [r, D - o], S: (r, o) => [W - r, o], E: (r, o) => [W - o, D - r], W: (r, o) => [o, r] }[c.F];

@@ -322,3 +322,8 @@ The strongroom predates the review rule, so it had never had this pass. **Lesson
 - **Not taken:** the secretary hand. There's no font for it, so the labels stay italic.
 
 Added time: about 25 min. The room's checks pass. Build 1.5 s; 73 meshes; 120 drawers.
+
+**What a working drawer costs** (measured 2026-10-05, SwiftShader, 3 runs):
+- **Build:** the table takes 14–23 ms in all, and its working drawer is 7 of its 33 pieces. The parts only a working drawer needs (sides, back, bottom, cavity) come to about 2 ms. All 120 press drawers, working, take 3–5 ms together, about 0.03 ms each.
+- **Play:** moving one drawer costs 3.3 µs a frame, and only while it moves.
+- **Authoring:** the press drawer bank took about 20 min, written once. That is the real cost.

@@ -117,7 +117,7 @@ const K = await makeKit(THREE, { floor: [W, D], onStep: (w) => { statusText.text
 mark("kit");
 await step("raising the strongroom");
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x07060a);
-const room = buildStrongroom(THREE, K, spec);
+const room = buildStrongroom(THREE, K, spec); window.__room = room;
 scene.add(room.group);
 mark("built");
 
