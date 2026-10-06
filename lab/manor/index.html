@@ -51,7 +51,7 @@ import { nodeify } from "../../src/make/nodes.js";
 import { buildManor } from "../../src/make/manor.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
 import { cues } from "../ui/cues.js";
-import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+import { touchControls, isTouch, fullscreenButton, actionButton } from "../touch.js";
 fullscreenButton();
 
 const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
@@ -150,6 +150,8 @@ document.addEventListener("mousemove", e => { if (document.pointerLockElement ==
 const TOUCH = isTouch(), hover = new THREE.Vector2();
 const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx * 1.6, dy * 1.6), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) }) : { active: false, stick: { x: 0, y: 0 } };
 if (TOUCH) $("gate").hidden = true;
+// on a phone the centre dot aims and the thumb's button acts on what it is on
+const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
 renderer.domElement.addEventListener("click", () => { if (document.pointerLockElement === renderer.domElement) act(); else if (!TOUCH) { if (!act(hover)) lock(); } });
 const ray = new THREE.Raycaster(); ray.far = 2.6;
 const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); return works.find(ray.intersectObjects(works.meshes(), true)[0]); };
@@ -189,8 +191,8 @@ renderer.setAnimationLoop((now) => {
   camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
-  const locked = document.pointerLockElement === renderer.domElement; $("cross").hidden = !locked;
-  const t = aim(locked ? null : hover); showCue(t ? works.cue(t) : null, locked);
+  const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
+  const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   ENG.frame(scene, camera, { changed: moved || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
 });

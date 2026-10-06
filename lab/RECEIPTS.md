@@ -704,3 +704,22 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 | Kinds, with two render-and-fix rounds | about 1 h 10 min |
 | Habit | about 45 min |
 | Hearth and tapestry | about 30 min |
+
+## R47: the blind review, two rounds (2026-10-06)
+
+- **Shots:** `tests/.doorways.mjs` stands inside a doorway of every room type (23 types), with that door open and hidden, and looks at the room's middle.
+  - **Which doorway:** one whose look-in no furniture blocks, then the one that sees the most of the room's pieces.
+  - **Time:** 23 shots in about 70 s, headless on WebGPU.
+- **Round 1:** a fresh reviewer, given no list of types, read 13 of 23 with confidence 3 or more. See `design/house/r47-blind-review.md`.
+- **Round 2 response:**
+  - 8 new kinds: cradle, daybed, carpeted table, spinning wheel, pikes, flitches, pewter dresser, peg rail;
+  - portraits painted in code; a Turkey carpet and rush matting drawn in code;
+  - the habit sets the naming piece facing the doorway, and hangs pieces high in tall rooms.
+- **Bundles investigated:** kept on request only. The measurement is in `design/perf/plan.md`.
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Round 1, with the shot fixes | about 1 h |
+| Round 2 kinds and habit changes | about 50 min |

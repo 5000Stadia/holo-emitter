@@ -39,3 +39,36 @@ The stop rule (r47-plan.md §5): someone shown unlabelled shots from each doorwa
 | The matting floor is untextured | woven rush matting |
 | Stair without balusters | noted for later |
 | The bakehouse oven stands free | noted for later |
+
+## Round 2 (2026-10-06, the last)
+
+A new fresh reviewer, a new shuffle, the same method.
+
+**Read right with confidence 3 or more (14, up from 13):**
+- great hall, kitchen, great stair, great parlour (the Turkey carpet);
+- best chamber (it now ranks: "best chamber"), bedchamber, closet, bakehouse;
+- buttery, porch (the benches), servants' chamber, muniment room, long gallery.
+
+**Half right:** the great chamber was read as "dining parlour, or the great chamber" (3). In 1660 the great chamber was the dining room upstairs.
+
+**Right but tentative (confidence 2):**
+- study ("one bookcase in a big room");
+- withdrawing chamber ("chairs round the walls"; the daybed wasn't in the shot);
+- pantry (dresser and press);
+- servants' hall ("too close to the hall");
+- little parlour (the spinning wheel was the only clue).
+
+**Not read (4):**
+- **larder:** "one tub"; the flitches and the other tubs were out of the shot;
+- **nursery:** read as a bedchamber; the cradle was out of the shot;
+- **screens passage:** the shot looks out of the front door;
+- **back stair:** read as a passage.
+
+**The stop rule is not met.** The two-round cap is reached, so this goes to Kabe as it stands.
+
+**What would close it** (not done, for Kabe's eye first):
+1. **Lighting:** the panelled rooms render too dark, and dark oak on dark wainscot hides furniture. This means fires in the lit hearths and candles by room type, which the room types already name.
+2. **Service rooms:** each needs its working fittings: a dairy's pans, a larder's troughs and hooks, a pantry's bins and salt.
+3. **Reception rooms:** each needs one more piece of use. A withdrawing room's cabinet or card table, the study's desk and globes.
+4. **The stairs:** they need balusters and rails.
+5. **The bakehouse:** its oven belongs built into the hearth wall.

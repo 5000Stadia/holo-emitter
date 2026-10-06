@@ -90,7 +90,7 @@ import { makeProbeGI } from "../../src/make/light.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { makeRender } from "../../src/make/render.js";
 import { cues } from "../ui/cues.js";
-import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+import { touchControls, isTouch, fullscreenButton, actionButton } from "../touch.js";
 import { compileBrief } from "./brief.js";
 import { buildStrongroom } from "./strongroom.js";
 import { makeWorks, kinds, hashOf, makeWorld, GENERATOR } from "../../src/make/index.js";
@@ -292,7 +292,8 @@ document.addEventListener("mousemove", e => { if (document.pointerLockElement ==
 let drag = null, downAt = null, hoverNdc = new THREE.Vector2(0, 0);
 const TOUCH = isTouch();
 const touch = touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx, dy), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) });
-if (TOUCH) { gate.hidden = true; document.getElementById("keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap anything that works"; }
+if (TOUCH) { gate.hidden = true; document.getElementById("keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; the round button uses what the dot is on"; }
+const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
 fullscreenButton();
 renderer.domElement.addEventListener("pointerdown", e => {
   if (e.pointerType === "touch") return;
@@ -341,10 +342,10 @@ function loop(now) {
   camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);
   // the cursor's cue: a small hand to take, a finger to use, a padlock when shut; no words on screen
-  { const locked = document.pointerLockElement === renderer.domElement;
+  { const locked = document.pointerLockElement === renderer.domElement || TOUCH;
     document.getElementById("cross").hidden = !locked;
-    const t = aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc);
-    showCue(t ? (t.key ? { mode: "take", label: "take the key" } : works.cue(t)) : null, locked); }
+    const t = aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc), cue = t ? (t.key ? { mode: "take", label: "take the key" } : works.cue(t)) : null;
+    showCue(cue, locked); actBtn?.(cue?.mode ?? null); }
   // drawn only when the view moved or something in the world is moving, burning or flickering
   const drew = ENG.frame(scene, camera, { changed: moved || works.busy() || !window.__ok, post });
   frames += drew ? 1 : 0; if (now - fpsAt > 500) { fps = Math.round(frames * 1000 / (now - fpsAt)); frames = 0; fpsAt = now;
