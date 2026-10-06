@@ -209,7 +209,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
     { const RW = room.rect.x1 - room.rect.x0, RD = room.rect.y1 - room.rect.y0;
       for (const F of ["N", "E", "S", "W"]) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
-        const deep = Math.max(e.breast || 0, 0.25), [a, b] = [wallToRoom(F, RW, RD, e.r0, 0), wallToRoom(F, RW, RD, e.r1, deep)];
+        // the breast, and in front of it the surround, the mantel and its shelf (some 0.3 m proud, wider than the
+        // fire by its ends): a body keeps out of all of it, so an eye can't stand inside the mantel
+        const deep = (e.breast || 0) + 0.32, m = e.mantel || e, [a, b] = [wallToRoom(F, RW, RD, Math.min(e.r0, m.r0) - 0.05, 0), wallToRoom(F, RW, RD, Math.max(e.r1, m.r1) + 0.05, deep)];
         blocks.push({ floor: room.floor, room: room.id, kind: "hearth", x0: x0 + Math.min(a[0], b[0]), x1: x0 + Math.max(a[0], b[0]), y0: y0 + Math.min(a[1], b[1]), y1: y0 + Math.max(a[1], b[1]) }); } }
     merge(grp, bundles);
     // the fire in each lit hearth: logs, embers and flames (drawn with the room; they flicker while seen)
