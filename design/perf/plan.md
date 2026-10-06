@@ -72,7 +72,9 @@ The engine is three.js r186+ `WebGPURenderer` with its WebGL 2 fallback. Kabe ag
 - Room 0 compiled first, then the rest streamed nearest first.
 - Performance marks on every page (`?perf=1`): time to first frame and first walkable.
 
-**10. Delivery:**
+**10. The backend chosen per device.** A short measurement at first launch picks WebGPU or WebGL 2, and the choice is remembered. Kabe's phone ran a WebGL demo slightly faster than WebGPU, so neither is assumed.
+
+**11. Delivery:**
 - three.js's minified core remapped. Done: 162 KB saved.
 - Versions pinned, `preconnect`, `modulepreload` for the final URLs.
 - A service worker for instant repeat visits.
