@@ -269,3 +269,41 @@ A fireproof strongroom of c. 1660, built from a written brief plus the manor's p
 - The 3 min of server and screenshot friction is fixed overhead; a standing render script removes it.
 - The ochre round happened because a material was reused outside its period; a look package would have caught it.
 - Most of the time went to pieces and to verifying them. The compiler and brief took under 5 min. Next rooms that reuse these pieces (presses, iron doors, vaults) should cost mostly design time.
+
+## Strongroom drawers that pull, and labels after a blind review (2026-10-05)
+
+**Asked:** every press drawer opens and closes, as a feature of the press, like the table's drawer. Also: why so many names on so many drawers ("is this a post office?"), and would the review pass catch the disorder?
+
+**The answer, tested:** a fresh reviewer was given the old layout cold, with every label written out and no hint. Its first two faults were exactly these: the scrambled order, and 63 manors cycled across 224 drawers with "ii, iii, iv". It also found:
+- other families' real seats among the manors (Chatsworth, Haddon);
+- no drawers for the family's own papers;
+- deeds rolled where they would have been folded flat;
+- the table set between the windows rather than in one.
+
+The strongroom predates the review rule, so it had never had this pass. **Lesson:** a review layout must write out everything the eye reads, including the words on labels. If the layout had said "224 labelled drawers", nothing would have been caught.
+
+**Built:**
+- **Drawers.** One instanced bank for the whole room: box, bottom, deeds, label, plate and ring are 6 draw calls for all 224 drawers. Each drawer slides out 0.25 m, with folded deeds inside, and is aimed by instance. The hint names the drawer ("open the drawer · Ashover 7"). Which drawers are pulled is an overlay kept per viewer: generated dressing, not world entities (plan §3). The seeded ajar drawers stay ajar until you touch them.
+- **Labels** (`brief.js` `labelDrawers`), driven by the brief's `holdings`. The family's papers come first: Crown Grants, Inquisitions, Wardship, Fines & Recoveries, Settlements, Marriage Articles, Wills, Sequestration, Composition, Pardon 1660. Then each manor is one sorted, numbered run, sized by weight and never split across presses. Each press has a letter, and spare drawers are left blank (32 of them).
+- **Pigeonholes:** tied bundles of folded deeds in about 70%, court rolls rolled in about 30%.
+- **The table** stands in the window nearest the wall's middle; the chest sits beside it.
+- **GI** now reads instance positions, which also fixes instanced books.
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Read and plan | 8 min |
+| Blind review round 1 | 1 min (agent 47 s) |
+| Drawer bank and page | 20 min |
+| Labelling recipe and pigeonholes | 15 min |
+| Verify (screens, checks) | 12 min |
+| **Wall clock** | **about 64 min** |
+
+**Code:** about 200 lines new and 70 replaced; `drawerInside` was factored out of the table to be shared.
+
+**Runtime (SwiftShader, 960×600):**
+- build 1.33 s, up from 0.43 s; the label atlas now measures text to fit;
+- 82 meshes;
+- walkable 6.3 s, with no bake;
+- the brief-room checks (6) pass.

@@ -64,7 +64,7 @@ person accepted round one's four points, with two conditions:
 
 ## 6. Quality
 
-- **When authoring a recipe:** a fresh reviewer is given concrete samples across contexts and seeds, written out as layouts. It answers: "is this a correct depiction of X for this context? If not, which recipe step is missing or wrong?" The answer changes the recipe, then the recipe runs again. At most two rounds. This was tried once, on the shelf recipe: the reviewer found that shelf height was choosing book format, and the widow's shelf went from partly right to right.
+- **When authoring a recipe:** a fresh reviewer is given concrete samples across contexts and seeds, written out as layouts. It answers: "is this a correct depiction of X for this context? If not, which recipe step is missing or wrong?" The answer changes the recipe, then the recipe runs again. The layout writes out everything the eye reads, the words on labels included: the strongroom's disordered drawer labels were caught only once they were written out. At most two rounds. This was tried once, on the shelf recipe: the reviewer found that shelf height was choosing book format, and the widow's shelf went from partly right to right.
 - **Checks** belong to kinds and parts, plus a tiny universal core: it rests on something, passes through nothing, and stays within its budget. A check is added only when the person has vetted it. Checks grow out of reviews (a fault seen twice, or a shared part that could silently break).
 - **The person's eye** stays last, through a gallery for batch approval of new kinds.
 
