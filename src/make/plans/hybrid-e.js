@@ -132,8 +132,9 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   }
   // ---- windows: every outside wall by its own rhythm, one to each bay, centred on the wall's span;
   // the garret is lit from its gable ends and the front and back
-  const winRect = (w, c, half) => w.F === "S" ? { x0: c - half, x1: c + half, y0: w.line - E, y1: w.line } : w.F === "N" ? { x0: c - half, x1: c + half, y0: w.line, y1: w.line + E }
-    : w.F === "W" ? { x0: w.line - E, x1: w.line, y0: c - half, y1: c + half } : { x0: w.line, x1: w.line + E, y0: c - half, y1: c + half };
+  // a window's rect spans the wall's own thickness, from the outer face (line) inward
+  const winRect = (w, c, half) => w.F === "S" ? { x0: c - half, x1: c + half, y0: w.line, y1: w.line + E } : w.F === "N" ? { x0: c - half, x1: c + half, y0: w.line - E, y1: w.line }
+    : w.F === "W" ? { x0: w.line, x1: w.line + E, y0: c - half, y1: c + half } : { x0: w.line - E, x1: w.line, y0: c - half, y1: c + half };
   for (const fl of Object.keys(D.floors)) for (const r of plan.rooms.filter(q => q.floor === fl && q.type !== "open" && !q.landing)) for (const w of outsideWalls(r, { L, RD, WW, WP, E })) {
     const len = w.b - w.a, k = Math.max(1, Math.floor(len / D.bay));
     for (let i = 0; i < k; i++) { const c = w.a + len * (i + 0.5) / k, half = Math.min(D.window, len / k - 0.6) / 2; if (half < 0.3) continue;

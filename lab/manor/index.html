@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Manor by Purpose</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(18, 15, 12, 0.72); --line: rgba(236, 228, 210, 0.18); --brass: #c9a35c; }
+  html, body { height: 100%; margin: 0; background: #070605; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; touch-action: none; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #070605; color: var(--dim); z-index: 5; }
+  #status[hidden] { display: none; }
+  #where { position: fixed; left: 14px; top: 12px; padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); }
+  #where .n { font: 600 20px "Cormorant Garamond", Georgia, serif; color: var(--brass); letter-spacing: .04em; }
+  #where .f { color: var(--dim); }
+  #keys { position: fixed; left: 14px; bottom: 12px; padding: 6px 10px; background: var(--panel); border: 1px solid var(--line); color: var(--dim); }
+  kbd { border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; font: inherit; }
+  #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(236,228,210,0.7); z-index: 2; pointer-events: none; }
+  #cross.icon { width: 24px; height: 24px; margin: -12px 0 0 -12px; background: none; border-radius: 0; filter: drop-shadow(0 0 2px rgba(0,0,0,0.7)); }
+  #cross[hidden], #line[hidden], #gate[hidden] { display: none !important; }
+  #line { position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; z-index: 2; }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 3; border: 1px solid var(--brass); padding: 10px 18px; background: var(--panel); }
+  @media (max-width: 640px), (pointer: coarse) { #where .n { font-size: 16px; } #keys { display: none; } }
+</style>
+</head>
+<body>
+<div id="status">raising the house…</div>
+<div id="where"><div class="n">—</div><div class="f"></div></div>
+<div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take</div>
+<div id="gate">click to walk</div>
+<div id="cross" hidden></div>
+<div id="line" hidden></div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// The manor by purpose (R47): a c.1660 gentry seat's program laid into a hybrid E-plan, every room
+// built by its type, the muniment room from its brief, doors that work, only what you can see drawn.
+// ?fresh starts a new world; ?room=<id> starts you there; ?perf=1 shows the engine's numbers.
+import * as THREE from "three/webgpu";
+import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
+import { makeKit } from "../painted/procedural.js";
+import { strongroomMaterials } from "../brief/strongroom.js";
+import { makeRender } from "../../src/make/render.js";
+import { nodeify } from "../../src/make/nodes.js";
+import { buildManor } from "../../src/make/manor.js";
+import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
+import { cues } from "../ui/cues.js";
+import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+fullscreenButton();
+
+const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
+const say = (t) => { if (!t) return; const l = $("line"); l.textContent = t; l.hidden = false; clearTimeout(say.t); say.t = setTimeout(() => { l.hidden = true; }, 4500); };
+const step = (t) => { $("status").textContent = t + "…"; return new Promise(r => setTimeout(r)); };
+
+// ---- the world document: the house's plan sealed into it the first time it is seen (Kabe's P1): a
+// better generator later never moves a wall you have walked past; the story's own magic may
+const hearths = Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([k, v]) => [k, v.hearth]));
+const fresh = planHybridE(GENTRY_SEAT_1660, { hearths });
+// while the generator is still being written, a world starts afresh when its output changes; at release
+// the plan's hash leaves this key, and a world keeps the plan it was sealed with for good
+const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`;
+let doc = null; try { if (Q.has("fresh")) localStorage.removeItem(WKEY); else doc = JSON.parse(localStorage.getItem(WKEY) || "null"); } catch (_) {}
+const world = makeWorld(doc), keep = () => { try { localStorage.setItem(WKEY, JSON.stringify(world.doc)); } catch (_) {} };
+const plan = world.seal("manor", { plan: fresh, kinds: KINDS, generator: GENERATOR }).plan;
+keep();
+const brief = await (await fetch("../brief/manor-1660.json")).json();
+
+// ---- the renderer, the kit, the house
+const ENG = await makeRender({ outdoor: false }), renderer = ENG.renderer; window.__eng = ENG;
+THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
+await step("growing oak, laying flags, slaking lime");
+const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
+await step("raising the house, room by room, each by its purpose");
+const manor = buildManor({ plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
+nodeify(scene);
+ENG.mark("built");
+
+// ---- light: one sun, its shadow map drawn once (the house is still); a soft fill; four window lights
+// that follow you room to room, so the count of lights never changes and nothing recompiles
+const ext = plan.rooms.reduce((b, q) => ({ x0: Math.min(b.x0, q.rect.x0), x1: Math.max(b.x1, q.rect.x1), y0: Math.min(b.y0, q.rect.y0), y1: Math.max(b.y1, q.rect.y1) }), { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 });
+const cx = (ext.x0 + ext.x1) / 2, cy = (ext.y0 + ext.y1) / 2, reach = Math.hypot(ext.x1 - ext.x0, ext.y1 - ext.y0) / 2 + 4;
+const sun = new THREE.DirectionalLight(0xffe2b8, 1.8); sun.position.set(cx + 14, 22, -cy + 30); sun.target.position.set(cx, 0, -cy);
+sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone ? 2048 : 4096); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
+Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
+sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
+scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
+const rig = Array.from({ length: 4 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
+function lightRoom(id) {
+  const mine = manor.windows.filter(w => w.room === id).slice(0, rig.length);
+  rig.forEach((l, i) => { const w = mine[i]; if (!w) { l.intensity = 0; return; } l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); l.intensity = 9; });
+}
+
+// ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
+const store = world.store();
+let viewDirty = true;
+const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keep(); }, say,
+  onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; },      // a door moved: what can be seen may have changed
+  ask: (need, want) => need === "holding" && false });
+for (const b of manor.things) works.add(b);
+window.__works = works; window.__manor = manor; window.__plan = plan;
+
+// ---- walking: floor to floor by the stairs, through a doorway only while its door stands open
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 140);
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+const EYE = 1.6, floors = [...plan.floors].sort((a, b) => a.level - b.level);
+const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
+const floorOf = (h) => { let f = floors[0].id; for (const q of floors) if (manor.levelOf(q.id) <= h + 1.2) f = q.id; return f; };
+const stairAt = (x, y, h) => plan.stairs.find(s => inRect(s.rect, x, y) && [manor.stairFrom(s), manor.stairTo(s)].includes(floorOf(h)));
+const stairHeight = (s, x, y) => { const R = s.rect, t = s.up === "N" ? (y - R.y0) / (R.y1 - R.y0) : s.up === "S" ? (R.y1 - y) / (R.y1 - R.y0) : s.up === "E" ? (x - R.x0) / (R.x1 - R.x0) : (R.x1 - x) / (R.x1 - R.x0);
+  const b = manor.levelOf(manor.stairFrom(s)); return b + Math.max(0, Math.min(1, t)) * (manor.levelOf(manor.stairTo(s)) - b); };
+const doorThing = new Map(manor.things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
+const isOpen = (b) => works.stateOf(b, "leaf") === "open";
+const strip = (R) => (R.x1 - R.x0) < (R.y1 - R.y0) ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + 0.08, y1: R.y1 - 0.08 } : { x0: R.x0 + 0.08, x1: R.x1 - 0.08, y0: R.y0 - 0.35, y1: R.y1 + 0.35 };
+const roomRect = (r) => r.rect;
+function standable(x, y, h) {
+  const f = floorOf(h);
+  if (stairAt(x, y, h)) return true;
+  const occupied = (r) => (r.floor === f || (r.rises > 1 && floors.findIndex(q => q.id === r.floor) < floors.findIndex(q => q.id === f) && floors.findIndex(q => q.id === r.floor) + r.rises > floors.findIndex(q => q.id === f)));
+  if (plan.rooms.some(r => r.type !== "open" && r.floor === f && inRect(roomRect(r), x, y, 0.22))) return true;
+  return plan.openings.some(o => o.floor === f && inRect(strip(o.rect), x, y) && (!doorThing.get(o.id) || isOpen(doorThing.get(o.id)))) && !plan.rooms.some(r => r.type !== "open" && occupied(r) && r.floor !== f && inRect(r.rect, x, y));
+}
+const roomAt = (x, y, h) => plan.rooms.find(r => r.type !== "open" && r.floor === floorOf(h) && inRect(r.rect, x, y));
+const start = plan.rooms.find(r => r.id === (Q.get("room") || "great_hall"));
+let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
+window.__place = (x, y, yd, pd = 0, floor = null) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); };
+const keys = {};
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
+addEventListener("keyup", e => { keys[e.code] = false; });
+const lock = () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} };
+$("gate").addEventListener("click", lock);
+document.addEventListener("pointerlockchange", () => { $("gate").hidden = document.pointerLockElement === renderer.domElement; });
+const look = (dx, dy) => { yaw -= dx * 0.0022; pitch = Math.max(-1.35, Math.min(1.35, pitch - dy * 0.0022)); };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); else hover.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
+const TOUCH = isTouch(), hover = new THREE.Vector2();
+const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx * 1.6, dy * 1.6), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) }) : { active: false, stick: { x: 0, y: 0 } };
+if (TOUCH) $("gate").hidden = true;
+renderer.domElement.addEventListener("click", () => { if (document.pointerLockElement === renderer.domElement) act(); else if (!TOUCH) { if (!act(hover)) lock(); } });
+const ray = new THREE.Raycaster(); ray.far = 2.6;
+const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); return works.find(ray.intersectObjects(works.meshes(), true)[0]); };
+function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; const r = works.act(t);
+  if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); refreshView(true); return true; }
+function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
+const showCue = cues($("cross"), renderer.domElement);
+
+// ---- what to draw: the room you stand in and what its open doorways show (refreshed on moving rooms, or a door)
+let here = null;
+function refreshView(force = false) {
+  const r = roomAt(px, py, ph);
+  if (!r || (!force && r.id === here)) return;
+  if (r.id !== here) lightRoom(r.id);
+  here = r.id; manor.show(manor.visibleFrom(here, isOpen));
+  $("where").querySelector(".n").textContent = r.name; $("where").querySelector(".f").textContent = `${r.floor} floor`;
+  ENG.invalidate();
+}
+window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
+
+let last = performance.now();
+renderer.setAnimationLoop((now) => {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const sp = (keys.ShiftLeft || keys.ShiftRight) ? 2.8 : 1.4, fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
+  const n = Math.hypot(dx, dy);
+  if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * dt; dy = dy / n * a * sp * dt;
+    if (standable(px + dx, py, ph)) px += dx; if (standable(px, py + dy, ph)) py += dy; }
+  const s = stairAt(px, py, ph); if (s) ph = stairHeight(s, px, py); else ph = manor.levelOf(floorOf(ph));
+  const moved = camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + EYE || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
+  camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  works.tick(dt);
+  refreshView(viewDirty); viewDirty = false;
+  const locked = document.pointerLockElement === renderer.domElement; $("cross").hidden = !locked;
+  const t = aim(locked ? null : hover); showCue(t ? works.cue(t) : null, locked);
+  ENG.frame(scene, camera, { changed: moved || works.busy() || !window.__ok });
+  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
+});
+window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
+</script>
+</body>
+</html>

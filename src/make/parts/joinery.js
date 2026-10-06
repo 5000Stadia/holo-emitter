@@ -120,3 +120,24 @@ definePart("splay_shutters", {
 // the angle that folds a shutter leaf from across the light back onto its splay: the splay runs from
 // the light's edge (a, G) to the wall's face (b, 0)
 export const shutterOpen = (side, a, b, G) => side === "left" ? Math.atan2(G, b - a) : Math.atan2(-G, a - b);
+
+// A panelled door leaf for the rooms of a house: a frame of stiles and rails round raised panels (two
+// tall over one short), a turned knob; hinged on its left edge, swinging into the room on "leaf".
+definePart("panelled_leaf", {
+  build(c, { w, h, set = -0.1, thick = 0.045, mover = "leaf" }) {
+    const { THREE } = c, z = set - thick / 2, st = Math.min(0.11, w * 0.14);
+    c.mover(mover, [0, 0, set]);
+    const box = (bw, bh, bd, x, y, zz, role = "wood_face") => c.add(plainBox(THREE, bw, bh, bd, x, y, zz), role, { mover, spread: 0.18 });
+    box(st, h - 0.01, thick, st / 2, (h - 0.01) / 2, z); box(st, h - 0.01, thick, w - st / 2, (h - 0.01) / 2, z);
+    for (const y of [0.1, h * 0.36, h - 0.1]) box(w - 2 * st, 0.12, thick, w / 2, y, z);
+    // the panels, raised a little on both faces
+    for (const [y0, y1] of [[0.16, h * 0.36 - 0.06], [h * 0.36 + 0.06, h - 0.16]]) for (const side of [1, -1]) {
+      const p = loft(THREE, rect(st + 0.02, w - st - 0.02, y0, y1), [[0, 0], [0.006, 0.004], [0.022, 0.008], [0.03, 0.008]], true, true);
+      if (side < 0) { p.scale(1, 1, -1); p.translate(0, 0, 2 * set - thick); } else p.translate(0, 0, set - thick / 2 + 0.002);
+      c.add(p, "wood_face", { mover, spread: 0.08 });
+    }
+    box(w - 2 * st, h - 0.2, thick * 0.5, w / 2, h / 2, z, "wood");     // the panels' ground
+    const knob = new THREE.SphereGeometry(0.026, 12, 9); knob.translate(w - 0.08, 1.0, set + 0.03); c.add(knob, "metal", { mover });
+    c.footprint({ w, h, d: 0 });
+  },
+});
