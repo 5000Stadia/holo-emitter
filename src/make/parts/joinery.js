@@ -129,9 +129,11 @@ definePart("panelled_leaf", {
     c.mover(mover, [0, 0, set]);
     const box = (bw, bh, bd, x, y, zz, role = "wood_face") => c.add(plainBox(THREE, bw, bh, bd, x, y, zz), role, { mover, spread: 0.18 });
     box(st, h - 0.01, thick, st / 2, (h - 0.01) / 2, z); box(st, h - 0.01, thick, w - st / 2, (h - 0.01) / 2, z);
-    for (const y of [0.1, h * 0.36, h - 0.1]) box(w - 2 * st, 0.12, thick, w / 2, y, z);
+    // the rails: a deep bottom rail down to the floor, a lock rail, a top rail up to the head; the leaf is
+    // closed from edge to edge (an earlier leaf left a slot under its bottom rail you could see through)
+    for (const [y0, y1] of [[0, 0.2], [h * 0.36 - 0.06, h * 0.36 + 0.06], [h - 0.17, h - 0.01]]) box(w - 2 * st, y1 - y0, thick, w / 2, (y0 + y1) / 2, z);
     // the panels, raised a little on both faces
-    for (const [y0, y1] of [[0.16, h * 0.36 - 0.06], [h * 0.36 + 0.06, h - 0.16]]) for (const side of [1, -1]) {
+    for (const [y0, y1] of [[0.2, h * 0.36 - 0.06], [h * 0.36 + 0.06, h - 0.17]]) for (const side of [1, -1]) {
       const p = loft(THREE, rect(st + 0.02, w - st - 0.02, y0, y1), [[0, 0], [0.006, 0.004], [0.022, 0.008], [0.03, 0.008]], true, true);
       if (side < 0) { p.scale(1, 1, -1); p.translate(0, 0, 2 * set - thick); } else p.translate(0, 0, set - thick / 2 + 0.002);
       c.add(p, "wood_face", { mover, spread: 0.08 });

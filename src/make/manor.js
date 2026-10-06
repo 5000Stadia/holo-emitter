@@ -162,8 +162,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         b.node.position.set(e.r0, 0, 0); holder.add(b.node); b.node.userData.opening = e.id; things.push(b);
         // the reveal through the wall, lined in oak: the door's own, so it is there whenever the door is seen
         // (from the far room too, when the room that hangs it is not drawn)
-        { const w = e.r1 - e.r0, h = e.top, T = e.T || 0.3, t = 0.025, parts = [new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(w, t, T)];
-          parts[0].translate(t / 2 + 0.004, h / 2, -T / 2); parts[1].translate(w - t / 2 - 0.004, h / 2, -T / 2); parts[2].translate(w / 2, h - t / 2 - 0.004, -T / 2);
+        // and its threshold: the oak sill through the wall, the doorway's own floor
+        { const w = e.r1 - e.r0, h = e.top, T = e.T || 0.3, t = 0.025, parts = [new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(w, t, T), new THREE.BoxGeometry(w + 0.02, 0.012, T + 0.02)];
+          parts[0].translate(t / 2 + 0.004, h / 2, -T / 2); parts[1].translate(w - t / 2 - 0.004, h / 2, -T / 2); parts[2].translate(w / 2, h - t / 2 - 0.004, -T / 2); parts[3].translate(w / 2, 0.006, -T / 2);
           const g = mergeGeometries(parts.map(q => q.toNonIndexed()), false); if (M.oak.vertexColors) K.board(g, 0.15);
           const lining = new THREE.Mesh(g, M.oak); lining.receiveShadow = true; b.node.add(lining); }
       }
