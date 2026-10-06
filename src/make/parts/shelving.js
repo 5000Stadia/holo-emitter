@@ -13,7 +13,7 @@ import { definePart, kindOf, kinds, sizeOf } from "../catalogue.js";
 import { build } from "../build.js";
 import { seedOf, at } from "../id.js";
 import { plainBox } from "./joinery.js";
-import { fillRow, booksMesh, bookContext, bookSpec, bookMatrix, titleIndex, titleOf } from "./books.js";
+import { fillRow, booksMesh, bookContext, bookSpec, bookMatrix, titleIndex, titleOf, titleNamed } from "./books.js";
 
 const shelfWood = (c) => { const tone = c.context.wood_tone || [1, 1, 1], m = c.mat("wood").clone(); m.color = new c.THREE.Color(...tone); m.userData.cls = "shelf"; return m; };
 
@@ -74,10 +74,14 @@ definePart("shelf_habit", {
       for (const p of list) { p.matrix.decompose(v, q, sc); e.setFromQuaternion(q); const flatB = Math.abs(e.z) > 1.2, lean = !flatB && Math.abs(e.z) > 0.03;
         const half = flatB ? p.spec.h / 2 : p.spec.w / 2 + (lean ? p.spec.h * Math.sin(Math.abs(e.z)) / 2 : 0);
         layout[k].push({ x0: v.x - half, x1: v.x + half, what: `${flatB ? "book lying flat" : lean ? "book leaning" : "book"} (${p.spec.size}, ${p.spec.binding}${p.spec.title >= 0 ? ", " + titleOf(p.spec) : ", untitled"})` }); } };
+    // the books the story names for this case (heroes), born at their own address, standing first in
+    // the row of their size; the rest of that row repacks after them, as on a real shelf
+    const heroes = (C.heroes || []).filter(h => h.book && h.in === c.address).map((h, i) => ({ size: h.book.size, spec: bookSpec(h.book.size, seedOf(at(c.address, `hero:${h.name || i}`)), ctx, { title: titleNamed(h.book.title), binding: h.book.binding || "gilt" }) }));
     if (C.books === "fill") {
       // a library: every shelf full of the size it was built for, folios at the bottom
       for (const sh of shelves) {
-        const res = fillRow(THREE, { size: classFor(sh.clear), seed: seedOf(at(c.address, `shelf:${sh.k}`)), x0: sh.x0, x1: sh.x1, y: sh.y, zFront: D - 0.02, depthMax: D - 0.04, clear: sh.clear, ctx, sorted: true });
+        const size = classFor(sh.clear), first = heroes.filter(h => h.size === size).map(h => h.spec);
+        const res = fillRow(THREE, { size, seed: seedOf(at(c.address, `shelf:${sh.k}`)), x0: sh.x0, x1: sh.x1, y: sh.y, zFront: D - 0.02, depthMax: D - 0.04, clear: sh.clear, ctx, sorted: true, first });
         record(sh.k, res.placements); placements.push(...res.placements); faults.push(...res.faults);
       }
     } else if (C.books) {

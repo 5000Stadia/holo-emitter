@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Holo Emitter Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c0a; --panel: #18150f; --panel-hi: #211c15; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a;
+    --line: rgba(236, 228, 210, 0.14); --brass: #c9a35c; --new: #8fd3b8;
+  }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+    --bg: #f3eee4; --panel: #fbf8f1; --panel-hi: #fffdf8; --ink: #241e16; --dim: #5e5546; --faint: #8f8574;
+    --line: rgba(36, 30, 22, 0.14); --brass: #8a6a2a; --new: #2f7d63; } }
+  :root[data-theme="light"] { --bg: #f3eee4; --panel: #fbf8f1; --panel-hi: #fffdf8; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36, 30, 22, 0.14); --brass: #8a6a2a; --new: #2f7d63; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 "IBM Plex Mono", ui-monospace, monospace; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+  header h1 { font: 600 clamp(30px, 6vw, 46px)/1.05 "Cormorant Garamond", Georgia, serif; margin: 0 0 6px; letter-spacing: 0.01em; }
+  header p { color: var(--dim); margin: 0; max-width: 62ch; }
+  h2 { font: 500 12px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); margin: 36px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  a.card { display: block; text-decoration: none; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px 15px; transition: background 0.15s, border-color 0.15s; }
+  a.card:hover, a.card:focus-visible { background: var(--panel-hi); border-color: var(--brass); outline: none; }
+  .card .t { font: 600 21px/1.15 "Cormorant Garamond", Georgia, serif; margin-bottom: 4px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .card .tag { font: 500 10px/1 "IBM Plex Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--new); border: 1px solid currentColor; border-radius: 3px; padding: 3px 5px; }
+  .card .what { color: var(--dim); }
+  .card .try { color: var(--faint); margin-top: 8px; font-size: 12.5px; }
+  .card .try b { color: var(--dim); font-weight: 500; }
+  .feature { grid-column: 1 / -1; }
+  .feature .t { font-size: 27px; }
+  footer { margin-top: 44px; color: var(--faint); font-size: 12px; }
+  kbd { font: inherit; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; color: var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Holo Emitter Lab</h1>
+    <p>Everything we're working on, live. The newest is at the top. Each page builds itself in your browser from code, with no images to download.</p>
+  </header>
+
+  <h2>Now · R48, the production system</h2>
+  <div class="grid">
+    <a class="card feature" href="brief/">
+      <div class="t">The strongroom <span class="tag">everything works</span></div>
+      <div class="what">The 1660 muniment room built from its period brief. Every piece of furniture is made from a data recipe, and everything that looks as if it works, works.</div>
+      <div class="try"><b>Try:</b> pull a labelled drawer · open the table drawer and take the key · the key opens the chest's padlocks · close the shutters and the room darkens · light the candle · the gallery door is locked and its key isn't here. <kbd>E</kbd>/click uses a thing, <kbd>G</kbd> takes it, <kbd>B</kbd> shows the brief.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=puzzle">
+      <div class="t">Light three candles <span class="tag">new</span></div>
+      <div class="what">Locks and rules: a locked door and its key, and a door that opens when 3 of the 4 candles are lit.</div>
+      <div class="try"><b>Try:</b> take the key (<kbd>G</kbd> or shift-click), then click the left door · light the candles one by one.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=kinds">
+      <div class="t">Every kind <span class="tag">new</span></div>
+      <div class="what">Each small object type in the catalogue, side by side on a bench, for approving in a batch.</div>
+      <div class="try"><b>Try:</b> lift the tankard's and the box's lids · turn the globe · light a candle.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=owners">
+      <div class="t">Three keepers' shelves</div>
+      <div class="what">A poor widow, a blacksmith and a great gentleman. The same shelf rules, bent by who owns the shelf.</div>
+      <div class="try"><b>Try:</b> click the things on them: they're objects in their own right.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=bookpress">
+      <div class="t">Pepys's bookpress</div>
+      <div class="what">A glazed bookcase after Samuel Pepys's of 1666, with carved acanthus and books ordered by size.</div>
+      <div class="try"><b>Try:</b> open its four glazed doors.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=library">
+      <div class="t">A library wall</div>
+      <div class="what">Four bays and about 600 books from the same book recipe, built in a fraction of a second.</div>
+      <div class="try"><b>Try:</b> add <b>&amp;means=poor</b> or <b>&amp;purpose=chapel</b> to the address and watch the shelves change.</div>
+    </a>
+  </div>
+
+  <h2>Earlier</h2>
+  <div class="grid">
+    <a class="card" href="house/"><div class="t">The manor, from its plan</div><div class="what">R44: every room of the manor built in code from its plan, with each stage timed.</div></a>
+    <a class="card" href="painted/?mode=code"><div class="t">The code room</div><div class="what">R43: the muniment room built entirely in code, with a two-bounce light bake.</div></a>
+    <a class="card" href="painted/"><div class="t">The painted muniment room</div><div class="what">The painted-shell version, graded "Phenomenal" on 2026-09-28.</div></a>
+    <a class="card" href="room3d/"><div class="t">SS Meridian, C Deck</div><div class="what">A 1934 liner deck, from an earlier experiment.</div></a>
+    <a class="card" href="office/"><div class="t">Scranton branch, second floor</div><div class="what">An office floor, from an earlier experiment.</div></a>
+    <a class="card" href="gallery/"><div class="t">Noun sheets</div><div class="what">The object catalogue sheets from the asset-pipeline trials.</div></a>
+    <a class="card" href="../"><div class="t">The first demo</div><div class="what">M0: the painted rooms you turn and walk through, a drawer and a hidden key.</div></a>
+  </div>
+
+  <footer>Updated with each publish · on a phone, everything works by tapping</footer>
+</main>
+</body>
+</html>

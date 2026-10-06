@@ -58,6 +58,8 @@ for (const [tp, [authors, works]] of Object.entries(GROW)) authors.forEach((a, i
 }));
 const TOPICS = Object.keys(TITLES), FLAT = TOPICS.flatMap(t => TITLES[t].map((x, i) => ({ topic: t, i, ...x })));
 export const titleIndex = (topic, i) => FLAT.findIndex(t => t.topic === topic && t.i === i);
+// a work by its title as a person would say it ("Hakluyt's Voyages"), or -1
+export const titleNamed = (name) => FLAT.findIndex(t => t.full === name || t.full.startsWith(name));
 export const titleOf = (spec) => spec.title >= 0 ? FLAT[spec.title].full + (spec.vol ? `, vol. ${spec.vol}` : "") : null;
 
 // means: how a household of that standing keeps its books
@@ -278,13 +280,14 @@ export function buildBook(THREE, K, spec, id = null) {
 // either by a heap of books laid flat or (holder) by something heavy the owner puts against it.
 // count caps the books; sorted orders the run by height. Returns placements, faults, and where the run
 // ends (end), so the rest of the shelf can take other things.
-export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear, ctx = bookContext(), count = Infinity, tuck = false, holder = false, sorted = ctx.ordered }) {
+// first: books the story names for this row (a hero), placed before the rest, which repack after them
+export function fillRow(THREE, { size, seed, x0, x1, y, zFront, depthMax, clear, ctx = bookContext(), count = Infinity, tuck = false, holder = false, sorted = ctx.ordered, first = [] }) {
   const r = rng(seed), out = [], faults = [], span = x1 - x0;
   const fullness = ctx.fullness[0] + r() * (ctx.fullness[1] - ctx.fullness[0]);
   const smaller = ORDER.slice(ORDER.indexOf(size));
   const fits = (s) => { s.h = Math.min(s.h, clear - 0.012); s.d = Math.min(s.d, depthMax); return s; };
-  const specs = [];
-  let used = 0, i = 0;
+  const specs = first.map(fits);
+  let used = specs.reduce((a, s) => a + s.w + 0.001, 0), i = 0;
   while (used < span * fullness && specs.length < count && i < 400) {
     if (r() < ctx.sets * 0.25) {         // a set: several volumes of one work, one binding, one size, numbered
       const first = fits(bookSpec(size, hash(seed, i++, 7) * 1e9 | 0, ctx, { binding: r() < 0.5 ? "gilt" : "plain", set: true }));
