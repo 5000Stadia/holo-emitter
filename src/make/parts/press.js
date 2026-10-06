@@ -185,5 +185,6 @@ function labelAtlas(THREE, texts, count) {
       .replace("#include <uv_vertex>", "#include <uv_vertex>\n#ifdef USE_MAP\nvMapUv = mix(aRect.xy, aRect.zw, uv);\n#endif");
   };
   material.customProgramCacheKey = () => "drawer-label";
+  material.userData.node = "atlas-cell";                      // the WebGPU path reads aRect in TSL (src/make/nodes.js)
   return { material, uv: (k) => { const u0 = (k % cols) / cols, v1 = 1 - Math.floor(k / cols) / rows; return [u0, v1 - 1 / rows, u0 + 1 / cols, v1]; } };
 }

@@ -410,6 +410,7 @@ function quad(THREE, A, B, C, D) {
 // grime and soot in world space: scuffed low on the walls, smoke under the ceiling, and (for the
 // chimney-piece's stone) a soot plume over the fire opening. soot = [x, y, rx, ry, strength]
 function grime(THREE, mat, soot = null, walls = true) {
+  mat.userData.grime = { soot, walls };                       // for the WebGPU path (src/make/nodes.js), which reads this instead
   mat.onBeforeCompile = (sh) => {
     sh.uniforms.uSoot = { value: new THREE.Vector4(...(soot ? soot.slice(0, 4) : [0, 0, 1, 1])) };
     sh.uniforms.uSootK = { value: soot ? soot[4] : 0 };

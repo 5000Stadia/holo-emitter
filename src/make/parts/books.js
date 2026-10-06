@@ -202,7 +202,9 @@ export const takeable = (dims) => { const [a, b, c] = [...dims].sort((p, q) => q
 function unitBook(THREE) {
   const g = new THREE.BoxGeometry(1, 1, 1), n = g.attributes.uv.count, page = new Float32Array(n), side = new Float32Array(n);
   for (let f = 0; f < 6; f++) for (let i = f * 4; i < f * 4 + 4; i++) { page[i] = f === 2 || f === 3 ? 1 : 0; side[i] = f === 4 || f === 2 || f === 3 ? 0 : 1; }
-  g.setAttribute("aPage", new THREE.BufferAttribute(page, 1)); g.setAttribute("aSide", new THREE.BufferAttribute(side, 1));
+  // the page edge and spine-side flags as one two-component attribute: WebGPU allows 8 vertex buffers
+  const ps = new Float32Array(page.length * 2); for (let i = 0; i < page.length; i++) { ps[i * 2] = page[i]; ps[i * 2 + 1] = side[i]; }
+  g.setAttribute("aPS", new THREE.BufferAttribute(ps, 2));
   return g;
 }
 
@@ -216,9 +218,9 @@ export function bookLook(THREE, K, seed = 1667) {
       sh.uniforms.uPages = { value: new THREE.Vector4(...A.pages) }; sh.uniforms.uTitles = { value: TA.texture };
       const per = instanced ? "attribute vec4 aCell; attribute vec4 aTitle; attribute vec4 aLabel;" : "uniform vec4 uCell; uniform vec4 uTitle; uniform vec4 uLabel;";
       sh.vertexShader = sh.vertexShader
-        .replace("#include <common>", `#include <common>\nattribute float aPage; attribute float aSide; uniform vec4 uPages; ${per}\nvarying vec2 vLocal; varying float vSpine; varying vec4 vTitle; varying vec4 vLabel;`)
+        .replace("#include <common>", `#include <common>\nattribute vec2 aPS; uniform vec4 uPages; ${per}\nvarying vec2 vLocal; varying float vSpine; varying vec4 vTitle; varying vec4 vLabel;`)
         .replace("#include <uv_vertex>", `#include <uv_vertex>
-          { vec4 c = ${instanced ? "aCell" : "uCell"}; vec2 q = aSide > 0.5 ? vec2(0.1, uv.y) : uv;
+          { float aPage = aPS.x, aSide = aPS.y; vec4 c = ${instanced ? "aCell" : "uCell"}; vec2 q = aSide > 0.5 ? vec2(0.1, uv.y) : uv;
             vMapUv = aPage > 0.5 ? mix(uPages.xy, uPages.zw, uv) : mix(c.xy, c.zw, q);
             vLocal = uv; vSpine = (aPage < 0.5 && aSide < 0.5) ? 1.0 : 0.0;
             vTitle = ${instanced ? "aTitle" : "uTitle"}; vLabel = ${instanced ? "aLabel" : "uLabel"}; }`);
@@ -232,6 +234,7 @@ export function bookLook(THREE, K, seed = 1667) {
       m.userData.shader = sh;
     };
     m.customProgramCacheKey = () => "book" + (instanced ? "I" : "S");
+    m.userData.node = { kind: "book", instanced, pages: A.pages, titles: TA.texture };   // for the WebGPU path (src/make/nodes.js)
     return m;
   };
   const titleRect = (s) => s.title < 0 ? [0, 0, 0, 0] : s.binding === "gilt" ? (TA.cells.gilt[s.title][s.vol || 0] || TA.cells.gilt[s.title][0]) : s.binding === "vellum" ? TA.cells.vellum[s.title] : TA.cells.ink[s.title];
@@ -252,11 +255,13 @@ export function bookMatrix(THREE, s, x, y, z, lean = 0, flat = false) {
 // many books as one instanced mesh: placements = [{ spec, matrix }]
 export function booksMesh(THREE, K, placements) {
   const L = bookLook(THREE, K), n = placements.length;
-  const g = L.unit.clone(), cells = new Float32Array(n * 4), titles = new Float32Array(n * 4), labels = new Float32Array(n * 4);
-  placements.forEach((p, i) => { cells.set(L.atlas.cell(p.spec.cell), i * 4); titles.set(L.titleRect(p.spec), i * 4); labels.set(LABEL[p.spec.binding], i * 4); });
-  g.setAttribute("aCell", new THREE.InstancedBufferAttribute(cells, 4));
-  g.setAttribute("aTitle", new THREE.InstancedBufferAttribute(titles, 4));
-  g.setAttribute("aLabel", new THREE.InstancedBufferAttribute(labels, 4));
+  // each book's spine cell, title cell and label area, interleaved in one buffer (WebGPU allows 8)
+  const g = L.unit.clone(), per = new Float32Array(n * 12);
+  placements.forEach((p, i) => { per.set(L.atlas.cell(p.spec.cell), i * 12); per.set(L.titleRect(p.spec), i * 12 + 4); per.set(LABEL[p.spec.binding], i * 12 + 8); });
+  const ib = new THREE.InstancedInterleavedBuffer(per, 12, 1);
+  g.setAttribute("aCell", new THREE.InterleavedBufferAttribute(ib, 4, 0));
+  g.setAttribute("aTitle", new THREE.InterleavedBufferAttribute(ib, 4, 4));
+  g.setAttribute("aLabel", new THREE.InterleavedBufferAttribute(ib, 4, 8));
   const mesh = new THREE.InstancedMesh(g, L.instanced, n), col = new THREE.Color();
   placements.forEach((p, i) => { mesh.setMatrixAt(i, p.matrix); mesh.setColorAt(i, col.setScalar(p.spec.tone)); });
   mesh.castShadow = mesh.receiveShadow = true;
@@ -267,6 +272,7 @@ export function booksMesh(THREE, K, placements) {
 // one book on its own: what a player picks up, or one that matters to the story
 export function buildBook(THREE, K, spec, id = null) {
   const L = bookLook(THREE, K), m = L.material(false), prev = m.onBeforeCompile;
+  m.userData.node = { ...m.userData.node, cell: L.atlas.cell(spec.cell), title: L.titleRect(spec), label: LABEL[spec.binding] };
   m.onBeforeCompile = (sh, r) => { sh.uniforms.uCell = { value: new THREE.Vector4(...L.atlas.cell(spec.cell)) }; sh.uniforms.uTitle = { value: new THREE.Vector4(...L.titleRect(spec)) }; sh.uniforms.uLabel = { value: new THREE.Vector4(...LABEL[spec.binding]) }; prev(sh, r); };
   m.color.setScalar(spec.tone);
   const mesh = new THREE.Mesh(L.unit, m); mesh.scale.set(spec.w, spec.h, spec.d); mesh.castShadow = mesh.receiveShadow = true;
