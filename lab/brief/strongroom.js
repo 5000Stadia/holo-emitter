@@ -4,7 +4,7 @@
 // the family's papers and its manors (brief.js labelDrawers), with pigeonholes of bundles and court rolls over; an iron-bound chest under two locks; and the table with the drawer
 // (procedural.js). Everything from the kit (procedural.js makeKit): no image, no mesh file.
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { buildBook, bookSpec } from "./book.js";
+import { buildBook, bookSpec } from "../../src/make/parts/books.js";
 import { build, lookC1660, shutterOpen } from "../../src/make/index.js";
 import { rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm, smooth } from "../painted/procedural.js";
 
@@ -267,7 +267,9 @@ export function buildStrongroom(THREE, K, spec) {
     const w = stoneWall(THREE, K, S, F, L, elems.filter(e => e.kind === "door" || e.kind === "window"), v.spring, spring ? null : (r) => arc.y(F === "E" || F === "S" ? r : r));
     w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot; grp.add(w.grp); lights.push(...w.lights);
     for (const e of elems) {
-      if (e.kind === "door") make("door/boarded-iron-bound", e.id, { w: e.r1 - e.r0, h: e.top }, w.grp, [e.r0, 0, 0]);
+      // the door from the lord's rooms stands unlocked; any other is locked, and its key is not here:
+      // the brief's one way in, kept in play while the plan still gives the room two doors
+      if (e.kind === "door") make("door/boarded-iron-bound", e.id, { w: e.r1 - e.r0, h: e.top, ...(e.joins?.includes("solar") ? {} : { lock: "locked", key: `key/${e.id}` }) }, w.grp, [e.r0, 0, 0]);
       if (e.kind === "window" && e.splay && e.shutters) {
         const sp = e.splay, sh = make("shutters/splay-pair", `${e.id}/shutters`, { x0: sp.x0, x1: sp.x1, y0: sp.y0, y1: sp.y1, G: sp.G,
           open_left: shutterOpen("left", sp.x0, sp.ox0, sp.G), open_right: shutterOpen("right", sp.x1, sp.ox1, sp.G) }, w.grp, [0, 0, 0]);

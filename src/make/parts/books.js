@@ -9,7 +9,7 @@
 // to compute, only different choices from the same seed. Titles are live text: drawn once per look into
 // a title atlas and laid onto each spine's lettering-piece or label by the shader, so no two shelves need
 // the same title unless their seeds say so.
-import { rng, hash } from "../painted/procedural.js";
+import { rng, hash } from "../../../lab/painted/procedural.js";
 
 // English formats c. 1660, heights and thicknesses in metres
 export const SIZE_CLASSES = {

@@ -1,0 +1,102 @@
+// Kinds for a household's things, c. 1660: data only, over the shape parts (src/make/parts/shapes.js)
+// and the shelving and book parts. Each knows its size (to be packed among others before it is built)
+// and its traits (heavy things go low; fragile ones at hand; things that stay put can hold a run of
+// books). Everything that obviously works, works: lids lift, a globe turns, a candle lights.
+const P = Math.PI;
+export default [
+  { kind: "candle/stub", v: 1, noun: "the candle", why: "a candlestick with the stub of a tallow candle in it, kept on the shelf for the evening",
+    size: [0.1, "=0.175+length", 0.1], settings: { length: [0.02, 0.09], radius: 0.01 }, traits: ["daily"],
+    parts: [{ part: "candlestick" }],
+    affordances: { light: { hit: "body", motion: "switch", lights: "flame", starts: "burn", verbs: ["light the candle", "put out the candle"] } },
+    take: { requires: { light: "out" }, refused: "not while it burns" },
+    processes: { burn: { initial: 1, phases: [{ to: 0.1, rate: 0.0003 }], drives: [{ mover: "candle", scale: [0, 1, 0] }, { mover: "flame", axis: [0, 1, 0], travel: "$length" }] } } },
+  { kind: "key/iron", v: 1, noun: "the key", why: "a wrought-iron key, about 11 cm: a looped bow, a round shank, a warded bit",
+    size: [0.11, 0.02, 0.04], settings: {}, traits: [],
+    parts: [
+      { part: "torus", role: "iron", r: 0.016, tube: 0.004, radial: 6, tubular: 18, ops: [["rx", P / 2], ["t", -0.04, 0.004, 0]] },
+      { part: "cylinder", role: "iron", r: 0.004, h: 0.075, segments: 8, ops: [["rz", -P / 2], ["t", -0.024, 0.004, 0]] },
+      { part: "box", role: "iron", size: [0.014, 0.008, 0.02], at: [0.044, 0, 0.01] }] },
+  { kind: "jug/earthen", v: 1, noun: "the jug", why: "a jug for ale or water: salt-glazed stoneware, red earthenware or yellow slipware",
+    size: [0.16, 0.22, 0.14], settings: { body: { one_of: ["stoneware", "earthenware", "slipware"] } }, traits: ["heavy"],
+    parts: [
+      { part: "lathe", role: "$body", profile: [[0, 0], [0.045, 0], [0.06, 0.03], [0.068, 0.08], [0.06, 0.13], [0.04, 0.17], [0.036, 0.2], [0.04, 0.21], [0, 0.21]] },
+      { part: "torus", role: "$body", r: 0.035, tube: 0.008, radial: 6, tubular: 14, arc: P, ops: [["rz", -P / 2], ["t", 0.062, 0.13, 0]] }] },
+  { kind: "tankard/pewter-lidded", v: 1, noun: "the tankard", why: "a pewter tankard with a hinged lid and a thumbpiece",
+    size: [0.14, 0.15, 0.1], settings: {}, traits: ["daily"],
+    parts: [
+      { part: "lathe", role: "pewter", profile: [[0, 0], [0.048, 0], [0.05, 0.01], [0.044, 0.02], [0.042, 0.13], [0.046, 0.14], [0, 0.14]] },
+      { part: "mover", name: "lid", pivot: [0.046, 0.142, 0] },
+      { part: "lathe", role: "pewter", mover: "lid", profile: [[0, 0.14], [0.048, 0.14], [0.04, 0.152], [0, 0.156]] },
+      { part: "box", role: "pewter", mover: "lid", size: [0.016, 0.014, 0.012], at: [0.054, 0.146, 0] },
+      { part: "torus", role: "pewter", r: 0.035, tube: 0.007, radial: 6, tubular: 12, arc: P, ops: [["rz", -P / 2], ["t", 0.046, 0.075, 0]] }],
+    affordances: { lid: { mover: "lid", motion: "hinge", axis: [0, 0, 1], angle: -1.2, verbs: ["lift the lid", "close the lid"] } } },
+  { kind: "bottle/onion", v: 1, noun: "the bottle", why: "an onion bottle of green glass, or a stoneware bellarmine",
+    size: [0.1, 0.24, 0.1], settings: { body: { one_of: ["glass", "glass", "glass", "stoneware", "stoneware"] } }, traits: ["fragile"],
+    parts: [{ part: "lathe", role: "$body", profile: [[0, 0], [0.05, 0.004], [0.058, 0.05], [0.05, 0.1], [0.02, 0.14], [0.014, 0.2], [0.018, 0.21], [0, 0.21]] }] },
+  { kind: "bowl/turned", v: 1, noun: "the bowl", why: "a turned wooden bowl, or a pewter one",
+    size: [0.18, 0.07, 0.18], settings: { body: { one_of: ["treen", "pewter"] } }, traits: ["daily", "fragile"],
+    parts: [{ part: "lathe", role: "$body", profile: [[0, 0], [0.04, 0], [0.07, 0.02], [0.088, 0.06], [0.084, 0.062], [0.066, 0.024], [0, 0.012]] }] },
+  { kind: "box/oak-lidded", v: 1, noun: "the box", why: "a small oak box with a lid: deeds, letters, a Bible's keeping",
+    size: ["$w", 0.1, 0.14], settings: { w: [0.2, 0.3] }, traits: ["heavy", "stays_put"],
+    parts: [
+      { part: "box", role: "wood_face", size: ["$w", 0.08, 0.14] },
+      { part: "mover", name: "lid", pivot: [0, 0.08, -0.075] },
+      { part: "box", role: "wood_face", mover: "lid", size: ["=w+0.01", 0.018, 0.15], at: [0, 0.08, 0] }],
+    affordances: { lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.9, verbs: ["open the box", "close the box"] } } },
+  { kind: "horseshoe/iron", v: 1, noun: "the horseshoe", why: "an iron horseshoe",
+    size: [0.13, 0.15, 0.04], settings: {}, traits: [],
+    parts: [{ part: "torus", role: "iron", r: 0.055, tube: 0.011, radial: 6, tubular: 16, arc: P * 1.3, ops: [["rz", -P * 0.15], ["t", 0, 0.075, 0], ["ry", 0.3]] }] },
+  { kind: "pot/of-nails", v: 1, noun: "the pot of nails", why: "an earthen pot of nails",
+    size: [0.1, 0.1, 0.1], settings: {}, traits: ["heavy"],
+    parts: [
+      { part: "lathe", role: "earthenware", profile: [[0, 0], [0.045, 0], [0.045, 0.09], [0.04, 0.09], [0.04, 0.01], [0, 0.01]] },
+      { part: "cylinder", role: "iron", r: 0.04, h: 0.01, segments: 14, at: [0, 0.075, 0] }] },
+  { kind: "globe/terrestrial", v: 1, noun: "the globe", why: "a terrestrial globe in its brass meridian, on a turned stand: a great house's curiosity",
+    size: [0.24, 0.34, 0.24], settings: {}, traits: ["fragile"],
+    parts: [
+      { part: "mover", name: "globe", pivot: [0, 0.21, 0] },
+      { part: "sphere", role: "globe", mover: "globe", r: 0.1, w: 24, h: 16, at: [0, 0.21, 0] },
+      { part: "torus", role: "metal", r: 0.108, tube: 0.006, radial: 6, tubular: 32, ops: [["rx", P / 2 - 0.4], ["t", 0, 0.21, 0]] },
+      { part: "lathe", role: "treen", profile: [[0, 0], [0.09, 0], [0.08, 0.02], [0.02, 0.04], [0.016, 0.11], [0, 0.11]] }],
+    affordances: { spin: { mover: "globe", motion: "hinge", axis: [0, 1, 0], angle: 6.2832, speed: 2, states: ["still", "turned"], verbs: ["turn the globe", "turn the globe"] } } },
+  { kind: "clock/lantern", v: 1, noun: "the clock", why: "a brass lantern clock; it hangs on the wall, never a shelf",
+    size: [0.16, 0.38, 0.15], settings: {}, traits: ["wall"],
+    parts: [
+      { part: "box", role: "metal", size: [0.15, 0.24, 0.14], at: [0, 0.04, 0] },
+      { part: "cylinder", role: "porcelain", r: 0.06, h: 0.004, segments: 24, ops: [["rx", P / 2], ["t", 0, 0.17, 0.072]] },
+      { part: "sphere", role: "metal", r: 0.06, w: 16, h: 8, theta_len: P / 2, at: [0, 0.3, 0] },
+      { part: "cone", role: "metal", r: 0.012, h: 0.05, at: [0, 0.37, 0] }] },
+  { kind: "porcelain/jar", v: 1, noun: "the china jar", why: "a blue-and-white Chinese jar: a rich house's curiosity",
+    size: [0.16, 0.18, 0.16], settings: {}, traits: ["fragile"],
+    parts: [
+      { part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.05, 0], [0.075, 0.06], [0.07, 0.13], [0.04, 0.16], [0.04, 0.17], [0, 0.17]] },
+      { part: "torus", role: "porcelain_blue", r: 0.072, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.09, 0]] }] },
+  { kind: "porcelain/bowl", v: 1, noun: "the china bowl", why: "a blue-and-white Chinese bowl: a rich house's curiosity",
+    size: [0.16, 0.08, 0.16], settings: {}, traits: ["fragile"],
+    parts: [
+      { part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.035, 0], [0.065, 0.03], [0.08, 0.075], [0.076, 0.077], [0.06, 0.035], [0, 0.012]] },
+      { part: "torus", role: "porcelain_blue", r: 0.079, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.07, 0]] }] },
+  { kind: "shell/curiosity", v: 1, noun: "the shell", why: "a great shell from the Indies: a curiosity",
+    size: [0.16, 0.08, 0.1], settings: {}, traits: [],
+    parts: [{ part: "sphere", role: "shell", r: 0.06, w: 16, h: 10, scale: [1.3, 0.6, 0.8], at: [0, 0.035, 0] }] },
+  { kind: "letters/bundle", v: 1, noun: "the letters", why: "a bundle of letters tied with tape: a widow's keepsake",
+    size: [0.12, 0.04, 0.09], settings: {}, traits: [],
+    parts: [
+      { part: "box", role: "paper", size: [0.11, 0.035, 0.08] },
+      { part: "box", role: "tape", size: [0.012, 0.037, 0.082] }] },
+  // shelving and bookcases: the structure, then the habit that dresses it from whoever keeps it
+  { kind: "shelves/wall-boards", v: 1, noun: "the shelves", fixed: true, why: "boards on iron brackets fixed to a wall: a poor house's shelves",
+    settings: { W: 0.9, D: 0.24, ys: { is: [0.95, 1.25] } }, parts: [{ part: "shelf_boards" }, { part: "shelf_habit" }] },
+  { kind: "shelves/open-case", v: 1, noun: "the shelves", fixed: true, why: "an open case of shelves: a working house's, or a library's section",
+    settings: { W: 1.1, H: 1.95, D: 0.3, ys: { is: [0.08, 0.53, 0.88, 1.18, 1.44, 1.7] } }, parts: [{ part: "shelf_case" }, { part: "shelf_habit" }] },
+  { kind: "press/glazed-pepys", v: 1, noun: "the bookpress", fixed: true,
+    why: "a glazed bookpress after Samuel Pepys's, made by Thomas Simpson in 1666: the first English glazed bookcases; a deeper folio base, 3 × 7 panes in each upper door, carved acanthus",
+    settings: { W: 1.2, H: 2.28 }, parts: [{ part: "glazed_bookpress" }],
+    affordances: {
+      upper_left: { mover: "upper_left", motion: "hinge", axis: [0, 1, 0], angle: -1.9, speed: 4, verbs: ["open the glazed door", "close the glazed door"] },
+      upper_right: { mover: "upper_right", motion: "hinge", axis: [0, 1, 0], angle: 1.9, speed: 4, verbs: ["open the glazed door", "close the glazed door"] },
+      lower_left: { mover: "lower_left", motion: "hinge", axis: [0, 1, 0], angle: -1.9, speed: 4, verbs: ["open the glazed door", "close the glazed door"] },
+      lower_right: { mover: "lower_right", motion: "hinge", axis: [0, 1, 0], angle: 1.9, speed: 4, verbs: ["open the glazed door", "close the glazed door"] } } },
+  { kind: "shelves/library-bays", v: 1, noun: "the shelves", fixed: true, why: "a library wall of open oak bays, every shelf full, largest books low",
+    settings: { W: 4.2, H: 2.5, bays: 4, D: 0.32 }, parts: [{ part: "library_bays" }] },
+];

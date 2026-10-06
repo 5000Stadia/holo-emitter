@@ -11,15 +11,22 @@
   #info { position: fixed; left: 12px; bottom: 12px; background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; color: var(--dim); white-space: pre; line-height: 1.5; }
   #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; color: var(--dim); }
   #status[hidden] { display: none; }
+  #hint { position: fixed; background: var(--panel); border: 1px solid var(--line); padding: 3px 8px; pointer-events: none; }
+  #hint[hidden] { display: none; }
+  #line { position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; color: var(--ink); }
+  #line[hidden] { display: none; }
 </style>
 </head>
 <body>
 <div id="status">building…</div>
 <div id="info"></div>
+<div id="hint" hidden></div>
+<div id="line" hidden></div>
 <script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <script type="module">
 // An object on its own, against a limewashed wall on flags, for building and checking it: drag to turn
-// round it, wheel to come closer. ?o=bookpress. window.__view(az, el, dist, ty) aims the camera.
+// round it, wheel to come closer, click what works. ?o=bookpress|library|owners|shelf|book|kinds.
+// window.__view(az, el, dist, ty) aims the camera.
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -28,17 +35,37 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
 import { makeKit } from "../painted/procedural.js";
 import { strongroomMaterials } from "./strongroom.js";
-import { buildBookpress, buildLibraryWall } from "./bookpress.js";
-import { buildBook, bookSpec, bookContext, titleOf } from "./book.js";
-import { buildOwnedShelves } from "./owners.js";
+import { buildBook, bookSpec } from "../../src/make/parts/books.js";
+import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES } from "../../src/make/index.js";
 
-const Q = new URLSearchParams(location.search);
+const Q = new URLSearchParams(location.search), hintEl = document.getElementById("hint");
+// every object is a thing built from its kind, in the context of the influences that reach it
+const built = [];
+const make = (kind, address, over = {}, context = {}) => { const b = build(THREE, K, look, kind, address, over, context); Object.assign(b.node.userData, b.info); built.push(b); return b; };
+const shelfOf = (o, i = 0) => { const O = OWNERS[o], { kind, ...over } = O.traits.shelving;
+  return make(kind, `stage/${o}/shelves:${i}`, over, blend([O, PURPOSES[Q.get("purpose")]])); };
 const OBJECTS = {
-  bookpress: (K) => buildBookpress(THREE, K, {}),
-  library: (K) => buildLibraryWall(THREE, K, { ctx: bookContext(Q.get("means") || "gentry", Q.get("purpose")), seed: +(Q.get("seed") || 1668) }),
-  owners: (K) => { const g = new THREE.Group(); ["widow", "smith", "gentleman"].forEach((o, i) => { const s = buildOwnedShelves(THREE, K, o, { seed: +(Q.get("seed") || 1660) }); s.position.x = (i - 1) * 1.3; g.add(s); g.userData[o] = s.userData; }); return g; },
-  shelf: (K) => buildOwnedShelves(THREE, K, Q.get("owner") || "widow", { seed: +(Q.get("seed") || 1660) }),
-  book: (K) => { const b = buildBook(THREE, K, bookSpec(Q.get("size") || "quarto", +(Q.get("seed") || 7))); b.position.set(0, 0.8 + b.scale.y / 2, 0.6); b.rotation.y = -0.5; return b; },
+  bookpress: () => make("press/glazed-pepys", `stage/bookpress:${Q.get("seed") || 1666}`, {}, blend([OWNERS[Q.get("owner") || "gentleman"]])).node,
+  library: () => make("shelves/library-bays", `stage/library:${Q.get("seed") || 1668}`, {}, blend([{ who: "a household", weight: 1, traits: { means: Q.get("means") || "gentry" } }, PURPOSES[Q.get("purpose")]])).node,
+  owners: () => { const g = new THREE.Group(); ["widow", "smith", "gentleman"].forEach((o, i) => { const b = shelfOf(o); b.node.position.x = (i - 1) * 1.3; g.add(b.node); g.userData[o] = b.info; }); return g; },
+  shelf: () => { const b = shelfOf(Q.get("owner") || "widow"); b.node.userData = { ...b.node.userData, ...b.info }; return b.node; },
+  book: () => { const b = buildBook(THREE, K, bookSpec(Q.get("size") || "quarto", +(Q.get("seed") || 7))); b.position.set(0, 0.8 + b.scale.y / 2, 0.6); b.rotation.y = -0.5; return b; },
+  // gates and rules (Kabe, 2026-10-05): door A is locked and its key lies on the bench; door B is
+  // locked and has no key: "light 3 of these candles!" opens it; a burning candle can't be carried off
+  puzzle: () => { const g = new THREE.Group();
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.05, 0.42), K.M.oakH); bench.position.set(0, 0.725, 0.75); bench.castShadow = bench.receiveShadow = true; g.add(bench);
+    for (let i = 0; i < 4; i++) { const b = make("candle/stub", `stage/puzzle/bench/candle:${i}`); b.node.position.set(-0.6 + i * 0.3, 0.75, 0.8); g.add(b.node); }
+    const key = make("key/iron", "stage/puzzle/bench/key"); key.node.position.set(0.68, 0.75, 0.68); key.node.rotation.y = 0.4; g.add(key.node);
+    const a = make("door/boarded-iron-bound", "stage/puzzle/door:a", { lock: "locked", key: "key/iron" }); a.node.position.set(-2.25, 0, 0.15); g.add(a.node);
+    const b = make("door/boarded-iron-bound", "stage/puzzle/door:b", { lock: "locked", key: "key/lost" }); b.node.position.set(1.25, 0, 0.15); g.add(b.node);
+    g.userData.rules = [{ id: "three-candles", when: { count: { kind: "candle", within: "stage/puzzle/bench/", state: { light: "lit" } }, at_least: 3 },
+      then: [{ set: { candles_lit: true } }, { do: { thing: "stage/puzzle/door:b", aff: "lock", to: "unlocked" } }, { do: { thing: "stage/puzzle/door:b", aff: "leaf", to: "open" } }],
+      say: "Three flames stand up together. Somewhere a bolt draws back, and the right-hand door swings open." }];
+    g.userData.view = [0, 0.15, 5.4, 1.15]; return g; },
+  // every kind in the catalogue, small things on a bench, large ones standing, for approval in a batch
+  kinds: () => { const g = new THREE.Group(), all = kinds().filter(k => k.size && !k.kind.startsWith("shelves/")); let x = -((all.length - 1) * 0.3) / 2;
+    for (const k of all) { const b = make(k.kind, `stage/kinds/${k.kind}`); b.node.position.set(x, 0.75, 0.6); g.add(b.node); x += 0.3; }
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(all.length * 0.3 + 0.2, 0.04, 0.4), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench); return g; },
 };
 const kind = Q.get("o") || "bookpress";
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -52,14 +79,14 @@ const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.02, 4
 
 const t0 = performance.now();
 const K = await makeKit(THREE, { floor: [6, 4] });
-const S = strongroomMaterials(THREE, K);
+const S = strongroomMaterials(THREE, K), look = lookC1660(THREE, K, S);
 const tKit = performance.now();
 // the stage: a back wall, a side wall, flags
 const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.2), S.lime); wall.position.set(0, 1.6, 0); wall.receiveShadow = true; scene.add(wall);
 { const g = new THREE.PlaneGeometry(6, 4); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 4);
   const f = new THREE.Mesh(g, S.flags); f.rotation.x = -Math.PI / 2; f.position.set(0, 0, 2); f.receiveShadow = true; scene.add(f); }
 const tB = performance.now();
-const obj = OBJECTS[kind](K); scene.add(obj); window.__obj = obj;
+const obj = OBJECTS[kind](); scene.add(obj); window.__obj = obj;
 const tObj = performance.now();
 // light: a window's daylight from the left front, a soft fill, a little bounce
 const sun = new THREE.DirectionalLight(0xfff0dc, 2.2); sun.position.set(-2.5, 3.2, 3.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.02;
@@ -73,21 +100,34 @@ const ao = new GTAOPass(scene, camera, innerWidth, innerHeight); ao.updateGtaoMa
 composer.addPass(new OutputPass());
 
 let az = 0.35, el = 0.12, dist = 3.6, ty = 1.15;
-const aim = () => { camera.position.set(Math.sin(az) * Math.cos(el) * dist, ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); camera.lookAt(0, ty, 0.2); };
-window.__view = (a, e, d, y = ty) => { az = a; el = e; dist = d; ty = y; aim(); };
-let drag = null;
-renderer.domElement.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY]; });
-addEventListener("pointerup", () => { drag = null; });
-addEventListener("pointermove", e => { if (!drag) return; az -= (e.clientX - drag[0]) * 0.006; el = Math.max(-0.3, Math.min(1.2, el + (e.clientY - drag[1]) * 0.004)); drag = [e.clientX, e.clientY]; aim(); });
-addEventListener("wheel", e => { dist = Math.max(0.4, Math.min(8, dist * (1 + e.deltaY * 0.001))); aim(); });
+if (obj.userData.view) [az, el, dist, ty] = obj.userData.view;
+const aimCam = () => { camera.position.set(Math.sin(az) * Math.cos(el) * dist, ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); camera.lookAt(0, ty, 0.2); };
+window.__view = (a, e, d, y = ty) => { az = a; el = e; dist = d; ty = y; aimCam(); };
+const lineEl = document.getElementById("line"); let lineTimer = null;
+const say = (t) => { if (!t) return; lineEl.textContent = t; lineEl.hidden = false; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.hidden = true; }, 5000); };
+const works = makeWorks(THREE, { say }); for (const b of built) works.add(b); window.__works = works;
+if (obj.userData.rules) works.rules(obj.userData.rules);
+const use = (t) => { if (!t) return; const r = works.act(t); if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); };
+const takeIt = (t) => { if (!t) return; const r = works.take(t); say(r.refused ? r.refused : `You take ${r.took}.`); };
+let pointer = null;
+addEventListener("keydown", e => { if (e.code === "KeyG" && pointer) takeIt(aim(pointer)); });
+const ray = new THREE.Raycaster();
+const aim = (e) => { ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera); return works.find(ray.intersectObjects(works.meshes(), true)[0]); };
+let drag = null, downAt = null;
+renderer.domElement.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY]; downAt = [e.clientX, e.clientY]; });
+addEventListener("pointerup", e => { drag = null; if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) < 5) (e.shiftKey ? takeIt : use)(aim(e)); downAt = null; });
+renderer.domElement.addEventListener("mousemove", e => { pointer = e; if (!drag) { const t = aim(e); hintEl.hidden = !t; if (t) { hintEl.textContent = works.hint(t); hintEl.style.left = e.clientX + 14 + "px"; hintEl.style.top = e.clientY + 14 + "px"; } } });
+addEventListener("pointermove", e => { if (!drag) return; az -= (e.clientX - drag[0]) * 0.006; el = Math.max(-0.3, Math.min(1.2, el + (e.clientY - drag[1]) * 0.004)); drag = [e.clientX, e.clientY]; aimCam(); });
+addEventListener("wheel", e => { dist = Math.max(0.4, Math.min(8, dist * (1 + e.deltaY * 0.001))); aimCam(); });
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); });
-aim();
+aimCam();
 let tris = 0, meshes = 0, bytes = 0; obj.traverse(o => { if (!o.isMesh) return; meshes++;
   const t = (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; tris += o.isInstancedMesh ? t * o.count : t;
   for (const a of Object.values(o.geometry.attributes)) bytes += a.array.byteLength; if (o.isInstancedMesh) bytes += o.instanceMatrix.array.byteLength + (o.instanceColor ? o.instanceColor.array.byteLength : 0); });
 window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), meshes, tris: Math.round(tris), geometry_bytes: bytes, ...obj.userData });
-document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer`;
-function loop() { composer.render(); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } requestAnimationFrame(loop); }
+document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer · click what works · G (or shift-click) to take`;
+let last = performance.now();
+function loop() { const now = performance.now(); works.tick(Math.min(0.05, (now - last) / 1000)); last = now; composer.render(); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } requestAnimationFrame(loop); }
 loop();
 </script>
 </body>

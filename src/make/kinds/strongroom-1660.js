@@ -31,9 +31,11 @@ export default [
   {
     kind: "door/boarded-iron-bound", v: 1, noun: "the door", fixed: true,
     why: "oak boards bound in iron, a stock lock, set back in a plain stone reveal (Steane 2010, New College: doors 'sheathed in iron')",
-    settings: { w: 1.0, h: 2.2, set: -0.12 },
+    settings: { w: 1.0, h: 2.2, set: -0.12, lock: "unlocked", key: "key/iron" },
     parts: [{ part: "boarded_leaf" }, { part: "leaf_ironwork" }],
-    affordances: { leaf: { mover: "leaf", motion: "hinge", axis: [0, 1, 0], angle: -1.5, speed: 3, verbs: ["open the door", "close the door"] } },
+    affordances: {
+      lock: { motion: "state", states: ["locked", "unlocked"], initial: "$lock", auto: true, requires: { "@holding": "$key" }, refused: "it is locked, and you haven't its key", done: "the key turns in the lock" },
+      leaf: { mover: "leaf", motion: "hinge", axis: [0, 1, 0], angle: -1.5, speed: 3, verbs: ["open the door", "close the door"], requires: { lock: "unlocked" }, refused: "it is locked, and you haven't its key" } },
   },
   {
     kind: "shutters/splay-pair", v: 1, noun: "the shutters", fixed: true,

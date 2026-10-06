@@ -370,3 +370,56 @@ The hand-wired table drawer and press drawers are gone from the room.
 - 8 things built from kinds in 98 ms;
 - the room build is 1.46 s, as before (the label atlas and the kit dominate);
 - 10/10 room tests pass; brief-check all holds.
+
+## R48 step 4, plus gates, variables and rules (2026-10-05)
+
+**Step 4: books and shelves from kinds.**
+- `book.js` and `bookpress.js` moved into `src/make/parts/` (`books.js`, `bookcases.js`).
+- The Pepys press is rebuilt as a part using material roles, and its four glazed doors now open.
+- `trinkets.js` became 14 pure-data kinds over six generic shape parts (lathe, cylinder, box, torus, sphere, cone) plus a declared mover. The obvious ones work:
+  - the tankard's lid and the box's lid lift;
+  - the globe turns;
+  - a candle stub lights and burns down.
+- `owners.js` became influences (the widow, the smith and Sir Fancy-Pants as possession influences; room purposes as space influences), blended by `influence.js`. The shelf habit reads the blend, not a hard-coded owner. Things on shelves are built from their own kinds as children, so each one works.
+- New: `?o=kinds`, a gallery of every kind; `?o=puzzle`, the gates-and-rules stage.
+
+**Gates, variables and rules** (Kabe, mid-step: "a locked door shouldn't open until I have its key"; "Light 3 of these candles!").
+- **Gates:** an action, or taking a thing, may require another affordance's state, an engine variable, or something in the inventory (a kind, a family, or an id).
+- **Locks** are opened on the way when you hold the key.
+- **Actions set variables.**
+- **Rules** (data, from the place or story):
+  - when: a count of things by kind and area in a state, a variable, a thing's state, something held, all-of or any-of;
+  - then: set variables and/or put things' affordances in states with their motion;
+  - they fire once unless told otherwise, and they chain.
+- **Taking** puts things in the inventory (key G, or shift-click).
+
+**Scripted run on `?o=puzzle`, all as asked:**
+- door A refuses, then the key is taken, then "the key turns in the lock" and it opens;
+- door B refuses;
+- a lit candle can't be taken ("not while it burns");
+- after 2 candles, door B is still locked and closed;
+- the 3rd candle fires the rule: `candles_lit` is set, door B unlocks and opens, and the line is said.
+
+**In the strongroom:** the gallery door is locked and its key is not there. That keeps the brief's one way in during play, while the plan still has two doors.
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Step 4 | about 75 min |
+| Gates and rules | about 35 min |
+| Verify | 20 min |
+
+**Runtime (SwiftShader):**
+
+| Object | Build | Detail |
+|---|---|---|
+| Puzzle stage | 36 ms | |
+| Pepys press | 252 ms | 163 books |
+| Library wall | 182 ms | 593 books |
+| The three keepers' shelves | 172 ms | |
+| All 15 small kinds | 18 ms | |
+
+The room's tests pass, 10/10.
+
+**Known:** the gentleman's section still spills into other subjects when its two subjects run dry. This was the reviewer's "partly" from round 2; the behaviour is unchanged.

@@ -12,11 +12,12 @@ R48 builds what `plan.md` describes. Each step is finished and checked before th
    - **One interaction layer:** aim at a thing, find its affordance, change its state, play the motion.
    - **State is kept as an overlay of assertions.** Generated things become entities only when they're changed.
    - Kabe, 2026-10-05: "every obvious functional thing to do something."
+   - **Gates, variables and rules**, also Kabe 2026-10-05 (plan §2): actions and taking gated by engine conditions or the inventory; actions set variables; rules count things in an area and set variables or act on things. Taking things into the inventory. Locks open on the way when you hold the key.
 3. **The strongroom from kinds.** *Done 2026-10-05:* `src/make/kinds/strongroom-1660.js`. Parts: `joinery`, `ironwork`, `press`, `lights`. The chest opens with the desk's key, and the candle burns down. The press, the chest, the table, the door and the shutters become kinds over parts, and the room page builds from them.
    - Every movable works: drawers, lid, padlocks, doors, shutters.
    - The pigeonhole contents become a habit rule.
    - The old hand-wired drawers, both the table's and the presses', go.
-4. **Books and shelves from kinds.** `book.js`, `bookpress.js`, `trinkets.js` and `owners.js` become kinds. The owners become influences: by space or by possession, blended down the containment chain, with provenance travelling with the item.
+4. **Books and shelves from kinds.** *Done 2026-10-05:* `src/make/parts/books.js`, `bookcases.js` (the Pepys press, whose four glazed doors now open), `shelving.js` (the shelf habit) and `shapes.js`. The 14 household things are pure data in `kinds/household-1660.js`. Owners and room purposes are influences in `influences/england-1660.js`, blended by `influence.js`. `book.js`, `bookpress.js`, `trinkets.js` and `owners.js` become kinds. The owners become influences: by space or by possession, blended down the containment chain, with provenance travelling with the item.
 5. **The world document.**
    - It holds entities and assertions (attribute, value, provenance, as-of), in pattern-buffer's shape.
    - Relations come with their mechanics.

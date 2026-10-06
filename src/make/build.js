@@ -4,7 +4,7 @@
 // the things that work can move; a bank is many movers drawn as instances (a press's drawers).
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { idOf, seedOf, streamOf } from "./id.js";
-import { kindOf, partOf, settle } from "./catalogue.js";
+import { kindOf, partOf, settle, value } from "./catalogue.js";
 
 // a look says what each material role is for one period and place: { roles: { wood: material, … } }
 export function material(look, role) {
@@ -13,21 +13,23 @@ export function material(look, role) {
   return m;
 }
 
-export function build(THREE, K, look, kindName, address, over = {}) {
+export function build(THREE, K, look, kindName, address, over = {}, context = {}) {
   const kind = kindOf(kindName);
   if (!kind) throw new Error(`no kind called ${kindName}`);
   const seed = seedOf(address), id = idOf(address), s = settle(kind, seed, over);
-  const body = new Map(), movers = new Map(), banks = new Map(), extras = [], animate = [], slots = new Map();
+  const body = new Map(), movers = new Map(), banks = new Map(), extras = [], animate = [], slots = new Map(), children = [];
+  const node = new THREE.Group();
   const into = (map, g, mat) => { if (!map.has(mat)) map.set(mat, []); map.get(mat).push(g); };
   let footprint = null;
   const c = {
-    THREE, K, look, s, id, address, seed,
+    THREE, K, look, s, id, address, seed, context,
+    shared: {}, info: {},                                       // what one part leaves for the next; what the thing reports
     r: (name) => streamOf(seed, name),                         // a part's own named stream of choices
     mat: (role) => material(look, role),
     // add geometry, in the thing's own frame, to the body or to a mover; spread is how far each
     // member's tone and grain may differ (wood is cut board by board)
     add(g, role, { mover = null, spread = 0.14 } = {}) {
-      const mat = material(look, role);
+      const mat = typeof role === "string" ? material(look, role) : role;     // a role, or a material the part made itself
       if (mat.vertexColors && !g.attributes.color) K.board(g, spread);
       if (mover) { if (!movers.has(mover)) throw new Error(`${kindName}: no mover ${mover} declared before its geometry`); into(movers.get(mover).parts, g, mat); }
       else into(body, g, mat);
@@ -43,15 +45,17 @@ export function build(THREE, K, look, kindName, address, over = {}) {
     // levels (a flame that flickers while lit): f(seconds, isMoved(aff), levelOf(process))
     animate(f) { animate.push(f); },
     footprint(f) { footprint = f; },
+    // a thing this one holds, built from its own kind (a jug on a shelf): it moves with this one, and
+    // works in its own right
+    child(b) { children.push(b); node.add(b.node); },
     // a place where something can be put: a point in the thing's frame, riding a mover if it has one
     slot(name, at, mover = null) { slots.set(name, { at, mover }); },
   };
   for (const p of kind.parts) {
-    // a part reads the thing's settings, overridden by its own entry ("$name" reads a setting)
-    const params = { ...s, ...Object.fromEntries(Object.entries(p).filter(([k]) => k !== "part").map(([k, v]) => [k, typeof v === "string" && v[0] === "$" ? s[v.slice(1)] : v])) };
+    // a part reads the thing's settings, overridden by its own entry ("$name" a setting, "=expr" arithmetic)
+    const params = { ...s, ...value(Object.fromEntries(Object.entries(p).filter(([k]) => k !== "part")), s) };
     partOf(p.part).build(c, params);
   }
-  const node = new THREE.Group();
   node.userData.make = { id, kind: kind.kind, address };
   for (const m of meshesOf(THREE, body, id, "body")) node.add(m);
   const moverNodes = new Map();
@@ -66,7 +70,7 @@ export function build(THREE, K, look, kindName, address, over = {}) {
   for (const [o, mv] of extras) { if (mv) { const g = moverNodes.get(mv); o.position.sub(g.position); g.add(o); } else node.add(o); }
   // slots as points in their mover's frame, so whatever is put there moves with it
   const slotsOut = new Map([...slots].map(([n, { at, mover }]) => [n, { node: mover ? moverNodes.get(mover) : node, at: mover ? at.map((v, i) => v - movers.get(mover).pivot[i]) : at }]));
-  return { id, address, kind, settings: s, node, movers: moverNodes, banks, footprint, animate, slots: slotsOut };
+  return { id, address, kind, settings: s, node, movers: moverNodes, banks, footprint, animate, slots: slotsOut, children, info: c.info };
 }
 
 // geometry gathered by material, merged into one mesh each
@@ -81,7 +85,8 @@ function meshesOf(THREE, map, id, what) {
       if (!g.attributes.color) g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3));
       return g;
     });
-    const m = new THREE.Mesh(mergeGeometries(keep, false), mat); m.castShadow = m.receiveShadow = true;
+    const m = new THREE.Mesh(mergeGeometries(keep, false), mat); m.castShadow = !mat.transparent; m.receiveShadow = true;
+    if (mat.transparent) m.renderOrder = 2;                     // glass draws after what is behind it
     m.userData = { instance: `${id}/${what}/${mat.userData.cls || "part"}`, material: mat.userData.cls || "other", owner: id };
     out.push(m);
   }

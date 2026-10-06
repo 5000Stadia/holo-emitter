@@ -4,10 +4,14 @@ import "./parts/joinery.js";
 import "./parts/ironwork.js";
 import "./parts/press.js";
 import "./parts/lights.js";
+import "./parts/shapes.js";
+import "./parts/shelving.js";
+import "./parts/bookcases.js";
 import { defineKind } from "./catalogue.js";
 import strongroom1660 from "./kinds/strongroom-1660.js";
+import household1660 from "./kinds/household-1660.js";
 
-for (const k of strongroom1660) defineKind(k);
+for (const k of [...strongroom1660, ...household1660]) defineKind(k);
 
 export { build } from "./build.js";
 export { makeWorks } from "./works.js";
@@ -15,3 +19,5 @@ export { kindOf, kinds, settle } from "./catalogue.js";
 export { idOf, seedOf, at } from "./id.js";
 export { lookC1660 } from "./looks.js";
 export { shutterOpen } from "./parts/joinery.js";
+export { blend, reaching } from "./influence.js";
+export { OWNERS, PURPOSES } from "./influences/england-1660.js";
