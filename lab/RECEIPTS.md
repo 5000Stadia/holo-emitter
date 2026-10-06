@@ -423,3 +423,29 @@ The hand-wired table drawer and press drawers are gone from the room.
 The room's tests pass, 10/10.
 
 **Known:** the gentleman's section still spills into other subjects when its two subjects run dry. This was the reviewer's "partly" from round 2; the behaviour is unchanged.
+
+## R48 step 5: the world document (2026-10-05)
+
+**Built** (`src/make/world.js`, `layout.js`):
+- **The world document,** in pattern-buffer's shape: entities, and assertions of the form [subject, attribute, value, provenance, as-of]. A read takes the latest.
+- **Committing:** a generated thing becomes an entity only when it's changed, taken, or named.
+- **Relations** (in, on, held_by, under) are assertions; moving a thing clears its old relation.
+- **Rooms are sealed by their inputs** when first seen.
+- **The works overlay is a fold of the world:** each change is written back as an assertion about the thing itself.
+- **The layout hash:** every built thing and every instance, positions rounded to 0.1 mm and turns to 0.1 mrad, plus a raw hash over the unrounded floats.
+- **Story heroes:** a named book stands first in its row, and the rest of the row repacks.
+- **The strongroom** now keeps its world in this document. The room is sealed on first sight with its compiled brief. The saved world starts afresh only when the kinds change, which means a new release rather than a new story.
+
+**Checked in the browser:**
+- **Locality:** case B was identical; in case A only the quarto row changed (18 of 154 placements).
+- **Sealed when seen:** a room seen as the gentleman's stayed his after the story made the widow the owner; a new room took the widow. The world document was 2.3 KB.
+- **Hashes:** Chromium and Firefox gave identical layout and raw hashes. WebKit wasn't run (it needs `libwoff1`).
+- **The strongroom across a reload:** the drawer and shutter states held, 3 entities were committed, and the document was 10 KB, of which about 9.5 KB is the sealed brief.
+
+**Time:**
+
+| Stage | Time |
+|---|---|
+| Build | about 40 min |
+| Checks | 15 min |
+| The single landing page and republish (asked for mid-step) | 15 min |

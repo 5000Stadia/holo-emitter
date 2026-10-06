@@ -18,7 +18,7 @@ R48 builds what `plan.md` describes. Each step is finished and checked before th
    - The pigeonhole contents become a habit rule.
    - The old hand-wired drawers, both the table's and the presses', go.
 4. **Books and shelves from kinds.** *Done 2026-10-05:* `src/make/parts/books.js`, `bookcases.js` (the Pepys press, whose four glazed doors now open), `shelving.js` (the shelf habit) and `shapes.js`. The 14 household things are pure data in `kinds/household-1660.js`. Owners and room purposes are influences in `influences/england-1660.js`, blended by `influence.js`. `book.js`, `bookpress.js`, `trinkets.js` and `owners.js` become kinds. The owners become influences: by space or by possession, blended down the containment chain, with provenance travelling with the item.
-5. **The world document.**
+5. **The world document.** *Done 2026-10-05:* `src/make/world.js` and `layout.js`. The strongroom keeps its state as assertions and is sealed by its inputs when first seen. Checked in the browser: the locality case, the sealing case, and identical layout and raw hashes in Chromium and Firefox. WebKit needs a system library first.
    - It holds entities and assertions (attribute, value, provenance, as-of), in pattern-buffer's shape.
    - Relations come with their mechanics.
    - A room is sealed by its inputs the first time it's seen.

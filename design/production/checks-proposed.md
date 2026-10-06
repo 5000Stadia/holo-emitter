@@ -13,3 +13,6 @@ None of these is in the test list yet. Each belongs to a kind or a part (plan §
 - a burning candle can't be taken;
 - lighting 2 of 4 candles leaves the rule unfired, and the 3rd fires it: the variable is set, the door is unlocked and opened;
 - reloading the store gives the same states. | Kabe, 2026-10-05: "a locked door shouldn't open until I have its key"; "Light 3 of these candles!" should just work. |
+| 6 | the world document | **Locality.** A book the story names for case A repacks only its own row. Case B, and every other row of A, stays bit-identical. | Plan §3, round 2. Run 2026-10-05: B was identical; in A only the quarto shelf changed (18 of 154 placements). |
+| 7 | the world document | **Sealed when seen.** See a room with the gentleman as owner, switch the owner to the widow, go back: the room's layout hash is unchanged. A room seen for the first time afterwards takes the widow. | Plan §3, round 2. Run 2026-10-05: both held. The world document was 2.3 KB. |
+| 8 | the bench | **One layout everywhere.** The same kinds at the same addresses give the same layout hash in every browser engine, and on the laptop and the phone. | Plan §3. Run 2026-10-05: Chromium and Firefox gave identical layout and raw hashes. WebKit (Safari's engine) needs `libwoff1` installed. |

@@ -86,7 +86,7 @@ import { makeGI } from "../painted/gi.js";
 import { touchControls, isTouch, fullscreenButton } from "../touch.js";
 import { compileBrief } from "./brief.js";
 import { buildStrongroom } from "./strongroom.js";
-import { makeWorks } from "../../src/make/index.js";
+import { makeWorks, kinds, hashOf, makeWorld, GENERATOR } from "../../src/make/index.js";
 
 const Q = new URLSearchParams(location.search);
 const ROOM = Q.get("room") || "muniment_room";
@@ -97,7 +97,15 @@ const T = { start: performance.now() }, mark = (k) => { T[k] = Math.round(perfor
 // ---- the brief, compiled against the plan
 const [plan, brief] = await Promise.all([fetch("../house/plan.json").then(r => r.json()), fetch("./manor-1660.json").then(r => r.json())]);
 mark("fetched");
-const spec = compileBrief(plan, ROOM, brief);
+// the world document (src/make/world.js): this room is sealed the first time it is seen, by its
+// inputs (the compiled brief, the kinds' versions), so it comes back as it was seen; the world is
+// kept per viewer and starts afresh when the kinds themselves change (a new release, not a new story)
+const KINDS = kinds().map(k => [k.kind, k.pin]), WK2 = `holo-emitter/brief/${ROOM}/world/${hashOf(KINDS)}`, ROOMADDR = `manor/${ROOM}`;
+let worldDoc = null;
+try { if (Q.has("fresh")) localStorage.removeItem(WK2); else worldDoc = JSON.parse(localStorage.getItem(WK2) || "null"); } catch (_) {}
+const world = makeWorld(worldDoc), keepWorld = () => { try { localStorage.setItem(WK2, JSON.stringify(world.doc)); } catch (_) {} };
+const spec = world.seal(ROOMADDR, { spec: compileBrief(plan, ROOM, brief), kinds: KINDS, generator: GENERATOR }).spec;
+keepWorld();
 mark("compiled");
 const { W, D, H } = spec.room;
 document.querySelector(".room .name").textContent = spec.room.name || ROOM;
@@ -163,12 +171,11 @@ const stateOf = (id) => harness.world.entities.find(e => e.id === id).state;
 // everything that works, through one layer (src/make/works.js); its state is an overlay kept per
 // viewer. The table's drawer and the key are the harness's truth (world.json), so the drawer's state
 // comes from there; the chest's padlocks ask whether you carry the key.
-const MK = `holo-emitter/brief/${ROOM}/works`;
-let workState = {};
-try { if (Q.has("fresh")) localStorage.removeItem(MK); else workState = JSON.parse(localStorage.getItem(MK) || "{}"); } catch (_) {}
+// works' state is a fold of the world document; every change goes back into it as an assertion
+const workState = world.store();
 workState[`${table.id}.drawer`] = stateOf("desk1");
 const works = makeWorks(THREE, {
-  store: workState, save: (st) => { try { localStorage.setItem(MK, JSON.stringify(st)); } catch (_) {} },
+  store: workState, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keepWorld(); },
   ask: (need, want) => need === "holding" && want === "key" ? heldByMe("key1") : false,
   say: (t) => say(t),
   // the shutters let in the day: the window's light follows how far its leaves stand open
@@ -196,7 +203,7 @@ window.__settled = () => works.settled();
 window.__world = () => JSON.parse(JSON.stringify(harness.world));
 window.__dispatch = (intent) => dispatch(intent);
 window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray() } : null;
-window.__works = works;
+window.__works = works; window.__worldDoc = () => world.doc;
 const ray = new THREE.Raycaster(); ray.far = 2.3;
 // what is under the aim: the key, or something that works
 function aimAt(ndc) {
