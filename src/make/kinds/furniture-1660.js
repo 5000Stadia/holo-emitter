@@ -3,19 +3,21 @@
 // parts and the joinery parts. Everything that obviously works, works: bed curtains draw back, cupboard and
 // press doors open, lids lift, a gateleg's leaves rise, a draw-table's leaves slide out, a hogshead's tap
 // is turned, the kitchen's spit goes round while the jack runs. Frame: back at z = 0 against a wall, front
-// toward +z, centred on x = 0, standing on y = 0. "=expr" is arithmetic over the settings.
+// toward +z, centred on x = 0, standing on y = 0. "=expr" is arithmetic over the settings. How a piece
+// stands in its room (src/make/furnish.js) is a trait: "free" in the middle, "beside" the free table,
+// "hearth" in the fire's mouth, "wall" hung; otherwise back to a wall.
 const P = Math.PI;
 const LEG = [[0, 0], [0.024, 0], [0.026, 0.06], [0.02, 0.1], [0.028, 0.2], [0.034, 0.3], [0.022, 0.38], [0.018, 0.42], [0.024, 0.48]];   // a turned leg to 0.48 m, scaled by ops
 const legs = (role, hExpr, inset, w, d) => [-1, 1].flatMap(sx => [-1, 1].map(sz => ({ part: "lathe", role, segments: 12, profile: LEG, ops: [["s", 1, `=(${hExpr})/0.48`, 1], ["t", `=${sx}*(${w}/2-${inset})`, 0, `=${d}/2+${sz}*(${d}/2-${inset})`]] })));
 export default [
   // ---- the hall: a long table and forms (Worden 1643: a table 8 yards long; forms)
-  { kind: "table/long-hall", v: 1, noun: "the long table", fixed: true, why: "R §2: the hall's long table (Worden 1643), joined oak, no drawer",
+  { kind: "table/long-hall", v: 1, noun: "the long table", fixed: true, traits: ["free"], why: "R §2: the hall's long table (Worden 1643), joined oak, no drawer",
     settings: { W: 3.6, D: 0.85, H: 0.78 }, parts: [{ part: "joined_table", drawer: false }] },
-  { kind: "form/joined", v: 1, noun: "the form", fixed: true, why: "R §2: forms by the long table (Middleton parlour 1618: 2 long forms)",
+  { kind: "form/joined", v: 1, noun: "the form", fixed: true, traits: ["beside"], why: "R §2: forms by the long table (Middleton parlour 1618: 2 long forms)",
     size: ["$W", "$H", "$D"], settings: { W: 2.4, H: 0.46, D: 0.3 },
     parts: [{ part: "box", role: "wood_face", size: ["$W", 0.04, "$D"], at: [0, "=H-0.04", "=D/2"] }, ...legs("wood", "H-0.04", 0.12, "W", "D"),
       { part: "box", role: "wood", size: ["=W-0.2", 0.03, 0.03], at: [0, 0.08, "=D/2"] }] },
-  { kind: "table/kitchen", v: 1, noun: "the kitchen table", fixed: true, why: "R §2: the kitchen's working table, scrubbed deal or oak",
+  { kind: "table/kitchen", v: 1, noun: "the kitchen table", fixed: true, traits: ["free"], why: "R §2: the kitchen's working table, scrubbed deal or oak",
     settings: { W: 2.2, D: 0.8, H: 0.8 }, parts: [{ part: "joined_table", drawer: false }] },
   // ---- the parlours: a court cupboard, Turkey-work chairs, a gateleg table (Bank Hall c.1670; Middleton 1618)
   { kind: "cupboard/court", v: 1, noun: "the court cupboard", fixed: true, why: "R §2: a court cupboard with its cloth (Bank Hall 1632; Oakwell): a closed lower stage with doors, an open upper stage under a canopy on bulbous posts",
@@ -64,7 +66,7 @@ export default [
       gate: { mover: "gate", motion: "hinge", axis: [0, 1, 0], angle: 1.5708, auto: true, done: "the gate swings out under it", release: { front: "down" }, held: "the leaf rests on it", verbs: ["swing out the gate", "fold the gate"] },
       front: { mover: "front", motion: "hinge", axis: [1, 0, 0], angle: -1.5708, states: ["down", "up"], requires: { gate: "open" }, refused: "nothing would hold it up", verbs: ["raise the leaf", "let the leaf down"] } } },
   // ---- the study and the great chamber: a draw-table whose leaves slide out (Rufford dining chamber 1620: a drawing table)
-  { kind: "table/drawing", v: 1, noun: "the draw-table", fixed: true, why: "R §2: a drawing table (Rufford dining chamber 1620): leaves under the top draw out at each end",
+  { kind: "table/drawing", v: 1, noun: "the draw-table", fixed: true, traits: ["free"], why: "R §2: a drawing table (Rufford dining chamber 1620): leaves under the top draw out at each end",
     settings: { W: 2.0, D: 0.85, H: 0.78 },
     parts: [{ part: "joined_table", drawer: false },
       { part: "mover", name: "west", pivot: [0, 0, 0] }, { part: "mover", name: "east", pivot: [0, 0, 0] },
@@ -105,7 +107,7 @@ export default [
       { part: "mover", name: "lid", pivot: [0, "$H", 0.35] },
       { part: "cylinder", role: "wood", mover: "lid", r: "=R+0.01", h: 0.03, segments: 20, at: [0, "$H", 0.35] }],
     affordances: { lid: { mover: "lid", motion: "slide", axis: [1, 0.12, 0], travel: 0.4, verbs: ["push the lid aside", "put the lid back"] } } },
-  { kind: "hearth/kitchen-jack", v: 1, noun: "the spit", fixed: true, why: "R §2: the kitchen's jack with its weight and chains, spits, racks (Dunkenhalgh 1679); a spit turned by a jack",
+  { kind: "hearth/kitchen-jack", v: 1, noun: "the spit", fixed: true, traits: ["hearth"], why: "R §2: the kitchen's jack with its weight and chains, spits, racks (Dunkenhalgh 1679); a spit turned by a jack",
     settings: { W: 2.4 },
     parts: [{ part: "box", role: "iron", size: [0.06, 0.55, 0.06], at: ["=-W/2+0.2", 0, 0.45] }, { part: "box", role: "iron", size: [0.06, 0.55, 0.06], at: ["=W/2-0.2", 0, 0.45] },
       { part: "mover", name: "spit", pivot: [0, 0.5, 0.45] },

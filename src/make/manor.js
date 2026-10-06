@@ -2,7 +2,8 @@
 // WebGPU renderer. The plan (src/make/plans/) says where rooms, doors, windows, hearths and stairs are;
 // each room's type (src/make/rooms/) says what it stands on, its walls and ceiling, its hearth. A room's
 // height is the storeys it rises through. The muniment room is built from its period brief
-// (lab/brief/strongroom.js). Doors are things that work (door/panelled; locks and all). Every room's
+// (lab/brief/strongroom.js). Doors are things that work (door/panelled; locks and all). Each room's
+// anchor furniture stands where the furnishing habit puts it (src/make/furnish.js). Every room's
 // still parts are merged by material into one render bundle (WebGPU replays it without re-encoding);
 // what you can see is decided by the doorways: from the room you stand in, through every open door,
 // two rooms deep, and up and down the stairs you stand on. The rest is not drawn.
@@ -13,6 +14,8 @@ import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
 import { compileBrief } from "../../lab/brief/brief.js";
 import { build } from "./build.js";
+import { kindOf, sizeOf as kindSize } from "./catalogue.js";
+import { furnish } from "./furnish.js";
 
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
 const WALL_STYLE = { wainscot: "panelled", tapestry: "panelled", limewash: "limewashed", stone: "limewashed" };
@@ -28,7 +31,14 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
     matting: Object.assign(new THREE.MeshStandardMaterial({ color: 0xa88c58, roughness: 0.95 }), { userData: { cls: "matting" } }),
     plaster: M.plaster, limewash: M.limewash,
   };
-  const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [];
+  const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [];
+  // a kind's size in its own frame (from its data, or measured once from a build)
+  const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3();
+  const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
+      if (k && !s) { const b = build(THREE, K, look, kind, `probe/${kind}`, over); box.setFromObject(b.node).getSize(v3); s = [v3.x, v3.y, box.max.z]; }
+      sizes.set(key, s); } return sizes.get(key); };
+  const settingsOf = (kind) => kindOf(kind)?.settings || {};
+  const traitsOf = (kind) => kindOf(kind)?.traits || [];
   const tileUV = (g, k) => { const uv = g.attributes.uv, p = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / k, p.getY(i) / k); return g; };
 
   for (const room of plan.rooms) {
@@ -93,6 +103,18 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
         b.node.position.set(e.r0, 0, 0); holder.add(b.node); b.node.userData.opening = e.id; things.push(b);
       }
     }
+    // the anchor furniture, by the furnishing habit (src/make/furnish.js): things that work, drawn with their room
+    const placed = furnish({ room, spec, plan, anchors: T.anchor || [], sizeOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
+    placed.forEach((p, i) => {
+      const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, p.over || {}), n = b.node, d = sizeOf(p.kind, p.over || {})?.[2] || 0;
+      if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
+      else { const [u, v] = p.at, f = p.facing ?? 1;
+        if (p.along) { n.rotation.y = f > 0 ? 0 : Math.PI; n.position.set(u, 0, -v - f * d / 2); }
+        else { n.rotation.y = f > 0 ? Math.PI / 2 : -Math.PI / 2; n.position.set(u - f * d / 2, 0, -v); }
+        movers.add(n); }
+      n.userData.room = room.id; things.push(b);
+      if (p.rect) blocks.push({ floor: room.floor, room: room.id, kind: p.kind, x0: x0 + p.rect.u0, x1: x0 + p.rect.u1, y0: y0 + p.rect.v0, y1: y0 + p.rect.v1 });
+    });
     merge(grp);
     scene.add(grp, movers);
     rooms.set(room.id, { room, grp, movers, H, Y, lights: [] });
@@ -130,9 +152,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
   const doorRooms = new Map(plan.openings.map(o => [o.id, o.joins]));
   function show(set) {
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
-    for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); }
+    for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { scene, rooms, things, windows, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { scene, rooms, things, windows, blocks, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;

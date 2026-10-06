@@ -120,9 +120,12 @@ const doorThing = new Map(manor.things.filter(b => b.node.userData.opening).map(
 const isOpen = (b) => works.stateOf(b, "leaf") === "open";
 const strip = (R) => (R.x1 - R.x0) < (R.y1 - R.y0) ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + 0.08, y1: R.y1 - 0.08 } : { x0: R.x0 + 0.08, x1: R.x1 - 0.08, y0: R.y0 - 0.35, y1: R.y1 + 0.35 };
 const roomRect = (r) => r.rect;
+// the furniture stands in the way: a body's width from anything the furnishing habit put down
+const blocked = (f, x, y) => manor.blocks.some(b => b.floor === f && x > b.x0 - 0.18 && x < b.x1 + 0.18 && y > b.y0 - 0.18 && y < b.y1 + 0.18);
 function standable(x, y, h) {
   const f = floorOf(h);
   if (stairAt(x, y, h)) return true;
+  if (blocked(f, x, y)) return false;
   // inside a room of this floor, a hand off its walls; or in a doorway of this floor whose door stands open
   if (plan.rooms.some(r => r.type !== "open" && r.floor === f && inRect(roomRect(r), x, y, 0.22))) return true;
   return plan.openings.some(o => o.floor === f && inRect(strip(o.rect), x, y) && (!doorThing.get(o.id) || isOpen(doorThing.get(o.id))));
@@ -130,6 +133,8 @@ function standable(x, y, h) {
 const roomAt = (x, y, h) => plan.rooms.find(r => r.type !== "open" && r.floor === floorOf(h) && inRect(r.rect, x, y));
 const start = plan.rooms.find(r => r.id === (Q.get("room") || "great_hall"));
 let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
+// not inside the furniture: the nearest clear floor to the room's middle
+for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
 window.__place = (x, y, yd, pd = 0, floor = null) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); };
 const keys = {};
 addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
