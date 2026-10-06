@@ -87,6 +87,7 @@ import { pass, mrt, output, normalView } from "three/tsl";
 import { makeKit, buildKey } from "../painted/procedural.js";
 import { makeProbeGI } from "../../src/make/light.js";
 import { nodeify } from "../../src/make/nodes.js";
+import { makeRender } from "../../src/make/render.js";
 import { touchControls, isTouch, fullscreenButton } from "../touch.js";
 import { compileBrief } from "./brief.js";
 import { buildStrongroom } from "./strongroom.js";
@@ -115,16 +116,11 @@ const { W, D, H } = spec.room;
 document.querySelector(".room .name").textContent = spec.room.name || ROOM;
 
 // ---- the picture
-// three's WebGPU renderer (r186), which falls back to WebGL 2 by itself; ?webgl=1 forces the fallback
-const renderer = new THREE.WebGPURenderer({ antialias: Q.get("msaa") !== "0", forceWebGL: Q.get("webgl") === "1" });
-renderer.setPixelRatio(Q.get("dpr") ? +Q.get("dpr") : isTouch() ? 1 : Math.min(devicePixelRatio, 1.5));     // ?dpr= overrides, for the bench
-renderer.setSize(innerWidth, innerHeight);
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = +(Q.get("exposure") || 1.0);
-renderer.shadowMap.enabled = Q.get("shadows") !== "0"; renderer.shadowMap.type = THREE.PCFShadowMap;
-document.body.prepend(renderer.domElement);
+// the engine's renderer (src/make/render.js): the backend chosen per device, the phone tier, the
+// resolution controller, render on change, the marks (?perf=1)
+const ENG = await makeRender({ outdoor: false, msaa: Q.get("msaa") !== "0" && !isTouch() }), renderer = ENG.renderer; window.__eng = ENG;
+renderer.toneMappingExposure = +(Q.get("exposure") || 1.0);
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 60);
-await renderer.init();
 THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 
 await step("growing oak, laying flags, slaking lime");
@@ -337,6 +333,7 @@ function loop(now) {
     if (free(px + dx, py)) px += dx;
     if (free(px, py + dy)) py += dy;
   }
+  const moved = camera.position.x !== px || camera.position.z !== -py || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   camera.position.set(px, EYE, -py);
   camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);
@@ -344,8 +341,9 @@ function loop(now) {
     document.getElementById("cross").hidden = !locked;
     const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");
     hEl.hidden = !h; hEl.textContent = h; }
-  post ? post.render() : renderer.render(scene, camera);
-  frames++; if (now - fpsAt > 500) { fps = Math.round(frames * 1000 / (now - fpsAt)); frames = 0; fpsAt = now;
+  // drawn only when the view moved or something in the world is moving, burning or flickering
+  const drew = ENG.frame(scene, camera, { changed: moved || works.busy() || !window.__ok, post });
+  frames += drew ? 1 : 0; if (now - fpsAt > 500) { fps = Math.round(frames * 1000 / (now - fpsAt)); frames = 0; fpsAt = now;
     const r = window.__receipt(); perfEl.textContent = `${fps} fps · ${r.meshes} meshes · ${(r.tris / 1000).toFixed(0)}k tris\ncompile ${r.compile_ms} ms · kit ${r.kit_ms} ms · build ${r.build_ms} ms · bake ${r.bake_ms} ms\nwalkable at ${r.walkable_ms} ms`; }
   if (!window.__ok) { window.__ok = true; mark("walkable"); document.getElementById("status").hidden = true; }
 }

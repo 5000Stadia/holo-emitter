@@ -47,7 +47,10 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     const g = b.movers.get(a.mover);
     if (g && a.motion === "slide") g.position.copy(g.userData.home.position).add(_v.set(...a.axis).multiplyScalar(t * val(a.travel)));
     if (g && (a.motion === "hinge" || a.motion === "lever" || (a.motion === "switch" && a.angle))) g.quaternion.copy(g.userData.home.quaternion).multiply(_q.setFromAxisAngle(_v.set(...a.axis).normalize(), t * val(a.angle)));
-    if (a.lights) b.node.traverse(o => { if (o.userData.lightGroup === a.lights) o.visible = t > 0.5; });
+    // a light group on or off: meshes (a flame) shown or hidden; lights kept in the scene at zero, since
+    // adding or removing a light recompiles every material (a visible hitch when a candle is lit)
+    if (a.lights) b.node.traverse(o => { if (o.userData.lightGroup !== a.lights) return;
+      if (o.isLight) { o.userData.on ??= o.intensity; o.visible = true; o.intensity = t > 0.5 ? o.userData.on : 0; } else o.visible = t > 0.5; });
     onMove(b, aff, i, t);
   }
   // a process's level now, from where it started and how long ago
@@ -219,6 +222,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     vars: () => Object.fromEntries(Object.entries(store).filter(([k]) => k[0] === "$").map(([k, v]) => [k.slice(1), v])),
     held: () => held().map(id => things.get(id)).filter(Boolean),
     settled: () => anim.size === 0,
+    // anything moving, or animated and alive (a lit candle's flame): the picture needs a new frame
+    busy: () => anim.size > 0 || [...things.values()].some(b => b.animate?.length && Object.keys(b.kind.affordances || {}).some(a => moved(b, a))),
     finish: () => { for (const m of anim.values()) { m.at = m.to; if (m.spring) m.to = 0; } tick(0); tick(0); },
     moving: () => [...anim.values()].map(m => ({ thing: m.b.id, aff: m.aff, i: m.i, at: m.at, to: m.to })),
   };

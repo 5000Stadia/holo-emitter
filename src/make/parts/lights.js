@@ -24,7 +24,7 @@ definePart("candlestick", {
     // it flickers while it burns: two slow waves and a quick one, the light following the flame
     c.animate((t, isLit) => { if (!isLit("light")) return;
       const f = 1 + 0.08 * Math.sin(t * 7.3) + 0.05 * Math.sin(t * 13.1 + 1.7) + 0.04 * Math.sin(t * 29.7);
-      flame.scale.set(1, 2.6 * f, 1); light.intensity = 0.6 * f; });
+      flame.scale.set(1, 2.6 * f, 1); light.intensity = (light.userData.on ?? 0.6) * f; });
     c.footprint({ w: 0.1, d: 0.1, h: 0.175 + length });
   },
 });
