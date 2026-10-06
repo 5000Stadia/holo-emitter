@@ -31,6 +31,8 @@ export const ROOM_TYPES_1660 = {
     why: "R §2: cupboards (Hardwick 1601, uncertain)" },
   larder: { floor: "flags", walls: "limewash", ceiling: "beams", hearth: "none", windows: "small", light: ["day"], anchor: ["tub/powdering"],
     why: "R §2: powdering, beef and souse tubs (Dunkenhalgh); bacon flitches (Lytham)" },
+  bakehouse: { floor: "flags", walls: "limewash", ceiling: "beams", hearth: "kitchen", windows: "plain", light: ["day", "fire"], anchor: ["oven/bread", "trough/kneading"],
+    why: "R §1.2: bakehouse among the service rooms (Ashmore pp.89-97)" },
   servants_hall: { floor: "flags", walls: "limewash", ceiling: "beams", hearth: "chimneypiece", windows: "plain", light: ["day", "fire", "rushlight"],
     anchor: ["table/long-hall", "form/joined"], why: "R §2: a servants' table and forms (Worden 1643); chosen otherwise" },
   great_chamber: { floor: "boards", walls: "tapestry", ceiling: "compartments", hearth: "chimneypiece", windows: "state", light: ["day", "fire", "wax_candles"],
