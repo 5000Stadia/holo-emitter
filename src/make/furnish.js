@@ -86,7 +86,8 @@ export function furnish({ room, spec, plan, anchors, sizeOf, traitsOf, settingsO
   // the spit across the fire's mouth
   function hearth(kind) {
     const k = keepClear.find(c => c.why === "hearth"); if (!k) return null;
-    const fb = k.e.firebox; return { kind, wall: k.F, r: (fb.r0 + fb.r1) / 2, d: -0.3, over: { W: Math.max(0.9, Math.min(2.4, fb.r1 - fb.r0 + 0.2)) }, inHearth: true };
+    // the spit 0.45 m into its frame: set a quarter metre inside the mouth, over the fire
+    const fb = k.e.firebox; return { kind, wall: k.F, r: (fb.r0 + fb.r1) / 2, d: (k.e.breast || 0) - 0.7, over: { W: Math.max(0.9, Math.min(2.4, fb.r1 - fb.r0 - 0.1)) }, inHearth: true };
   }
   // hung: one to a clear stretch of wall, a bay apart, never over a door, window or chimneypiece
   function hang(kind, [w], n) {

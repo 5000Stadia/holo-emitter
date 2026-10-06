@@ -16,9 +16,45 @@ import { compileBrief } from "../../lab/brief/brief.js";
 import { build } from "./build.js";
 import { kindOf, sizeOf as kindSize } from "./catalogue.js";
 import { furnish } from "./furnish.js";
+import { rng, seedOf } from "./id.js";
 
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
-const WALL_STYLE = { wainscot: "panelled", tapestry: "panelled", limewash: "limewashed", stone: "limewashed" };
+const WALL_STYLE = { wainscot: "panelled", tapestry: "limewashed", limewash: "limewashed", stone: "limewashed" };
+
+// verdure tapestry (R §2: the great chamber hung with tapestry, Hardwick), drawn in code: a ground of
+// dark blue-green, leaves in greens, olives and faded blues, crowded as weavers crowded them, and a
+// border of flowers top and bottom. One cloth, tiled along the wall a metre and a half to a repeat.
+let verdure = null;
+function verdureMaterial() {
+  if (verdure) return verdure;
+  const cv = document.createElement("canvas"); cv.width = 512; cv.height = 1024; const g = cv.getContext("2d"), r = rng(seedOf("tapestry/verdure"));
+  g.fillStyle = "#2a3330"; g.fillRect(0, 0, 512, 1024);
+  // faded, as three centuries of daylight leave wool: blue-greens, olives, buff; big leaves over small
+  const leaf = ["#5b6b4a", "#6e7a58", "#4a5e5a", "#8a8462", "#3e4c40", "#a39a6a", "#56686a", "#77805c"];
+  const draw = (x, y, a, l, c) => { for (const dx of x < 80 ? [0, 512] : x > 432 ? [0, -512] : [0]) { g.save(); g.translate(x + dx, y); g.rotate(a); g.fillStyle = c; g.beginPath();
+      g.moveTo(-l, 0); g.quadraticCurveTo(-l * 0.2, -l * 0.5, l, 0); g.quadraticCurveTo(-l * 0.2, l * 0.5, -l, 0); g.fill();
+      g.strokeStyle = "rgba(210,200,150,0.25)"; g.lineWidth = 1.5; g.beginPath(); g.moveTo(-l * 0.9, 0); g.lineTo(l * 0.9, 0); g.stroke(); g.restore(); } };
+  for (let i = 0; i < 260; i++) draw(r() * 512, 110 + r() * 804, r() * Math.PI * 2, 40 + r() * 50, leaf[Math.floor(r() * leaf.length)]);
+  for (let i = 0; i < 700; i++) draw(r() * 512, 110 + r() * 804, r() * Math.PI * 2, 12 + r() * 22, leaf[Math.floor(r() * leaf.length)]);
+  for (const y0 of [0, 914]) { g.fillStyle = "#5a3a2c"; g.fillRect(0, y0, 512, 110); g.fillStyle = "#a89060"; g.fillRect(0, y0 + 8, 512, 6); g.fillRect(0, y0 + 96, 512, 6);
+    for (let x = 16; x < 512; x += 64) { g.fillStyle = r() < 0.5 ? "#b8a47a" : "#7e5040"; g.beginPath(); g.arc(x + 16, y0 + 55, 20, 0, Math.PI * 2); g.fill(); g.fillStyle = "#4d6a3c"; g.beginPath(); g.ellipse(x + 48, y0 + 55, 14, 6, 0.6, 0, Math.PI * 2); g.fill(); } }
+  // the weave: a fine cross-hatch so it reads as cloth near to
+  g.globalAlpha = 0.12; g.fillStyle = "#000"; for (let y = 0; y < 1024; y += 3) g.fillRect(0, y, 512, 1); g.globalAlpha = 1;
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = THREE.RepeatWrapping; t.anisotropy = 4;
+  verdure = new THREE.MeshStandardMaterial({ map: t, roughness: 0.97 }); verdure.userData.cls = "tapestry";
+  return verdure;
+}
+// a hanging over each clear stretch of a wall: from the skirting to a hand under the ceiling, in soft folds
+function hangings(F, L, H, elems) {
+  const blocked = elems.map(e => e.kind === "chimneypiece" ? [e.mantel.r0 - 0.08, e.mantel.r1 + 0.08] : [e.r0 - 0.12, e.r1 + 0.12]).sort((a, b) => a[0] - b[0]);
+  const spans = []; let at = 0.05;
+  for (const [a, b] of blocked) { if (a - at > 0.5) spans.push([at, a]); at = Math.max(at, b); }
+  if (L - 0.05 - at > 0.5) spans.push([at, L - 0.05]);
+  const top = Math.min(H - 0.25, 4.2), bottom = 0.12;
+  return spans.map(([a, b]) => { const w = b - a, n = Math.max(2, Math.round(w / 0.08)), g = new THREE.PlaneGeometry(w, top - bottom, n, 1), p = g.attributes.position, uv = g.attributes.uv;
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i) + w / 2; p.setZ(i, 0.035 + 0.018 * Math.sin(x / 0.21 * Math.PI)); uv.setX(i, (a + x) / 1.5); }
+    g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
+}
 
 export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
   const t0 = performance.now(), { M } = K;
@@ -62,6 +98,12 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
       else if (T.windows === "small") { e.sill = 1.15; e.top = Math.min(H - 0.5, 2.1); }
       else { e.sill = 0.9; e.top = Math.min(H - 0.5, 2.5); }
     }
+    // a kitchen's (or bakehouse's) hearth is an open one: wide, square-mouthed, deep, under a beam
+    if (T.hearth === "kitchen") for (const F of Object.keys(spec.walls)) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
+      const top = Math.min(1.75, H - 1.2);
+      Object.assign(e, { open: true, surround_top: top + 0.32, mantel: { r0: e.r0 - 0.1, r1: e.r1 + 0.1, top: top + 0.32, depth: 0.08 },
+        firebox: { r0: e.r0 + 0.32, r1: e.r1 - 0.32, spring: top, apex: top, depth: (e.breast || 0) > 0.35 ? e.breast - 0.01 : 0.6 }, hearth: { r0: e.r0 + 0.2, r1: e.r1 - 0.2, out: 0.6 } });
+    }
     // the floor (with a hole where a stair comes up through it) and the ceiling (with one where it goes up)
     const stairsHere = plan.stairs.filter(s => s.rect.x0 < x1 && s.rect.x1 > x0 && s.rect.y0 < y1 && s.rect.y1 > y0);
     const holeOf = (s) => rect(Math.max(0, s.rect.x0 - x0), Math.min(W, s.rect.x1 - x0), Math.max(0, s.rect.y0 - y0), Math.min(D, s.rect.y1 - y0));
@@ -89,6 +131,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true }) {
       const L = F === "N" || F === "S" ? W : D;
       const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style });
       w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
+      if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
       for (const l of w.lights) l.parent.remove(l);
       grp.add(w.grp);
       // each window's daylight, where it is in the world, for the light rig that follows you

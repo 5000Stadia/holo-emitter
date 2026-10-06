@@ -592,7 +592,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
     for (const e of elems) {
       if (e.kind === "window") holes.push(rect(e.r0, e.r1, e.sill, e.top));
       if (e.kind === "door" || e.kind === "open") notches.push([e.r0, e.r1, e.top]);
-      if (e.kind === "chimneypiece") notches.push([e.firebox.r0, e.firebox.r1, e.firebox.apex]);
+      // (an open hearth whose firebox lies wholly in its breast leaves the wall behind it whole)
+      if (e.kind === "chimneypiece" && !(e.open && (e.breast || 0) >= e.firebox.depth)) notches.push([e.firebox.r0, e.firebox.r1, e.firebox.apex]);
     }
     const outline = [[0, 0]];
     for (const [a, b, t] of notches.sort((p, q) => p[0] - q[0])) outline.push([a, 0], [a, t], [b, t], [b, 0]);
@@ -714,6 +715,16 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
       const chimneyStart = grp.children.length;
       if (e.kind === "chimneypiece") {
         const fb = e.firebox, cx = (fb.r0 + fb.r1) / 2, half = (fb.r1 - fb.r0) / 2;
+        if (e.open) {
+          // a kitchen's open hearth: a wide square mouth, rubble-stone jambs, a great oak bressummer over it
+          const SD = 0.2, stoneJ = M.stone, bt = fb.apex, bh = 0.32;
+          for (const [a, b] of [[e.r0, fb.r0], [fb.r1, e.r1]]) for (let y = 0, k = 0; y < bt - 0.01; y += 0.34, k++)
+            add(block(THREE, rect(a + (k % 2 ? 0.02 : 0), b - (k % 2 ? 0 : 0.02), y + 0.003, Math.min(bt, y + 0.34) - 0.003), SD, 0.1), stoneJ, 0.2);
+          const beam = metric(new THREE.BoxGeometry(e.r1 - e.r0 + 0.2, bh, SD + 0.08)); beam.translate((e.r0 + e.r1) / 2, bt + bh / 2, (SD + 0.08) / 2);
+          if (M.oakH.vertexColors) K.board(beam, 0.25); add(beam, M.oakH, 0.1);
+          // a soot-dark bressummer's underside and the plaster of the breast above it
+          add(quad(THREE, [fb.r1, bt - 0.001, 0], [fb.r0, bt - 0.001, 0], [fb.r0, bt - 0.001, SD], [fb.r1, bt - 0.001, SD]), M.dark);
+        } else {
         // four-centred (Tudor) arch: quarter-ish arcs off the springing, flat-pointed at the apex
         const arch = [], rise = fb.apex - fb.spring, rr = Math.min(0.2, rise * 0.8), turn = 70 * Math.PI / 180;
         for (let k = 1; k <= 10; k++) { const f = k / 10 * turn; arch.push([fb.r0 + rr - rr * Math.cos(f), fb.spring + rr * Math.sin(f)]); }
@@ -791,8 +802,9 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         add(run(THREE, m.r0 - 0.05, m.r1 + 0.05, zt, [[0, 0], [0, fz + 0.01], [0.012, fz + 0.014], [0.03, fz + 0.035], [0.055, fz + 0.058], [0.075, fz + 0.078], [0.085, fz + 0.085], [0.1, fz + 0.085], [0.1, 0]]), M.oak, 0.05);
         // a dentil course under the shelf
         for (let x = m.r0 + 0.02; x < m.r1 - 0.02; x += 0.034) add(block(THREE, rect(x, x + 0.018, zt - 0.03, zt - 0.002), fz + 0.022, 0.02, 0.002), M.oak, 0.04);
+        }
         // the firebox: brick, splayed, sooted, going back into the wall
-        const bd = fb.depth, bs = 0.16, top = fb.apex;
+        const SD = 0.2, bd = fb.depth, bs = e.open ? 0.1 : 0.16, top = fb.apex;
         add(quad(THREE, [fb.r0, 0, 0], [fb.r0 + bs, 0, -bd], [fb.r0 + bs, top, -bd], [fb.r0, top, 0]), M.brick);
         add(quad(THREE, [fb.r1 - bs, 0, -bd], [fb.r1, 0, 0], [fb.r1, top, 0], [fb.r1 - bs, top, -bd]), M.brick);
         add(quad(THREE, [fb.r0 + bs, 0, -bd], [fb.r1 - bs, 0, -bd], [fb.r1 - bs, top, -bd], [fb.r0 + bs, top, -bd]), M.brick);
