@@ -15,7 +15,7 @@ import { buildStrongroom } from "../../lab/brief/strongroom.js";
 import { compileBrief } from "../../lab/brief/brief.js";
 import { build } from "./build.js";
 import { kindOf, sizeOf as kindSize, value } from "./catalogue.js";
-import { furnish } from "./furnish.js";
+import { furnish, wallToRoom } from "./furnish.js";
 import { rng, seedOf } from "./id.js";
 
 // a hearth fire's two looks: flame, drawn additive (it lights, it isn't lit), and embers
@@ -205,6 +205,12 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       n.userData.room = room.id; things.push(b);
       if (p.rect) blocks.push({ floor: room.floor, room: room.id, kind: p.kind, x0: x0 + p.rect.u0, x1: x0 + p.rect.u1, y0: y0 + p.rect.v0, y1: y0 + p.rect.v1 });
     });
+    // each chimneypiece is solid to a body: its breast and the fire's mouth within it (Kabe, 2026-10-06: "the
+    // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
+    { const RW = room.rect.x1 - room.rect.x0, RD = room.rect.y1 - room.rect.y0;
+      for (const F of ["N", "E", "S", "W"]) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
+        const deep = Math.max(e.breast || 0, 0.25), [a, b] = [wallToRoom(F, RW, RD, e.r0, 0), wallToRoom(F, RW, RD, e.r1, deep)];
+        blocks.push({ floor: room.floor, room: room.id, kind: "hearth", x0: x0 + Math.min(a[0], b[0]), x1: x0 + Math.max(a[0], b[0]), y0: y0 + Math.min(a[1], b[1]), y1: y0 + Math.max(a[1], b[1]) }); } }
     merge(grp, bundles);
     // the fire in each lit hearth: logs, embers and flames (drawn with the room; they flicker while seen)
     for (const h of hearths.filter(q => q.room === room.id && q.lit)) {

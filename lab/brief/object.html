@@ -256,6 +256,20 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
     const support = k.rests ? [k.rests] : (k.traits || []).includes("wall") ? ["wall"] : ["floor"];
     for (const f of meshRules(MANIFOLD, rest, { declared: (i) => k.parts[i] || {}, support }))
       out.push({ kind: name, check: f.rule, part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
+    // and piece by piece within a part that builds several (a door leaf's stiles, rails and panels; a press's
+    // boards): each piece shows from some side and joins the rest (2026-10-06: the door's back panels stood
+    // 10 cm behind its leaf, its front ones inside it, and the part as a whole passed)
+    const many = new Set([...new Set(rec.map(r => r.index))].filter(i => { const n = rec.filter(r => r.index === i && !r.sheet).length; return n > 1 && n <= 80; }));
+    if (many.size) {
+      const piecesAt = (moved) => rec.map((r, n) => ({ r, n })).filter(({ r }) => !r.sheet).map(({ r, n }) => { let m = null;
+        if (moved && r.mover) { const g = b.movers.get(r.mover); g.updateMatrix(); m = g.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(-g.userData.home.position.x, -g.userData.home.position.y, -g.userData.home.position.z)); }
+        const t = triOf(r.g, m); return { key: `${r.index}.${n}`, tris: t, solid: t, part: r.index }; });
+      const pieces = piecesAt(false), plabel = (key) => `${label(+key.split(".")[0])} piece ${key.split(".")[1]}`;
+      const pv = seen(states.length > 1 ? [pieces, piecesAt(true)] : [pieces], viewsOf({ wall: (k.traits || []).includes("wall") }));
+      for (const [key, v] of pv) { const i = +key.split(".")[0]; if (many.has(i) && v.px && v.share < 0.01 && k.parts[i]?.seen !== false && rec[+key.split(".")[1]].seen !== false) out.push({ kind: name, check: "13 (piece)", part: plabel(key), what: `shows ${(v.share * 100).toFixed(0)}% at best` }); }      // a piece needs only to show at all
+      if (k.rests !== "held") for (const f of meshRules(MANIFOLD, pieces, { declared: (key) => k.parts[+String(key).split(".")[0]] || {}, support, only: ["whole"] }))
+        if (many.has(+String(f.a).split(".")[0])) out.push({ kind: name, check: "whole (piece)", part: plabel(f.a), what: f.what });
+    }
     // and with everything moved: an opened lid still rests on something, and swings into nothing
     if (states.length > 1) for (const f of meshRules(MANIFOLD, states[1], { declared: (i) => k.parts[i] || {}, support }))
       if (f.rule === "whole" || f.rule === "inside") out.push({ kind: name, check: f.rule + " (moved)", part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
@@ -266,6 +280,9 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
   return { findings: out, kinds: times.length, ms: Math.round(ms), perKind: +(ms / Math.max(1, times.length)).toFixed(1), rulesMs: Math.round(ruleMs.reduce((s, x) => s + x, 0)) };
 };
 // where a kind meets the floor and its wall: each part's lowest point and nearest the back (for finding a fault)
+window.__pieces = (name, index) => { const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+  return rec.map((r, n) => ({ n, r })).filter(({ r }) => r.index === index).map(({ r, n }) => { const bb = new THREE.Box3().setFromBufferAttribute(r.g.attributes.position);
+    return { n, mover: r.mover, min: bb.min.toArray().map(v => +v.toFixed(3)), max: bb.max.toArray().map(v => +v.toFixed(3)) }; }); };
 window.__lowest = (name) => { const k = kindOf(name), { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`)), by = {};
   for (const r of rec) { const bb = new THREE.Box3().setFromBufferAttribute(r.g.attributes.position), q = by[r.index] || (by[r.index] = { y: Infinity, z: Infinity, top: -Infinity });
     q.y = Math.min(q.y, +bb.min.y.toFixed(3)); q.z = Math.min(q.z, +bb.min.z.toFixed(3)); q.top = Math.max(q.top, +bb.max.y.toFixed(3));
@@ -350,6 +367,8 @@ function panelOf(target, things, w) {
   draw(1); return Math.round(performance.now() - tp);
 }
 if (Q.get("panel")) {
+  // light from behind and the sides too, so a back is lit and not mistaken for a fault (it hid the door's)
+  for (const [x, z] of [[2.5, -3.5], [-3, -2], [3.5, 1]]) { const l = new THREE.DirectionalLight(0xfff4e8, 1.1); l.position.set(x, 2.8, z); scene.add(l); }
   wall.visible = false; scene.background = new THREE.Color(0x5a5a5e); document.getElementById("info").hidden = true; document.getElementById("status").hidden = true;   // a grey ground, so black lacquer shows
   renderer.setAnimationLoop(null);
   window.__panelMs = panelOf(obj, built, works); window.__panel = true; window.__ok = true;

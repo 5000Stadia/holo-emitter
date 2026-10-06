@@ -37,7 +37,8 @@ function solidOf(M, tris) {
   catch (e) { return { error: /manifold/i.test(String(e)) ? "not closed: an edge that doesn't join two faces" : String(e).slice(0, 80) }; }
 }
 
-export function meshRules(M, parts, { declared = () => ({}), joint = 0.2, touch = 0.001, support = ["floor"] } = {}) {
+export function meshRules(M, parts, { declared = () => ({}), joint = 0.2, touch = 0.001, support = ["floor"], only = null } = {}) {
+  const doing = (r) => !only || only.includes(r);
   inside.M = M;
   const out = [], solids = new Map(), vol = new Map(), box = new Map();
   for (const p of parts) {
@@ -48,30 +49,30 @@ export function meshRules(M, parts, { declared = () => ({}), joint = 0.2, touch 
     box.set(p.key, { lo, hi });
     if (d.sheet || (p.solid && !p.solid.length)) continue;     // a sheet on purpose (a label, a canvas), all of it
     const { solid, error } = solidOf(M, p.solid || t);
-    if (error) { out.push({ rule: "closed", a: p.key, what: error }); continue; }
+    if (error) { if (doing("closed")) out.push({ rule: "closed", a: p.key, what: error }); continue; }
     // outward: every closed piece of the part, by its own volume
     const pieces = solid.decompose(); let inward = 0;
     for (const s of pieces) { if (s.volume() < 0) inward++; s.delete(); }
-    if (inward) out.push({ rule: "outward", a: p.key, what: `${inward} of its ${pieces.length} pieces wound inside out` });
+    if (inward && doing("outward")) out.push({ rule: "outward", a: p.key, what: `${inward} of its ${pieces.length} pieces wound inside out` });
     solids.set(p.key, solid); vol.set(p.key, Math.abs(solid.volume()));
   }
   // below: into the floor or the wall
-  for (const [k2, b] of box) { const d = declared(k2) || {};
+  if (doing("below")) for (const [k2, b] of box) { const d = declared(k2) || {};
     if (support.includes("floor") && b.lo[1] < -touch && !d.below) out.push({ rule: "below", a: k2, what: `${(-b.lo[1] * 100).toFixed(1)} cm into the floor` });
     if (support.includes("wall") && b.lo[2] < -touch && !d.below) out.push({ rule: "below", a: k2, what: `${(-b.lo[2] * 100).toFixed(1)} cm into the wall` }); }
   // inside: the volume two parts share, against the smaller; a joint (a tenon, a leg let into its top) is less
   const keys = [...solids.keys()], near = (a, b, m = 0) => [0, 1, 2].every(k => a.lo[k] <= b.hi[k] + m && b.lo[k] <= a.hi[k] + m);
-  for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) {
+  if (doing("inside") || doing("through")) for (let i = 0; i < keys.length; i++) for (let j = i + 1; j < keys.length; j++) {
     const a = keys[i], b = keys[j]; if (!near(box.get(a), box.get(b))) continue;
     const x = solids.get(a).intersect(solids.get(b)), v = x.volume(), xb = v > 0 ? x.boundingBox() : null; x.delete();
     const small = Math.min(vol.get(a), vol.get(b)), share = small ? v / small : 0;
     // through: one comes out of the other on both sides along an axis, its cross-section within the other's
     // (a leg through a tabletop; not a rail tenoned into a thicker post, nor a hoop round a cask)
-    if (xb && !declared(a).within && !declared(b).within) for (const [p, q] of [[a, b], [b, a]]) { const P = box.get(p), Q = box.get(q);
+    if (xb && doing("through") && !declared(a).within && !declared(b).within) for (const [p, q] of [[a, b], [b, a]]) { const P = box.get(p), Q = box.get(q);
       for (let ax = 0; ax < 3; ax++) { const o = [0, 1, 2].filter(k => k !== ax);
         if (P.lo[ax] < Q.lo[ax] - 0.005 && P.hi[ax] > Q.hi[ax] + 0.005 && xb.max[ax] - xb.min[ax] >= (Q.hi[ax] - Q.lo[ax]) - 0.002
           && o.every(k => P.lo[k] >= Q.lo[k] - 0.001 && P.hi[k] <= Q.hi[k] + 0.001 && xb.max[k] - xb.min[k] >= 0.5 * (P.hi[k] - P.lo[k]))) { out.push({ rule: "through", a: p, b: q, what: "passes right through" }); ax = 3; } } }
-    if (share > joint && !declared(a).within && !declared(b).within) { const [s, l] = vol.get(a) <= vol.get(b) ? [a, b] : [b, a];
+    if (share > joint && doing("inside") && !declared(a).within && !declared(b).within) { const [s, l] = vol.get(a) <= vol.get(b) ? [a, b] : [b, a];
       out.push({ rule: "inside", a: s, b: l, what: `${(share * 100).toFixed(0)}% of it lies inside` }); }
   }
   // whole: parts that touch (or nearly) are joined; everything must join the largest
@@ -87,10 +88,10 @@ export function meshRules(M, parts, { declared = () => ({}), joint = 0.2, touch 
   // a thing held by something it doesn't own (shutters on a window's splays: kind.rests "held") joins its largest part
   const seen = new Set(support.includes("held") ? (keys.length ? [keys.reduce((m, k) => vol.get(k) > vol.get(m) ? k : m)] : all.slice(0, 1)) : all.filter(k => holds(box.get(k)))), q = [...seen];
   while (q.length) for (const n of link.get(q.pop())) if (!seen.has(n)) { seen.add(n); q.push(n); }
-  for (const k of all) if (!seen.has(k) && !declared(k).loose) out.push({ rule: "whole", a: k, what: seen.size ? "touches nothing joined to what holds the thing up" : "nothing of the thing reaches the floor or its wall" });
+  if (doing("whole")) for (const k of all) if (!seen.has(k) && !declared(k).loose) out.push({ rule: "whole", a: k, what: seen.size ? "touches nothing joined to what holds the thing up" : "nothing of the thing reaches the floor or its wall" });
   // shimmer: faces of two parts on one plane, facing the same way, overlapping
   const below = (x) => (support.includes("floor") && x[1] < 0) || (support.includes("wall") && x[2] < 0);      // in the floor or the wall
-  out.push(...shimmer(parts, (key, x) => below(x) || [...solids].some(([k, sol]) => k !== key && inside(sol, x))));
+  if (doing("shimmer")) out.push(...shimmer(parts, (key, x) => below(x) || [...solids].some(([k, sol]) => k !== key && inside(sol, x))));
   for (const s of solids.values()) s.delete();
   return out;
 }

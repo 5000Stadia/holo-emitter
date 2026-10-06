@@ -235,13 +235,10 @@ export default [
       { part: "box", role: "turkey", size: [0.42, 0.14, "=D-0.1"], ops: [["rz", -0.35], ["t", "=-W/2+0.3", 0.5, "=D/2"]], within: "a roll, pressed into the squab and the head" }] },
   { kind: "table/carpeted", v: 1, noun: "the table", traits: ["free"], fixed: true, why: "R §2: a table with its Turkey carpet (Hardwick; Bank Hall: 'a long table with a carpet'), the cloth hanging to the floor's half",
     settings: { W: 1.8, D: 0.9, H: 0.76 },
-    // by relations: the carpet lies on the table's top (1 mm let in), the four drops hang under its edges
-    parts: [{ id: "table", part: "joined_table", drawer: false },
-      { id: "carpet", part: "box", role: "carpet", size: ["=W+0.12", 0.012, "=D+0.12"], at: [0, 0, "=D/2+0.01"], on: "table", sink: 0.001 },
-      { part: "box", role: "carpet", size: ["=W+0.12", 0.32, 0.012], at: [0, 0, "=D+0.07"], under: "carpet", sink: 0.011 },
-      { part: "box", role: "carpet", size: ["=W+0.12", 0.32, 0.012], at: [0, 0, -0.05], under: "carpet", sink: 0.011 },
-      { part: "box", role: "carpet", size: [0.012, 0.32, "=D+0.12"], at: ["=-W/2-0.06", 0, "=D/2+0.01"], under: "carpet", sink: 0.011 },
-      { part: "box", role: "carpet", size: [0.012, 0.32, "=D+0.12"], at: ["=W/2+0.06", 0, "=D/2+0.01"], under: "carpet", sink: 0.011 }] },
+    // the carpet one cloth over the table's top, hanging to the floor's half, gathered at the corners (Kabe,
+    // 2026-10-06: the five stretched boxes it was "looks lame and cheap")
+    parts: [{ id: "table", part: "joined_table", drawer: false, seen: false },
+      { part: "drape", w: "=W+0.06", d: "=D+0.04", at: [0, "$H", "=D/2+0.01"], drop: "=H*0.45", design: "turkey" }] },
   { kind: "wheel/spinning", v: 1, noun: "the spinning wheel", fixed: true, why: "a wool wheel or Saxony wheel in the living parlour: the household's own spinning; its wheel turns while it is worked",
     settings: {},
     // the legs stand on the floor; the rest is turned and raked about the wheel's axis, so keeps its coordinates

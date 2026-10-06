@@ -57,6 +57,8 @@ definePart("joined_table", {
       box(dw, y0 - (legH - AP), 0.022, 0, (legH - AP + y0) / 2, fz);
       c.mover("drawer");
       drawer(c, { w: dw, h: dh, d: D - 0.12, y: y0, fz, mover: "drawer" });
+      // the runners the drawer rides on, from the front rail to the back (it had hung in its opening on nothing)
+      for (const sx of [-1, 1]) box(0.024, 0.02, fz - 0.061, sx * (dw / 2 - 0.014), y0 + 0.003 - 0.01, (0.05 + fz - 0.011) / 2);
       c.slot("drawer", [0, y0 + 0.016, fz - (D - 0.12) / 2], "drawer");
     } else box(W - 0.1, AP, 0.022, 0, legH - AP / 2, fz);
     c.add(plainBox(THREE, W + 0.06, T, D + 0.04, 0, legH + T / 2, D / 2 + 0.01), "wood_face", { spread: 0.1 });
@@ -136,11 +138,11 @@ definePart("panelled_leaf", {
     // the panels, raised a little on both faces
     for (const [y0, y1] of [[0.2, h * 0.36 - 0.06], [h * 0.36 + 0.06, h - 0.17]]) for (const side of [1, -1]) {
       const p = loft(THREE, rect(st + 0.02, w - st - 0.02, y0, y1), [[0, 0], [0.006, 0.004], [0.022, 0.008], [0.03, 0.008]], true, true);
-      if (side < 0) { mirror(p, 1, 1, -1); p.translate(0, 0, 2 * set - thick); } else p.translate(0, 0, set - thick / 2 + 0.002);
+      if (side < 0) { mirror(p, 1, 1, -1); p.translate(0, 0, set - thick / 2 - thick / 4); } else p.translate(0, 0, set - thick / 2 + thick / 4);     // on each face of the ground (the back's had stood 10 cm behind the leaf, the front's inside the ground)
       c.add(p, "wood_face", { mover, spread: 0.08 });
     }
-    box(w - 2 * st, h - 0.2, thick * 0.5, w / 2, h / 2, z, "wood");     // the panels' ground
-    const knob = new THREE.SphereGeometry(0.026, 12, 9); knob.translate(w - 0.08, 1.0, set + 0.03); c.add(knob, "metal", { mover });
+    c.add(plainBox(THREE, w - 2 * st, h - 0.2, thick * 0.5, w / 2, h / 2, z), "wood", { mover, spread: 0.18, seen: false });     // the panels' ground, behind them
+    const knob = new THREE.SphereGeometry(0.026, 12, 9); knob.translate(w - 0.08, 1.0, set + 0.02);     // on the leaf's face, not 4 mm off it c.add(knob, "metal", { mover });
     c.footprint({ w, h, d: 0 });
   },
 });

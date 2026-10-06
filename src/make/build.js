@@ -36,12 +36,12 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     mat: (role) => material(look, role),
     // add geometry, in the thing's own frame, to the body or to a mover; spread is how far each
     // member's tone and grain may differ (wood is cut board by board)
-    add(g, role, { mover = null, spread = 0.14, sheet = false } = {}) {
+    add(g, role, { mover = null, spread = 0.14, sheet = false, seen = true } = {}) {
       const mat = typeof role === "string" ? material(look, role) : role;     // a role, or a material the part made itself
       if (mat.vertexColors && !g.attributes.color) K.board(g, spread);
       if (mover) { if (!movers.has(mover)) throw new Error(`${kindName}: no mover ${mover} declared before its geometry`); into(movers.get(mover).parts, g, mat); }
       else into(body, g, mat);
-      if (AUDIT && DEPTH === 1) AUDIT.push({ index: PART, mover, sheet, g: g.clone() });
+      if (AUDIT && DEPTH === 1) AUDIT.push({ index: PART, mover, sheet, seen, g: g.clone() });
       K.parts++;
     },
     // a mover turns or slides about its pivot, in the thing's frame

@@ -130,23 +130,28 @@ definePart("evidence_bundles", {
     const { THREE } = c, r = c.r("bundles"), t = 0.03, sk = skids ? 0.05 : 0;
     const x0 = -w / 2 + t + 0.01, x1 = w / 2 - t - 0.01, z0 = t + 0.01, z1 = d - t - 0.01, floor = sk + t;
     const bw = 0.2, bd = 0.15, cols = Math.floor((x1 - x0) / (bw + 0.01)), rows = Math.floor((z1 - z0) / (bd + 0.01));
-    let topY = floor;
+    let topY = floor; const stacks = [];
     for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
       let y = floor;
       for (let k = 0, n = 1 + Math.floor(r() * 3); k < n; k++) {
         const hh = 0.02 + r() * 0.03, ww = bw * (0.85 + r() * 0.15), dd = bd * (0.85 + r() * 0.15);
         const x = x0 + (i + 0.5) * (bw + 0.01) + (r() - 0.5) * 0.01, z = z0 + (j + 0.5) * (bd + 0.01) + (r() - 0.5) * 0.01;
-        c.add(plainBox(THREE, ww, hh, dd, x, y + hh / 2, z), "parchment", { spread: 0.3 });
-        if (r() < 0.8) { const tp = new THREE.BoxGeometry(0.012, hh + 0.003, dd + 0.003); tp.translate(x, y + hh / 2, z); c.add(tp, "tape"); }
+        // a bundle under another in its stack is never seen (the chest's walls hide its sides)
+        const under = k < n - 1;
+        c.add(plainBox(THREE, ww, hh, dd, x, y + hh / 2, z), "parchment", { spread: 0.3, seen: !under });
+        if (r() < 0.8) { const tp = new THREE.BoxGeometry(0.012, hh + 0.003, dd + 0.003); tp.translate(x, y + hh / 2, z); c.add(tp, "tape", { seen: !under }); }
         y += hh + 0.001;
       }
       topY = Math.max(topY, y);
+      stacks.push({ x0: x0 + i * (bw + 0.01), x1: x0 + (i + 1) * (bw + 0.01), z0: z0 + j * (bd + 0.01), z1: z0 + (j + 1) * (bd + 0.01), y });
     }
+    // how high the bundles stand under a footprint (what a thing laid there rests on)
+    const restAt = (xa, xb, za, zb) => Math.max(floor, ...stacks.filter(s => s.x1 > xa && s.x0 < xb && s.z1 > za && s.z0 < zb).map(s => s.y));
     // letters patent, rolled, laid on top, the great seal on its tag lying beside each
     for (let k = 0; k < 2; k++) {
-      const R = 0.03, len = w * 0.55, y = topY + R + 0.002, z = z0 + 0.08 + k * 0.16, x = -w * 0.1 + k * 0.08;
+      const R = 0.03, len = w * 0.55, z = z0 + 0.08 + k * 0.16, x = -w * 0.1 + k * 0.08, y = restAt(x - len / 2, x + len / 2, z - R, z + R) + R - 0.001;      // on the bundles under it, not the tallest anywhere
       const g = new THREE.CylinderGeometry(R, R, len, 14); g.rotateZ(Math.PI / 2); g.translate(x, y, z); c.add(g, "parchment", { spread: 0.2 });
-      const seal = new THREE.CylinderGeometry(0.05, 0.05, 0.012, 20); seal.translate(x + len / 2 + 0.06, topY + 0.007, z); c.add(seal, "seal_wax");
+      const sx = x + len / 2 + 0.06, seal = new THREE.CylinderGeometry(0.05, 0.05, 0.012, 20); seal.translate(sx, restAt(sx - 0.05, sx + 0.05, z - 0.05, z + 0.05) + 0.006 - 0.001, z); c.add(seal, "seal_wax");
     }
   },
 });
