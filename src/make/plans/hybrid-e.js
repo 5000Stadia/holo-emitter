@@ -104,7 +104,8 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   // ---- stairs: the great stair in its hall (ground → first → garret); the back stair in its well
   const flight = (s, from, to, up, rect) => plan.stairs.push({ id: `${s}_${from}`, kind: "straight", treads: 18, from, to, up, rect, joins: [] });
   { const r = stairHall.rect; flight("great_stair", "ground", "first", "N", { x0: r3(r.x0 + 0.4), x1: r3(r.x0 + 1.9), y0: r3(r.y0 + 0.4), y1: r3(r.y1 - 0.4) });
-    flight("great_stair", "first", "garret", "S", { x0: r3(r.x1 - 1.9), x1: r3(r.x1 - 0.4), y0: r3(r.y0 + 0.4), y1: r3(r.y1 - 0.4) }); }
+    // the upper flight along the landing's north side, rising east, clear of the great chamber's door
+    flight("great_stair", "first", "garret", "E", { x0: r3(r.x0 + 2.2), x1: r3(r.x1 - 0.3), y0: r3(r.y1 - 1.7), y1: r3(r.y1 - 0.3) }); }
   { const r = backStair.rect; flight("back_stair", "ground", "first", "E", { x0: r3(r.x0 + 0.3), x1: r3(r.x1 - 0.3), y0: r3(r.y0 + 0.2), y1: r3(r.y0 + 1.3) });
     flight("back_stair", "first", "garret", "W", { x0: r3(r.x0 + 0.3), x1: r3(r.x1 - 0.3), y0: r3(r.y1 - 1.3), y1: r3(r.y1 - 0.2) }); }
   // stairs carry you between the rooms that share their well on each floor
