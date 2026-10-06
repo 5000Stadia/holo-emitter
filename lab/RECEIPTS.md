@@ -324,6 +324,6 @@ The strongroom predates the review rule, so it had never had this pass. **Lesson
 Added time: about 25 min. The room's checks pass. Build 1.5 s; 73 meshes; 120 drawers.
 
 **What a working drawer costs** (measured 2026-10-05, SwiftShader, 3 runs):
-- **Build:** the table takes 14–23 ms in all, and its working drawer is 7 of its 33 pieces. The parts only a working drawer needs (sides, back, bottom, cavity) come to about 2 ms. All 120 press drawers, working, take 3–5 ms together, about 0.03 ms each.
+- **Build, measured A/B:** the same table built with a working drawer and with a fixed drawer front (no sides, back, bottom or cavity), 40 builds × 4 rounds, warm. Working: 4.3 ms, 32 meshes. Fixed: 3.95 ms, 27 meshes. **Difference: about 0.4 ms.** An earlier estimate of 2 ms, made from the share of pieces, was wrong. The table's first build in the room takes 14–23 ms because of one-time warm-up. All 120 press drawers, working, take 3–5 ms together.
 - **Play:** moving one drawer costs 3.3 µs a frame, and only while it moves.
 - **Authoring:** the press drawer bank took about 20 min, written once. That is the real cost.
