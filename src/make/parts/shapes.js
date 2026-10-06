@@ -3,12 +3,13 @@
 // cylinder stands on its "at" (its bottom's middle); a ring, a ball or a cone is centred on it. "ops"
 // turn and move it further, in order: ["rx"|"ry"|"rz", radians] or ["t", x, y, z] or ["s", x, y, z].
 import { definePart } from "../catalogue.js";
+import { mirror } from "../../../lab/painted/procedural.js";
 
 function place(g, { at = [0, 0, 0], ops = [] }) {
   g.translate(...at);
   for (const [op, ...a] of ops) {
     if (op === "rx") g.rotateX(a[0]); else if (op === "ry") g.rotateY(a[0]); else if (op === "rz") g.rotateZ(a[0]);
-    else if (op === "t") g.translate(...a); else if (op === "s") g.scale(...a);
+    else if (op === "t") g.translate(...a); else if (op === "s") mirror(g, ...a);     // a mirroring scale keeps its faces outward
   }
   return g;
 }
