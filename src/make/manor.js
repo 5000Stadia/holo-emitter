@@ -80,7 +80,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   for (const room of plan.rooms) {
     if (room.type === "open") continue;
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
-    const grp = bundles ? new THREE.BundleGroup() : new THREE.Group(); grp.position.set(x0, Y, -y0); grp.userData.room = room.id;
+    const grp = new THREE.Group(); grp.position.set(x0, Y, -y0); grp.userData.room = room.id;
     const movers = new THREE.Group(); movers.position.copy(grp.position);
     // the muniment room: its own builder, from its period brief
     if (room.room_type === "muniment_room" && brief) {
@@ -158,7 +158,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       n.userData.room = room.id; things.push(b);
       if (p.rect) blocks.push({ floor: room.floor, room: room.id, kind: p.kind, x0: x0 + p.rect.u0, x1: x0 + p.rect.u1, y0: y0 + p.rect.v0, y1: y0 + p.rect.v1 });
     });
-    merge(grp);
+    merge(grp, bundles);
     scene.add(grp, movers);
     rooms.set(room.id, { room, grp, movers, H, Y, lights: [] });
   }
@@ -202,7 +202,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
 
 const r2 = (x) => Math.round(x * 100) / 100;
 // a room's still meshes merged by material: a few draws a room, which its bundle then replays
-function merge(grp) {
+function merge(grp, bundle = false) {
   grp.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(grp.matrixWorld).invert(), byMat = new Map();
   grp.traverse(o => { if (o.isMesh && !o.isInstancedMesh) (byMat.get(o.material) || byMat.set(o.material, []).get(o.material)).push(o); });
@@ -219,6 +219,9 @@ function merge(grp) {
   }
   const others = []; grp.traverse(o => { if ((o.isInstancedMesh || o.isLight) && o.parent) others.push(o); });
   while (grp.children.length) grp.remove(grp.children[0]);
-  for (const m of keep) grp.add(m);
+  // the opaque merged meshes go into a render bundle (WebGPU replays it without re-encoding); glass and
+  // anything instanced stay outside it, drawn the ordinary way
+  const B = bundle ? new THREE.BundleGroup() : grp; if (bundle) grp.add(B);
+  for (const m of keep) (m.material.transparent ? grp : B).add(m);
   for (const o of others) { o.parent?.remove(o); grp.add(o); }
 }

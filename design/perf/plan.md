@@ -31,6 +31,11 @@ The engine is three.js r186+ `WebGPURenderer` with its WebGL 2 fallback. Kabe ag
 **1. Visible only.** Nothing invisible is drawn or computed.
 - **Interiors:** room-and-portal culling. A room is drawn only if it's seen through an open doorway, so a closed door hides what's behind it.
 - **One render bundle per room,** shown or hidden whole. Bundles don't cull inside themselves.
+  - **Measured in the manor (2026-10-06): on hold.** With each room merged by material, a room is already a few draws.
+    - **Frame time:** bundles take the hall from 7.9 to 6.1 ms and leave the great chamber unchanged (6.9 against 7.0).
+    - **What goes wrong with them on (three r186, WebGPU):** the chimneypiece's stone and the leaded glass are not drawn, even with the glass kept outside the bundle. This looks like render-pass state that three doesn't restore after a bundle replays.
+    - **Fixed already:** glass placed wrongly. Only opaque merged meshes now go into a bundle nested in the room's group.
+    - **For now:** `?bundles=1` only. Revisit with a newer three, or where draws are many (streets, a forest).
 - **Exteriors:** spatial clusters with frustum culling, then GPU culling where WebGPU allows.
 - **Animations and flames** update only while visible. Processes are already worked out from elapsed time.
 - **Physics** bodies out of view sleep.

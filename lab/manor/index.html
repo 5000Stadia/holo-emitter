@@ -79,7 +79,7 @@ const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE
 await step("raising the house, room by room, each by its purpose");
 const manor = buildManor({ furnished: Q.get("nofurn") !== "1", plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
-const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
+const scene = new THREE.Scene(); window.__scene = scene; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
 ENG.mark("built");
 
@@ -108,7 +108,7 @@ for (const b of manor.things) works.add(b);
 window.__works = works; window.__manor = manor; window.__plan = plan;
 
 // ---- walking: floor to floor by the stairs, through a doorway only while its door stands open
-const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 140);
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 140); window.__camera = camera;
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 const EYE = 1.6, floors = [...plan.floors].sort((a, b) => a.level - b.level);
 const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
