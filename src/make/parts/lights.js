@@ -2,10 +2,11 @@
 // process: the mover "candle" scales from its socket, the mover "flame" rides its top); the flame and
 // its light belong to the light group "flame", shown only while lit; the flame flickers.
 import { definePart } from "../catalogue.js";
+import { turned } from "./shapes.js";
 
 definePart("candlestick", {
   build(c, { length = 0.2, radius = 0.011, x = 0, y = 0, z = 0 }) {
-    const { THREE } = c, lathe = (pts, seg = 20) => new THREE.LatheGeometry(pts.map(([r, yy]) => new THREE.Vector2(r, yy)), seg);
+    const { THREE } = c, lathe = (pts, seg = 20) => turned(THREE, pts, seg);
     const base = lathe([[0, 0], [0.05, 0], [0.05, 0.012], [0.022, 0.03], [0.012, 0.05], [0.014, 0.12], [0.01, 0.15], [0.016, 0.16], [0.022, 0.17], [0.014, 0.175], [0, 0.175]]);
     base.translate(x, y, z); c.add(base, "metal");
     // the candle stands in the socket; it burns down from the top

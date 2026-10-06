@@ -159,8 +159,8 @@ export default [
       { part: "mover", name: "left", pivot: ["=-W/2+0.02", 0, "=D-0.04"] }, { part: "mover", name: "right", pivot: ["=W/2-0.02", 0, "=D-0.04"] },
       { part: "box", role: "japan", mover: "left", size: ["=W/2-0.03", 0.58, 0.02], at: ["=-W/4", 0.75, "=D-0.03"] },
       { part: "box", role: "japan", mover: "right", size: ["=W/2-0.03", 0.58, 0.02], at: ["=W/4", 0.75, "=D-0.03"] },
-      { part: "box", role: "gilt", mover: "left", size: ["=W/2-0.1", 0.46, 0.004], at: ["=-W/4", 0.81, "=D-0.019"] },
-      { part: "box", role: "gilt", mover: "right", size: ["=W/2-0.1", 0.46, 0.004], at: ["=W/4", 0.81, "=D-0.019"] }],
+      { part: "box", role: "gilt", mover: "left", size: ["=W/2-0.1", 0.46, 0.004], at: ["=-W/4", 0.81, "=D-0.018"] },
+      { part: "box", role: "gilt", mover: "right", size: ["=W/2-0.1", 0.46, 0.004], at: ["=W/4", 0.81, "=D-0.018"] }],
     affordances: {
       left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.8, verbs: ["open the cabinet", "close the cabinet"] },
       right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.8, verbs: ["open the cabinet", "close the cabinet"] } } },

@@ -4,6 +4,7 @@
 // the middle, the floor at y = 0 (a door or shutter: the wall's face at z = 0, into the wall -z).
 import { definePart } from "../catalogue.js";
 import { metric, metricAny, loft, rect, mirror } from "../../../lab/painted/procedural.js";
+import { turned } from "./shapes.js";
 
 // a box with its arrises rolled by a few millimetres, as hands and years leave joinery
 export function rolledBox(THREE, w, h, d, x, y, z) {
@@ -23,7 +24,7 @@ export function drawer(c, { w, h, d, x = 0, y, fz, mover, knob = true, field = t
   const { THREE } = c, t = 0.014, box = (bw, bh, bd, bx, by, bz, role, mv = mover) => c.add(rolledBox(THREE, bw, bh, bd, bx, by, bz), role, { mover: mv });
   box(w - 0.006, h - 0.006, 0.028, x, y + h / 2, fz + 0.005, "wood_face");
   if (field) c.add((() => { const f = loft(THREE, rect(x - w / 2 + 0.03, x + w / 2 - 0.03, y + 0.018, y + h - 0.018), [[0, 0], [0.004, 0.003], [0.012, 0.005], [0.014, 0.005]], true, true); f.translate(0, 0, fz + 0.019); return f; })(), "wood_face", { mover, spread: 0.05 });
-  if (knob) { const k = new THREE.LatheGeometry([[0, 0], [0.012, 0], [0.012, 0.004], [0.006, 0.01], [0.009, 0.018], [0.013, 0.026], [0.01, 0.032], [0, 0.034]].map(([r, yy]) => new THREE.Vector2(r, yy)), 16);
+  if (knob) { const k = turned(THREE, [[0, 0], [0.012, 0], [0.012, 0.004], [0.006, 0.01], [0.009, 0.018], [0.013, 0.026], [0.01, 0.032], [0, 0.034]], 16);
     k.rotateX(Math.PI / 2); k.translate(x, y + h / 2, fz + 0.024); c.add(k, "wood", { mover, spread: 0.05 }); }
   for (const sx of [-1, 1]) box(t, h - 0.02, d, x + sx * (w / 2 - 0.02), y + h / 2 - 0.005, fz - d / 2, "wood");
   box(w - 0.04, h - 0.02, t, x, y + h / 2 - 0.005, fz - d + t / 2, "wood");
@@ -41,7 +42,7 @@ definePart("joined_table", {
     const prof = [[0, 0.1], [0.022, 0.1], [0.025, 0.12], [0.02, 0.15], [0.026, 0.2], [0.03, 0.26], [0.028, 0.31], [0.021, 0.36], [0.017, 0.4], [0.02, 0.43], [0.026, 0.46], [0.022, 0.49], [0.025, legH - AP - 0.02], [0.02, legH - AP], [0, legH - AP]].map(([r, y]) => new THREE.Vector2(r, y));
     for (const sx of [-1, 1]) for (const sz of [0, 1]) {
       const x = sx * (W / 2 - 0.05), z = sz ? D - 0.05 : 0.05;
-      const l = new THREE.LatheGeometry(prof, 20); l.translate(x, 0, z); c.add(l, "wood", { spread: 0.1 });
+      const l = turned(THREE, prof, 20); l.translate(x, 0, z); c.add(l, "wood", { spread: 0.1 });
       box(LEG, AP, LEG, x, legH - AP / 2, z); box(LEG, 0.1, LEG, x, 0.05, z);
     }
     box(W - 0.1, 0.035, 0.035, 0, 0.07, 0.05); box(W - 0.1, 0.035, 0.035, 0, 0.07, D - 0.05);

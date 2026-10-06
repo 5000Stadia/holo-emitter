@@ -32,6 +32,6 @@ definePart("portrait_canvas", {
     const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
     const mat = new THREE.MeshStandardMaterial({ map: t, roughness: 0.5 }); mat.userData.cls = "painting";
     const geo = new THREE.PlaneGeometry(W, H); geo.translate(0, y + H / 2, z);
-    c.add(geo, mat);
+    c.add(geo, mat, { sheet: true });                                  // the canvas: a sheet in its frame
   },
 });

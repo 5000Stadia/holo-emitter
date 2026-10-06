@@ -2,6 +2,7 @@
 // strap hinges and nails on a leaf, a stock lock with its ring. Frames as in joinery.js.
 import { definePart } from "../catalogue.js";
 import { plainBox } from "./joinery.js";
+import { ring } from "./shapes.js";
 
 const nail = (THREE, x, y, z, r = 0.008) => { const h = new THREE.ConeGeometry(r, r * 0.9, 4); h.rotateX(Math.PI / 2); h.rotateZ(Math.PI / 4); h.translate(x, y, z); return h; };
 
@@ -35,7 +36,7 @@ definePart("hasp_locks", {
       c.add(plainBox(THREE, 0.04, 0.14, 0.008, x, h - 0.06, fz + 0.006), "iron", { mover: lid, spread: 0.2 });   // the hasp
       c.add(plainBox(THREE, 0.016, 0.02, 0.02, x, sy, fz + 0.01), "iron", { spread: 0.2 });                     // the staple
       c.add(plainBox(THREE, 0.07, 0.07, 0.025, x, sy - 0.045, fz + 0.025), "iron", { mover: locks, spread: 0.2 }); // the padlock
-      const sh = new THREE.TorusGeometry(0.022, 0.005, 6, 16, Math.PI); sh.translate(x, sy - 0.01, fz + 0.025);
+      const sh = ring(THREE, 0.022, 0.005, 6, 16, Math.PI); sh.translate(x, sy - 0.01, fz + 0.025);
       c.add(sh, "iron", { mover: locks, spread: 0.2 });
       c.add(plainBox(THREE, 0.008, 0.016, 0.004, x, sy - 0.05, fz + 0.039), "dark", { mover: locks });           // the keyhole
     }
@@ -46,7 +47,7 @@ definePart("hasp_locks", {
 definePart("end_handles", {
   build(c, { w, d, h }) {
     const { THREE } = c;
-    for (const sx of [-1, 1]) { const g = new THREE.TorusGeometry(0.05, 0.007, 6, 16, Math.PI); g.rotateZ(Math.PI); g.rotateY(Math.PI / 2); g.translate(sx * (w / 2 + 0.012), h * 0.62, d / 2); c.add(g, "iron", { spread: 0.2 }); }
+    for (const sx of [-1, 1]) { const g = ring(THREE, 0.05, 0.007, 6, 16, Math.PI); g.rotateZ(Math.PI); g.rotateY(Math.PI / 2); g.translate(sx * (w / 2 + 0.012), h * 0.62, d / 2); c.add(g, "iron", { spread: 0.2 }); }
   },
 });
 

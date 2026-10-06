@@ -55,7 +55,7 @@ definePart("glazed_bookpress", {
     const carve = (len, fh, rep, depth, y, z) => {
       const cg = new THREE.PlaneGeometry(len, fh, Math.round(len * 420), Math.round(fh * 420)), pa = cg.attributes.position;
       for (let i = 0; i < pa.count; i++) { const X = pa.getX(i) + len / 2, Y = pa.getY(i) / fh + 0.5; pa.setZ(i, acanthus((X % rep) / rep, Y) * depth); }
-      cg.computeVertexNormals(); cg.translate(0, y, z); c.add(cg, "wood_face", { spread: 0.06 });
+      cg.computeVertexNormals(); cg.translate(0, y, z); c.add(cg, "wood_face", { spread: 0.06, sheet: true });
     };
     { const fy = upperTop, fh = 0.075;
       carve(W + 0.02, fh, 0.048, 0.011, fy + fh / 2, Du + 0.012);
@@ -86,7 +86,7 @@ definePart("glazed_bookpress", {
       const gx0 = x0d + st, gx1 = x1d - st, gy0 = y0d + st * 1.3, gy1 = y1d - st;
       for (let i = 1; i < cols; i++) box(bar, gy1 - gy0, t * 0.9, gx0 + (gx1 - gx0) * i / cols, (gy0 + gy1) / 2, z, "wood_face", { ...o, spread: 0.1 });
       for (let j = 1; j < rows; j++) box(gx1 - gx0, bar, t * 0.9, (gx0 + gx1) / 2, gy0 + (gy1 - gy0) * j / rows, z, "wood_face", { ...o, spread: 0.1 });
-      const gp = new THREE.PlaneGeometry(gx1 - gx0, gy1 - gy0); gp.translate((gx0 + gx1) / 2, (gy0 + gy1) / 2, z - 0.004); c.add(gp, "glazing", o);
+      const gp = new THREE.PlaneGeometry(gx1 - gx0, gy1 - gy0); gp.translate((gx0 + gx1) / 2, (gy0 + gy1) / 2, z - 0.004); c.add(gp, "glazing", { ...o, sheet: true });
       // a small brass knob near the meeting stile
       const k2 = new THREE.SphereGeometry(0.009, 10, 8); k2.translate(hingeLeft ? x1d - 0.03 : x0d + 0.03, (y0d + y1d) / 2 - 0.05, z + 0.017); c.add(k2, "metal", o);
     };

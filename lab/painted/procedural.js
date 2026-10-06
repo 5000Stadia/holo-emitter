@@ -350,23 +350,30 @@ function loft(THREE, path, profile, closed, cap) {
   if (cap && closed) {
     const last = rings[rings.length - 1], v2 = last.map(p => new THREE.Vector2(p[0], p[1]));
     for (const f of THREE.ShapeUtils.triangulateShape(v2, [])) tri(last[f[0]], last[f[1]], last[f[2]]);
+    // and its base, wound the other way, so the field is a closed solid (src/make/mesh-rules.js)
+    const first = rings[0], u2 = first.map(p => new THREE.Vector2(p[0], p[1]));
+    for (const f of THREE.ShapeUtils.triangulateShape(u2, [])) tri(first[f[0]], first[f[2]], first[f[1]]);
   }
   return finish(THREE, pos);
 }
 // a horizontal run (skirting, rail, cornice): profile [[dy, depth], ...] swept along r in [a, b]
 function run(THREE, a, b, base, profile) {
   const pos = [], tri = (p, q, s) => pos.push(...p, ...q, ...s);
-  for (let k = 0; k < profile.length - 1; k++) {
-    const [y0, z0] = profile[k], [y1, z1] = profile[k + 1];
+  // round the whole profile, its back (last point to first) included, so the moulding is a closed solid;
+  // the sides wound by which way the profile runs, so they always face out (src/make/mesh-rules.js)
+  let turn = 0; for (let k = 0; k < profile.length; k++) { const [y0, z0] = profile[k], [y1, z1] = profile[(k + 1) % profile.length]; turn += z0 * y1 - z1 * y0; }
+  for (let k = 0; k < profile.length; k++) {
+    const [y0, z0] = profile[k], [y1, z1] = profile[(k + 1) % profile.length];
+    if (y0 === y1 && z0 === z1) continue;
     const A = [a, base + y0, z0], B = [b, base + y0, z0], C = [b, base + y1, z1], D = [a, base + y1, z1];
-    tri(A, B, C); tri(A, C, D);
+    if (turn > 0) { tri(A, B, C); tri(A, C, D); } else { tri(A, C, B); tri(A, D, C); }
   }
-  // end caps
+  // end caps, facing out along the run (they were wound inward, and so never drawn, until 2026-10-06)
   const poly = profile.map(([y, z]) => new THREE.Vector2(z, y));
   for (const f of THREE.ShapeUtils.triangulateShape(poly, [])) {
     const P = f.map(i => profile[i]);
-    tri(...[0, 2, 1].map(i => [a, base + P[i][0], P[i][1]]));
-    tri(...[0, 1, 2].map(i => [b, base + P[i][0], P[i][1]]));
+    tri(...[0, 1, 2].map(i => [a, base + P[i][0], P[i][1]]));
+    tri(...[0, 2, 1].map(i => [b, base + P[i][0], P[i][1]]));
   }
   return finish(THREE, pos, true);
 }
