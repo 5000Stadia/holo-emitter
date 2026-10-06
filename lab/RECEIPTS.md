@@ -510,3 +510,23 @@ Build times in Firefox on software rendering:
 | All the kinds | 14 ms |
 
 **Time:** about 25 min.
+
+## Frame rate on a real GPU, and the cause of the slowdown (2026-10-05)
+
+Headless Chromium can drive this machine's AMD Radeon RX 460, through ANGLE on Vulkan, with WebGPU too on https. Every frame-rate number before this one was SwiftShader on the CPU.
+
+**The strongroom at 1280×720, 2× pixel density:**
+
+| Setting | fps | p99 frame |
+|---|---|---|
+| As built | 4 | 309 ms |
+| GTAO off | 49 | 62 ms |
+| + MSAA off | 56 | 36 ms |
+| + shadows off | 63 | 33 ms |
+| + area lights off | 63 | 33 ms |
+| + bounce bake off | 84 | 24 ms |
+| As built, 1× density | 64 | 47 ms |
+
+GTAO (16 samples at double resolution) was over 90% of the frame. It's now off unless `?ao=1`, and laptop density is capped at 1.5. Result: **85 fps** on the laptop (p99 23 ms); the phone-shaped touch page runs at **655 fps** on this GPU.
+
+New switches for the bench: `?dpr=`, `?ao=`, `?msaa=0`, `?shadows=0`, `?area=0`, `?gi=`.
