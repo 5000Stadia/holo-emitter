@@ -914,3 +914,52 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - the passage is 2.4 × 0.4 × 0.45 m;
   - the little door locks when it is shut;
   - Alice's usual height is 1.2 m.
+
+## R46 (in progress): the manor's outside, its ground and hillside, textures off the main thread (2026-10-07)
+
+- **Done**
+  - **The house from outside** (`src/make/exterior.js`):
+    - stone-slate roofs over the plan's ranges, meeting in valleys;
+    - coped gables with ball finials;
+    - 12 stacks;
+    - glazing with mullions;
+    - limestone ashlar on the carve's outer faces.
+  - **The ground** (`terrain.js`, `terrain-mesh.js`):
+    - deterministic world-coordinate noise (PCG, heights in mm);
+    - the house on its terrace;
+    - a graded drive;
+    - quadtree tiles with skirts, in a render bundle on WebGPU.
+  - **Walking out** through the porch and down the drive.
+  - **The forecourt's railed wall**, piers and working gates.
+  - **The hillside** (`fields.js`, `hillside.js`): closes with dry-stone walls and hawthorn hedges, field gates, hedgerow trees, ridge and furrow.
+  - **The texture kit's textures drawn in workers**, cached by recipe.
+- **Kabe's direction, 2026-10-07:** "isolated demos for the time being". Joining the manor to London waits.
+- **AI at authoring:** a consultation (two views, $2.11); three research and prior-art passes; four builder helpers (the hillside, the textures, the street, checks 1–16). The network dropped every helper twice; each resumed.
+- **Clock time:** begun 00:16, the outside through the forecourt by 00:37, then the hillside and the textures merged by 09:03 (with Kabe asleep between; the helpers ran about 1.5 h and 0.6 h).
+- **New code:** about 1,590 lines.
+  - noise 28;
+  - terrain 81, tiles 78, fields 50;
+  - exterior 129, forecourt 45;
+  - outdoor parts 43, outdoor kinds 30;
+  - hillside 531;
+  - texture workers 577.
+- **Costs**
+
+  | Step | Cost | Note |
+  |---|---|---|
+  | Shell from the plan | 4.7 ms | data |
+  | Shell build | 15–48 ms | |
+  | A height sample | about 4 µs | |
+  | A ground tile | 2.5 ms | |
+  | A hillside tile | near 6–8 ms, far 0.6 ms | |
+  | `blocked()` | about 0.1 µs | |
+  | Hillside per frame | about 2.3 ms | RX 460 |
+
+  - Outdoors at 49 fps against 51 indoors on the loaded desktop. Bundling the ground took it from 244 tile draws at 23 fps to 88 tiles.
+  - Textures: the manor walkable in 7.6 s on a first visit against 16.8 s (WebGPU), 26 of 28 views byte-identical (the other 2 within the page's own noise). Alice's hall 4.1 s, cached 1.5 s.
+- **What's left before the first frame (measured under load):**
+  - about 0.9 s wiring;
+  - 1 s of first tiles;
+  - about 3 s of the first render's pipeline compiling.
+
+  `compileAsync` ahead of it was worse (13 s). Fewer distinct materials is the way, per the fps lab's shared-material result.
