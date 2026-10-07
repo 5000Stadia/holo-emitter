@@ -1,6 +1,15 @@
 # Checks proposed, waiting for Kabe's vetting
 
-None of these is in the test list yet. Each belongs to a kind or a part (plan §6). They join the tests only once Kabe has said yes.
+Each belongs to a kind or a part (plan §6). A check joins the tests only once Kabe has said yes.
+
+**Vetted 2026-10-06** (Kabe: "checks yes"): 17, 19, 20, 21, 22, 23. They run together in `tests/playwright/checks.spec.mjs`.
+**Declined 2026-10-06:** 18 (Kabe: "The slow 18 i dont like"). Check 17 covers the same faults in about 45 ms, so `__seal` is no longer a check. It stays on the manor page as a tool to reach for by hand.
+
+| # | Belongs to | The check | Why |
+|---|---|---|---|
+| 24 | every house, in play | **Crossing a threshold never jumps the light** (`src/make/lightpool.js`, `tests/.light-jump.mjs`). Walk through a doorway in steps with every door open. Crossing must leave the lights' assignment unchanged, and each later change must fade (0.6 s) rather than switch. Cost: one ranking of the windows in view per frame you move, a few dozen numbers. | Kabe, 2026-10-06: "Kitchen passage to kitchen jumps in the lighting again". The pool was handed out room you stand in first, so stepping in moved 3 lights to the kitchen in one frame. |
+
+## Proposed earlier (1–23)
 
 | # | Belongs to | The check | Why |
 |---|---|---|---|

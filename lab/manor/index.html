@@ -53,6 +53,7 @@ import { makeWalk } from "../../src/make/walk.js";
 import { planBanqueting } from "../../src/make/plans/banqueting.js";
 import { framesOf } from "../../src/make/walls.js";
 import { coplanar } from "../../src/make/coplanar.js";
+import { makePool } from "../../src/make/lightpool.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
@@ -104,30 +105,27 @@ Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, botto
 sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
 scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
 // the light that follows what you see (Kabe, 2026-10-06: "all of the lighting elements should be deployed as
-// long as they are within the visual space"): a fixed pool, so the count of lights never changes and nothing
-// recompiles. Window light: the room you stand in first, then every room seen through an open doorway,
-// nearest first, its windows largest first, until the pool is full. Fire: the lit hearths of the rooms you
-// can see, nearest first, each with its own flicker.
+// long as they are within the visual space"; "kitchen passage to kitchen jumps in the lighting again"): a fixed
+// pool, so the count of lights never changes and nothing recompiles (src/make/lightpool.js). The windows and lit
+// hearths of every room in view are ranked by what each gives where you stand, not by which room you are in, and
+// every change fades, so crossing a threshold or opening a door never jumps.
 const rig = Array.from({ length: 8 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
 const fires = Array.from({ length: 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
-let firesOn = [];
-function lightRoom(id, seen = new Set([id])) {
-  const order = [id, ...[...seen].filter(r => r !== id)], per = order.map(r => manor.windows.filter(w => w.room === r).sort((a, b) => b.w * b.h - a.w * a.h));
-  const mine = per[0].slice(0, 4);
-  // then round the rooms seen, a window each turn, so every room in view gets its light before any gets a second
-  for (let k = 0; mine.length < rig.length && k < 6; k++) for (let i = 1; i < per.length && mine.length < rig.length; i++) if (per[i][k]) mine.push(per[i][k]);
-  for (let k = 4; mine.length < rig.length && per[0][k]; k++) mine.push(per[0][k]);
-  rig.forEach((l, i) => { const w = mine[i]; if (!w) { l.intensity = 0; return; } l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); l.intensity = 9; });
-  const lit = order.flatMap(r => manor.hearths.filter(h => h.room === r && h.lit)).slice(0, fires.length);
-  firesOn = lit; fires.forEach((l, i) => { const h = lit[i]; if (!h) { l.intensity = 0; return; } l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); l.userData.base = h.big ? 16 : 8; });
-}
+const winItems = manor.windows.map((w, i) => ({ key: i, room: w.room, at: w.c, size: w.w * w.h, base: 9, w }));
+const fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
+const winPool = makePool(rig, { place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
+const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
+let inView = new Set(), lightsDirty = true, snapLights = true;
+function lightView(at) { winPool.update(winItems.filter(it => inView.has(it.room)), at); firePool.update(fireItems.filter(it => inView.has(it.room)), at); }
 // the fires flicker, and the flames with them, while any is in view
 function flicker(now) {
   const t = now / 1000; let any = false;
-  fires.forEach((l, i) => { if (!firesOn[i]) return; any = true; l.intensity = l.userData.base * (0.82 + 0.1 * Math.sin(t * 7.3 + i * 2) + 0.08 * Math.sin(t * 13.1 + i)); });
+  fires.forEach((l, i) => { if (!l.intensity) return; any = true; l.intensity *= 0.82 + 0.1 * Math.sin(t * 7.3 + i * 2) + 0.08 * Math.sin(t * 13.1 + i); });
   for (const f of manor.flames) { if (!f.parent.parent.visible) continue; any = true; const p = f.userData.phase; f.scale.set(1, 0.8 + 0.25 * Math.sin(t * 9 + p) + 0.1 * Math.sin(t * 17 + p * 2), 1); }
   return any;
 }
+window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2) }),
+  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }) });
 
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
 const store = world.store();
@@ -153,7 +151,7 @@ const start = plan.rooms.find(r => r.id === Q.get("room")) || plan.rooms.find(r 
 let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
-window.__place = (x, y, yd, pd = 0, floor = null) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); };
+window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
 const keys = {};
 addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
 addEventListener("keyup", e => { keys[e.code] = false; });
@@ -180,7 +178,7 @@ let here = null;
 function refreshView(force = false) {
   const r = roomAt(px, py, ph);
   if (!r || (!force && r.id === here)) return;
-  here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); lightRoom(here, seen);
+  here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); inView = seen; lightsDirty = true;
   $("where").querySelector(".n").textContent = r.name; $("where").querySelector(".f").textContent = `${r.floor} floor`;
   ENG.invalidate();
 }
@@ -276,10 +274,13 @@ renderer.setAnimationLoop((now) => {
   camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
+  if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
+  if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
+  const fading = winPool.step(dt) | firePool.step(dt);
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
-  ENG.frame(scene, camera, { changed: moved || burning || works.busy() || !window.__ok });
+  ENG.frame(scene, camera, { changed: moved || burning || fading || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
