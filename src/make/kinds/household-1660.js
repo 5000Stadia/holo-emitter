@@ -12,25 +12,27 @@ export default [
     processes: { burn: { initial: 1, phases: [{ to: 0.1, rate: 0.0003 }], drives: [{ mover: "candle", scale: [0, 1, 0] }, { mover: "flame", axis: [0, 1, 0], travel: "$length" }] } } },
   { kind: "key/iron", v: 1, noun: "the key", why: "a wrought-iron key, about 11 cm: a looped bow, a round shank, a warded bit",
     size: [0.11, 0.02, 0.04], settings: {}, traits: [],
+    // by relations: the shank let 4 mm into the bow's far rim, the bit on the shank's end
     parts: [
-      { part: "torus", role: "iron", r: 0.016, tube: 0.004, radial: 6, tubular: 18, ops: [["rx", P / 2], ["t", -0.04, 0.004, 0]] },
-      { part: "cylinder", role: "iron", r: 0.004, h: 0.061, segments: 8, ops: [["rz", -P / 2], ["t", -0.024, 0.004, 0]] },
-      { part: "box", role: "iron", size: [0.014, 0.008, 0.02], at: [0.044, 0, 0.01] }] },
+      { id: "bow", part: "torus", role: "iron", r: 0.016, tube: 0.004, radial: 6, tubular: 18, ops: [["rx", P / 2], ["t", -0.04, 0.004, 0]] },
+      { id: "shank", part: "cylinder", role: "iron", r: 0.004, h: 0.061, segments: 8, ops: [["rz", -P / 2], ["t", -0.024, 0.004, 0]], meets: { to: "bow", face: "right" }, sink: 0.004 },
+      { part: "box", role: "iron", size: [0.014, 0.008, 0.02], at: [0.044, 0, 0.01], meets: { to: "shank", face: "right" } }] },
   { kind: "jug/earthen", v: 1, noun: "the jug", why: "a jug for ale or water: salt-glazed stoneware, red earthenware or yellow slipware",
     size: [0.16, 0.22, 0.14], settings: { body: { one_of: ["stoneware", "earthenware", "slipware"] } }, traits: ["heavy"],
+    // by relations: the handle let 6 mm into the belly's widest side
     parts: [
-      { part: "lathe", role: "$body", profile: [[0, 0], [0.045, 0], [0.06, 0.03], [0.068, 0.08], [0.06, 0.13], [0.04, 0.17], [0.036, 0.2], [0.04, 0.21], [0, 0.21]] },
-      { part: "torus", role: "$body", r: 0.035, tube: 0.008, radial: 6, tubular: 14, arc: P, ops: [["rz", -P / 2], ["t", 0.062, 0.13, 0]] }] },
+      { id: "body", part: "lathe", role: "$body", profile: [[0, 0], [0.045, 0], [0.06, 0.03], [0.068, 0.08], [0.06, 0.13], [0.04, 0.17], [0.036, 0.2], [0.04, 0.21], [0, 0.21]] },
+      { part: "torus", role: "$body", r: 0.035, tube: 0.008, radial: 6, tubular: 14, arc: P, ops: [["rz", -P / 2], ["t", 0.062, 0.13, 0]], meets: { to: "body", face: "right" }, sink: 0.006 }] },
   { kind: "tankard/pewter-lidded", v: 1, noun: "the tankard", why: "a pewter tankard with a hinged lid and a thumbpiece",
     size: [0.14, 0.15, 0.1], settings: {}, traits: ["daily"],
     parts: [
       { id: "body", part: "lathe", role: "pewter", profile: [[0, 0.012], [0.038, 0.012], [0.04, 0.138], [0.046, 0.14], [0.042, 0.13], [0.044, 0.02], [0.05, 0.01], [0.048, 0], [0, 0]] },
-      { part: "cylinder", role: "brine", r: 0.038, r_top: 0.0393, h: 0.088, segments: 16, at: [0, 0.012, 0] },
-      // the hinge pin sits on the rim (a contact on a curve, so by its coordinates)
+      // (the brine on the vessel's 1.2 cm floor; the thumbpiece let into the lid; the handle let 7 mm into the side)
+      { part: "cylinder", role: "brine", r: 0.038, r_top: 0.0393, h: 0.088, segments: 16, at: [0, 0.012, 0], in: "body", sink: -0.012 },
       { part: "mover", name: "lid", pivot: [0.046, 0.14, 0] },
       { id: "cap", part: "lathe", role: "pewter", mover: "lid", profile: [[0, 0.14], [0.048, 0.14], [0.04, 0.152], [0, 0.156]], on: "body" },
-      { part: "box", role: "pewter", mover: "lid", size: [0.02, 0.014, 0.012], at: [0.05, 0.144, 0] },
-      { part: "torus", role: "pewter", r: 0.035, tube: 0.007, radial: 6, tubular: 12, arc: P, ops: [["rz", -P / 2], ["t", 0.043, 0.075, 0]] }],
+      { part: "box", role: "pewter", mover: "lid", size: [0.02, 0.014, 0.012], at: [0.05, 0.144, 0], on: "cap", sink: 0.012 },
+      { part: "torus", role: "pewter", r: 0.035, tube: 0.007, radial: 6, tubular: 12, arc: P, ops: [["rz", -P / 2], ["t", 0.043, 0.075, 0]], meets: { to: "body", face: "right" }, sink: 0.007 }],
     affordances: { lid: { mover: "lid", motion: "hinge", axis: [0, 0, 1], angle: -1.2, verbs: ["lift the lid", "close the lid"] } } },
   { kind: "bottle/onion", v: 1, noun: "the bottle", why: "an onion bottle of green glass, or a stoneware bellarmine",
     size: [0.1, 0.24, 0.1], settings: { body: { one_of: ["glass", "glass", "glass", "stoneware", "stoneware"] } }, traits: ["fragile"],
@@ -52,16 +54,17 @@ export default [
   { kind: "pot/of-nails", v: 1, noun: "the pot of nails", why: "an earthen pot of nails",
     size: [0.1, 0.1, 0.1], settings: {}, traits: ["heavy"],
     parts: [
-      { part: "lathe", role: "earthenware", profile: [[0, 0], [0.045, 0], [0.045, 0.09], [0.04, 0.09], [0.04, 0.01], [0, 0.01]] },
-      { part: "cylinder", role: "iron", r: 0.04, h: 0.01, segments: 14, at: [0, 0.075, 0] }] },
+      { id: "pot", part: "lathe", role: "earthenware", profile: [[0, 0], [0.045, 0], [0.045, 0.09], [0.04, 0.09], [0.04, 0.01], [0, 0.01]] },
+      // the nails' surface, 1.5 cm below the rim
+      { part: "cylinder", role: "iron", r: 0.04, h: 0.01, segments: 14, at: [0, 0.075, 0], on: "pot", sink: 0.015 }] },
   { kind: "globe/terrestrial", v: 1, noun: "the globe", why: "a terrestrial globe in its brass meridian, on a turned stand: a great house's curiosity",
     size: [0.24, 0.34, 0.24], settings: {}, traits: ["fragile"],
     parts: [
       { id: "stand", part: "lathe", role: "treen", profile: [[0, 0], [0.09, 0], [0.08, 0.02], [0.02, 0.04], [0.016, 0.11], [0, 0.11]], on: "floor" },
       { part: "mover", name: "globe", pivot: { at: "ball", x: "mid", y: "mid", z: "mid" } },
       { id: "ball", part: "sphere", role: "globe", mover: "globe", r: 0.1, w: 24, h: 16, at: [0, 0, 0], on: "stand" },
-      // the meridian ring about the ball's centre (a contact on a curve, so by its centre)
-      { part: "torus", role: "metal", r: 0.106, tube: 0.006, radial: 6, tubular: 32, ops: [["rx", P / 2 - 0.4], ["t", 0, 0.21, 0]] }],
+      // the meridian ring about the ball's centre: centred over it, its foot 14.7 cm below the ball's crown
+      { part: "torus", role: "metal", r: 0.106, tube: 0.006, radial: 6, tubular: 32, ops: [["rx", P / 2 - 0.4], ["t", 0, 0.21, 0]], on: "ball", sink: 0.147, align: { x: 0.5, z: 0.5 } }],
     affordances: { spin: { mover: "globe", motion: "hinge", axis: [0, 1, 0], angle: 6.2832, speed: 2, states: ["still", "turned"], verbs: ["turn the globe", "turn the globe"] } } },
   { kind: "clock/lantern", v: 1, noun: "the clock", why: "a brass lantern clock; it hangs on the wall, never a shelf",
     size: [0.16, 0.38, 0.15], settings: {}, traits: ["wall"],
@@ -73,26 +76,26 @@ export default [
   { kind: "porcelain/jar", v: 1, noun: "the china jar", why: "a blue-and-white Chinese jar: a rich house's curiosity",
     size: [0.16, 0.18, 0.16], settings: {}, traits: ["fragile"],
     parts: [
-      { part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.05, 0], [0.075, 0.06], [0.07, 0.13], [0.04, 0.16], [0.04, 0.17], [0, 0.17]] },
-      { part: "torus", role: "porcelain_blue", r: 0.072, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.09, 0]], within: "a painted band, proud of the glaze by a hair" }] },
+      { id: "jar", part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.05, 0], [0.075, 0.06], [0.07, 0.13], [0.04, 0.16], [0.04, 0.17], [0, 0.17]] },
+      { part: "torus", role: "porcelain_blue", r: 0.072, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.09, 0]], on: "jar", sink: 0.084, align: { x: 0.5, z: 0.5 }, within: "a painted band, proud of the glaze by a hair" }] },
   { kind: "porcelain/bowl", v: 1, noun: "the china bowl", why: "a blue-and-white Chinese bowl: a rich house's curiosity",
     size: [0.16, 0.08, 0.16], settings: {}, traits: ["fragile"],
     parts: [
-      { part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.035, 0], [0.065, 0.03], [0.08, 0.075], [0.076, 0.077], [0.06, 0.035], [0, 0.012]] },
-      { part: "torus", role: "porcelain_blue", r: 0.079, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.07, 0]], within: "a painted band, proud of the glaze by a hair" }] },
+      { id: "bowl", part: "lathe", role: "porcelain", segments: 24, profile: [[0, 0], [0.035, 0], [0.065, 0.03], [0.08, 0.075], [0.076, 0.077], [0.06, 0.035], [0, 0.012]] },
+      { part: "torus", role: "porcelain_blue", r: 0.079, tube: 0.004, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, 0.07, 0]], on: "bowl", sink: 0.011, align: { x: 0.5, z: 0.5 }, within: "a painted band, proud of the glaze by a hair" }] },
   { kind: "shell/curiosity", v: 1, noun: "the shell", why: "a great shell from the Indies: a curiosity",
     size: [0.16, 0.08, 0.1], settings: {}, traits: [],
     parts: [{ part: "sphere", role: "shell", r: 0.06, w: 16, h: 10, scale: [1.3, 0.6, 0.8], at: [0, 0.035, 0] }] },
   { kind: "letters/bundle", v: 1, noun: "the letters", why: "a bundle of letters tied with tape: a widow's keepsake",
     size: [0.12, 0.04, 0.09], settings: {}, traits: [],
     parts: [
-      { part: "box", role: "paper", size: [0.11, 0.035, 0.08] },
-      { part: "box", role: "tape", size: [0.012, 0.037, 0.082], within: "the tape tied round the bundle" }] },
+      { id: "bundle", part: "box", role: "paper", size: [0.11, 0.035, 0.08] },
+      { part: "box", role: "tape", size: [0.012, 0.037, 0.082], on: "floor", within: "the tape tied round the bundle" }] },
   // shelving and bookcases: the structure, then the habit that dresses it from whoever keeps it
   { kind: "shelves/wall-boards", v: 1, noun: "the shelves", fixed: true, why: "boards on iron brackets fixed to a wall: a poor house's shelves",
-    settings: { W: 0.9, D: 0.24, ys: { is: [0.95, 1.25] } }, rests: "wall", parts: [{ part: "shelf_boards" }, { part: "shelf_habit" }] },
+    settings: { W: 0.9, D: 0.24, ys: { is: [0.95, 1.25] } }, rests: "wall", parts: [{ part: "shelf_boards" }, { part: "shelf_habit", frame: "the habit places the books and things it keeps in the kind's frame, shelf by shelf, from the shelves the part before it reports" }] },
   { kind: "shelves/open-case", v: 1, noun: "the shelves", fixed: true, why: "an open case of shelves: a working house's, or a library's section",
-    settings: { W: 1.1, H: 1.95, D: 0.3, ys: { is: [0.08, 0.53, 0.88, 1.18, 1.44, 1.7] } }, parts: [{ part: "shelf_case" }, { part: "shelf_habit" }] },
+    settings: { W: 1.1, H: 1.95, D: 0.3, ys: { is: [0.08, 0.53, 0.88, 1.18, 1.44, 1.7] } }, parts: [{ part: "shelf_case" }, { part: "shelf_habit", frame: "the habit places the books and things it keeps in the kind's frame, shelf by shelf, from the shelves the part before it reports" }] },
   { kind: "press/glazed-pepys", v: 1, noun: "the bookpress", fixed: true,
     why: "a glazed bookpress after Samuel Pepys's, made by Thomas Simpson in 1666: the first English glazed bookcases; a deeper folio base, 3 × 7 panes in each upper door, carved acanthus",
     settings: { W: 1.2, H: 2.28 }, parts: [{ part: "glazed_bookpress" }],
