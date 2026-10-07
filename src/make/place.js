@@ -203,9 +203,9 @@ export function placeRoom({ room, spec, plan, H, tiers, sizeOf, sweptOf = () => 
     const kind = kindOf(entry.kind), rule = entry.rule = { ...ruleOf(kind), ...(entry.place || {}) }, W0 = kind?.settings?.W, n0 = entry.n ?? 1;
     if (rule.anchor === "in" || entry.in) { const host = [...placed].reverse().find(p => p.kind === (entry.in?.kind || rule.of));
       if (!host) { refused.push({ kind: entry.kind, tier: entry.tier, why: `no ${entry.in?.kind || rule.of} to be in` }); return 0; }
-      const p = { kind: entry.kind, tier: entry.tier, inside: { host: placed.indexOf(host), slot: entry.in?.slot || rule.slot || "drawer" } }; if (entry.story) p.story = entry.story; out.push(p); placed.push(p); return 1; }
+      const p = { kind: entry.kind, tier: entry.tier, inside: { host: placed.indexOf(host), slot: entry.in?.slot || rule.slot || "drawer" } }; if (entry.story) p.story = entry.story; if (entry.settings) p.settings = entry.settings; out.push(p); placed.push(p); return 1; }
     const size = sizeOf(entry.kind, entry.over || {}); if (!size) { refused.push({ kind: entry.kind, tier: entry.tier, why: "no size" }); return 0; }
-    if (rule.anchor === "hung") { const got = hangPlace(entry, size, n0, kind?.settings?.at_y ?? null); for (const g of got) { const p = { kind: entry.kind, tier: entry.tier, ...g }; if (entry.story) p.story = entry.story; out.push(p); placed.push(p); }
+    if (rule.anchor === "hung") { const got = hangPlace(entry, size, n0, kind?.settings?.at_y ?? null); for (const g of got) { const p = { kind: entry.kind, tier: entry.tier, ...g }; if (entry.story) p.story = entry.story; if (entry.settings) p.settings = entry.settings; out.push(p); placed.push(p); }
       if (got.length < n0) refused.push({ kind: entry.kind, tier: entry.tier, why: `${n0 - got.length} found no clear stretch of wall${(rule.must || []).length ? " that keeps its rules" : ""}` }); return got.length; }
     let k = 0;
     for (let i = 0; i < n0; i++) {
@@ -225,7 +225,7 @@ export function placeRoom({ room, spec, plan, H, tiers, sizeOf, sweptOf = () => 
       // (a piece claims a finger's breadth round itself: two set exactly side by side share a face, which flickers)
       const around = (P, g) => { const c = P.reduce((a, [u, v]) => [a[0] + u / P.length, a[1] + v / P.length], [0, 0]); return P.map(([u, v]) => { const du = u - c[0], dv = v - c[1], l = Math.hypot(du, dv) || 1; return [u + du / l * g * 1.42, v + dv / l * g * 1.42]; }); };
       if (p.P) claim(rule.layer === "floor" ? p.P : around(p.P, 0.02), rule.layer === "floor" ? 0 : 2); if (p.sweep) claim(p.sweep, 1);
-      if (entry.story) p.story = entry.story; out.push(p); placed.push(p); k++;
+      if (entry.story) p.story = entry.story; if (entry.settings) p.settings = entry.settings; out.push(p); placed.push(p); k++;
     }
     return k;
   }

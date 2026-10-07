@@ -69,7 +69,7 @@ import { settled, warmTextures } from "../painted/texjobs.js";
 import { LIB as OUT } from "../painted/outgen.js";
 import { buildForecourt } from "../../src/make/forecourt.js";
 import { makeFields } from "../../src/make/fields.js";
-import { caseRequired, playCase } from "../../src/make/case-play.js";
+import { caseRequired, playCase, caseSettings } from "../../src/make/case-play.js";
 import { checkCase, fairPlay } from "../../src/make/case.js";
 import { makeNarrator } from "../../src/make/narrator.js";
 import { makePresence } from "../../src/make/presence.js";
@@ -81,7 +81,7 @@ import { rng as rngOf, seedOf } from "../../src/make/id.js";
 import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
-import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
+import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, kindOf, hashOf, GENERATOR } from "../../src/make/index.js";
 import { cues } from "../ui/cues.js";
 import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton } from "../touch.js";
 fullscreenButton();
@@ -254,12 +254,14 @@ if (CASE) {
   for (const t of CASE.things || []) { if (byStory.has(t.id) || !plan.rooms.some(r => r.id === t.at)) continue;
     const c = manor.things.filter(b => !used.has(b) && b.kind.kind === t.kind && (b.address || "").includes(`/${t.at}/`));
     const pick = (/_N/.test(t.id) && c.find(b => /\bN|\/N/.test(b.address))) || c[0];
-    if (pick) { pick.story = t.id; pick.node.userData.story = t.id; byStory.set(t.id, pick); used.add(pick); } }
+    if (pick) { pick.story = t.id; pick.node.userData.story = t.id; byStory.set(t.id, pick); used.add(pick);
+      // the case's settings for it (its keys, how it starts), applied to what its own builder made
+      const cs = caseSettings(t); if (Object.keys(cs).length) { pick.settings = { ...pick.settings, ...cs }; works.add(pick); } } }
   // and what those hold, built and seated in their slots
   const knownKinds = new Set(kinds().map(k => k.kind));
   for (let pass = 0; pass < 4; pass++) for (const t of CASE.things || []) { if (byStory.has(t.id) || !knownKinds.has(t.kind)) continue; const host = byStory.get(t.at); if (!host) continue;
-    const b = build(THREE, K, look1660, t.kind, `case/${t.id}`, {}); b.story = t.id; b.node.userData.story = t.id;
-    const sl = host.slots?.get(t.slot || "top") || host.slots?.get("top") || host.slots?.get("inside");
+    const b = build(THREE, K, look1660, t.kind, `case/${t.id}`, caseSettings(t)); b.story = t.id; b.node.userData.story = t.id;
+    const sl = host.slots?.get(t.slot || kindOf(t.kind)?.place?.slot || "top") || host.slots?.get("top") || host.slots?.get("inside");
     if (sl) { b.node.position.set(...sl.at); sl.node.add(b.node); }
     else { const bb = new THREE.Box3().setFromObject(host.node); b.node.position.set((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2); scene.add(b.node); }
     works.add(b); manor.things.push(b); byStory.set(t.id, b); }

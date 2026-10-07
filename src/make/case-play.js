@@ -12,13 +12,18 @@ import { cluesOf } from "./case.js";
 
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 
+// a case thing's own fields as the settings its kind reads: the lock a key fits, the keys a chest's padlocks need, how
+// it starts (a drawer open, a candle two-thirds burnt), and any settings it names
+export const caseSettings = (t) => ({ ...(t.settings || {}), ...(t.key ? { fits: t.key } : {}), ...(t.locks_need ? { keys: t.locks_need } : {}), ...(t.state ? { start: t.state } : {}) });
+
 // what the case puts in the house: each thing in its room, or in a slot of another of the case's things
 export function caseRequired(k, plan, known = null) {   // known: the catalogue's kinds; a thing of a kind not yet written is skipped (and listed by the page)
   const things = arr(k.things), byId = new Map(things.map(t => [t.id, t])), rooms = new Set(plan.rooms.map(r => r.id)), out = [];
   const roomOf = (t, n = 0) => rooms.has(t.at) ? t.at : byId.has(t.at) && n < 6 ? roomOf(byId.get(t.at), n + 1) : null;
   for (const t of things) { const room = roomOf(t); if (!room || !t.kind || (known && !known.has(t.kind))) continue;
-    const host = byId.get(t.at);
-    out.push(host ? { kind: t.kind, room, in: { kind: host.kind, slot: t.slot || "drawer" }, story: t.id } : { kind: t.kind, room, story: t.id, ...(t.place ? { place: t.place } : {}) }); }
+    const host = byId.get(t.at), settings = caseSettings(t);
+    out.push(host ? { kind: t.kind, room, in: { kind: host.kind, ...(t.slot ? { slot: t.slot } : {}) }, story: t.id, settings }
+      : { kind: t.kind, room, story: t.id, settings, ...(t.place ? { place: t.place } : {}) }); }
   // hosts first, so a thing in a drawer finds its desk placed
   return out.sort((a, b) => (a.in ? 1 : 0) - (b.in ? 1 : 0));
 }
