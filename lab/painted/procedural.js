@@ -582,7 +582,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         const stoneS = grime(THREE, new THREE.MeshStandardMaterial({ ...dressed, roughness: 0.88, vertexColors: true, normalScale: new THREE.Vector2(0.9, 0.9) }),
           [cx, fb.apex + 0.16, half * 1.05, 0.34, 0.6], false);
         stoneS.userData.cls = "stone";
-        const mortar = new THREE.MeshStandardMaterial({ map: M.stone.map, color: 0x8a8070, roughness: 1 }); mortar.userData.cls = "stone";   // lime mortar, weathered: a joint, not a groove
+        // lime mortar, weathered: a joint, not a groove (one material for every chimney-piece: it was made afresh for each)
+        const mortar = K.mortar || (K.mortar = Object.assign(new THREE.MeshStandardMaterial({ map: M.stone.map, color: 0x8a8070, roughness: 1 }), { userData: { cls: "stone" } }));
         const g = offsetLine(opening, MO, false), gl = g[0][0], gr = g[g.length - 1][0];
         // a mortar bed behind the blocks, so every joint reads as a joint
         add(slab(THREE, [[e.r0, 0], [gl, 0], ...g.slice(1, -1), [gr, 0], [e.r1, 0], [e.r1, e.surround_top], [e.r0, e.surround_top]], [], SD - 0.012), mortar);
