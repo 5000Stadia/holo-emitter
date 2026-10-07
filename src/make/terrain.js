@@ -38,8 +38,9 @@ export function makeSite(plan, { seed = 1660, blend = 34, relief = 26 } = {}) {
     const d = padD(x, y), w = smooth(0, blend, d); let n = natural(x, y);
     if (drive) { const dd = dRect(drive, x, y); if (dd < 7) { const mid = (drive.x0 + drive.x1) / 2, yy = Math.min(drive.y1, Math.max(drive.y0, y)), on = natural(mid, yy) * smooth(0, blend, padD(mid, yy)) / Math.max(1e-6, w);
       n += (on - n) * (1 - smooth(1.5, 7, dd)); } }
-    return n * w;
+    return (n + (more ? more(x, y) : 0)) * w;
   }
+  let more = null;              // what the land's use adds to its height (src/make/fields.js: ridge and furrow)
   // under the house the ground goes down out of the way (its floors stand at nought: a ground there would fight them),
   // within the walls' thickness, where the stone hides it
   const DOWN = 0.45, into = (x, y) => { let d = Infinity;
@@ -49,7 +50,7 @@ export function makeSite(plan, { seed = 1660, blend = 34, relief = 26 } = {}) {
   const z = (x, y) => { const d = into(x, y); return mm(d > 0 ? zRaw(x, y) - DOWN * smooth(0.05, 0.6, d) : zRaw(x, y)) / 1000; };
   const gravel = (x, y) => { let g = 0; for (const r of open) if (r.room_type === "court") g = Math.max(g, 1 - smooth(-0.2, 0.4, dRect(r.rect, x, y)));
     if (drive) g = Math.max(g, 1 - smooth(-0.3, 0.5, dRect(drive, x, y))); return g; };
-  return { z, gravel, inHouse, padD, pads, drive, box, outline, extra };
+  return { z, gravel, inHouse, padD, pads, drive, box, outline, extra, relief: (f) => { more = f; } };
 }
 
 // the heights of a tile (a grid of n+1 by n+1 posts, spacing s, from (x0, y0)), and its gravel weights: pure, for a
