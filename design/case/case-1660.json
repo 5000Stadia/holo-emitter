@@ -1,0 +1,2473 @@
+{
+  "_schema": {
+    "what": "One case in the case/1 shape (design/case/family-read.md §5), authored once as data and played with no model. Read by src/make/case.js (checkCase, fairPlay), src/make/talk.js (topicsFor, answer, truthCheck), src/make/narrator.js (checkNarrator, makeNarrator) and src/make/case-play.js (caseRequired, playCase; the panel lab/ui/talk-panel.js). Fields the contract sketch does not have are marked + here.",
+    "ids": "Cast ids are bare (daniel); talk.js makes a topic person:<id> for asking about someone. In triples a person is person:<id>, a thing thing:<id>, a room room:<plan room id>, an event event:<id>; times are literals 'HH:MM' on the night of Friday 28 September 1660 (Julian) or the morning after. Room ids and opening ids are the plan's (src/make/plans/hybrid-e.js, built with GENTRY_SEAT_1660).",
+    "fact": "+ For a clue or claim, fact is the plain statement a voice may use (talk.js hands {id, text: fact} to the voice call and truthCheck holds it to them); triple is the same thing as a pattern-buffer assertion [subject, attribute, value] (the contract's fact:[s,a,v]).",
+    "hook": "The no-model line. A person's clue: what they say when they tell it (talk.js says hook). A thing's clue: what you read when you look at the thing, open it or take it.",
+    "effect": "genuine (a true cause of the ending) | false (a red herring held as a cause; names debunked_by) | context (texture; never fills a pillar alone). construct's coverage_effect.",
+    "tier": "+ essential (on a solution path, or a lie the path must break) | lead (points the way) | texture (colour and red herrings). Kept apart so the essentials are never buried (design/case/prior-art-interrogation.md §9).",
+    "gate": "{topic, stance, requires:{learned:[clue ids], holding:[thing ids]}}: the clue is told when its topic is raised with one of its stances and every requirement is met. Stances: ask | press | show | accuse (chat never releases a clue). One gate per clue: case.js and talk.js read all-of requirements only.",
+    "claims": "+ What a person says on a topic where none of their clues is open: false:true is a lie, with why (the reason they tell it), press (the detail pressing gets, for when talk.js reads it), yield (what they say once it is broken: talk.js act refuse, and it stays broken) and broken_by (the clues or held things whose showing breaks it: talk.js answer(..., { stance: 'show', shown })). Anything else shown against a lie closes the person up for three turns with their guarded line. talk.js reads the first claim per topic, so each person has at most one claim a topic.",
+    "knows": "+ The person's own frame (knows:<id>): the true facts they hold, each {id, triple, text}. hides: which of them they keep back, why, and what brings them out. A voice may state only what a clue being told or a claim being said hands it.",
+    "voice": "+ {note (about 60 words), register, tics, phrases (6 to 8 period phrases, design/case/period-1660-death.md §4), address (how they name the others)}.",
+    "presence": "Where a person can be found: [{room, when, doing}]; home is where they are at the start (narrator.js); when is 'start' or a narrator condition.",
+    "things": "{id, kind (src/make/kinds), at (a plan room id, or another thing's id: in or on it), rel (+ in | on), slot (+ the host's slot), address (+ the birth address of a thing the house already builds), carry (false: fixed), key (+ the lock name a key opens), state (+ initial works.js states; ~burn is a process level), gate, clue (one id or a list), missing (+ what the house still lacks to build it)}.",
+    "clues": "The clues things hold (construct's examine channel). People's clues live on each cast member.",
+    "doors": "{openingId: {locked, key}}: the case's locks on the plan's openings, as reach.js reads them.",
+    "beats_clocks": "narrator.js: when is its closed condition language (learned: holding: opened: said: at: here: var: genuine: misled: covered: fired: done: revealed: phase:, and counters); hook (40 words at most) is the no-model line; effects only spawn_person, move_person, set_var, reveal_thing.",
+    "accusation": "+ The no-model accusation in the panel's shape (lab/ui/talk-panel.js, case-play.js): one sentence of blanks, each {id, label, lead, options:[{id,label}]}, the suspect blank first; groups:[{id,label,keys}] confirmed a group at a time; truth:{key: option id}. supports: the learned clues that prove each true option (for the narrator's coverage and R59). attempts: wrong confirmations allowed before the verdict goes against you.",
+    "_period": "+ Each period detail tagged S (sourced: the file and the source it cites) or C (chosen for the game).",
+    "_house_needs": "+ What the house must still build for this case.",
+    "_fairness": "+ The solution path, and the fair-play walk with what the checks measured.",
+    "label": "+ A short name on every clue, thing and claim, for the notebook, the evidence drawer and the truth check's lexicon (case-play.js label()).",
+    "cast_lines": "+ intro (what you see and hear when you first speak to them), deflect (a clue of theirs on the topic is still shut), dontknow (nothing in their frame), guarded (closed up after a wrong thing was shown).",
+    "what_happened": "+ The truth in plain words (who, motive, means, opportunity, the lock). Not named 'solution', because case-play.js reads k.solution before k.accusation."
+  },
+  "schema": "case/1",
+  "id": "case-1660-muniment",
+  "title": "The Evidence House",
+  "seed": "Michaelmas morning, 1660. Mr Josias Hollins, steward of Wynstanton these thirty-one years, lies dead in the muniment room, its one door locked upon him and his key, they say, by his hand. At noon Sir Gervase Haywood is to seal the sale of his manor of Asshover to a London alderman.",
+  "theme": "Faithful keeping against the hurry of money: the steward kept the house's evidences honest and was killed for it, and the truth must now be kept as carefully as he kept the deeds.",
+  "shape": "deduction",
+  "era": "1660",
+  "tone": "sober and period-true, like Cadfael (decision 2a)",
+  "size": {"suspects": 4, "minutes": 45, "device": "phone first (decision 6)"},
+  "house": {
+    "plan": "src/make/plans/hybrid-e.js",
+    "program": "england-1660/gentry-seat",
+    "room_types": "src/make/rooms/england-1660.js",
+    "brief": "lab/brief/manor-1660.json#muniment_room",
+    "family": "Haywood of Wynstanton",
+    "why_this_room": "The muniment room has one door, from the closet off the best bedchamber; its two small windows are barred; the east wing's first floor (great chamber, withdrawing chamber, best bedchamber, closet, muniment room) is reached at night only by the great stair, whose foot passes the great parlour's door. The long gallery's west door is locked at nine (canon), so there is no back way."
+  },
+  "when": {
+    "date": "Saturday 29 September 1660 (Julian), Michaelmas Day",
+    "night": "Friday 28 September, Michaelmas Eve",
+    "arrive": "about ten in the morning",
+    "sealing": "noon, in the great chamber",
+    "inquest": "Monday 1 October, in the great hall: the coroner from Chesterfield and a jury of the parish's householders summoned by the constable"
+  },
+  "player": {
+    "role": "a Justice of the Peace for the county, a neighbouring gentleman, sent for by Dame Anne at half past seven",
+    "addressed": "your Worship",
+    "can": "examine anyone in the house and write down what they say; bind witnesses; commit a suspect to Derby gaol for the assizes",
+    "start": "great_hall"
+  },
+  "premise": "You ride in at ten. Mr Hollins was found at a quarter past six, dead on the flags of the muniment room by the iron-bound chest, the door locked; his key, his clerk says, lay by his hand. Sir Gervase, abed with the gout, calls it a fall in a fit and means to seal at noon. The coroner sits on Monday.",
+  "victim": {
+    "id": "hollins",
+    "name": "Mr Josias Hollins",
+    "role": "steward of Wynstanton since 1629, keeper of the evidences",
+    "age": 61,
+    "found": "dead on the flags of the muniment room by the iron-bound chest, the door locked, at a quarter past six on Michaelmas morning",
+    "now": "laid out on his own bed in the steward's chamber for the coroner's view",
+    "died": "at about five past eleven on Michaelmas Eve, of a blow to the back of the head",
+    "the_man": "exact, honest, dry; kept the deeds through the wars and the sequestration; wore the door key at his girdle on a green cord; read every deed against its draft before it was sealed; never left a flame burning among the evidences"
+  },
+  "culprit": "daniel",
+  "what_happened": {
+    "who": "Daniel Wragg, the steward's clerk.",
+    "motive": "Bribed by Mr Cressy (twenty pieces of gold, as many again at the sealing), Daniel scraped the exception of the lead mines out of the second skin of the engrossment he had written, so the sale would pass the Asshover lead to Alderman Pargeter. Reading the engrossment against his own draft on Michaelmas Eve, Mr Hollins found the rasure in Daniel's hand and said he would take him and Mr Cressy before the justice in the morning.",
+    "means": "As the steward stooped at the north press for the Asshover deed, Daniel struck him on the back of the head with the brass candlestick from the table; the candle fell and went out. He laid the body by the iron-bound chest so that its corner would seem to have done it.",
+    "opportunity": "Daniel was in the muniment room with him from twenty to ten (Dame Anne came and went at ten) until after eleven. The only way down from the state rooms at night is the great stair, past the great parlour's open door: no one came down before twenty past eleven, when Mr Cressy saw Daniel; at half past, Francis saw him cross the screens passage.",
+    "locked": "To get out, Daniel cut the key from the steward's knotted girdle cord, locked the door from the closet side and kept the key. At dawn he was first to the door; when Ralph had opened it with Sir Gervase's key, Daniel went first into the dark room 'to open the shutters', let the key fall from his sleeve by the dead man's hand, and cried that he had found it. Dame Anne, holding the candle in the doorway, had seen the hand empty.",
+    "in_one_line": "The clerk who wrote the cheat killed the master who found it, locked the door with the key he cut from him, and brought the key back in at dawn."
+  },
+  "canon": {
+    "facts": [
+      ["person:hollins", "died_at", "about 23:05, Friday 28 September 1660"],
+      ["person:hollins", "died_of", "a blow to the back of the head with the brass candlestick from the muniment table"],
+      ["person:daniel", "struck", "person:hollins, at the north press (press_N1)"],
+      ["person:daniel", "laid_body", "by the corner of chest1, to look like a fall"],
+      ["person:daniel", "cut", "thing:key_steward from the girdle cord of person:hollins"],
+      ["person:daniel", "locked", "door d21 from the closet side, about 23:18"],
+      ["person:daniel", "let_fall", "thing:key_steward by the hand of person:hollins, about 06:15"],
+      ["person:daniel", "scraped", "the exception of the mines from skin 2, line 14 of thing:engrossment, night of 26 September"],
+      ["person:cressy", "paid", "person:daniel twenty pieces of gold, stable yard, Tuesday 25 September"],
+      ["person:cressy", "agreed", "the exception of the mines, initialled 'A.C.', 14 September"],
+      ["person:pargeter", "wrote", "'See the mines pass with the land', 18 September"],
+      ["person:hollins", "found", "the rasure, about 21:50"],
+      ["person:hollins", "said", "'This is thy hand, Daniel. Who paid thee?', about 23:00"],
+      ["person:anne", "visited", "room:muniment_room, 21:50 to 22:10"],
+      ["person:francis", "played", "tables with person:cressy in room:great_parlour, 21:00 to 01:00"],
+      ["person:francis", "went_to", "room:buttery, 23:15 to 23:35, and cut his hand on a glass"],
+      ["person:cressy", "saw", "person:daniel come down the great stair, about 23:20"],
+      ["person:francis", "saw", "person:daniel cross the screens passage, about 23:25"],
+      ["person:sir_gervase", "slept", "in room:best_bedchamber from 21:00 on his opiate"],
+      ["room:long_gallery", "west_door_locked", "21:00 to 06:00, every night, by the butler"],
+      ["room:servants_chamber_east", "holds", "stores; nobody sleeps there"],
+      ["thing:key_steward", "opens", "door d21"],
+      ["person:sir_gervase", "holds", "the second key to d21, on a nail at his bed-head"],
+      ["thing:chest1", "locks", "two padlocks: one key with the steward, one with Sir Gervase"],
+      ["manor:asshover", "held", "in fee simple by Sir Gervase, bought by his father Sir Ralph in 1612, outside the family settlement"],
+      ["manor:asshover", "charged_with", "Dame Anne's jointure of £250 a year (settlement of 1650)"],
+      ["person:sir_gervase", "owes", "person:pargeter £2,000 on bond since 1655, long past its day"]
+    ],
+    "timeline": [
+      [
+        "14 Sept",
+        "Mr Cressy and Mr Hollins agree the draft of the release of Asshover; the steward writes the exception of the mines in the margin and Cressy initials it 'agreed, A.C., 14 Sept.'; the steward pins a memorandum to the 1612 deed."
+      ],
+      ["15 Sept", "Cressy sends the agreed draft to Alderman Pargeter in London."],
+      ["22 Sept", "Pargeter's letter of the 18th reaches Cressy: the Asshover ore assays well; see the mines pass with the land."],
+      [
+        "Mon 24 Sept",
+        "Daniel begins engrossing the release on three skins from the steward's draft; skin 2 is written with the exception, and the steward looks it over."
+      ],
+      ["Tue 25 Sept", "In the stable yard Cressy gives Daniel twenty pieces of gold in a twist of paper with a note; Francis sees something pass."],
+      [
+        "Wed 26 Sept, night",
+        "Daniel scrapes the exception from skin 2, line 14, and writes 'together with all mines, minerals and quarries' over the rasure."
+      ],
+      [
+        "Fri 28 Sept, 18:00",
+        "Supper in the great chamber. Francis, in drink, tells the steward he'll not live to see the deed sealed. The steward says he will read the engrossment against the draft that night, as he does every deed before sealing. Cressy goes white; Dame Anne sees it."
+      ],
+      ["20:30", "Sir Gervase is carried to bed in the best bedchamber; at nine Dame Anne gives him his opiate."],
+      [
+        "21:00",
+        "The butler locks the long gallery's west door. Francis and Cressy sit down to tables in the great parlour with the door to the stair hall open for the fire."
+      ],
+      [
+        "21:40",
+        "The steward and Daniel pass the parlour door and go up the great stair with Daniel's chamber candle, the engrossment and the draft; through the great chamber, the withdrawing chamber, the best bedchamber (Sir Gervase asleep) and the closet. The steward closes the shutters, lights the table candle, and locks the door from within with the key on his girdle cord."
+      ],
+      [
+        "21:50",
+        "Dame Anne goes up the great stair (both card players see her) and knocks; the steward lets her in. She begs him to stay the sale until her new jointure is sealed. He has just found the rasure: his finger is on the line and his face is grey; Daniel, reading the draft aloud, falls silent. 'Not tonight, madam. There is something here I must see to first.'"
+      ],
+      [
+        "22:10",
+        "Dame Anne comes down (seen) and goes back to the nursery by the back stair. The steward locks the door after her and reads on to the end in silence."
+      ],
+      [
+        "23:00",
+        "The steward holds skin 2 to the candle: 'This is thy hand, Daniel. Who paid thee?' He says Daniel and Mr Cressy shall go before the justice in the morning, and turns to the north press for the 1612 deed."
+      ],
+      [
+        "23:05",
+        "As he stoops at the drawer 'Asshover / Feoffments i', Daniel strikes him on the back of the head with the brass candlestick from the table. The candle falls and goes out on the flags; Daniel's chamber candle, on the chest lid, still burns."
+      ],
+      [
+        "23:05-23:18",
+        "Daniel drags the body to the iron-bound chest and lays the head by its corner; puts the table candle back crooked in its stick and the stick on the table; takes the draft; cuts the key from the knotted girdle cord with his penknife; unlocks the door, goes out, locks it again from the closet side, and keeps the key."
+      ],
+      ["23:15", "Francis goes to the buttery to draw canary; Cressy sits alone at the parlour table."],
+      ["23:20", "Daniel comes down the great stair, his candle shielded; Cressy sees him through the open door, and Daniel sees Cressy see him."],
+      [
+        "23:25",
+        "Daniel crosses the screens passage from the hall door to the kitchen passage; Francis, at the buttery door with a jug and a cut hand, sees him."
+      ],
+      [
+        "23:35",
+        "Daniel reaches the west garret by the kitchen, the larder and the back stair, and hides the draft in his chest with the gold and the note. Francis comes back to the parlour bleeding; Cressy binds the hand with his own handkerchief, marked A.C."
+      ],
+      [
+        "01:00",
+        "Francis and Cressy go to bed by the back stair, through the steward's chamber (his bed unslept), the cook's chamber and the west closet. Dame Anne, at the nursery door, sees Francis on the landing with blood on his hand and shirt."
+      ],
+      ["05:30", "Margery the cook finds the steward's bed unslept and tells Daniel at the back stair."],
+      [
+        "06:00",
+        "Daniel is first to the muniment door, knocking and calling. Ralph takes Sir Gervase's key from the nail at the bed-head (Sir Gervase sleeps on); Dame Anne comes with a candle."
+      ],
+      [
+        "06:15",
+        "Ralph unlocks the door: it was locked fast. The room is dark. Daniel goes in first 'to open the shutters'; Dame Anne, holding the candle in the doorway, sees the dead man's hand on the flags, open and empty. Daniel kneels by him, lets the key fall from his sleeve, cries that it lay by his master's hand, takes it up and lays it on the table, and opens the shutters."
+      ],
+      ["06:30", "Sir Gervase, woken and in pain, calls it a fall in a fit: send to the coroner and to a justice, and seal at noon regardless."],
+      [
+        "07:00",
+        "The body is carried to the steward's chamber; Dame Anne and Margery wash it and lay it out. She sees the wound at the back of the head and the cut cord at the girdle. A maid scrubs the flags by the chest."
+      ],
+      ["07:15", "Cressy takes the engrossment from the muniment table to the draw-table in the great chamber."],
+      ["07:30", "Dame Anne sends a groom for the justice, four miles off; the constable goes to the coroner at Chesterfield."],
+      [
+        "10:00",
+        "The justice arrives (the player). Daniel keeps the muniment door; Cressy keeps the engrossment; Francis nurses his hand in the great parlour; Dame Anne meets the justice in the hall."
+      ]
+    ],
+    "who_slept_where": {
+      "sir_gervase": "best_bedchamber, on his opiate from nine",
+      "anne": "bedchamber_south, through the nursery",
+      "francis": "bedchamber_passage (the little chamber), reached through bedchamber_west",
+      "cressy": "bedchamber_west",
+      "hollins": "steward_chamber (unslept)",
+      "daniel": "servants_chamber_west, with Ralph, the groom and the footmen",
+      "margery": "cooks_chamber",
+      "ned": "nursery, with his nurse",
+      "nobody": "servants_chamber_east (stores) and the long gallery (locked at its west door from nine)"
+    }
+  },
+  "others": [
+    {
+      "id": "sir_gervase",
+      "name": "Sir Gervase Haywood, baronet",
+      "role": "the lord, 63; a Royalist colonel who compounded for his estate",
+      "where": "best_bedchamber, abed behind drawn curtains",
+      "speaks": false,
+      "why_not_a_suspect": "laid up with the gout, he cannot stand without two men to lift him, and he slept on his opiate from nine",
+      "wants": "the death called a fall, and the sale sealed at noon"
+    },
+    {
+      "id": "ralph",
+      "name": "Ralph Tunstead",
+      "role": "Sir Gervase's man",
+      "where": "attends his master",
+      "speaks": false,
+      "did": "took his master's key from the bed-head at dawn and opened the muniment door; it was locked fast"
+    },
+    {
+      "id": "margery",
+      "name": "Margery",
+      "role": "the cook",
+      "where": "kitchen",
+      "speaks": false,
+      "did": "found the steward's bed unslept at half past five; helped Dame Anne lay him out"
+    },
+    {"id": "ned", "name": "Ned Haywood", "role": "Dame Anne's son, eight", "where": "nursery", "speaks": false},
+    {
+      "id": "pargeter",
+      "name": "Alderman Thomas Pargeter",
+      "role": "the buyer, of London",
+      "where": "absent",
+      "speaks": false,
+      "did": "lent Sir Gervase £2,000 on bond in 1655; wrote to Cressy on 18 September to see the mines pass with the land"
+    }
+  ],
+  "pillars": [
+    {
+      "id": "motive",
+      "label": "Why: the steward found that night that Daniel had scraped the exception of the lead mines out of the engrossment, for Mr Cressy's gold",
+      "required": true
+    },
+    {
+      "id": "means",
+      "label": "How: struck from behind with the brass candlestick from the table, then laid by the chest to look like a fall",
+      "required": true
+    },
+    {
+      "id": "opportunity",
+      "label": "When: Daniel was in the muniment room with him until after eleven, not abed at half past ten as he says",
+      "required": true
+    },
+    {
+      "id": "locked",
+      "label": "The locked door: Daniel cut the key from the dead man's girdle, locked the door behind him, and at dawn, first into the dark room, let it fall by the body",
+      "required": true
+    }
+  ],
+  "topics": [
+    {
+      "id": "death",
+      "label": "How he died",
+      "words": ["die", "died", "dead", "death", "kill", "killed", "murder", "fall", "fell", "fit"]
+    },
+    {
+      "id": "whereabouts",
+      "label": "Last night: where you were",
+      "words": ["night", "evening", "yesterday", "where", "bed", "abed", "late", "hour", "clock", "alibi"]
+    },
+    {
+      "id": "morning",
+      "label": "This morning at the door",
+      "words": ["morning", "dawn", "found", "finding", "opened", "first", "shutters", "discovered"]
+    },
+    {
+      "id": "keys",
+      "label": "The door and its keys",
+      "words": ["key", "keys", "lock", "locked", "cord", "girdle", "nail", "unlock"]
+    },
+    {
+      "id": "sale",
+      "label": "The sale of Asshover",
+      "words": ["sale", "sell", "sold", "buyer", "alderman", "pargeter", "price", "debt", "bond", "jointure", "sealing", "seal"]
+    },
+    {
+      "id": "deed",
+      "label": "The engrossment",
+      "words": ["deed", "engrossment", "engrossed", "skin", "parchment", "draft", "collate", "rasure", "scraped", "copy", "release"]
+    },
+    {
+      "id": "mines",
+      "label": "The lead under Asshover",
+      "words": ["lead", "mine", "mines", "ore", "minerals", "exception", "excepted", "reserved", "assay"]
+    },
+    {
+      "id": "candle",
+      "label": "The candle",
+      "words": ["candle", "light", "tallow", "candlestick", "snuffed", "burned", "burnt"]
+    },
+    {
+      "id": "wound",
+      "label": "The wound",
+      "words": ["wound", "head", "blow", "blood", "struck", "hit", "skull"]
+    },
+    {
+      "id": "cards",
+      "label": "The game at tables",
+      "words": ["cards", "tables", "game", "play", "played", "dice", "lost", "won", "wager", "money"]
+    },
+    {
+      "id": "hand",
+      "label": "Master Francis's cut hand",
+      "words": ["hand", "cut", "glass", "bandage", "handkerchief", "bleeding"],
+      "after": "anne_francis_blood"
+    },
+    {
+      "id": "gold",
+      "label": "The gold in Daniel's box",
+      "words": ["gold", "pieces", "paid", "bribe", "note", "purse", "vail"],
+      "after": "gold_note"
+    },
+    {"id": "steward", "label": "Mr Hollins", "words": ["hollins", "steward", "josias", "master"]}
+  ],
+  "cast": [
+    {
+      "id": "daniel",
+      "name": "Daniel Wragg",
+      "aka": ["Daniel", "Wragg", "the clerk"],
+      "role": "the steward's clerk",
+      "intro": "(A thin young man in black, ink on his fingers, standing at the muniment door as if it might be taken from him.) Your Worship. Daniel Wragg, Mr Hollins's clerk. I have kept the door since we found him. Nothing has been moved, sir, but the engrossment Mr Cressy carried off.",
+      "shape_role": "suspect",
+      "pronouns": "he/him",
+      "age": 22,
+      "is_culprit": true,
+      "first_witness": true,
+      "home": "closet_best",
+      "presence": [
+        {"room": "closet_best", "when": "start", "doing": "keeping the muniment room's door, 'so nothing is moved'"},
+        {
+          "room": "servants_chamber_west",
+          "when": "done:garret_flight",
+          "doing": "at his chest in the west garret, come for the draft he means to burn"
+        },
+        {"room": "great_hall", "when": "done:gather or fired:noon", "doing": "with the household before Sir Gervase"}
+      ],
+      "night": "In the muniment room with the steward from 21:40, reading the draft aloud while the steward followed the engrossment; struck him at about 23:05; left about 23:18, locking the door with the cut key; down the great stair 23:20, the screens passage 23:25, the kitchen and the back stair to the west garret by 23:35. At dawn first to the door and first into the room.",
+      "voice": {
+        "note": "Twenty-two, the Wynstanton schoolmaster's son, taught a fair engrossing hand by Mr Hollins and grieving him truly. Speaks low and exact, with a copyist's care for hours and words; quotes his master; Bible cadences from his mother. When he lies he grows more precise, not less, and rubs the ink on his second finger. Never coarse, never sly.",
+        "register": "a servant's careful courtesy to a gentleman; plain Derbyshire under schoolroom grammar",
+        "tics": [
+          "exact hours ('at the half hour, by the hall clock')",
+          "quotes 'my master'",
+          "rubs his inky finger",
+          "repeats a question back before he answers it"
+        ],
+        "phrases": [
+          "if it please your Worship",
+          "I know not, sir",
+          "as my master would say",
+          "God keep him",
+          "I crave your pardon",
+          "at the half hour, by the hall clock",
+          "in a fair hand",
+          "I'll not deny it"
+        ],
+        "address": {"player": "your Worship", "francis": "Master Francis", "anne": "my lady", "cressy": "Mr Cressy", "hollins": "my master"}
+      },
+      "knows": [
+        {
+          "id": "kd_engrossed",
+          "triple": ["person:daniel", "engrossed", "thing:engrossment, three skins, 24 to 26 September"],
+          "text": "He engrossed the release of Asshover on three skins from his master's draft."
+        },
+        {
+          "id": "kd_paid",
+          "triple": ["person:cressy", "paid", "person:daniel twenty pieces of gold, Tuesday 25 September"],
+          "text": "Mr Cressy gave him twenty pieces of gold in the stable yard on Tuesday, with a note promising as many at the sealing."
+        },
+        {
+          "id": "kd_scraped",
+          "triple": ["person:daniel", "scraped", "skin 2, line 14: the exception of the mines"],
+          "text": "On Wednesday night he scraped the exception of the mines from the second skin and wrote 'together with all mines, minerals and quarries' over it."
+        },
+        {
+          "id": "kd_found",
+          "triple": ["person:hollins", "found", "the rasure, about 21:50"],
+          "text": "His master found the rasure a little before ten and said nothing of it while my lady was in the room."
+        },
+        {
+          "id": "kd_thy_hand",
+          "triple": ["person:hollins", "said", "'This is thy hand, Daniel. Who paid thee?'"],
+          "text": "Near eleven his master said, 'This is thy hand, Daniel. Who paid thee?', and that he and Mr Cressy should go before the justice in the morning."
+        },
+        {
+          "id": "kd_struck",
+          "triple": ["person:daniel", "struck", "person:hollins with the table candlestick, about 23:05"],
+          "text": "As his master stooped at the north press he struck him on the back of the head with the brass candlestick from the table."
+        },
+        {
+          "id": "kd_staged",
+          "triple": ["person:daniel", "laid_body", "by the corner of chest1"],
+          "text": "He dragged the body to the iron-bound chest and laid the head by its corner, to look like a fall."
+        },
+        {
+          "id": "kd_cut_key",
+          "triple": ["person:daniel", "cut", "thing:key_steward from the girdle cord"],
+          "text": "He cut the key from his master's knotted girdle cord with his penknife, went out, locked the door behind him and kept the key."
+        },
+        {
+          "id": "kd_hid_draft",
+          "triple": ["person:daniel", "hid", "thing:draft_steward in thing:chest_daniel"],
+          "text": "He took the steward's draft and hid it in his chest in the west garret with the gold and the note."
+        },
+        {
+          "id": "kd_seen",
+          "triple": ["person:daniel", "saw", "person:cressy at the parlour table, 23:20"],
+          "text": "Coming down the great stair at twenty past eleven, he saw Mr Cressy at the table see him."
+        },
+        {
+          "id": "kd_planted",
+          "triple": ["person:daniel", "let_fall", "thing:key_steward by the hand, 06:15"],
+          "text": "At dawn, first into the dark room, he let the key fall from his sleeve by his master's hand and cried that he had found it."
+        },
+        {
+          "id": "kd_lady",
+          "triple": ["person:anne", "visited", "room:muniment_room, 21:50 to 22:10"],
+          "text": "My lady came up a little before ten and was gone within the quarter hour; both men were well when she left."
+        },
+        {
+          "id": "kd_wore_key",
+          "triple": ["person:hollins", "wore_key", "at his girdle on a green cord"],
+          "text": "His master wore the door key at his girdle on a green cord, night and day."
+        },
+        {
+          "id": "kd_lord_key",
+          "triple": ["person:sir_gervase", "keeps_key", "on a nail at his bed-head"],
+          "text": "Sir Gervase keeps the other key on a nail at his bed-head."
+        },
+        {
+          "id": "kd_went_up",
+          "triple": ["event:collation", "began", "21:40"],
+          "text": "They went up at twenty to ten; his master lit the table candle from Daniel's and closed the shutters."
+        }
+      ],
+      "hides": [
+        {
+          "facts": ["kd_paid", "kd_scraped", "kd_found", "kd_thy_hand"],
+          "why": "a rasure in a conveyance is a forgery: the pillory and his ears, and his mother's shame",
+          "until": "shown the gold, the draft or the rasure (claims dc_deed, dc_mines, dc_gold)"
+        },
+        {
+          "facts": ["kd_struck", "kd_staged", "kd_cut_key", "kd_hid_draft", "kd_seen", "kd_planted"],
+          "why": "the rope",
+          "until": "accused with the cut cord, Dame Anne's dawn and the gold (clue daniel_confession)"
+        }
+      ],
+      "claims": [
+        {
+          "id": "dc_half_ten",
+          "label": "Daniel: down at half past ten",
+          "topic": "whereabouts",
+          "false": true,
+          "triple": ["person:daniel", "left_muniment_room_at", "22:30"],
+          "fact": "Daniel says he left Mr Hollins alive at half past ten, heard him lock the door behind him, and went down the great stair to bed.",
+          "line": "We read the engrossment against the draft till half past ten, your Worship. I heard the hall clock go the half as I came down the stair. My master bid me to bed; he said he would sit a while alone, and I heard him turn the key behind me.",
+          "press": "Half past ten, sir. I'm a clerk; I mark the hours. Down the great stair, through the hall and the kitchen, and up the back stair to my bed.",
+          "yield": "(He is quiet a long moment.) Then I was out in the hour, your Worship. It was later. I was afraid to say how late, for how it would look.",
+          "broken_by": ["francis_no_one_down", "cressy_saw_daniel", "francis_saw_daniel"],
+          "why": "puts him out of the room more than half an hour before the blow"
+        },
+        {
+          "id": "dc_key",
+          "label": "Daniel: the key by his hand",
+          "topic": "morning",
+          "false": true,
+          "triple": ["thing:key_steward", "lay", "by the right hand of person:hollins at 06:15"],
+          "fact": "Daniel says the key lay on the flags by his master's hand when the door was opened, so his master had locked himself in.",
+          "line": "It lay by his hand, your Worship, on the flags, when we came in. I took it up and laid it on the table, there. He'd locked himself in, as he ever did when the evidences were out.",
+          "press": "By his right hand, sir. I'd swear to it on the Book.",
+          "yield": "(He looks at the key, and then at his hands.) I found it by him, sir. I... I'll say no more about the key.",
+          "broken_by": ["anne_dawn", "key_cut_cord", "key_steward"],
+          "why": "a key inside with the dead man makes the door locked from within, and the death an accident"
+        },
+        {
+          "id": "dc_fall",
+          "label": "Daniel: a fall in the dark",
+          "topic": "death",
+          "false": true,
+          "triple": ["person:hollins", "died_of", "a fall against the chest in the dark"],
+          "fact": "Daniel says his master must have put out his candle to come down and fallen in the dark against the chest.",
+          "line": "He fell, your Worship. He must have put out his candle to come down and fallen in the dark against the chest. The corner is iron. God keep him.",
+          "press": "What else could it be, sir? The door was locked upon him.",
+          "yield": "I don't know how he came by it, sir. I was not there. (His voice goes.) I was not there.",
+          "broken_by": ["chest_band_clean", "candlestick_dent", "anne_wound", "body_wound"],
+          "why": "a fall is God's doing, and no one's"
+        },
+        {
+          "id": "dc_deed",
+          "label": "Daniel: the engrossment is sound",
+          "topic": "deed",
+          "false": true,
+          "triple": ["thing:engrossment", "agrees_with", "the draft"],
+          "fact": "Daniel says the engrossment is sound and agrees with the draft.",
+          "line": "The engrossment is sound, your Worship. My master read every word of it against the draft himself.",
+          "press": "There's a scrape on the second skin, sir: a blot. I scraped it and wrote it fair again. Clerks do it every day.",
+          "yield": "(He sits down as if his legs had gone.) He held it to the candle. That is all. He held it to the candle.",
+          "broken_by": ["rasure", "draft_exception", "gold_note", "draft_steward", "engrossment"],
+          "why": "the rasure is in his hand, and it is a forgery"
+        },
+        {
+          "id": "dc_mines",
+          "label": "Daniel: knows nothing of mines",
+          "topic": "mines",
+          "false": true,
+          "triple": ["person:daniel", "knows_of", "no exception of the mines"],
+          "fact": "Daniel says he knows nothing of any exception of the mines.",
+          "line": "I know nothing of mines, your Worship. I copy what I'm given.",
+          "press": "The exception? I can't call it to mind, sir. There are a great many words in a release.",
+          "yield": "It was in my master's draft. In the margin. I know it was.",
+          "broken_by": ["draft_exception", "drawer_asshover", "draft_steward"],
+          "why": "the exception is the thing he scraped out"
+        },
+        {
+          "id": "dc_gold",
+          "label": "Daniel: the gold is his wages",
+          "topic": "gold",
+          "false": true,
+          "triple": ["person:daniel", "had_gold_from", "his wages"],
+          "fact": "Daniel says the gold is his wages, saved.",
+          "line": "My wages, your Worship, saved these three years.",
+          "press": "My mother gave me some of it at Lady Day, sir.",
+          "yield": "Mr Cressy gave it me. In the stable yard, on Tuesday. For the second skin. God forgive me, I never meant more than the skin.",
+          "broken_by": ["gold_note", "cressy_bribe", "francis_saw_purse"],
+          "why": "the gold is the bribe"
+        },
+        {
+          "id": "dc_cressy",
+          "label": "Daniel: Cressy on the stair",
+          "topic": "person:cressy",
+          "false": true,
+          "triple": ["person:cressy", "on_great_stair_at", "22:30, going up"],
+          "fact": "Daniel says he passed Mr Cressy going up the great stair at half past ten.",
+          "line": "As I told your Worship: Mr Cressy, on the great stair, at the half hour, going up.",
+          "press": "I'd not swear to his face, sir. It was dark. A gentleman in a gown.",
+          "yield": "Then I was mistaken in the man. I was mistaken in a great many things last night.",
+          "broken_by": ["francis_cressy_sat"],
+          "why": "puts another man on the way to the room after the hour he says he left"
+        },
+        {
+          "id": "dc_candle",
+          "label": "Daniel: the candle",
+          "topic": "candle",
+          "false": false,
+          "triple": ["person:hollins", "lit", "the table candle, 21:40"],
+          "fact": "Mr Hollins lit the table candle himself and closed the shutters.",
+          "line": "He lit it himself from mine, your Worship, and closed the shutters. He'd read by daylight when he could."
+        },
+        {
+          "id": "dc_francis",
+          "label": "Daniel: Francis at supper",
+          "topic": "person:francis",
+          "false": false,
+          "triple": ["person:francis", "quarrelled_with", "person:hollins at supper"],
+          "fact": "Francis spoke hard words to Mr Hollins at supper.",
+          "line": "Master Francis spoke hard to my master at supper, sir. He was in drink. He meant no harm by it, I think."
+        },
+        {
+          "id": "dc_anne",
+          "label": "Daniel: Dame Anne's visit",
+          "topic": "person:anne",
+          "false": false,
+          "triple": ["person:anne", "visited", "room:muniment_room, 21:50 to 22:10"],
+          "fact": "Dame Anne came up a little before ten and went within the quarter hour.",
+          "line": "As I said, sir: my lady came and went before the quarter past ten."
+        }
+      ],
+      "clues": [
+        {
+          "id": "daniel_says_half_ten",
+          "label": "Daniel: he left at half past ten",
+          "pillar": "opportunity",
+          "effect": "false",
+          "tier": "essential",
+          "gate": {"topic": "whereabouts", "stance": ["ask", "press"]},
+          "triple": ["person:daniel", "left_muniment_room_at", "22:30"],
+          "fact": "Daniel says he left Mr Hollins alive at half past ten, heard him lock the door behind him, and went down the great stair to bed.",
+          "hook": "We read the engrossment against the draft till half past ten, your Worship. I heard the hall clock go the half as I came down the stair. My master bid me to bed; he said he would sit a while alone, and I heard him turn the key behind me.",
+          "debunked_by": ["francis_no_one_down", "cressy_saw_daniel", "francis_saw_daniel"]
+        },
+        {
+          "id": "daniel_says_key_by_hand",
+          "label": "Daniel: the key lay by the hand",
+          "pillar": "locked",
+          "effect": "false",
+          "tier": "essential",
+          "gate": {"topic": "morning", "stance": ["ask", "press"]},
+          "triple": ["thing:key_steward", "lay", "by the right hand of person:hollins at 06:15"],
+          "fact": "Daniel says the key lay on the flags by his master's hand when the door was opened, so his master had locked himself in.",
+          "hook": "It lay by his hand, your Worship, on the flags, when we came in. I took it up and laid it on the table, there. He'd locked himself in, as he ever did when the evidences were out.",
+          "debunked_by": ["anne_dawn"]
+        },
+        {
+          "id": "daniel_blames_cressy",
+          "label": "Daniel: Cressy on the stair at half past ten",
+          "pillar": "opportunity",
+          "effect": "false",
+          "tier": "texture",
+          "gate": {"topic": "person:cressy", "stance": ["ask", "press"]},
+          "triple": ["person:cressy", "on_great_stair_at", "22:30, going up"],
+          "fact": "Daniel says that as he came down at half past ten he passed Mr Cressy going up the great stair, who said he sought the close stool in the closet.",
+          "hook": "I'd not accuse a gentleman, your Worship. But as I came down at the half hour, Mr Cressy was on the great stair, going up. He said he sought the close stool in the closet. I thought nothing of it then.",
+          "debunked_by": ["francis_cressy_sat"]
+        },
+        {
+          "id": "daniel_wore_key",
+          "label": "The steward's key on a green cord",
+          "pillar": "locked",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {"topic": "keys", "stance": ["ask", "press"]},
+          "triple": ["person:hollins", "wore_key", "at his girdle on a green cord"],
+          "fact": "Mr Hollins wore the door key at his girdle on a green cord, night and day; Sir Gervase keeps the other on a nail at his bed-head.",
+          "hook": "He wore it at his girdle on a green cord, your Worship, night and day, and never let it out of his hand. Sir Gervase has the other. It hangs on a nail at his bed-head."
+        },
+        {
+          "id": "daniel_lady_left",
+          "label": "Daniel: Dame Anne came and went by a quarter past ten",
+          "pillar": "opportunity",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "person:anne", "stance": ["ask", "press"]},
+          "triple": ["person:anne", "left", "room:muniment_room before 22:15, both men alive"],
+          "fact": "Daniel says Dame Anne came up a little before ten and went within the quarter hour, and both he and Mr Hollins were at their reading when she left.",
+          "hook": "My lady came up a little before ten, sir, to speak with my master. She was not there a quarter hour. We were both at our reading when she went, and he locked the door after her."
+        },
+        {
+          "id": "daniel_engrossed",
+          "label": "Daniel engrossed the deed",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {"topic": "deed", "stance": ["ask", "press"]},
+          "triple": ["person:daniel", "engrossed", "thing:engrossment"],
+          "fact": "Daniel engrossed the release himself in the week, on three skins, from his master's draft.",
+          "hook": "I engrossed it, your Worship, in the week: three skins, from my master's draft. It is my hand throughout."
+        },
+        {
+          "id": "daniel_went_up",
+          "label": "They went up at twenty to ten",
+          "pillar": "opportunity",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "candle", "stance": ["ask", "press"]},
+          "triple": ["event:collation", "began", "21:40"],
+          "fact": "Daniel says they went up at twenty to ten and Mr Hollins lit the table candle from Daniel's chamber candle.",
+          "hook": "We went up at twenty to ten, sir. My master lit the table candle from my chamber candle and closed the shutters. He'd not read by a naked light among the evidences save at need, and last night was need."
+        },
+        {
+          "id": "daniel_confession",
+          "label": "Daniel's confession",
+          "pillar": [],
+          "effect": "context",
+          "tier": "texture",
+          "confession": true,
+          "gate": {
+            "topic": "death",
+            "stance": ["accuse"],
+            "requires": {"learned": ["key_cut_cord", "anne_dawn", "gold_note"]}
+          },
+          "triple": ["person:daniel", "killed", "person:hollins"],
+          "fact": "Daniel confesses: his master found the rasure and said he would take him before the justice; as he stooped at the press, Daniel struck him with the candlestick.",
+          "hook": "(He sits down where he stands.) He held the skin to the candle and said, 'This is thy hand, Daniel. Who paid thee?' He said I should stand before your Worship in the morning, and Mr Cressy with me. He turned to the press for the old deed, and I had the candlestick in my hand before I knew it. God forgive me. I only wanted him not to speak."
+        }
+      ],
+      "deflect": "I couldn't say, your Worship. I'd not like to say what I don't know.",
+      "dontknow": "I know nothing of that, sir.",
+      "guarded": "(He folds his inky hands.) I've told your Worship all I know."
+    },
+    {
+      "id": "cressy",
+      "name": "Mr Ambrose Cressy",
+      "aka": ["Cressy", "the attorney", "the London man", "the alderman's man", "Ambrose"],
+      "role": "attorney of Clifford's Inn, agent for Alderman Pargeter, the buyer",
+      "intro": "(A spare man in good black and a lawyer's bands, standing over a table laid with parchment, wax and bags of money.) Ambrose Cressy, sir, of Clifford's Inn, for Alderman Pargeter. A sad business. I trust it need not keep us past noon.",
+      "shape_role": "suspect",
+      "pronouns": "he/him",
+      "age": 45,
+      "home": "great_chamber",
+      "presence": [
+        {"room": "great_chamber", "when": "start", "doing": "by the draw-table, the engrossment and the purchase money before him"},
+        {"room": "porch", "when": "done:saddled", "doing": "booted, his cloak over his arm, waiting for his horse"},
+        {"room": "great_hall", "when": "done:gather or fired:noon", "doing": "with the household before Sir Gervase"}
+      ],
+      "night": "At tables with Francis in the great parlour from nine until near one; alone at the table from a quarter past eleven, while Francis was at the buttery, and saw Daniel come down the great stair at about twenty past; bound Francis's hand; to bed at one in the west bedchamber.",
+      "voice": {
+        "note": "Forty-five, an attorney of Clifford's Inn, agent for Alderman Pargeter of London. Courteous London speech with a lawyer's hedges; turns every question into terms, dates and sums, and counts on his fingers. Dislikes the country, its mud and its hours. Calm while he holds the papers; when his own hand is shown him he bargains, plainly and quickly, and never pleads.",
+        "register": "a London professional man's courtesy, formal and dry",
+        "tics": ["counts points on his fingers", "answers in terms and dates", "'with submission'", "never raises his voice"],
+        "phrases": [
+          "with submission, sir",
+          "as to that",
+          "I am instructed",
+          "my principal, the Alderman",
+          "in point of law",
+          "you'll allow",
+          "in good faith",
+          "I'll not trouble you with the particulars"
+        ],
+        "address": {"player": "sir", "francis": "Mr Haywood", "anne": "Madam", "daniel": "the clerk", "hollins": "the steward"}
+      },
+      "knows": [
+        {
+          "id": "kc_agreed",
+          "triple": ["person:cressy", "agreed", "the exception of the mines, 14 September"],
+          "text": "He agreed the exception of the mines with the steward on 14 September and initialled it."
+        },
+        {
+          "id": "kc_letter",
+          "triple": ["person:pargeter", "wrote", "'See the mines pass with the land', 18 September"],
+          "text": "Alderman Pargeter wrote that the ore assays well and the mines must pass with the land."
+        },
+        {
+          "id": "kc_bribe",
+          "triple": ["person:cressy", "paid", "person:daniel twenty pieces of gold, Tuesday 25 September"],
+          "text": "He gave Daniel twenty pieces of gold in the stable yard on Tuesday, with a note promising as many at the sealing, to leave the exception out of the second skin."
+        },
+        {
+          "id": "kc_supper",
+          "triple": ["person:hollins", "announced", "the collation, at supper"],
+          "text": "At supper the steward said he would read the engrossment against the draft that night."
+        },
+        {
+          "id": "kc_saw_daniel",
+          "triple": ["person:cressy", "saw", "person:daniel come down the great stair, 23:20"],
+          "text": "At about twenty past eleven, alone at the table, he saw the clerk come down the great stair, his candle shielded, white in the face."
+        },
+        {
+          "id": "kc_francis",
+          "triple": ["person:francis", "went_to", "room:buttery, 23:15 to 23:35"],
+          "text": "Francis went down for wine at a quarter past eleven and came back with his hand cut; Cressy bound it with his handkerchief."
+        },
+        {
+          "id": "kc_took",
+          "triple": ["person:cressy", "took", "thing:engrossment from the muniment table, 07:15"],
+          "text": "He took the engrossment from the muniment table this morning."
+        },
+        {
+          "id": "kc_note_of_hand",
+          "triple": ["person:cressy", "holds", "Francis's note of hand for £60"],
+          "text": "He holds Francis's note of hand for sixty pounds lost at tables."
+        },
+        {
+          "id": "kc_anne",
+          "triple": ["person:anne", "went_up", "21:50, came down 22:10"],
+          "text": "Dame Anne went up a little before ten and came down within the quarter hour."
+        },
+        {
+          "id": "kc_sat",
+          "triple": ["person:cressy", "stayed_in", "room:great_parlour, 21:00 to 01:00"],
+          "text": "He never left the parlour from nine until one."
+        }
+      ],
+      "hides": [
+        {
+          "facts": ["kc_agreed", "kc_letter", "kc_bribe"],
+          "why": "the cheat would cost him his practice and his principal",
+          "until": "shown the gold and the note (cressy_bribe), or the steward's memorandum with his own agreement and his principal's letter (cressy_cheat)"
+        },
+        {
+          "facts": ["kc_saw_daniel"],
+          "why": "the clerk, accused, would name him for the bribe",
+          "until": "his own cheat is out (the gold note learned)"
+        }
+      ],
+      "claims": [
+        {
+          "id": "cc_mines",
+          "label": "Cressy: the mines never excepted",
+          "topic": "mines",
+          "false": true,
+          "triple": ["thing:draft", "excepts", "no mines"],
+          "fact": "Mr Cressy says the mines were never excepted in the agreed draft.",
+          "line": "The mines were never excepted, sir. The draft as agreed says nothing of them; you may see my own copy, as it came from London.",
+          "press": "As to that, I am instructed the land passes entire, with its appurtenances. If the steward fancied otherwise, he never said so to me.",
+          "yield": "My initials. Yes. I agreed it on the fourteenth to have peace, and my principal would not have it. You may guess the rest; I'll not say it for you.",
+          "broken_by": ["draft_exception", "drawer_asshover", "draft_steward"],
+          "why": "hides that he agreed the exception and then had it cut out"
+        },
+        {
+          "id": "cc_daniel",
+          "label": "Cressy: saw the clerk only going up",
+          "topic": "person:daniel",
+          "false": true,
+          "triple": ["person:cressy", "saw", "person:daniel only at 21:40"],
+          "fact": "Mr Cressy says he saw the clerk go up with the steward at twenty to ten, and not again.",
+          "line": "The clerk? A careful young man. I saw him go up with the steward at twenty to ten, and not again.",
+          "press": "I attend to my cards, sir, not to the stair.",
+          "yield": "(He sets down his pen.) I saw him. I'll tell you what I saw when you tell me what you have.",
+          "broken_by": ["francis_saw_daniel"],
+          "why": "the clerk, accused, would name him for the bribe"
+        },
+        {
+          "id": "cc_deed",
+          "label": "Cressy: a clerk's correction",
+          "topic": "deed",
+          "false": true,
+          "triple": ["thing:engrossment", "rasure_is", "a clerk's correction"],
+          "fact": "Mr Cressy says the scrape on the second skin is a clerk's correction that does not touch the sense.",
+          "line": "A clerk's correction on the second skin, sir. They are common enough, and it does not touch the sense.",
+          "press": "With submission, a rasure in an unsealed engrossment is nothing; it may be written fair again before noon.",
+          "yield": "It touches the sense. I'll not pretend it doesn't.",
+          "broken_by": ["rasure", "draft_exception", "gold_note", "draft_steward", "engrossment"],
+          "why": "the rasure is his cheat"
+        },
+        {
+          "id": "cc_gold",
+          "label": "Cressy: knows nothing of the clerk's money",
+          "topic": "gold",
+          "false": true,
+          "triple": ["person:cressy", "paid", "nothing to person:daniel"],
+          "fact": "Mr Cressy says he knows nothing of the clerk's money.",
+          "line": "I know nothing of the clerk's money, sir.",
+          "press": "Servants are paid, and vails are given. I have given a shilling to every groom in this house.",
+          "yield": "Twenty pieces. Yes.",
+          "broken_by": ["gold_note"],
+          "why": "the gold is his bribe"
+        },
+        {
+          "id": "cc_sat",
+          "label": "Cressy: at tables till one",
+          "topic": "whereabouts",
+          "false": false,
+          "triple": ["person:cressy", "stayed_in", "room:great_parlour, 21:00 to 01:00"],
+          "fact": "Mr Cressy sat at tables in the great parlour from nine until one.",
+          "line": "At tables, sir, with Mr Haywood, from nine until near one. I never left the room."
+        },
+        {
+          "id": "cc_sale",
+          "label": "Cressy: the bond and the sale",
+          "topic": "sale",
+          "false": false,
+          "triple": ["person:pargeter", "lent", "£2,000 on bond to person:sir_gervase, 1655"],
+          "fact": "Alderman Pargeter lent Sir Gervase two thousand pounds on bond in 1655; he takes Asshover at a fair price, less the bond.",
+          "line": "My principal lent Sir Gervase two thousand pounds on bond in 'fifty-five, sir. The day is long past. He takes Asshover at a fair price, less the bond, and Sir Gervase is out of debt. Everyone is served."
+        },
+        {
+          "id": "cc_francis",
+          "label": "Cressy: Francis plays deep",
+          "topic": "person:francis",
+          "false": false,
+          "triple": ["person:francis", "plays", "deep"],
+          "fact": "Francis plays deep and loses handsomely.",
+          "line": "A young gentleman who plays deep and loses handsomely, sir. I bear him no ill will."
+        },
+        {
+          "id": "cc_cards",
+          "label": "Cressy: sixty pounds and a note of hand",
+          "topic": "cards",
+          "false": false,
+          "triple": ["person:francis", "lost", "£60 to person:cressy"],
+          "fact": "Francis lost sixty pounds at tables and gave Mr Cressy his note of hand.",
+          "line": "We played for money, sir; gentlemen do. Mr Haywood lost sixty pounds and gave me his note for it. I'd thank you not to make a noise of it before his father."
+        }
+      ],
+      "clues": [
+        {
+          "id": "cressy_sat_till_one",
+          "label": "Cressy: at tables till one",
+          "pillar": "opportunity",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "whereabouts", "stance": ["ask", "press"]},
+          "triple": ["person:cressy", "stayed_in", "room:great_parlour, 21:00 to 01:00"],
+          "fact": "Mr Cressy says he sat at tables with Francis in the great parlour from nine until near one and never left the room.",
+          "hook": "I sat at tables with Mr Haywood in the great parlour from nine until near one, sir, and never stirred from the room. He'll tell you so, and what it cost him, if he's honest."
+        },
+        {
+          "id": "cressy_saw_anne",
+          "label": "Cressy: Dame Anne up and down by a quarter past ten",
+          "pillar": "opportunity",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "person:anne", "stance": ["ask", "press"]},
+          "triple": ["person:anne", "went_up", "21:50, came down 22:10"],
+          "fact": "Mr Cressy saw Dame Anne go up the great stair a little before ten and come down within the quarter hour.",
+          "hook": "Dame Anne went up the great stair a little before ten and came down within the quarter hour. We had the door open for the fire's draw; one sees the stair foot from the table."
+        },
+        {
+          "id": "cressy_francis_buttery",
+          "label": "Cressy: Francis cut his hand in the buttery",
+          "pillar": "means",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "hand", "stance": ["ask", "press"], "requires": {"learned": ["anne_francis_blood"]}},
+          "triple": ["person:francis", "cut_hand", "on a glass in room:buttery, 23:15 to 23:35"],
+          "fact": "Mr Cressy says Francis went down for wine at a quarter past eleven and came back with his hand cut on a glass, and he bound it with his own handkerchief.",
+          "hook": "He went down for more wine at a quarter past eleven and came back bleeding like a Martinmas hog, sir. A glass broke in his hand. I bound it with my own handkerchief; you'll find my mark on it."
+        },
+        {
+          "id": "cressy_took_deed",
+          "label": "Cressy took the engrossment",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {"topic": "deed", "stance": ["ask", "press"]},
+          "triple": ["person:cressy", "took", "thing:engrossment from the muniment table, 07:15"],
+          "fact": "Mr Cressy took the engrossment from the muniment table this morning, before the justice came.",
+          "hook": "I took it up from the muniment table this morning, sir, when they carried him out. It is my principal's deed, to be sealed at noon, and I'd not leave it in a dead man's room for any hand to come at."
+        },
+        {
+          "id": "cressy_bribe",
+          "label": "Cressy paid Daniel to leave out the mines",
+          "pillar": "motive",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {"topic": "gold", "stance": ["press", "show"], "requires": {"learned": ["gold_note"]}},
+          "triple": ["person:cressy", "paid", "person:daniel twenty pieces of gold to leave the exception of the mines out of skin 2"],
+          "fact": "Mr Cressy owns he paid Daniel twenty pieces of gold, and promised as many at the sealing, to engross the second skin without the exception of the mines.",
+          "hook": "Very well. I gave the boy twenty pieces to leave the mines out of the second skin, and promised as many at the sealing. That is a cheat, sir, and a matter for Chancery. It is not murder. I never set foot on that stair."
+        },
+        {
+          "id": "cressy_cheat",
+          "label": "Cressy owns the mines were cut from the engrossment",
+          "pillar": "motive",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {
+            "topic": "mines",
+            "stance": ["press", "show"],
+            "requires": {"learned": ["drawer_asshover", "pargeter_letter"]}
+          },
+          "triple": ["person:cressy", "had_left_out", "the exception of the mines from skin 2, by the clerk who engrossed it"],
+          "fact": "Mr Cressy owns that Alderman Pargeter wanted the mines, that he agreed the exception on the 14th only to have peace, and that he had the clerk who engrossed the deed leave it out of the second skin.",
+          "hook": "You have read my letters, then. Very well: my principal would have the mines, and I agreed the exception on the fourteenth only to have peace. I had the clerk who engrossed it leave it out of the second skin. A cheat, sir, and a matter for Chancery. It is not murder."
+        },
+        {
+          "id": "cressy_saw_daniel",
+          "label": "Cressy saw Daniel come down at twenty past eleven",
+          "pillar": "opportunity",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {"topic": "person:daniel", "stance": ["press", "show"], "requires": {"learned": ["gold_note"]}},
+          "triple": ["person:cressy", "saw", "person:daniel come down the great stair alone, 23:20"],
+          "fact": "Mr Cressy saw Daniel come down the great stair alone at about twenty past eleven, while Francis was at the buttery, his candle shielded and his face white.",
+          "hook": "Since we are plain now: at twenty past eleven, while Mr Haywood was at the buttery, the clerk came down the great stair alone. He kept his candle behind his hand and he was white as his bands. He saw me see him."
+        }
+      ],
+      "deflect": "As to that, sir, I should want to see what you are driving at.",
+      "dontknow": "I know nothing of it, sir. I am a stranger in this house.",
+      "guarded": "With submission, sir, I'll answer questions, not riddles."
+    },
+    {
+      "id": "francis",
+      "name": "Mr Francis Haywood",
+      "aka": ["Francis", "Master Francis", "the heir", "Mr Haywood", "Haywood"],
+      "role": "Sir Gervase's son and heir",
+      "intro": "(A young man by the parlour fire, his right hand bound in a fine handkerchief, a pot of small beer at his elbow.) Francis Haywood. You'll be the justice. Sit, if you like; my father's chairs are still ours till noon.",
+      "shape_role": "suspect",
+      "pronouns": "he/him",
+      "age": 26,
+      "home": "great_parlour",
+      "presence": [
+        {"room": "great_parlour", "when": "start", "doing": "by the parlour fire with small beer and a bound hand"},
+        {"room": "great_hall", "when": "done:gather or fired:noon", "doing": "with the household before Sir Gervase"}
+      ],
+      "night": "At tables with Cressy in the great parlour from nine, the door to the stair hall open; to the buttery for canary at about a quarter past eleven, where he broke a glass and cut his hand; coming out at about half past, saw Daniel cross the screens passage; back by twenty-five to twelve; to bed at one by the back stair.",
+      "voice": {
+        "note": "Twenty-six, Sir Gervase's heir, grown up in the sequestration years and sour with it. Quick, proud and sardonic; answers a question with a question; mild oaths. Calls Cressy 'the alderman's man' and his stepmother 'madam'. Grieves the steward more than he shows. Drinks small beer this morning for his head. Lies badly and not for long; generous once he stops defending himself.",
+        "register": "a young Cavalier gentleman's easy, edged speech",
+        "tics": ["answers with a question", "mild oaths", "bitter jokes about his father's loyalty", "flexes the bound hand"],
+        "phrases": ["by God", "pox on it", "I warrant you", "nay", "'tis no matter", "the alderman's man", "what would you have of me?", "Lord, sir"],
+        "address": {
+          "player": "sir",
+          "anne": "madam (to her face), my stepmother",
+          "cressy": "the alderman's man",
+          "daniel": "Daniel",
+          "hollins": "Hollins, old Hollins"
+        }
+      },
+      "knows": [
+        {
+          "id": "kf_played",
+          "triple": ["person:francis", "played", "tables with person:cressy, room:great_parlour, 21:00 to 01:00"],
+          "text": "He sat at tables with Cressy in the great parlour from nine until one, the door open."
+        },
+        {
+          "id": "kf_lost",
+          "triple": ["person:francis", "lost", "£60 to person:cressy, on his note of hand"],
+          "text": "He lost sixty pounds to Cressy and gave his note of hand."
+        },
+        {
+          "id": "kf_saw_up",
+          "triple": ["person:francis", "saw", "person:hollins and person:daniel go up the great stair, 21:40"],
+          "text": "He saw the steward and Daniel go up at twenty to ten."
+        },
+        {
+          "id": "kf_saw_anne",
+          "triple": ["person:francis", "saw", "person:anne go up 21:50 and come down 22:10"],
+          "text": "He saw his stepmother go up a little before ten and come down at ten past."
+        },
+        {
+          "id": "kf_no_one",
+          "triple": ["person:francis", "saw_no_one", "come down the great stair, 22:10 to 23:15"],
+          "text": "No one else came down the great stair while he sat at the table."
+        },
+        {
+          "id": "kf_gallery",
+          "triple": ["room:long_gallery", "west_door_locked", "from 21:00"],
+          "text": "The gallery's west door is locked at nine; there's no other way down from the state rooms at night."
+        },
+        {
+          "id": "kf_buttery",
+          "triple": ["person:francis", "cut_hand", "on a glass at the canary hogshead, 23:15 to 23:35"],
+          "text": "He drew canary in the buttery past eleven, broke the glass and cut his hand."
+        },
+        {
+          "id": "kf_saw_daniel",
+          "triple": ["person:francis", "saw", "person:daniel cross the screens passage alone, 23:25"],
+          "text": "Coming out of the buttery near half past eleven he saw Daniel cross the screens passage from the hall door to the kitchen passage, alone, his candle shaking."
+        },
+        {
+          "id": "kf_bound",
+          "triple": ["person:cressy", "bound", "the hand of person:francis"],
+          "text": "Cressy bound his hand with his own handkerchief."
+        },
+        {
+          "id": "kf_purse",
+          "triple": ["person:francis", "saw", "person:cressy give person:daniel something heavy in paper, stable yard, Tuesday 25 September"],
+          "text": "On Tuesday in the stable yard he saw Cressy put something heavy in a twist of paper into Daniel's hand."
+        },
+        {
+          "id": "kf_bed_empty",
+          "triple": ["person:hollins", "bed", "empty at 01:00"],
+          "text": "The steward's bed was empty when he went through to his own at one."
+        },
+        {
+          "id": "kf_threat",
+          "triple": ["person:francis", "said_at_supper", "the steward would not live to see the deed sealed"],
+          "text": "At supper, in drink, he said the steward would not live to see the deed sealed."
+        },
+        {
+          "id": "kf_mines",
+          "triple": ["family:haywood", "always_excepted", "the mines of Asshover"],
+          "text": "His father has excepted the mines of Asshover in every grant since his grandfather bought it."
+        }
+      ],
+      "hides": [
+        {
+          "facts": ["kf_lost", "kf_buttery"],
+          "why": "his father would stop his allowance for the play and the debt, and he'll not have it said he was drunk in the buttery the night the steward died",
+          "until": "pressed about his cut hand once Dame Anne's word of it is known (anne_francis_blood), or shown the broken glass"
+        },
+        {
+          "facts": ["kf_saw_daniel"],
+          "why": "to tell it he must own where he was",
+          "until": "the same: once he owns the buttery he tells what he saw from its door"
+        }
+      ],
+      "claims": [
+        {
+          "id": "fc_abed",
+          "label": "Francis: abed by eleven",
+          "topic": "whereabouts",
+          "false": true,
+          "triple": ["person:francis", "abed_by", "23:00"],
+          "fact": "Francis says he was abed by eleven.",
+          "line": "I was abed by eleven, sir, and slept like the dead. Ask the alderman's man; he'll tell you we went up together.",
+          "press": "Abed, I said. Would you have me swear it?",
+          "yield": "Very well: not abed. I was in the buttery past eleven. Ask me of my hand, and I'll tell you the whole of it.",
+          "broken_by": ["buttery_glass", "cressy_francis_buttery", "cressy_sat_till_one", "francis_saw_daniel"],
+          "why": "hides the deep play, the debt and the drinking"
+        },
+        {
+          "id": "fc_hand",
+          "label": "Francis: cut at supper",
+          "topic": "hand",
+          "false": true,
+          "triple": ["person:francis", "cut_hand", "at supper"],
+          "fact": "Francis says he cut his hand on a glass at supper.",
+          "line": "I cut it on a glass at supper. Clumsy.",
+          "press": "At supper, sir. Ask anyone who sat there.",
+          "yield": "Not at supper. In the buttery, past eleven, drawing canary like a footman. There: you have my shame.",
+          "broken_by": ["buttery_glass", "cressy_francis_buttery"],
+          "why": "the same: the night he will not own"
+        },
+        {
+          "id": "fc_cards",
+          "label": "Francis: played for love",
+          "topic": "cards",
+          "false": true,
+          "triple": ["person:francis", "played_for", "love"],
+          "fact": "Francis says they played for love.",
+          "line": "We played for love, sir, to pass the evening.",
+          "press": "For love. A few shillings, perhaps.",
+          "yield": "For money. Sixty pounds I haven't got, and the alderman's man has my note for it. Don't tell my father until I do.",
+          "broken_by": ["cressy_sat_till_one"],
+          "why": "the debt"
+        },
+        {
+          "id": "fc_sale",
+          "label": "Francis: the sale",
+          "topic": "sale",
+          "false": false,
+          "triple": ["person:sir_gervase", "sells", "manor:asshover to pay his debts"],
+          "fact": "Sir Gervase sells Asshover to pay the debts of the wars.",
+          "line": "My father sells Asshover to pay for his loyalty, sir. The King came home; our money did not. The alderman lent on bond five years since, and now he takes the best of our land for it."
+        },
+        {
+          "id": "fc_daniel",
+          "label": "Francis: Daniel, Hollins's shadow",
+          "topic": "person:daniel",
+          "false": false,
+          "triple": ["person:daniel", "is", "the steward's shadow"],
+          "fact": "Daniel was the steward's shadow, a good clerk.",
+          "line": "Daniel? Hollins's shadow. A good clerk and a better copyist. He'd not say boo to a goose."
+        },
+        {
+          "id": "fc_anne",
+          "label": "Francis: ask her",
+          "topic": "person:anne",
+          "false": false,
+          "triple": ["person:anne", "went_up", "21:50"],
+          "fact": "Dame Anne went up to the muniment room at ten.",
+          "line": "I've told you: ask her what she wanted in the muniment room at ten at night."
+        },
+        {
+          "id": "fc_steward",
+          "label": "Francis: his letters",
+          "topic": "steward",
+          "false": false,
+          "triple": ["person:hollins", "taught", "person:francis his letters"],
+          "fact": "Mr Hollins taught Francis his letters while Sir Gervase was at the wars.",
+          "line": "He taught me my letters, sir, when my father was at the wars."
+        }
+      ],
+      "clues": [
+        {
+          "id": "francis_no_one_down",
+          "label": "Francis: no one came down at half past ten",
+          "pillar": "opportunity",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {
+            "topic": "person:daniel",
+            "stance": ["ask", "press", "show"],
+            "requires": {"learned": ["daniel_says_half_ten"]}
+          },
+          "triple": ["person:francis", "saw_no_one", "come down the great stair, 22:10 to 23:15"],
+          "fact": "Francis says no one came down the great stair at half past ten: the parlour door stood open and they would have seen a light; Dame Anne came down at ten past ten and no one after her while he sat there; and the gallery is locked at nine, so there is no other way down.",
+          "hook": "Half past ten? He never came down at half past ten. The parlour door stood open for the fire, and you can't come off that stair without your light passing it. My stepmother came down at ten past ten. Nobody after her while I sat there, and there's no other way down at night: the gallery's locked at nine."
+        },
+        {
+          "id": "francis_saw_daniel",
+          "label": "Francis saw Daniel in the screens passage at half past eleven",
+          "pillar": "opportunity",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {"topic": "hand", "stance": ["press", "show"], "requires": {"learned": ["anne_francis_blood"]}},
+          "triple": ["person:francis", "saw", "person:daniel cross the screens passage alone, 23:25"],
+          "fact": "Francis owns he went to the buttery for canary at a quarter past eleven and cut his hand on a glass; coming out near half past, he saw Daniel cross the screens passage from the hall door to the kitchen passage, alone, his candle shaking.",
+          "hook": "Pox on it: yes, since my stepmother has told you. I went to the buttery for canary at a quarter past eleven and broke the glass in my hand; look at the hogshead if you doubt me. Coming out, near half past, I saw Daniel cross the passage from the hall door to the kitchen passage. Alone. His candle shook like a leaf."
+        },
+        {
+          "id": "francis_cressy_sat",
+          "label": "Francis: Cressy never left the table",
+          "pillar": "opportunity",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {
+            "topic": "person:cressy",
+            "stance": ["ask", "press"],
+            "requires": {"learned": ["daniel_blames_cressy"]}
+          },
+          "triple": ["person:cressy", "stayed_at", "the parlour table until 23:15"],
+          "fact": "Francis says Cressy never left the table before he himself went down for wine past eleven.",
+          "hook": "Cressy on the stair at half past ten? He never stirred from that table but to deal, till I went down for wine past eleven. Whoever told you so is a liar."
+        },
+        {
+          "id": "francis_names_anne",
+          "label": "Francis: Dame Anne went up at ten",
+          "pillar": "opportunity",
+          "effect": "false",
+          "tier": "texture",
+          "gate": {"topic": "person:anne", "stance": ["ask", "press"]},
+          "triple": ["person:anne", "went_up", "room:muniment_room, 21:50"],
+          "fact": "Francis says his stepmother went up to the muniment room a little before ten.",
+          "hook": "Ask my stepmother why she went up to the muniment room at ten o'clock at night. She'll tell you she was in the nursery.",
+          "debunked_by": ["daniel_lady_left", "cressy_saw_anne", "anne_visit"]
+        },
+        {
+          "id": "francis_saw_purse",
+          "label": "Francis saw Cressy pass Daniel something heavy",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {"topic": "mines", "stance": ["ask", "press"], "requires": {"learned": ["drawer_asshover"]}},
+          "triple": ["person:francis", "saw", "person:cressy give person:daniel something heavy in paper, Tuesday 25 September"],
+          "fact": "Francis saw Cressy put something heavy in a twist of paper into Daniel's hand in the stable yard on Tuesday, and Daniel hid it in his doublet.",
+          "hook": "The lead? My father has kept the mines out of every grant of Asshover since my grandfather bought it. Has the alderman's man been at them? Then hear this: on Tuesday in the stable yard I saw him put something in Daniel's hand, heavy, in a twist of paper, and the boy hid it in his doublet like a thief. I took it for a vail."
+        },
+        {
+          "id": "francis_threat",
+          "label": "Francis's words at supper",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "steward", "stance": ["ask", "press"]},
+          "triple": ["person:francis", "said_at_supper", "the steward would not live to see the deed sealed"],
+          "fact": "Francis owns he said at supper the steward would not live to see the deed sealed, meaning the sale would break his heart.",
+          "hook": "I said at supper he'd not live to see it sealed. God forgive me. I meant the sale would break his heart. He kept this house through the wars, sir, when my father was in the field and the committee men were at the door."
+        },
+        {
+          "id": "francis_bed_empty",
+          "label": "The steward's bed empty at one",
+          "pillar": "opportunity",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "death", "stance": ["ask", "press"]},
+          "triple": ["person:hollins", "bed", "empty at 01:00"],
+          "fact": "Francis says the steward's bed was empty when he and Cressy went through his chamber to bed at one.",
+          "hook": "I know nothing of how he died, sir. I know his bed was empty when Cressy and I went through his chamber to ours at one. I thought him still at his deeds."
+        }
+      ],
+      "deflect": "Ask me something I can answer, sir.",
+      "dontknow": "How should I know? Ask the clerk; he knows everything in this house.",
+      "guarded": "Pox on it, sir, I've done with your questions for a while."
+    },
+    {
+      "id": "anne",
+      "name": "Dame Anne Haywood",
+      "aka": ["Anne", "Dame Anne", "my lady", "Lady Haywood", "the lady", "his wife"],
+      "role": "Sir Gervase's second wife, mistress of the household",
+      "intro": "(A composed woman in dark silk, her keys at her waist, who has not slept.) Your Worship. I am Anne Haywood; I sent for you, since Sir Gervase cannot leave his bed. I'll answer what I can.",
+      "shape_role": "suspect",
+      "pronouns": "she/her",
+      "age": 38,
+      "home": "great_hall",
+      "presence": [
+        {"room": "great_hall", "when": "start", "doing": "meets you in the hall"},
+        {"room": "withdrawing_chamber", "when": "done:the_room", "doing": "sitting by the door of Sir Gervase's chamber"},
+        {"room": "great_hall", "when": "done:gather or fired:noon", "doing": "with the household before Sir Gervase"}
+      ],
+      "night": "Gave Sir Gervase his opiate at nine; went up to the muniment room from ten to ten until ten past ten to beg the steward to stay the sale; back to the nursery by the back stair; at one saw Francis on the back stair landing with blood on his hand; at dawn held the candle at the muniment door; at seven washed and laid out the body with Margery.",
+      "voice": {
+        "note": "Thirty-eight, Sir Gervase's second wife, Ned's mother, the mistress of the household. Composed and exact; answers in household facts: candles, linen, the hour the bread came in. Prayer-book turns of phrase and a quiet irony. Turns her wedding ring when she hides something. Fears for her son's portion more than for herself. Once her own secret is out, she is the plainest witness in the house.",
+        "register": "a gentlewoman's composed courtesy, plain and exact",
+        "tics": ["answers with a household fact", "turns her wedding ring when hiding", "prayer-book phrases", "a dry, quiet irony"],
+        "phrases": [
+          "I pray you",
+          "God rest him",
+          "I must beg you",
+          "methinks",
+          "your Worship",
+          "Lord have mercy upon us",
+          "I'll not have it said",
+          "as the Prayer Book has it"
+        ],
+        "address": {
+          "player": "your Worship",
+          "francis": "Francis",
+          "cressy": "Mr Cressy",
+          "daniel": "Daniel",
+          "hollins": "Mr Hollins",
+          "sir_gervase": "Sir Gervase"
+        }
+      },
+      "knows": [
+        {
+          "id": "ka_opiate",
+          "triple": ["person:sir_gervase", "took", "his opiate at 21:00"],
+          "text": "She gave Sir Gervase his opiate at nine; he heard nothing after."
+        },
+        {
+          "id": "ka_visit",
+          "triple": ["person:anne", "visited", "room:muniment_room, 21:50 to 22:10"],
+          "text": "She went up a little before ten to beg the steward to stay the sale until her new jointure was sealed."
+        },
+        {
+          "id": "ka_saw_line",
+          "triple": ["person:hollins", "had_finger_on", "a line of the engrossment, grey-faced, 21:50"],
+          "text": "She found him grey-faced over the engrossment with his finger on a line; Daniel, reading the draft aloud, stopped when she came in; Mr Hollins said, 'Not tonight, madam. There is something here I must see to first.'"
+        },
+        {
+          "id": "ka_locked_after",
+          "triple": ["person:hollins", "locked", "door d21 after person:anne, 22:10"],
+          "text": "He locked the door behind her."
+        },
+        {
+          "id": "ka_jointure",
+          "triple": ["person:anne", "jointure_on", "manor:asshover, £250 a year"],
+          "text": "Her jointure of £250 a year is charged on Asshover; she must join in a fine to let it go and is promised a new one on Tibshelfe."
+        },
+        {
+          "id": "ka_francis_blood",
+          "triple": ["person:francis", "seen", "on the back stair at 01:00 with blood on his hand"],
+          "text": "Francis came up the back stair after one, singing, with blood on his hand and his shirt."
+        },
+        {
+          "id": "ka_threat",
+          "triple": ["person:francis", "said_at_supper", "the steward would not live to see the deed sealed"],
+          "text": "At supper Francis swore the steward would not live to see the deed sealed."
+        },
+        {
+          "id": "ka_cressy_pale",
+          "triple": ["person:cressy", "went_white", "at supper, when the collation was named"],
+          "text": "Mr Cressy went white at supper when Mr Hollins said he would read the engrossment against the draft that night."
+        },
+        {
+          "id": "ka_dawn",
+          "triple": ["person:anne", "saw", "the hand of person:hollins empty before person:daniel knelt, 06:15"],
+          "text": "At dawn she held the candle in the doorway; Daniel went in first, to the shutters he said; she saw the dead man's hand on the flags, open and empty, before Daniel knelt by it and cried that the key lay there."
+        },
+        {
+          "id": "ka_wound",
+          "triple": ["person:hollins", "wound", "at the back of the head, round, the size of a crown piece"],
+          "text": "She washed the body: the wound is at the back of the head, round, the size of a crown piece; the chest's corner is square."
+        },
+        {
+          "id": "ka_cord",
+          "triple": ["person:hollins", "girdle_cord", "cut"],
+          "text": "When they laid him out his key-cord hung cut from his girdle."
+        },
+        {
+          "id": "ka_lord_key",
+          "triple": ["person:sir_gervase", "keeps_key", "on a nail at his bed-head"],
+          "text": "Sir Gervase's key hangs on a nail at his bed-head; Ralph took it down at dawn to open the door."
+        },
+        {
+          "id": "ka_mines",
+          "triple": ["family:haywood", "always_excepted", "the mines of Asshover"],
+          "text": "Sir Gervase has excepted the mines of Asshover in every lease and grant since his father bought it."
+        }
+      ],
+      "hides": [
+        {
+          "facts": ["ka_visit", "ka_saw_line", "ka_locked_after"],
+          "why": "she went behind her husband's back to stay his sale, and a lady alone with the steward at night is talk",
+          "until": "she learns she was seen on the stair (francis_names_anne) and is pressed"
+        },
+        {
+          "facts": ["ka_jointure"],
+          "why": "her fear for her son is not the household's business",
+          "until": "pressed on the sale"
+        }
+      ],
+      "claims": [
+        {
+          "id": "ac_nursery",
+          "label": "Dame Anne: in the nursery all evening",
+          "topic": "whereabouts",
+          "false": true,
+          "triple": ["person:anne", "stayed_in", "room:nursery all the evening"],
+          "fact": "Dame Anne says she was in the nursery with Ned all the evening and abed by ten.",
+          "line": "I was in the nursery with Ned all the evening, your Worship, and abed by ten.",
+          "press": "In the nursery. Ned had the toothache; his nurse will tell you.",
+          "yield": "(She turns her ring.) Very well: not the nursery. Where I was is my own affair, and Sir Gervase's. Ask Francis what he saw, since he watches me so close.",
+          "broken_by": ["francis_names_anne", "cressy_saw_anne", "daniel_lady_left"],
+          "why": "hides her visit to the steward, against her husband's sale"
+        },
+        {
+          "id": "ac_morning",
+          "label": "Dame Anne: the door at dawn",
+          "topic": "morning",
+          "false": false,
+          "triple": ["person:ralph", "opened", "door d21 with Sir Gervase's key, 06:15"],
+          "fact": "Ralph opened the door with Sir Gervase's key; it was locked fast; Daniel went in first; she held the light.",
+          "line": "Ralph opened it with Sir Gervase's key, your Worship; it was locked fast. Daniel went in first, to the shutters, and I held the light in the door. He lay by the chest. God rest him."
+        },
+        {
+          "id": "ac_sale",
+          "label": "Dame Anne: the sale",
+          "topic": "sale",
+          "false": false,
+          "triple": ["person:sir_gervase", "must_sell", "manor:asshover"],
+          "fact": "Sir Gervase must sell; the composition and the war debts have eaten them; Asshover goes to the alderman who lent on bond.",
+          "line": "Sir Gervase must sell, your Worship. The composition and the war debts have eaten us. Asshover goes to the alderman who lent on bond five years since."
+        },
+        {
+          "id": "ac_daniel",
+          "label": "Dame Anne: Daniel at the door",
+          "topic": "person:daniel",
+          "false": false,
+          "triple": ["person:daniel", "kept", "the muniment door all morning"],
+          "fact": "Daniel has not left the muniment door all morning.",
+          "line": "Daniel loved him like a father, I think. He has not left that door all morning."
+        },
+        {
+          "id": "ac_wound",
+          "label": "Dame Anne: the wound",
+          "topic": "wound",
+          "false": false,
+          "triple": ["person:hollins", "wound", "at the back of the head"],
+          "fact": "The wound is at the back of his head, and round.",
+          "line": "As I told your Worship: at the back of the head, and round, as if something round had struck him."
+        },
+        {
+          "id": "ac_steward",
+          "label": "Dame Anne: the steward in the wars",
+          "topic": "steward",
+          "false": false,
+          "triple": ["person:hollins", "kept", "the evidences through the wars"],
+          "fact": "Mr Hollins kept the evidences through the wars and hid them from the committee men.",
+          "line": "He kept our evidences through the wars, your Worship. When the committee men came in 'forty-five he had the deeds in the malt-kiln before they were through the gate."
+        }
+      ],
+      "clues": [
+        {
+          "id": "anne_wound",
+          "label": "The wound: behind, and round",
+          "pillar": "means",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {"topic": "death", "stance": ["ask", "press"]},
+          "triple": ["person:hollins", "wound", "at the back of the head, round; the chest's corner is square"],
+          "fact": "Dame Anne washed the body: the wound is at the back of the head, round, the size of a crown piece, while the chest's corner he is said to have fallen on is square.",
+          "hook": "I washed him myself, with Margery. The wound was at the back of his head, round, the size of a crown piece. Sir Gervase will have it he fell forward on the chest. The chest's corner is square, your Worship, and he was struck behind."
+        },
+        {
+          "id": "anne_girdle_cord",
+          "label": "The key-cord cut at his girdle",
+          "pillar": "locked",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {"topic": "keys", "stance": ["ask", "press"]},
+          "triple": ["person:hollins", "girdle_cord", "cut"],
+          "fact": "When they laid him out, the green cord of his key hung cut from his girdle.",
+          "hook": "When we laid him out, his key-cord hung from his girdle, cut. I thought the men had cut it lifting him. Now I think on it, none of them had a knife out."
+        },
+        {
+          "id": "anne_lord_key",
+          "label": "Sir Gervase's key on its nail",
+          "pillar": "locked",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "keys", "stance": ["ask", "press"]},
+          "triple": ["person:sir_gervase", "keeps_key", "on a nail at his bed-head"],
+          "fact": "Sir Gervase's key hangs on a nail at his bed-head; he slept on his opiate from nine; Ralph took the key down at dawn to open the door.",
+          "hook": "Sir Gervase's key hangs on a nail at his bed-head. He took his opiate at nine and heard nothing after, God help him; anyone who passed his bed might have reached it. Ralph took it down at dawn to open the door.",
+          "debunked_by": ["key_cut_cord"]
+        },
+        {
+          "id": "anne_dawn",
+          "label": "Dame Anne: his hand was empty at dawn",
+          "pillar": "locked",
+          "effect": "genuine",
+          "tier": "essential",
+          "gate": {"topic": "morning", "stance": ["press", "show"], "requires": {"learned": ["key_cut_cord"]}},
+          "triple": ["person:anne", "saw", "the hand of person:hollins empty before person:daniel knelt, 06:15"],
+          "fact": "At dawn Dame Anne held the candle in the doorway; Daniel went in first, to the shutters he said; she saw the dead man's hand on the flags, open and empty, before Daniel knelt by it; then he cried that the key lay by his hand.",
+          "hook": "I held the candle in the doorway this morning. Daniel went in before me, to open the shutters, he said. I saw Mr Hollins's hand on the flags in my light, open, and nothing in it or by it. Then Daniel knelt, and cried out that the key lay by his hand."
+        },
+        {
+          "id": "anne_francis_blood",
+          "label": "Dame Anne: Francis bloody on the stair at one",
+          "pillar": "means",
+          "effect": "false",
+          "tier": "texture",
+          "gate": {"topic": "person:francis", "stance": ["ask", "press"]},
+          "triple": ["person:francis", "seen", "on the back stair at 01:00 with blood on his hand"],
+          "fact": "Dame Anne saw Francis come up the back stair after one with blood on his hand and shirt; at supper he had said the steward would not live to see the deed sealed.",
+          "hook": "Francis came up the back stair after one, singing, with blood on his hand and his shirt. At supper he swore Mr Hollins would not live to see the deed sealed. I tell you because you'll hear it from the servants.",
+          "debunked_by": ["buttery_glass", "cressy_francis_buttery", "francis_saw_daniel"]
+        },
+        {
+          "id": "anne_visit",
+          "label": "Dame Anne's visit at ten",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {
+            "topic": "whereabouts",
+            "stance": ["press", "show"],
+            "requires": {"learned": ["francis_names_anne"]}
+          },
+          "triple": ["person:hollins", "had_finger_on", "a line of the engrossment, grey-faced, 21:50"],
+          "fact": "Dame Anne owns she went up at ten to beg the steward to stay the sale; he was grey-faced over the engrossment with his finger on a line, Daniel stopped reading the draft when she came in, and Mr Hollins said, 'Not tonight, madam. There is something here I must see to first.' She came down; he locked the door behind her; he was alive.",
+          "hook": "Yes. I went up a little before ten, to beg him to stay the sale until my new jointure was sealed. He had the engrossment under the candle and his finger on one line, and his face was grey. Daniel was reading the draft aloud, and stopped when I came in. Mr Hollins said, 'Not tonight, madam. There is something here I must see to first.' I came down. He locked the door behind me. He was alive."
+        },
+        {
+          "id": "anne_mines",
+          "label": "The mines always excepted",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "lead",
+          "gate": {"topic": "mines", "stance": ["ask", "press"]},
+          "triple": ["family:haywood", "always_excepted", "the mines of Asshover"],
+          "fact": "Sir Gervase has excepted the mines of Asshover in every lease and grant since his father bought it; Mr Hollins saw to it.",
+          "hook": "Sir Gervase has excepted the mines of Asshover in every lease and grant since his father bought it. Mr Hollins saw to it. He used to say the lead was the one thing the war had not taken from us."
+        },
+        {
+          "id": "anne_cressy_pale",
+          "label": "Cressy went white at supper",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "person:cressy", "stance": ["ask", "press"]},
+          "triple": ["person:cressy", "went_white", "at supper, when the collation was named"],
+          "fact": "At supper, when Mr Hollins said he would read the engrossment against the draft that night, Mr Cressy went white.",
+          "hook": "At supper, when Mr Hollins said he would read the engrossment against the draft that night, Mr Cressy went as white as his bands. I noticed it because nothing else has moved him in a fortnight."
+        },
+        {
+          "id": "anne_jointure",
+          "label": "Dame Anne's jointure on Asshover",
+          "pillar": "motive",
+          "effect": "context",
+          "tier": "texture",
+          "gate": {"topic": "sale", "stance": ["press"]},
+          "triple": ["person:anne", "jointure_on", "manor:asshover, £250 a year"],
+          "fact": "Dame Anne's jointure of £250 a year is charged on Asshover; she must join in a fine to let it go and is promised a new one on Tibshelfe.",
+          "hook": "My jointure, two hundred and fifty a year, is charged on Asshover, your Worship. I must join in a fine to let it go, and I'm promised a new jointure on Tibshelfe. Promised. My son is eight."
+        }
+      ],
+      "deflect": "I must beg you to let me think on that.",
+      "dontknow": "I know nothing of that, your Worship.",
+      "guarded": "(She turns her ring.) I'll not be bullied in my own house, sir."
+    }
+  ],
+  "things": [
+    {
+      "id": "desk1",
+      "label": "the muniment table",
+      "kind": "table/joined-with-drawer",
+      "at": "muniment_room",
+      "address": "manor/muniment_room/desk1",
+      "carry": false,
+      "noun": "the table under the east window",
+      "why": "the brief's table with the drawer (lab/brief/manor-1660.json pin 'table'), built by the strongroom"
+    },
+    {
+      "id": "key_steward",
+      "label": "Mr Hollins's key",
+      "kind": "key/iron",
+      "at": "desk1",
+      "rel": "on",
+      "slot": "top",
+      "key": "muniment_door",
+      "clue": "key_cut_cord",
+      "why": "Daniel laid it on the table at dawn after 'finding' it"
+    },
+    {
+      "id": "key_chest_steward",
+      "label": "the steward's padlock key",
+      "kind": "key/iron",
+      "at": "desk1",
+      "rel": "in",
+      "slot": "drawer",
+      "key": "chest_padlock_steward",
+      "noun": "a small padlock key",
+      "why": "the steward's key to one of the chest's two padlocks, in the table's drawer (the M1/M5 drawer and key, in earnest)"
+    },
+    {
+      "id": "desk1_candle",
+      "label": "the table candlestick",
+      "kind": "candle/in-candlestick",
+      "at": "desk1",
+      "rel": "on",
+      "address": "manor/muniment_room/desk1/candle",
+      "carry": false,
+      "clue": ["candlestick_dent", "candle_burnt"],
+      "state": {"light": "out", "~burn": 0.66},
+      "noun": "the table candle",
+      "why": "the weapon; its burn is the clock: 0.66 of its length left is 85 minutes at the kind's rate (6.67e-05 a second, src/make/kinds/strongroom-1660.js), lit 21:40, out about 23:05 when it fell"
+    },
+    {
+      "id": "chest1",
+      "label": "the iron-bound chest",
+      "kind": "chest/iron-bound",
+      "at": "muniment_room",
+      "address": "manor/muniment_room/chest1",
+      "carry": false,
+      "clue": "chest_band_clean",
+      "state": {"locks": "locked", "lid": "closed"},
+      "locks_need": ["key_chest_steward", "key_chest_lord"],
+      "why": "where the body was laid; under two locks (brief pin 'chest')"
+    },
+    {
+      "id": "settlement",
+      "label": "Dame Anne's settlement",
+      "kind": "letters/bundle",
+      "at": "chest1",
+      "rel": "in",
+      "slot": "inside",
+      "gate": {"requires": {"holding": ["key_chest_steward", "key_chest_lord"]}},
+      "clue": "jointure_settlement",
+      "noun": "Dame Anne's marriage settlement, 1650",
+      "stand_in": "a parchment deed with a pendant seal; letters/bundle stands in"
+    },
+    {
+      "id": "press_N1",
+      "label": "the north press",
+      "kind": "press/evidence",
+      "at": "muniment_room",
+      "address": "manor/muniment_room/press_N1",
+      "carry": false,
+      "clue": "drawer_asshover",
+      "state": {"drawers#5": "open"},
+      "drawer": {"index": 5, "label": "Asshover\nFeoffments i", "row": 0, "col": 5},
+      "noun": "the north press (press A)",
+      "why": "the steward pulled this drawer for the 1612 deed as he was struck"
+    },
+    {
+      "id": "cabinet_closet",
+      "label": "the japanned cabinet",
+      "kind": "cabinet/japanned",
+      "at": "closet_best",
+      "carry": false,
+      "noun": "the japanned cabinet in Sir Gervase's closet",
+      "why": "the closet's anchor (src/make/rooms/england-1660.js)"
+    },
+    {
+      "id": "key_chest_lord",
+      "label": "Sir Gervase's padlock key",
+      "kind": "key/iron",
+      "at": "cabinet_closet",
+      "rel": "in",
+      "slot": "d0l",
+      "key": "chest_padlock_lord"
+    },
+    {
+      "id": "opiate",
+      "label": "Sir Gervase's opiate",
+      "kind": "bottle/onion",
+      "at": "cabinet_closet",
+      "rel": "in",
+      "slot": "d0r",
+      "settings": {"body": "glass"},
+      "clue": "opiate_bottle"
+    },
+    {
+      "id": "bed_best",
+      "label": "Sir Gervase's bed",
+      "kind": "bed/standing-curtained",
+      "at": "best_bedchamber",
+      "carry": false,
+      "state": {"left": "closed", "right": "closed"},
+      "clue": "lord_asleep",
+      "noun": "the state bed, its curtains drawn",
+      "why": "every way to the muniment room passes it"
+    },
+    {
+      "id": "drawtable_gc",
+      "label": "the draw-table",
+      "kind": "table/drawing",
+      "at": "great_chamber",
+      "carry": false,
+      "noun": "the draw-table, laid for the sealing",
+      "why": "the great chamber's anchor"
+    },
+    {
+      "id": "engrossment",
+      "label": "the engrossment",
+      "kind": "deed/engrossment",
+      "missing": "kind",
+      "at": "drawtable_gc",
+      "rel": "on",
+      "slot": "top",
+      "clue": "rasure",
+      "noun": "the engrossment: three skins of parchment, stitched at the head, unsealed"
+    },
+    {
+      "id": "hogshead_canary",
+      "label": "the canary hogshead",
+      "kind": "barrel/hogshead-on-stand",
+      "at": "buttery",
+      "carry": false,
+      "clue": "buttery_glass",
+      "why": "one of the buttery's anchors"
+    },
+    {
+      "id": "chest_daniel",
+      "label": "Daniel's chest",
+      "kind": "chest/boarded",
+      "at": "servants_chamber_west",
+      "carry": false,
+      "noun": "Daniel's chest, 'D.W.' burnt in the lid",
+      "why": "one of the garret's boarded chests"
+    },
+    {
+      "id": "box_daniel",
+      "label": "Daniel's oak box",
+      "kind": "box/oak-lidded",
+      "at": "chest_daniel",
+      "rel": "in",
+      "slot": "inside",
+      "carry": false,
+      "clue": "gold_note",
+      "noun": "a small oak box under a shirt"
+    },
+    {
+      "id": "draft_steward",
+      "label": "the steward's draft",
+      "kind": "letters/bundle",
+      "at": "chest_daniel",
+      "rel": "in",
+      "slot": "inside",
+      "clue": "draft_exception",
+      "noun": "the steward's draft of the release, sheets of paper tied with tape",
+      "stand_in": "letters/bundle is paper tied with tape; a draft is exactly that"
+    },
+    {
+      "id": "chest_cressy",
+      "label": "Mr Cressy's chest",
+      "kind": "chest/boarded",
+      "at": "bedchamber_west",
+      "carry": false,
+      "noun": "the chest at the foot of Mr Cressy's bed",
+      "why": "the bedchamber's anchor"
+    },
+    {
+      "id": "papers_cressy",
+      "label": "Mr Cressy's papers",
+      "kind": "letters/bundle",
+      "at": "chest_cressy",
+      "rel": "in",
+      "slot": "inside",
+      "clue": ["london_copy", "pargeter_letter"],
+      "noun": "Mr Cressy's papers, tied with tape"
+    },
+    {
+      "id": "bed_steward",
+      "label": "the steward's bed",
+      "kind": "bed/standing-curtained",
+      "at": "steward_chamber",
+      "carry": false,
+      "why": "the steward's chamber is a bedchamber; its anchor"
+    },
+    {
+      "id": "body_hollins",
+      "label": "Mr Hollins",
+      "kind": "body/laid-out",
+      "missing": "kind",
+      "at": "bed_steward",
+      "rel": "on",
+      "carry": false,
+      "clue": ["body_wound", "body_cord"],
+      "noun": "Mr Hollins, laid out under a sheet"
+    }
+  ],
+  "clues": [
+    {
+      "id": "key_cut_cord",
+      "label": "The key's cut cord",
+      "pillar": "locked",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "take or look",
+      "triple": ["thing:key_steward", "bears", "a hand's length of green cord through its bow, cut clean"],
+      "fact": "Mr Hollins's door key has a hand's length of green silk cord knotted through its bow, cut clean across, as with a penknife.",
+      "hook": "A wrought-iron key, warded for the muniment door. Through its bow, a hand's length of green silk cord, knotted, and cut clean across, as with a penknife."
+    },
+    {
+      "id": "candlestick_dent",
+      "label": "The dented candlestick",
+      "pillar": "means",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "look",
+      "triple": ["thing:desk1_candle", "foot", "dented, something dark in the moulding"],
+      "fact": "The brass candlestick's foot is dented on one edge, and something dark is caught in its moulding, wiped but not washed.",
+      "hook": "A heavy brass candlestick. Its foot is dented on one edge, and something dark is caught in the moulding: wiped, not washed."
+    },
+    {
+      "id": "candle_burnt",
+      "label": "The candle fell, about five past eleven",
+      "pillar": "opportunity",
+      "effect": "context",
+      "tier": "lead",
+      "reveal": "look",
+      "triple": ["thing:desk1_candle", "burned", "about an hour and a half, then fell"],
+      "fact": "The table candle burned about an hour and a half and was not snuffed: it fell while burning; and there is a splash of tallow on the flags before the north press.",
+      "hook": "The candle has burned about an hour and a half. It was not snuffed: the wick is bent over and the tallow has run down one side, as a candle does that falls while it burns, and it stands crooked in its socket. On the flags before the north press, a splash of tallow."
+    },
+    {
+      "id": "chest_band_clean",
+      "label": "The chest's corner clean",
+      "pillar": "means",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "look",
+      "triple": ["thing:chest1", "corner_band", "clean: no blood, no hair"],
+      "fact": "The iron band at the chest's corner, where they say he struck his head in falling, is clean: no blood, no hair, not a mark.",
+      "hook": "The iron band at the chest's corner, where they say he struck his head in falling, is clean: no blood, no hair, not a mark. The flags below it have been scrubbed."
+    },
+    {
+      "id": "drawer_asshover",
+      "label": "The Asshover drawer and the memorandum",
+      "pillar": "motive",
+      "effect": "context",
+      "tier": "lead",
+      "reveal": "open or look",
+      "triple": ["thing:press_N1", "drawer_5_holds", "the 1612 deed of Asshover and the steward's memorandum of 14 September"],
+      "fact": "In the open drawer 'Asshover / Feoffments i': the 1612 deed by which Sir Ralph Haywood bought Asshover with all its mines of lead ore, and the steward's pinned memorandum that the mines are to be excepted to Sir Gervase in the sale to Pargeter, agreed by Mr Cressy on 14 September.",
+      "hook": "One drawer of the north press stands a hand open: 'Asshover / Feoffments i'. In it, the deed of 1612 by which Sir Ralph Haywood bought Asshover 'with all mines and veins of lead ore', and pinned to it in Mr Hollins's hand: 'Mem. The mines to be excepted to Sir Gervase in the sale to Pargeter. Agreed by Mr Cressy, 14 Sept.'"
+    },
+    {
+      "id": "jointure_settlement",
+      "label": "Dame Anne's settlement",
+      "pillar": "motive",
+      "effect": "context",
+      "tier": "texture",
+      "reveal": "take",
+      "triple": ["manor:asshover", "charged_with", "Dame Anne's jointure, £250 a year"],
+      "fact": "Dame Anne's marriage settlement of 1650 charges her jointure of £250 a year on the manor of Asshover.",
+      "hook": "Under the Letters Patent and the Pardon: Dame Anne's marriage settlement of 1650. Her jointure, two hundred and fifty pounds a year, is charged on the manor of Asshover."
+    },
+    {
+      "id": "opiate_bottle",
+      "label": "Sir Gervase's opiate",
+      "pillar": [],
+      "effect": "context",
+      "tier": "texture",
+      "reveal": "take or look",
+      "triple": ["thing:opiate", "is", "Sir Gervase's opiate, a third gone"],
+      "fact": "A green glass bottle of Sir Gervase's opiate, a third gone; the apothecary's label says two spoonfuls in sack at bedtime, for the pain.",
+      "hook": "A green glass bottle, a third gone. The apothecary's label: 'Two spoonfuls in sack at bedtime, for the pain.'"
+    },
+    {
+      "id": "lord_asleep",
+      "label": "Sir Gervase asleep",
+      "pillar": [],
+      "effect": "context",
+      "tier": "texture",
+      "reveal": "open (draw the curtain)",
+      "triple": ["person:sir_gervase", "sleeps", "heavily, on his opiate"],
+      "fact": "Behind the curtains Sir Gervase sleeps heavily, his bound foot on a cushion; a cup by the bed smells of sack and poppies.",
+      "hook": "Behind the curtains Sir Gervase sleeps heavily, grey-faced, his bound foot on a cushion. A cup by the bed smells of sack and poppies."
+    },
+    {
+      "id": "rasure",
+      "label": "The rasure on the second skin",
+      "pillar": "motive",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "look",
+      "on_missing_kind": true,
+      "triple": ["thing:engrossment", "skin_2_line_14", "scraped and written over: the mines passed, not excepted"],
+      "fact": "On the second skin of the engrossment, the fourteenth line is scraped and written over in Daniel's hand: where the draft excepts the mines, the engrossment passes them 'together with all mines, minerals and quarries'.",
+      "hook": "Held to the window, the second skin shows it: the fourteenth line is rough where the parchment was scraped and written over. Where the steward's draft excepts the mines, this passes them, 'together with all mines, minerals and quarries'. The hand is Daniel's engrossing hand throughout."
+    },
+    {
+      "id": "buttery_glass",
+      "label": "A broken glass and blood in the buttery",
+      "pillar": "means",
+      "effect": "context",
+      "tier": "texture",
+      "reveal": "look",
+      "triple": ["thing:hogshead_canary", "stand_bears", "a broken glass and dried blood"],
+      "fact": "On the stand of the canary hogshead lie a broken drinking glass and dried blood; the tap has dripped into a jug left under it.",
+      "hook": "On the stand of the canary hogshead, a broken drinking glass and dried blood. The tap has dripped into a jug left under it. Someone drew wine here in the night, and cut himself."
+    },
+    {
+      "id": "gold_note",
+      "label": "Twenty pieces of gold and a note: 'A.C.'",
+      "pillar": "motive",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "open",
+      "triple": ["thing:box_daniel", "holds", "twenty pieces of gold and a note signed A.C."],
+      "fact": "In Daniel's oak box: twenty pieces of gold in a twist of paper, and a note in a London hand: 'The like again when it is sealed. Burn this. A.C.'",
+      "hook": "Under a shirt in Daniel's chest, a small oak box. In it, twenty pieces of gold in a twist of paper, and a note in a London hand: 'The like again when it is sealed. Burn this. A.C.'"
+    },
+    {
+      "id": "draft_exception",
+      "label": "The steward's draft: the mines excepted, 'agreed, A.C.'",
+      "pillar": "motive",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "take",
+      "triple": ["thing:draft_steward", "margin_reads", "the exception of the mines, 'agreed, A.C., 14 Sept.'"],
+      "fact": "The steward's draft of the release, taken from the muniment table: in the margin of the second sheet, the exception of the mines to Sir Gervase and his heirs, and beside it 'agreed, A.C., 14 Sept.'",
+      "hook": "The steward's draft of the release of Asshover, in his own hand: the paper that should have been on the muniment table. In the margin of the second sheet: 'excepting and reserving to Sir Gervase Haywood and his heirs all mines and veins of lead ore', and beside it, 'agreed, A.C., 14 Sept.'"
+    },
+    {
+      "id": "london_copy",
+      "label": "Cressy's London copy: no exception",
+      "pillar": "motive",
+      "effect": "false",
+      "tier": "texture",
+      "reveal": "take",
+      "triple": ["thing:papers_cressy", "copy_reads", "no exception of the mines"],
+      "fact": "Mr Cressy's copy of the draft, as it came from London, passes Asshover with its appurtenances and says nothing of the mines.",
+      "hook": "Mr Cressy's copy of the draft, as it came from London: it passes Asshover with all its appurtenances, and says nothing of the mines.",
+      "debunked_by": ["draft_exception", "drawer_asshover"]
+    },
+    {
+      "id": "pargeter_letter",
+      "label": "Pargeter: 'See the mines pass with the land'",
+      "pillar": "motive",
+      "effect": "context",
+      "tier": "lead",
+      "reveal": "take",
+      "triple": ["person:pargeter", "wrote", "'See the mines pass with the land', 18 September"],
+      "fact": "A letter to Mr Cressy from Alderman Pargeter, 18 September: the Asshover ore assays better than hoped; see the mines pass with the land, and spare no reasonable cost.",
+      "hook": "A letter to Mr Cressy from Alderman Pargeter, dated the 18th of September: 'The Asshover ore assays better than we hoped. See the mines pass with the land, and spare no reasonable cost.'"
+    },
+    {
+      "id": "body_wound",
+      "label": "The wound at the back of his head",
+      "pillar": "means",
+      "effect": "genuine",
+      "tier": "essential",
+      "reveal": "look",
+      "on_missing_kind": true,
+      "triple": ["person:hollins", "wound", "at the back of the head, round"],
+      "fact": "Under the sheet, the wound is at the back of his head, round, the size of a crown piece.",
+      "hook": "Under the sheet his face is quiet. The wound is at the back of his head: round, the size of a crown piece."
+    },
+    {
+      "id": "body_cord",
+      "label": "The cut cord at his girdle",
+      "pillar": "locked",
+      "effect": "context",
+      "tier": "lead",
+      "reveal": "look",
+      "on_missing_kind": true,
+      "triple": ["person:hollins", "girdle_cord", "cut"],
+      "fact": "At his girdle hangs the rest of the green key-cord, cut clean.",
+      "hook": "At his girdle hangs the rest of a green silk cord, cut clean."
+    }
+  ],
+  "doors": {
+    "d21": {
+      "locked": false,
+      "key": "muniment_door",
+      "kind": "door/boarded-iron-bound",
+      "why": "the muniment room's one door, from closet_best: locked all night, opened at dawn with Sir Gervase's key, and left unlocked since"
+    }
+  },
+  "beats": [
+    {
+      "id": "arrival",
+      "kind": "arrival",
+      "phase": "setup",
+      "weight": "required",
+      "rung": "now",
+      "when": "at:great_hall",
+      "hook": "Dame Anne Haywood meets you in the hall, grey with no sleep. 'Mr Hollins is dead in the muniment room, your Worship, and the door was locked upon him. Sir Gervase means to seal the sale at noon.'",
+      "effects": [{"type": "set_var", "name": "hour", "value": "ten"}]
+    },
+    {
+      "id": "the_room",
+      "kind": "discovery",
+      "phase": "setup",
+      "weight": "optional",
+      "rung": "now",
+      "when": "at:muniment_room",
+      "hook": "The shutters stand open. A table under the east window with a key lying on it; the iron-bound chest; presses of labelled drawers, one standing a hand open. The flags by the chest have been scrubbed.",
+      "effects": [{"type": "move_person", "id": "anne", "to": "withdrawing_chamber"}]
+    },
+    {
+      "id": "lie_half_ten",
+      "kind": "lie_exposed",
+      "phase": "rising",
+      "weight": "required",
+      "rung": "now",
+      "when": "learned:daniel_says_half_ten and (learned:francis_no_one_down or learned:cressy_saw_daniel or learned:francis_saw_daniel)",
+      "hook": "Daniel Wragg said he came down the great stair at half past ten. Nobody at its foot saw him then, and at night there is no other way down.",
+      "effects": [{"type": "set_var", "name": "daniel_doubted", "value": true}]
+    },
+    {
+      "id": "lie_key",
+      "kind": "lie_exposed",
+      "phase": "rising",
+      "weight": "required",
+      "rung": "now",
+      "when": "learned:daniel_says_key_by_hand and learned:anne_dawn",
+      "hook": "The dead man's hand was empty in Dame Anne's light. The key came into that room this morning in somebody's sleeve.",
+      "effects": [{"type": "set_var", "name": "key_planted", "value": true}]
+    },
+    {
+      "id": "garret_flight",
+      "kind": "discovery",
+      "phase": "rising",
+      "weight": "required",
+      "rung": "now",
+      "when": "(done:lie_half_ten or done:lie_key) and not opened:box_daniel and not holding:draft_steward",
+      "hook": "A maid on the stair, breathless: 'Daniel's run up the back stair to the garret, your Worship, white as whey.'",
+      "effects": [
+        {"type": "move_person", "id": "daniel", "to": "servants_chamber_west"},
+        {"type": "set_var", "name": "daniel_fled", "value": true}
+      ]
+    },
+    {
+      "id": "cornered",
+      "kind": "discovery",
+      "phase": "rising",
+      "weight": "optional",
+      "rung": "now",
+      "when": "done:garret_flight and at:servants_chamber_west and here:daniel",
+      "hook": "Daniel kneels at his chest with the lid up and a bundle of papers half out of it. He lets the lid fall, stands, and does not meet your eye.",
+      "effects": [{"type": "set_var", "name": "daniel_cornered", "value": true}]
+    },
+    {
+      "id": "cressy_presses",
+      "kind": "pressure",
+      "phase": "rising",
+      "weight": "optional",
+      "when": "quiet>=9 and not learned:cressy_bribe",
+      "hook": "A footman brings Mr Cressy's compliments: the purchase money is counted out in the great chamber, and he means to see the deed sealed at noon.",
+      "effects": [{"type": "set_var", "name": "cressy_impatient", "value": true}]
+    },
+    {
+      "id": "heir_temper",
+      "kind": "pressure",
+      "phase": "rising",
+      "weight": "flavor",
+      "rung": "draw",
+      "when": "learned:anne_francis_blood and not learned:francis_saw_daniel and not learned:cressy_francis_buttery",
+      "hook": "Below, Francis Haywood is shouting at a footman for more small beer. He has heard what his stepmother told you of his hand.",
+      "effects": [{"type": "set_var", "name": "francis_angry", "value": true}]
+    },
+    {
+      "id": "saddled",
+      "kind": "pressure",
+      "phase": "rising",
+      "weight": "required",
+      "rung": "converge",
+      "when": "learned:gold_note and not learned:cressy_bribe and not done:gather",
+      "hook": "From a window you see Mr Cressy's horse led saddled into the forecourt. Mr Cressy waits in the porch, booted, his cloak over his arm.",
+      "effects": [{"type": "move_person", "id": "cressy", "to": "porch"}]
+    },
+    {
+      "id": "gather",
+      "kind": "pressure",
+      "phase": "pressure",
+      "weight": "required",
+      "rung": "now",
+      "when": "covered>=4 and not here:daniel",
+      "hook": "Enough to lay before the coroner. Sir Gervase has himself carried down to the great hall in his chair and bids the household attend you there.",
+      "effects": [
+        {"type": "move_person", "id": "daniel", "to": "great_hall"},
+        {"type": "move_person", "id": "cressy", "to": "great_hall"},
+        {"type": "move_person", "id": "francis", "to": "great_hall"},
+        {"type": "move_person", "id": "anne", "to": "great_hall"},
+        {"type": "set_var", "name": "accuse_ready", "value": true}
+      ]
+    }
+  ],
+  "clocks": [
+    {
+      "id": "eleven",
+      "when": "learned>=8 or turns>=60",
+      "effects": [{"type": "set_var", "name": "hour", "value": "eleven"}],
+      "line": "The stable clock strikes eleven. An hour to the sealing."
+    },
+    {
+      "id": "half_eleven",
+      "when": "learned>=16 or turns>=110",
+      "effects": [{"type": "set_var", "name": "hour", "value": "half past eleven"}],
+      "line": "Half past eleven. In the great chamber a footman lays out the wax and Sir Gervase's seal."
+    },
+    {
+      "id": "noon",
+      "when": "turns>=160 and not phase:resolution",
+      "effects": [
+        {"type": "set_var", "name": "hour", "value": "noon"},
+        {"type": "move_person", "id": "daniel", "to": "great_hall"},
+        {"type": "move_person", "id": "cressy", "to": "great_hall"},
+        {"type": "move_person", "id": "francis", "to": "great_hall"},
+        {"type": "move_person", "id": "anne", "to": "great_hall"},
+        {"type": "set_var", "name": "accuse_ready", "value": true}
+      ],
+      "line": "Noon strikes. Sir Gervase is carried down to the great hall. 'Seal, or tell me who killed my steward, your Worship. One or the other.'"
+    }
+  ],
+  "accusation": {
+    "how": "Fill each blank of one sentence from what you have learned, then confirm it a group at a time; a group holds only when every blank in it is right, and nothing says which blank failed (Return of the Obra Dinn).",
+    "suspects": [
+      {"id": "daniel", "name": "Daniel Wragg"},
+      {"id": "cressy", "name": "Mr Ambrose Cressy"},
+      {"id": "francis", "name": "Mr Francis Haywood"},
+      {"id": "anne", "name": "Dame Anne Haywood"}
+    ],
+    "blanks": [
+      {
+        "id": "motive",
+        "label": "why",
+        "lead": "killed Mr Hollins because",
+        "options": [
+          {"id": "cheat_found", "label": "the steward found the cheat in the engrossment, written for gold"},
+          {"id": "jointure", "label": "the sale would take Dame Anne's jointure"},
+          {"id": "inheritance", "label": "the sale would strip the heir of Asshover"},
+          {"id": "collation", "label": "the steward's reading would spoil the London bargain"},
+          {"id": "debt", "label": "of sixty pounds lost at tables"}
+        ]
+      },
+      {
+        "id": "means",
+        "label": "by what means",
+        "lead": "; he died of",
+        "options": [
+          {"id": "candlestick", "label": "a blow from behind with the table candlestick"},
+          {"id": "chest_fall", "label": "a fall against the iron-bound chest"},
+          {"id": "glass", "label": "a blow with a broken glass"},
+          {"id": "opiate", "label": "Sir Gervase's opiate in his cup"}
+        ]
+      },
+      {
+        "id": "opportunity",
+        "label": "when",
+        "lead": "; the murderer was with him by",
+        "options": [
+          {"id": "stayed_on", "label": "staying on in the muniment room past eleven"},
+          {"id": "stair_half_ten", "label": "going up the great stair at half past ten"},
+          {"id": "visit_ten", "label": "going up to him at ten o'clock"},
+          {"id": "parlour_gap", "label": "slipping away from the parlour after eleven"}
+        ]
+      },
+      {
+        "id": "locked",
+        "label": "how the door was locked",
+        "lead": "; the door was locked with",
+        "options": [
+          {"id": "cut_key", "label": "his own key, cut from his girdle and dropped by his hand at dawn"},
+          {"id": "from_within", "label": "his own key, by himself, from within"},
+          {"id": "lords_key", "label": "Sir Gervase's key, taken from the nail at his bed-head"},
+          {"id": "window", "label": "a key passed in through the window bars"}
+        ]
+      }
+    ],
+    "groups": [
+      {
+        "id": "came_and_went",
+        "label": "who, when, and the lock",
+        "keys": ["suspect", "opportunity", "locked"]
+      },
+      {"id": "why_and_how", "label": "why, and by what means", "keys": ["motive", "means"]}
+    ],
+    "truth": {"suspect": "daniel", "motive": "cheat_found", "means": "candlestick", "opportunity": "stayed_on", "locked": "cut_key"},
+    "supports": {
+      "motive": ["draft_exception", "gold_note", "cressy_bribe", "cressy_cheat", "rasure"],
+      "means": ["candlestick_dent", "chest_band_clean", "anne_wound", "body_wound"],
+      "opportunity": ["francis_no_one_down", "francis_saw_daniel", "cressy_saw_daniel"],
+      "locked": ["anne_dawn", "key_cut_cord"]
+    },
+    "attempts": 3,
+    "rebuttals": {
+      "cressy": "A cheat, sir, I own, and a matter for Chancery. But I sat at tables with Mr Haywood until he went for wine, and the candle on that table went out before then. Ask him.",
+      "francis": "I was at the parlour table with the alderman's man until a quarter past eleven, and then in the buttery bleeding into the canary. Look at the hogshead.",
+      "anne": "I came down at ten past ten, your Worship, and two gentlemen at the stair foot saw me. He was alive behind me; Daniel will say so himself."
+    },
+    "verdict": {
+      "title": "It is Daniel Wragg.",
+      "text": "(He sits down on the flags of the great hall, his inky hands over his face.) 'He held the skin to the candle and said, This is thy hand, Daniel. Who paid thee?'"
+    }
+  },
+  "endings": {
+    "solved": [
+      "(Daniel Wragg sits down on the flags of the great hall, his inky hands over his face.) 'He said, This is thy hand, Daniel. Who paid thee?'",
+      "On Monday the coroner's jury finds that Josias Hollins was murdered by Daniel Wragg, and you commit him to Derby gaol for the assizes. Mr Cressy rides for London without his seal; Sir Gervase keeps his lead, and his debts.",
+      "The steward is buried at Wynstanton on the Tuesday. Francis Haywood walks behind the coffin."
+    ],
+    "right_but_unproven": "Daniel stands silent, white. Sir Gervase shakes his head: 'You have not shown it, your Worship. The jury will find a fall.' (Say which group failed, never which item.)",
+    "wrong_case_built": "The jury hears you out, and an innocent man goes to Derby gaol. At the burial, Daniel Wragg weeps louder than anyone.",
+    "wrong": "The accused answers you in front of the household (the rebuttal), and Sir Gervase calls for the wax.",
+    "no_accusation": "At noon Sir Gervase seals the release of Asshover, lead and all. On Monday the jury finds that Mr Hollins died by a fall, by the visitation of God."
+  },
+  "_period": [
+    {
+      "what": "An inquest within about 48 hours, by the coroner with a jury of 12 to 24 householders summoned by the parish constable, often held where the death happened; the jury views the body.",
+      "tag": "S",
+      "source": "design/case/period-1660-death.md §1 (London Lives, 18th c.; 'upon view of the body')"
+    },
+    {
+      "what": "The inquest on Monday 1 October in the great hall, the coroner from Chesterfield; the body kept laid out on the steward's own bed for the view.",
+      "tag": "C"
+    },
+    {
+      "what": "Verdicts: felo de se forfeits the dead man's goods; accident and natural death do not. Sir Gervase wants 'a fall in a fit' so nothing delays the sale.",
+      "tag": "S",
+      "source": "design/case/period-1660-death.md §1 (Wikipedia: Felo de se)"
+    },
+    {"what": "'By the visitation of God' as the jury's phrase for a natural death.", "tag": "C", "note": "the research found no source for it (gap)"},
+    {
+      "what": "The player as a Justice of the Peace, a neighbouring gentleman who takes statements, binds witnesses and commits to gaol for the assizes; Derby gaol, the next assizes.",
+      "tag": "C",
+      "note": "the JP's manual (Dalton, The Country Justice, a 1666 edition) is S; its procedure for examinations was not read (gap)"
+    },
+    {
+      "what": "Michaelmas Day, 29 September 1660, fell on a Saturday (Julian calendar), so Michaelmas Eve was a Friday and the inquest waits for Monday; Cressy's bribe on Tuesday the 25th.",
+      "tag": "S",
+      "source": "computed from the Julian day number; checked against Sunday 2 September 1666 (the Fire) and Tuesday 29 May 1660 (the King's entry)"
+    },
+    {"what": "Michaelmas as a day of payments and conveyances, the sale sealed at noon.", "tag": "C"},
+    {
+      "what": "Royalist sequestration and composition, the family's evidences sorted by manor with drawers for Sequestration and Composition; 'the Pardon, 1660' in the chest.",
+      "tag": "S",
+      "source": "lab/brief/manor-1660.json holdings (the drawer labels and the chest's contents)"
+    },
+    {
+      "what": "Sir Gervase owes Alderman Pargeter £2,000 on bond since 1655, long past its day; the sale clears it.",
+      "tag": "C",
+      "note": "the research's mortgage idea (a lender holding the deed past its redemption day) was not used: a mortgagee would hold the Asshover deeds, and the case needs them in the press"
+    },
+    {
+      "what": "Strict settlement: the settled estate cannot be sold without heirs and trustees. Asshover is the manor that can be sold because it was bought in 1612 and held in fee simple outside the settlement.",
+      "tag": "S",
+      "source": "design/case/period-1660-death.md §2 (University of Nottingham deeds guide) for settlement; the 1612 purchase and its standing outside it are C"
+    },
+    {
+      "what": "Dame Anne's jointure charged on Asshover, released by her joining in a fine; a new jointure promised on Tibshelfe.",
+      "tag": "C",
+      "note": "fines as collusive suits with a court record are S (period-1660-death.md §2); their use here is C"
+    },
+    {
+      "what": "A conveyance drafted, agreed with the buyer's agent, engrossed on parchment and read against the draft before sealing; an alteration made by scraping (a rasure) is suspect.",
+      "tag": "C",
+      "note": "the research found no source on forgery detection (gap)"
+    },
+    {
+      "what": "The steward keeps the muniment keys and the rentals but cannot seal a conveyance without the owner.",
+      "tag": "C",
+      "source": "design/case/period-1660-death.md §3 marks this C"
+    },
+    {"what": "Derbyshire lead under a manor, its mines excepted to the lord in grants; an alderman's assay of the ore.", "tag": "C"},
+    {
+      "what": "A rasure in a conveyance as forgery, punished by the pillory and the loss of ears (the Elizabethan forgery statute).",
+      "tag": "C",
+      "note": "from general knowledge (5 Eliz. c.14), not verified this session"
+    },
+    {
+      "what": "'Thou' from master to servant in private: the steward's last words, 'This is thy hand, Daniel. Who paid thee?'",
+      "tag": "S",
+      "source": "design/case/period-1660-death.md §4 (Wikipedia: Thou: thou to inferiors or familiars); this use is C"
+    },
+    {
+      "what": "Everyone says 'you' to the player; servants say 'your Worship', 'my master', 'my lady', 'Master Francis'; 'Sir Gervase', 'Mr Cressy', 'Dame Anne'.",
+      "tag": "C",
+      "source": "consistent with design/case/period-1660-death.md §4"
+    },
+    {
+      "what": "The voices' phrases (I pray you, I know not, God keep him, methinks, nay, I warrant you, Lord, pox on it, I crave your pardon).",
+      "tag": "C",
+      "source": "design/case/period-1660-death.md §4 (Pepys samples S; the rule C)"
+    },
+    {
+      "what": "Tallow candles and chamber candles carried to bed; the table candle burns about four hours to the socket.",
+      "tag": "S",
+      "source": "design/house/program-1660-research.md §3; the burn rate is the kind's own (src/make/kinds/strongroom-1660.js)"
+    },
+    {
+      "what": "A close stool in the closet off the best bedchamber; japanned cabinets in closets.",
+      "tag": "S",
+      "source": "design/house/program-1660-research.md §1.4.6 and §2 (Dunkenhalgh; Ham)"
+    },
+    {
+      "what": "The muniment room: one door, oak bound in iron; small barred windows with inside shutters; presses of drawers labelled by manor; an iron-bound chest under two locks for two keyholders; a table under the light.",
+      "tag": "S",
+      "source": "lab/brief/manor-1660.json (Steane 2010; Hardwick)"
+    },
+    {
+      "what": "Servants lodged in garrets; the east garret used for stores.",
+      "tag": "S",
+      "source": "design/house/program-1660-research.md §1.4.11 and §1.4.8 (garrets; galleries and garrets used for storage); which garret is which is C"
+    },
+    {"what": "Sir Gervase's opiate for the gout, given in sack at bedtime.", "tag": "C"},
+    {
+      "what": "Tables (backgammon) and canary wine in the buttery's hogshead; a vail (a tip to a servant); falling bands; a crown piece.",
+      "tag": "C",
+      "note": "hogsheads on stands in the buttery are S (program research §2, Dunkenhalgh)"
+    },
+    {
+      "what": "Twenty pieces of gold as a bribe: more than four years of a new cook-maid's wages (Pepys paid £4 a year in 1663).",
+      "tag": "S",
+      "source": "design/case/period-1660-death.md §3 for the wage; the bribe is C"
+    },
+    {"what": "Women of the house washing and laying out the dead.", "tag": "C"},
+    {"what": "The long gallery's west door locked at nine each night by the butler.", "tag": "C"},
+    {"what": "Clifford's Inn as the attorney's Inn of Chancery.", "tag": "C"},
+    {"what": "Rural idiom: 'bleeding like a Martinmas hog' (pigs killed at Martinmas), 'say boo to a goose', 'white as whey'.", "tag": "C"}
+  ],
+  "_house_needs": {
+    "kinds": [
+      {
+        "kind": "deed/engrossment",
+        "for": "engrossment (clue rasure)",
+        "what": "three skins of parchment stitched at the head, unsealed, legible when looked at: skin 2 line 14 rough where it was scraped",
+        "fair_play": "not needed: motive is proven without it (draft_exception, gold_note, cressy_bribe, francis_saw_purse)"
+      },
+      {
+        "kind": "body/laid-out",
+        "for": "body_hollins (clues body_wound, body_cord)",
+        "what": "a figure under a sheet on a bed, for the coroner's view; looked at, its clue text",
+        "fair_play": "not needed: Dame Anne holds both facts (anne_wound, anne_girdle_cord)"
+      },
+      {
+        "kind": "letter or deed, single (optional)",
+        "for": "draft_steward, papers_cressy, settlement",
+        "what": "letters/bundle stands in for all three; a folded letter and a sealed deed would read better"
+      }
+    ],
+    "working_parts": [
+      {
+        "need": "slots in more containers",
+        "why": "only the joined table declares slots (src/make/parts/joinery.js: 'drawer', 'top'). The case puts things in the japanned cabinet's drawers (d0l, d0r), a boarded chest, an oak box, the iron-bound chest, on the draw-table's top and on a bed; place.js's required tier can then put a story thing in them."
+      },
+      {
+        "need": "the strongroom reads the story",
+        "why": "lab/brief/strongroom.js builds desk1, its candle, chest1 and press_N1 itself and does not read plan.required, so the key on the table and the key in its drawer need a hook there."
+      },
+      {
+        "need": "a case sets initial states",
+        "why": "the table candle out at 0.66 of its length (a paused process: '~burn'), the north press's drawer 5 open, the best bed's curtains drawn, the chest locked: written into the world document's store when the case loads."
+      },
+      {
+        "need": "look (examine)",
+        "why": "clues on fixed things (the candle, the chest's band, the hogshead, the open drawer, the body) need a 'look' that shows the clue's hook when you look closely; works.js has take and act only."
+      },
+      {"need": "read a paper", "why": "a held letters/bundle should show its text (the draft, Cressy's papers, the settlement)."},
+      {
+        "need": "a lock with two keys, and a chest with two locks",
+        "why": "door/boarded-iron-bound takes one key name (the steward's and Sir Gervase's keys both open d21); chest/iron-bound's padlocks open with any key ('@holding': 'key') where the brief means two named keys held together."
+      },
+      {
+        "need": "the narrator cannot move things",
+        "why": "by design: Cressy in the porch does not carry the engrossment away; it stays on the draw-table."
+      },
+      {
+        "need": "case-play.js: things the house already builds",
+        "why": "caseRequired() places every case thing as required; desk1, desk1_candle, chest1 and press_N1 are built by the strongroom (their address field) and should be bound by address and given their story ids, not placed again. Anchors (bed_best, cabinet_closet, drawtable_gc, hogshead_canary, chest_daniel, chest_cressy, bed_steward) placed as required take an anchor's place, as place.js already counts them."
+      },
+      {
+        "need": "gates with any-of requirements",
+        "why": "one all-of gate per clue (case.js, talk.js) forced anne_visit to accept only Francis's word; an any-of form would let Cressy's or Daniel's serve."
+      },
+      {
+        "need": "talk.js reads a claim's press line",
+        "why": "every lie has a press line (the detail pressing gets, prior-art-interrogation.md §2); talk.js answers press with the lie's own line until it reads press."
+      },
+      {
+        "need": "the accusation's attempts and supports",
+        "why": "attempts (wrong confirmations allowed) and supports (the clues behind each true option) are data the panel and case-play do not read yet."
+      }
+    ],
+    "rooms": "none missing: every room the case uses is in the plan (great_hall, great_parlour, great_chamber, withdrawing_chamber, best_bedchamber, closet_best, muniment_room, buttery, steward_chamber, bedchamber_west, servants_chamber_west, porch).",
+    "people": "four presences for R57 (Daniel, Cressy, Francis, Dame Anne). Sir Gervase is behind his curtains and does not speak."
+  },
+  "_fairness": {
+    "verdict": "Fair. One culprit (daniel). Every required pillar is reached by a genuine clue without the culprit's confession, and without a word from him at all; no clue sits behind a door its own key is behind (no door is locked in play, and the chest's two padlock keys lie outside it); every false clue has a reachable debunker; every gate asks only for clues or things that can be had before it.",
+    "how_checked": "With the project's own code against the real plan (src/make/plans/hybrid-e.js with GENTRY_SEAT_1660) and catalogue (src/make/kinds): src/make/case.js checkCase and fairPlay, src/make/reach.js, src/make/narrator.js checkNarrator and a scripted makeNarrator play, src/make/talk.js answer() for every line on the path; plus walks fairPlay does not do (variants, debunkers, gates, claims, the accusation's shape). The scripts are in the session scratchpad (casecheck/check.mjs, casecheck/play.mjs), not in the repo.",
+    "measured": {
+      "fairPlay": "47 of 47 clues reachable from the arrival in the great hall, all four pillars covered, 3 ms",
+      "checkCase": "every reference real; its only findings are the two declared missing kinds (deed/engrossment, body/laid-out)",
+      "checkNarrator": "0 findings, 0 warnings (10 beats, 3 clocks)",
+      "variants": "all four pillars still covered: without the confession; with none of Daniel's clues (he says nothing); without the two missing kinds; with Daniel's chest never searched (box and draft gone); with Daniel silent and the missing kinds unbuilt",
+      "reach": "35 of 35 rooms reached from the great hall; no softlock; no locked door in play",
+      "scripted_play": "the solution path below, no model: solved at turn 71 (35 room entries, 25 questions, 11 things examined), 25 of 47 clues learned; phases rising at turn 2, turn at 14, pressure at 52, resolution at 71; beats in order arrival, the_room, lie_key, garret_flight, lie_half_ten, heir_temper, cornered, gather; clocks eleven (turn 15) and half_eleven (turn 31). Side paths checked: each lie breaks only on one of its own breakers and stays broken; a wrong thing shown closes the person up (talk.js 'guarded').",
+      "estimate": "about 45 minutes on a phone at roughly 45 s a question, 40 s a thing, 15 s a room, and the accusation (an estimate; R59 measures it)"
+    },
+    "solution_path": [
+      "1. Great hall. Dame Anne: How he died -> anne_wound (means). The door and its keys -> anne_girdle_cord (lead), anne_lord_key (texture). About Francis -> anne_francis_blood (a red herring).",
+      "2. Up the great stair to the great chamber. Mr Cressy: The engrossment -> cressy_took_deed; The lead under Asshover -> his lie (cc_mines).",
+      "3. Through the withdrawing chamber and the best bedchamber (Sir Gervase asleep behind his curtains) to the closet. Daniel: Last night -> daniel_says_half_ten (his lie); This morning -> daniel_says_key_by_hand (his lie); about Cressy -> daniel_blames_cressy (a red herring).",
+      "4. The muniment room. Take the key on the table -> key_cut_cord (locked). The candlestick -> candlestick_dent (means), candle_burnt (when). The chest -> chest_band_clean (means). The open drawer of the north press -> drawer_asshover (the mines memorandum). Optional: the padlock key in the table's drawer and Sir Gervase's in the closet's cabinet open the chest -> jointure_settlement.",
+      "5. The withdrawing chamber: press Dame Anne on This morning, or show her the key -> anne_dawn (locked). Beats lie_key, then garret_flight: Daniel runs to the west garret.",
+      "6. Down the great stair to the great parlour. Francis: about Daniel -> francis_no_one_down (opportunity), beat lie_half_ten; The lead -> francis_saw_purse (lead); about Cressy -> francis_cressy_sat (breaks Daniel's herring); about Dame Anne -> francis_names_anne (a red herring); press him on his cut hand -> francis_saw_daniel (opportunity).",
+      "7. The west garret, by the hall, the screens passage, the kitchen, the larder and the back stair. Daniel at his chest (beat cornered). Open the chest and the oak box -> gold_note (motive); take the steward's draft -> draft_exception (motive). Show Daniel the gold: his lie about it breaks.",
+      "8. Leaving the garret the household gathers in the great hall (beat gather). Show Cressy the gold -> cressy_bribe (motive), and about Daniel -> cressy_saw_daniel (opportunity); show him the draft on The lead: his lie breaks.",
+      "9. Accuse: Daniel Wragg killed Mr Hollins because the steward found the cheat in the engrossment, written for gold; he died of a blow from behind with the table candlestick; the murderer was with him by staying on in the muniment room past eleven; the door was locked with his own key, cut from his girdle and dropped by his hand at dawn."
+    ],
+    "other_routes": [
+      "Motive without Daniel's chest: the open drawer (drawer_asshover) breaks Cressy's lie about the mines; his own papers in the chest at his bed's foot (pargeter_letter) then make him own the cheat (cressy_cheat).",
+      "Opportunity without Daniel's words: press Francis on his cut hand once Dame Anne has told of it (francis_saw_daniel), or show Cressy the gold (cressy_saw_daniel).",
+      "Means without the candlestick: Dame Anne's account of the wound (anne_wound) or the clean chest band (chest_band_clean).",
+      "With the engrossment kind built, its rasure proves the motive from the great chamber's draw-table."
+    ],
+    "pillars": {
+      "motive": {
+        "genuine": [
+          "cressy_bribe (Mr Ambrose Cressy)",
+          "cressy_cheat (Mr Ambrose Cressy)",
+          "rasure (the engrossment (great_chamber))",
+          "gold_note (Daniel's oak box (servants_chamber_west))",
+          "draft_exception (the steward's draft (servants_chamber_west))"
+        ]
+      },
+      "means": {
+        "genuine": [
+          "anne_wound (Dame Anne Haywood)",
+          "candlestick_dent (the table candlestick (muniment_room))",
+          "chest_band_clean (the iron-bound chest (muniment_room))",
+          "body_wound (Mr Hollins (steward_chamber))"
+        ]
+      },
+      "opportunity": {
+        "genuine": ["cressy_saw_daniel (Mr Ambrose Cressy)", "francis_no_one_down (Mr Francis Haywood)", "francis_saw_daniel (Mr Francis Haywood)"]
+      },
+      "locked": {"genuine": ["anne_dawn (Dame Anne Haywood)", "key_cut_cord (Mr Hollins's key (muniment_room))"]}
+    },
+    "gates": [
+      "daniel_confession: Daniel Wragg, 'How he died', accuse; needs key_cut_cord (Mr Hollins's key (muniment_room)) and anne_dawn (Dame Anne Haywood) and gold_note (Daniel's oak box (servants_chamber_west))",
+      "cressy_francis_buttery: Mr Ambrose Cressy, 'Master Francis's cut hand', ask/press; needs anne_francis_blood (Dame Anne Haywood)",
+      "cressy_bribe: Mr Ambrose Cressy, 'The gold in Daniel's box', press/show; needs gold_note (Daniel's oak box (servants_chamber_west))",
+      "cressy_cheat: Mr Ambrose Cressy, 'The lead under Asshover', press/show; needs drawer_asshover (the north press (muniment_room)) and pargeter_letter (Mr Cressy's papers (bedchamber_west))",
+      "cressy_saw_daniel: Mr Ambrose Cressy, 'about Daniel Wragg', press/show; needs gold_note (Daniel's oak box (servants_chamber_west))",
+      "francis_no_one_down: Mr Francis Haywood, 'about Daniel Wragg', ask/press/show; needs daniel_says_half_ten (Daniel Wragg)",
+      "francis_saw_daniel: Mr Francis Haywood, 'Master Francis's cut hand', press/show; needs anne_francis_blood (Dame Anne Haywood)",
+      "francis_cressy_sat: Mr Francis Haywood, 'about Mr Ambrose Cressy', ask/press; needs daniel_blames_cressy (Daniel Wragg)",
+      "francis_saw_purse: Mr Francis Haywood, 'The lead under Asshover', ask/press; needs drawer_asshover (the north press (muniment_room))",
+      "anne_dawn: Dame Anne Haywood, 'This morning at the door', press/show; needs key_cut_cord (Mr Hollins's key (muniment_room))",
+      "anne_visit: Dame Anne Haywood, 'Last night: where you were', press/show; needs francis_names_anne (Mr Francis Haywood)",
+      "settlement (Dame Anne's settlement, in muniment_room): needs holding key_chest_steward (the steward's padlock key, muniment_room), key_chest_lord (Sir Gervase's padlock key, closet_best)"
+    ],
+    "keys_and_doors": "No door is locked in play: d21, the muniment room's one door, was opened at dawn with Sir Gervase's key and left unlocked (doors.d21). The only locks are the chest's two padlocks; their keys lie in the muniment table's drawer and in the closet's japanned cabinet, outside the chest, and nothing essential is in it.",
+    "red_herrings": [
+      {
+        "clue": "daniel_says_half_ten",
+        "from": "Daniel Wragg",
+        "points_at": "Daniel says he left Mr Hollins alive at half past ten, heard him lock the door behind him, and went down the great stair to bed.",
+        "pillar": "opportunity",
+        "debunked_by": [
+          "francis_no_one_down (Mr Francis Haywood)",
+          "cressy_saw_daniel (Mr Ambrose Cressy)",
+          "francis_saw_daniel (Mr Francis Haywood)"
+        ]
+      },
+      {
+        "clue": "daniel_says_key_by_hand",
+        "from": "Daniel Wragg",
+        "points_at": "Daniel says the key lay on the flags by his master's hand when the door was opened, so his master had locked himself in.",
+        "pillar": "locked",
+        "debunked_by": ["anne_dawn (Dame Anne Haywood)"]
+      },
+      {
+        "clue": "daniel_blames_cressy",
+        "from": "Daniel Wragg",
+        "points_at": "Daniel says that as he came down at half past ten he passed Mr Cressy going up the great stair, who said he sought the close stool in the closet.",
+        "pillar": "opportunity",
+        "debunked_by": ["francis_cressy_sat (Mr Francis Haywood)"]
+      },
+      {
+        "clue": "francis_names_anne",
+        "from": "Mr Francis Haywood",
+        "points_at": "Francis says his stepmother went up to the muniment room a little before ten.",
+        "pillar": "opportunity",
+        "debunked_by": ["daniel_lady_left (Daniel Wragg)", "cressy_saw_anne (Mr Ambrose Cressy)", "anne_visit (Dame Anne Haywood)"]
+      },
+      {
+        "clue": "anne_francis_blood",
+        "from": "Dame Anne Haywood",
+        "points_at": "Dame Anne saw Francis come up the back stair after one with blood on his hand and shirt; at supper he had said the steward would not live to see the deed sealed.",
+        "pillar": "means",
+        "debunked_by": [
+          "buttery_glass (the canary hogshead (buttery))",
+          "cressy_francis_buttery (Mr Ambrose Cressy)",
+          "francis_saw_daniel (Mr Francis Haywood)"
+        ]
+      },
+      {
+        "clue": "london_copy",
+        "from": "Mr Cressy's papers (bedchamber_west)",
+        "points_at": "Mr Cressy's copy of the draft, as it came from London, passes Asshover with its appurtenances and says nothing of the mines.",
+        "pillar": "motive",
+        "debunked_by": ["draft_exception (the steward's draft (servants_chamber_west))", "drawer_asshover (the north press (muniment_room))"]
+      },
+      {
+        "clue": "anne_lord_key",
+        "from": "Dame Anne Haywood",
+        "points_at": "Sir Gervase's key hangs on a nail at his bed-head; he slept on his opiate from nine; Ralph took the key down at dawn to open the door.",
+        "pillar": "locked",
+        "kind": "context",
+        "debunked_by": ["key_cut_cord (Mr Hollins's key (muniment_room))"]
+      }
+    ],
+    "notes": [
+      "fairPlay is generous by design: it assumes every topic and stance gets tried. The scripted play is the honest order, through talk.js as a player meets it.",
+      "Circumstantial clues are leads, not genuine (francis_saw_purse, anne_girdle_cord, body_cord), so the narrator's phases follow real proof: the pressure phase arrives with the garret, not before.",
+      "case.js and talk.js read one all-of gate per clue. Dame Anne's visit (anne_visit) asks for Francis's word only, though Cressy's or Daniel's would serve as well; her yield sends you to Francis.",
+      "The gather beat waits while you are with Daniel, so you can confront him at his chest; saddled cannot follow gather."
+    ]
+  }
+}
