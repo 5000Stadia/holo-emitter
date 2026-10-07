@@ -387,8 +387,8 @@ renderer.setAnimationLoop((now) => {
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false;
-  const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, !window.__ok ? 3000 : ENG.phone ? 2 : 4) : false;
-  const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, !window.__ok ? 3000 : ENG.phone ? 2 : 4) : false;   // all of it before the first frame; then a few ms a frame
+  const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, !window.__ok ? 500 : ENG.phone ? 2 : 4) : false;
+  const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, !window.__ok ? 500 : ENG.phone ? 2 : 4) : false;   // the nearest before the first frame (half a second); the rest a few ms a frame, under the haze
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
   if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
   const fading = winPool.step(dt) | firePool.step(dt);
