@@ -571,7 +571,7 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
 // up is up, +z toward the room. elems: doors, open edges, windows, a chimney-piece (schematic.json's
 // shapes; T, lining and passage on an opening override the single-room defaults). style: "panelled"
 // or "limewashed". Returns the group, and the window lights it made.
-export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {}) {
+export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0 } = {}) {
   const { M, oak, CLASS, cast, board } = K;
   const grp = new THREE.Group(), lights = [];
   const plain = style === "limewashed";
@@ -713,14 +713,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
-        ctx = e.id + "/glassback";
-        { // v2: no opaque backing: the world outside, 2.5 m beyond the glass, wide enough for any angle in
-          K.outside = K.outside || new THREE.MeshBasicMaterial({ map: outsideTexture(THREE), color: new THREE.Color(1.06, 1.06, 1.06) });
-          const ow = (e.r1 - e.r0) + 5.2, oh = 4.2, g = new THREE.PlaneGeometry(ow, oh);
-          g.translate((e.r0 + e.r1) / 2, e.sill + 0.4, G - 2.5);
-          const pane = new THREE.Mesh(g, K.outside); grp.add(pane);
-          pane.userData = { instance: `${F}/${e.id}/outside`, material: "glass", owner: F }; }
-        ctx = e.id;
+        // (the world outside is one pane for the whole wall, after the loop: one to each window overlapped its
+        // neighbours' in one plane and flickered as you moved, 2026-10-06)
         // daylight through the glass: an area light filling the opening, facing the room
         const al = new THREE.RectAreaLight(0xe9eef0, 5.5, gx1 - gx0, gy1 - gy0);   // v2: daylight is cool; the warmth is in the bounce
         al.position.set(mx, (gy0 + gy1) / 2, G + 0.06); al.lookAt(mx, (gy0 + gy1) / 2, 5);
@@ -841,6 +835,17 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled" } = {})
         if (e.breast) for (const o of grp.children.slice(chimneyStart)) o.position.z += e.breast;
       }
     }
+  // the world outside: one pane behind all of this wall's windows, 2.5 m beyond the glass, wide enough for any angle
+  // in; each room's a hair deeper than the next's (depth, from its id), so two rooms' panes never share a plane
+  const wins = elems.filter(e => e.kind === "window");
+  if (wins.length) {
+    K.outside = K.outside || new THREE.MeshBasicMaterial({ map: outsideTexture(THREE), color: new THREE.Color(1.06, 1.06, 1.06) });
+    const a = Math.min(...wins.map(e => e.r0)) - 2.6, b = Math.max(...wins.map(e => e.r1)) + 2.6, T = Math.max(...wins.map(e => e.T ?? STYLE.wallT));
+    const lo = Math.min(...wins.map(e => e.sill)) - 1.7, hi = Math.max(...wins.map(e => Math.max(e.sill + 2.5, e.top + 0.6)));
+    const g = new THREE.PlaneGeometry(b - a, hi - lo); g.translate((a + b) / 2, (lo + hi) / 2, -T - 2.5 - depth);
+    const pane = new THREE.Mesh(g, K.outside); grp.add(pane);
+    pane.userData = { instance: `${F}/outside`, material: "glass", owner: F };
+  }
   return { grp, lights };
 }
 
