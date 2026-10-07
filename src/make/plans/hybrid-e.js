@@ -155,7 +155,9 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   for (const st of plan.stairs) claims.claim(st.from, "stand", st.rect, BODY, `${st.stair} ${st.kind}`);
   const lightOf = (w, R) => w.F === "S" ? { x0: R.x0, x1: R.x1, y0: R.y1, y1: R.y1 + 0.6 } : w.F === "N" ? { x0: R.x0, x1: R.x1, y0: R.y0 - 0.6, y1: R.y0 }
     : w.F === "W" ? { x0: R.x1, x1: R.x1 + 0.6, y0: R.y0, y1: R.y1 } : { x0: R.x0 - 0.6, x1: R.x0, y0: R.y0, y1: R.y1 };
-  for (const fl of Object.keys(D.floors)) for (const r of plan.rooms.filter(q => q.floor === fl && q.type !== "open" && !q.landing)) for (const w of outsideWalls(r, { L, RD, WW, WP, E })) {
+  // (a stair hall's landings are lit too, each storey of it by its own windows, clear of the flights: lit only at its
+  // foot, the great stair was dark above, 2026-10-06)
+  for (const fl of Object.keys(D.floors)) for (const r of plan.rooms.filter(q => q.floor === fl && q.type !== "open")) for (const w of outsideWalls(r, { L, RD, WW, WP, E })) {
     const len = w.b - w.a, k = Math.max(1, Math.floor(len / D.bay)), set = [];
     for (let i = 0; i < k; i++) { const c0 = w.a + len * (i + 0.5) / k, half = Math.min(D.window, len / k - 0.6) / 2; if (half < 0.3) continue;
       const clearAt = (c) => c - half > w.a + 0.3 && c + half < w.b - 0.3 && !set.some(q => Math.abs(q - c) < 2 * half + 0.6) && claims.worst(fl, "stand", lightOf(w, winRect(w, c, half))).state < BODY;
