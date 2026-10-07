@@ -31,7 +31,14 @@ export function roomSpec(plan, room, { types = {}, brief = null, H }) {
 export function storeys(plan, gap = 0.35) {
   const floors = [...plan.floors].sort((a, b) => a.level - b.level);
   const levelOf = (id) => { let y = 0; for (const f of floors) { if (f.id === id) return y; y += f.storey_height_m + gap; } return y; };
-  const heightOf = (room) => { const i = floors.findIndex(f => f.id === room.floor), n = room.rises || 1; let h = 0; for (let k = 0; k < n && floors[i + k]; k++) h += floors[i + k].storey_height_m + (k ? gap : 0); return h; };
+  // a room rising through floors is as tall as the storeys it rises through, unless rooms stand in it above (a stair
+  // hall's landings, each with its own walls, doors and floor): then only to the lowest of them (built whole, its
+  // walls stood across the landing's doorway into the great chamber, 2026-10-06)
+  const full = (room) => { const i = floors.findIndex(f => f.id === room.floor), n = room.rises || 1; let h = 0; for (let k = 0; k < n && floors[i + k]; k++) h += floors[i + k].storey_height_m + (k ? gap : 0); return h; };
+  const over = (a, b) => a.x0 < b.x1 - 0.01 && a.x1 > b.x0 + 0.01 && a.y0 < b.y1 - 0.01 && a.y1 > b.y0 + 0.01;
+  const heightOf = (room) => { const Y = levelOf(room.floor), H = full(room); if ((room.rises || 1) < 2) return H;
+    const above = plan.rooms.filter(q => q !== room && q.type !== "open" && levelOf(q.floor) > Y + 0.01 && levelOf(q.floor) < Y + H && over(q.rect, room.rect));
+    return above.length ? Math.min(H, Math.min(...above.map(q => levelOf(q.floor))) - Y - gap) : H; };
   return { floors, levelOf, heightOf, gap };
 }
 // every built room's spec, keyed by id: { room, Y, H, spec }

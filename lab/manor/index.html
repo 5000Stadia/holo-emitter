@@ -227,6 +227,19 @@ window.__seal = (ids = [...manor.rooms.keys()]) => { const t0 = performance.now(
     if (leaks.size || gaps.size) out.push({ room: id, cracks: [...leaks].slice(0, 6).map(([k, v]) => `out at (${k}) ${v}`), n: leaks.size, gaps: [...gaps.keys()].slice(0, 6), ngaps: gaps.size });
   }
   return { rooms: ids.length, leaking: out, ms: Math.round(performance.now() - t0) }; };
+// the sight check (Kabe, 2026-10-06: "looking through door to great chamber … is a black nothing until enter"): every
+// door opened, from a step before each side of every doorway a ray through its middle at eye height must pass the
+// wall it stands in, not stop in a lining standing across it. Authoring only.
+window.__sight = () => { const t0 = performance.now(), W = works, rc = new THREE.Raycaster(), meshes = [], out = [];
+  for (const b of W.things.values()) if (b.node.userData.opening && W.stateOf(b, "leaf") !== "open") W.act({ b, aff: "leaf" }); W.finish?.(); manor.scene.updateMatrixWorld(true);
+  scene.traverse(o => { if (o.isMesh && !o.material?.transparent && !o.userData.carve) meshes.push(o); });
+  const leaves = new Set(); for (const b of W.things.values()) if (b.node.userData.opening) b.node.traverse(o => leaves.add(o));
+  for (const o of plan.openings) { if (!o.rect || o.joins.some(j => plan.rooms.find(q => q.id === j)?.type === "open")) continue;
+    const R = o.rect, ew = o.axis === "EW", cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, T = ew ? R.x1 - R.x0 : R.y1 - R.y0, Y = manor.levelOf(o.floor) + 1.5;
+    for (const sg of [1, -1]) { const d = ew ? new THREE.Vector3(sg, 0, 0) : new THREE.Vector3(0, 0, -sg), P = new THREE.Vector3(ew ? (sg > 0 ? R.x0 : R.x1) - sg * 0.5 : cx, Y, -(ew ? cy : (sg > 0 ? R.y0 : R.y1) - sg * 0.5));
+      rc.set(P, d); rc.far = 30; const hit = rc.intersectObjects(meshes, false).find(h => !leaves.has(h.object));
+      if (hit && hit.distance < 0.5 + T + 0.3) out.push({ door: o.id, joins: o.joins.join("|"), from: sg > 0 ? "lo" : "hi", stops: +hit.distance.toFixed(2), at: hit.object.userData?.instance || hit.object.material?.userData?.cls || "?" }); } }
+  return { blocked: out, ms: Math.round(performance.now() - t0) }; };
 window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
 
 let last = performance.now();
