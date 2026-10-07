@@ -227,6 +227,12 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
   if (!MANIFOLD) { const { default: Module } = await import("https://cdn.jsdelivr.net/npm/manifold-3d@3.5.4/manifold.js"); MANIFOLD = await Module(); MANIFOLD.setup(); }
   const out = [], times = [], ruleMs = [];
   for (const name of names) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+    // rule 2 of the room-and-object design (design/production/geometry-method.md §5): every part after the first
+    // hangs on one already placed, by a relation (on, hangs, under, in, meets, spans, fit), never by a typed position,
+    // unless it says its own code places it in the kind's frame (frame: "why"): a typed position is where a part floats
+    // or sinks, and nothing then catches it (the lifted-2-cm fault was caught 29% of the time)
+    k.parts.filter(q => q.part !== "mover").forEach((q, i) => { if (i && !["on", "hangs", "under", "in", "meets", "spans", "fit"].some(r => q[r] != null) && !q.frame)
+      out.push({ kind: name, check: "relation", part: `${q.id ? q.id + " " : ""}${q.part}`, what: "placed by a typed position, not by a relation to a part already placed" }); });
     const t = performance.now();
     let b, rec; try { ({ out: b, rec } = auditing(() => build(THREE, K, look, name, `check/${name}`, over))); } catch (e) { out.push({ kind: name, error: String(e) }); continue; }
     if (mutate) rec = mutate(k, rec, THREE);                    // a planted fault (tools/plant-faults.mjs)
@@ -282,6 +288,11 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
   const ms = times.reduce((s, x) => s + x, 0);
   return { findings: out, kinds: times.length, ms: Math.round(ms), perKind: +(ms / Math.max(1, times.length)).toFixed(1), rulesMs: Math.round(ruleMs.reduce((s, x) => s + x, 0)) };
 };
+// each part's box at rest, kind by kind (tools/part-boxes.mjs: converting coordinates to relations moves nothing)
+window.__boxes = (names) => { const out = {}, T = THREE; for (const name of names || [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) {
+  const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue; const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+  out[name] = rec.map(r => { r.g.computeBoundingBox(); const bb = r.g.boundingBox; return { lo: bb.min.toArray().map(v => Math.round(v * 10000) / 10000), hi: bb.max.toArray().map(v => Math.round(v * 10000) / 10000) }; }); }
+  return out; };
 // where a kind meets the floor and its wall: each part's lowest point and nearest the back (for finding a fault)
 window.__pieces = (name, index) => { const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
   return rec.map((r, n) => ({ n, r })).filter(({ r }) => r.index === index).map(({ r, n }) => { const bb = new THREE.Box3().setFromBufferAttribute(r.g.attributes.position);
