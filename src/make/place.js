@@ -222,7 +222,9 @@ export function placeRoom({ room, spec, plan, H, tiers, sizeOf, sweptOf = () => 
         if ((p = onWallPlace({ ...entry, tight }, sizeOf(entry.kind, over), over))) { p.over = over; break; } } if (p) break; }
       if (!p) { refused.push({ kind: entry.kind, tier: entry.tier, why: "no place that keeps the way clear and its rules" }); break; }
       const sz = sizeOf(entry.kind, p.over || {}); Object.assign(p, { kind: entry.kind, tier: entry.tier, dd: sz[2], w: sz[0] });   // d stays the wall offset; dd is its depth
-      if (p.P) claim(p.P, rule.layer === "floor" ? 0 : 2); if (p.sweep) claim(p.sweep, 1);
+      // (a piece claims a finger's breadth round itself: two set exactly side by side share a face, which flickers)
+      const around = (P, g) => { const c = P.reduce((a, [u, v]) => [a[0] + u / P.length, a[1] + v / P.length], [0, 0]); return P.map(([u, v]) => { const du = u - c[0], dv = v - c[1], l = Math.hypot(du, dv) || 1; return [u + du / l * g * 1.42, v + dv / l * g * 1.42]; }); };
+      if (p.P) claim(rule.layer === "floor" ? p.P : around(p.P, 0.02), rule.layer === "floor" ? 0 : 2); if (p.sweep) claim(p.sweep, 1);
       out.push(p); placed.push(p); k++;
     }
     return k;

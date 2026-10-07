@@ -109,8 +109,10 @@ definePart("drape", { build(c, { w, d, at = [0, 0, 0], drop = 0.3, off = 0.025, 
     if (!dt) return [ss * (a + lift), -ds, t];
     if (!ds) return [s, -dt, st * (b + lift)];
     // the corner: the cloth falls the longer way, gathered into a fold that stands out a little along the diagonal
-    const r = Math.hypot(ds, dt), bulge = 0.35 * Math.min(ds, dt) + lift;
-    return [ss * (a + bulge * 0.7), -r, st * (b + bulge * 0.7)]; };
+    // (its two halves, one from each side, stand a little apart across the fold and meet only along its line: computed
+    // alike they lay one on the other and flickered, 2026-10-06)
+    const r = Math.hypot(ds, dt), bulge = 0.35 * Math.min(ds, dt) + lift, pleat = 0.12 * Math.min(ds, dt) * Math.cos(2 * Math.atan2(dt, ds)) * 0.707;
+    return [ss * (a + bulge * 0.7 + pleat), -r, st * (b + bulge * 0.7 - pleat)]; };
   const pos = [], uv = [], face = (lift, flip) => { for (let i = 0; i < nu; i++) for (let j = 0; j < nv; j++) {
       const q = [[i, j], [i + 1, j], [i + 1, j + 1], [i, j + 1]].map(([u, v]) => ({ u: u / nu, v: v / nv, p: hang(-SW / 2 + u / nu * SW, -SD / 2 + v / nv * SD, lift) }));
       for (const [x, y, z] of flip ? [[0, 2, 1], [0, 3, 2]] : [[0, 1, 2], [0, 2, 3]]) for (const k of [x, y, z]) { pos.push(q[k].p[0], q[k].p[1], q[k].p[2]); uv.push(q[k].u, 1 - q[k].v); } } };

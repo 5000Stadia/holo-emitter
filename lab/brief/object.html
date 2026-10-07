@@ -33,6 +33,7 @@
 // An object on its own, against a limewashed wall on flags, for building and checking it: drag to turn
 // round it, wheel to come closer, click what works. ?o=bookpress|library|owners|shelf|book|kinds|furniture (&k=kind).
 // window.__view(az, el, dist, ty) aims the camera.
+import { coplanar } from "../../src/make/coplanar.js";
 import * as THREE from "three";
 import * as TSL from "three/tsl";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
@@ -288,6 +289,24 @@ window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).
   const ms = times.reduce((s, x) => s + x, 0);
   return { findings: out, kinds: times.length, ms: Math.round(ms), perKind: +(ms / Math.max(1, times.length)).toFixed(1), rulesMs: Math.round(ruleMs.reduce((s, x) => s + x, 0)) };
 };
+// faces that fight inside each kind (src/make/coplanar.js), at rest and with everything that moves moved: every mesh
+// it builds in world space, instances expanded. Authoring only.
+window.__fightKinds = async (names) => { const out = {}, v = new THREE.Vector3(), M4 = new THREE.Matrix4(), W4 = new THREE.Matrix4(), W = makeWorks(THREE, {});
+  for (const name of names || [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+    const b = build(THREE, K, look, name, `fight/${name}`); W.add(b); const res = [];
+    for (const state of ["rest", "moved"]) { if (state === "moved") { for (const a of Object.keys(k.affordances || {})) { try { W.act({ b, aff: a, force: true }); } catch (_) {} } W.finish?.(); }
+      b.node.updateMatrixWorld(true); const list = [];
+      b.node.traverse(o => { if (!o.isMesh || o.material?.transparent) return; const g = o.geometry, P = g.attributes.position, I = g.index, n = I ? I.count : P.count, inst = o.isInstancedMesh ? o.count : 1;
+        for (let q = 0; q < inst; q++) { if (o.isInstancedMesh) { o.getMatrixAt(q, M4); W4.multiplyMatrices(o.matrixWorld, M4); } else W4.copy(o.matrixWorld);
+          const tris = new Float32Array(n * 3); for (let j = 0; j < n; j++) { v.fromBufferAttribute(P, I ? I.getX(j) : j).applyMatrix4(W4); tris.set([v.x, v.y, v.z], j * 3); }
+          list.push({ key: `${o.userData?.instance?.split("/").slice(1).join("/") || o.material?.userData?.cls || "mesh"}${inst > 1 ? "#" + q : ""}`, tris, side: o.material?.side === THREE.BackSide ? -1 : o.material?.side === THREE.DoubleSide ? 0 : 1 }); } });
+      for (const p of coplanar(list)) res.push({ state, a: p.a, b: p.b, area: p.area, at: p.at.map(x => +x.toFixed(3)), ta: p.ta.map(x => +x.toFixed(4)), tb: p.tb.map(x => +x.toFixed(4)) }); }
+    if (res.length) { const by = new Map(); for (const r of res) { const key = `${r.state}: ${r.a} ~ ${r.b}`, e = by.get(key) || { pair: key, area: 0, n: 0, at: r.at, ta: r.ta, tb: r.tb }; e.area += r.area; e.n++; by.set(key, e); }
+      out[name] = [...by.values()].map(e => ({ ...e, area: +(e.area * 1e4).toFixed(1) })).sort((a, c) => c.area - a.area); } }
+  return out; };
+window.__buildTimes = () => { const out = []; for (const name of [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+  const t = performance.now(), b = build(THREE, K, look, name, `time/${name}`); let tris = 0; b.node.traverse(o => { if (o.isMesh) tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+  out.push({ name, ms: +(performance.now() - t).toFixed(1), settle: +(b.info.settle_ms || 0).toFixed(1), tris }); } return out.sort((a, b) => b.settle - a.settle); };
 // each part's box at rest, kind by kind (tools/part-boxes.mjs: converting coordinates to relations moves nothing)
 window.__boxes = (names) => { const out = {}, T = THREE; for (const name of names || [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) {
   const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue; const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));

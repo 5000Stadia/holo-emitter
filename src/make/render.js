@@ -15,7 +15,9 @@ const PHONE = matchMedia("(pointer: coarse)").matches && Math.min(screen.width, 
 const STEPS = PHONE ? [1, 0.85, 0.7, 0.6, 0.5] : [1.5, 1.25, 1, 0.85, 0.7];
 const BUILD = "r186";
 
-export async function makeRender({ outdoor = false, parent = document.body, msaa = !PHONE } = {}) {
+// edges smoothed everywhere, phones too (Kabe, 2026-10-06: "the slightest anti aliasing for the jagged edges"): 4x MSAA is
+// cheap on a phone's tiled GPU, and the resolution controller steps the pixel ratio down if frames run long; ?msaa=0 turns it off
+export async function makeRender({ outdoor = false, parent = document.body, msaa = Q.get("msaa") !== "0" } = {}) {
   const T0 = performance.now(), marks = {};
   const mark = (k) => { marks[k] = Math.round(performance.now() - T0); performance.mark?.(`holo:${k}`); };
   // the backend: measured per device, unless the address says

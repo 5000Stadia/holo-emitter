@@ -4,6 +4,7 @@
 // the things that work can move; a bank is many movers drawn as instances (a press's drawers).
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { idOf, seedOf, streamOf } from "./id.js";
+import { settleFaces } from "./coplanar.js";
 import { kindOf, partOf, settle, value, missingParts } from "./catalogue.js";
 
 // a look says what each material role is for one period and place: { roles: { wood: material, … } }
@@ -95,6 +96,12 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
   // a mover's pivot may name an edge of a placed part: { at: id, x: "left"|"mid"|"right", y: …, z: … }
   for (const mv of movers.values()) if (mv.pivot && !Array.isArray(mv.pivot)) mv.pivot = pivotOf(mv.pivot, placed, kindName);
   node.userData.make = { id, kind: kind.kind, address };
+  // faces two parts lay on one plane, facing the same way, would flicker as you move: in each rigid node (the body,
+  // each mover) the smaller of each such pair is lifted a hair (src/make/coplanar.js settleFaces)
+  const sideOf = (mat) => mat.side === THREE.BackSide ? -1 : mat.side === THREE.DoubleSide ? 0 : 1;
+  // all at rest, in the thing's own frame, together: a shut lid's sides lie flush with its box's
+  { const maps = [body, ...[...movers.values()].map(mv => mv.parts)], all = maps.flatMap(m => [...m.values()]), flat = all.flat(), sides = maps.flatMap(m => [...m].flatMap(([mat, gs]) => gs.map(() => sideOf(mat))));
+    const ts = performance.now(); c.info.settled = flat.length > 1 ? settleFaces(flat, 0.001, sides) : 0; c.info.settle_ms = performance.now() - ts; let k = 0; for (const gs of all) for (let j = 0; j < gs.length; j++) gs[j] = flat[k++]; }
   for (const m of meshesOf(THREE, body, id, "body")) node.add(m);
   const moverNodes = new Map();
   for (const [name, mv] of movers) {
@@ -104,6 +111,9 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     g.userData.home = { position: g.position.clone(), quaternion: g.quaternion.clone() };
     node.add(g); moverNodes.set(name, g);
   }
+  // a bank's meshes are one instance's pieces (a drawer's front, its bottom, its label): settled together too
+  for (const b of banks.values()) { const ms = b.meshes.filter(m => m.isMesh && !m.material?.transparent), gs = ms.map(m => m.geometry);
+    if (gs.length > 1) { c.info.settled += settleFaces(gs, 0.001, ms.map(m => sideOf(m.material))); ms.forEach((m, k) => { m.geometry = gs[k]; }); } }
   for (const [name, b] of banks) for (const m of b.meshes) { m.userData.make = { thing: id, bank: name }; node.add(m); }
   for (const [o, mv] of extras) { if (mv) { const g = moverNodes.get(mv); o.position.sub(g.position); g.add(o); } else node.add(o); }
   // slots as points in their mover's frame, so whatever is put there moves with it

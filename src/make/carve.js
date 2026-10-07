@@ -23,7 +23,7 @@
 import * as C from "../vendor/clipper2.min.mjs";
 import { framesOf, wallPoly } from "./walls.js";
 
-export const SETBACK = 0.04;     // m: behind every lining's deepest part
+export const SETBACK = 0.047;    // m: behind every lining's deepest part (an odd figure, so no lining's round offset lands on it)
 const EXT = 0.75, SKIN = 0.01;   // the outer wall's thickness (src/make/plans/hybrid-e.js DIMS.ext); floors and ceilings stand this far off the cut
 const mm = (m) => Math.round(m * 1000);
 const box = (x0, y0, x1, y1) => { const [a, b, c, d] = [mm(Math.min(x0, x1)), mm(Math.min(y0, y1)), mm(Math.max(x0, x1)), mm(Math.max(y0, y1))]; return [{ x: a, y: b }, { x: c, y: b }, { x: c, y: d }, { x: a, y: d }]; };
@@ -51,7 +51,9 @@ export function carve({ plan, specs, levelOf, gap = 0.35 }) {
         // (from just behind the room's face, so it never reaches into the room behind the wall)
         if (B > 2 * S) add("breast", [onWallBox(room, F, e.r0 + S, e.r1 - S, -2 * S, B - S)], Y - SKIN, Y + H + SKIN);
         // the fire's mouth, into the breast and, if the breast is shallower than the fire, into the wall behind
-        add("cut", [onWallBox(room, F, fb.r0 - S, fb.r1 + S, B - fb.depth - S, B + S)], Y - SKIN, Y + fb.apex + S);
+        // (never ending on the wall's own face, where the lining behind the firebox stands)
+        const back = Math.abs(B - fb.depth - S) < 0.005 ? -S : B - fb.depth - S;
+        add("cut", [onWallBox(room, F, fb.r0 - S, fb.r1 + S, back, B + S)], Y - SKIN, Y + fb.apex + S);
       }
     }
   }

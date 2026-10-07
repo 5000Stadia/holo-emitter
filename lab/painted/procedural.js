@@ -131,7 +131,9 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
         const su = mod(Math.floor((across * J.ac + J.rot) * N), N), sv = mod(Math.floor((Xg + J.off) * N * 0.7 * J.sc), N);
         const s = (sv * N + su) * 3;
         const edge = Math.min(across, 1 - across) * (b.y1 - b.y0), jd = Math.abs(Xg - J.x);
-        const gap = (edge < 0.0022 ? 0.25 : edge < 0.004 ? 0.7 : 1) * (jd < 0.0022 ? 0.3 : 1);
+        // each board's edge rounded over 6 mm into the joint, not cut square: a groove one pixel wide and hard broke into
+        // dashes when seen low across the floor (Kabe, 2026-10-06, "harsh lines between butt up surfaces")
+        const sm = (x) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); }, ge = sm(edge / 0.006), gj = sm(jd / 0.006), gap = (0.35 + 0.65 * ge) * (0.4 + 0.6 * gj);
         const wear = 1 + 0.12 * Math.exp(-Math.pow((Y - D * 0.45) / 1.1, 2)) * Math.exp(-Math.pow((X - W * 0.5) / 1.6, 2));
         const drift = 0.94 + 0.12 * fbm((Xg + J.off) * 0.6, across * 0.3 + J.rot * 5, 1000, 1000, 2, 131);   // slow, along the board
         const k = J.tone * drift * gap * wear, o = (py * w + px) * 4;
@@ -142,7 +144,7 @@ function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
         d[o + 1] = Math.min(255, (fg * 0.64 + fy * 0.36) * 255);
         d[o + 2] = Math.min(255, (fb * 0.64 + fy * 0.36) * 255);
         d[o + 3] = 255;
-        H[py * w + px] = gap < 1 ? -1.2 : oak.H[sv * N + su] * 0.4;
+        H[py * w + px] = oak.H[sv * N + su] * 0.4 * ge * gj - 1.2 * (1 - ge * gj);
       }
     }
   }, { repeat: periodic });
@@ -357,23 +359,26 @@ function loft(THREE, path, profile, closed, cap) {
   return finish(THREE, pos);
 }
 // a horizontal run (skirting, rail, cornice): profile [[dy, depth], ...] swept along r in [a, b]
-function run(THREE, a, b, base, profile) {
-  const pos = [], tri = (p, q, s) => pos.push(...p, ...q, ...s);
+// ma, mb: a mitred end at a corner (Kabe, 2026-10-06, faces that flicker): a point of the profile standing z proud of
+// the wall ends z * m along from the run's end, so two walls' runs meet on the corner's bisector instead of lying one
+// over the other (m = 1 for a square inside corner; for a corner of any angle, 1 / tan(half its inside angle))
+function run(THREE, a, b, base, profile, ma = 0, mb = 0) {
+  const pos = [], tri = (p, q, s) => pos.push(...p, ...q, ...s), ra = (z) => a + z * ma, rb = (z) => b - z * mb;
   // round the whole profile, its back (last point to first) included, so the moulding is a closed solid;
   // the sides wound by which way the profile runs, so they always face out (src/make/mesh-rules.js)
   let turn = 0; for (let k = 0; k < profile.length; k++) { const [y0, z0] = profile[k], [y1, z1] = profile[(k + 1) % profile.length]; turn += z0 * y1 - z1 * y0; }
   for (let k = 0; k < profile.length; k++) {
     const [y0, z0] = profile[k], [y1, z1] = profile[(k + 1) % profile.length];
     if (y0 === y1 && z0 === z1) continue;
-    const A = [a, base + y0, z0], B = [b, base + y0, z0], C = [b, base + y1, z1], D = [a, base + y1, z1];
+    const A = [ra(z0), base + y0, z0], B = [rb(z0), base + y0, z0], C = [rb(z1), base + y1, z1], D = [ra(z1), base + y1, z1];
     if (turn > 0) { tri(A, B, C); tri(A, C, D); } else { tri(A, C, B); tri(A, D, C); }
   }
   // end caps, facing out along the run (they were wound inward, and so never drawn, until 2026-10-06)
   const poly = profile.map(([y, z]) => new THREE.Vector2(z, y));
   for (const f of THREE.ShapeUtils.triangulateShape(poly, [])) {
     const P = f.map(i => profile[i]);
-    tri(...[0, 1, 2].map(i => [a, base + P[i][0], P[i][1]]));
-    tri(...[0, 2, 1].map(i => [b, base + P[i][0], P[i][1]]));
+    tri(...[0, 1, 2].map(i => [ra(P[i][1]), base + P[i][0], P[i][1]]));
+    tri(...[0, 2, 1].map(i => [rb(P[i][1]), base + P[i][0], P[i][1]]));
   }
   return finish(THREE, pos, true);
 }
@@ -571,7 +576,7 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
 // up is up, +z toward the room. elems: doors, open edges, windows, a chimney-piece (schematic.json's
 // shapes; T, lining and passage on an opening override the single-room defaults). style: "panelled"
 // or "limewashed". Returns the group, and the window lights it made.
-export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0 } = {}) {
+export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0, mitre = [1, 1] } = {}) {
   const { M, oak, CLASS, cast, board } = K;
   const grp = new THREE.Group(), lights = [];
   const plain = style === "limewashed";
@@ -641,14 +646,16 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
     core.push([L + X, -X], [L + X, H + X], [-X, H + X]);
     add(slab(THREE, core, holes, -0.03), M.oak, 0.02);
     // horizontal runs, broken where something stands in their way
+    // a run that reaches a corner is mitred there (one that stops at a door or a hearth is cut square)
+    const ends = (a, b) => [a < 1e-6 ? mitre[0] : 0, b > L - 1e-6 ? mitre[1] : 0];
     ctx = "skirting";
-    for (const [a, b] of free(0, STYLE.skirting.top)) add(run(THREE, a, b, 0, STYLE.skirting.profile), M.oak);
+    for (const [a, b] of free(0, STYLE.skirting.top)) add(run(THREE, a, b, 0, STYLE.skirting.profile, ...ends(a, b)), M.oak);
     ctx = "dado";
-    if (!plain) for (const [a, b] of free(STYLE.dado.base, STYLE.dado.base + 0.08)) add(run(THREE, a, b, STYLE.dado.base, STYLE.dado.profile), M.oak);
+    if (!plain) for (const [a, b] of free(STYLE.dado.base, STYLE.dado.base + 0.08)) add(run(THREE, a, b, STYLE.dado.base, STYLE.dado.profile, ...ends(a, b)), M.oak);
     // frieze and cornice sit under the ceiling, whatever the storey
     const top = (y) => y - (3.1 - H);
-    for (const [a, b] of free(top(STYLE.frieze.base), H)) { ctx = "frieze"; if (!plain) add(run(THREE, a, b, top(STYLE.frieze.base), STYLE.frieze.profile), M.oak); }
-    for (const [a, b] of free(top(STYLE.cornice.base), H)) { ctx = "cornice"; add(run(THREE, a, b, top(STYLE.cornice.base), STYLE.cornice.profile), plain ? M.limewash : M.oak); }
+    for (const [a, b] of free(top(STYLE.frieze.base), H)) { ctx = "frieze"; if (!plain) add(run(THREE, a, b, top(STYLE.frieze.base), STYLE.frieze.profile, ...ends(a, b)), M.oak); }
+    for (const [a, b] of free(top(STYLE.cornice.base), H)) { ctx = "cornice"; add(run(THREE, a, b, top(STYLE.cornice.base), STYLE.cornice.profile, ...ends(a, b)), plain ? M.limewash : M.oak); }
 
     for (const e of elems) {
       ctx = e.id;
@@ -701,8 +708,9 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         add(loft(THREE, fr, [[0, G], [0, G + 0.03], [0.05, G + 0.03], [0.055, G]], true, false), M.oak);
         const gx0 = i[0][0] + 0.055, gx1 = i[1][0] - 0.055, gy0 = i[0][1] + 0.055, gy1 = i[2][1] - 0.055;
         const mx = (gx0 + gx1) / 2, ty = gy0 + (gy1 - gy0) * 0.62, mw = 0.028;
-        const box = (a, b, y0, y1) => { const g = metric(new THREE.BoxGeometry(b - a, y1 - y0, 0.05)); g.translate((a + b) / 2, (y0 + y1) / 2, G + 0.02); add(g, b - a > y1 - y0 ? M.oakH : M.oak); };
-        box(mx - mw, mx + mw, gy0, gy1); box(gx0, gx1, ty - mw, ty + mw);
+        // (the transom a few millimetres thinner than the mullion it crosses: of one depth, their faces lay one on the other)
+        const box = (a, b, y0, y1, dz = 0.05) => { const g = metric(new THREE.BoxGeometry(b - a, y1 - y0, dz)); g.translate((a + b) / 2, (y0 + y1) / 2, G + 0.02); add(g, b - a > y1 - y0 ? M.oakH : M.oak); };
+        box(mx - mw, mx + mw, gy0, gy1); box(gx0, gx1, ty - mw, ty + mw, 0.044);
         // plain quarries: armorial glass was a luxury set sparingly (a panel in the hall or great chamber),
         // not a shield in every light of every window; e.arms opts a window in
         const arms = e.arms ? [1, 2] : [0, 0];
@@ -787,7 +795,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
           }
         }
         // the mantel: a timber body, fillets, a frieze carved in relief, a boss at each end, a shelf
-        const m = e.mantel, fz = m.depth + 0.05, z0 = e.surround_top, zt = m.top - 0.1, mh = zt - z0;
+        // (its face 5 mm prouder than the stone moulding under it reaches: level with it, the two faces flickered)
+        const m = e.mantel, fz = m.depth + 0.055, z0 = e.surround_top, zt = m.top - 0.1, mh = zt - z0;
         add(block(THREE, rect(m.r0, m.r1, z0, zt), fz, fz - 0.02, 0.006), M.oakH, 0.1);
         const ch = mh * 0.62, len = m.r1 - m.r0 - 0.52, cy = z0 + mh * 0.5;
         for (const y of [cy - ch / 2 - 0.018, cy + ch / 2 + 0.006])

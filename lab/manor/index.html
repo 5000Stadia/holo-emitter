@@ -52,6 +52,7 @@ import { buildManor } from "../../src/make/manor.js";
 import { makeWalk } from "../../src/make/walk.js";
 import { planBanqueting } from "../../src/make/plans/banqueting.js";
 import { framesOf } from "../../src/make/walls.js";
+import { coplanar } from "../../src/make/coplanar.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
@@ -87,7 +88,7 @@ THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
 const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
 await step("raising the house, room by room, each by its purpose");
-const manor = buildManor({ furnished: Q.get("nofurn") !== "1", plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+const manor = buildManor({ settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
@@ -240,6 +241,23 @@ window.__sight = () => { const t0 = performance.now(), W = works, rc = new THREE
       rc.set(P, d); rc.far = 30; const hit = rc.intersectObjects(meshes, false).find(h => !leaves.has(h.object));
       if (hit && hit.distance < 0.5 + T + 0.3) out.push({ door: o.id, joins: o.joins.join("|"), from: sg > 0 ? "lo" : "hi", stops: +hit.distance.toFixed(2), at: hit.object.userData?.instance || hit.object.material?.userData?.cls || "?" }); } }
   return { blocked: out, ms: Math.round(performance.now() - t0) }; };
+// faces that fight (src/make/coplanar.js): every opaque mesh drawn, instances expanded, in world space; each pair named
+// by its material and the room it stands in. Authoring only.
+window.__fight = (ids = null) => { const t0 = performance.now(), list = [], v = new THREE.Vector3(), M4 = new THREE.Matrix4(), W4 = new THREE.Matrix4();
+  scene.updateMatrixWorld(true);
+  scene.traverse(o => { if (!o.isMesh || o.material?.transparent || o.material?.isMeshBasicMaterial) return; let r = o, room = null, what = null; while (r) { if (!what && (r.userData?.make?.kind || r.userData?.opening || r.userData?.carve)) what = r.userData.make?.kind || (r.userData.carve ? "carve" : "door " + r.userData.opening); if (r.userData?.room && !room) room = r.userData.room; r = r.parent; }
+    if (ids && !ids.includes(room)) return; const g = o.geometry, P = g.attributes.position, I = g.index, n = I ? I.count : P.count, inst = o.isInstancedMesh ? o.count : 1;
+    for (let q = 0; q < inst; q++) { if (o.isInstancedMesh) { o.getMatrixAt(q, M4); W4.multiplyMatrices(o.matrixWorld, M4); } else W4.copy(o.matrixWorld);
+      const tris = new Float32Array(n * 3); for (let k = 0; k < n; k++) { v.fromBufferAttribute(P, I ? I.getX(k) : k).applyMatrix4(W4); tris[k * 3] = v.x; tris[k * 3 + 1] = v.y; tris[k * 3 + 2] = v.z; }
+      list.push({ key: `${room || "?"}:${what ? what + "/" : ""}${o.material?.userData?.cls || o.material?.name || o.material?.type || "mesh"}${inst > 1 ? "#" + q : ""}`, tris, o, side: o.material?.side === THREE.BackSide ? -1 : o.material?.side === THREE.DoubleSide ? 0 : 1 }); } });
+  // only pairs that can be seen: a face with something opaque within 5 cm in front of it (a firebox's back, the wall a
+  // slab's end stands against) never shows, so it can't flicker
+  const all = list.map(m => m.o), rc = new THREE.Raycaster(); rc.far = 0.05;
+  const shows = (t, n) => { const c = new THREE.Vector3((t[0] + t[3] + t[6]) / 3, (t[1] + t[4] + t[7]) / 3, (t[2] + t[5] + t[8]) / 3), d = new THREE.Vector3(...n);
+    rc.set(c.addScaledVector(d, 0.002), d); return !rc.intersectObjects(all, false).some(h => !h.object.material?.transparent && !h.object.material?.isMeshBasicMaterial); };
+  const pairs = coplanar(list).filter(p => shows(p.ta, p.n) && shows(p.tb, p.n)), by = new Map();
+  for (const p of pairs) { const k = `${p.a} ~ ${p.b}`, e = by.get(k) || { pair: k, area: 0, n: 0, at: p.at.map(x => +x.toFixed(2)), ta: p.ta.map(x => +x.toFixed(3)), tb: p.tb.map(x => +x.toFixed(3)), nrm: p.n.map(x => +x.toFixed(2)) }; e.area += p.area; e.n++; by.set(k, e); }
+  return { meshes: list.length, pairs: pairs.length, groups: [...by.values()].sort((a, b) => b.area - a.area).map(e => ({ ...e, area: +(e.area * 1e4).toFixed(1) })), ms: Math.round(performance.now() - t0) }; };
 window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
 
 let last = performance.now();

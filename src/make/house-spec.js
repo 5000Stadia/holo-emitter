@@ -44,5 +44,13 @@ export function storeys(plan, gap = 0.35) {
 // every built room's spec, keyed by id: { room, Y, H, spec }
 export function houseSpecs(plan, { types = {}, brief = null, gap = 0.35 } = {}) {
   const { levelOf, heightOf } = storeys(plan, gap);
-  return new Map(plan.rooms.filter(r => r.type !== "open").map(r => [r.id, { room: r, Y: levelOf(r.floor), H: heightOf(r), spec: roomSpec(plan, r, { types, brief, H: heightOf(r) }) }]));
+  const specs = new Map(plan.rooms.filter(r => r.type !== "open").map(r => [r.id, { room: r, Y: levelOf(r.floor), H: heightOf(r), spec: roomSpec(plan, r, { types, brief, H: heightOf(r) }) }]));
+  // a doorway's reveal is lined once: when both rooms would line it, the one whose builder makes it its own (the
+  // strongroom's iron door in stone) keeps it, else the room that hangs the door (lined twice, the two faces
+  // flickered, 2026-10-06)
+  const doorsOf = (sp) => Object.values(sp.walls).flat().filter(e => e.kind === "door");
+  for (const o of plan.openings) { const [a, b] = (o.joins || []).map(j => specs.get(j)); if (!a || !b) continue;
+    const ea = doorsOf(a.spec).find(e => e.id === o.id), eb = doorsOf(b.spec).find(e => e.id === o.id); if (!ea || !eb || ea.lining === false || eb.lining === false) continue;
+    if (eb.style === "iron" && ea.style !== "iron") ea.lining = false; else eb.lining = false; }
+  return specs;
 }

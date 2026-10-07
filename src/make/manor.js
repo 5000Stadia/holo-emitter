@@ -12,6 +12,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { houseSpecs, storeys } from "./house-spec.js";
 import { floorOf } from "./walls.js";
 import { carve, carveMesh } from "./carve.js";
+import { settleFaces } from "./coplanar.js";
 import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
 import { build } from "./build.js";
@@ -26,6 +27,13 @@ const FIRE = {
   core: Object.assign(new THREE.MeshBasicMaterial({ color: 0xd89a40, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), { userData: { cls: "flame" } }),
   ember: Object.assign(new THREE.MeshBasicMaterial({ color: 0x7a2410 }), { userData: { cls: "ember" } }),
 };
+// a wall's mouldings mitred at its two corners: 1 / tan(half the inside angle) there (1 for a square corner; less for the
+// octagon's wider ones; negative, running on, round an outside corner)
+const mitresOf = (frames, F) => { const w = frames[F], ws = Object.values(frames), near = (p, q) => Math.abs(p[0] - q[0]) < 1e-4 && Math.abs(p[1] - q[1]) < 1e-4;
+  const at = (u, v) => { if (!u || !v) return 0; const dot = u.dir[0] * v.dir[0] + u.dir[1] * v.dir[1], cross = u.dir[0] * v.dir[1] - u.dir[1] * v.dir[0], turn = Math.acos(Math.max(-1, Math.min(1, dot)));
+    const inside = cross < 0 ? Math.PI - turn : Math.PI + turn; return 1 / Math.tan(inside / 2); };
+  const prev = ws.find(q => near([q.a[0] + q.dir[0] * q.L, q.a[1] + q.dir[1] * q.L], w.a)), next = ws.find(q => near(q.a, [w.a[0] + w.dir[0] * w.L, w.a[1] + w.dir[1] * w.L]));
+  return [at(prev, w), at(w, next)]; };
 // a wall's group in its room: at the corner it is measured from, turned so its r runs along it and its +z faces in
 const placeOf = (frames) => Object.fromEntries(Object.entries(frames).map(([F, w]) => [F, { pos: [w.a[0], 0, -w.a[1]], rot: Math.atan2(w.dir[1], w.dir[0]) }]));
 const WALL_STYLE = { wainscot: "panelled", tapestry: "limewashed", limewash: "limewashed", stone: "limewashed" };
@@ -80,7 +88,7 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true }) {
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false }) {
   const t0 = performance.now(), { M } = K;
   const { floors, levelOf, heightOf, gap } = storeys(plan);
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
@@ -150,14 +158,15 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         const g = metric(new THREE.BoxGeometry(along ? bw : span, bd, along ? span : bw)); g.translate(along ? s : W / 2, H - bd / 2, along ? -D / 2 : -s); if (mat.vertexColors) K.board(g, 0.2);
         grp.add(Object.assign(new THREE.Mesh(g, mat), { castShadow: true }));
       }
-      if (!beam) for (let s = step / 2; s < span; s += step) { const g = metric(new THREE.BoxGeometry(along ? len : bw, bd, along ? bw : len)); g.translate(along ? W / 2 : s, H - bd / 2, along ? -s : -D / 2); grp.add(new THREE.Mesh(g, mat)); }
+      // (the ribs the other way a little shallower: of one depth, where they cross their faces lay one on the other)
+      if (!beam) for (let s = step / 2; s < span; s += step) { const dd = bd * 0.8, g = metric(new THREE.BoxGeometry(along ? len : bw, dd, along ? bw : len)); g.translate(along ? W / 2 : s, H - dd / 2, along ? -s : -D / 2); grp.add(new THREE.Mesh(g, mat)); }
     }
     // the walls, by the type's finish
     // each wall where its frame says (src/make/walls.js): a rectangle's four, or an outline's every edge
     const P = placeOf(spec.frames), style = WALL_STYLE[T.walls] || "panelled";
     for (const F of Object.keys(spec.walls)) {
       const L = spec.frames[F].L;
-      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004 });
+      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F) });
       w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
       if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
       for (const l of w.lights) l.parent.remove(l);
@@ -182,7 +191,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         { const w = e.r1 - e.r0, h = e.top, T = e.T || 0.3, t = 0.025, parts = [new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(w, t, T), new THREE.BoxGeometry(w + 0.02, 0.012, T + 0.02)];
           parts[0].translate(t / 2 + 0.004, h / 2, -T / 2); parts[1].translate(w - t / 2 - 0.004, h / 2, -T / 2); parts[2].translate(w / 2, h - t / 2 - 0.004, -T / 2); parts[3].translate(w / 2, 0.006, -T / 2);
           const g = mergeGeometries(parts.map(q => q.toNonIndexed()), false); if (M.oak.vertexColors) K.board(g, 0.15);
-          const lining = new THREE.Mesh(g, M.oak); lining.receiveShadow = true; b.node.add(lining); }
+          const lining = new THREE.Mesh(g, M.oak); lining.receiveShadow = true; b.node.add(lining);
+          // settled with the door's own frame, which it meets on the wall's face
+          { const ms = b.node.children.filter(o => o.isMesh), gs = ms.map(o => o.geometry); settleFaces(gs, 0.001); ms.forEach((o, k) => { o.geometry = gs[k]; }); } }
       }
     }
     // what stands in the room, by the rules each kind declares (src/make/place.js): what the story requires first,
@@ -214,7 +225,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         // fire by its ends): a body keeps out of all of it, so an eye can't stand inside the mantel
         const deep = (e.breast || 0) + 0.32, m = e.mantel || e, [a, b] = [wallToRoom(spec.frames[F], RW, RD, Math.min(e.r0, m.r0) - 0.05, 0), wallToRoom(spec.frames[F], RW, RD, Math.max(e.r1, m.r1) + 0.05, deep)];
         blocks.push({ floor: room.floor, room: room.id, kind: "hearth", x0: x0 + Math.min(a[0], b[0]), x1: x0 + Math.max(a[0], b[0]), y0: y0 + Math.min(a[1], b[1]), y1: y0 + Math.max(a[1], b[1]) }); } }
-    merge(grp, bundles);
+    merge(grp, bundles, settleRooms);
     // the fire in each lit hearth: logs, embers and flames (drawn with the room; they flicker while seen)
     for (const h of hearths.filter(q => q.room === room.id && q.lit)) {
       const f = new THREE.Group(), n = h.big ? 5 : 3, span = Math.min(h.w * 0.6, h.big ? 1.4 : 0.55);
@@ -300,9 +311,13 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const edges = { N: [[Rh.x0, Rh.y1], [Rh.x1, Rh.y1], Q.y1 - Rh.y1], S: [[Rh.x0, Rh.y0], [Rh.x1, Rh.y0], Rh.y0 - Q.y0], E: [[Rh.x1, Rh.y0], [Rh.x1, Rh.y1], Q.x1 - Rh.x1], W: [[Rh.x0, Rh.y0], [Rh.x0, Rh.y1], Rh.x0 - Q.x0] };
     for (const [F, [a, b, gapToWall]] of Object.entries(edges)) if (F !== footLo && gapToWall > 0.2) rail(out, [...a, H], [...b, H]);
     // the floor's edge round the well, cased in oak boards down through the floor's thickness (the carve stands behind)
-    for (const g of [cube(Rh.x0 - 0.035, Rh.x1 + 0.035, Rh.y1, Rh.y1 + 0.035, H - gap - 0.03, H), cube(Rh.x0 - 0.035, Rh.x1 + 0.035, Rh.y0 - 0.035, Rh.y0, H - gap - 0.03, H),
-      cube(Rh.x0 - 0.035, Rh.x0, Rh.y0, Rh.y1, H - gap - 0.03, H), cube(Rh.x1, Rh.x1 + 0.035, Rh.y0, Rh.y1, H - gap - 0.03, H)]) out.push(g);
+    // (inside the hole, so its top is a trim round it, never lying on the floor beside it)
+    for (const g of [cube(Rh.x0, Rh.x1, Rh.y1 - 0.035, Rh.y1, H - gap - 0.03, H), cube(Rh.x0, Rh.x1, Rh.y0, Rh.y0 + 0.035, H - gap - 0.03, H),
+      cube(Rh.x0, Rh.x0 + 0.035, Rh.y0 + 0.035, Rh.y1 - 0.035, H - gap - 0.03, H), cube(Rh.x1 - 0.035, Rh.x1, Rh.y0 + 0.035, Rh.y1 - 0.035, H - gap - 0.03, H)]) out.push(g);
   }
+  // the stairs settled as one, whatever room each piece is drawn with (one flight's newel meets the next one's)
+  { const lists = [...stairParts.values()]; for (const ps of lists) for (let k = 0; k < ps.length; k++) if (ps[k].index) ps[k] = ps[k].toNonIndexed();
+    const flat = lists.flat(); settleFaces(flat, 0.001); let k = 0; for (const ps of lists) for (let j = 0; j < ps.length; j++) ps[j] = flat[k++]; }
   for (const [id, parts] of stairParts) {
     const owner = rooms.get(id), geo = mergeGeometries(parts.map(g => { g = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(k)) g.deleteAttribute(k);
       if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); if (!g.attributes.normal) g.computeVertexNormals();
@@ -340,18 +355,25 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
 
 const r2 = (x) => Math.round(x * 100) / 100;
 // a room's still meshes merged by material: a few draws a room, which its bundle then replays
-function merge(grp, bundle = false) {
+function merge(grp, bundle = false, settle = true) {
   grp.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(grp.matrixWorld).invert(), byMat = new Map();
   grp.traverse(o => { if (o.isMesh && !o.isInstancedMesh) (byMat.get(o.material) || byMat.set(o.material, []).get(o.material)).push(o); });
-  const keep = [];
+  const keep = [], ready = new Map();
   for (const [mat, list] of byMat) {
-    const geos = list.map(o => { let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
+    ready.set(mat, list.map(o => { let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
       for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv", "color"].includes(k)) g.deleteAttribute(k);
       if (mat.vertexColors && !g.attributes.color) g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3));
       if (!mat.vertexColors && g.attributes.color) g.deleteAttribute("color");
       if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
-      if (!g.attributes.normal) g.computeVertexNormals(); g.clearGroups(); return g; });
+      if (!g.attributes.normal) g.computeVertexNormals(); g.clearGroups(); return g; }));
+  }
+  // faces two pieces of the room lay on one plane, facing the same way (crossing ribs, a lining over a lining), would
+  // flicker as you move: the smaller of each pair lifted a millimetre (src/make/coplanar.js), across all its materials
+  { const mats = [...ready.keys()], flat = mats.flatMap(m => ready.get(m)), sides = mats.flatMap(m => ready.get(m).map(() => m.side === THREE.BackSide ? -1 : m.side === THREE.DoubleSide ? 0 : 1));
+    if (settle && flat.length > 1) settleFaces(flat, 0.001, sides); let k = 0; for (const m of mats) { const gs = ready.get(m); for (let j = 0; j < gs.length; j++) gs[j] = flat[k++]; } }
+  for (const [mat, list] of byMat) {
+    const geos = ready.get(mat);
     const merged = mergeGeometries(geos, false); if (!merged) { keep.push(...list); continue; }
     const m = new THREE.Mesh(merged, mat); m.castShadow = !mat.transparent && !mat.isMeshBasicMaterial; m.receiveShadow = true; m.frustumCulled = false; keep.push(m);
   }

@@ -120,7 +120,7 @@ document.querySelector(".room .name").textContent = spec.room.name || ROOM;
 // ---- the picture
 // the engine's renderer (src/make/render.js): the backend chosen per device, the phone tier, the
 // resolution controller, render on change, the marks (?perf=1)
-const ENG = await makeRender({ outdoor: false, msaa: Q.get("msaa") !== "0" && !isTouch() }), renderer = ENG.renderer; window.__eng = ENG;
+const ENG = await makeRender({ outdoor: false }), renderer = ENG.renderer; window.__eng = ENG;
 renderer.toneMappingExposure = +(Q.get("exposure") || 1.0);
 const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 60);
 THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
