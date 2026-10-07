@@ -112,15 +112,16 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
     const baseTop = s.z1 - shaftH, mid = along ? (s.y0 + s.y1) / 2 : (s.x0 + s.x1) / 2;
     if (along) box(stones, c - run / 2 - 0.12, c + run / 2 + 0.12, mid - 0.4, mid + 0.4, s.z0, baseTop); else box(stones, mid - 0.4, mid + 0.4, c - run / 2 - 0.12, c + run / 2 + 0.12, s.z0, baseTop);
     for (let i = 0; i < n; i++) { const a = c - run / 2 + i * (sw + gp);
-      // (each shaft let 5 cm into the base: its foot on the base's top face shared that face's plane)
-      if (along) { box(stones, a, a + sw, mid - sw / 2, mid + sw / 2, baseTop - 0.05, s.z1); box(stones, a - 0.05, a + sw + 0.05, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, s.z1, s.z1 + 0.12); }
-      else { box(stones, mid - sw / 2, mid + sw / 2, a, a + sw, baseTop - 0.05, s.z1); box(stones, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, a - 0.05, a + sw + 0.05, s.z1, s.z1 + 0.12); } } }
+      // (each shaft let 5 cm into the base and 4 cm into its cap: its foot and head on their faces shared those faces' planes)
+      if (along) { box(stones, a, a + sw, mid - sw / 2, mid + sw / 2, baseTop - 0.05, s.z1 + 0.04); box(stones, a - 0.05, a + sw + 0.05, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, s.z1, s.z1 + 0.12); }
+      else { box(stones, mid - sw / 2, mid + sw / 2, a, a + sw, baseTop - 0.05, s.z1 + 0.04); box(stones, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, a - 0.05, a + sw + 0.05, s.z1, s.z1 + 0.12); } } }
   // the windows from outside: glass a little in from the wall's face, facing out (so it never shows from within), a
   // stone mullion and transom across it
   for (const w of windows) { const out = w.c.clone().sub(w.into).normalize(), at = w.c.clone().addScaledVector(out, 0.035);
     const g = new THREE.PlaneGeometry(w.w + 0.16, w.h + 0.06), m = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); m.setPosition(at);
     g.applyMatrix4(new THREE.Matrix4().makeRotationY(Math.PI)); g.applyMatrix4(m); panes.push(g.toNonIndexed());
-    for (const bx of [new THREE.BoxGeometry(0.1, w.h + 0.06, 0.12), new THREE.BoxGeometry(w.w + 0.16, 0.09, 0.12)]) { const p = at.clone().addScaledVector(out, 0.03);
+    // (the transom a centimetre shallower than the mullion: crossing on one plane, their faces flickered)
+    for (const bx of [new THREE.BoxGeometry(0.1, w.h + 0.06, 0.12), new THREE.BoxGeometry(w.w + 0.16, 0.09, 0.11)]) { const p = at.clone().addScaledVector(out, 0.03);
       bx.translate(0, bx === undefined ? 0 : (bx.parameters.height < 0.1 ? (w.h + 0.06) * 0.12 : 0), 0); const mm = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); mm.setPosition(p); bx.applyMatrix4(mm); bars.push(bx.toNonIndexed()); } }
   const add = (list, mat, cast = true) => { if (!list.length) return; const g = mergeGeometries(list.map(q => { q.deleteAttribute?.("normal"); if (!q.attributes.uv) q.setAttribute("uv", new THREE.Float32BufferAttribute(new Float32Array(q.attributes.position.count * 2), 2)); return q; }), false); g.computeVertexNormals();
     const m = new THREE.Mesh(g, mat); m.castShadow = cast; m.receiveShadow = true; G.add(m); return m; };

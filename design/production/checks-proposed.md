@@ -2,8 +2,8 @@
 
 Each belongs to a kind or a part (plan §6). A check joins the tests only once Kabe has said yes.
 
-**Vetted 2026-10-06** (Kabe: "checks yes"): 17, 19, 20, 21, 22, 23. They run together in `tests/playwright/checks.spec.mjs` (`npx playwright test -c tests/playwright checks.spec.mjs --project=chromium`, about 11 min under software rendering; all six green 2026-10-06).
-**Vetted 2026-10-06** (Kabe, asked whether checks 1–16 join too: "Yes"): 1–16, joining the same file.
+**Vetted 2026-10-06** (Kabe: "checks yes"): 17, 19, 20, 21, 22, 23. They run together in `tests/playwright/checks.spec.mjs` (`npx playwright test -c tests/playwright checks.spec.mjs --project=chromium`; under software rendering; all six green 2026-10-06).
+**Vetted 2026-10-06** (Kabe, asked whether checks 1–16 join too: "Yes"): 1–16, in the same file since 2026-10-07; all 25 tests green (about 22 min under software rendering on a loaded machine). Check 3 (open, it strikes nothing) built from audit.js apart(); check 8 needs Firefox (WebKit and the phone stay by hand).
 **Declined 2026-10-06:** 18 (Kabe: "The slow 18 i dont like"). Check 17 covers the same faults in about 45 ms, so `__seal` is no longer a check. It stays on the manor page as a tool to reach for by hand.
 
 | # | Belongs to | The check | Why |

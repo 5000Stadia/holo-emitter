@@ -347,7 +347,7 @@ window.__sight = () => { const t0 = performance.now(), W = works, rc = new THREE
 // by its material and the room it stands in. Authoring only.
 window.__fight = (ids = null) => { const t0 = performance.now(), list = [], v = new THREE.Vector3(), M4 = new THREE.Matrix4(), W4 = new THREE.Matrix4();
   scene.updateMatrixWorld(true);
-  scene.traverse(o => { if (!o.isMesh || o.material?.transparent || o.material?.isMeshBasicMaterial) return; if (window.__ground && o.parent === window.__ground.group) return;   // the ground: its own check
+  scene.traverse(o => { if (!o.isMesh || o.material?.transparent || o.material?.isMeshBasicMaterial) return; { let q = o; while (q && q !== window.__ground?.group && q !== window.__hill?.group) q = q.parent; if (q) return; }   // the ground and the hillside: not the house; their own checks
     let r = o, room = null, what = null; while (r) { if (!what && (r.userData?.make?.kind || r.userData?.opening || r.userData?.carve)) what = r.userData.make?.kind || (r.userData.carve ? "carve" : "door " + r.userData.opening); if (r.userData?.room && !room) room = r.userData.room; r = r.parent; }
     if (ids && !ids.includes(room)) return; const g = o.geometry, P = g.attributes.position, I = g.index, n = I ? I.count : P.count, inst = o.isInstancedMesh ? o.count : 1;
     for (let q = 0; q < inst; q++) { if (o.isInstancedMesh) { o.getMatrixAt(q, M4); W4.multiplyMatrices(o.matrixWorld, M4); } else W4.copy(o.matrixWorld);
