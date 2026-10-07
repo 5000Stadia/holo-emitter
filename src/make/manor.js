@@ -12,6 +12,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { houseSpecs, storeys } from "./house-spec.js";
 import { floorOf } from "./walls.js";
 import { carve, carveMesh } from "./carve.js";
+import { shellOf, buildShell } from "./exterior.js";
 import { settleFaces } from "./coplanar.js";
 import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
@@ -51,6 +52,52 @@ function rushMatting() {
   }
   g.fillStyle = "rgba(60,44,20,0.5)"; for (let b = 0; b <= 16; b++) g.fillRect(b * band - 1, 0, 2, 512);
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t;
+}
+
+// stone slates (research-1660 §A: the Midlands' grey-green stone-slate roofs, Eyam and Beauchief): laid in courses
+// that diminish from the eaves to the ridge, each slate a little different in tone, lichen at random; the texture
+// covers two metres of roof along by two up the slope
+let slate = null;
+function slateMaterial() {
+  if (slate) return slate;
+  const N = 512, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("roof/stone-slate"));
+  g.fillStyle = "#3d3f38"; g.fillRect(0, 0, N, N);
+  let y = N; const courses = [];
+  for (let h = 30; y > 0; h = Math.max(16, h - 0.9)) { courses.push([y - h, h]); y -= h; }
+  for (const [cy, h] of courses) { let x = -r() * 40;
+    while (x < N) { const w = 34 + r() * 42, t = 70 + r() * 34, gr = t + 6 + r() * 8;
+      g.fillStyle = `rgb(${t | 0},${gr | 0},${(t - 6) | 0})`; g.fillRect(x + 1, cy + 1, w - 2, h + 6);
+      if (r() < 0.18) { g.fillStyle = `rgba(${150 + r() * 40 | 0},${150 + r() * 30 | 0},${90 + r() * 20 | 0},0.5)`; g.beginPath(); g.ellipse(x + r() * w, cy + r() * h, 3 + r() * 6, 2 + r() * 4, 0, 0, 7); g.fill(); }
+      g.fillStyle = "rgba(15,15,12,0.55)"; g.fillRect(x, cy + h - 2, w, 3); x += w; } }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); t.anisotropy = 8;
+  return (slate = new THREE.MeshStandardMaterial({ map: t, roughness: 0.92, side: THREE.DoubleSide }));
+}
+// the house's outside: limestone ashlar (research-1660 §A: limestone with gritstone dressings), courses about 0.3 m
+// high, blocks of several lengths, fine joints; the texture covers two metres by two
+let ashlar = null;
+function ashlarMaterial() {
+  if (ashlar) return ashlar;
+  const N = 512, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("wall/ashlar"));
+  g.fillStyle = "#b9ae94"; g.fillRect(0, 0, N, N);
+  const ch = N / 2 / 0.3 * 0.3 / 2 * 2 / 2 * 0.3 / 0.3 | 0, rows = Math.round(N / (N / 2 * 0.3));
+  for (let i = 0; i < rows; i++) { const y = i * N / rows, h = N / rows; let x = -r() * 120;
+    while (x < N) { const w = 90 + r() * 120, t = 168 + r() * 26;
+      g.fillStyle = `rgb(${t | 0},${(t - 8) | 0},${(t - 30) | 0})`; g.fillRect(x + 1, y + 1, w - 2, h - 2);
+      for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "90,80,60" : "230,222,200"},${0.05 + r() * 0.07})`; g.fillRect(x + r() * w, y + r() * h, 2 + r() * 6, 1 + r() * 3); }
+      x += w; } }
+  for (let x = 0; x < N; x += 2) { const s = r(); if (s < 0.06) { g.fillStyle = "rgba(60,58,48,0.12)"; g.fillRect(x, 0, 2 + s * 30, N); } }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  return (ashlar = new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 }));
+}
+// a window's glass seen from outside: dark, a little green, leaded quarries catching the sky
+let outGlass = null;
+function outsideGlass() {
+  if (outGlass) return outGlass;
+  const N = 128, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d");
+  g.fillStyle = "#1c2624"; g.fillRect(0, 0, N, N); g.strokeStyle = "#0b0f0e"; g.lineWidth = 3;
+  for (let k = -N; k < 2 * N; k += 32) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k + N, N); g.stroke(); g.beginPath(); g.moveTo(k, N); g.lineTo(k + N, 0); g.stroke(); }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 4);
+  return (outGlass = new THREE.MeshStandardMaterial({ map: t, roughness: 0.12, metalness: 0.35 }));
 }
 
 // verdure tapestry (R §2: the great chamber hung with tapestry, Hardwick), drawn in code: a ground of
@@ -328,7 +375,13 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // the house's solid, every room and opening carved out of it (src/make/carve.js): behind every lining, so a lining
   // that stops short shows stone, never the hillside
   const carved = carve({ plan, specs, levelOf, gap });
-  const solid = new THREE.Mesh(carveMesh(THREE, carved), [M.stone || mats.carve, M.plaster, mats.carve]); solid.userData = { carve: true }; scene.add(solid);
+  const solid = new THREE.Mesh(carveMesh(THREE, carved), [M.stone || mats.carve, M.plaster, mats.carve, ashlarMaterial()]); solid.userData = { carve: true }; solid.castShadow = solid.receiveShadow = true; scene.add(solid);
+  // the house's outside (src/make/exterior.js): its roofs, coped gables, stacks, and its windows seen from without
+  let exterior = null;
+  if (plan.ranges || plan.rooms.some(r => r.outline)) { const t1 = performance.now(), shell = shellOf(plan, { gap });
+    const stoneOut = ashlarMaterial().clone(); stoneOut.side = THREE.DoubleSide;
+    exterior = buildShell(THREE, shell, { slate: slateMaterial(), stone: stoneOut, glass: outsideGlass(), windows, mergeGeometries });
+    exterior.userData = { exterior: true, ms: Math.round(performance.now() - t1), shell }; scene.add(exterior); }
   // what can be seen from a room: itself, every room through an open doorway two deep, and the rooms its stairs join
   const doorOf = new Map(things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
   function visibleFrom(id, isOpen) {
@@ -350,7 +403,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { rails, carved, specs, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { exterior, rails, carved, specs, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;

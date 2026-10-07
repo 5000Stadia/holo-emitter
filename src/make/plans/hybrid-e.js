@@ -171,6 +171,14 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   }
   plan.entrance = "forecourt";
   plan.outline = [[0, -WP], [WW, -WP], [WW, 0], [L - WW, 0], [L - WW, -WP], [L, -WP], [L, RD], [0, RD]];
+  // the ranges the roofs stand on (src/make/exterior.js): each wing's ridge runs north-south with a gable at either
+  // end (the E-plan's front gables face the forecourt); the main range's ridge runs between them and dies into the
+  // wings' roofs; the porch's gable faces the forecourt
+  plan.ranges = [
+    { id: "west_wing", x0: 0, x1: WW, y0: -WP, y1: RD, axis: "y", ends: { lo: "gable", hi: "gable" } },
+    { id: "east_wing", x0: L - WW, x1: L, y0: -WP, y1: RD, axis: "y", ends: { lo: "gable", hi: "gable" } },
+    { id: "main_range", x0: WW, x1: L - WW, y0: 0, y1: RD, axis: "x", ends: { lo: "abut", hi: "abut" } },
+    { id: "porch", x0: r3(porch.rect.x0 - E), x1: r3(porch.rect.x1 + E), y0: r3(porch.rect.y0 - E), y1: 0, axis: "y", ends: { lo: "gable", hi: "abut" } }];
   return plan;
 }
 

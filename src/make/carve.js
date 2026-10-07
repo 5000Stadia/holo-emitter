@@ -97,7 +97,8 @@ export function carve({ plan, specs, levelOf, gap = 0.35 }) {
 // down (under a stair's landing) group 1, what looks up group 2; texture coordinates in metres (halved), so a
 // finish tiles at its true size whatever the face.
 export function carveMesh(THREE, { bands }) {
-  const out = [[], [], []], uvs = [[], [], []];
+  // groups: 0 inner faces, 1 faces looking down, 2 faces looking up, 3 the house's outside (an outer ring's edges)
+  const out = [[], [], [], []], uvs = [[], [], [], []];
   const P = (x, z, y) => [x / 1000, z / 1000, -y / 1000];   // plan (x, y north) at height z -> the manor's frame
   const cap = (paths, z, up) => { if (!paths.length) return; const { solution } = C.triangulate(paths, false), k = up > 0 ? 2 : 1;
     // anticlockwise in plan looks up (the manor's frame turns plan y into -z, which keeps up as up)
@@ -106,12 +107,13 @@ export function carveMesh(THREE, { bands }) {
   for (let i = 0; i < bands.length; i++) {
     const { z0, z1, paths } = bands[i];
     // sides: interior on the left of every edge (outer rings anticlockwise, holes clockwise), so out is to its right
-    for (const ring of paths) { let s = 0;
+    for (const ring of paths) { let s = 0, A = 0; for (let k = 0; k < ring.length; k++) { const a = ring[k], b = ring[(k + 1) % ring.length]; A += a.x * b.y - b.x * a.y; }
+      const q = A > 0 ? 3 : 0;
       for (let k = 0; k < ring.length; k++) {
         const a = ring[k], b = ring[(k + 1) % ring.length], len = Math.hypot(b.x - a.x, b.y - a.y);
         const A0 = P(a.x, z0, a.y), B0 = P(b.x, z0, b.y), A1 = P(a.x, z1, a.y), B1 = P(b.x, z1, b.y);
         const [u0, u1, v0, v1] = [s / 2000, (s + len) / 2000, z0 / 2000, z1 / 2000]; s += len;
-        out[0].push(...A0, ...B0, ...A1, ...B0, ...B1, ...A1); uvs[0].push(u0, v0, u1, v0, u0, v1, u1, v0, u1, v1, u0, v1);
+        out[q].push(...A0, ...B0, ...A1, ...B0, ...B1, ...A1); uvs[q].push(u0, v0, u1, v0, u0, v1, u1, v0, u1, v1, u0, v1);
       } }
     const under = i > 0 && bands[i - 1].z1 === z0 ? bands[i - 1].paths : [];
     const over = i + 1 < bands.length && bands[i + 1].z0 === z1 ? bands[i + 1].paths : [];
