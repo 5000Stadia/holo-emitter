@@ -406,13 +406,13 @@ nodeify(scene);
 // every room compiled ahead after the first frame while there is time to spare, nearest first (src/make/warm.js): turning
 // round, or walking into a room, then makes nothing (its shaders, pipelines and textures are ready). ?warm=0: each at first sight
 const warm = Q.get("warm") === "0" ? null : (() => {
-  const box = new THREE.Box3().setFromObject(manor.scene), c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
-  const cam = new THREE.PerspectiveCamera(90, 1, 0.5, 4 * (s.x + s.y + s.z)); cam.position.set(c.x, box.max.y + Math.max(s.x, s.z), c.z + 0.01); cam.lookAt(c); cam.updateMatrixWorld();
+  // a camera high over the house looking down, whose view holds the house and the land round it (what it can't see isn't compiled)
+  const cam = new THREE.PerspectiveCamera(90, 1, 1, 2000); cam.position.set(cx, 600, -cy + 0.01); cam.lookAt(cx, 0, -cy); cam.updateMatrixWorld();
   // (only while the view has been still a second: a GPU pipeline it makes holds a frame up, unseen when nothing moves)
   const W = makeWarm(renderer, scene, { camera: cam, at: () => camera.position.toArray(), quiet: () => performance.now() - lastMoved > 1000 }), inRooms = new Set();
-  for (const [id, r] of manor.rooms) { W.add(id, [r.grp, r.movers], { center: new THREE.Box3().setFromObject(r.grp).getCenter(new THREE.Vector3()).toArray() }); inRooms.add(r.grp).add(r.movers); }
+  for (const [id, r] of manor.rooms) { const q = r.room.rect; W.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); inRooms.add(r.grp).add(r.movers); }
   // and the outside: the house's shell, its carved solid and stairs, the forecourt, the ground and the hillside as they stand
-  W.add("outside", [...manor.scene.children.filter(o => !inRooms.has(o)), FC?.group, hill?.group, ground?.group], { center: c.toArray() });
+  W.add("outside", [...manor.scene.children.filter(o => !inRooms.has(o)), FC?.group, hill?.group, ground?.group], { center: [cx, 0, -cy] });
   return W; })();
 window.__warm = () => warm?.stats();
 ENG.mark("ready");                                  // everything built and wired; next, the first frame
