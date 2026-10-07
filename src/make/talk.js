@@ -3,8 +3,11 @@
 // what the player has learned and holds; never from a model. A model, if there is one, only voices the result and may
 // state only the facts handed to it (the truth check). With no model, the case's own written lines are said.
 //   topicsFor(kase, who, frame) -> [{ id, label }]            what can be raised with them now
-//   answer(kase, who, { topic, stance }, frame) -> { act, facts: [{ id, text }], line, learned: [clue ids] }
-//     act: tell | deflect | refuse | lie | dontknow; frame: { learned: Set, holding: Set, said: [] }
+//   answer(kase, who, { topic, stance, shown }, frame) -> { act, facts: [{ id, text }], line, learned: [clue ids], yielded? }
+//     act: tell | deflect | refuse | lie | dontknow | guarded; frame: { learned: Set, holding: Set, said: [],
+//     yielded: Set (claims broken, which stay broken), guarded: Map (who -> turns they stay closed up) }
+//   shown: the clue or thing put before them; a lie breaks only when it is one of the lie's own breakers; anything else
+//   shown against a lie makes them close up for a few turns (Ace Attorney's press and present, without a penalty meter)
 import { cluesOf } from "./case.js";
 
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
@@ -24,17 +27,25 @@ export function topicsFor(k, who, frame) {
   return [...out.values()];
 }
 
-export function answer(k, who, { topic, stance = "ask" }, frame) {
+export const GUARD_TURNS = 3;
+export function answer(k, who, { topic, stance = "ask", shown = null }, frame) {
   const p = arr(k.cast).find(c => c.id === who); if (!p) return { act: "dontknow", facts: [], line: "", learned: [] };
+  frame.yielded ||= new Set(); frame.guarded ||= new Map();
+  // closed up after a wrong thing was put to them: a turn passes with every question while it lasts
+  const g = frame.guarded.get(who) || 0; if (g > 0) { frame.guarded.set(who, g - 1); return { act: "guarded", facts: [], line: p.guarded || "", learned: [] }; }
   // a clue of theirs on this topic, its gate open: they tell it (the truth, a fact from their frame)
   const mine = arr(p.clues).filter(c => (c.gate?.topic || c.topic) === topic);
   const told = mine.filter(c => !frame.learned.has(c.id) && opens(c.gate, frame, stance));
   if (told.length) return { act: "tell", facts: told.map(c => ({ id: c.id, text: textOf(c.fact || c.text) })), line: told.map(c => c.hook || textOf(c.fact)).join(" "), learned: told.map(c => c.id) };
   // a claim on this topic (what they'll say, true or not): its lie stands until a clue that debunks it is shown
   const claim = arr(p.claims).find(c => c.topic === topic);
-  if (claim) { const broken = arr(claim.broken_by || claim.debunked_by).some(id => frame.learned.has(id)) && stance === "show";
-    if (claim.false && !broken) return { act: "lie", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] };
-    if (claim.false && broken) return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [] };
+  if (claim) { const breakers = arr(claim.broken_by || claim.debunked_by);
+    // broken once, broken for good: asked again they give what they gave when caught
+    if (claim.false && frame.yielded.has(claim.id)) return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [] };
+    if (claim.false && stance === "show" && shown && breakers.includes(shown) && (frame.learned.has(shown) || frame.holding.has(shown))) {
+      frame.yielded.add(claim.id); return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [], yielded: claim.id }; }
+    if (claim.false && stance === "show" && shown) { frame.guarded.set(who, GUARD_TURNS); return { act: "guarded", facts: [], line: p.guarded || claim.line || "", learned: [] }; }
+    if (claim.false) return { act: "lie", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] };
     return { act: "tell", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] }; }
   // a clue they hold but its gate is shut: they deflect (press, or bring what the gate wants)
   if (mine.length) { const c = mine.find(c => !frame.learned.has(c.id)); if (c) return { act: "deflect", facts: [], line: c.deflect || p.deflect || "", learned: [] }; }
