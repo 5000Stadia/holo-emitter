@@ -120,6 +120,11 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   for (const [name, well, kind, prefer] of [["great_stair", stairHall, "great", ["y:lo:hi", "y:lo:lo"]], ["back_stair", backStair, "back", ["x:lo:lo", "x:lo:hi"]]]) {
     const got = placeStair(plan, name, well.rect, [["ground", "first", rise("ground")], ["first", "garret", rise("first")]], kind, prefer);
     if (!got) throw new Error(`plan: no place in ${name} for its stair that keeps every door clear`);
+    // a half-landing that stops short of its hall's wall runs on to it (Kabe: "assets snap to edge … to close small
+    // gaps"): a slot of a hand or two between landing and wall shows the floor below and asks for a rail; past 0.6 m
+    // it is the plan's choice, and railed
+    for (const q of got.stairs.filter(t => t.kind === "landing")) for (const [k, edge] of [["x0", well.rect.x0], ["x1", well.rect.x1], ["y0", well.rect.y0], ["y1", well.rect.y1]])
+      if (Math.abs(q.rect[k] - edge) > 0.001 && Math.abs(q.rect[k] - edge) < 0.6) q.rect[k] = edge;
     plan.stairs.push(...got.stairs); plan.wells.push(...got.wells);
   }
   // stairs carry you between the rooms that share their well on each floor

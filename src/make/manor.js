@@ -238,13 +238,18 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const BAL = new THREE.LatheGeometry([[0, 0], [0.03, 0], [0.03, 0.06], [0.018, 0.1], [0.028, 0.32], [0.016, 0.5], [0.022, 0.62], [0.016, 0.72], [0.03, 0.76], [0, 0.76]].map(([r, y]) => new THREE.Vector2(r, y)), 8);
   const cube = (x0b, x1b, y0b, y1b, z0b, z1b) => { const g = new THREE.BoxGeometry(x1b - x0b, z1b - z0b, y1b - y0b); g.translate((x0b + x1b) / 2, (z0b + z1b) / 2, -(y0b + y1b) / 2); return g; };
   // a rail from plan point a (at height ha) to b (at hb): balusters along it, a moulded rail on top, a newel at each end
+  const rails = [];
   const rail = (out, [ax, ay, ha], [bx, by, hb], newels = true) => {
+    rails.push([[ax, ay, ha], [bx, by, hb]].map(p => p.map(v => Math.round(v * 100) / 100)));
     const L = Math.hypot(bx - ax, by - ay), n = Math.max(1, Math.round(L / 0.26));
     for (let i = 1; i < n; i++) { const t = i / n, g = BAL.clone(), y = ha + (hb - ha) * t; g.scale(1, (0.86) / 0.76, 1); g.translate(ax + (bx - ax) * t, y, -(ay + (by - ay) * t)); out.push(g); }
     const g = new THREE.BoxGeometry(0.08, 0.07, 1); const dir = new THREE.Vector3(bx - ax, hb - ha, -(by - ay)), len = dir.length(); g.scale(1, 1, len); g.lookAt(dir); g.translate((ax + bx) / 2, (ha + hb) / 2 + 0.9, -(ay + by) / 2); out.push(g);
     if (newels) for (const [x, y, h] of [[ax, ay, ha], [bx, by, hb]]) out.push(cube(x - 0.07, x + 0.07, y - 0.07, y + 0.07, h - 0.3, h + 1.05), cube(x - 0.09, x + 0.09, y - 0.09, y + 0.09, h + 1.05, h + 1.12));
   };
   const along = (s) => s.up === "N" || s.up === "S";
+  // the stair's hall on the floor it rises from, and whether a line in it (x = at, or y = at) stands against its wall
+  const hallOf = (s) => { const R = s.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2; return plan.rooms.find(q => q.type !== "open" && q.floor === stairFrom(s) && cx > q.rect.x0 && cx < q.rect.x1 && cy > q.rect.y0 && cy < q.rect.y1); };
+  const againstWall = (room, ax, at) => ax === "x" ? Math.min(Math.abs(at - room.rect.x0), Math.abs(at - room.rect.x1)) < 0.2 : Math.min(Math.abs(at - room.rect.y0), Math.abs(at - room.rect.y1)) < 0.2;
   for (const s of plan.stairs) {
     const base = levelOf(stairFrom(s)), rise = levelOf(stairTo(s)) - base, R = s.rect, out = partOf(s);
     if (s.kind === "landing") {
@@ -263,13 +268,29 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (let i = 0; i < P.count; i++) { const [x, y, z] = map(P.getX(i), P.getY(i), P.getZ(i)); P.setXYZ(i, x, base + y, z); }
     if (s.up === "E" || s.up === "S") for (let i = 0; i < P.count; i += 3) for (const attr of [P, geo.attributes.uv]) { if (!attr) continue; const k = attr.itemSize; for (let c = 0; c < k; c++) { const t = attr.array[(i + 1) * k + c]; attr.array[(i + 1) * k + c] = attr.array[(i + 2) * k + c]; attr.array[(i + 2) * k + c] = t; } }
     geo.computeVertexNormals(); out.push(geo);
-    // its open side: the side toward the other flight (the well), railed from foot to head
-    const well = (plan.wells || []).find(w => w.id === s.well), other = plan.stairs.find(q => q.well === s.well && q.kind === "flight" && q !== s);
-    if (other) { const toward = along(s) ? (other.rect.x0 > R.x0 ? "hi" : "lo") : (other.rect.y0 > R.y0 ? "hi" : "lo");
+    // its sides: every side with a drop beside it is railed from foot to head, the well's and the room's alike (Kabe,
+    // 2026-10-06: "you'd assume stairs of this type have a bannister both sides"); only a side against a wall is not
+    const room = hallOf(s);
+    for (const toward of ["lo", "hi"]) {
       const a = along(s) ? (toward === "hi" ? R.x1 - 0.05 : R.x0 + 0.05) : (toward === "hi" ? R.y1 - 0.05 : R.y0 + 0.05);
+      if (room && againstWall(room, along(s) ? "x" : "y", toward === "hi" ? (along(s) ? R.x1 : R.y1) : (along(s) ? R.x0 : R.y0))) continue;
       const lo = s.up === "N" ? R.y0 : s.up === "S" ? R.y1 : s.up === "E" ? R.x0 : R.x1, hi = s.up === "N" ? R.y1 : s.up === "S" ? R.y0 : s.up === "E" ? R.x1 : R.x0;
       const pt = (u, h) => along(s) ? [a, u, h] : [u, a, h];
       rail(out, pt(lo, base + h0 + dh), pt(hi, base + rise * s.z1)); }
+  }
+  // each half-landing's edges: railed wherever it stands off a wall and no flight goes on from it
+  for (const s of plan.stairs.filter(q => q.kind === "landing")) {
+    const base = levelOf(stairFrom(s)), h = base + (levelOf(stairTo(s)) - base) * s.z0, R = s.rect, out = partOf(s), room = hallOf(s);
+    const flights = plan.stairs.filter(q => q.kind === "flight" && q.well === s.well).map(q => q.rect);
+    for (const [ax, at, lo, hi] of [["y", R.y0, R.x0, R.x1], ["y", R.y1, R.x0, R.x1], ["x", R.x0, R.y0, R.y1], ["x", R.x1, R.y0, R.y1]]) {
+      if (room && againstWall(room, ax, at)) continue;
+      // what of this edge a flight goes on from: not railed
+      const joined = flights.filter(f => ax === "y" ? (Math.abs(f.y1 - at) < 0.02 || Math.abs(f.y0 - at) < 0.02) : (Math.abs(f.x1 - at) < 0.02 || Math.abs(f.x0 - at) < 0.02))
+        .map(f => ax === "y" ? [f.x0, f.x1] : [f.y0, f.y1]).sort((p, q) => p[0] - q[0]);
+      let x = lo; const runs = []; for (const [a, b] of joined) { if (a > x + 0.05) runs.push([x, a]); x = Math.max(x, b); } if (hi > x + 0.05) runs.push([x, hi]);
+      const inset = (v, sgn) => v + sgn * 0.05, side = at === R.x0 || at === R.y0 ? 1 : -1;
+      for (const [a, b] of runs) rail(out, ax === "y" ? [a, inset(at, side), h] : [inset(at, side), a, h], ax === "y" ? [b, inset(at, side), h] : [inset(at, side), b, h]);
+    }
   }
   // round each floor's well: the open long side and the landing's end, where they stand off a wall
   for (const w of plan.wells || []) {
@@ -314,7 +335,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { carved, specs, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { rails, carved, specs, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;
