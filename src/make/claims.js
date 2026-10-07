@@ -9,6 +9,7 @@
 // Whoever claims says who they are, so a refused place names what stood in the way. Doorways are left to the
 // walker, which asks whether each door stands open (a static claim can't be both). Reads are array lookups;
 // writes rasterise a rect or a polygon. Plan coordinates: x east, y north, metres.
+import { framesOf, wallPoly } from "./walls.js";
 export const FREE = 0, RESERVED = 1, BODY = 2, SOLID = 3;
 export const LAYERS = ["floor", "stand", "wall", "over"];
 const NAMES = ["free", "reserved", "body", "solid"];
@@ -76,6 +77,9 @@ export function houseClaims({ plan, blocks = [], half = 0.22, cell = 0.1 }) {
   for (const r of rooms) { C.open(r.floor, "stand", r.outline || r.rect); C.open(r.floor, "floor", r.outline || r.rect); }
   const strip = (R) => (R.x1 - R.x0) < (R.y1 - R.y0) ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + 0.08, y1: R.y1 - 0.08 } : { x0: R.x0 + 0.08, x1: R.x1 - 0.08, y0: R.y0 - 0.35, y1: R.y1 + 0.35 };
   for (const o of plan.openings) if (o.rect) C.doorway(o.floor, strip(o.rect), o.id);
+    // an outline room's doorway, on the wall it names: through the wall and a step into each side
+    else if (o.on) for (const [id, h] of Object.entries(o.on)) { const room = plan.rooms.find(q => q.id === id);
+      C.doorway(room.floor, wallPoly(room, framesOf(room)[h.F], h.r0 + 0.08, h.r1 - 0.08, -(o.T ?? 0.3) - 0.35, 0.35), o.id); }
   for (const w of plan.wells || []) { const H = w.hole, F = w.rect, m = half;
     C.claim(w.to, "stand", { x0: H.x0 - (F.x0 < H.x0 - 0.01 ? 0 : m), x1: H.x1 + (F.x1 > H.x1 + 0.01 ? 0 : m), y0: H.y0 - (F.y0 < H.y0 - 0.01 ? 0 : m), y1: H.y1 + (F.y1 > H.y1 + 0.01 ? 0 : m) }, SOLID, `${w.id} well`, { exact: true }); }
   for (const b of blocks) C.claim(b.floor, "stand", b, BODY, b.kind || "block");

@@ -21,7 +21,7 @@
 // outer rings anticlockwise, holes clockwise, x east and y north in mm); carveMesh(THREE, carved) -> geometry
 // in the manor's frame (x east, y up, z south).
 import * as C from "../vendor/clipper2.min.mjs";
-import { wallToRoom } from "./furnish.js";
+import { framesOf, wallPoly } from "./walls.js";
 
 export const SETBACK = 0.04;     // m: behind every lining's deepest part
 const EXT = 0.75, SKIN = 0.01;   // the outer wall's thickness (src/make/plans/hybrid-e.js DIMS.ext); floors and ceilings stand this far off the cut
@@ -30,12 +30,8 @@ const box = (x0, y0, x1, y1) => { const [a, b, c, d] = [mm(Math.min(x0, x1)), mm
 const grow = (paths, m) => paths.length ? C.inflatePaths(paths, mm(m), C.JoinType.Miter, C.EndType.Polygon, 4) : [];
 const outlineOf = (room) => room.outline ? [room.outline.map(([x, y]) => ({ x: mm(x), y: mm(y) }))] : [box(room.rect.x0, room.rect.y0, room.rect.x1, room.rect.y1)];
 
-// a rect in a wall's frame (r along it, d into the room; d < 0 is into the wall and beyond) to a plan box
-function onWallBox(room, F, r0, r1, d0, d1) {
-  const { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0;
-  const [a, b] = [wallToRoom(F, W, D, r0, d0), wallToRoom(F, W, D, r1, d1)];
-  return box(x0 + a[0], y0 + a[1], x0 + b[0], y0 + b[1]);
-}
+// a stretch of a room's wall (r along it, d into the room; d < 0 is into the wall and beyond) as a ring in mm
+const onWallBox = (room, F, r0, r1, d0, d1) => wallPoly(room, framesOf(room)[F], r0, r1, d0, d1).map(([x, y]) => ({ x: mm(x), y: mm(y) }));
 
 export function carve({ plan, specs, levelOf, gap = 0.35 }) {
   const t0 = performance.now(), S = SETBACK;

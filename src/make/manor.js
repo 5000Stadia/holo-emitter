@@ -10,6 +10,7 @@
 import * as THREE from "three/webgpu";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { houseSpecs, storeys } from "./house-spec.js";
+import { floorOf } from "./walls.js";
 import { carve, carveMesh } from "./carve.js";
 import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
@@ -24,7 +25,8 @@ const FIRE = {
   core: Object.assign(new THREE.MeshBasicMaterial({ color: 0xd89a40, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }), { userData: { cls: "flame" } }),
   ember: Object.assign(new THREE.MeshBasicMaterial({ color: 0x7a2410 }), { userData: { cls: "ember" } }),
 };
-const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
+// a wall's group in its room: at the corner it is measured from, turned so its r runs along it and its +z faces in
+const placeOf = (frames) => Object.fromEntries(Object.entries(frames).map(([F, w]) => [F, { pos: [w.a[0], 0, -w.a[1]], rot: Math.atan2(w.dir[1], w.dir[0]) }]));
 const WALL_STYLE = { wainscot: "panelled", tapestry: "limewashed", limewash: "limewashed", stone: "limewashed" };
 
 // rush matting (R §2: the long gallery matted, Hardwick): plaits a hand wide, sewn edge to edge, each
@@ -135,9 +137,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const topFloor = floors[Math.min(floors.length - 1, floors.findIndex(f => f.id === room.floor) + (room.rises || 1) - 1)].id;
     const down = wellsHere.filter(w => w.from === topFloor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
     const floorMat = T.floor === "flags" ? M.flags : T.floor === "gypsum" ? mats.gypsum : T.floor === "matting" ? mats.matting : M.floor;
-    const fg = tileUV(slab(THREE, rect(0, W, 0, D), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
+    const fg = tileUV(slab(THREE, floorOf(room), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
     grp.add(Object.assign(new THREE.Mesh(fg, floorMat), { receiveShadow: true }));
-    const cg = tileUV(slab(THREE, rect(0, W, 0, D), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
+    const cg = tileUV(slab(THREE, floorOf(room).map(([u, v]) => [u, D - v]).reverse(), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
     grp.add(Object.assign(new THREE.Mesh(cg, T.walls === "limewash" || T.walls === "stone" ? M.limewash : M.plaster), { castShadow: true, receiveShadow: true }));
     // the ceiling's make: exposed joists across the short span, or moulded ribs in compartments
     if (T.ceiling === "beams" || T.ceiling === "compartments") {
@@ -150,9 +152,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       if (!beam) for (let s = step / 2; s < span; s += step) { const g = metric(new THREE.BoxGeometry(along ? len : bw, bd, along ? bw : len)); g.translate(along ? W / 2 : s, H - bd / 2, along ? -s : -D / 2); grp.add(new THREE.Mesh(g, mat)); }
     }
     // the walls, by the type's finish
-    const P = PLACE(W, D), style = WALL_STYLE[T.walls] || "panelled";
-    for (const F of ["N", "E", "S", "W"]) {
-      const L = F === "N" || F === "S" ? W : D;
+    // each wall where its frame says (src/make/walls.js): a rectangle's four, or an outline's every edge
+    const P = placeOf(spec.frames), style = WALL_STYLE[T.walls] || "panelled";
+    for (const F of Object.keys(spec.walls)) {
+      const L = spec.frames[F].L;
       const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style });
       w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
       if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
@@ -182,7 +185,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       }
     }
     // the anchor furniture, by the furnishing habit (src/make/furnish.js): things that work, drawn with their room
-    const placed = furnish({ room: { ...room, H }, spec, plan, anchors: furnished ? T.anchor || [] : [], sizeOf, sweptOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
+    // (an outline room is furnished by the placement rules, R54 step 6; until then it stands empty)
+    const placed = room.outline ? [] : furnish({ room: { ...room, H }, spec, plan, anchors: furnished ? T.anchor || [] : [], sizeOf, sweptOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
     placed.forEach((p, i) => {
       const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, p.over || {}), n = b.node, d = sizeOf(p.kind, p.over || {})?.[2] || 0;
       if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
@@ -196,10 +200,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     // each chimneypiece is solid to a body: its breast and the fire's mouth within it (Kabe, 2026-10-06: "the
     // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
     { const RW = room.rect.x1 - room.rect.x0, RD = room.rect.y1 - room.rect.y0;
-      for (const F of ["N", "E", "S", "W"]) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
+      for (const F of Object.keys(spec.walls)) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
         // the breast, and in front of it the surround, the mantel and its shelf (some 0.3 m proud, wider than the
         // fire by its ends): a body keeps out of all of it, so an eye can't stand inside the mantel
-        const deep = (e.breast || 0) + 0.32, m = e.mantel || e, [a, b] = [wallToRoom(F, RW, RD, Math.min(e.r0, m.r0) - 0.05, 0), wallToRoom(F, RW, RD, Math.max(e.r1, m.r1) + 0.05, deep)];
+        const deep = (e.breast || 0) + 0.32, m = e.mantel || e, [a, b] = [wallToRoom(spec.frames[F], RW, RD, Math.min(e.r0, m.r0) - 0.05, 0), wallToRoom(spec.frames[F], RW, RD, Math.max(e.r1, m.r1) + 0.05, deep)];
         blocks.push({ floor: room.floor, room: room.id, kind: "hearth", x0: x0 + Math.min(a[0], b[0]), x1: x0 + Math.max(a[0], b[0]), y0: y0 + Math.min(a[1], b[1]), y1: y0 + Math.max(a[1], b[1]) }); } }
     merge(grp, bundles);
     // the fire in each lit hearth: logs, embers and flames (drawn with the room; they flicker while seen)

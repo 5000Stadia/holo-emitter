@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 const b = await chromium.launch({ args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
 const p = await b.newPage({ viewport: { width: 800, height: 500 } });
 const errs = []; p.on("pageerror", e => errs.push(e.message)); p.on("console", m => { if (m.type() === "error") errs.push(m.text()); });
-await p.goto("http://localhost:8794/lab/manor/index.html?webgl=1&nofurn=1", { timeout: 300000 });
+await p.goto("http://localhost:8794/lab/manor/index.html?webgl=1&nofurn=1" + (process.env.QS || ""), { timeout: 300000 });
 await p.waitForFunction(() => window.__ok, null, { timeout: 300000 });
 const r = await p.evaluate(() => { const m = window.__manor, T = window.__THREE; let solid; m.scene.traverse(o => { if (o.userData.carve) solid = o; });
   const g = solid.geometry, P = g.attributes.position, n = P.count / 3;

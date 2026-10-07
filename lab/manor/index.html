@@ -41,7 +41,7 @@
 <script type="module">
 // The manor by purpose (R47): a c.1660 gentry seat's program laid into a hybrid E-plan, every room
 // built by its type, the muniment room from its brief, doors that work, only what you can see drawn.
-// ?fresh starts a new world; ?room=<id> starts you there; ?perf=1 shows the engine's numbers.
+// ?fresh starts a new world; ?room=<id> starts you there; ?plan=banqueting the octagonal banqueting house; ?perf=1 shows the engine's numbers.
 import * as THREE from "three/webgpu";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { makeKit } from "../painted/procedural.js";
@@ -50,6 +50,8 @@ import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { buildManor } from "../../src/make/manor.js";
 import { makeWalk } from "../../src/make/walk.js";
+import { planBanqueting } from "../../src/make/plans/banqueting.js";
+import { framesOf } from "../../src/make/walls.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
@@ -64,7 +66,8 @@ const step = (t) => { $("status").textContent = t + "…"; return new Promise(r 
 // ---- the world document: the house's plan sealed into it the first time it is seen (Kabe's P1): a
 // better generator later never moves a wall you have walked past; the story's own magic may
 const hearths = Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([k, v]) => [k, v.hearth]));
-const fresh = planHybridE(GENTRY_SEAT_1660, { hearths });
+// ?plan=banqueting builds the octagonal garden banqueting house instead (R54 5e: rooms of any shape)
+const fresh = Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
 // while the generator is still being written, a world starts afresh when its output changes; at release
 // the plan's hash leaves this key, and a world keeps the plan it was sealed with for good
 const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`;
@@ -141,7 +144,7 @@ const isOpen = (b) => works.stateOf(b, "leaf") === "open";
 const walk = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: (id) => !doorThing.get(id) || isOpen(doorThing.get(id)) });
 const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
-const start = plan.rooms.find(r => r.id === (Q.get("room") || "great_hall"));
+const start = plan.rooms.find(r => r.id === Q.get("room")) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
 let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
@@ -198,7 +201,9 @@ window.__seal = (ids = [...manor.rooms.keys()]) => { const t0 = performance.now(
     const through = (px, py, hy) => { // where a ray crossed the room's bounds: through an opening?
       const u = px - x0, v = py - y0, h = hy - Y;
       if (h > H - 0.02 || h < 0.02) return (plan.wells || []).some(w => px > w.hole.x0 && px < w.hole.x1 && py > w.hole.y0 && py < w.hole.y1);
-      const cands = [[Math.abs(v - D), "N", u], [Math.abs(v), "S", W - u], [Math.abs(u - W), "E", D - v], [Math.abs(u), "W", v]].sort((a, b) => a[0] - b[0]);
+      // the wall it crossed, of any direction (src/make/walls.js frames): the nearest, and how far along it
+      const frames = spec.frames || framesOf(room), cands = Object.entries(frames).map(([F, w]) => { const pu = u - w.a[0], pv = v - w.a[1], r = pu * w.dir[0] + pv * w.dir[1], d = pu * w.n[0] + pv * w.n[1];
+        return [Math.abs(d) + (r < -0.05 || r > w.L + 0.05 ? 9 : 0), F, r]; }).sort((a, b) => a[0] - b[0]);
       const [, F, r] = cands[0];
       return spec.walls[F].some(e => (e.kind === "door" || e.kind === "open" || e.kind === "window") && r > e.r0 - 0.05 && r < e.r1 + 0.05 && h < (e.top ?? 2.4) + 0.05 && h > (e.kind === "window" ? (e.sill ?? 0) - 0.05 : -1)); };
     for (const [fu, fv] of [[0.25, 0.25], [0.75, 0.25], [0.5, 0.5], [0.25, 0.75], [0.75, 0.75]]) for (const hh of [0.5, 1.5]) {

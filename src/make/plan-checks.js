@@ -9,7 +9,7 @@
 // planChecks({ plan, specs, carved }) -> { ok, findings: [{ rule, where, what }], ms }
 import * as C from "../vendor/clipper2.min.mjs";
 import { solidAt } from "./carve.js";
-import { wallToRoom } from "./furnish.js";
+import { framesOf, onWallAt } from "./walls.js";
 
 export const MIN_WALL = 0.2;
 const mm = (m) => Math.round(m * 1000);
@@ -30,6 +30,14 @@ export function planChecks({ plan, specs, carved }) {
   // joins: a hand either side of each doorway's middle, through its wall
   const roomsAt = (floor, x, y) => list.filter(s => s.room.floor === floor && inside(s.room, x, y)).map(s => s.room.id);
   const court = new Set(plan.rooms.filter(r => r.type === "open").map(r => r.id));
+  // (an outline room hosts its own: either side of the stretch of wall it names)
+  const hosted = (room, F, r0, r1, T) => { const w = framesOf(room)[F], r = (r0 + r1) / 2, at = (d) => { const [u, v] = onWallAt(w, r, d); return [room.rect.x0 + u, room.rect.y0 + v]; }; return [at(0.15), at(-T - 0.15)]; };
+  for (const o of plan.openings) { if (o.rect || !o.on) continue;
+    for (const [id, h] of Object.entries(o.on)) { const room = plan.rooms.find(q => q.id === id), [inn, out] = hosted(room, h.F, h.r0, h.r1, o.T ?? 0.3), other = o.joins.find(j => j !== id);
+      const got = [roomsAt(room.floor, ...inn), roomsAt(room.floor, ...out)];
+      if (got[0].join() !== id || (court.has(other) ? got[1].length : got[1].join() !== other)) say("joins", o.id, `joins ${o.joins.join(" and ")}, but from ${id}'s side it opens into ${got.map(g => g.join("+") || "outdoors").join(" and ")}`); } }
+  plan.windows.forEach((w, i) => { if (w.rect || !w.room) return; const room = plan.rooms.find(q => q.id === w.room), [inn, out] = hosted(room, w.F, w.r0, w.r1, w.T ?? 0.75);
+    const got = [roomsAt(room.floor, ...inn), roomsAt(room.floor, ...out)]; if (got[0].join() !== w.room || got[1].length) say("joins", `window ${i}`, `should have ${w.room} and outdoors either side; has ${got.map(g => g.join("+") || "outdoors").join(" and ")}`); });
   for (const o of plan.openings) { if (!o.rect) continue;
     const R = o.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, ew = o.axis === "EW", h = 0.15;
     const sides = ew ? [[R.x0 - h, cy], [R.x1 + h, cy]] : [[cx, R.y0 - h], [cx, R.y1 + h]];
@@ -37,15 +45,15 @@ export function planChecks({ plan, specs, carved }) {
     const reached = got.flat(), outdoors = got.filter(g => !g.length).length;
     if (want.some(j => !reached.includes(j)) || reached.some(j => !want.includes(j)) || outdoors !== o.joins.length - want.length)
       say("joins", o.id, `joins ${o.joins.join(" and ")}, but its two sides open into ${got.map(g => g.join("+") || "outdoors").join(" and ")}`); }
-  plan.windows.forEach((w, i) => { const R = w.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, ew = (R.x1 - R.x0) < (R.y1 - R.y0), h = 0.15;
+  plan.windows.forEach((w, i) => { if (!w.rect) return; const R = w.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, ew = (R.x1 - R.x0) < (R.y1 - R.y0), h = 0.15;
     const got = (ew ? [[R.x0 - h, cy], [R.x1 + h, cy]] : [[cx, R.y0 - h], [cx, R.y1 + h]]).map(([x, y]) => roomsAt(w.floor, x, y));
     if (got.filter(g => g.length === 1).length !== 1 || got.filter(g => !g.length).length !== 1) say("joins", `window ${i}`, `should have one room and outdoors either side; has ${got.map(g => g.join("+") || "outdoors").join(" and ")}`); });
   // backed and open, read off the carve
   for (const { room, Y, spec } of list) {
-    const { x0, y0, x1, y1 } = room.rect, W = x1 - x0, D = y1 - y0, P = (F, r, d) => { const [u, v] = wallToRoom(F, W, D, r, d); return [x0 + u, y0 + v]; };
+    const { x0, y0, x1, y1 } = room.rect, W = x1 - x0, D = y1 - y0, frames = framesOf(room), P = (F, r, d) => { const [u, v] = onWallAt(frames[F], r, d); return [x0 + u, y0 + v]; };
     if (solidAt(carved, (x0 + x1) / 2, (y0 + y1) / 2, Y + 1.2)) say("open", room.id, "its middle is solid");
     for (const [F, es] of Object.entries(spec.walls)) {
-      const L = F === "N" || F === "S" ? W : D;
+      const L = frames[F].L;
       for (const e of es) if (e.kind === "chimneypiece") { const fb = e.firebox, [x, y] = P(F, (fb.r0 + fb.r1) / 2, (e.breast || 0) - fb.depth - 0.1);
         if (!solidAt(carved, x, y, Y + Math.min(0.5, fb.apex / 2))) say("backed", `${room.id} ${e.id}`, "less than 0.1 m of solid behind the fire"); }
       // solid a hand beyond the wall, every half metre where nothing stands in it

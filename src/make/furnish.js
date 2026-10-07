@@ -7,10 +7,12 @@
 // room's doorways: if any doorway could no longer be walked to from the others, the place is refused.
 // Coordinates: the room's own plan frame, u east from its west wall, v north from its south wall.
 import { passable, roomPassage } from "./passage.js";
+import { onWallAt } from "./walls.js";
 const BODY = 0.22, STEP = 0.05;          // a body's half-width, as the walker keeps it from walls
 
 // a wall's (r along it, d into the room) to the room's (u, v); see PLACE in manor.js and onWall
-export const wallToRoom = (F, W, D, r, d) => F === "N" ? [r, D - d] : F === "S" ? [W - r, d] : F === "E" ? [W - d, D - r] : [d, r];
+// (F may be a wall's frame from src/make/walls.js, for a wall of any direction; its spec carries them as frames)
+export const wallToRoom = (F, W, D, r, d) => typeof F === "object" ? onWallAt(F, r, d) : F === "N" ? [r, D - d] : F === "S" ? [W - r, d] : F === "E" ? [W - d, D - r] : [d, r];
 const rectOnWall = (F, W, D, r0, r1, d0, d1) => { const [a, b] = [wallToRoom(F, W, D, r0, d0), wallToRoom(F, W, D, r1, d1)];
   return { u0: Math.min(a[0], b[0]), u1: Math.max(a[0], b[0]), v0: Math.min(a[1], b[1]), v1: Math.max(a[1], b[1]) }; };
 const hit = (a, b, m = 0) => a.u0 < b.u1 + m && a.u1 > b.u0 - m && a.v0 < b.v1 + m && a.v1 > b.v0 - m;
