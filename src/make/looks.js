@@ -19,6 +19,8 @@ export function lookC1660(THREE, K, S) {
       earthenware: m("earthenware", { color: 0x9a5a34, roughness: 0.7 }),
       slipware: m("slipware", { color: 0xc8a050, roughness: 0.5 }),
       glass: m("glass", { color: 0x3e5a3a, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.82 }),
+      // clear thick glass, a pale cast (Alice's glass table and box: the key is seen through it); draws without writing depth so its own thickness never hides itself
+      glass_clear: m("glass_clear", { color: 0xd9eee6, roughness: 0.05, metalness: 0.15, transparent: true, opacity: 0.3, depthWrite: false }),
       glazing: (() => { const g = m("glazing", { color: 0xe4ece6, roughness: 0.04, metalness: 0.1, transparent: true, opacity: 0.07, depthWrite: false }); return g; })(),
       treen: m("treen", { color: 0x7a5434, roughness: 0.7 }),
       porcelain: m("porcelain", { color: 0xe8ecf0, roughness: 0.2 }),

@@ -857,3 +857,60 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - 152 pieces placed: 100 anchors and 52 ordinary things.
   - The story's key goes in its desk's drawer, and the desk is placed for it.
   - All 55 kinds clean.
+
+## R49: the hall of doors, from the book to a room you can play (2026-10-06)
+
+- **What:** *Alice's Adventures in Wonderland*, from the hall in Chapter I to the opening of Chapter II, as a hall
+  you play at `lab/manor/?plan=alice-hall`.
+  - Take the golden key, find the little door behind the curtain, unlock it, look through it (too big).
+  - The bottle comes to be. Drink it and you are ten inches high, with the key out of reach.
+  - The cake makes you more than nine feet high, stooping under the roof.
+  - The bottle comes back (the story's magic, since the literal reading strands you). Drink, and go through.
+  - Everything the page says is Carroll's sentence. The garden is seen down the passage but not entered.
+- **AI calls: two, both at authoring, none at build or play.**
+
+  | Call | What | Time | Tokens (whole helper run) |
+  |---|---|---|---|
+  | Ingestion | the text to the scene document (`lab/alice/hall.json`: 2 rooms, 3 openings, 8 things, 21 actions, 3 events, 102 quotes) | 107 s | about 60 k |
+  | Recipes | 7 kinds composed, 3 new parts, against the kind checks, with two review rounds | about 15 min | about 240 k |
+
+  A read-only prior-art pass (86 s, about 60 k tokens) informed the design. It is not part of the pipeline.
+- **Kinds tallied:**
+  - **Existing (1):** `door/panelled`, for the hall's 9 doors (locked for good) and for the little door (0.25 × 0.381 m, golden key).
+  - **Newly composed (7):** the glass three-legged table, the golden key, the low curtain, the DRINK ME bottle (its
+    label a part of it), the glass box, the EAT ME cake, the hanging lamp.
+  - **New parts (3):** `lettering` (a tag's text, and words marked in currants), `slot` (where a thing holds another),
+    and `flame` (a glow without a candle). Only `lettering` is a shape no part could make. The other two filled gaps
+    in the catalogue's plumbing.
+- **Time, description to playable:**
+
+  | Step | Cost | Where |
+  |---|---|---|
+  | Checking the scene document against the text | about 2 ms | `src/make/scene.js` |
+  | Matching things to kinds, laying out the plan, compiling the story | 31–74 ms in the page | match, plan type, story |
+  | The plan checks and the soundness rules, every body size | 0.8 s in Node, at generation | `tools/check-story.mjs` |
+  | The softlock search: 15 states, 5 stranded in the literal reading, each rescued | 3 ms | `src/make/story.js` |
+  | Building the hall | 127–156 ms | `buildManor` |
+  | Walkable, on WebGPU on the desktop | 7.1–8.0 s | 5.6 s of it is the shared texture kit, the same as the manor's |
+
+- **Clock time:** begun 23:15 and playable by about 23:50, with the ingestion, the prior-art pass and the recipes run
+  in parallel.
+- **New code:** 604 lines.
+  - scene check 39, matcher 24, story 92, story in play 123, plan type 102, room types 11;
+  - kinds 101 and parts 80, both written by the recipe helper;
+  - the generation check 32.
+- **Changed, for every place:**
+  - The soundness rules walk with each of a place's bodies. A doorway is judged by a body that fits it.
+  - The plan checks probe a low room within its height.
+  - The claim grid's cell is set by the plan.
+  - A doorway's inset scales with a little door.
+  - A door can take its own height and its lock and key; a room can be lower than its storey.
+  - The works layer can put down what you hold.
+  - The manor still passes everything, and 10 of 10 planted plan faults are still caught.
+- **Choices the text leaves open,** listed by the plan with why:
+  - the hall is 12.6 × 4.2 × 2.6 m;
+  - there are 9 doors and 6 lamps;
+  - the little door is 25 cm wide;
+  - the passage is 2.4 × 0.4 × 0.45 m;
+  - the little door locks when it is shut;
+  - Alice's usual height is 1.2 m.

@@ -213,6 +213,14 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     settle();
     return { did: true, took: t.b.kind.noun };
   }
+  // put what you hold down again (Alice leaves the golden key on the table): out of your keeping, shown where the
+  // caller seats it
+  function put(b) {
+    if (!held().includes(b.id)) return { did: false, refused: "You aren't holding it." };
+    store["@held"] = held().filter(id => id !== b.id); b.node.visible = true; targets = null;
+    settle();
+    return { did: true, put: b.kind.noun };
+  }
   // each frame: movers ease toward their state, levers spring back, processes follow the clock
   function tick(dt) {
     for (const [k, m] of anim) {
@@ -229,7 +237,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // drawer), and play the motion there
   function set(b, aff, i, state) { if (stateOf(b, aff, i) !== state) { turn(b, aff, i, state); settle(); } }
   return {
-    add, meshes, find, hint, cue, act, take, set, tick, stateOf, level, things,
+    add, meshes, find, hint, cue, act, take, put, set, tick, stateOf, level, things,
     rules: (list) => { rules = list; settle(); },
     vars: () => Object.fromEntries(Object.entries(store).filter(([k]) => k[0] === "$").map(([k, v]) => [k.slice(1), v])),
     held: () => held().map(id => things.get(id)).filter(Boolean),

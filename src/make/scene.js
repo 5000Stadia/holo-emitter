@@ -28,3 +28,12 @@ export function checkScene(scene, text) {
   for (const a of scene.actions || []) if (a.thing && a.thing !== "player" && !ids.has(a.thing)) findings.push({ at: `actions.${a.id}`, what: `acts on "${a.thing}", which the scene doesn't declare` });
   return { ok: !findings.length, findings, quotes };
 }
+
+// the whole sentence a quote stands in, from the text (what the player reads is Carroll's sentence, not a line's
+// fragment of it); a quote not in the text comes back as it is
+export function sentenceOf(text, q) {
+  if (!q) return q; const t = text.replace(/\s+/g, " "), n = q.replace(/\s+/g, " ").trim(), i = t.indexOf(n); if (i < 0) return q;
+  const ends = /[.!?][”’)]*\s/g; let a = 0, m; while ((m = ends.exec(t)) && m.index + m[0].length <= i) a = m.index + m[0].length;
+  ends.lastIndex = i + n.length; const e = ends.exec(t), b = e ? e.index + e[0].length : t.length;
+  return t.slice(a, b).trim();
+}

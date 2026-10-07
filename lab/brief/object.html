@@ -73,10 +73,6 @@ const OBJECTS = {
   // play never waits (plan §5): a kind whose part is not written yet stands as holodeck grid at its true
   // size, takeable; when the part arrives (here, three seconds later, as if just authored) it turns real
   arrival: () => { const g = new THREE.Group();
-    if (!kindOf("bottle/drink-me")) defineKind({ kind: "bottle/drink-me", v: 1, noun: "the little bottle", why: "Alice, ch. 1: a little bottle on the glass table, a paper label round its neck, 'DRINK ME' beautifully printed on it in large letters",
-      size: [0.08, 0.2, 0.08], settings: {}, parts: [
-        { part: "lathe", role: "glass", profile: [[0, 0], [0.036, 0.003], [0.04, 0.06], [0.034, 0.11], [0.012, 0.15], [0.01, 0.185], [0.013, 0.19], [0, 0.19]] },
-        { part: "paper_tag", text: "DRINK ME", at: [0, 0.15, 0] }] });
     const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(0.8, 0.04, 0.4), 0.1), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench);
     const bottle = make("bottle/drink-me", "story:alice/ch1/hall/table/bottle"); bottle.node.position.set(0, 0.75, 0.6); g.add(bottle.node);
     g.userData.view = [0.3, 0.25, 1.4, 0.85]; g.userData.arrives = true; return g; },

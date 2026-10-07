@@ -12,7 +12,8 @@ import { bodyAt } from "../story.js";
 // proportion): a long room three times as long as it is wide
 const SHAPE = { long: { W: 4.2, L: 12.6 }, square: { W: 6, L: 6 }, open: { W: 5, L: 8 } };
 const HEIGHT = { low: 2.6, high: 4.2, open: 3.2 };
-const WALL = 0.6, PART = 0.3, DOOR = { w: 0.9, h: 2.05 }, DOOR_EVERY = 2.6;
+const WALL = 0.75, PART = 0.3,   // WALL: the outer wall, as the carve makes it (src/make/carve.js EXT)
+      DOOR = { w: 0.9, h: 2.05 }, DOOR_EVERY = 2.6;
 
 export function planStoryHall(scene, { kinds } = {}) {
   const chosen = [], choose = (what, value, why) => { chosen.push({ what, value, why }); return value; };
@@ -43,12 +44,15 @@ export function planStoryHall(scene, { kinds } = {}) {
     if (passS) plan.rooms.push(pass);
     plan.openings.push({ id: little.id, kind: "door", floor: "ground", axis: "EW", T: PART, joins: [hall.id, pass.id], height_m: little.size.height_m,
       rect: { x0: -PART, x1: 0, y0: +(cy - lw / 2).toFixed(3), y1: +(cy + lw / 2).toFixed(3) },
-      door: { lock: little.locked ? "locked" : "unlocked", key: kinds?.[little.key] || "key/none" }, hidden_by: little.hidden_by || null });
+      door: { lock: little.locked ? "locked" : "unlocked", key: kinds?.[little.key] || "key/none" }, hidden_by: little.hidden_by || null,
+      latch: choose("the little door locks when it is shut", true, "the text leaves it open, but she needs the key again after leaving the door: \"she found she had forgotten the little golden key\"") });
     // the passage's far end, open on the garden
     const end = scene.openings.find(o => o.in === pass.id);
-    const garden = { id: "garden", floor: "ground", name: "GARDEN", type: "open", archetype: "open", room_type: "court", rect: { x0: pass.rect.x0 - PART - 8, x1: pass.rect.x0 - PART, y0: cy - 4, y1: cy + 4 } };
+    const garden = { id: "garden", floor: "ground", name: "GARDEN", type: "open", archetype: "open", room_type: "court", rect: { x0: pass.rect.x0 - WALL - 8, x1: pass.rect.x0 - WALL, y0: cy - 4, y1: cy + 4 } };
     plan.rooms.push(garden);
-    if (end) plan.openings.push({ id: end.id, kind: "open_edge", floor: "ground", axis: "EW", T: PART, joins: [pass.id, garden.id], rect: { x0: pass.rect.x0 - PART, x1: pass.rect.x0, y0: pass.rect.y0 + 0.04, y1: pass.rect.y1 - 0.04 } });
+    // a doorway with no door, as the passage is wide and high (the outdoors first among what it joins: no room hangs a leaf)
+    if (end) plan.openings.push({ id: end.id, kind: "door", floor: "ground", axis: "EW", T: WALL, joins: [garden.id, pass.id], height_m: +(pass.height_m - 0.04).toFixed(3),
+      rect: { x0: pass.rect.x0 - WALL, x1: pass.rect.x0, y0: pass.rect.y0 + 0.04, y1: pass.rect.y1 - 0.04 } });
   }
   // doors all round: along both long walls and the near end, one every DOOR_EVERY metres, none within a door's
   // width of a corner (how many is open in the text: chosen by the wall's length); each opens on space the text

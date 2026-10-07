@@ -71,7 +71,7 @@ import { touchControls, isTouch, fullscreenButton, actionButton } from "../touch
 fullscreenButton();
 
 const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
-const say = (t) => { if (!t) return; const l = $("line"); l.textContent = t; l.hidden = false; clearTimeout(say.t); say.t = setTimeout(() => { l.hidden = true; }, 4500); };
+window.__said = []; const say = (t) => { if (!t) return; window.__said.push(t); const l = $("line"); l.textContent = t; l.hidden = false; clearTimeout(say.t); say.t = setTimeout(() => { l.hidden = true; }, 4500); };
 const step = (t) => { $("status").textContent = t + "…"; return new Promise(r => setTimeout(r)); };
 
 // ---- the world document: the house's plan sealed into it the first time it is seen (Kabe's P1): a
@@ -84,7 +84,7 @@ const STORY = Q.get("plan") === "alice-hall" ? await (async () => { const t0 = p
   const [scene, text] = await Promise.all([fetch("../alice/hall.json").then(r => r.json()), fetch("../alice/hall.txt").then(r => r.text())]);
   const check = checkScene(scene, text); if (!check.ok) throw new Error("scene refused: " + check.findings.map(f => `${f.at}: ${f.what}`).join("; "));
   const match = matchKinds(scene, kinds()), plan = planStoryHall(scene, { kinds: match.kinds });
-  return { scene, check, match, plan, story: compileStory(scene), ms: Math.round(performance.now() - t0) }; })() : null;
+  return { scene, text, check, match, plan, story: compileStory(scene), ms: Math.round(performance.now() - t0) }; })() : null;
 window.__story = () => STORY && { quotes: STORY.check.quotes, match: STORY.match, chosen: STORY.plan.chosen, unread: STORY.story.unread, ms: STORY.ms };
 const fresh = STORY ? STORY.plan : Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
 // what the story requires, placed first in its room with what holds it (R54 step 6; pattern-buffer will supply
@@ -153,7 +153,7 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
 for (const b of manor.things) works.add(b);
 window.__works = works; window.__manor = manor; window.__plan = plan;
 // the story in play (R49): sizes, reach, deeds, what the text brings in later, the story's magic, the goal
-const SP = STORY ? playStory({ THREE, scene: STORY.scene, story: STORY.story, plan, manor, works, build, K, look: look1660, say,
+const SP = STORY ? playStory({ THREE, scene: STORY.scene, story: STORY.story, text: STORY.text, plan, manor, works, build, K, look: look1660, say,
   setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); } }) : null;
 window.__sp = SP;
 if (SP) { const b3 = new THREE.Box3(), c = new THREE.Vector3();
@@ -166,7 +166,7 @@ if (SP) { const b3 = new THREE.Box3(), c = new THREE.Vector3();
 function buildGarden() { const g = plan.rooms.find(r => r.id === "garden"); if (!g) return; const G = new THREE.Group(), R = g.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2;
   const lawn = new THREE.Mesh(new THREE.PlaneGeometry(R.x1 - R.x0 + 30, R.y1 - R.y0 + 30), new THREE.MeshStandardMaterial({ color: 0x4f7a32, roughness: 1 })); lawn.rotation.x = -Math.PI / 2; lawn.position.set(cx - 15, -0.01, -cy); lawn.receiveShadow = true; G.add(lawn);
   const cols = [0xd83a4a, 0xf2c14e, 0xf6f1e8, 0xb04fd0, 0xff8a3d], bloom = new THREE.IcosahedronGeometry(0.06, 0), r = (k) => { const x = Math.sin(k * 127.1) * 43758.5453; return x - Math.floor(x); };
-  for (const [bx, by] of [[-1.5, 2.2], [-1.5, -2.2], [-5, 2.6], [-5, -2.6]]) { const n = 140, m = new THREE.InstancedMesh(bloom, new THREE.MeshStandardMaterial({ roughness: 0.8 }), n), M4 = new THREE.Matrix4();
+  for (const [bx, by] of [[-1.6, 1.0], [-1.6, -1.0], [-5.6, 1.5], [-5.6, -1.5]]) { const n = 140, m = new THREE.InstancedMesh(bloom, new THREE.MeshStandardMaterial({ roughness: 0.8 }), n), M4 = new THREE.Matrix4();
     for (let i = 0; i < n; i++) { M4.makeTranslation(R.x1 + bx + (r(i + bx * 9) - 0.5) * 2.4, 0.08 + r(i * 3 + by) * 0.18, -(cy + by + (r(i * 7 + bx) - 0.5) * 1.2)); m.setMatrixAt(i, M4); m.setColorAt(i, new THREE.Color(cols[i % cols.length])); }
     const bed = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.08, 1.4), new THREE.MeshStandardMaterial({ color: 0x3b2a1c, roughness: 1 })); bed.position.set(R.x1 + bx, 0.04, -(cy + by)); G.add(bed, m); }
   const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a4, roughness: 0.9 }), water = new THREE.MeshStandardMaterial({ color: 0x9cc8e0, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.85 });
@@ -210,12 +210,21 @@ if (TOUCH) $("gate").hidden = true;
 const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
 renderer.domElement.addEventListener("click", () => { if (document.pointerLockElement === renderer.domElement) act(); else if (!TOUCH) { if (!act(hover)) lock(); } });
 const ray = new THREE.Raycaster(); ray.far = 2.6;
-const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); return works.find(ray.intersectObjects(works.meshes(), true)[0]); };
-function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false;
+const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); const h = ray.intersectObjects(works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point; return t; };
+function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; return actOn(t); }
+// a test hook: act on a thing as a click on it would (its affordance, or none to take or put down)
+window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
+function actOn(t) {
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
-  if (SP && !SP.reachable(t.b)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
-  const r = works.act(t); SP?.afterAct(t, r);
-  if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); refreshView(true); return true; }
+  if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
+  if (SP?.beforeAct(t)) return true;
+  let r = works.act(t);
+  // what you hold, put down on a surface you act on (the golden key back on the glass table)
+  if (r.refused && works.held().length && t.b.slots?.get("top")) { const b = works.held().at(-1), s = t.b.slots.get("top"); r = works.put(b);
+    if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] }; } }
+  if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
+  SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
+  refreshView(true); return true; }
 function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
 const showCue = cues($("cross"), renderer.domElement);
 

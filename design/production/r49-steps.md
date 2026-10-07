@@ -53,9 +53,15 @@ and never while building or playing. Every AI call is counted. The time is kept 
    end: the AI calls with their time and tokens, then the build from the scene document to walkable. The kinds
    tally goes in `lab/RECEIPTS.md`, and the public site gets a card.
 
+## Done 2026-10-06
+
+All six steps; the receipts are in `lab/RECEIPTS.md` under R49. You play it at `lab/manor/?plan=alice-hall`. The play-through is `tests/.alice-play.mjs`. The checks at generation are `tools/check-story.mjs`.
+
 ## Decisions taken here (reversible)
 
 - **The rescue bottle.** I chose the story's magic over importing Chapter II's fan (step 5).
+- **The little door locks when it is shut.** The text leaves it open, but she needs the key again after leaving it: "she found she had forgotten the little golden key".
+- **The magic comes late.** The story's magic waits until nothing that could be used up is left to try; the cake goes first, as in the book.
 - **The ending.** The garden beyond the little door is seen, as Alice sees it, but not entered. Ch. I never
   reaches it, and the outdoors is R46. Going through at ten inches ends the proof with the passage's light.
 - **Alice's size.** At full size she stands 1.2 m: a child of about seven (Carroll's Alice Liddell was ten, the
