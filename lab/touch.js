@@ -63,7 +63,7 @@ export function actionButton(onPress) {
   document.body.append(b);
   let shown;
   return (mode) => { if (mode === shown) return; shown = mode; b.style.display = mode ? "grid" : "none"; b.style.placeItems = "center";
-    if (mode) { b.innerHTML = ICONS[mode].replace('width="24" height="24"', 'width="40" height="40"'); b.setAttribute("aria-label", mode === "take" ? "Take" : mode === "locked" ? "Locked" : "Use"); } };
+    if (mode) { b.innerHTML = ICONS[mode].replace('width="24" height="24"', 'width="40" height="40"'); b.setAttribute("aria-label", mode === "take" ? "Take" : mode === "locked" ? "Locked" : mode === "talk" ? "Talk" : "Use"); } };
 }
 
 // Crouch: a smaller button above the thumb's use button, toggling (pressed: down); onToggle(down)

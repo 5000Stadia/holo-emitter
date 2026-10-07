@@ -67,6 +67,12 @@ import { makeSite, makeOutdoorWalk } from "../../src/make/terrain.js";
 import { makeGround, groundMaterial } from "../../src/make/terrain-mesh.js";
 import { buildForecourt } from "../../src/make/forecourt.js";
 import { makeFields } from "../../src/make/fields.js";
+import { caseRequired, playCase } from "../../src/make/case-play.js";
+import { checkCase, fairPlay } from "../../src/make/case.js";
+import { makeNarrator } from "../../src/make/narrator.js";
+import { makePresence } from "../../src/make/presence.js";
+import { makeVoice } from "../../src/make/voice.js";
+import { makeTalkPanel } from "../ui/talk-panel.js";
 import { makeHillside } from "../../src/make/hillside.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { rng as rngOf, seedOf } from "../../src/make/id.js";
@@ -99,6 +105,9 @@ const fresh = STORY ? STORY.plan : Q.get("plan") === "banqueting" ? planBanqueti
 // these): ?require=key/iron@study:table/joined-with-drawer.drawer (kind@room, optionally :in-kind.slot), comma-separated
 if (Q.get("require")) fresh.required = Q.get("require").split(",").map(t => { const [what, inside] = t.split(":"), [kind, room] = what.split("@"), [ik, slot] = (inside || "").split(".");
   return { kind, room, ...(inside ? { in: { kind: ik, slot: slot || "drawer" } } : {}) }; });
+// ?case=case-1660: a mystery in the house (M7): its things placed first, by story id, with what holds them
+const CASE = Q.get("case") ? await (await fetch(`../case/${Q.get("case")}.json`)).json() : null;
+if (CASE) fresh.required = [...(fresh.required || []), ...caseRequired(CASE, fresh, new Set(kinds().map(k => k.kind)))];
 // while the generator is still being written, a world starts afresh when its output changes; at release
 // the plan's hash leaves this key, and a world keeps the plan it was sealed with for good
 const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`;
@@ -232,7 +241,48 @@ const joined = (w) => !outdoorWalk ? w : { ...w, groundAt: (x, y, h) => site.inH
 walk = joined(walk);
 const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
-const start = plan.rooms.find(r => r.id === Q.get("room")) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
+// ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
+// narrator in code (the live narrative is construct's, over the contract: design/case/boundary-with-construct.md)
+let CP = null; const presences = new Map();
+if (CASE) {
+  const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values());
+  // what the house's own builders made (the muniment room is built from its brief, not by the placer): adopted by kind
+  for (const t of CASE.things || []) { if (byStory.has(t.id) || !plan.rooms.some(r => r.id === t.at)) continue;
+    const c = manor.things.filter(b => !used.has(b) && b.kind.kind === t.kind && (b.address || "").includes(`/${t.at}/`));
+    const pick = (/_N/.test(t.id) && c.find(b => /\bN|\/N/.test(b.address))) || c[0];
+    if (pick) { pick.story = t.id; pick.node.userData.story = t.id; byStory.set(t.id, pick); used.add(pick); } }
+  // and what those hold, built and seated in their slots
+  const knownKinds = new Set(kinds().map(k => k.kind));
+  for (let pass = 0; pass < 4; pass++) for (const t of CASE.things || []) { if (byStory.has(t.id) || !knownKinds.has(t.kind)) continue; const host = byStory.get(t.at); if (!host) continue;
+    const b = build(THREE, K, look1660, t.kind, `case/${t.id}`, {}); b.story = t.id; b.node.userData.story = t.id;
+    const sl = host.slots?.get(t.slot || "top") || host.slots?.get("top") || host.slots?.get("inside");
+    if (sl) { b.node.position.set(...sl.at); sl.node.add(b.node); }
+    else { const bb = new THREE.Box3().setFromObject(host.node); b.node.position.set((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2); scene.add(b.node); }
+    works.add(b); manor.things.push(b); byStory.set(t.id, b); }
+  // fair by the project's own check, at load (ms)
+  const fp = fairPlay(CASE, { plan }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)) });
+  window.__case = { check: cc, fair: fp, placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) };
+  // the people: each where the case puts them at the start, as the holodeck shows them, a portrait painted in code
+  const portrait = (id) => { const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
+  const standIn = (roomId) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
+    for (let k = 0; k < 800; k++) { const a = k * 2.4, rr = 0.08 * Math.sqrt(k), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr; if (walk.groundAt(x, y, h) != null && rr > 0.9) return [x, y, h]; } return [cx, cy, h]; };
+  const presenceOf = (id, room = null) => { const was = presences.get(id); if (was && (!room || was.room === room)) return was;
+    const p = CASE.cast.find(c => c.id === id); if (!p) return null; const to = room || p.presence?.find(q => q.when === "start")?.room || p.home, at = standIn(to); if (!at) return null;
+    if (was) was.p.group.removeFromParent();
+    const picture = was?.picture || portrait(id), pr = makePresence(THREE, { picture, name: p.name, at, seed: id.length });
+    scene.add(pr.group);                       // in world space (a room's group has its own offset); shown while its room is
+    const rec = { p: pr, picture, room: to }; presences.set(id, rec); return rec; };
+  for (const p of CASE.cast) presenceOf(p.id);
+  const narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) });
+  const panel = makeTalkPanel({
+    onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
+    onShow: (id, last) => CP.reply(CP.talking(), last || "death", "show", id), onAccuse: (c) => CP.accuse(c),
+    onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onClose: () => {} });
+  CP = playCase({ kase: CASE, plan, manor, works, panel, voice: makeVoice(), narrator, say, presenceOf,
+    setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed.") });
+  window.__cp = CP; window.__presences = presences;
+}
+const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
 // a story starts you where the text brings you in: the hall's near end, from the passage the Rabbit took
 let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
@@ -293,11 +343,15 @@ function goTo(ndc) {
 }
 window.__goTo = (nx, ny) => goTo(new THREE.Vector2(nx, ny));
 const ray = new THREE.Raycaster(); ray.far = 2.6;
-const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); const h = ray.intersectObjects(works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point; return t; };
+const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); const h = ray.intersectObjects(works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point;
+  // a person present (a case's): the nearer of them and the thing aimed at
+  if (presences.size) { const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.parent?.visible !== false).map(q => q.p.hit), false)[0]; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
+  return t; };
 function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; return actOn(t); }
 // a test hook: act on a thing as a click on it would (its affordance, or none to take or put down)
 window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
 function actOn(t) {
+  if (t?.presence) { CP?.talkTo(t.presence); return true; }
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
   if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
   if (SP?.beforeAct(t)) return true;
@@ -307,6 +361,7 @@ function actOn(t) {
     if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] }; } }
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
+  CP?.afterAct(t, r);                                  // a case's clue in what you opened or took
   lightsDirty = true;                                  // a lamp lit or put out, a shutter opened
   refreshView(true); return true; }
 function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
@@ -318,6 +373,7 @@ function refreshView(force = false) {
   // outside: the open court you stand in (the forecourt), seen from as a room is; beyond any, the outdoors
   const r = roomAt(px, py, ph) || (site && !site.inHouse(px, py) ? (plan.rooms.find(q => q.type === "open" && px > q.rect.x0 && px < q.rect.x1 && py > q.rect.y0 && py < q.rect.y1) || { id: plan.entrance, name: "OUTSIDE", floor: "ground" }) : null);
   if (!r || (!force && r.id === here)) return;
+  if (CP && r.id !== here) CP.enter(r.id);
   here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); inView = seen; lightsDirty = true;
   $("where").querySelector(".n").textContent = r.name; $("where").querySelector(".f").textContent = `${r.floor} floor`;
   ENG.invalidate();
@@ -428,6 +484,7 @@ renderer.setAnimationLoop((now) => {
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false;
+  for (const q of presences.values()) { q.p.group.visible = manor.rooms.get(q.room)?.grp.visible !== false; if (q.p.group.visible) q.p.tick(now / 1000, camera); }
   const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, !window.__ok ? 500 : ENG.phone ? 2 : 4) : false;
   const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, !window.__ok ? 500 : ENG.phone ? 2 : 4) : false;   // the nearest before the first frame (half a second); the rest a few ms a frame, under the haze
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
@@ -435,7 +492,7 @@ renderer.setAnimationLoop((now) => {
   const fading = winPool.step(dt) | firePool.step(dt);
   if (!window.__ok && !ENG.marks.tiles) ENG.mark("tiles");
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
-  const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+  const t = aim(locked ? null : hover), cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
