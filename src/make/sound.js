@@ -15,7 +15,7 @@
 // soundness({ plan, compileRoom, blocks }) -> { ok, findings: [{ rule, where, what }] }
 import { makeWalk } from "./walk.js";
 import { passable, roomPassage } from "./passage.js";
-import { wallToRoom } from "./furnish.js";
+import { wallToRoom } from "./walls.js";
 
 export const levelsOf = (plan, gap = 0.35) => { const fl = [...plan.floors].sort((a, b) => a.level - b.level), at = {}; let y = 0;
   for (const f of fl) { at[f.id] = y; y += f.storey_height_m + gap; } return (id) => at[id]; };

@@ -4,8 +4,8 @@
 // press doors open, lids lift, a gateleg's leaves rise, a draw-table's leaves slide out, a hogshead's tap
 // is turned, the kitchen's spit goes round while the jack runs. Frame: back at z = 0 against a wall, front
 // toward +z, centred on x = 0, standing on y = 0. "=expr" is arithmetic over the settings. How a piece
-// stands in its room (src/make/furnish.js) is a trait: "free" in the middle, "beside" the free table,
-// "hearth" in the fire's mouth, "wall" hung; otherwise back to a wall.
+// stands in its room (src/make/place.js) is its place rule, or what its trait implies: "free" in the middle,
+// "beside" the free table, "hearth" in the fire's mouth, "wall" hung; otherwise back to a wall.
 const P = Math.PI;
 const LEG = [[0, 0], [0.024, 0], [0.026, 0.06], [0.02, 0.1], [0.028, 0.2], [0.034, 0.3], [0.022, 0.38], [0.018, 0.42], [0.024, 0.48]];   // a turned leg to 0.48 m, scaled by ops
 // four turned legs standing on the floor, ids id0..id3; a tenon is the let-in at their tops, taken up into
@@ -51,7 +51,7 @@ export default [
       { id: "seat", part: "box", role: "turkey", size: [0.5, 0.07, 0.48], at: [0, 0, 0.24], on: "leg0", sink: 0.004 },
       { id: "postL", part: "box", role: "wood", size: [0.04, 0.57, 0.04], at: [-0.22, 0, 0.03], on: "seat", sink: 0.04 }, { id: "postR", part: "box", role: "wood", size: [0.04, 0.57, 0.04], at: [0.22, 0, 0.03], on: "seat", sink: 0.04 },
       { part: "box", role: "turkey", size: [0.4, 0.36, 0.04], at: [0, 0.62, 0.03], spans: { from: "postL", to: "postR", axis: "x" } }] },
-  { kind: "chair/joined", v: 1, noun: "the chair", fixed: false, why: "a joined oak back stool, the living parlour's chair",
+  { kind: "chair/joined", v: 1, noun: "the chair", fixed: false, place: { anchor: "at", of: ["table/joined-with-drawer"] }, why: "a joined oak back stool, the living parlour's chair",
     size: [0.48, 1.0, 0.46], settings: {},
     parts: [...legs("leg", "wood", "0.44", 0.04, "0.46", "0.44", 0.004),
       { id: "seat", part: "box", role: "wood_face", size: [0.48, 0.04, 0.46], at: [0, 0, 0.23], on: "leg0", sink: 0.004 },
@@ -285,7 +285,7 @@ export default [
     affordances: {
       left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.7, verbs: ["open the dresser", "close the dresser"] },
       right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.7, verbs: ["open the dresser", "close the dresser"] } } },
-  { kind: "rail/pegs", v: 1, noun: "the peg rail", fixed: true, traits: ["wall"], why: "a peg rail by the servants' hall door, cloaks and hats hung on it",
+  { kind: "rail/pegs", v: 1, noun: "the peg rail", fixed: true, traits: ["wall"], place: { anchor: "hung", must: [{ near: "door", within: 1.5 }] }, why: "a peg rail by the servants' hall door, cloaks and hats hung on it",
     size: [2.2, 1.3, 0.3], settings: { at_y: 0.55 },
     // the rail on the wall; the pegs stand out from its face; the cloaks and the hat hang from the pegs' curves, so keep their coordinates
     parts: [{ id: "rail", part: "box", role: "wood", size: [2.2, 0.08, 0.03], at: [0, "=at_y+1.15", 0.015], hangs: "wall" },

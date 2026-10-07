@@ -76,10 +76,10 @@ export function passable({ W, D, exits, solids = [], body = PLAYER.half, regions
 }
 
 // a room's exits and fixed solids from its plan and compiled walls, in its own frame (u east from its west
-// wall, v north from its south wall); wallToRoom as in furnish.js
+// wall, v north from its south wall); wallToRoom as in walls.js
 export function roomPassage(plan, room, spec, wallToRoom, { stairFloors = (s) => [s.from, s.to] } = {}) {
   const { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, exits = [], solids = [];
-  for (const F of ["N", "E", "S", "W"]) for (const e of spec.walls[F]) {
+  for (const G of Object.keys(spec.walls)) for (const e of spec.walls[G]) { const F = spec.frames?.[G] || G;
     if (e.kind === "door" || e.kind === "open") exits.push({ id: e.id, at: wallToRoom(F, W, D, (e.r0 + e.r1) / 2, PLAYER.half + 0.08) });
     if (e.kind === "chimneypiece" && e.breast) { const [a, b] = [wallToRoom(F, W, D, e.r0, 0), wallToRoom(F, W, D, e.r1, e.breast)];
       solids.push({ u0: Math.min(a[0], b[0]), u1: Math.max(a[0], b[0]), v0: Math.min(a[1], b[1]), v1: Math.max(a[1], b[1]), why: "chimney breast" }); }

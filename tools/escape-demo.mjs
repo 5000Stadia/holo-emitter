@@ -4,7 +4,7 @@ import { GENTRY_SEAT_1660 } from "../src/make/programs/england-1660.js";
 import { ROOM_TYPES_1660 } from "../src/make/rooms/england-1660.js";
 import { compileRoom } from "../lab/house/plan-compile.js";
 import { passable, roomPassage } from "../src/make/passage.js";
-import { wallToRoom } from "../src/make/furnish.js";
+import { wallToRoom } from "../src/make/walls.js";
 import { reachability } from "../src/make/reach.js";
 import { rng } from "../src/make/id.js";
 const plan = planHybridE(GENTRY_SEAT_1660, { hearths: Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([k, v]) => [k, v.hearth])) });

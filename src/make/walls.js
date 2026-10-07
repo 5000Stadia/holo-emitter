@@ -34,3 +34,6 @@ export const floorOf = (room) => room.outline ? ccw(room.outline).map(([x, y]) =
 export function regular([cx, cy], R, sides, turn = Math.PI / sides) {
   return Array.from({ length: sides }, (_, i) => { const t = turn + i * 2 * Math.PI / sides; return [Math.round((cx + R * Math.cos(t)) * 1000) / 1000, Math.round((cy + R * Math.sin(t)) * 1000) / 1000]; });
 }
+
+// the older form, for a rectangle's walls by name (N, E, S, W), or any wall by its frame: (r, d) to the room's frame
+export const wallToRoom = (F, W, D, r, d) => typeof F === "object" ? onWallAt(F, r, d) : F === "N" ? [r, D - d] : F === "S" ? [W - r, d] : F === "E" ? [W - d, D - r] : [d, r];

@@ -3,7 +3,7 @@
 // each room's type (src/make/rooms/) says what it stands on, its walls and ceiling, its hearth. A room's
 // height is the storeys it rises through. The muniment room is built from its period brief
 // (lab/brief/strongroom.js). Doors are things that work (door/panelled; locks and all). Each room's
-// anchor furniture stands where the furnishing habit puts it (src/make/furnish.js). Every room's
+// furniture stands where the placement rules put it (src/make/place.js). Every room's
 // still parts are merged by material into one render bundle (WebGPU replays it without re-encoding);
 // what you can see is decided by the doorways: from the room you stand in, through every open door,
 // two rooms deep, and up and down the stairs you stand on. The rest is not drawn.
@@ -16,7 +16,8 @@ import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
 import { build } from "./build.js";
 import { kindOf, sizeOf as kindSize, value } from "./catalogue.js";
-import { furnish, wallToRoom } from "./furnish.js";
+import { wallToRoom } from "./walls.js";
+import { placeRoom, HISTORY } from "./place.js";
 import { rng, seedOf } from "./id.js";
 
 // a hearth fire's two looks: flame, drawn additive (it lights, it isn't lit), and embers
@@ -89,7 +90,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     plaster: M.plaster, limewash: M.limewash,
     carve: Object.assign(new THREE.MeshStandardMaterial({ color: 0x5a5048, roughness: 1 }), { userData: { cls: "carve" } }),
   };
-  const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [], hearths = [], flames = [];
+  const placements = new Map(), scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [], hearths = [], flames = [];
   // a kind's size in its own frame (from its data, or measured once from a build)
   const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3();
   const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
@@ -184,18 +185,26 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
           const lining = new THREE.Mesh(g, M.oak); lining.receiveShadow = true; b.node.add(lining); }
       }
     }
-    // the anchor furniture, by the furnishing habit (src/make/furnish.js): things that work, drawn with their room
-    // (an outline room is furnished by the placement rules, R54 step 6; until then it stands empty)
-    const placed = room.outline ? [] : furnish({ room: { ...room, H }, spec, plan, anchors: furnished ? T.anchor || [] : [], sizeOf, sweptOf, traitsOf, settingsOf, stairFloors: (s) => [stairFrom(s), stairTo(s)] });
-    placed.forEach((p, i) => {
-      const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, p.over || {}), n = b.node, d = sizeOf(p.kind, p.over || {})?.[2] || 0;
-      if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
-      else { const [u, v] = p.at, f = p.facing ?? 1;
-        if (p.along) { n.rotation.y = f > 0 ? 0 : Math.PI; n.position.set(u, 0, -v - f * d / 2); }
-        else { n.rotation.y = f > 0 ? Math.PI / 2 : -Math.PI / 2; n.position.set(u - f * d / 2, 0, -v); }
-        movers.add(n); }
+    // what stands in the room, by the rules each kind declares (src/make/place.js): what the story requires first,
+    // then what names the room, then its ordinary things to the fullness its context gives it; things that work,
+    // drawn with their room, in a room of any shape
+    const req = (plan.required || []).filter(q => q.room === room.id);
+    const got = furnished ? placeRoom({ room, spec, plan, H, sizeOf, sweptOf, kindOf, seed: seedOf(`manor/${room.id}/place`),
+      tiers: { required: req, anchor: T.anchor || [], also: T.also || [] }, fullness: (T.fullness ?? 0) * (HISTORY[room.history || plan.history || "lived"] ?? 1),
+      stairFloors: (s) => [stairFrom(s), stairTo(s)] }) : { placed: [], refused: [] };
+    placements.set(room.id, got);
+    const builtHere = [];
+    got.placed.forEach((p, i) => {
+      const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, p.over || {}), n = b.node, d = p.dd ?? (sizeOf(p.kind, p.over || {})?.[2] || 0);
+      builtHere.push(b);
+      if (p.inside) { const host = builtHere[p.inside.host], s = host?.slots.get(p.inside.slot);
+        if (s) { n.position.set(...s.at); n.rotation.y = 0.35; s.node.add(n); } else got.refused.push({ kind: p.kind, why: `${host?.kind.kind} has no ${p.inside.slot}` }); }
+      else if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
+      else { // free standing: its back (the origin) half its depth behind its middle, facing the way it is turned
+        const [u, v] = p.at, f = [Math.sin(p.rot), -Math.cos(p.rot)]; n.rotation.y = p.rot; n.position.set(u - f[0] * d / 2, 0, -(v - f[1] * d / 2)); movers.add(n); }
       n.userData.room = room.id; things.push(b);
-      if (p.rect) blocks.push({ floor: room.floor, room: room.id, kind: p.kind, x0: x0 + p.rect.u0, x1: x0 + p.rect.u1, y0: y0 + p.rect.v0, y1: y0 + p.rect.v1 });
+      if (p.poly && !p.inside && (kindOf(p.kind)?.place?.layer || "stand") === "stand") { const xs = p.poly.map(q => q[0]), ys = p.poly.map(q => q[1]);
+        blocks.push({ floor: room.floor, room: room.id, kind: p.kind, poly: p.poly, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) }); }
     });
     // each chimneypiece is solid to a body: its breast and the fire's mouth within it (Kabe, 2026-10-06: "the
     // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
@@ -305,7 +314,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { carved, specs, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { carved, specs, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;

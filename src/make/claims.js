@@ -82,6 +82,6 @@ export function houseClaims({ plan, blocks = [], half = 0.22, cell = 0.1 }) {
       C.doorway(room.floor, wallPoly(room, framesOf(room)[h.F], h.r0 + 0.08, h.r1 - 0.08, -(o.T ?? 0.3) - 0.35, 0.35), o.id); }
   for (const w of plan.wells || []) { const H = w.hole, F = w.rect, m = half;
     C.claim(w.to, "stand", { x0: H.x0 - (F.x0 < H.x0 - 0.01 ? 0 : m), x1: H.x1 + (F.x1 > H.x1 + 0.01 ? 0 : m), y0: H.y0 - (F.y0 < H.y0 - 0.01 ? 0 : m), y1: H.y1 + (F.y1 > H.y1 + 0.01 ? 0 : m) }, SOLID, `${w.id} well`, { exact: true }); }
-  for (const b of blocks) C.claim(b.floor, "stand", b, BODY, b.kind || "block");
+  for (const b of blocks) C.claim(b.floor, "stand", b.poly || b, BODY, b.kind || "block");
   return C;
 }

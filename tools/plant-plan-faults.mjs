@@ -10,13 +10,17 @@ import { houseSpecs, storeys } from "../src/make/house-spec.js";
 import { GENTRY_SEAT_1660 } from "../src/make/programs/england-1660.js";
 import { ROOM_TYPES_1660 } from "../src/make/rooms/england-1660.js";
 import { planHybridE } from "../src/make/plans/hybrid-e.js";
+import { settle, value } from "../src/make/catalogue.js";
+const KINDS = (await Promise.all(["furniture-1660", "household-1660", "strongroom-1660"].map(f => import(`../src/make/kinds/${f}.js`)))).flatMap(m => m.default);
+const sizeOf = (name, over = {}) => { const k = KINDS.find(q => q.kind === name); if (!k) return null; const s = settle(k, 0, over); if (k.size) return value(k.size, s);
+  const W = s.W ?? s.w ?? s.width, H = s.H ?? s.h ?? s.height, D = s.D ?? s.d ?? s.depth; return W != null ? [W, H, D] : null; };
 const hearths = Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([k, v]) => [k, v.hearth]));
 const brief = JSON.parse(readFileSync(new URL("../lab/brief/manor-1660.json", import.meta.url)));
 const fresh = () => planHybridE(GENTRY_SEAT_1660, { hearths });
 const R = (plan, id) => plan.rooms.find(r => r.id === id);
 const run = (plan, tweak = null) => { const { levelOf, gap } = storeys(plan), specs = houseSpecs(plan, { types: ROOM_TYPES_1660, brief, gap });
   if (tweak) tweak(specs); const carved = carve({ plan, specs, levelOf, gap });
-  const pc = planChecks({ plan, specs, carved }), sd = soundness({ plan, compileRoom });
+  const pc = planChecks({ plan, specs, carved, sizeOf }), sd = soundness({ plan, compileRoom });
   return { plan: pc.findings.map(f => f.rule), sound: sd.findings.map(f => f.rule) }; };
 const FAULTS = [
   ["a partition thinner than a wall (the little parlour pushed 0.2 m into its partition with the great parlour)", (p) => { R(p, "little_parlour").rect.y1 += 0.2; }],
@@ -26,6 +30,8 @@ const FAULTS = [
   ["a window on an inside wall (the hall's partition with the passage)", (p) => { const h = R(p, "great_hall").rect; p.windows.push({ floor: "ground", rect: { x0: h.x0 - 0.3, x1: h.x0, y0: 3, y1: 4.4 } }); }],
   ["a fire cut through the wall behind it (the hall's firebox 1.3 m deep, in a 0.48 m breast and a 0.75 m wall)", null, (specs) => { for (const e of Object.values(specs.get("great_hall").spec.walls).flat()) if (e.kind === "chimneypiece") e.firebox.depth = 1.3; }],
   ["a window and a doorway in one opening (a window laid over the porch's door)", (p) => { const o = p.openings.find(q => q.joins.includes("porch") && q.joins.includes("forecourt")); p.windows.push({ floor: "ground", rect: { ...o.rect } }); }],
+  ["a story's requirement with no room for it (an evidence press 4.2 m wide required in the best closet, whose longest clear wall is 3.86 m)", (p) => { p.required = [{ kind: "press/evidence", room: "closet_best", over: { width: 4.2 } }]; }],
+  ["a story's requirement in a room the plan doesn't have", (p) => { p.required = [{ kind: "key/iron", room: "summer_parlour" }]; }],
   ["a stair turning with no landing (the great stair's half-landings taken out)", (p) => { p.stairs = p.stairs.filter(q => !(q.kind === "landing" && q.well?.startsWith?.("great"))); }],
 ];
 const base = run(fresh());

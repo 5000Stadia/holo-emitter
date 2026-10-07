@@ -5,7 +5,10 @@
 //   joins: every doorway has floor on both sides, in exactly the two rooms it joins (or a room and outdoors), and
 //     every window has its room on one side and outdoors on the other;
 //   backed: every fire's mouth leaves solid behind it (a firebox cut through the wall showed the hillside, 2026-10-06);
-//   open: every room is open at its middle, and solid a hand beyond each of its walls where no opening stands.
+//   open: every room is open at its middle, and solid a hand beyond each of its walls where no opening stands;
+//   fits: what the story requires in a room (plan.required, with what holds it) has a clear stretch of wall wide
+//     enough for it, before anything is built (Kabe: "we never have to take the step of finding room for required
+//     items"): a plan that fails this must be drawn bigger, not furnished around.
 // planChecks({ plan, specs, carved }) -> { ok, findings: [{ rule, where, what }], ms }
 import * as C from "../vendor/clipper2.min.mjs";
 import { solidAt } from "./carve.js";
@@ -16,7 +19,7 @@ const mm = (m) => Math.round(m * 1000);
 const ringOf = (room) => room.outline ? room.outline.map(([x, y]) => ({ x: mm(x), y: mm(y) })) : [[room.rect.x0, room.rect.y0], [room.rect.x1, room.rect.y0], [room.rect.x1, room.rect.y1], [room.rect.x0, room.rect.y1]].map(([x, y]) => ({ x: mm(x), y: mm(y) }));
 const inside = (room, x, y) => C.pointInPolygon({ x: mm(x), y: mm(y) }, ringOf(room)) === C.PointInPolygonResult.IsInside;
 
-export function planChecks({ plan, specs, carved }) {
+export function planChecks({ plan, specs, carved, sizeOf = null }) {
   const t0 = performance.now(), findings = [], say = (rule, where, what) => findings.push({ rule, where, what });
   const list = [...specs.values()];
   // apart
@@ -62,5 +65,12 @@ export function planChecks({ plan, specs, carved }) {
         if (!solidAt(carved, x, y, Y + z)) say("open", `${room.id} ${F}`, `no wall a hand beyond its ${F} wall at ${r.toFixed(1)} m along, ${z} m up`); }
     }
   }
+  // fits: the widest clear stretch of each room's walls (a hand clear of doors, windows and hearths) against the
+  // widest thing the story needs against them
+  if (sizeOf) for (const q of plan.required || []) { const s = specs.get(q.room); if (!s) { say("fits", q.kind, `required in ${q.room}, which the plan has no room called`); continue; }
+    const need = [q.in ? sizeOf(q.in.kind) : null, sizeOf(q.kind, q.over || {})].filter(Boolean).map(z => z[0]), w = Math.max(0, ...need);
+    let best = 0; for (const [F, es] of Object.entries(s.spec.walls)) { const L = s.spec.frames[F].L, cuts = es.map(e => [Math.min(e.r0, e.mantel?.r0 ?? e.r0) - 0.3, Math.max(e.r1, e.mantel?.r1 ?? e.r1) + 0.3]).sort((a, b) => a[0] - b[0]);
+      let x = 0; for (const [a, b] of cuts) { best = Math.max(best, a - x); x = Math.max(x, b); } best = Math.max(best, L - x); }
+    if (best < w + 0.1) say("fits", `${q.kind} in ${q.room}`, `needs ${(w + 0.1).toFixed(2)} m of clear wall; the widest is ${best.toFixed(2)} m`); }
   return { ok: !findings.length, findings, ms: Math.round((performance.now() - t0) * 10) / 10 };
 }
