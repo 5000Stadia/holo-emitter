@@ -54,22 +54,30 @@ function rushMatting() {
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t;
 }
 
-// stone slates (research-1660 §A: the Midlands' grey-green stone-slate roofs, Eyam and Beauchief): laid in courses
-// that diminish from the eaves to the ridge, each slate a little different in tone, lichen at random; the texture
-// covers two metres of roof along by two up the slope
+// stone slates (research-1660 §A: the Midlands' grey-green stone-slate roofs, Eyam and Beauchief): laid in courses, each
+// slate a little different in tone, lichen on some. Drawn from its construction (2026-10-07, the ashlar's rule): every
+// slate is a unit, its lichen kept inside it, the courses and the slates in each course fitted to the texture's width so
+// the join wraps without a seam, and the texture four metres of roof along by four up the slope (it was two, with
+// courses that diminished from 30 px to 16 and then jumped back to 30 at every repeat: a sawtooth in the roof; the
+// diminishing belongs to the roof, not to a tile). Courses are about 0.1 m, 40 to the texture; slates 0.16-0.45 m wide.
 let slate = null;
 function slateMaterial() {
   if (slate) return slate;
-  const N = 512, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("roof/stone-slate"));
+  const N = 1024, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("roof/stone-slate"));
   g.fillStyle = "#3d3f38"; g.fillRect(0, 0, N, N);
-  let y = N; const courses = [];
-  for (let h = 30; y > 0; h = Math.max(16, h - 0.9)) { courses.push([y - h, h]); y -= h; }
-  for (const [cy, h] of courses) { let x = -r() * 40;
-    while (x < N) { const w = 34 + r() * 42, t = 70 + r() * 34, gr = t + 6 + r() * 8;
-      g.fillStyle = `rgb(${t | 0},${gr | 0},${(t - 6) | 0})`; g.fillRect(x + 1, cy + 1, w - 2, h + 6);
-      if (r() < 0.18) { g.fillStyle = `rgba(${150 + r() * 40 | 0},${150 + r() * 30 | 0},${90 + r() * 20 | 0},0.5)`; g.beginPath(); g.ellipse(x + r() * w, cy + r() * h, 3 + r() * 6, 2 + r() * 4, 0, 0, 7); g.fill(); }
-      g.fillStyle = "rgba(15,15,12,0.55)"; g.fillRect(x, cy + h - 2, w, 3); x += w; } }
-  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.5, 0.5); t.anisotropy = 8;
+  const rows = 40, hs = Array.from({ length: rows }, () => 0.9 + r() * 0.2), hsum = hs.reduce((a, b) => a + b, 0); let y = N;
+  for (let i = 0; i < rows; i++) { const h = hs[i] / hsum * N; y -= h; const cy = y;
+    const ws = []; let tot = 0; while (tot < N - 40) { const w = 40 + r() * 70; ws.push(w); tot += w; } const k = N / tot, off = r() * N; let x = 0;   // fitted, so the course wraps
+    for (const w0 of ws) { const w = w0 * k, t = 70 + r() * 34, gr = t + 6 + r() * 8, lich = r() < 0.18, lx = r() * w, ly = r() * h, la = 150 + r() * 40, lb = 150 + r() * 30, lc = 90 + r() * 20, rx = 3 + r() * 6, ry = 2 + r() * 4;
+      for (const ox of [0, -N]) for (const oy of [0, -N]) { const sx = (x + off) % N + ox, sy = cy + oy;
+        if (sx > N || sx + w < 0 || sy > N || sy + h + 6 < 0) continue;
+        g.save(); g.beginPath(); g.rect(sx + 1, sy + 1, w - 2, h + 5); g.clip();
+        g.fillStyle = `rgb(${t | 0},${gr | 0},${(t - 6) | 0})`; g.fillRect(sx + 1, sy + 1, w - 2, h + 6);
+        if (lich) { g.fillStyle = `rgba(${la | 0},${lb | 0},${lc | 0},0.5)`; g.beginPath(); g.ellipse(sx + Math.max(rx + 1, Math.min(w - rx - 1, lx)), sy + Math.max(ry + 1, Math.min(h - ry, ly)), rx, ry, 0, 0, 7); g.fill(); }
+        g.restore();
+        g.fillStyle = "rgba(15,15,12,0.55)"; g.fillRect(sx, sy + h - 2, w, 3); }
+      x += w; } }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(0.25, 0.25); t.anisotropy = 8;
   return (slate = new THREE.MeshStandardMaterial({ map: t, roughness: 0.92, side: THREE.DoubleSide }));
 }
 // the house's outside: limestone ashlar (research-1660 §A: limestone with gritstone dressings), courses about 0.3 m
@@ -83,18 +91,21 @@ function ashlarMaterial() {
   const N = 1024, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("wall/ashlar"));
   const joint = "#d2c8b2"; g.fillStyle = joint; g.fillRect(0, 0, N, N);
   const rows = 13, h = N / rows, px = N / 4;                                  // px a metre
-  for (let i = 0; i < rows; i++) { const y = i * h; let x = -r() * 0.6 * px;
-    while (x < N) { const w = (0.4 + r() * 0.5) * px, t = 168 + r() * 22, warm = r() * 8;
-      g.fillStyle = `rgb(${(t + warm) | 0},${(t - 6) | 0},${(t - 26 - warm) | 0})`; g.fillRect(x + 1.5, y + 1.5, w - 3, h - 3);
-      // the stone's own grain: small specks and a faint cloud, kept inside the block
-      for (let k = 0; k < 60; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "96,86,66" : "235,226,204"},${0.05 + r() * 0.06})`; g.fillRect(x + 2 + r() * (w - 6), y + 2 + r() * (h - 6), 1 + r() * 4, 1 + r() * 2); }
-      if (r() < 0.25) { g.fillStyle = `rgba(80,72,56,${0.04 + r() * 0.05})`; g.fillRect(x + 1.5, y + 1.5 + r() * h * 0.5, w - 3, h * 0.5 - 3); }
+  for (let i = 0; i < rows; i++) { const y = i * h, ws = []; let tot = 0; while (tot < N - 0.4 * px) { const w = (0.4 + r() * 0.5) * px; ws.push(w); tot += w; }
+    const k = N / tot, off = r() * N; let x = 0;            // the blocks fitted to the width and the course started anywhere, so it wraps with no seam and no perpend runs the height of the tile
+    for (const w0 of ws) { const w = w0 * k, t = 168 + r() * 22, warm = r() * 8, sx0 = (x + off) % N, cloud = r() < 0.25, ch = r() * h * 0.5, ca = 0.04 + r() * 0.05;
+      const grain = Array.from({ length: 60 }, () => [r() < 0.5 ? "96,86,66" : "235,226,204", 0.05 + r() * 0.06, 2 + r() * (w - 6), 2 + r() * (h - 6), 1 + r() * 4, 1 + r() * 2]);
+      for (const ox of [0, -N]) { const sx = sx0 + ox; if (sx > N || sx + w < 0) continue;
+        g.fillStyle = `rgb(${(t + warm) | 0},${(t - 6) | 0},${(t - 26 - warm) | 0})`; g.fillRect(sx + 1.5, y + 1.5, w - 3, h - 3);
+        // the stone's own grain: small specks and a faint cloud, kept inside the block
+        for (const [c, a, gx, gy, gw, gh] of grain) { g.fillStyle = `rgba(${c},${a})`; g.fillRect(sx + gx, y + gy, gw, gh); }
+        if (cloud) { g.fillStyle = `rgba(80,72,56,${ca})`; g.fillRect(sx + 1.5, y + 1.5 + ch, w - 3, h * 0.5 - 3); } }
       x += w; }
-    // a wrapped block at the texture's edge continues on the other side: draw the course again one width over
   }
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.repeat.set(0.5, 0.5);
   return (ashlar = new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 }));
 }
+export { slateMaterial, ashlarMaterial };   // for tools/check-textures.mjs (lab/scale/materials.html)
 // a window's glass seen from outside: dark, a little green, leaded quarries catching the sky
 let outGlass = null;
 function outsideGlass() {
@@ -266,7 +277,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       else if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
       else { // free standing: its back (the origin) half its depth behind its middle, facing the way it is turned
         const [u, v] = p.at, f = [Math.sin(p.rot), -Math.cos(p.rot)]; n.rotation.y = p.rot; n.position.set(u - f[0] * d / 2, 0, -(v - f[1] * d / 2)); movers.add(n); }
-      n.userData.room = room.id; things.push(b);
+      n.userData.room = room.id; if (p.story) { b.story = p.story; n.userData.story = p.story; } things.push(b);   // a story's thing knows which it is (a case's clue)
       if (p.poly && !p.inside && (kindOf(p.kind)?.place?.layer || "stand") === "stand") { const xs = p.poly.map(q => q[0]), ys = p.poly.map(q => q[1]);
         blocks.push({ floor: room.floor, room: room.id, kind: p.kind, poly: p.poly, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) }); }
     });
