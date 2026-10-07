@@ -77,16 +77,22 @@ function slateMaterial() {
 let ashlar = null;
 function ashlarMaterial() {
   if (ashlar) return ashlar;
-  const N = 512, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("wall/ashlar"));
-  g.fillStyle = "#b9ae94"; g.fillRect(0, 0, N, N);
-  const ch = N / 2 / 0.3 * 0.3 / 2 * 2 / 2 * 0.3 / 0.3 | 0, rows = Math.round(N / (N / 2 * 0.3));
-  for (let i = 0; i < rows; i++) { const y = i * N / rows, h = N / rows; let x = -r() * 120;
-    while (x < N) { const w = 90 + r() * 120, t = 168 + r() * 26;
-      g.fillStyle = `rgb(${t | 0},${(t - 8) | 0},${(t - 30) | 0})`; g.fillRect(x + 1, y + 1, w - 2, h - 2);
-      for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "90,80,60" : "230,222,200"},${0.05 + r() * 0.07})`; g.fillRect(x + r() * w, y + r() * h, 2 + r() * 6, 1 + r() * 3); }
-      x += w; } }
-  for (let x = 0; x < N; x += 2) { const s = r(); if (s < 0.06) { g.fillStyle = "rgba(60,58,48,0.12)"; g.fillRect(x, 0, 2 + s * 30, N); } }
-  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  // four metres of wall square, so it repeats less; courses about 0.3 m (13 to the texture), blocks 0.4-0.9 m long, each
+  // a little different in tone and grain, laid with fine lime joints between them (the first version had no joints
+  // and full-height streaks for rain stains: they ran through every course and read as stripes, 2026-10-07)
+  const N = 1024, cv = document.createElement("canvas"); cv.width = cv.height = N; const g = cv.getContext("2d"), r = rng(seedOf("wall/ashlar"));
+  const joint = "#d2c8b2"; g.fillStyle = joint; g.fillRect(0, 0, N, N);
+  const rows = 13, h = N / rows, px = N / 4;                                  // px a metre
+  for (let i = 0; i < rows; i++) { const y = i * h; let x = -r() * 0.6 * px;
+    while (x < N) { const w = (0.4 + r() * 0.5) * px, t = 168 + r() * 22, warm = r() * 8;
+      g.fillStyle = `rgb(${(t + warm) | 0},${(t - 6) | 0},${(t - 26 - warm) | 0})`; g.fillRect(x + 1.5, y + 1.5, w - 3, h - 3);
+      // the stone's own grain: small specks and a faint cloud, kept inside the block
+      for (let k = 0; k < 60; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "96,86,66" : "235,226,204"},${0.05 + r() * 0.06})`; g.fillRect(x + 2 + r() * (w - 6), y + 2 + r() * (h - 6), 1 + r() * 4, 1 + r() * 2); }
+      if (r() < 0.25) { g.fillStyle = `rgba(80,72,56,${0.04 + r() * 0.05})`; g.fillRect(x + 1.5, y + 1.5 + r() * h * 0.5, w - 3, h * 0.5 - 3); }
+      x += w; }
+    // a wrapped block at the texture's edge continues on the other side: draw the course again one width over
+  }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.repeat.set(0.5, 0.5);
   return (ashlar = new THREE.MeshStandardMaterial({ map: t, roughness: 0.9 }));
 }
 // a window's glass seen from outside: dark, a little green, leaded quarries catching the sky
