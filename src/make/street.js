@@ -302,6 +302,7 @@ function noiseTex(N, M, periods, seed, weights) {
         const a = g[j * px + i], b = g[j * px + i1], c = g[j1 * px + i], d = g[j1 * px + i1]; out[y * N + x] += w * (a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy); } } });
   for (let k = 0; k < out.length; k++) out[k] /= wsum; return out;
 }
+export { streetKit };   // for tools/check-textures.mjs (lab/scale/materials.html)
 function streetKit(THREE) {
   if (KITS.has(THREE)) return KITS.get(THREE);
   const T0 = now(), cv = (w, h) => Object.assign(document.createElement("canvas"), { width: w, height: h });
@@ -309,16 +310,18 @@ function streetKit(THREE) {
   const pixels = (N, M, fn) => { const c = cv(N, M), g = c.getContext("2d"), im = g.createImageData(N, M), d = im.data;
     for (let y = 0; y < M; y++) for (let x = 0; x < N; x++) { const o = (y * N + x) * 4, [r, gg, b] = fn(x, y); d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255; } g.putImageData(im, 0, 0); return c; };
   // a normal map from heights (wrapping): canvas y runs down, the texture's v up
-  const normals = (h, N, M, k) => pixels(N, M, (x, y) => { const at = (i, j) => h[((j + M) % M) * N + ((i + N) % N)], gx = (at(x + 1, y) - at(x - 1, y)) * k, gy = (at(x, y + 1) - at(x, y - 1)) * k, l = Math.hypot(gx, gy, 1);
+  const normals = (h, N, M, k) => pixels(N, M, (x, y) => { const at = (i, j) => h[((j + M) % M) * N + ((i + N) % N)], gx = (at(x + 1, y) - at(x - 1, y)) * k, gy = (at(x, y + 1) - at(x, y - 1)) * k, l = Math.sqrt(gx * gx + gy * gy + 1);
     return [(-gx / l * 0.5 + 0.5) * 255, (gy / l * 0.5 + 0.5) * 255, (1 / l * 0.5 + 0.5) * 255]; });
-  const T = {};
-  // limewash (the texture covers 2 m): coats laid by brush, thicker and thinner, a little dirt in its hollows
-  { const N = 512, n = noiseTex(N, N, [[4, 4], [9, 9], [24, 24], [64, 64]], 11, [1, 0.8, 0.5, 0.35]), r = stream("street/plaster");
+  const T = {}, parts = {}; let tl = now(); const lap = (k) => { const t = now(); parts[k] = Math.round(t - tl); tl = t; };   // ms per texture, kept in kit.parts
+  lap("start");
+  // limewash (the texture covers 4 m, 2 before 2026-10-07: a wall seen along the street showed its own dirt marks every 2 m): coats laid by brush, thicker and thinner, a little dirt in its hollows
+  { const N = 1024, n = noiseTex(N, N, [[8, 8], [18, 18], [48, 48], [128, 128]], 11, [1, 0.8, 0.5, 0.35]), r = stream("street/plaster");
     const c = pixels(N, N, (x, y) => { const v = 0.9 + (n[y * N + x] - 0.5) * 0.2 + (r() - 0.5) * 0.025; return [246 * v, 241 * v, 230 * v]; });
     const g = c.getContext("2d"); g.lineCap = "round";
-    for (let i = 0; i < 26; i++) { let x = r() * N, y = r() * N; g.strokeStyle = `rgba(80,70,55,${0.16 + r() * 0.16})`; g.lineWidth = 0.7 + r() * 0.6; g.beginPath(); g.moveTo(x, y);
+    for (let i = 0; i < 104; i++) { let x = r() * N, y = r() * N; g.strokeStyle = `rgba(80,70,55,${0.16 + r() * 0.16})`; g.lineWidth = 0.7 + r() * 0.6; g.beginPath(); g.moveTo(x, y);
       for (let k = 0; k < 6; k++) { x += (r() - 0.5) * 26; y += (r() - 0.3) * 22; g.lineTo(x, y); } g.stroke(); }
-    T.plaster = tex(c); }
+    T.plaster = tex(c); T.plaster.repeat.set(0.5, 0.5); }   // (uv are metres / 2: one tile to two uv units)
+  lap("plaster");
   // weathered oak (2 m along the grain by 0.5 m across): silver-grey, the grain opened by weather, checks and knots
   { const N = 512, M = 256, n = noiseTex(N, M, [[2, 48], [4, 96], [8, 24]], 21, [1, 0.6, 0.4]), r = stream("street/oak");
     const c = pixels(N, M, (x, y) => { const k = n[y * N + x], line = Math.sin(y * 0.9 + k * 18) * 0.5 + 0.5, v = 0.78 + k * 0.3 - line * line * 0.12 + (r() - 0.5) * 0.04; return [168 * v, 160 * v, 148 * v]; });
@@ -326,42 +329,47 @@ function streetKit(THREE) {
     for (let i = 0; i < 70; i++) { const x = r() * N, y = r() * M, l = 20 + r() * 110; g.strokeStyle = `rgba(40,34,28,${0.35 + r() * 0.35})`; g.lineWidth = 0.8 + r() * 1.3; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + l / 2, y + (r() - 0.5) * 4, x + l, y + (r() - 0.5) * 3); g.stroke(); }
     for (let i = 0; i < 5; i++) { const x = r() * N, y = r() * M; g.fillStyle = "rgba(60,48,36,0.55)"; g.beginPath(); g.ellipse(x, y, 5 + r() * 6, 3 + r() * 3, 0, 0, 7); g.fill(); g.strokeStyle = "rgba(50,40,30,0.3)"; g.lineWidth = 1.5; g.beginPath(); g.ellipse(x, y, 11 + r() * 6, 5 + r() * 3, 0, 0, 7); g.stroke(); }
     T.oak = tex(c); }
+  lap("oak");
   // leaded quarries (0.42 m by 0.6 m): diamond panes of old crown glass, green-grey, each catching the sky its own way
   { const N = 256, r = stream("street/glass");
     T.glass = tex(pixels(N, N, (x, y) => { const p = (x + y) / 64, q = (x - y + 256) / 64, ip = Math.floor(p), iq = Math.floor(q), fp = p - ip, fq = q - iq, e = Math.min(fp, 1 - fp, fq, 1 - fq) * 45;
       if (e < 2.2) return [38, 38, 36];
       const h = unit(hashN(ip & 3, iq & 3, 5)), sky = Math.max(0, 1 - (fq + (1 - fp)) * 0.8) * (0.4 + 0.6 * h), v = 0.7 + 0.3 * h, gl = Math.min(1, (e - 2.2) / 3);
       return [(78 + 110 * sky) * v * gl + 52 * (1 - gl), (92 + 112 * sky) * v * gl + 52 * (1 - gl), (86 + 116 * sky) * v * gl + 50 * (1 - gl)]; })); }
-  // clay plain tiles (2 m square): courses of 0.1 m gauge, tiles 1/6 m wide, half-lapped; burnt and pale ones, moss,
+  lap("glass");
+  // clay plain tiles (4 m square, 2 before 2026-10-07): courses of 0.1 m gauge, tiles 1/6 m wide, half-lapped; burnt and pale ones, moss,
   // the shadow of each course on the next; and a normal map from the same heights
-  { const N = 512, CH = N / 20, TW = N / 12, n = noiseTex(N, N, [[16, 16], [64, 64]], 31, [1, 0.5]), H = new Float32Array(N * N);
+  { const N = 1024, CH = N / 40, TW = N / 24, n = noiseTex(N, N, [[32, 32], [128, 128]], 31, [1, 0.5]), H = new Float32Array(N * N), TH = Float32Array.from({ length: 40 * 24 }, (_, i) => unit(hashN(i / 24 | 0, i % 24, 7))), TH2 = Float32Array.from({ length: 40 * 24 }, (_, i) => unit(hashN(i / 24 | 0, i % 24, 8)));
     T.tile = tex(pixels(N, N, (x, y) => { const row = Math.floor(y / CH), fy = y / CH - row, off = (row & 1) * TW / 2, col = Math.floor(((x + off) % N) / TW), fx = ((x + off) % N) / TW - col;
-      const h = unit(hashN(row, col % 12, 7)), h2 = unit(hashN(row, col % 12, 8)), gap = fx < 0.035 || fx > 0.965, lip = fy > 0.9;
+      const hi = row * 24 + col % 24, h = TH[hi], h2 = TH2[hi], gap = fx < 0.035 || fx > 0.965, lip = fy > 0.9;
       H[y * N + x] = gap ? 0 : (0.25 + 0.75 * fy) * (lip ? 1 - (fy - 0.9) * 6 : 1);
       let R = 96 + h * 30, G = 58 + h * 16, B = 45 + h * 10; if (h2 < 0.2) { R *= 0.72; G *= 0.72; B *= 0.74; } else if (h2 > 0.88) { R *= 1.1; G *= 1.1; B *= 1.08; }
       const moss = Math.max(0, n[y * N + x] - 0.6) * 2.4; R = R * (1 - moss) + 96 * moss; G = G * (1 - moss) + 98 * moss; B = B * (1 - moss) + 72 * moss;
       const sh = (gap ? 0.6 : 1) * (fy < 0.18 ? 0.7 + fy * 1.65 : 1) * (0.9 + n[y * N + x] * 0.18); return [R * sh, G * sh, B * sh]; }));
-    T.tileN = tex(normals(H, N, N, 2.2), false); }
-  // brick (1 m square): English bond, red-brown stocks with some burnt headers, lime mortar
-  { const N = 256, CH = N / 14, n = noiseTex(N, N, [[8, 8], [32, 32]], 41);
-    T.brick = tex(pixels(N, N, (x, y) => { const row = Math.floor(y / CH), fy = y / CH - row, hdr = row & 1, bw = hdr ? N / 8 : N / 4, off = hdr ? 0 : (row & 2 ? bw / 2 : 0), col = Math.floor(((x + off) % N) / bw), fx = ((x + off) % N) / bw - col;
+    T.tileN = tex(normals(H, N, N, 2.2), false); T.tile.repeat.set(0.5, 0.5); T.tileN.repeat.set(0.5, 0.5); }   // (roof uv are metres / 2)
+  lap("tile");
+  // brick (4 m square, 1 before 2026-10-07: the bond came round every metre; and its header courses' perpends lay over the stretchers' so joints ran up through three or four courses, now a quarter brick over): English bond, red-brown stocks with some burnt headers, lime mortar
+  { const N = 1024, CH = N / 56, n = noiseTex(N, N, [[32, 32], [128, 128]], 41), BH = Float32Array.from({ length: 56 * 32 }, (_, i) => unit(hashN(i / 32 | 0, i % 32, 9)));
+    T.brick = tex(pixels(N, N, (x, y) => { const row = Math.floor(y / CH), fy = y / CH - row, hdr = row & 1, bw = hdr ? N / 32 : N / 16, off = hdr ? bw / 2 : (row & 2 ? bw / 2 : 0), col = Math.floor(((x + off) % N) / bw), fx = ((x + off) % N) / bw - col;
       if (fy < 0.14 || fx < (hdr ? 0.07 : 0.035)) return [150, 141, 124].map(v => v * (0.85 + n[y * N + x] * 0.15));
-      const h = unit(hashN(row, col, 9)), burnt = hdr && h < 0.25, v = 0.82 + n[y * N + x] * 0.22; return burnt ? [104 * v, 70 * v, 58 * v] : [(128 + h * 26) * v, (74 + h * 16) * v, (58 + h * 10) * v]; })); }
-  // the street's pebbles (1.6 m square): rounded river pebbles 80-150 mm set in sand and dirt, and their heights
-  { const N = 512, G = 16, cs = N / G, r = stream("street/pebbles"), P = [];
+      const h = BH[row * 32 + col], burnt = hdr && h < 0.25, v = 0.82 + n[y * N + x] * 0.22; return burnt ? [104 * v, 70 * v, 58 * v] : [(128 + h * 26) * v, (74 + h * 16) * v, (58 + h * 10) * v]; })); T.brick.repeat.set(0.25, 0.25); }   // (brick uv are metres)
+  lap("brick");
+  // the street's pebbles (3.2 m square, 1.6 before 2026-10-07; the street's uv are metres / 1.6, so repeat a half): rounded river pebbles 80-150 mm set in sand and dirt, and their heights
+  { const N = 1024, G = 32, cs = N / G, r = stream("street/pebbles"), P = [];
     for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) { const a = r() * Math.PI, e = 0.72 + r() * 0.28, t = r();
       P.push({ x: (i + 0.2 + r() * 0.6) * cs, y: (j + 0.2 + r() * 0.6) * cs, rad: cs * (0.5 + r() * 0.2), ca: Math.cos(a), sa: Math.sin(a), e,
         col: t < 0.18 ? [92, 94, 98] : t < 0.45 ? [150, 140, 122] : t < 0.7 ? [128, 116, 98] : t < 0.85 ? [170, 160, 140] : [120, 98, 72] }); }
-    const n = noiseTex(N, N, [[32, 32], [128, 128]], 51), H = new Float32Array(N * N);
+    const n = noiseTex(N, N, [[64, 64], [256, 256]], 51), H = new Float32Array(N * N);
     T.pebbles = tex(pixels(N, N, (x, y) => { const ci = Math.floor(x / cs), cj = Math.floor(y / cs); let best = null, bd = 9;
-      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { const ii = (ci + di + G) % G, jj = (cj + dj + G) % G, p = P[jj * G + ii];
-        let dx = x - p.x, dy = y - p.y; dx -= Math.round(dx / N) * N; dy -= Math.round(dy / N) * N;
+      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { let ii = ci + di, jj = cj + dj; ii = ii < 0 ? ii + G : ii >= G ? ii - G : ii; jj = jj < 0 ? jj + G : jj >= G ? jj - G : jj; const p = P[jj * G + ii];
+        let dx = x - p.x, dy = y - p.y; dx = dx > N / 2 ? dx - N : dx < -N / 2 ? dx + N : dx; dy = dy > N / 2 ? dy - N : dy < -N / 2 ? dy + N : dy;
         const u = (dx * p.ca + dy * p.sa) / p.rad, v = (-dx * p.sa + dy * p.ca) / (p.rad * p.e), d = u * u + v * v; if (d < bd) { bd = d; best = p; } }
       const k = n[y * N + x];
       if (bd >= 1) { H[y * N + x] = 0.1 * k; return [92 + 30 * k, 80 + 26 * k, 62 + 20 * k]; }
       const dome = Math.sqrt(1 - bd); H[y * N + x] = 0.25 + 0.75 * dome; const v = (0.62 + 0.38 * dome) * (0.9 + 0.2 * k);
-      return best.col.map(c => c * v); }));
-    T.pebblesN = tex(normals(H, N, N, 3.0), false); }
+      return [best.col[0] * v, best.col[1] * v, best.col[2] * v]; }));
+    T.pebblesN = tex(normals(H, N, N, 3.0), false); T.pebbles.repeat.set(0.5, 0.5); T.pebblesN.repeat.set(0.5, 0.5); }
+  lap("pebbles");
   // the signs (an atlas of 16 boards): emblems painted or gilt on coloured grounds, in moulded frames, weathered
   T.signs = tex(signAtlas(cv(1024, 1024))); T.signs.anisotropy = 4;
   const S = (o) => new THREE.MeshStandardMaterial({ vertexColors: true, ...o });
@@ -373,7 +381,7 @@ function streetKit(THREE) {
   };
   mats.tile.normalScale.set(0.8, 0.8); mats.street.normalScale.set(1.1, 1.1);
   for (const [k, m] of Object.entries(mats)) m.name = `street/${k}`;
-  const kit = { mats, T, ms: Math.round(now() - T0) }; KITS.set(THREE, kit); return kit;
+  lap("signs"); const kit = { mats, T, parts, ms: Math.round(now() - T0) }; KITS.set(THREE, kit); return kit;
 }
 
 // ---- the signs: 16 boards in a 4 by 4 atlas (§B4: "carving and gilding"; the emblems are the common London signs:
@@ -691,7 +699,7 @@ function buildHouse(K, lot) {
 
 // ---- the ground underfoot: pebbles set in sand, crowned to the sides, the kennel down the middle (§B2), mud by world
 // position; lanes, entries and yards floored the same, a little gutter down their middles
-const dirt = (x, y, t, plan) => { const a = Math.abs(t), n1 = valueNoise(x, y, 2.4, plan.seed + 3) * 0.5 + 0.5, n2 = valueNoise(x, y, 0.8, plan.seed + 5) * 0.5 + 0.5, k = 0.84 + 0.26 * n2;
+const dirt = (x, y, t, plan) => { const a = Math.abs(t), n1 = valueNoise(x, y, 2.4, plan.seed + 3) * 0.5 + 0.5, n2 = valueNoise(x, y, 0.8, plan.seed + 5) * 0.5 + 0.5, n3 = valueNoise(x, y, 12, plan.seed + 7) * 0.5 + 0.5, k = (0.84 + 0.26 * n2) * (0.92 + 0.16 * n3);   // n3: the slow tone, 12 m cells, that keeps the pebbles' 3.2 m tile from showing
   let c = mixc([k, k * 0.985, k * 0.95], [0.6, 0.5, 0.38], Math.min(0.7, Math.max(0, n1 - 0.5) * 1.8));
   if (a < 0.75) c = mixc(c, [0.4, 0.35, 0.28], (1 - a / 0.75) * 0.8);
   else if (a > 1.1 && a < 2.4) c = mul(c, 0.9 + 0.1 * Math.abs(a - 1.75) / 0.65);

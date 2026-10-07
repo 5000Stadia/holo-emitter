@@ -159,9 +159,10 @@ function canvasTexture(THREE, N, draw, { srgb = true, repeat = 1 } = {}) {
   const t = new THREE.CanvasTexture(cv); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.repeat.set(repeat, repeat); return t;
 }
 // dry-stone rubble (research-1660 §A1, A5: limestone, pale grey-buff, uneven): stones in rough courses, no mortar, the
-// voids between them in deep shadow, lichen on some; a height map of the same stones for the bump. Covers 2 m by 2 m
+// voids between them in deep shadow, lichen on some; a height map of the same stones for the bump. Covers 4 m by 4 m
+// (2 m before 2026-10-07: along a 100 m wall the same dozen stones came round every 2 m); the stones are the same size
 function rubbleTextures(THREE) {
-  const N = 512, r = rng(seedOf("hillside/dry-stone")), cv = [0, 1].map(() => { const c = document.createElement("canvas"); c.width = c.height = N; return c; });
+  const N = 1024, r = rng(seedOf("hillside/dry-stone")), cv = [0, 1].map(() => { const c = document.createElement("canvas"); c.width = c.height = N; return c; });
   const g = cv[0].getContext("2d"), h = cv[1].getContext("2d");
   g.fillStyle = "#47433a"; g.fillRect(0, 0, N, N); h.fillStyle = "#000"; h.fillRect(0, 0, N, N);
   const courses = []; for (let y = 0; y < N;) { let ch = 26 + r() * 34; if (N - y - ch < 26) ch = N - y; courses.push([y, ch]); y += ch; }
@@ -175,13 +176,16 @@ function rubbleTextures(THREE) {
         g.fillStyle = grad; stone(g, x + ox, oy, w, hh, j);
         const hg = h.createRadialGradient(x + ox + w / 2, oy + hh * 0.4, 2, x + ox + w / 2, oy + hh / 2, Math.max(w, hh) * 0.7); hg.addColorStop(0, "#fff"); hg.addColorStop(1, "#6a6a6a"); h.fillStyle = hg; stone(h, x + ox, oy, w, hh, j); }
       // lichen: pale grey-green rosettes, now and then a yellow one
-      for (let k = r() < 0.55 ? 1 + (r() * 4 | 0) : 0; k > 0; k--) { const lx = x + r() * w, ly = oy + r() * hh, yl = r() < 0.15; g.fillStyle = yl ? "rgba(196,170,80,0.45)" : `rgba(${205 + r() * 30 | 0},${210 + r() * 25 | 0},${190 + r() * 20 | 0},0.38)`;
+      for (let k = r() < 0.55 ? 1 + (r() * 4 | 0) : 0; k > 0; k--) { const lx = x + w * (0.2 + r() * 0.6), ly = oy + hh * (0.2 + r() * 0.6), yl = r() < 0.15; g.fillStyle = yl ? "rgba(196,170,80,0.45)" : `rgba(${205 + r() * 30 | 0},${210 + r() * 25 | 0},${190 + r() * 20 | 0},0.38)`;
         for (const ox of [0, -N, N]) { g.beginPath(); g.ellipse(lx + ox, ly, 2 + r() * 7, 1.5 + r() * 5, r() * 3, 0, 7); g.fill(); } }
-      for (let k = 0; k < 28; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "70,64,52" : "235,230,214"},${0.05 + r() * 0.08})`; const px = x + r() * w, py = oy + r() * hh; g.fillRect(px, py, 1 + r() * 4, 1 + r() * 2); if (px > N - 6) g.fillRect(px - N, py, 3, 2); }
+      for (let k = 0; k < 28; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "70,64,52" : "235,230,214"},${0.05 + r() * 0.08})`; const px = x + 4 + r() * Math.max(1, w - 10), py = oy + 3 + r() * Math.max(1, hh - 6); g.fillRect(px, py, 1 + r() * 4, 1 + r() * 2); if (px > N - 6) g.fillRect(px - N, py, 3, 2); }
       x += w + 2 + r() * 4; } }
   const tex = cv.map((c, k) => { const t = new THREE.CanvasTexture(c); if (!k) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t; });
   return { map: tex[0], bump: tex[1] };
 }
+// the same canvas as a second texture whose repeat is a half (the rubble covers 4 m, a wall's uv runs 2 m to the unit); the far strips
+// scale their uv in the node instead
+const halfRepeat = (t) => { const c = t.clone(); c.repeat.set(0.5, 0.5); c.needsUpdate = true; return c; };
 // a dressed stone's face (copes and stoops): grey-buff, pitted, lichened
 function roughStone(THREE) {
   const r = rng(seedOf("hillside/cope"));
@@ -216,6 +220,7 @@ const barkSpeckle = (THREE) => speckle(THREE, "hillside/bark", (g, N, r) => { g.
 // the materials, shared by every tile. Foliage passes some sunlight through: lit from behind (the sun beyond it) a crown
 // or a hedge glows a little rather than going black, as leaves do (a translucency term on the diffuse colour, by how
 // nearly you look toward the sun, `sunDir`: a uniform, the direction toward the sun in three's frame)
+export { rubbleTextures };   // for tools/check-textures.mjs
 export function hillsideMaterials(THREE, { sunDir, light = { sun: 0xffe2b8, sunI: 1.8 } } = {}) {
   const T = THREE.TSL, rub = rubbleTextures(THREE), leaves = hawthornLeaves(THREE);
   sunDir = sunDir || T.uniform(new THREE.Vector3(14, 22, 30).normalize());
@@ -224,13 +229,13 @@ export function hillsideMaterials(THREE, { sunDir, light = { sun: 0xffe2b8, sunI
   const far = new THREE.MeshLambertNodeMaterial({ vertexColors: true });
   // the far strips: walls and hedges in one material, the look by a vertex weight (0 stone, 1 hedge)
   const look = T.attribute("look", "float");
-  far.colorNode = T.mix(T.texture(rub.map, T.uv()), T.texture(leaves, T.uv().mul(2)), look); far.emissiveNode = glow().mul(look);
+  far.colorNode = T.mix(T.texture(rub.map, T.uv().mul(0.5)), T.texture(leaves, T.uv().mul(2)), look); far.emissiveNode = glow().mul(look);
   const hedge = new THREE.MeshLambertNodeMaterial({ map: leaves }); hedge.emissiveNode = glow();
   // a tree: bark or leaves by a vertex weight, each a grey speckle over the vertex colour
   const tree = new THREE.MeshLambertNodeMaterial({ vertexColors: true }), leafy = T.attribute("leafy", "float");
   tree.colorNode = T.mix(T.texture(barkSpeckle(THREE), T.uv().mul(T.vec2(2, 4))), T.texture(leafSpeckle(THREE), T.uv().mul(T.vec2(6, 3))), leafy).mul(1.15); tree.emissiveNode = glow().mul(leafy);
   return {
-    stone: new THREE.MeshLambertMaterial({ map: rub.map, bumpMap: rub.bump, bumpScale: 2.2 }),
+    stone: new THREE.MeshLambertMaterial({ map: halfRepeat(rub.map), bumpMap: halfRepeat(rub.bump), bumpScale: 2.2 }),
     cope: new THREE.MeshLambertMaterial({ map: roughStone(THREE) }),
     hedge, wood: new THREE.MeshLambertMaterial({ map: weatheredOak(THREE) }), tree, far, sunDir,
   };

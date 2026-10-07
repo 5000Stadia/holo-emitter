@@ -72,7 +72,10 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
   const V = (x, y, z) => new THREE.Vector3(x, z, -y);
   // a quad as two triangles with uvs in metres (u along, v up the slope)
   const quad = (out, a, b, c, d, uv) => { const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute([a, b, c, a, c, d].flatMap(p => [p.x, p.y, p.z]), 3));
-    g.setAttribute("uv", new THREE.Float32BufferAttribute(uv ? [uv[0], uv[1], uv[2], uv[0], uv[2], uv[3]].flat() : [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1], 2)); g.computeVertexNormals(); out.push(g); };
+    // (a face given no uv takes the stone's own scale in world space, as the gable's triangles do: a 0-1 square per face
+    // stretched the ashlar across eaves, soffits and the plinth's top)
+    const w = (p) => [p.x + p.z, p.y];
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uv ? [uv[0], uv[1], uv[2], uv[0], uv[2], uv[3]].flat() : [a, b, c, a, c, d].flatMap(w), 2)); g.computeVertexNormals(); out.push(g); };
   const tri = (out, a, b, c) => { const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute([a, b, c].flatMap(p => [p.x, p.y, p.z]), 3));
     g.setAttribute("uv", new THREE.Float32BufferAttribute([a.x + a.z, a.y, b.x + b.z, b.y, c.x + c.z, c.y], 2)); g.computeVertexNormals(); out.push(g); };
   const box = (out, x0, x1, y0, y1, z0, z1) => { const g = new THREE.BoxGeometry(x1 - x0, z1 - z0, y1 - y0); g.translate((x0 + x1) / 2, (z0 + z1) / 2, -(y0 + y1) / 2); out.push(g.toNonIndexed()); };
