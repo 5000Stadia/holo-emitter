@@ -824,3 +824,36 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 - **Code:** `src/make/mesh-rules.js` (new, about 150 lines); `audit.js` (new); changes to the shapes, joinery, ironwork and procedural kit.
 - **Time:** about 3 h with the door investigation and the consultation.
 - **Planted faults** (`tools/plant-faults.mjs`, 126 plantings in 23 s): each check's catch rate is now measured instead of assumed, and the misses showed where the rules were missing. Two cheap rules followed: *below* (into the floor or wall) and *through* (out of another part on both sides). With them, sunk parts are caught 19% → 52% of the time and buried ones 67% → 90%. They also found the lantern clock half inside its wall, the cloaks 4 cm into theirs, and the spit through its andirons.
+
+## Rooms sound by construction, and placement by rules (R54 steps 5–6, 2026-10-06)
+
+- **The design came from you.** Kabe's grid, wall and placement ideas were checked by two consultations (c7dd918, then cf4d451 on the plan) and two prior-art passes:
+  - grid and wall systems: the Sims 4, Skyrim's modular kits, Sweet Home 3D, IFC, UnrealEd;
+  - 2D boolean libraries: clipper2-ts chosen; Boost licence, integer arithmetic.
+- **Placement prior art:** Infinigen Indoors, Merrell 2011, Make it Home, Holodeck, ProcTHOR. We kept their rule vocabulary and their scoring, but not their searches.
+- **Time and new code:**
+
+  | Stage | Clock time (commit times) | New code |
+  |---|---|---|
+  | Design and consultations | about 1 h | — |
+  | 5a–5d: the carve, plan checks, claim grid, planted plan faults | 16:37–17:15 | `carve.js` 133 lines, `plan-checks.js` 76, `claims.js` 87, `house-spec.js` 48 |
+  | 5e: walls by edge, the octagon | to 18:34 | `walls.js` 39 lines, `plans/banqueting.js` 36 |
+  | 6: placement by rules | to 19:04 | `place.js` 247 lines, which replaces `furnish.js` (139 lines) |
+  | Your open faults, fixed at their source | to 19:35 | rails, risen rooms, outside panes, the japanned cabinet |
+
+  The Clipper2 library itself is vendored as is, 125 KB.
+- **Running cost, at generation, never in play:**
+
+  | Step | Cost | Note |
+  |---|---|---|
+  | The carve | about 35 ms in Node | 38 height bands, about 14,600 triangles |
+  | The plan checks | about 45 ms | |
+  | Placing everything in 34 rooms | about 0.6 s | plus 0.5 s measuring kinds, which was already being paid |
+  | The claim grid's walking lookups | an array read each | |
+- **Results:**
+  - Seal: no leak and no gap in any of the 34 rooms. Before, four rooms leaked.
+  - Planted plan faults: 10 of 10 caught.
+  - Walking acceptance: everything passes.
+  - 152 pieces placed: 100 anchors and 52 ordinary things.
+  - The story's key goes in its desk's drawer, and the desk is placed for it.
+  - All 55 kinds clean.
