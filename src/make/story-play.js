@@ -34,7 +34,9 @@ export function playStory({ THREE, scene, story, plan, manor, works, build, K, l
   // ---- size: the body you have, from the store's "$size" (the document's sizes; "usual" chosen where open)
   const sizes = story.sizes, store = () => works.vars();
   let size = store().size || "usual", h = sizes[size], target = h;
-  const body = () => { const b = bodyAt(h); b.eye = Math.min(b.eye, H - 0.12); return b; };   // stooped under the roof
+  // stooped under the roof, clear of its beams (0.18 m deep) and a near plane's reach (at nine feet the eye stood in the
+  // beams and saw through the roof, 2026-10-07)
+  const body = () => { const b = bodyAt(h); b.eye = Math.min(b.eye, H - 0.36); b.near = Math.min(b.near, 0.05); return b; };
   function setSize(s) { size = s; target = sizes[s]; setVar("size", s); }
   // the telescope: the height eases to its new value over a second and a half
   function grow(dt) { if (h === target) return false; const k = Math.min(1, dt / 1.5 * 3); h += (target - h) * k; if (Math.abs(target - h) < 0.002) h = target; return true; }

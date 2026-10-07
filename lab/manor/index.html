@@ -29,7 +29,7 @@
 <body>
 <div id="status">raising the house…</div>
 <div id="where"><div class="n">—</div><div class="f"></div></div>
-<div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take</div>
+<div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take · <kbd>C</kbd> crouch</div>
 <div id="gate">click to walk</div>
 <div id="cross" hidden></div>
 <div id="line" hidden></div>
@@ -72,7 +72,7 @@ import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
 import { cues } from "../ui/cues.js";
-import { touchControls, isTouch, fullscreenButton, actionButton } from "../touch.js";
+import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton } from "../touch.js";
 fullscreenButton();
 
 const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
@@ -141,7 +141,9 @@ let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: 
 const winPool = makePool(rig, { place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
-function lightView(at) { winPool.update(winItems.filter(it => inView.has(it.room)), at); firePool.update(fireItems.filter(it => inView.has(it.room)), at); }
+// (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting")
+const alight = (it) => !it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out";
+function lightView(at) { winPool.update(winItems.filter(it => inView.has(it.room)), at); firePool.update(fireItems.filter(it => inView.has(it.room) && alight(it)), at); }
 // the fires flicker, and the flames with them, while any is in view
 function flicker(now) {
   const t = now / 1000; let any = false;
@@ -154,7 +156,7 @@ window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null
 
 // ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
 // terrain-mesh.js), a sky and the haze of distance
-const site = OUTDOOR ? makeSite(plan) : null, ground = site ? makeGround(THREE, site, { material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)) }) }) : null;
+const site = OUTDOOR ? makeSite(plan) : null, ground = site ? makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") !== "0", material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)) }) }) : null;
 window.__site = site; window.__ground = ground;
 if (ground) { scene.add(ground.group);
   scene.fog = new THREE.Fog(0xb7c4cf, 220, 1500);
@@ -183,7 +185,7 @@ if (FC) scene.add(FC.group); window.__fc = FC;
 if (SP) { const b3 = new THREE.Box3(), c = new THREE.Vector3();
   // each lamp's light where its flame hangs, in the pool the fires use (oil lamps flicker a little too)
   fireItems = fireItems.concat(SP.lamps.map((b, i) => { b3.setFromObject(b.node); b3.getCenter(c); const at = c.clone(); at.y = b3.min.y + 0.12;
-    return { key: 100 + i, room: plan.entrance, at, size: 1, base: 5, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } }; }));
+    return { key: 100 + i, room: plan.entrance, at, size: 1, base: 5, thing: b, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } }; }));
   SP.onGoal = () => { const e = document.createElement("div"); e.id = "end"; e.innerHTML = "Through the little door. <small>The first Alice proof ends here: the garden is Chapter II's and beyond.</small>"; document.body.append(e); };
   buildGarden(); }
 // the garden beyond the passage, seen and not entered: "beds of bright flowers and those cool fountains"
@@ -224,7 +226,11 @@ let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py =
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
 window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
 const keys = {};
-addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
+// crouching (Kabe, 2026-10-07: "We should have a crouch option"): C or Ctrl, or the thumb's crouch button; the eye
+// at 55% of its height, half the pace
+let crouch = false; const crouchTouch = isTouch() ? crouchButton((d) => { crouch = d; }) : null;
+addEventListener("keydown", e => { if (e.code === "KeyC" || e.code === "ControlLeft") { crouch = !crouch; crouchTouch?.(crouch); }
+  keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
 addEventListener("keyup", e => { keys[e.code] = false; });
 const lock = () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} };
 $("gate").addEventListener("click", lock);
@@ -252,6 +258,7 @@ function actOn(t) {
     if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] }; } }
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
+  lightsDirty = true;                                  // a lamp lit or put out, a shutter opened
   refreshView(true); return true; }
 function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
 const showCue = cues($("cross"), renderer.domElement);
@@ -352,7 +359,7 @@ renderer.setAnimationLoop((now) => {
     // grown where your new width doesn't fit (beside the table): the nearest floor you do fit
     for (let k = 1, cx = px, cy = py; walk.groundAt(px, py, ph) == null && k < 900; k++) { const a = k * 2.4, r = 0.03 * Math.sqrt(k), nx = cx + Math.cos(a) * r, ny = cy + Math.sin(a) * r; if (walk.groundAt(nx, ny, ph) != null) { px = nx; py = ny; } } }
   if (B && Math.abs(camera.near - B.near) > 1e-4) { camera.near = B.near; camera.updateProjectionMatrix(); } if (B) ray.far = B.far;
-  const sp = (keys.ShiftLeft || keys.ShiftRight) ? (B ? B.speed * 1.8 : 2.8) : (B ? B.speed : 1.4), fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  const sp = ((keys.ShiftLeft || keys.ShiftRight) ? (B ? B.speed * 1.8 : 2.8) : (B ? B.speed : 1.4)) * (crouch ? 0.5 : 1), fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
   let dx = 0, dy = 0;
   if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
@@ -361,8 +368,8 @@ renderer.setAnimationLoop((now) => {
   if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * dt; dy = dy / n * a * sp * dt;
     let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; } }
   { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
-  const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
-  const eye = B ? B.eye : EYE; camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) * (crouch ? 0.55 : 1) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
+  const eye = (B ? B.eye : EYE) * (crouch ? 0.55 : 1); camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;

@@ -605,10 +605,14 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
       return out.filter(([a, b]) => b - a > 0.02);
     };
     const fields = [];
-    if (!plain) for (const [z0, z1] of [STYLE.lower, STYLE.upper]) for (const [a, b] of free(z0, z1)) fields.push({ a, b, z0, z1 });
+    // (each zone under the cornice of a room lower than the style's: Alice's 2.6 m hall had its upper panels through its ceiling)
+    if (!plain) for (const [z0, zt] of [STYLE.lower, STYLE.upper]) { const z1 = Math.min(zt, H - 0.26); if (z1 - z0 < 0.3) continue; for (const [a, b] of free(z0, z1)) fields.push({ a, b, z0, z1 }); }
     // above an obstacle that stops short of the zone's top: its own run of panels (overmantel, over-door)
+    // (up to where a zone above it, uncut there, already panels the wall: a door lower than the lower zone's top, Alice's
+    // fifteen inches, had its over-door run up through the upper zone's panels, two on one plane flickering)
     for (const o of plain ? [] : obst) {
-      const z1 = Math.min(STYLE.upper[1], H - 0.26);
+      const zoneOver = [STYLE.lower, STYLE.upper].find(([z0]) => z0 >= o.z1 - 0.01 && free(z0, z0 + 0.01).some(([a, b]) => a <= o.a + 0.01 && b >= o.b - 0.01));
+      const z1 = zoneOver ? zoneOver[0] - 0.03 : Math.min(STYLE.upper[1], H - 0.26);
       if (o.z1 > z1 - 0.2 || obst.some(p => p !== o && p.z0 >= o.z1 - 0.01 && p.a < o.b && p.b > o.a)) continue;
       fields.push({ a: o.a, b: o.b, z0: o.z1 + 0.03, z1 });
     }

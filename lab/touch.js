@@ -66,6 +66,17 @@ export function actionButton(onPress) {
     if (mode) { b.innerHTML = ICONS[mode].replace('width="24" height="24"', 'width="40" height="40"'); b.setAttribute("aria-label", mode === "take" ? "Take" : mode === "locked" ? "Locked" : "Use"); } };
 }
 
+// Crouch: a smaller button above the thumb's use button, toggling (pressed: down); onToggle(down)
+export function crouchButton(onToggle) {
+  const b = document.createElement("button"), I = insets(); let down = false;
+  b.setAttribute("aria-label", "Crouch"); b.textContent = "⌄";
+  Object.assign(b.style, { position: "fixed", right: 30 + I.r + "px", bottom: 112 + I.b + "px", width: "48px", height: "48px", borderRadius: "50%", zIndex: 4, color: "#ece4d2", font: "22px sans-serif",
+    border: "1px solid rgba(236,228,210,0.45)", background: "rgba(22,19,16,0.6)", padding: "0", touchAction: "none" });
+  b.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); down = !down; b.style.background = down ? "rgba(201,163,92,0.55)" : "rgba(22,19,16,0.6)"; onToggle(down); });
+  document.body.append(b);
+  return (d) => { down = d; b.style.background = d ? "rgba(201,163,92,0.55)" : "rgba(22,19,16,0.6)"; };
+}
+
 // Fullscreen: a button (top right) that asks for real fullscreen where the browser allows it (Android,
 // desktop) and locks landscape on phones; on an iPhone, where Safari refuses fullscreen to pages, it
 // says how to get the same thing: Share, then Add to Home Screen (the page then opens with no bars).

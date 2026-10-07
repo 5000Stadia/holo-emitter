@@ -8,8 +8,10 @@
 import { texture, attribute, mix, uv, vec2, float } from "three/tsl";
 
 const N = 32;
-export function makeGround(THREE, site, { root = 1024, extent = 2, minSize = 32, split = 1.6, skirt = 1.0, material } = {}) {
-  const group = new THREE.Group(); group.name = "ground";
+export function makeGround(THREE, site, { root = 1024, extent = 2, minSize = 32, split = 0.8, skirt = 1.0, material, bundle = false } = {}) {
+  // (on WebGPU the tiles go in a render bundle, recorded again only when the set of tiles changes: the fps lab measured
+  // 1,000 static meshes at 148 fps drawn one by one and 1,337 in a bundle)
+  const group = bundle && THREE.BundleGroup ? new THREE.BundleGroup() : new THREE.Group(); group.name = "ground";
   const cache = new Map(), shown = new Set(); let want = [], queue = [];
   // which leaves: from each root, split while you are nearer than `split` times the node's size
   function leaves(x, y) { const out = [];
@@ -52,6 +54,7 @@ export function makeGround(THREE, site, { root = 1024, extent = 2, minSize = 32,
     const keys = new Set(want.map(keyOf)); let changed = false;
     for (const k of [...shown]) if (!keys.has(k)) { group.remove(cache.get(k)); shown.delete(k); changed = true; }
     for (const k of keys) if (!shown.has(k) && cache.has(k)) { group.add(cache.get(k)); shown.add(k); changed = true; }
+    if (changed && group.isBundleGroup) group.needsUpdate = true;
     return changed || queue.length > 0;
   }
   return { group, update, stats: () => ({ shown: shown.size, cached: cache.size, built, msPerTile: built ? +(ms / built).toFixed(2) : 0, queued: queue.length }) };
