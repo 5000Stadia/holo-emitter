@@ -52,16 +52,17 @@ export function planChecks({ plan, specs, carved, sizeOf = null }) {
     const got = (ew ? [[R.x0 - h, cy], [R.x1 + h, cy]] : [[cx, R.y0 - h], [cx, R.y1 + h]]).map(([x, y]) => roomsAt(w.floor, x, y));
     if (got.filter(g => g.length === 1).length !== 1 || got.filter(g => !g.length).length !== 1) say("joins", `window ${i}`, `should have one room and outdoors either side; has ${got.map(g => g.join("+") || "outdoors").join(" and ")}`); });
   // backed and open, read off the carve
-  for (const { room, Y, spec } of list) {
+  for (const { room, Y, H, spec } of list) {
     const { x0, y0, x1, y1 } = room.rect, W = x1 - x0, D = y1 - y0, frames = framesOf(room), P = (F, r, d) => { const [u, v] = onWallAt(frames[F], r, d); return [x0 + u, y0 + v]; };
-    if (solidAt(carved, (x0 + x1) / 2, (y0 + y1) / 2, Y + 1.2)) say("open", room.id, "its middle is solid");
+    if (solidAt(carved, (x0 + x1) / 2, (y0 + y1) / 2, Y + Math.min(1.2, H / 2))) say("open", room.id, "its middle is solid");
     for (const [F, es] of Object.entries(spec.walls)) {
       const L = frames[F].L;
       for (const e of es) if (e.kind === "chimneypiece") { const fb = e.firebox, [x, y] = P(F, (fb.r0 + fb.r1) / 2, (e.breast || 0) - fb.depth - 0.1);
         if (!solidAt(carved, x, y, Y + Math.min(0.5, fb.apex / 2))) say("backed", `${room.id} ${e.id}`, "less than 0.1 m of solid behind the fire"); }
       // solid a hand beyond the wall, every half metre where nothing stands in it
       const free = (r, z) => !es.some(e => r > Math.min(e.r0, e.mantel?.r0 ?? e.r0) - 0.15 && r < Math.max(e.r1, e.mantel?.r1 ?? e.r1) + 0.15 && (e.kind !== "window" || (z > e.sill - 0.1 && z < e.top + 0.1)));
-      for (let r = 0.3; r < L - 0.3; r += 0.5) for (const z of [0.5, 1.5]) { if (!free(r, z)) continue; const [x, y] = P(F, r, -0.1);
+      for (let r = 0.3; r < L - 0.3; r += 0.5) for (const z of new Set([0.5, 1.5].map(z => Math.min(z, H / 2)))) { if (!free(r, z)) continue;   // a low room (a rat-hole) probed within its height
+        const [x, y] = P(F, r, -0.1);
         if (!solidAt(carved, x, y, Y + z)) say("open", `${room.id} ${F}`, `no wall a hand beyond its ${F} wall at ${r.toFixed(1)} m along, ${z} m up`); }
     }
   }

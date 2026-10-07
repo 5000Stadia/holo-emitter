@@ -75,8 +75,12 @@ export function houseClaims({ plan, blocks = [], half = 0.22, cell = 0.1 }) {
   const C = makeClaims({ x0: Math.min(...all.map(r => r.x0)) - 1, y0: Math.min(...all.map(r => r.y0)) - 1, x1: Math.max(...all.map(r => r.x1)) + 1, y1: Math.max(...all.map(r => r.y1)) + 1,
     floors: plan.floors.map(f => f.id), cell, initial: SOLID });
   for (const r of rooms) { C.open(r.floor, "stand", r.outline || r.rect); C.open(r.floor, "floor", r.outline || r.rect); }
-  const strip = (R) => (R.x1 - R.x0) < (R.y1 - R.y0) ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + 0.08, y1: R.y1 - 0.08 } : { x0: R.x0 + 0.08, x1: R.x1 - 0.08, y0: R.y0 - 0.35, y1: R.y1 + 0.35 };
-  for (const o of plan.openings) if (o.rect) C.doorway(o.floor, strip(o.rect), o.id);
+  // a doorway's strip: through the wall and a step into each room, kept off its jambs by 8 cm, or a tenth of a little
+  // door's width (Alice's door is 25 cm wide); which way it runs is the opening's axis, if it says (a door narrower
+  // than its wall is thick)
+  const strip = (R, axis) => { const ew = axis ? axis === "EW" : (R.x1 - R.x0) < (R.y1 - R.y0), e = Math.min(0.08, 0.1 * (ew ? R.y1 - R.y0 : R.x1 - R.x0));
+    return ew ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + e, y1: R.y1 - e } : { x0: R.x0 + e, x1: R.x1 - e, y0: R.y0 - 0.35, y1: R.y1 + 0.35 }; };
+  for (const o of plan.openings) if (o.rect) C.doorway(o.floor, strip(o.rect, o.axis), o.id);
     // an outline room's doorway, on the wall it names: through the wall and a step into each side
     else if (o.on) for (const [id, h] of Object.entries(o.on)) { const room = plan.rooms.find(q => q.id === id);
       C.doorway(room.floor, wallPoly(room, framesOf(room)[h.F], h.r0 + 0.08, h.r1 - 0.08, -(o.T ?? 0.3) - 0.35, 0.35), o.id); }

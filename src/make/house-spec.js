@@ -36,7 +36,8 @@ export function storeys(plan, gap = 0.35) {
   // walls stood across the landing's doorway into the great chamber, 2026-10-06)
   const full = (room) => { const i = floors.findIndex(f => f.id === room.floor), n = room.rises || 1; let h = 0; for (let k = 0; k < n && floors[i + k]; k++) h += floors[i + k].storey_height_m + (k ? gap : 0); return h; };
   const over = (a, b) => a.x0 < b.x1 - 0.01 && a.x1 > b.x0 + 0.01 && a.y0 < b.y1 - 0.01 && a.y1 > b.y0 + 0.01;
-  const heightOf = (room) => { const Y = levelOf(room.floor), H = full(room); if ((room.rises || 1) < 2) return H;
+  // a room may be lower than its storey (a passage "not much larger than a rat-hole", Alice ch. I)
+  const heightOf = (room) => { if (room.height_m) return room.height_m; const Y = levelOf(room.floor), H = full(room); if ((room.rises || 1) < 2) return H;
     const above = plan.rooms.filter(q => q !== room && q.type !== "open" && levelOf(q.floor) > Y + 0.01 && levelOf(q.floor) < Y + H && over(q.rect, room.rect));
     return above.length ? Math.min(H, Math.min(...above.map(q => levelOf(q.floor))) - Y - gap) : H; };
   return { floors, levelOf, heightOf, gap };

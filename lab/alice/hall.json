@@ -1,0 +1,739 @@
+{
+  "schema": "holo-emitter-scene/0.1",
+  "source": {
+    "work": "Alice's Adventures in Wonderland",
+    "author": "Lewis Carroll",
+    "year": 1865,
+    "chapter": "Chapter I (Down the Rabbit-Hole) into the opening of Chapter II (The Pool of Tears)",
+    "from": "turned the corner, but the Rabbit was no longer to be seen",
+    "to": "she sat down and began to cry again."
+  },
+  "place": {
+    "name": "the long, low hall of doors",
+    "underground": "open",
+    "hint": "the chapter heading is 'Down the Rabbit-Hole' and Alice has fallen after the Rabbit, but this excerpt never says the hall is below ground",
+    "quote": "she found herself in a long, low hall",
+    "look": "open"
+  },
+  "rooms": [
+    {
+      "id": "hall",
+      "name": "the hall",
+      "quote": "herself in a long, low hall, which was lit up by a row of lamps hanging",
+      "shape": {
+        "plan": "long",
+        "height": "low",
+        "quote": "herself in a long, low hall, which was lit up by a row of lamps hanging"
+      },
+      "bounds": [
+        {
+          "what": "ceiling (the roof)",
+          "max_m": 2.74,
+          "why": "Alice's head strikes the roof when she is 'more than nine feet' high (9 ft = 2.743 m), so the roof is at about 2.74 m, at most a little above it; a builder should treat roughly 2.7 m as the ceiling, no lower than her usual height plus clearance",
+          "quote": "Just then her head struck against the roof of the hall: in fact she was"
+        },
+        {
+          "what": "table top (min height above floor, relative to the small Alice)",
+          "min_m": 0.254,
+          "why": "at ten inches (0.254 m) Alice cannot reach the key on the table, and cannot climb the leg, so the top is out of reach of a 0.254 m girl; the text gives no figure beyond that",
+          "quote": "went back to the table for it, she found she could not possibly reach"
+        }
+      ],
+      "light": [
+        {
+          "what": "a row of lamps hanging from the roof",
+          "quote": "lit up by a row of lamps hanging"
+        }
+      ],
+      "dark": "open",
+      "hint": "the text says both 'lit up by a row of lamps' and, in Alice's own words, 'that dark hall'; the lamps are lit as she arrives, and she calls it dark when longing for the garden (contrast, or dim light)"
+    },
+    {
+      "id": "passage",
+      "name": "the small passage behind the little door",
+      "quote": "it led into a small passage, not",
+      "shape": {
+        "plan": "long",
+        "height": "low",
+        "quote": "much larger than a rat-hole: she knelt down and looked along the"
+      },
+      "bounds": [
+        {
+          "what": "passage cross-section",
+          "max_m": "open",
+          "why": "described as not much larger than a rat-hole and Alice kneels to look along it; no number given",
+          "quote": "much larger than a rat-hole: she knelt down and looked along the"
+        }
+      ],
+      "light": [],
+      "dark": "open"
+    }
+  ],
+  "openings": [
+    {
+      "id": "hall_doors",
+      "in": "hall",
+      "to": "nowhere",
+      "count": "many",
+      "size": "open",
+      "locked": true,
+      "key": "open",
+      "hidden_by": null,
+      "quote": "There were doors all round the hall, but they were all locked; and when",
+      "hint": "the text never says what is behind them or what opens them; the golden key does not"
+    },
+    {
+      "id": "little_door",
+      "in": "hall",
+      "to": "passage",
+      "count": 1,
+      "size": {
+        "height_m": 0.381,
+        "quote": "behind it was a little door about fifteen inches high: she tried the"
+      },
+      "locked": true,
+      "key": "golden_key",
+      "hidden_by": "curtain",
+      "quote": "time round, she came upon a low curtain she had not noticed before, and"
+    },
+    {
+      "id": "passage_end",
+      "in": "passage",
+      "to": "outside",
+      "count": 1,
+      "size": "open",
+      "locked": false,
+      "key": null,
+      "hidden_by": null,
+      "quote": "passage into the loveliest garden you ever saw. How she longed to get",
+      "hint": "the passage opens on the garden; the text calls the little door 'the doorway' when saying her head will not go through it"
+    }
+  ],
+  "things": [
+    {
+      "id": "lamps",
+      "noun": "lamps",
+      "words": "a row of lamps hanging from the roof",
+      "quote": "lit up by a row of lamps hanging",
+      "material": "open",
+      "size": "open",
+      "at": {
+        "rel": "hangs",
+        "of": "hall",
+        "quote": "from the roof."
+      },
+      "exists": "from the start",
+      "text_on_it": null
+    },
+    {
+      "id": "glass_table",
+      "noun": "table",
+      "words": "a little three-legged table, all made of solid glass",
+      "quote": "Suddenly she came upon a little three-legged table, all made of solid",
+      "material": "solid glass (she can see the key through it)",
+      "size": {
+        "words": "little",
+        "m": null
+      },
+      "at": {
+        "rel": "in",
+        "of": "hall",
+        "quote": "door, she walked sadly down the middle, wondering how she was ever to"
+      },
+      "exists": "from the start",
+      "text_on_it": null,
+      "hint": "she walked down the middle of the hall and came upon it, so it stands somewhere along the middle; exact spot is open"
+    },
+    {
+      "id": "golden_key",
+      "noun": "key",
+      "words": "a tiny golden key",
+      "quote": "glass; there was nothing on it except a tiny golden key, and Alice’s",
+      "material": "gold (golden)",
+      "size": {
+        "words": "tiny",
+        "m": null
+      },
+      "at": {
+        "rel": "on",
+        "of": "glass_table",
+        "quote": "glass; there was nothing on it except a tiny golden key, and Alice’s"
+      },
+      "exists": "from the start",
+      "text_on_it": null
+    },
+    {
+      "id": "curtain",
+      "noun": "curtain",
+      "words": "a low curtain she had not noticed before",
+      "quote": "time round, she came upon a low curtain she had not noticed before, and",
+      "material": "open",
+      "size": {
+        "words": "low",
+        "m": null
+      },
+      "at": {
+        "rel": "hangs",
+        "of": "hall",
+        "quote": "behind it was a little door about fifteen inches high: she tried the"
+      },
+      "exists": "from the start",
+      "text_on_it": null,
+      "hint": "Alice had merely not noticed it; the text does not say it appeared. It hides the little door, which is behind it. Which wall it is on is open"
+    },
+    {
+      "id": "bottle",
+      "noun": "bottle",
+      "words": "a little bottle with a paper label round its neck",
+      "quote": "time she found a little bottle on it, (“which certainly was not here",
+      "material": "open",
+      "size": {
+        "words": "little",
+        "m": null
+      },
+      "at": {
+        "rel": "on",
+        "of": "glass_table",
+        "quote": "time she found a little bottle on it, (“which certainly was not here"
+      },
+      "exists": {
+        "after": "ev_bottle_appears",
+        "quote": "before,” said Alice,) and round the neck of the bottle was a paper"
+      },
+      "text_on_it": "DRINK ME",
+      "hint": "contents taste of cherry-tart, custard, pine-apple, roast turkey, toffee and hot buttered toast; its colour and the liquid are open"
+    },
+    {
+      "id": "label",
+      "noun": "label",
+      "words": "a paper label round the neck of the bottle, with DRINK ME beautifully printed in large letters",
+      "quote": "label, with the words “DRINK ME,” beautifully printed on it in large",
+      "material": "paper",
+      "size": "open",
+      "at": {
+        "rel": "round",
+        "of": "bottle",
+        "quote": "before,” said Alice,) and round the neck of the bottle was a paper"
+      },
+      "exists": {
+        "after": "ev_bottle_appears",
+        "quote": "before,” said Alice,) and round the neck of the bottle was a paper"
+      },
+      "text_on_it": "DRINK ME"
+    },
+    {
+      "id": "glass_box",
+      "noun": "box",
+      "words": "a little glass box lying under the table",
+      "quote": "Soon her eye fell on a little glass box that was lying under the table:",
+      "material": "glass",
+      "size": {
+        "words": "little",
+        "m": null
+      },
+      "at": {
+        "rel": "under",
+        "of": "glass_table",
+        "quote": "Soon her eye fell on a little glass box that was lying under the table:"
+      },
+      "exists": "open",
+      "text_on_it": null,
+      "hint": "first mentioned after Alice has shrunk; the text does not say whether it was there before or appeared"
+    },
+    {
+      "id": "cake",
+      "noun": "cake",
+      "words": "a very small cake with EAT ME marked in currants",
+      "quote": "she opened it, and found in it a very small cake, on which the words",
+      "material": "cake, with currants",
+      "size": {
+        "words": "very small",
+        "m": null
+      },
+      "at": {
+        "rel": "in",
+        "of": "glass_box",
+        "quote": "she opened it, and found in it a very small cake, on which the words"
+      },
+      "exists": "open",
+      "text_on_it": "EAT ME",
+      "hint": "same as the box: first met after Alice has shrunk"
+    }
+  ],
+  "player": {
+    "who": "Alice, a girl",
+    "sizes": [
+      {
+        "id": "usual",
+        "height_m": "open",
+        "quote": "the little door into that lovely garden. First, however, she"
+      },
+      {
+        "id": "small",
+        "height_m": 0.254,
+        "quote": "And so it was indeed: she was now only ten inches high, and her face"
+      },
+      {
+        "id": "large",
+        "height_m": 2.743,
+        "quote": "now more than nine feet high, and she at once took up the little golden",
+        "note": "'more than nine feet', so a little over 2.743 m; her head strikes the roof at this size"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "id": "act_try_hall_doors",
+      "verb": "open",
+      "thing": "hall_doors",
+      "needs": [],
+      "effect": [],
+      "fails": [
+        {
+          "when": "trying any hall door, with or without the key",
+          "says": "all the doors are locked; she goes all the way down one side and up the other",
+          "quote": "There were doors all round the hall, but they were all locked; and when"
+        }
+      ],
+      "quote": "Alice had been all the way down one side and up the other, trying every"
+    },
+    {
+      "id": "act_key_hall_doors",
+      "verb": "unlock",
+      "thing": "hall_doors",
+      "needs": [
+        {
+          "what": "holding golden_key",
+          "quote": "first thought was that it might belong to one of the doors of the hall;"
+        }
+      ],
+      "effect": [],
+      "fails": [
+        {
+          "when": "the golden key is tried in any of the hall's doors",
+          "says": "it does not open any of them: the locks are too large or the key too small",
+          "quote": "but, alas! either the locks were too large, or the key was too small,"
+        }
+      ],
+      "quote": "but at any rate it would not open any of them. However, on the second"
+    },
+    {
+      "id": "act_find_curtain",
+      "verb": "look",
+      "thing": "curtain",
+      "needs": [
+        {
+          "what": "going round the hall a second time",
+          "quote": "but at any rate it would not open any of them. However, on the second"
+        }
+      ],
+      "effect": [
+        {
+          "what": "the little door is found behind the curtain",
+          "quote": "behind it was a little door about fifteen inches high: she tried the"
+        }
+      ],
+      "fails": [],
+      "quote": "time round, she came upon a low curtain she had not noticed before, and"
+    },
+    {
+      "id": "act_unlock_little_door",
+      "verb": "unlock",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "holding golden_key",
+          "quote": "little golden key in the lock, and to her great delight it fitted!"
+        }
+      ],
+      "effect": [
+        {
+          "what": "key fits the little door's lock",
+          "quote": "little golden key in the lock, and to her great delight it fitted!"
+        }
+      ],
+      "fails": [],
+      "quote": "behind it was a little door about fifteen inches high: she tried the"
+    },
+    {
+      "id": "act_open_little_door",
+      "verb": "open",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "little door unlocked",
+          "quote": "little golden key in the lock, and to her great delight it fitted!"
+        }
+      ],
+      "effect": [
+        {
+          "what": "opening opened; leads into the small passage, with the garden seen at the far end",
+          "quote": "Alice opened the door and found that it led into a small passage, not"
+        }
+      ],
+      "fails": [],
+      "quote": "Alice opened the door and found that it led into a small passage, not"
+    },
+    {
+      "id": "act_look_through_door_usual",
+      "verb": "look",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "kneeling at the open little door at usual size",
+          "quote": "much larger than a rat-hole: she knelt down and looked along the"
+        }
+      ],
+      "effect": [
+        {
+          "what": "garden seen along the passage",
+          "quote": "passage into the loveliest garden you ever saw. How she longed to get"
+        }
+      ],
+      "fails": [],
+      "quote": "much larger than a rat-hole: she knelt down and looked along the"
+    },
+    {
+      "id": "act_go_through_usual",
+      "verb": "go through",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "size small",
+          "quote": "through the little door into that lovely garden. First, however, she"
+        }
+      ],
+      "effect": [],
+      "fails": [
+        {
+          "when": "player size usual",
+          "says": "she cannot even get her head through the doorway (and would not get her shoulders through either)",
+          "quote": "flowers and those cool fountains, but she could not even get her head"
+        }
+      ],
+      "quote": "through the doorway; “and even if my head would go through,” thought"
+    },
+    {
+      "id": "act_return_to_table",
+      "verb": "look",
+      "thing": "glass_table",
+      "needs": [
+        {
+          "what": "going back from the little door to the table",
+          "quote": "There seemed to be no use in waiting by the little door, so she went"
+        }
+      ],
+      "effect": [
+        {
+          "what": "the bottle is on the table",
+          "quote": "time she found a little bottle on it, (“which certainly was not here"
+        }
+      ],
+      "fails": [],
+      "quote": "back to the table, half hoping she might find another key on it, or at"
+    },
+    {
+      "id": "act_read_label",
+      "verb": "look",
+      "thing": "label",
+      "needs": [],
+      "effect": [
+        {
+          "what": "label reads DRINK ME",
+          "quote": "label, with the words “DRINK ME,” beautifully printed on it in large"
+        }
+      ],
+      "fails": [],
+      "quote": "label, with the words “DRINK ME,” beautifully printed on it in large"
+    },
+    {
+      "id": "act_check_poison",
+      "verb": "look",
+      "thing": "bottle",
+      "needs": [],
+      "effect": [
+        {
+          "what": "bottle is not marked poison",
+          "quote": "However, this bottle was _not_ marked “poison,” so Alice ventured to"
+        }
+      ],
+      "fails": [],
+      "quote": "not going to do _that_ in a hurry. “No, I’ll look first,” she said,"
+    },
+    {
+      "id": "act_drink_bottle",
+      "verb": "drink",
+      "thing": "bottle",
+      "needs": [
+        {
+          "what": "not marked poison (she checks first)",
+          "quote": "However, this bottle was _not_ marked “poison,” so Alice ventured to"
+        }
+      ],
+      "effect": [
+        {
+          "what": "bottle emptied (thing gone)",
+          "quote": "hot buttered toast,) she very soon finished it off."
+        },
+        {
+          "what": "player size small (ten inches)",
+          "quote": "And so it was indeed: she was now only ten inches high, and her face"
+        }
+      ],
+      "fails": [],
+      "quote": "taste it, and finding it very nice, (it had, in fact, a sort of mixed"
+    },
+    {
+      "id": "act_wait_after_shrinking",
+      "verb": "look",
+      "thing": "player",
+      "needs": [
+        {
+          "what": "size small",
+          "quote": "And so it was indeed: she was now only ten inches high, and her face"
+        }
+      ],
+      "effect": [
+        {
+          "what": "she waits a few minutes to see whether she shrinks further; nothing more happens",
+          "quote": "After a while, finding that nothing more happened, she decided on going"
+        }
+      ],
+      "fails": [],
+      "quote": "through the little door into that lovely garden. First, however, she"
+    },
+    {
+      "id": "act_take_key_small",
+      "verb": "take",
+      "thing": "golden_key",
+      "needs": [
+        {
+          "what": "size small, at the table",
+          "quote": "went back to the table for it, she found she could not possibly reach"
+        }
+      ],
+      "effect": [],
+      "fails": [
+        {
+          "when": "player size small",
+          "says": "she can see the key plainly through the glass top but cannot possibly reach it",
+          "quote": "it: she could see it quite plainly through the glass, and she tried her"
+        }
+      ],
+      "quote": "went back to the table for it, she found she could not possibly reach"
+    },
+    {
+      "id": "act_climb_table_leg",
+      "verb": "climb",
+      "thing": "glass_table",
+      "needs": [
+        {
+          "what": "size small",
+          "quote": "best to climb up one of the legs of the table, but it was too slippery;"
+        }
+      ],
+      "effect": [],
+      "fails": [
+        {
+          "when": "player size small",
+          "says": "the glass legs are too slippery to climb; she tires herself out, sits down and cries",
+          "quote": "best to climb up one of the legs of the table, but it was too slippery;"
+        }
+      ],
+      "quote": "best to climb up one of the legs of the table, but it was too slippery;"
+    },
+    {
+      "id": "act_open_glass_box",
+      "verb": "open",
+      "thing": "glass_box",
+      "needs": [
+        {
+          "what": "size small (as shown)",
+          "quote": "Soon her eye fell on a little glass box that was lying under the table:"
+        }
+      ],
+      "effect": [
+        {
+          "what": "a very small cake marked EAT ME is found inside",
+          "quote": "she opened it, and found in it a very small cake, on which the words"
+        }
+      ],
+      "fails": [],
+      "quote": "she opened it, and found in it a very small cake, on which the words"
+    },
+    {
+      "id": "act_eat_cake_bit",
+      "verb": "eat",
+      "thing": "cake",
+      "needs": [],
+      "effect": [
+        {
+          "what": "a little bit eaten; no size change",
+          "quote": "size: to be sure, this generally happens when one eats cake, but Alice"
+        }
+      ],
+      "fails": [
+        {
+          "when": "only a little bit is eaten",
+          "says": "she remains the same size",
+          "quote": "growing, and she was quite surprised to find that she remained the same"
+        }
+      ],
+      "quote": "She ate a little bit, and said anxiously to herself, “Which way? Which"
+    },
+    {
+      "id": "act_eat_cake_rest",
+      "verb": "eat",
+      "thing": "cake",
+      "needs": [],
+      "effect": [
+        {
+          "what": "cake gone",
+          "quote": "So she set to work, and very soon finished off the cake."
+        },
+        {
+          "what": "player size large (more than nine feet), growing so that her feet seem far off",
+          "quote": "now more than nine feet high, and she at once took up the little golden"
+        }
+      ],
+      "fails": [],
+      "quote": "So she set to work, and very soon finished off the cake."
+    },
+    {
+      "id": "act_take_key_large",
+      "verb": "take",
+      "thing": "golden_key",
+      "needs": [
+        {
+          "what": "size large",
+          "quote": "now more than nine feet high, and she at once took up the little golden"
+        }
+      ],
+      "effect": [
+        {
+          "what": "player holding golden_key",
+          "quote": "key and hurried off to the garden door."
+        }
+      ],
+      "fails": [],
+      "quote": "now more than nine feet high, and she at once took up the little golden"
+    },
+    {
+      "id": "act_look_through_door_large",
+      "verb": "look",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "size large, lying down on one side",
+          "quote": "Poor Alice! It was as much as she could do, lying down on one side, to"
+        }
+      ],
+      "effect": [
+        {
+          "what": "garden seen with one eye",
+          "quote": "look through into the garden with one eye; but to get through was more"
+        }
+      ],
+      "fails": [
+        {
+          "when": "player size large",
+          "says": "to get through is more hopeless than ever; she sits down and cries",
+          "quote": "hopeless than ever: she sat down and began to cry again."
+        }
+      ],
+      "quote": "look through into the garden with one eye; but to get through was more"
+    },
+    {
+      "id": "act_go_through_small",
+      "verb": "go through",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "size small",
+          "quote": "through the little door into that lovely garden. First, however, she"
+        },
+        {
+          "what": "holding golden_key (to unlock the door)",
+          "quote": "door, she found she had forgotten the little golden key, and when she"
+        }
+      ],
+      "effect": [],
+      "fails": [
+        {
+          "when": "small without the key (the key was left on the table)",
+          "says": "she has forgotten the key and cannot reach it, so cannot get through",
+          "quote": "door, she found she had forgotten the little golden key, and when she"
+        }
+      ],
+      "quote": "through the little door into that lovely garden. First, however, she",
+      "hint": "going through successfully at small size is intended but never shown in this text; whether the door must stay unlocked is open"
+    },
+    {
+      "id": "act_creep_under_door",
+      "verb": "go through",
+      "thing": "little_door",
+      "needs": [
+        {
+          "what": "size smaller than at present",
+          "quote": "makes me grow smaller, I can creep under the door; so either way I’ll"
+        }
+      ],
+      "effect": [],
+      "fails": [],
+      "quote": "makes me grow smaller, I can creep under the door; so either way I’ll",
+      "hint": "only Alice's plan, never tried or shown; whether there is a gap under the door is open"
+    }
+  ],
+  "events": [
+    {
+      "id": "ev_bottle_appears",
+      "after": "act_return_to_table",
+      "quote": "before,” said Alice,) and round the neck of the bottle was a paper"
+    },
+    {
+      "id": "ev_shrunk",
+      "after": "act_drink_bottle",
+      "quote": "And so it was indeed: she was now only ten inches high, and her face"
+    },
+    {
+      "id": "ev_grown",
+      "after": "act_eat_cake_rest",
+      "quote": "now more than nine feet high, and she at once took up the little golden"
+    }
+  ],
+  "goal": {
+    "words": "to get out of the hall into the lovely garden beyond the little door",
+    "quote": "out of that dark hall, and wander about among those beds of bright"
+  },
+  "beyond": [
+    {
+      "what": "a garden",
+      "through": "passage_end",
+      "words": "the loveliest garden you ever saw, with beds of bright flowers and cool fountains",
+      "quote": "passage into the loveliest garden you ever saw. How she longed to get"
+    },
+    {
+      "what": "garden fountains",
+      "through": "passage_end",
+      "words": "cool fountains and beds of bright flowers",
+      "quote": "flowers and those cool fountains, but she could not even get her head"
+    }
+  ],
+  "not_in_this_text": [
+    "the hall's length, width or exact height in any number (only that the roof is at about nine feet)",
+    "how many doors or lamps there are, or their size, colour and spacing",
+    "Alice's usual height",
+    "the floor, wall and roof materials or colour",
+    "what is behind any of the big doors, or what opens them",
+    "which wall the curtain and little door are on, and where along the hall the table stands",
+    "whether the lamps are lit or the hall is dim (it is both 'lit up' and 'dark' in the text)",
+    "how the bottle appears on the table",
+    "whether the glass box and cake were there all along",
+    "that the little door relocks, or the key is needed again after the door is unlocked",
+    "the passage's length or width, beyond 'not much larger than a rat-hole'",
+    "the size of the table top, key, bottle, box and cake in numbers",
+    "any furniture besides the table, such as shelves, rugs or a fireplace",
+    "that the hall is underground, or how Alice entered it (only that she turned a corner after the Rabbit)",
+    "the inside of the garden beyond what is glimpsed; Alice never gets there in this text"
+  ]
+}

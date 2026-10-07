@@ -21,6 +21,8 @@
   #cross[hidden], #line[hidden], #gate[hidden] { display: none !important; }
   #line { position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; z-index: 2; }
   #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 3; border: 1px solid var(--brass); padding: 10px 18px; background: var(--panel); }
+  #end { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); max-width: min(46ch, 88vw); text-align: center; font: 600 24px "Cormorant Garamond", Georgia, serif; color: var(--brass); background: var(--panel); border: 1px solid var(--line); padding: 16px 22px; z-index: 4; }
+  #end small { display: block; margin-top: 8px; font: 12px "IBM Plex Mono", monospace; color: var(--dim); }
   @media (max-width: 640px), (pointer: coarse) { #where .n { font-size: 16px; } #keys { display: none; } }
 </style>
 </head>
@@ -54,6 +56,13 @@ import { planBanqueting } from "../../src/make/plans/banqueting.js";
 import { framesOf } from "../../src/make/walls.js";
 import { coplanar } from "../../src/make/coplanar.js";
 import { makePool } from "../../src/make/lightpool.js";
+import { checkScene } from "../../src/make/scene.js";
+import { matchKinds } from "../../src/make/match.js";
+import { planStoryHall } from "../../src/make/plans/story-hall.js";
+import { compileStory, bodyAt } from "../../src/make/story.js";
+import { playStory } from "../../src/make/story-play.js";
+import { STORY_ROOM_TYPES } from "../../src/make/rooms/story.js";
+import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, hashOf, GENERATOR } from "../../src/make/index.js";
@@ -69,7 +78,15 @@ const step = (t) => { $("status").textContent = t + "…"; return new Promise(r 
 // better generator later never moves a wall you have walked past; the story's own magic may
 const hearths = Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([k, v]) => [k, v.hearth]));
 // ?plan=banqueting builds the octagonal garden banqueting house instead (R54 5e: rooms of any shape)
-const fresh = Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
+// ?plan=alice-hall: a place from a book (R49): the scene document the one AI step wrote from the text, checked here
+// (every quote word for word in the text), its things matched to kinds, laid out by the story-hall plan type
+const STORY = Q.get("plan") === "alice-hall" ? await (async () => { const t0 = performance.now();
+  const [scene, text] = await Promise.all([fetch("../alice/hall.json").then(r => r.json()), fetch("../alice/hall.txt").then(r => r.text())]);
+  const check = checkScene(scene, text); if (!check.ok) throw new Error("scene refused: " + check.findings.map(f => `${f.at}: ${f.what}`).join("; "));
+  const match = matchKinds(scene, kinds()), plan = planStoryHall(scene, { kinds: match.kinds });
+  return { scene, check, match, plan, story: compileStory(scene), ms: Math.round(performance.now() - t0) }; })() : null;
+window.__story = () => STORY && { quotes: STORY.check.quotes, match: STORY.match, chosen: STORY.plan.chosen, unread: STORY.story.unread, ms: STORY.ms };
+const fresh = STORY ? STORY.plan : Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
 // what the story requires, placed first in its room with what holds it (R54 step 6; pattern-buffer will supply
 // these): ?require=key/iron@study:table/joined-with-drawer.drawer (kind@room, optionally :in-kind.slot), comma-separated
 if (Q.get("require")) fresh.required = Q.get("require").split(",").map(t => { const [what, inside] = t.split(":"), [kind, room] = what.split("@"), [ik, slot] = (inside || "").split(".");
@@ -89,7 +106,7 @@ THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
 const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
 await step("raising the house, room by room, each by its purpose");
-const manor = buildManor({ settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: ROOM_TYPES_1660, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+const manor = buildManor({ settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
@@ -103,16 +120,16 @@ const sun = new THREE.DirectionalLight(0xffe2b8, 1.8); sun.position.set(cx + 14,
 sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone ? 2048 : 4096); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
 Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
 sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
-scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
+scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, STORY ? 0.14 : 0.55));   // a story's hall underground: "that dark hall"
 // the light that follows what you see (Kabe, 2026-10-06: "all of the lighting elements should be deployed as
 // long as they are within the visual space"; "kitchen passage to kitchen jumps in the lighting again"): a fixed
 // pool, so the count of lights never changes and nothing recompiles (src/make/lightpool.js). The windows and lit
 // hearths of every room in view are ranked by what each gives where you stand, not by which room you are in, and
 // every change fades, so crossing a threshold or opening a door never jumps.
 const rig = Array.from({ length: 8 }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
-const fires = Array.from({ length: 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
+const fires = Array.from({ length: STORY ? 4 : 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
 const winItems = manor.windows.map((w, i) => ({ key: i, room: w.room, at: w.c, size: w.w * w.h, base: 9, w }));
-const fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
+let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
 const winPool = makePool(rig, { place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
@@ -135,6 +152,27 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   ask: (need, want) => need === "holding" && false });
 for (const b of manor.things) works.add(b);
 window.__works = works; window.__manor = manor; window.__plan = plan;
+// the story in play (R49): sizes, reach, deeds, what the text brings in later, the story's magic, the goal
+const SP = STORY ? playStory({ THREE, scene: STORY.scene, story: STORY.story, plan, manor, works, build, K, look: look1660, say,
+  setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); } }) : null;
+window.__sp = SP;
+if (SP) { const b3 = new THREE.Box3(), c = new THREE.Vector3();
+  // each lamp's light where its flame hangs, in the pool the fires use (oil lamps flicker a little too)
+  fireItems = fireItems.concat(SP.lamps.map((b, i) => { b3.setFromObject(b.node); b3.getCenter(c); const at = c.clone(); at.y = b3.min.y + 0.12;
+    return { key: 100 + i, room: plan.entrance, at, size: 1, base: 5, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } }; }));
+  SP.onGoal = () => { const e = document.createElement("div"); e.id = "end"; e.innerHTML = "Through the little door. <small>The first Alice proof ends here: the garden is Chapter II's and beyond.</small>"; document.body.append(e); };
+  buildGarden(); }
+// the garden beyond the passage, seen and not entered: "beds of bright flowers and those cool fountains"
+function buildGarden() { const g = plan.rooms.find(r => r.id === "garden"); if (!g) return; const G = new THREE.Group(), R = g.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2;
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(R.x1 - R.x0 + 30, R.y1 - R.y0 + 30), new THREE.MeshStandardMaterial({ color: 0x4f7a32, roughness: 1 })); lawn.rotation.x = -Math.PI / 2; lawn.position.set(cx - 15, -0.01, -cy); lawn.receiveShadow = true; G.add(lawn);
+  const cols = [0xd83a4a, 0xf2c14e, 0xf6f1e8, 0xb04fd0, 0xff8a3d], bloom = new THREE.IcosahedronGeometry(0.06, 0), r = (k) => { const x = Math.sin(k * 127.1) * 43758.5453; return x - Math.floor(x); };
+  for (const [bx, by] of [[-1.5, 2.2], [-1.5, -2.2], [-5, 2.6], [-5, -2.6]]) { const n = 140, m = new THREE.InstancedMesh(bloom, new THREE.MeshStandardMaterial({ roughness: 0.8 }), n), M4 = new THREE.Matrix4();
+    for (let i = 0; i < n; i++) { M4.makeTranslation(R.x1 + bx + (r(i + bx * 9) - 0.5) * 2.4, 0.08 + r(i * 3 + by) * 0.18, -(cy + by + (r(i * 7 + bx) - 0.5) * 1.2)); m.setMatrixAt(i, M4); m.setColorAt(i, new THREE.Color(cols[i % cols.length])); }
+    const bed = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.08, 1.4), new THREE.MeshStandardMaterial({ color: 0x3b2a1c, roughness: 1 })); bed.position.set(R.x1 + bx, 0.04, -(cy + by)); G.add(bed, m); }
+  const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a4, roughness: 0.9 }), water = new THREE.MeshStandardMaterial({ color: 0x9cc8e0, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.85 });
+  const basin = new THREE.Mesh(new THREE.LatheGeometry([[0, 0], [1.1, 0], [1.15, 0.35], [1.0, 0.38], [0.95, 0.3], [0, 0.3]].map(([x, y]) => new THREE.Vector2(x, y)), 32), stone); basin.position.set(R.x1 - 3.4, 0, -cy); G.add(basin);
+  const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.08, 1.3, 10), water); jet.position.set(R.x1 - 3.4, 0.95, -cy); G.add(jet);
+  scene.add(G); }
 
 // ---- walking: floor to floor by the stairs, through a doorway only while its door stands open
 const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 140); window.__camera = camera;
@@ -144,11 +182,16 @@ const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m 
 const doorThing = new Map(manor.things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
 const isOpen = (b) => works.stateOf(b, "leaf") === "open";
 // the walking rules (src/make/walk.js), shared with the checks that walk the house
-const walk = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: (id) => !doorThing.get(id) || isOpen(doorThing.get(id)) });
+// (a story's doorway lets you through only if you fit it; each size walks with its own body, on one grid)
+const passable = (id) => (!doorThing.get(id) || isOpen(doorThing.get(id))) && (!SP || SP.fits(id));
+const walk0 = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable }), walkers = new Map();
+const walkFor = (s) => { if (!SP) return walk0; if (!walkers.has(s)) { const b = bodyAt(STORY.story.sizes[s]); walkers.set(s, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { half: b.half, step: Math.max(0.05, b.step), head: b.head, soffit: 0.3 } })); } return walkers.get(s); };
+let walk = walkFor(SP ? SP.size() : null);
 const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 const start = plan.rooms.find(r => r.id === Q.get("room")) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
-let px = (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
+// a story starts you where the text brings you in: the hall's near end, from the passage the Rabbit took
+let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
 window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
@@ -168,7 +211,10 @@ const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
 renderer.domElement.addEventListener("click", () => { if (document.pointerLockElement === renderer.domElement) act(); else if (!TOUCH) { if (!act(hover)) lock(); } });
 const ray = new THREE.Raycaster(); ray.far = 2.6;
 const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); return works.find(ray.intersectObjects(works.meshes(), true)[0]); };
-function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; const r = works.act(t);
+function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false;
+  // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
+  if (SP && !SP.reachable(t.b)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
+  const r = works.act(t); SP?.afterAct(t, r);
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); refreshView(true); return true; }
 function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
 const showCue = cues($("cross"), renderer.domElement);
@@ -261,7 +307,13 @@ window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map((
 let last = performance.now();
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  const sp = (keys.ShiftLeft || keys.ShiftRight) ? 2.8 : 1.4, fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  // your body at your size (a story's sizes; the manor's 1.6 m eye otherwise); a new size eases in, the walker with it
+  const B = SP ? SP.body() : null;
+  if (SP && walk !== walkFor(SP.size())) { walk = walkFor(SP.size());
+    // grown where your new width doesn't fit (beside the table): the nearest floor you do fit
+    for (let k = 1, cx = px, cy = py; walk.groundAt(px, py, ph) == null && k < 900; k++) { const a = k * 2.4, r = 0.03 * Math.sqrt(k), nx = cx + Math.cos(a) * r, ny = cy + Math.sin(a) * r; if (walk.groundAt(nx, ny, ph) != null) { px = nx; py = ny; } } }
+  if (B && Math.abs(camera.near - B.near) > 1e-4) { camera.near = B.near; camera.updateProjectionMatrix(); } if (B) ray.far = B.far;
+  const sp = (keys.ShiftLeft || keys.ShiftRight) ? (B ? B.speed * 1.8 : 2.8) : (B ? B.speed : 1.4), fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
   let dx = 0, dy = 0;
   if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
@@ -270,17 +322,18 @@ renderer.setAnimationLoop((now) => {
   if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * dt; dy = dy / n * a * sp * dt;
     let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; } }
   { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
-  const moved = camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + EYE || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
-  camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  const moved = camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
+  const eye = B ? B.eye : EYE; camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
+  const growing = SP ? SP.tick(dt, px, py, here) : false;
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
   if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
   const fading = winPool.step(dt) | firePool.step(dt);
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
-  ENG.frame(scene, camera, { changed: moved || burning || fading || works.busy() || !window.__ok });
+  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });

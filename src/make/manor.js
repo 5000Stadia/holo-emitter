@@ -183,7 +183,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       // (the strongroom hangs its own iron door)
       for (const e of spec.walls[F]) if (e.kind === "door" && e.joins?.[0] === room.id && !e.joins.some(j => plan.rooms.find(q => q.id === j)?.room_type === "muniment_room")) {
         const holder = new THREE.Group(); holder.position.set(...P[F].pos); holder.rotation.y = P[F].rot; movers.add(holder);
-        const b = build(THREE, K, look, "door/panelled", `manor/${room.id}/${e.id}`, { w: r2(e.r1 - e.r0), h: r2(e.top), set: -Math.min(0.1, (e.T || 0.3) / 2) });
+        const b = build(THREE, K, look, "door/panelled", `manor/${room.id}/${e.id}`, { w: r2(e.r1 - e.r0), h: r2(e.top), set: -Math.min(0.1, (e.T || 0.3) / 2), ...(e.door || {}) });   // e.door: its lock and key, if the plan says (a story's locked doors)
         b.node.position.set(e.r0, 0, 0); holder.add(b.node); b.node.userData.opening = e.id; things.push(b);
         // the reveal through the wall, lined in oak: the door's own, so it is there whenever the door is seen
         // (from the far room too, when the room that hangs it is not drawn)

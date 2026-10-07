@@ -31,8 +31,8 @@ export function compileRoom(plan, room) {
     if (!(o.joins || []).includes(room.id) || !o.rect) continue;
     const w = onWall(room, o.rect); if (!w) continue;
     if (o.kind === "open_edge") walls[w.F].push({ kind: "open", id: o.id, r0: w.r0, r1: w.r1, top: H, T: 0, lining: false });
-    else walls[w.F].push({ kind: "door", id: o.id, r0: w.r0, r1: w.r1, top: Math.min(2.2, H - 0.5), T: Math.max(0.05, w.T),
-                           lining: o.joins[0] === room.id || plan.rooms.find(r => r.id === o.joins.find(j => j !== room.id))?.type === "open", passage: false, joins: o.joins });
+    else walls[w.F].push({ kind: "door", id: o.id, r0: w.r0, r1: w.r1, top: o.height_m ?? Math.min(2.2, H - 0.5), T: Math.max(0.05, w.T),
+                           lining: o.joins[0] === room.id || plan.rooms.find(r => r.id === o.joins.find(j => j !== room.id))?.type === "open", passage: false, joins: o.joins, door: o.door });
   }
   for (const [i, win] of plan.windows.entries()) {
     if (win.floor !== room.floor || !win.rect) continue;
@@ -60,7 +60,7 @@ export function compileRoom(plan, room) {
 function compileOutline(plan, room, H, walls, frames) {
   for (const o of plan.openings) { const h = o.on?.[room.id]; if (!h || !walls[h.F]) continue;
     if (o.kind === "open_edge") walls[h.F].push({ kind: "open", id: o.id, r0: h.r0, r1: h.r1, top: H, T: 0, lining: false });
-    else walls[h.F].push({ kind: "door", id: o.id, r0: h.r0, r1: h.r1, top: Math.min(2.2, H - 0.5), T: o.T ?? 0.3, lining: o.joins[0] === room.id || plan.rooms.find(r => r.id === o.joins.find(j => j !== room.id))?.type === "open", passage: false, joins: o.joins }); }
+    else walls[h.F].push({ kind: "door", id: o.id, r0: h.r0, r1: h.r1, top: o.height_m ?? Math.min(2.2, H - 0.5), T: o.T ?? 0.3, lining: o.joins[0] === room.id || plan.rooms.find(r => r.id === o.joins.find(j => j !== room.id))?.type === "open", passage: false, joins: o.joins, door: o.door }); }
   plan.windows.forEach((w, i) => { if (w.room !== room.id || !walls[w.F]) return;
     walls[w.F].push({ kind: "window", id: `win${i}`, r0: w.r0, r1: w.r1, sill: 0.95, top: Math.min(H - 0.32, 2.45), splay: 0.1, T: w.T ?? 0.75, lights: [2, 2] }); });
   plan.fireplaces.forEach((fp, i) => { if (fp.room !== room.id || !walls[fp.F]) return;

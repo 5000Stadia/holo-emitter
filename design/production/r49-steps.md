@@ -63,3 +63,33 @@ and never while building or playing. Every AI call is counted. The time is kept 
   says. Large is "more than nine feet" (2.8 m, Ch. II's opening, which the cake causes).
 - **The look.** The hall's look is open in the text ("long, low", lamps). Until a Wonderland look is authored,
   the hall wears the c.1660 look's panelling and flags. Tenniel's plates show a panelled hall with a curtain.
+
+## Prior art (a read-only pass, 2026-10-06)
+
+- **Holodeck** (Yang et al. 2024, [arXiv 2312.09067](https://arxiv.org/abs/2312.09067), Apache-2.0). The LLM writes
+  only constraints (about ten relations: edge, near, on top of, face to…) and a solver places the things. Asking
+  the LLM for coordinates gave collisions and things placed outside the room. Its catalogue is retrieved from
+  Objaverse, so it fails when an asset is missing.
+  - Adopted: a closed vocabulary of relations, anchors placed first, no coordinates from the AI (our placer
+    already works this way).
+  - Rejected: its retrieved catalogue (ours is parametric kinds) and its fixed door styles (Alice's door takes
+    its size from the text).
+- **WordsEye** (Coyne and Sproat). Keeps the senses of "on" and "in" apart: resting on top of, fixed to, hanging
+  from, behind.
+  - Adopted: the scene's `at.rel`.
+- **Inform 7** (Artistic 2.0). Rooms, things, containers, supporters and doors; one parent per thing; actions
+  with needs and effects.
+  - Adopted: one parent per thing, and actions shaped as needs and effects.
+- **LangExtract** (Google, Apache-2.0). Each extraction keeps where it stands in the source; one taken from the
+  examples rather than the input is marked ungrounded.
+  - Adopted: every `quote` is checked in code to be an exact substring of the text, and a fact whose quote isn't
+    is refused. A grounded-or-not flag from the model itself is not trusted.
+- **LayoutGPT and SceneCraft.** The LLM writes layouts or Blender code and critiques renders.
+  - Rejected: AI at generation.
+- **Shrinking the player** (the Unity CharacterController manual; Unreal forum threads, weak sources). Walking
+  speed, step height, eye height and reach scale with the body. Keep the near plane inside the body and scale it
+  with size. A path grid tuned for a full-size body is too coarse for a small one. Engines with fixed collision
+  tolerances fail below about 0.4 scale, hence their advice to scale the world instead.
+  - Adopted: the body scaled from one size (eye, half-width, step, head, speed, reach, near plane); the claim
+    grid fine enough for the smallest body; checks run at every size.
+  - Rejected: scaling the world. Our walker is grid arithmetic with no tolerances to break.

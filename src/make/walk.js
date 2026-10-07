@@ -15,7 +15,8 @@ export function makeWalk({ plan, levelOf, blocks = [], isOpen = () => true, body
   const rooms = plan.rooms.filter(r => r.type !== "open");
   // floor you can stand on at (x, y) on floor f: the house's claim grid (src/make/claims.js), a body's half-width off
   // every wall and everything built that stops it, never in a well, through a doorway only while it is open
-  const claims = given || houseClaims({ plan, blocks, half: body.half });
+  // the grid as fine as the plan asks (a ten-inch body needs cells finer than a hand)
+  const claims = given || houseClaims({ plan, blocks, half: body.half, cell: plan.claim_cell || 0.1 });
   const floorHere = (f, x, y) => claims.canStand(f, x, y, body.half, isOpen);
   function groundAt(x, y, h) {
     let best = null;
