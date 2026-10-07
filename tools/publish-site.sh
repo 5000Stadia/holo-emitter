@@ -113,6 +113,21 @@ if [ -n "$MISSING" ]; then
   exit 2
 fi
 
+# [Kabe, gate g8dfd99, 2026-10-07] THE HEAVY FILES COME FROM jsDelivr, BY COMMIT; the pages
+# stay on GitHub Pages. Pages caps its cache at 10 minutes and has no Brotli; jsDelivr
+# serves a GitHub file for a year (immutable), Brotli, HTTP/3. The manifest lists only
+# files whose shipped bytes ARE the committed blob at a pushed commit, each pinned to the
+# last commit that touched it (so an unchanged file keeps one URL across publishes and the
+# visitor's cache survives); src/make/assets.js, prepended with the manifest in the
+# PUBLISHED copy only, rewrites those fetches/images at run time and falls back to the
+# Pages URL on any failure. Nothing here is a reason to refuse a publish: if the manifest
+# cannot be made the site simply serves everything itself, as it always did.
+if node tools/asset-manifest.mjs "$S" > "$S/assets.json" && [ -s "$S/assets.json" ]; then
+  node tools/inject-assets.mjs "$S" "$S/assets.json" "$HEAD_SHA" || { echo "publish: asset injection failed; the site serves its own assets" >&2; }
+else
+  echo "publish: no asset manifest; the site serves its own assets" >&2; rm -f "$S/assets.json"
+fi
+
 # And the tree stays a size Pages will take. The soft limit is 1 GB for a
 # published site; this refuses well below it, because the failure mode is the
 # one this whole script exists for — the 2026-08-22 incident, where a build
