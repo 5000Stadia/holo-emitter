@@ -399,6 +399,9 @@ window.__fight = (ids = null) => { const t0 = performance.now(), list = [], v = 
   return { meshes: list.length, pairs: pairs.length, groups: [...by.values()].sort((a, b) => b.area - a.area).map(e => ({ ...e, area: +(e.area * 1e4).toFixed(1) })), ms: Math.round(performance.now() - t0) }; };
 window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
 
+// what was added after the house (the forecourt, the sky) to node twins too, the house's own where it shares them
+// (src/make/nodes.js): the forecourt's ashlar and iron are the house's, not classic copies three converts and builds again
+nodeify(scene);
 ENG.mark("ready");                                  // everything built and wired; next, the first frame
 // the pipelines compiled ahead of the first frame, asynchronously: measured worse (13 s compiling every room, hidden
 // ones too, and the first frame still 2 s, 2026-10-07), so on request only, for further tries
