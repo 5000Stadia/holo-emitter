@@ -51,10 +51,11 @@ export function shellOf(plan, { gap = 0.35, ext = 0.75 } = {}) {
   for (const s of stacks) { const zs = [[s.x0, s.y0], [s.x1, s.y0], [s.x0, s.y1], [s.x1, s.y1]].map(([x, y]) => roofZ(x, y)).filter(Number.isFinite);
     // it shows only above the roof: from just under the eaves of the range it stands in
     const cx = (s.x0 + s.x1) / 2, cy = (s.y0 + s.y1) / 2, home = roofs.filter(R => cx > R.x0 - 1 && cx < R.x1 + 1 && cy > R.y0 - 1 && cy < R.y1 + 1);
-    // a stack carries its smoke clear of the ridge (a stack low on the slope smokes back down it): to half a metre over
+    // a stack carries its smoke clear of the ridge (a stack low on the slope smokes back down it), and the period built
+    // them tall, a display as much as a flue: to 1.4 m over
     // the ridge of the range it stands in, and never less than 1.2 m over the roof where it rises
     const roof = zs.length ? Math.max(...zs) : topOver(s), ridge = home.length ? Math.max(...home.map(R => R.top + R.rise)) : roof;
-    s.z0 = (home.length ? Math.max(...home.map(R => R.top)) : roof) - 0.6; s.z1 = Math.max(roof + 1.2, ridge + 0.5); }
+    s.z0 = (home.length ? Math.max(...home.map(R => R.top)) : roof) - 0.6; s.z1 = Math.max(roof + 1.2, ridge + 1.4); }
   return { roofs, pyramids, stacks, roofZ };
 }
 const inside = (R, r) => r.x0 >= R.x0 - 0.01 && r.x1 <= R.x1 + 0.01 && r.y0 >= R.y0 - 0.01 && r.y1 <= R.y1 + 0.01;
