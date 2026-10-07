@@ -4,26 +4,19 @@
 // a flight overhead stops you only where it leaves less than a head's room.
 // makeWalk({ plan, levelOf, blocks, isOpen }) -> { groundAt(x, y, h) -> h' | null, floorOf(h), roomAt(x, y, h) }
 import { surfaceZ } from "./plans/stairs.js";
+import { houseClaims } from "./claims.js";
 
 export const BODY = { half: 0.22, step: 0.45, head: 1.95, soffit: 0.3 };
 
-export function makeWalk({ plan, levelOf, blocks = [], isOpen = () => true, body = BODY }) {
+export function makeWalk({ plan, levelOf, blocks = [], isOpen = () => true, body = BODY, claims: given = null }) {
   const floors = [...plan.floors].sort((a, b) => a.level - b.level);
   const floorOf = (h) => { let f = floors[0].id; for (const q of floors) if (levelOf(q.id) <= h + 1.2) f = q.id; return f; };
   const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
-  const strip = (R) => (R.x1 - R.x0) < (R.y1 - R.y0) ? { x0: R.x0 - 0.35, x1: R.x1 + 0.35, y0: R.y0 + 0.08, y1: R.y1 - 0.08 } : { x0: R.x0 + 0.08, x1: R.x1 - 0.08, y0: R.y0 - 0.35, y1: R.y1 + 0.35 };
   const rooms = plan.rooms.filter(r => r.type !== "open");
-  // each well as the floor above sees it: railed on its sides (a body's width off the rail), open at the
-  // foot end, where the flight arrives and the next goes on
-  const wells = (plan.wells || []).map(w => { const H = w.hole, F = w.rect, m = body.half;
-    return { to: w.to, keep: { x0: H.x0 - (F.x0 < H.x0 - 0.01 ? 0 : m), x1: H.x1 + (F.x1 > H.x1 + 0.01 ? 0 : m), y0: H.y0 - (F.y0 < H.y0 - 0.01 ? 0 : m), y1: H.y1 + (F.y1 > H.y1 + 0.01 ? 0 : m) } }; });
-  // floor you can stand on at (x, y) on floor f
-  function floorHere(f, x, y) {
-    if (wells.some(w => w.to === f && inRect(w.keep, x, y))) return false;                           // the well, and its balustrade
-    if (blocks.some(b => b.floor === f && x > b.x0 - 0.18 && x < b.x1 + 0.18 && y > b.y0 - 0.18 && y < b.y1 + 0.18)) return false;
-    if (rooms.some(r => r.floor === f && inRect(r.rect, x, y, body.half))) return true;
-    return plan.openings.some(o => o.floor === f && o.rect && inRect(strip(o.rect), x, y) && isOpen(o.id));
-  }
+  // floor you can stand on at (x, y) on floor f: the house's claim grid (src/make/claims.js), a body's half-width off
+  // every wall and everything built that stops it, never in a well, through a doorway only while it is open
+  const claims = given || houseClaims({ plan, blocks, half: body.half });
+  const floorHere = (f, x, y) => claims.canStand(f, x, y, body.half, isOpen);
   function groundAt(x, y, h) {
     let best = null;
     for (const s of plan.stairs) {
@@ -37,5 +30,5 @@ export function makeWalk({ plan, levelOf, blocks = [], isOpen = () => true, body
     return Math.abs(L - h) <= body.step && floorHere(f, x, y) ? L : null;
   }
   const roomAt = (x, y, h) => rooms.find(r => r.floor === floorOf(h) && inRect(r.rect, x, y));
-  return { groundAt, floorOf, roomAt, floorHere };
+  return { groundAt, floorOf, roomAt, floorHere, claims };
 }

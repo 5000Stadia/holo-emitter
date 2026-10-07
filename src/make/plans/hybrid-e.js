@@ -1,4 +1,5 @@
 import { placeStair } from "./stairs.js";
+import { makeClaims, BODY } from "../claims.js";
 // A plan type (design/house/r47-plan.md §2): the Sudbury-style hybrid E-plan of a c.1660 Midlands
 // gentry seat, as an envelope, a section and an access graph, filled from a program
 // (src/make/programs/). Code, because it is geometry shared by every room; the program is data.
@@ -142,9 +143,19 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
   // a window's rect spans the wall's own thickness, from the outer face (line) inward
   const winRect = (w, c, half) => w.F === "S" ? { x0: c - half, x1: c + half, y0: w.line, y1: w.line + E } : w.F === "N" ? { x0: c - half, x1: c + half, y0: w.line - E, y1: w.line }
     : w.F === "W" ? { x0: w.line, x1: w.line + E, y0: c - half, y1: c + half } : { x0: w.line - E, x1: w.line, y0: c - half, y1: c + half };
+  // what stands in front of a wall claims its floor (src/make/claims.js): a stair's flights and landings, so no
+  // window is set behind one (Kabe, 2026-10-06: "Stairs in center front of window"); a window behind a stair moves
+  // along its wall to the nearest stretch with nothing in front of it, or is left out
+  const claims = makeClaims({ x0: -1, y0: -WP - D.porch[1] - 1, x1: L + 1, y1: RD + 1, floors: Object.keys(D.floors) });
+  for (const st of plan.stairs) claims.claim(st.from, "stand", st.rect, BODY, `${st.stair} ${st.kind}`);
+  const lightOf = (w, R) => w.F === "S" ? { x0: R.x0, x1: R.x1, y0: R.y1, y1: R.y1 + 0.6 } : w.F === "N" ? { x0: R.x0, x1: R.x1, y0: R.y0 - 0.6, y1: R.y0 }
+    : w.F === "W" ? { x0: R.x1, x1: R.x1 + 0.6, y0: R.y0, y1: R.y1 } : { x0: R.x0 - 0.6, x1: R.x0, y0: R.y0, y1: R.y1 };
   for (const fl of Object.keys(D.floors)) for (const r of plan.rooms.filter(q => q.floor === fl && q.type !== "open" && !q.landing)) for (const w of outsideWalls(r, { L, RD, WW, WP, E })) {
-    const len = w.b - w.a, k = Math.max(1, Math.floor(len / D.bay));
-    for (let i = 0; i < k; i++) { const c = w.a + len * (i + 0.5) / k, half = Math.min(D.window, len / k - 0.6) / 2; if (half < 0.3) continue;
+    const len = w.b - w.a, k = Math.max(1, Math.floor(len / D.bay)), set = [];
+    for (let i = 0; i < k; i++) { const c0 = w.a + len * (i + 0.5) / k, half = Math.min(D.window, len / k - 0.6) / 2; if (half < 0.3) continue;
+      const clearAt = (c) => c - half > w.a + 0.3 && c + half < w.b - 0.3 && !set.some(q => Math.abs(q - c) < 2 * half + 0.6) && claims.worst(fl, "stand", lightOf(w, winRect(w, c, half))).state < BODY;
+      let c = c0; for (let s = 0.2; !clearAt(c) && s <= len / 2; s += 0.2) c = clearAt(c0 - s) ? c0 - s : c0 + s; if (!clearAt(c)) continue;
+      set.push(c);
       const R = winRect(w, c, half);
       if (plan.fireplaces.some(h => h.room === r.id && (w.F === "S" || w.F === "N" ? Math.abs((h.rect.y0 + h.rect.y1) / 2 - w.line) < 1.5 && h.rect.x0 < R.x1 + CHIMNEY_CLEAR && h.rect.x1 > R.x0 - CHIMNEY_CLEAR
         : Math.abs((h.rect.x0 + h.rect.x1) / 2 - w.line) < 1.5 && h.rect.y0 < R.y1 + CHIMNEY_CLEAR && h.rect.y1 > R.y0 - CHIMNEY_CLEAR))) continue;     // the chimney stands here
