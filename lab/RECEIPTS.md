@@ -963,3 +963,31 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - about 3 s of the first render's pipeline compiling.
 
   `compileAsync` ahead of it was worse (13 s). Fewer distinct materials is the way, per the fps lab's shared-material result.
+
+### R46: the London street package (2026-10-07)
+
+- **What:** `src/make/street.js` (828 lines), by a helper, reviewed; the demo page is `lab/scale/street.html`.
+- **What it builds:** a 150 m street, c.1660, from rules over the sourced period research.
+  - **The street:** 51 lots (3 inns, 4 lanes, 1 entry), 20 signs, 19 stacks, 24 outshuts, 77 posts.
+  - **Behind it:** 258 stand-ins for the back-land.
+  - **Determinism:** the same digest whether built forward, reversed or shuffled.
+- **Build:** about 740 ms in all.
+  - the plan, 16–19 ms;
+  - textures, about 300 ms;
+  - geometry, about 370 ms;
+  - upload, about 50 ms.
+- **Draw (RX 460):**
+  - first frame, about 1.3 s;
+  - 60 fps at vsync (p99 17.4 ms);
+  - vsync off: 204 fps on WebGPU, 180 on WebGL 2;
+  - 97 draws and about 317k triangles in view.
+- **Faces sharing one plane:** fixed at their sources, from 36,024 pairs to 3,214 (about 14 m², mostly inside timbers).
+- **Three review rounds:**
+  - **Round 1:** sky showed through the jetties; the raised view read as a film set; the roofs were flat orange; the posts looked like bollards.
+  - **Round 2:** the backs were framed; back-land stand-ins added; the timbers made to read.
+  - **Round 3:** geometry made sound by construction.
+- **Left for later:**
+  - interiors, and working shutters and doors;
+  - people, carts, smoke and lit lanterns;
+  - streaming by block, and its textures in workers.
+- **Waiting for Kabe's vetting:** the walk and face checks, still in the lab script only.
