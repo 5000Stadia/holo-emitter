@@ -388,7 +388,7 @@ export async function makeKit(THREE, { floor = null, onStep = () => {}, defer = 
 // up is up, +z toward the room. elems: doors, open edges, windows, a chimney-piece (schematic.json's
 // shapes; T, lining and passage on an opening override the single-room defaults). style: "panelled"
 // or "limewashed". Returns the group, and the window lights it made.
-export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0, mitre = [1, 1] } = {}) {
+export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0, mitre = [1, 1], backdrop = true } = {}) {
   const { M, CLASS, cast, board } = K;
   const grp = new THREE.Group(), lights = [];
   const plain = style === "limewashed";
@@ -663,8 +663,9 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
     }
   // the world outside: one pane behind all of this wall's windows, 2.5 m beyond the glass, wide enough for any angle
   // in; each room's a hair deeper than the next's (depth, from its id), so two rooms' panes never share a plane
+  // (not where the place has a real outside of its own: there the pane stood out in the field, 2026-10-07)
   const wins = elems.filter(e => e.kind === "window");
-  if (wins.length) {
+  if (wins.length && backdrop) {
     K.outside = K.outside || new THREE.MeshBasicMaterial({ map: outsideTexture(THREE), color: new THREE.Color(1.06, 1.06, 1.06) });
     const a = Math.min(...wins.map(e => e.r0)) - 2.6, b = Math.max(...wins.map(e => e.r1)) + 2.6, T = Math.max(...wins.map(e => e.T ?? STYLE.wallT));
     const lo = Math.min(...wins.map(e => e.sill)) - 1.7, hi = Math.max(...wins.map(e => Math.max(e.sill + 2.5, e.top + 0.6)));

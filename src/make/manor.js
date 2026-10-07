@@ -135,7 +135,7 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false }) {
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false }) {   // outside: the place has a real outside (no painted pane behind its windows)
   const t0 = performance.now(), { M } = K;
   const { floors, levelOf, heightOf, gap } = storeys(plan);
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
@@ -213,7 +213,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const P = placeOf(spec.frames), style = WALL_STYLE[T.walls] || "panelled";
     for (const F of Object.keys(spec.walls)) {
       const L = spec.frames[F].L;
-      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F) });
+      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F), backdrop: !outside });
       w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
       if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
       for (const l of w.lights) l.parent.remove(l);

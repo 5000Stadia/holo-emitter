@@ -29,7 +29,7 @@
 <body>
 <div id="status">raising the house…</div>
 <div id="where"><div class="n">—</div><div class="f"></div></div>
-<div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take · <kbd>C</kbd> crouch</div>
+<div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take · <kbd>C</kbd> crouch · double-click go there</div>
 <div id="gate">click to walk</div>
 <div id="cross" hidden></div>
 <div id="line" hidden></div>
@@ -118,7 +118,7 @@ await step("growing oak, laying flags, slaking lime");
 // (defer: the kit's textures are drawn in its workers while the house goes up, or come from the last visit's cache)
 const K = await makeKit(THREE, { floor: [8, 8], defer: true }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
 await step("raising the house, room by room, each by its purpose");
-const manor = buildManor({ settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+const manor = buildManor({ outside: !STORY && Q.get("outdoor") !== "0", settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
@@ -251,11 +251,47 @@ document.addEventListener("pointerlockchange", () => { $("gate").hidden = docume
 const look = (dx, dy) => { yaw -= dx * 0.0022; pitch = Math.max(-1.35, Math.min(1.35, pitch - dy * 0.0022)); };
 document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); else hover.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
 const TOUCH = isTouch(), hover = new THREE.Vector2();
-const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx * 1.6, dy * 1.6), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) }) : { active: false, stick: { x: 0, y: 0 } };
+// a tap uses what it lands on; a double tap goes there (Kabe, 2026-10-07: "double tap somewhere on my phone … if it's the
+// ground, I teleport to that location … if it's a wall or object … right in front of my face"): a single tap on a thing
+// waits a quarter of a second for a second tap, so a double tap on a door goes to it without opening it
+let tapWait = null, lastTap = null;
+const ndcOf = (x, y) => new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
+function tapAt(x, y) {
+  const now = performance.now(), ndc = ndcOf(x, y);
+  if (lastTap && now - lastTap.t < 320 && Math.hypot(x - lastTap.x, y - lastTap.y) < 40) { clearTimeout(tapWait); tapWait = null; lastTap = null; goTo(ndc); return; }
+  lastTap = { t: now, x, y };
+  if (aim(ndc)) tapWait = setTimeout(() => { tapWait = null; act(ndc); }, 250);
+}
+const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx * 1.6, dy * 1.6), onTap: tapAt }) : { active: false, stick: { x: 0, y: 0 } };
 if (TOUCH) $("gate").hidden = true;
 // on a phone the centre dot aims and the thumb's button acts on what it is on
 const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
 renderer.domElement.addEventListener("click", () => { if (document.pointerLockElement === renderer.domElement) act(); else if (!TOUCH) { if (!act(hover)) lock(); } });
+renderer.domElement.addEventListener("dblclick", () => { if (!TOUCH) goTo(document.pointerLockElement === renderer.domElement ? new THREE.Vector2(0, 0) : hover); });
+// going where you point: the first thing seen along the ray (glass and shut doors stop it, so only somewhere you can see);
+// on a floor or the ground, there; on a wall or a thing, a body's width and a step in front of it, facing it; then the
+// nearest floor your body can stand on at your size
+const seeRay = new THREE.Raycaster();
+function goTo(ndc) {
+  seeRay.setFromCamera(ndc, camera); seeRay.far = OUTDOOR ? 400 : 60;
+  const hit = seeRay.intersectObjects(scene.children, true).find(h => { let o = h.object; while (o) { if (!o.visible || o.name === "sky") return false; o = o.parent; }
+    const m = h.object.material; return !(m?.isMeshBasicMaterial && m.blending === THREE.AdditiveBlending) && !(m?.visible === false); });
+  if (!hit) return false;
+  const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
+  const half = (SP ? SP.body().half : 0.22), floorish = n.y > 0.6;
+  let tx = hit.point.x, ty = -hit.point.z, th = hit.point.y;
+  if (!floorish) { const hz = new THREE.Vector2(n.x, -n.z); if (hz.lengthSq() < 1e-6) hz.set(Math.sin(yaw), -Math.cos(yaw)); hz.normalize(); tx += hz.x * (half + 0.45); ty += hz.y * (half + 0.45); }
+  // the floor there: the hit's own height if a floor, else the floor under the point (try where you are, the storeys, the ground)
+  const tries = [th, ph, ...plan.floors.map(f => manor.levelOf(f.id)), site ? site.z(tx, ty) : 0];
+  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, floorish ? h : h); if (g != null && (!floorish || Math.abs(g - th) < 0.6)) return g; } return null; };
+  let g = stand(tx, ty), fx = tx, fy = ty;
+  for (let k = 1; g == null && k < 300; k++) { const a = k * 2.4, r = 0.05 * Math.sqrt(k), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; fx = x; fy = y; } }
+  if (g == null) { say("You can't stand there."); return false; }
+  px = fx; py = fy; ph = g;
+  if (!floorish) { const dx = hit.point.x - px, dy = -hit.point.z - py; yaw = Math.atan2(-dx, dy); pitch = 0; }
+  snapLights = true; refreshView(true); return true;
+}
+window.__goTo = (nx, ny) => goTo(new THREE.Vector2(nx, ny));
 const ray = new THREE.Raycaster(); ray.far = 2.6;
 const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); const h = ray.intersectObjects(works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point; return t; };
 function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; return actOn(t); }

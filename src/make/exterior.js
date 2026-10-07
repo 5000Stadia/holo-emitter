@@ -56,7 +56,12 @@ export function shellOf(plan, { gap = 0.35, ext = 0.75 } = {}) {
     // the ridge of the range it stands in, and never less than 1.2 m over the roof where it rises
     const roof = zs.length ? Math.max(...zs) : topOver(s), ridge = home.length ? Math.max(...home.map(R => R.top + R.rise)) : roof;
     s.z0 = (home.length ? Math.max(...home.map(R => R.top)) : roof) - 0.6; s.z1 = Math.max(roof + 1.2, ridge + 1.4); }
-  return { roofs, pyramids, stacks, roofZ };
+  // the footprint the plinth runs round: the plan's outline, and each room standing outside it (the porch) with its walls
+  const inOutline = (x, y) => { const o = plan.outline; if (!o) return false; let c = false; for (let i = 0, j = o.length - 1; i < o.length; j = i++) { const [ax, ay] = o[i], [bx, by] = o[j]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
+  const footprints = [...(plan.outline ? [plan.outline] : []), ...built.filter(r => !r.outline && !inOutline((r.rect.x0 + r.rect.x1) / 2, (r.rect.y0 + r.rect.y1) / 2))
+    .map(r => [[r.rect.x0 - ext, r.rect.y0 - ext], [r.rect.x1 + ext, r.rect.y0 - ext], [r.rect.x1 + ext, r.rect.y1 + ext], [r.rect.x0 - ext, r.rect.y1 + ext]]),
+    ...built.filter(r => r.outline).map(r => r.outline)];
+  return { roofs, pyramids, stacks, roofZ, footprints };
 }
 const inside = (R, r) => r.x0 >= R.x0 - 0.01 && r.x1 <= R.x1 + 0.01 && r.y0 >= R.y0 - 0.01 && r.y1 <= R.y1 + 0.01;
 
@@ -125,6 +130,16 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
       bx.translate(0, bx === undefined ? 0 : (bx.parameters.height < 0.1 ? (w.h + 0.06) * 0.12 : 0), 0); const mm = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); mm.setPosition(p); bx.applyMatrix4(mm); bars.push(bx.toNonIndexed()); } }
   const add = (list, mat, cast = true) => { if (!list.length) return; const g = mergeGeometries(list.map(q => { q.deleteAttribute?.("normal"); if (!q.attributes.uv) q.setAttribute("uv", new THREE.Float32BufferAttribute(new Float32Array(q.attributes.position.count * 2), 2)); return q; }), false); g.computeVertexNormals();
     const m = new THREE.Mesh(g, mat); m.castShadow = cast; m.receiveShadow = true; G.add(m); return m; };
+  // the plinth: a base course round the footprint, 4 cm proud of the wall, from well below ground to 0.4 m, its top
+  // weathered back to the wall (the ground under the house goes down out of the floors' way, and where its coarser tiles
+  // spread that dip past the wall's foot, daylight showed under the wall: 2026-10-07, "cutting an open hole")
+  for (const poly of shell.footprints || []) { const ccw = poly.reduce((a, p, i) => { const q = poly[(i + 1) % poly.length]; return a + (p[0] * q[1] - q[0] * p[1]); }, 0) > 0, n = poly.length;
+    for (let i = 0; i < n; i++) { const [ax, ay] = poly[i], [bx, by] = poly[(i + 1) % n], L = Math.hypot(bx - ax, by - ay); if (L < 0.01) continue;
+      const ox = (by - ay) / L * (ccw ? 1 : -1), oy = -(bx - ax) / L * (ccw ? 1 : -1), o = 0.04, ext = 0.04;   // outward normal; the corners run on by the plinth's own projection
+      const dx = (bx - ax) / L * ext, dy = (by - ay) / L * ext;
+      const A = [ax - dx + ox * o, ay - dy + oy * o], B = [bx + dx + ox * o, by + dy + oy * o];
+      quad(stones, V(A[0], A[1], -1.6), V(B[0], B[1], -1.6), V(B[0], B[1], 0.36), V(A[0], A[1], 0.36), [[0, -1.6], [L, -1.6], [L, 0.36], [0, 0.36]]);
+      quad(stones, V(A[0], A[1], 0.36), V(B[0], B[1], 0.36), V(bx + dx, by + dy, 0.42), V(ax - dx, ay - dy, 0.42)); } }
   add(slates, slate); add(stones, stone); add(bars, mullion); add(panes, glass, false);
   return G;
 }
