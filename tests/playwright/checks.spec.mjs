@@ -687,3 +687,28 @@ test("check 23: faces that fight stay within today's hairlines (kinds <= 180 cm2
   expect(h.area, "cm2 of fighting faces in the house").toBeLessThanOrEqual(170);
   expect(m.errs).toEqual([]);
 });
+
+// check 24 (vetted by Kabe, 2026-10-07: "Approve on any decision that fixes a visual anomaly"): crossing a doorway
+// never makes the light jump. Every door open, walk through the kitchen passage's door into the kitchen in steps; the
+// lights the pool holds before the threshold are the lights it holds after, and each change after fades (src/make/lightpool.js)
+test("check 24: crossing a threshold keeps the light pool's windows, every change fading", async ({ browser }) => {
+  const { page, errs } = await manor(browser, "&nofurn=1");
+  const r = await page.evaluate(async () => {
+    const P = window.__plan, W = window.__works, A = "kitchen_passage", B = "kitchen";
+    const o = P.openings.find(o => o.joins.includes(A) && o.joins.includes(B));
+    for (const b of W.things.values()) if (b.node.userData.opening && W.stateOf(b, "leaf") !== "open") W.act({ b, aff: "leaf" }); W.finish?.();
+    const R = o.rect, ew = o.axis === "EW", cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, ra = P.rooms.find(q => q.id === A).rect;
+    const s = ew ? Math.sign((ra.x0 + ra.x1) / 2 - cx) : Math.sign((ra.y0 + ra.y1) / 2 - cy), T = ew ? R.x1 - R.x0 : R.y1 - R.y0;
+    const at = (d) => [ew ? cx + s * d : cx, ew ? cy : cy + s * d], wait = (ms) => new Promise(r => setTimeout(r, ms));
+    const held = () => window.__lights().windows.filter(Boolean).map(w => w.key);
+    let [x, y] = at(T / 2 + 0.6); window.__place(x, y, 0, -8, "ground"); await wait(1500);
+    const before = held(); let jumps = 0;
+    for (let k = 1; k <= 12; k++) { [x, y] = at(T / 2 + 0.6 - k * (T + 1.2) / 12); window.__place(x, y, 0, -8, "ground", true); await wait(150);
+      // a light that went from nothing to full in one step would be a jump
+      for (const w of window.__lights().windows.filter(Boolean)) if (w.level === 1 && !before.includes(w.key) && k < 3) jumps++; }
+    return { before, after: held(), jumps };
+  });
+  expect(errs).toEqual([]);
+  expect(r.jumps).toBe(0);
+  expect(r.after.filter(k => r.before.includes(k)).length).toBeGreaterThanOrEqual(Math.min(r.before.length, 6));
+});

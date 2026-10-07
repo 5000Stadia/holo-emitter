@@ -8,7 +8,7 @@ Each belongs to a kind or a part (plan §6). A check joins the tests only once K
 
 | # | Belongs to | The check | Why |
 |---|---|---|---|
-| 24 | every house, in play | **Crossing a threshold never jumps the light** (`src/make/lightpool.js`, `tests/.light-jump.mjs`). Walk through a doorway in steps with every door open. Crossing must leave the lights' assignment unchanged, and each later change must fade (0.6 s) rather than switch. Cost: one ranking of the windows in view per frame you move, a few dozen numbers. | Kabe, 2026-10-06: "Kitchen passage to kitchen jumps in the lighting again". The pool was handed out room you stand in first, so stepping in moved 3 lights to the kitchen in one frame. |
+| 24 (vetted 2026-10-07, in the test list) | every house, in play | **Crossing a threshold never jumps the light** (`src/make/lightpool.js`, `tests/.light-jump.mjs`). Walk through a doorway in steps with every door open. Crossing must leave the lights' assignment unchanged, and each later change must fade (0.6 s) rather than switch. Cost: one ranking of the windows in view per frame you move, a few dozen numbers. | Kabe, 2026-10-06: "Kitchen passage to kitchen jumps in the lighting again". The pool was handed out room you stand in first, so stepping in moved 3 lights to the kitchen in one frame. |
 
 ## Proposed earlier (1–23)
 
