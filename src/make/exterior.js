@@ -19,6 +19,14 @@ export function shellOf(plan, { gap = 0.35, ext = 0.75 } = {}) {
   // one ridge height for all the ranges that meet: the widest span at the pitch; each range pitched to reach it
   const groups = new Map(); for (const R of ranges) { const k = R.top.toFixed(2); groups.set(k, Math.max(groups.get(k) || 0, R.span / 2 * Math.tan(PITCH))); }
   const roofs = ranges.map(R => { const rise = groups.get(R.top.toFixed(2)); return { ...R, rise, pitch: Math.atan(rise / (R.span / 2)) }; });
+  // where a roof dies into another range: against a wall higher than its ridge (the porch against the house), 0.3 m
+  // into that wall, where the stone hides its end; else on to the other roof's ridge line, so the slopes meet in a
+  // valley and its end stands inside the other roof (stopped at the other's wall, its end stood out bare)
+  for (const R of roofs) { const X = R.axis === "x", sm = X ? (R.y0 + R.y1) / 2 : (R.x0 + R.x1) / 2;
+    for (const [end, t, sg] of [["lo", X ? R.x0 : R.y0, -1], ["hi", X ? R.x1 : R.y1, 1]]) { let to = t;
+      if ((R.ends?.[end] || "abut") === "abut") { const px = X ? t + sg * 0.05 : sm, py = X ? sm : t + sg * 0.05, O = roofs.find(q => q !== R && px > q.x0 && px < q.x1 && py > q.y0 && py < q.y1);
+        if (O && O.top >= R.top + R.rise - 0.01) to = t + sg * 0.3; else if (O) to = O.axis === "x" ? (O.y0 + O.y1) / 2 : (O.x0 + O.x1) / 2; }
+      R[end === "lo" ? "tLo" : "tHi"] = to; } }
   // the outline rooms (an octagon): a pyramid to their middle, at the pitch
   const pyramids = built.filter(r => r.outline && !roofs.some(R => inside(R, r.rect))).map(r => { const cx = r.outline.reduce((s, p) => s + p[0], 0) / r.outline.length, cy = r.outline.reduce((s, p) => s + p[1], 0) / r.outline.length;
     const ap = Math.min(...r.outline.map(([x, y]) => Math.hypot(x - cx, y - cy))); return { id: r.id, poly: r.outline, c: [cx, cy], top: levelOf(r.floor) + heightOf(r) + gap, rise: (ap + ext) * Math.tan(PITCH) }; });
@@ -64,7 +72,7 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
   const box = (out, x0, x1, y0, y1, z0, z1) => { const g = new THREE.BoxGeometry(x1 - x0, z1 - z0, y1 - y0); g.translate((x0 + x1) / 2, (z0 + z1) / 2, -(y0 + y1) / 2); out.push(g.toNonIndexed()); };
   for (const R of shell.roofs) {
     // in the range's own frame: s across (from the eave on one side), t along the ridge; rotated into plan
-    const X = R.axis === "x", s0 = X ? R.y0 : R.x0, s1 = X ? R.y1 : R.x1, sm = (s0 + s1) / 2, ta = (X ? R.x0 : R.y0) - (R.ends?.lo === "gable" ? VERGE : 0), tb = (X ? R.x1 : R.y1) + (R.ends?.hi === "gable" ? VERGE : 0);
+    const X = R.axis === "x", s0 = X ? R.y0 : R.x0, s1 = X ? R.y1 : R.x1, sm = (s0 + s1) / 2, ta = (R.tLo ?? (X ? R.x0 : R.y0)) - (R.ends?.lo === "gable" ? VERGE : 0), tb = (R.tHi ?? (X ? R.x1 : R.y1)) + (R.ends?.hi === "gable" ? VERGE : 0);
     const P = (s, t, z) => X ? V(t, s, z) : V(s, t, z), tanp = Math.tan(R.pitch), eaveZ = R.top - EAVE * tanp, ridge = R.top + R.rise, slope = (R.span / 2 + EAVE) / Math.cos(R.pitch);
     // the two slopes, their slates' courses running along the ridge; a thickness under them (fascia and soffit)
     for (const [e, sg] of [[s0 - EAVE, 1], [s1 + EAVE, -1]]) {
@@ -82,11 +90,13 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
         if (sg > 0 === X) tri(stones, lw, rw, ap); else tri(stones, rw, lw, ap);
         const tb2 = tw - sg * 0.75, lb = P(s0, tb2, R.top), rb = P(s1, tb2, R.top), apb = P(sm, tb2, ridge + COPE * 0.6);
         if (sg > 0 === X) tri(stones, rb, lb, apb); else tri(stones, lb, rb, apb);
-        for (const [sx, sgn] of [[s0, 1], [s1, -1]]) { const n = 10; for (let i = 0; i < n; i++) { const f0 = i / n, f1 = (i + 1) / n, sA = sx + sgn * (R.span / 2) * f0, sB = sx + sgn * (R.span / 2) * f1;
-          const zA = R.top + R.rise * f0 + COPE, zB = R.top + R.rise * f1 + COPE, cw = 0.22;
-          const g = new THREE.BoxGeometry(cw * 2.2, 0.12, Math.hypot((R.span / 2) / n, R.rise / n) + 0.02); const m = new THREE.Matrix4();
+        // the coping: one slab along each rake, from the kneeler at the eave to the apex (pieces of it, overlapping on
+        // one plane, flickered)
+        for (const [sx, sgn] of [[s0, 1], [s1, -1]]) { const sA = sx, sB = sx + sgn * (R.span / 2), zA = R.top + COPE, zB = R.top + R.rise + COPE;
+          // (the two rakes' slabs a little different in width, so where they cross at the apex their faces never share a plane)
+          const g = new THREE.BoxGeometry(sgn > 0 ? 0.48 : 0.468, 0.12, Math.hypot(R.span / 2, R.rise) + 0.1), m = new THREE.Matrix4();
           const mid = P((sA + sB) / 2, tw - sg * 0.3, (zA + zB) / 2), dir = P(sB, tw - sg * 0.3, zB).sub(P(sA, tw - sg * 0.3, zA)).normalize();
-          m.lookAt(new THREE.Vector3(), dir, new THREE.Vector3(0, 1, 0)); m.setPosition(mid); g.applyMatrix4(m); stones.push(g.toNonIndexed()); } }
+          m.lookAt(new THREE.Vector3(), dir, new THREE.Vector3(0, 1, 0)); m.setPosition(mid); g.applyMatrix4(m); stones.push(g.toNonIndexed()); }
         { const s = new THREE.SphereGeometry(0.2, 10, 8), q = P(sm, tw - sg * 0.3, ridge + COPE + 0.42); s.translate(q.x, q.y, q.z); stones.push(s.toNonIndexed());
           const pd = new THREE.BoxGeometry(0.34, 0.2, 0.34); pd.translate(q.x, q.y - 0.27, q.z); stones.push(pd.toNonIndexed()); } }
       else { const lw = P(s0 - EAVE, tw, eaveZ), rw = P(s1 + EAVE, tw, eaveZ), ap = P(sm, tw, ridge); if (sg > 0 === X) tri(stones, lw, rw, ap); else tri(stones, rw, lw, ap); }
@@ -101,8 +111,9 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
     const baseTop = s.z1 - shaftH, mid = along ? (s.y0 + s.y1) / 2 : (s.x0 + s.x1) / 2;
     if (along) box(stones, c - run / 2 - 0.12, c + run / 2 + 0.12, mid - 0.4, mid + 0.4, s.z0, baseTop); else box(stones, mid - 0.4, mid + 0.4, c - run / 2 - 0.12, c + run / 2 + 0.12, s.z0, baseTop);
     for (let i = 0; i < n; i++) { const a = c - run / 2 + i * (sw + gp);
-      if (along) { box(stones, a, a + sw, mid - sw / 2, mid + sw / 2, baseTop, s.z1); box(stones, a - 0.05, a + sw + 0.05, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, s.z1, s.z1 + 0.12); }
-      else { box(stones, mid - sw / 2, mid + sw / 2, a, a + sw, baseTop, s.z1); box(stones, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, a - 0.05, a + sw + 0.05, s.z1, s.z1 + 0.12); } } }
+      // (each shaft let 5 cm into the base: its foot on the base's top face shared that face's plane)
+      if (along) { box(stones, a, a + sw, mid - sw / 2, mid + sw / 2, baseTop - 0.05, s.z1); box(stones, a - 0.05, a + sw + 0.05, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, s.z1, s.z1 + 0.12); }
+      else { box(stones, mid - sw / 2, mid + sw / 2, a, a + sw, baseTop - 0.05, s.z1); box(stones, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, a - 0.05, a + sw + 0.05, s.z1, s.z1 + 0.12); } } }
   // the windows from outside: glass a little in from the wall's face, facing out (so it never shows from within), a
   // stone mullion and transom across it
   for (const w of windows) { const out = w.c.clone().sub(w.into).normalize(), at = w.c.clone().addScaledVector(out, 0.035);

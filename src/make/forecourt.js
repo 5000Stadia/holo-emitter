@@ -16,11 +16,12 @@ export function buildForecourt({ THREE, K, look, build, plan, site, works, mater
   const V = (x, y, z) => new THREE.Vector3(x, z, -y), z0 = (x) => site.z(x, yc);
   // the low wall and its coping, in runs; then the railings on it (one draw of bars for them all)
   const stones = [], bars = [];
-  for (const [a, b] of runs) { const n = Math.max(1, Math.round((b - a) / 2));
-    for (let i = 0; i < n; i++) { const xa = a + (b - a) * i / n, xb = a + (b - a) * (i + 1) / n, zb = Math.min(z0(xa), z0(xb)) - 0.15, zt = Math.max(z0(xa), z0(xb)) + WALL.h;
-      const w = new THREE.BoxGeometry(xb - xa, zt - zb, WALL.t); w.translate((xa + xb) / 2, (zb + zt) / 2, -yc); stones.push(w.toNonIndexed());
-      const c = new THREE.BoxGeometry(xb - xa + 0.002, WALL.cope, WALL.t + 0.08); c.translate((xa + xb) / 2, zt + WALL.cope / 2, -yc); stones.push(c.toNonIndexed()); }
-    const top = Math.max(z0(a), z0(b)) + WALL.h + WALL.cope;
+  for (const [a, b] of runs) { const xs = Array.from({ length: 9 }, (_, i) => a + (b - a) * i / 8).map(z0);
+    // each run one wall and one coping (built in pieces, their copings overlapped on one plane and flickered)
+    const zb = Math.min(...xs) - 0.15, zt = Math.max(...xs) + WALL.h;
+    const w = new THREE.BoxGeometry(b - a, zt - zb, WALL.t); w.translate((a + b) / 2, (zb + zt) / 2, -yc); stones.push(w.toNonIndexed());
+    const c = new THREE.BoxGeometry(b - a, WALL.cope, WALL.t + 0.08); c.translate((a + b) / 2, zt + WALL.cope / 2, -yc); stones.push(c.toNonIndexed());
+    const top = zt + WALL.cope;
     for (let x = a + 0.12; x < b - 0.08; x += RAIL.gap) { const g = new THREE.CylinderGeometry(0.012, 0.012, RAIL.h, 6); g.translate(x, top + RAIL.h / 2, -yc); bars.push(g.toNonIndexed());
       const sp = new THREE.ConeGeometry(0.024, 0.09, 4); sp.translate(x, top + RAIL.h + 0.04, -yc); bars.push(sp.toNonIndexed()); }
     for (const y of [top + 0.12, top + RAIL.h - 0.1]) { const r = new THREE.BoxGeometry(b - a - 0.1, 0.035, 0.03); r.translate((a + b) / 2, y, -yc); bars.push(r.toNonIndexed()); } }
