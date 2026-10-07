@@ -64,6 +64,8 @@ import { playStory } from "../../src/make/story-play.js";
 import { STORY_ROOM_TYPES } from "../../src/make/rooms/story.js";
 import { makeSite, makeOutdoorWalk } from "../../src/make/terrain.js";
 import { makeGround, groundMaterial } from "../../src/make/terrain-mesh.js";
+import { buildForecourt } from "../../src/make/forecourt.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { rng as rngOf, seedOf } from "../../src/make/id.js";
 import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
@@ -175,6 +177,9 @@ window.__works = works; window.__manor = manor; window.__plan = plan;
 const SP = STORY ? playStory({ THREE, scene: STORY.scene, story: STORY.story, text: STORY.text, plan, manor, works, build, K, look: look1660, say,
   setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); } }) : null;
 window.__sp = SP;
+// the forecourt's railed wall, its piers and its gates (src/make/forecourt.js), the gates things that work
+const FC = site ? buildForecourt({ THREE, K, look: look1660, build, plan, site, works, materials: { merge: mergeGeometries, stone: look1660.roles.ashlar, iron: look1660.roles.iron } }) : null;
+if (FC) scene.add(FC.group); window.__fc = FC;
 if (SP) { const b3 = new THREE.Box3(), c = new THREE.Vector3();
   // each lamp's light where its flame hangs, in the pool the fires use (oil lamps flicker a little too)
   fireItems = fireItems.concat(SP.lamps.map((b, i) => { b3.setFromObject(b.node); b3.getCenter(c); const at = c.clone(); at.y = b3.min.y + 0.12;
@@ -207,7 +212,7 @@ const walk0 = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isO
 const walkFor = (s) => { if (!SP) return walk0; if (!walkers.has(s)) { const b = bodyAt(STORY.story.sizes[s]); walkers.set(s, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { half: b.half, step: Math.max(0.05, b.step), head: b.head, soffit: 0.3 } })); } return walkers.get(s); };
 let walk = walkFor(SP ? SP.size() : null);
 // outside the house, the ground's own walker (src/make/terrain.js); inside its footprint, the house's
-const outdoorWalk = site ? makeOutdoorWalk(site, { plan }) : null;
+const outdoorWalk = site ? makeOutdoorWalk(site, { plan, blocked: (x, y, half) => !!FC?.blocked(x, y, half) }) : null;
 const joined = (w) => !outdoorWalk ? w : { ...w, groundAt: (x, y, h) => site.inHouse(x, y) ? w.groundAt(x, y, h) : outdoorWalk.groundAt(x, y, h) };
 walk = joined(walk);
 const { floorOf, roomAt } = walk;

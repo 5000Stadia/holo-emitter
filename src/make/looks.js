@@ -11,6 +11,7 @@ export function lookC1660(THREE, K, S) {
     roles: {
       wood: K.M.oak, wood_face: K.M.oakH, wood_inside: drawerInside(THREE, K), door_wood: S.doorOak,
       iron: S.iron, dark: S.dark, parchment: S.parch, tape: S.tape,
+      ashlar: m("ashlar", { color: 0xc2b598, roughness: 0.9 }),           // the house's outside: limestone ashlar (research-1660 §A)
       metal: m("brass", { color: 0xb08a4a, metalness: 0.7, roughness: 0.35 }),
       pewter: m("pewter", { color: 0x9a968c, metalness: 0.55, roughness: 0.42 }),
       wax: m("tallow", { color: 0xe6dcc2, roughness: 0.55 }),
