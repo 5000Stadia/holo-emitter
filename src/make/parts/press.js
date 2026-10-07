@@ -153,6 +153,10 @@ definePart("evidence_bundles", {
       const g = new THREE.CylinderGeometry(R, R, len, 14); g.rotateZ(Math.PI / 2); g.translate(x, y, z); c.add(g, "parchment", { spread: 0.2 });
       const sx = x + len / 2 + 0.06, seal = new THREE.CylinderGeometry(0.05, 0.05, 0.012, 20); seal.translate(sx, restAt(sx - 0.05, sx + 0.05, z - 0.05, z + 0.05) + 0.006 - 0.001, z); c.add(seal, "seal_wax");
     }
+    // the box's slot "inside", moved from its floor onto the bundles: toward the front, clear of the rolls and their
+    // seals (they lie in the first 30 cm from the back), on the highest stack under a paper's breadth there
+    { const zc = Math.min(z1 - 0.06, Math.max(z0 + 0.36, (z0 + 0.3 + z1) / 2)), xc = -w * 0.22;
+      c.slot("inside", [xc, restAt(xc - 0.08, xc + 0.08, zc - 0.07, zc + 0.07), zc]); (c.info.slots ||= {}).inside = { area: [Math.min(0.36, w * 0.3), Math.max(0.08, Math.min(0.14, z1 - zc))] }; }
   },
 });
 

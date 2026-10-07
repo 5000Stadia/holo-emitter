@@ -11,8 +11,8 @@ export default [
   },
   {
     kind: "chest/iron-bound", v: 1, noun: "the chest", fixed: true,
-    why: "the greatest deeds, under two locks: an oak chest, iron bands over the lid and down the front, hasps and padlocks, handles at the ends (Steane 2010: chests 'often had more than one lock')",
-    settings: { w: 1.2, d: 0.56, h: 0.62 },
+    why: "the greatest deeds, under two locks: an oak chest, iron bands over the lid and down the front, hasps and padlocks, handles at the ends (Steane 2010: chests 'often had more than one lock'); the padlocks open only to every key their place names, held together (keys: by default any key; a case's chest names its two, each kept by a different hand)",
+    settings: { w: 1.2, d: 0.56, h: 0.62, keys: { is: ["key"] } },
     parts: [{ part: "boarded_box" },
       { part: "box_bands", frame: "the bands' own code places each in the kind's frame from the box's w, d and h (the same settings the box is built from): up the front, over the lid, round the foot and up the corners" },
       { part: "hasp_locks", frame: "its own code places each hasp, staple and padlock in the kind's frame from the box's w, d and h, on the lid's front edge" },
@@ -20,7 +20,7 @@ export default [
       { part: "evidence_bundles", frame: "its own code lays the bundles in the kind's frame across the box's floor, from the same w, d and h and the walls' thickness" }],
     affordances: {
       locks: { mover: "locks", motion: "hinge", axis: [1, 0, 0], angle: -1.0, states: ["locked", "unlocked"], verbs: ["unlock the padlocks", "lock the padlocks"],
-        requires: { "@holding": "key" }, refused: "you have no key that fits" },
+        requires: { "@holding_all": "$keys" }, refused: "you haven't the keys to its padlocks" },
       lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.65, speed: 4, verbs: ["open the chest", "close the chest"],
         requires: { locks: "unlocked" }, refused: "the padlocks hold it shut" },
     },
@@ -52,6 +52,14 @@ export default [
       left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: "$open_left", initial: "open", verbs: ["open the shutter", "close the shutter"] },
       right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: "$open_right", initial: "open", verbs: ["open the shutter", "close the shutter"] },
     },
+  },
+  {
+    kind: "deed/engrossment", v: 1, noun: "the engrossment",
+    why: "a conveyance engrossed fair for its sealing: skins of parchment written close in the engrosser's hand, stitched together at their heads, the seal tags drawn through the last skin's foot (the case: the release of Asshover, three skins, laid open on the draw-table and not yet sealed, so its tags are bare); a place may ask for it sealed, or folded up; it can be read where it lies or carried to the light",
+    size: ["=W+0.006", 0.012, "=D+(skins-1)*0.012+0.07"], settings: { W: 0.56, D: 0.44, skins: 3, open: true, sealed: false, tags: 2 },
+    place: { anchor: "in", of: "table/drawing", slot: "top", turn: 0.05 },
+    parts: [{ part: "engrossment" }],
+    affordances: { read: { hit: "body", motion: "state", states: ["unread", "read"], verbs: ["read the engrossment"], release: { "$forgotten": true }, held: "it is read" } },
   },
   {
     kind: "candle/in-candlestick", v: 1, noun: "the candle",

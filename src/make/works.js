@@ -8,7 +8,10 @@
 // "Light 3 of these candles!" should just work):
 //   - an action, or taking a thing, may require: another of the thing's affordances in a state
 //     ("lock": "unlocked"), an engine variable ("$bolt_drawn": true), or something held
-//     ("@holding": "key/iron-door"; a kind, a family, or a thing's own id);
+//     ("@holding": "key/iron-door"; a kind, a family, a thing's own id, its story id, or a name its "fits"
+//     setting gives it: a key cut for the muniment door fits "muniment_door"); a list is any of them
+//     ("@holding": ["key_steward", "key_lord"]: the steward's key or Sir Gervase's opens the door), and
+//     "@holding_all" is all of them held together (a chest under two padlocks, each with its own key);
 //   - an action may set variables ("sets": { "candle_lit": true }; undone, a true goes back to false);
 //   - rules, written by the place or the story, watch the world: "when" a condition holds (a count
 //     of things of a kind within an area in a state, a variable, a thing's state, something held;
@@ -18,6 +21,16 @@
 // State is an overlay on what was generated, kept in one store: "<id>.<affordance>(#<index>)" a state,
 // "<id>~<process>" a process's start, "$<name>" a variable, "@held" what is carried, "!<rule>" a rule
 // that has fired. Only what changed is ever written.
+//
+// Where a thing starts is the place's to say, in its settings, in the store's own words less the id
+// (settings.start: { "lid": "open", "drawers#5": "open", "left": "closed", "~burn": 0.66 }): an affordance
+// (one of a bank's by "#index", or all of them by its bare name) in one of its states, or moved and standing
+// part way (a number: "drawers#5": 0.4, a drawer a hand open), and a process paused at a level (a candle out
+// with two thirds of it left). The kind's own initial state is the default; what is done in play overrides both.
+// A name or a state the thing hasn't is an error when it is added, never a guess.
+//
+// An affordance with one verb is a deed that can be done again but never undone (reading a letter: read it
+// twice, it stays read); it says it is one-way, as a drunk bottle does, by a release gate no one opens.
 import { value, takeable } from "./catalogue.js";
 
 const DEFAULT_STATES = { slide: ["closed", "open"], hinge: ["closed", "open"], lever: ["rest", "pulled"], switch: ["out", "lit"], state: ["off", "on"] };
@@ -28,14 +41,26 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   let targets = null, rules = [];
   const key = (id, aff, i) => i == null ? `${id}.${aff}` : `${id}.${aff}#${i}`;
   const statesOf = (a) => a.states || DEFAULT_STATES[a.motion];
-  const stateOf = (b, aff, i = null) => { const k = key(b.id, aff, i), a = b.kind.affordances[aff]; return k in store ? store[k] : (value(a.initial, b.settings) || statesOf(a)[0]); };
+  // what the place says an affordance starts as (settings.start): its own "aff#i", else the bare name for all of a bank's
+  const startOf = (b, aff, i = null) => { const s = b.settings?.start; if (!s) return undefined; return i != null && `${aff}#${i}` in s ? s[`${aff}#${i}`] : s[aff]; };
+  const stateOf = (b, aff, i = null) => { const k = key(b.id, aff, i), a = b.kind.affordances[aff]; if (k in store) return store[k];
+    const st = startOf(b, aff, i); if (st != null) return typeof st === "number" ? statesOf(a)[st > 0 ? 1 : 0] : st;
+    return value(a.initial, b.settings) || statesOf(a)[0]; };
   const moved = (b, aff, i = null) => stateOf(b, aff, i) === statesOf(b.kind.affordances[aff])[1];
   const rest = (b, a, i) => a.motion === "slide" && b.banks.get(a.mover)?.rest ? b.banks.get(a.mover).rest(i) : 0;
+  // where a mover stands while nothing moves it: moved, all the way (or as far as the place started it, until it is
+  // touched); else at its rest
+  const standsAt = (b, aff, i = null) => { const a = b.kind.affordances[aff]; if (!moved(b, aff, i)) return rest(b, a, i);
+    const st = key(b.id, aff, i) in store ? null : startOf(b, aff, i); return typeof st === "number" && st > 0 ? Math.min(1, st) : 1; };
+  const again = (a) => a.verbs?.length === 1;
   const held = () => store["@held"] || [];
   const byAddress = (address) => [...things.values()].find(b => b.address === address || b.id === address);
-  // a thing answers to its own id, its kind, or its kind's family ("key" or "key/*")
-  const answers = (b, name) => b.id === name || b.kind.kind === name || b.kind.kind.startsWith(`${name}/`) || name === `${b.kind.kind.split("/")[0]}/*`;
-  const holding = (name) => held().some(id => things.has(id) && answers(things.get(id), name)) || ask("holding", name);
+  // a thing answers to its own id, its story id (a case's "key_steward"), its kind, its kind's family ("key" or
+  // "key/*"), or a name its "fits" setting gives it (a key cut for a lock: "muniment_door")
+  const answers = (b, name) => b.id === name || (b.story != null && b.story === name) || b.kind.kind === name || b.kind.kind.startsWith(`${name}/`) || name === `${b.kind.kind.split("/")[0]}/*`
+    || (b.settings?.fits != null && [].concat(b.settings.fits).includes(name));
+  // holding one of these (a list is any of them)
+  const holding = (name) => [].concat(name).some(n => held().some(id => things.has(id) && answers(things.get(id), n)) || ask("holding", n));
   const canTake = (b) => !!b.kind.size && takeable(b.kind, value(b.kind.size, b.settings));
 
   // ---- motion
@@ -56,7 +81,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // a process's level now, from where it started and how long ago
   function level(b, name) {
     const p = b.kind.processes[name], run = store[`${b.id}~${name}`];
-    if (!run) return p.initial ?? 1;
+    if (!run) { const st = b.settings?.start?.[`~${name}`]; return typeof st === "number" ? st : (p.initial ?? 1); }   // paused where the place left it
     if (run.at == null) return run.from;                       // paused where it was (a candle put out)
     let cur = run.from, left = Math.max(0, clock() - run.at);
     for (const f of p.phases) {
@@ -78,7 +103,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   }
   // turn an affordance to a state and play the motion toward it
   function turn(b, aff, i, to) {
-    const a = b.kind.affordances[aff], k = key(b.id, aff, i), was = moved(b, aff, i) ? 1 : rest(b, a, i);
+    const a = b.kind.affordances[aff], k = key(b.id, aff, i), was = standsAt(b, aff, i);
     store[k] = to;
     anim.set(k, { b, aff, i, to: to === statesOf(a)[1] ? 1 : (to === statesOf(a)[0] ? 0 : was), at: anim.get(k)?.at ?? was });
     // what it sets: a variable takes its value when moved, and a true goes back to false when undone
@@ -88,6 +113,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // ---- gates
   function test(need, want, b) {
     if (need === "@holding") return holding(want);
+    if (need === "@holding_all") return [].concat(want).every(n => holding(n));
     if (need[0] === "@") return ask(need.slice(1), want);
     if (need[0] === "$") return (store[need] ?? false) === want;
     return stateOf(b, need) === want;
@@ -108,6 +134,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (c.var) return (store[`$${c.var}`] ?? false) === (c.is ?? true);
     if (c.thing) { const b = byAddress(c.thing); return !!b && stateOf(b, c.aff) === c.is; }
     if (c.holding) return holding(c.holding);
+    if (c.holding_all) return [].concat(c.holding_all).every(n => holding(n));
     return false;
   }
   function run(effects) {
@@ -130,14 +157,28 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   }
 
   // ---- things
+  // what the place says it starts as, checked when it is added: a name it hasn't, or a state it can't be in, is the
+  // place's mistake, said at once (a case's typo would otherwise leave a drawer shut that its clue says stands open)
+  function checkStart(b) {
+    const s = b.settings?.start; if (!s) return;
+    const bad = (k, why) => { throw new Error(`${b.kind.kind} at ${b.address}: start ${k}: ${why}`); };
+    for (const [k, v] of Object.entries(s)) {
+      if (k[0] === "~") { if (!b.kind.processes?.[k.slice(1)]) bad(k, "it has no such process"); if (!(typeof v === "number" && v >= 0 && v <= 1)) bad(k, "a process starts at a level from 0 to 1"); continue; }
+      const [aff, idx] = k.split("#"), a = b.kind.affordances?.[aff];
+      if (!a) bad(k, `it has no affordance ${aff}`);
+      if (typeof v === "number" ? !(v >= 0 && v <= 1) : !statesOf(a).includes(v)) bad(k, `${JSON.stringify(v)} is not one of its states (${statesOf(a).join(", ")}) nor how far moved (0 to 1)`);
+      if (idx != null && !b.placeholder) { const bank = b.banks.get(a.mover); if (!bank || !(Number.isInteger(+idx) && +idx >= 0 && +idx < bank.count)) bad(k, bank ? `it has ${bank.count} of them` : `${aff} is one mover, not a bank`); }
+    }
+  }
   function add(b) {
+    checkStart(b);
     things.set(b.id, b); targets = null;
     for (const ch of b.children || []) add(ch);
     if (held().includes(b.id)) b.node.visible = false;
     for (const [aff, a] of Object.entries(b.kind.affordances || {})) {
       const bank = b.banks.get(a.mover);
-      if (bank) for (let i = 0; i < bank.count; i++) apply(b, aff, i, moved(b, aff, i) ? 1 : rest(b, a, i));
-      else apply(b, aff, null, moved(b, aff) ? 1 : 0);
+      if (bank) for (let i = 0; i < bank.count; i++) apply(b, aff, i, standsAt(b, aff, i));
+      else apply(b, aff, null, standsAt(b, aff));
     }
     for (const name of Object.keys(b.kind.processes || {})) { drive(b, name); procs.add([b, name]); }
     return b;
@@ -173,9 +214,9 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (!t.aff) return take + (unmet(t.b, t.b.kind.take?.requires) ? ` (${t.b.kind.take.refused || "it won't come"})` : "");
     const a = t.b.kind.affordances[t.aff], [doV, undoV] = a.verbs || DEFAULT_VERBS[a.motion].map(v => `${v} ${t.b.kind.noun || "it"}`);
     const label = t.i != null && t.b.banks.get(a.mover)?.labelOf?.(t.i);
-    let text = (moved(t.b, t.aff, t.i) && a.motion !== "lever" ? undoV : doV) + (label ? ` · ${label}` : "");
+    let text = (moved(t.b, t.aff, t.i) && a.motion !== "lever" && !again(a) ? undoV : doV) + (label ? ` · ${label}` : "");
     if (unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i)) text += ` (${a.refused || "it won't move"})`;
-    else if (unmet(t.b, a.release) && moved(t.b, t.aff, t.i)) text += ` (${a.held || "it won't go back"})`;
+    else if (!again(a) && unmet(t.b, a.release) && moved(t.b, t.aff, t.i)) text += ` (${a.held || "it won't go back"})`;
     else if (!moved(t.b, t.aff, t.i)) for (const [need, want] of Object.entries(a.requires || {})) { const w = value(want, t.b.settings); if (!test(need, w, t.b) && canAuto(t.b, need, w)) text += ` (${t.b.kind.affordances[need].done || "unlocking it"})`; }
     return take ? `${text} · G: ${take}` : text;
   }
@@ -184,7 +225,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   function cue(t) {
     if (!t) return null;
     if (!t.aff) return { mode: unmet(t.b, t.b.kind.take?.requires) ? "locked" : "take", label: hint(t) };
-    const a = t.b.kind.affordances[t.aff], m = moved(t.b, t.aff, t.i), shut = m ? !!unmet(t.b, a.release) : !!unmet(t.b, a.requires);
+    const a = t.b.kind.affordances[t.aff], m = moved(t.b, t.aff, t.i), shut = m ? !again(a) && !!unmet(t.b, a.release) : !!unmet(t.b, a.requires);
     return { mode: shut ? "locked" : "act", label: hint(t) };
   }
   // act on it: refused if a gate is shut, else the state turns over and the motion plays
@@ -193,6 +234,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (!t.aff) return take(t);
     const a = t.b.kind.affordances[t.aff], k = key(t.b.id, t.aff, t.i);
     if (unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i)) return { did: false, refused: a.refused || "It won't move." };
+    // a deed done again (a letter read twice): nothing turns, it stays as it is
+    if (again(a) && moved(t.b, t.aff, t.i)) { settle(); return { did: true, state: stateOf(t.b, t.aff, t.i), again: true }; }
     // its gate going back: a gate-leg won't fold while the leaf rests on it
     if (unmet(t.b, a.release) && moved(t.b, t.aff, t.i)) return { did: false, refused: a.held || "It won't go back." };
     const autos = moved(t.b, t.aff, t.i) ? [] : doAutos(t.b, a.requires);

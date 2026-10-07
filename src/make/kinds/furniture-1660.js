@@ -149,7 +149,9 @@ export default [
       { part: "box", role: "hangings", size: [0.03, "=H-0.75", 0.3], at: ["=-W/2+0.05", 0, 0.25], under: "valance", sink: 0.05 }, { part: "box", role: "hangings", size: [0.03, "=H-0.75", 0.3], at: ["=W/2-0.05", 0, 0.25], under: "valance", sink: 0.05 },
       { part: "mover", name: "left", pivot: ["=-W/2+0.05", 0, "=L-0.02"] }, { part: "mover", name: "right", pivot: ["=W/2-0.05", 0, "=L-0.02"] },
       { part: "box", role: "hangings", mover: "left", size: ["=W/2-0.02", "=H-0.75", 0.02], at: ["=-W/4", 0, "=L-0.02"], under: "valance", sink: 0.05 },
-      { part: "box", role: "hangings", mover: "right", size: ["=W/2-0.02", "=H-0.75", 0.02], at: ["=W/4", 0, "=L-0.02"], under: "valance", sink: 0.05 }],
+      { part: "box", role: "hangings", mover: "right", size: ["=W/2-0.02", "=H-0.75", 0.02], at: ["=W/4", 0, "=L-0.02"], under: "valance", sink: 0.05 },
+      { part: "slot", name: "bed", at: [0, 0.83, "=L/2+0.08"], area: ["=W-0.1", "=L-0.25"],
+        frame: "a point on the middle of the coverlet, where whoever lies in the bed lies (the head toward the bed's head, at -z): the frame's top at 0.55 m, the mattress 0.22 over it, the coverlet 0.06" }],
     affordances: {
       // a curtain drawn back folds round its foot post to hang along the bed's side
       left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: 1.5, initial: "open", verbs: ["draw back the curtain", "draw the curtain"] },
@@ -176,13 +178,17 @@ export default [
       { id: "case", part: "carcass", size: ["=W-0.04", 0.6, "=D-0.04"], at: [0, 0, "=D/2-0.02"], open: "front", role: "japan", inside: "japan", on: "top" },
       // the small drawers behind the doors, three rows of two, each row on the one below: lacquered fronts, each with a
       // gilt panel and a gilt knob, each its own drawer that runs out (Kabe, 2026-10-06, on six solid blocks of gilt:
-      // "weird yellow inside")
+      // "weird yellow inside"); each a hollow box, plain wood on its floor, that holds what is put in it (its slot,
+      // named as the drawer is, rides out with it)
       ...[0, 1, 2].flatMap(r => [-1, 1].flatMap(sx => { const id = `dr${r}${sx}`, mv = `d${r}${sx < 0 ? "l" : "r"}`; return [
         { part: "mover", name: mv, pivot: [0, 0, 0] },
         // (each row above the first on a divider across the case, as a cabinet's drawers run on: a drawer pulled out
         // still rests on it)
         ...(r > 0 && sx < 0 ? [{ id: `dv${r}`, part: "box", role: "japan", size: [1, 0.01, 1], fit: { to: "case.inside", axes: "xz" }, on: `dr${r - 1}-1`, seen: false, within: "a rail between the rows of drawers: only its front edge shows, a centimetre between the fronts" }] : []),
-        { id, part: "box", role: "japan", mover: mv, size: ["=(W-0.12)/2-0.02", 0.17, "=D-0.095"], at: [`=${sx}*(W-0.12)/4`, 0, "=(D-0.055)/2"], ...(r === 0 ? { in: "case.inside" } : { on: `dv${r}` }) },
+        { id, part: "drawer_box", role: "japan", floor: "wood_inside", t: 0.01, mover: mv, size: ["=(W-0.12)/2-0.02", 0.17, "=D-0.095"], at: [`=${sx}*(W-0.12)/4`, 0, "=(D-0.055)/2"], ...(r === 0 ? { in: "case.inside" } : { on: `dv${r}` }),
+          ...(r < 2 ? { covered: "the drawer over it, pulled out with it, covers its bottom; pulled out alone, it shows" } : {}) },
+        { part: "slot", name: mv, mover: mv, at: [`=${sx}*(W-0.12)/4`, 0.772 + r * 0.18, "=D-0.155"], area: ["=(W-0.12)/2-0.06", 0.12],
+          frame: "a point on the drawer's floor 7 cm in from its front, so what lies there comes out with it: the stand's top at 0.74 m, the case's floor 0.022 over it, the drawer's bottom board 0.01 more; each row 0.18 m over the last (a drawer 0.17, a divider 0.01)" },
         // a gilt line round the front, a finger in from its edge, as the japanners drew it, and a gilt knob
         { part: "box", role: "gilt", mover: mv, size: ["=(W-0.12)/2-0.06", 0.004, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.85 } },
         { part: "box", role: "gilt", mover: mv, size: ["=(W-0.12)/2-0.06", 0.004, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.15 } },

@@ -32,6 +32,22 @@ export function drawer(c, { w, h, d, x = 0, y, fz, mover, knob = true, field = t
   c.add(plainBox(THREE, w, h, 0.01, x, y + h / 2, fz - d - 0.012), "dark");
 }
 
+// A drawer as a box of boards, standing on its "at" like a box (front toward +z): a front the drawer's full width and
+// height, sides behind it, a back between the sides, a bottom between the four; each board meets the next edge to edge
+// and none lies over another, so no two faces share a plane (a carcass's floor runs under its walls, and settling those
+// faces apart pushed them into what the drawer stands on). role: front, sides and back; floor: the bottom's.
+// covered: the kind's reason the bottom is never seen by the authoring check (src/make/audit.js), which opens everything
+// at once: a drawer with another over it, both pulled out, shows its bottom to no side (alone, it shows it).
+definePart("drawer_box", {
+  build(c, { size: [w, h, d], at = [0, 0, 0], t = 0.01, role = "wood", floor = "wood_inside", covered = null, mover = null }) {
+    const { THREE } = c, [x, y, z] = at, box = (bw, bh, bd, bx, by, bz, r, seen = true) => c.add(plainBox(THREE, bw, bh, bd, x + bx, y + by, z + bz), r, { mover, spread: 0.1, seen });
+    box(w, h, t, 0, h / 2, d / 2 - t / 2, role);                                                              // the front
+    for (const sx of [-1, 1]) box(t, h, d - t, sx * (w / 2 - t / 2), h / 2, -t / 2, role);                  // the sides
+    box(w - 2 * t, h, t, 0, h / 2, -d / 2 + t / 2, role);                                                     // the back
+    box(w - 2 * t, t, d - 2 * t, 0, t / 2, 0, floor, !covered);                                                 // the bottom
+  },
+});
+
 // A joined table, c. 1660: four turned baluster legs squared where the rails and stretchers join,
 // stretchers low on all four sides, moulded aprons, a top overhanging; the front apron framed round
 // a drawer, if it has one.
@@ -60,15 +76,17 @@ definePart("joined_table", {
       // the runners the drawer rides on, from the front rail to the back (it had hung in its opening on nothing)
       for (const sx of [-1, 1]) box(0.024, 0.02, fz - 0.061, sx * (dw / 2 - 0.014), y0 + 0.003 - 0.01, (0.05 + fz - 0.011) / 2);
       c.slot("drawer", [0, y0 + 0.016, fz - (D - 0.12) / 2], "drawer");
+      (c.info.slots ||= {}).drawer = { area: [dw - 0.06, D - 0.16] };
     } else box(W - 0.1, AP, 0.022, 0, legH - AP / 2, fz);
     c.add(plainBox(THREE, W + 0.06, T, D + 0.04, 0, legH + T / 2, D / 2 + 0.01), "wood_face", { spread: 0.1 });
-    c.slot("top", [0, H, D / 2]);
+    c.slot("top", [0, H, D / 2]); (c.info.slots ||= {}).top = { area: [W - 0.04, D - 0.04] };
     c.footprint({ w: W + 0.06, d: D + 0.04, h: H, top: H });
   },
 });
 
 // A boarded box with a lid hinged at the back: skids, wide planks on the front, a hollow inside of
-// paler wood, a lid with a moulded edge that turns up on the mover "lid".
+// paler wood, a lid with a moulded edge that turns up on the mover "lid". Its slot "inside" is the middle of
+// its floor (what is kept in the chest lies there; a part after it may move the slot onto what fills it).
 definePart("boarded_box", {
   build(c, { w, d, h, skids = true, planks = 3, lid = "lid" }) {
     const { THREE } = c, t = 0.03, sk = skids ? 0.05 : 0, lidH = 0.045, bodyH = h - sk - lidH;
@@ -82,6 +100,7 @@ definePart("boarded_box", {
     for (const sx of [-1, 1]) box(0.004, bodyH - t, d - 2 * t - 0.004, sx * (w / 2 - t - 0.002), sk + t + (bodyH - t) / 2, d / 2, "wood_inside");
     box(w - 2 * t - 0.008, bodyH - t, 0.004, 0, sk + t + (bodyH - t) / 2, t + 0.002, "wood_inside");
     box(w - 2 * t - 0.008, bodyH - t, 0.004, 0, sk + t + (bodyH - t) / 2, d - t - 0.002, "wood_inside");
+    c.slot("inside", [0, sk + t, d / 2]); (c.info.slots ||= {}).inside = { area: [w - 2 * t - 0.04, d - 2 * t - 0.04] };
     // the lid, hinged along the back edge of the top
     c.mover(lid, [0, sk + bodyH, 0]);
     box(w + 0.03, lidH, d + 0.03, 0, sk + bodyH + lidH / 2, d / 2, "wood_face", { mover: lid, spread: 0.2 });
