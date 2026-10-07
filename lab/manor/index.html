@@ -159,6 +159,18 @@ const rig = Array.from({ length: 8 }, () => { const l = new THREE.RectAreaLight(
 const fires = Array.from({ length: STORY ? 4 : 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
 const winItems = manor.windows.map((w, i) => ({ key: i, room: w.room, at: w.c, size: w.w * w.h, base: 9, w }));
 let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
+// lights a room's own builder made (the muniment room's barred windows and door reveal, a candle in it) join the pools too:
+// out of the scene, so the count of lights never changes (seeing that room had taken the scene from 13 lights to 16 and
+// recompiled everything in view: a 2-4 s hitch), each still driven by its own code, its strength read from it each frame
+{ manor.scene.updateMatrixWorld(true); const P = new THREE.Vector3(), Q = new THREE.Quaternion(), D = new THREE.Vector3();
+  for (const [id, r] of manor.rooms) { const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); });
+    for (const l of own) { l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
+      if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
+        const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
+      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
+        Object.defineProperty(it, "base", { get: () => l.intensity }); fireItems.push(it); }
+      else continue;
+      l.userData.pooled = true; l.removeFromParent(); } } }
 const winPool = makePool(rig, { place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
