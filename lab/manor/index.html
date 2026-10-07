@@ -194,7 +194,7 @@ window.__seal = (ids = [...manor.rooms.keys()]) => { const t0 = performance.now(
   scene.traverse(o => { if (o.isMesh && !o.material?.transparent) meshes.push(o); });
   const dirs = []; for (let i = 0; i < 64; i++) { const y = 1 - (i + 0.5) / 64 * 2, r = Math.sqrt(1 - y * y), a = i * 2.39996; dirs.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r)); }
   for (const id of ids) { const R = manor.rooms.get(id); if (!R) continue; const room = R.room, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = manor.levelOf(room.floor), H = R.H;
-    const spec = compileRoom(plan, room), leaks = new Map();
+    const spec = manor.specs?.get(id)?.spec || compileRoom(plan, room), leaks = new Map(), gaps = new Map();
     const through = (px, py, hy) => { // where a ray crossed the room's bounds: through an opening?
       const u = px - x0, v = py - y0, h = hy - Y;
       if (h > H - 0.02 || h < 0.02) return (plan.wells || []).some(w => px > w.hole.x0 && px < w.hole.x1 && py > w.hole.y0 && py < w.hole.y1);
@@ -206,12 +206,16 @@ window.__seal = (ids = [...manor.rooms.keys()]) => { const t0 = performance.now(
       for (const d of dirs) { rc.set(P, d); rc.far = 60; const hit = rc.intersectObjects(meshes, false)[0];
         const q = hit ? hit.point : P.clone().addScaledVector(d, 60), px = q.x, py = -q.z;
         const inside = px > x0 - 0.9 && px < x1 + 0.9 && py > y0 - 0.9 && py < y1 + 0.9 && q.y > Y - 0.6 && q.y < Y + H + 0.9;
+        // seen through a lining that stops short: the house's carved solid behind it (src/make/carve.js), a gap, not a leak
+        // (its faces that look down are the ceilings under a stair's landings, finished as plaster: not gaps)
+        if (inside && hit?.object.userData?.carve && hit.face && hit.face.normal.y < -0.5) continue;
+        if (inside && hit?.object.userData?.carve) { const q2 = hit.point; gaps.set(`${q2.x.toFixed(1)},${(-q2.z).toFixed(1)},${(q2.y - Y).toFixed(1)}`, 1); continue; }
         if (inside) continue;
         // where it left the room's box
         let tl = Infinity; for (const [k, lo, hi] of [["x", x0, x1], ["z", -y1, -y0], ["y", Y, Y + H]]) { const c = d[k]; if (Math.abs(c) < 1e-9) continue; const t = ((c > 0 ? hi : lo) - P[k]) / c; if (t > 0) tl = Math.min(tl, t); }
         const e = P.clone().addScaledVector(d, tl); if (through(e.x, -e.z, e.y)) continue;
         const key = `${(e.x).toFixed(1)},${(-e.z).toFixed(1)},${(e.y - Y).toFixed(1)}`; leaks.set(key, hit ? `to ${hit.object.userData?.instance || hit.object.material?.userData?.cls || "?"}` : "to the sky"); } }
-    if (leaks.size) out.push({ room: id, cracks: [...leaks].slice(0, 6).map(([k, v]) => `out at (${k}) ${v}`), n: leaks.size });
+    if (leaks.size || gaps.size) out.push({ room: id, cracks: [...leaks].slice(0, 6).map(([k, v]) => `out at (${k}) ${v}`), n: leaks.size, gaps: [...gaps.keys()].slice(0, 6), ngaps: gaps.size });
   }
   return { rooms: ids.length, leaking: out, ms: Math.round(performance.now() - t0) }; };
 window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);

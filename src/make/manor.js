@@ -9,10 +9,10 @@
 // two rooms deep, and up and down the stairs you stand on. The rest is not drawn.
 import * as THREE from "three/webgpu";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
-import { compileRoom } from "../../lab/house/plan-compile.js";
+import { houseSpecs, storeys } from "./house-spec.js";
+import { carve, carveMesh } from "./carve.js";
 import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
-import { compileBrief } from "../../lab/brief/brief.js";
 import { build } from "./build.js";
 import { kindOf, sizeOf as kindSize, value } from "./catalogue.js";
 import { furnish, wallToRoom } from "./furnish.js";
@@ -79,14 +79,13 @@ function hangings(F, L, H, elems) {
 
 export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true }) {
   const t0 = performance.now(), { M } = K;
-  const floors = [...plan.floors].sort((a, b) => a.level - b.level), gap = 0.35;
-  const levelOf = (id) => { let y = 0; for (const f of floors) { if (f.id === id) return y; y += f.storey_height_m + gap; } return y; };
-  const heightOf = (room) => { const i = floors.findIndex(f => f.id === room.floor), n = room.rises || 1; let h = 0; for (let k = 0; k < n && floors[i + k]; k++) h += floors[i + k].storey_height_m + (k ? gap : 0); return h; };
+  const { floors, levelOf, heightOf, gap } = storeys(plan);
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
   const mats = {
     gypsum: Object.assign(new THREE.MeshStandardMaterial({ color: 0xa89c86, roughness: 0.7 }), { userData: { cls: "gypsum" } }),
     matting: Object.assign(new THREE.MeshStandardMaterial({ map: rushMatting(), roughness: 0.95 }), { userData: { cls: "matting" } }),
     plaster: M.plaster, limewash: M.limewash,
+    carve: Object.assign(new THREE.MeshStandardMaterial({ color: 0x5a5048, roughness: 1 }), { userData: { cls: "carve" } }),
   };
   const scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [], hearths = [], flames = [];
   // a kind's size in its own frame (from its data, or measured once from a build)
@@ -112,32 +111,21 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const traitsOf = (kind) => kindOf(kind)?.traits || [];
   const tileUV = (g, k) => { const uv = g.attributes.uv, p = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / k, p.getY(i) / k); return g; };
 
+  const specs = houseSpecs(plan, { types, brief, gap });
   for (const room of plan.rooms) {
     if (room.type === "open") continue;
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
     const grp = new THREE.Group(); grp.position.set(x0, Y, -y0); grp.userData.room = room.id;
     const movers = new THREE.Group(); movers.position.copy(grp.position);
+    // its walls and what stands in them, every height decided once (src/make/house-spec.js): the carve reads the same
+    const spec = specs.get(room.id).spec;
     // the muniment room: its own builder, from its period brief
-    if (room.room_type === "muniment_room" && brief) {
-      const spec = compileBrief(plan, room.id, brief), sr = buildStrongroom(THREE, K, spec);
+    if (spec.strong) {
+      const sr = buildStrongroom(THREE, K, spec);
       sr.group.position.set(x0, Y, -y0); scene.add(sr.group); things.push(...sr.things);
       for (const l of sr.lights) l.userData.room = room.id;
       rooms.set(room.id, { room, grp: sr.group, movers: null, H, Y, lights: sr.lights, colliders: sr.colliders, strongroom: sr });
       continue;
-    }
-    const spec = compileRoom(plan, room);
-    // windows by rank: a state room's mullion-and-transom lights reach high; a closet's are small
-    for (const F of Object.keys(spec.walls)) for (const e of spec.walls[F]) {
-      if (e.kind !== "window") continue;
-      if (T.windows === "state") { e.sill = 0.75; e.top = Math.min(H - 0.45, 3.2); }
-      else if (T.windows === "small") { e.sill = 1.15; e.top = Math.min(H - 0.5, 2.1); }
-      else { e.sill = 0.9; e.top = Math.min(H - 0.5, 2.5); }
-    }
-    // a kitchen's (or bakehouse's) hearth is an open one: wide, square-mouthed, deep, under a beam
-    if (T.hearth === "kitchen") for (const F of Object.keys(spec.walls)) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
-      const top = Math.min(1.75, H - 1.2);
-      Object.assign(e, { open: true, surround_top: top + 0.32, mantel: { r0: e.r0 - 0.1, r1: e.r1 + 0.1, top: top + 0.32, depth: 0.08 },
-        firebox: { r0: e.r0 + 0.32, r1: e.r1 - 0.32, spring: top, apex: top, depth: (e.breast || 0) > 0.35 ? e.breast - 0.01 : 0.6 }, hearth: { r0: e.r0 + 0.2, r1: e.r1 - 0.2, out: 0.6 } });
     }
     // the floor (with a hole where a stair comes up through it) and the ceiling (with one where it goes up)
     // each storey's stair well is cut from the floor it reaches (src/make/plans/stairs.js)
@@ -277,6 +265,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const foot = (plan.wells.find(v => v.id === w.id).rect), footLo = foot.y0 < Rh.y0 - 0.01 ? "S" : foot.y1 > Rh.y1 + 0.01 ? "N" : foot.x0 < Rh.x0 - 0.01 ? "W" : "E";
     const edges = { N: [[Rh.x0, Rh.y1], [Rh.x1, Rh.y1], Q.y1 - Rh.y1], S: [[Rh.x0, Rh.y0], [Rh.x1, Rh.y0], Rh.y0 - Q.y0], E: [[Rh.x1, Rh.y0], [Rh.x1, Rh.y1], Q.x1 - Rh.x1], W: [[Rh.x0, Rh.y0], [Rh.x0, Rh.y1], Rh.x0 - Q.x0] };
     for (const [F, [a, b, gapToWall]] of Object.entries(edges)) if (F !== footLo && gapToWall > 0.2) rail(out, [...a, H], [...b, H]);
+    // the floor's edge round the well, cased in oak boards down through the floor's thickness (the carve stands behind)
+    for (const g of [cube(Rh.x0 - 0.035, Rh.x1 + 0.035, Rh.y1, Rh.y1 + 0.035, H - gap - 0.03, H), cube(Rh.x0 - 0.035, Rh.x1 + 0.035, Rh.y0 - 0.035, Rh.y0, H - gap - 0.03, H),
+      cube(Rh.x0 - 0.035, Rh.x0, Rh.y0, Rh.y1, H - gap - 0.03, H), cube(Rh.x1, Rh.x1 + 0.035, Rh.y0, Rh.y1, H - gap - 0.03, H)]) out.push(g);
   }
   for (const [id, parts] of stairParts) {
     const owner = rooms.get(id), geo = mergeGeometries(parts.map(g => { g = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(k)) g.deleteAttribute(k);
@@ -285,6 +276,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const m = new THREE.Mesh(geo, M.oakH); m.castShadow = m.receiveShadow = true;
     if (owner) { m.position.set(-owner.grp.position.x, -owner.grp.position.y, -owner.grp.position.z); owner.grp.add(m); } else scene.add(m);
   }
+  // the house's solid, every room and opening carved out of it (src/make/carve.js): behind every lining, so a lining
+  // that stops short shows stone, never the hillside
+  const carved = carve({ plan, specs, levelOf, gap });
+  const solid = new THREE.Mesh(carveMesh(THREE, carved), [M.stone || mats.carve, M.plaster, mats.carve]); solid.userData = { carve: true }; scene.add(solid);
   // what can be seen from a room: itself, every room through an open doorway two deep, and the rooms its stairs join
   const doorOf = new Map(things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
   function visibleFrom(id, isOpen) {
@@ -306,7 +301,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { carved, specs, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;
