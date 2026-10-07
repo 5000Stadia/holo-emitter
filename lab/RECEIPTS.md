@@ -991,3 +991,8 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - people, carts, smoke and lit lanterns;
   - streaming by block, and its textures in workers.
 - **Waiting for Kabe's vetting:** the walk and face checks, still in the lab script only.
+
+## Heavy files from jsDelivr (gate g8dfd99, 2026-10-07)
+- **New code:** src/make/assets.js (~110 lines), tools/asset-manifest.mjs (~100), tools/inject-assets.mjs (~40), 15 lines in tools/publish-site.sh, tests/.assets-hook.mjs (draft, awaiting vetting). Reused: nothing (jsDelivr's `gh/<repo>@<sha>/<path>` form is its own).
+- **Moved:** 197 files, 129 MB (123 paintings, 26 meshes, the painted-room textures, gallery images) in 49 commits; 9.7 KB manifest. Publish cost: about 80 s once, for one HEAD per commit to warm jsDelivr.
+- **Run time:** the hook adds nothing measurable per request (a hash lookup); a first visit costs the same bytes and time as before; a visit after Pages' 10 minutes re-validates no heavy file at all.
