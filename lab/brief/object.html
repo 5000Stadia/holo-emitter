@@ -123,7 +123,7 @@ const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0c0a08);
 const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.02, 40);
 
 const t0 = performance.now();
-const K = await makeKit(THREE, { floor: [6, 4] });
+const K = await makeKit(THREE, { floor: [6, 4], defer: true });       // its textures drawn in workers while the object is built
 const S = strongroomMaterials(THREE, K), look = lookC1660(THREE, K, S);
 const tKit = performance.now();
 // the stage: a back wall, a side wall, flags
@@ -141,6 +141,7 @@ const win = new THREE.RectAreaLight(0xe8eef2, 3.5, 1.2, 1.6); win.position.set(-
 
 // every material to its node twin (src/make/nodes.js), once, before the first frame
 const twins = nodeify(scene);
+await K.ready(); const tTex = performance.now();         // every texture whole before the first frame
 
 let az = 0.35, el = 0.12, dist = 3.6, ty = 1.15;
 if (obj.userData.view) [az, el, dist, ty] = obj.userData.view;
@@ -179,7 +180,7 @@ aimCam();
 let tris = 0, meshes = 0, bytes = 0; obj.traverse(o => { if (!o.isMesh) return; meshes++;
   const t = (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; tris += o.isInstancedMesh ? t * o.count : t;
   for (const a of Object.values(o.geometry.attributes)) bytes += a.array.byteLength; if (o.isInstancedMesh) bytes += o.instanceMatrix.array.byteLength + (o.instanceColor ? o.instanceColor.array.byteLength : 0); });
-window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), meshes, tris: Math.round(tris), geometry_bytes: bytes, ...obj.userData });
+window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), textures_ms: Math.round(tTex - t0), meshes, tris: Math.round(tris), geometry_bytes: bytes, ...obj.userData });
 document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer · click what works · G (or shift-click) to take`;
 // ---- checking a built thing (Kabe, 2026-10-06: "a smart way to check on a built object at multiple angles
 // and in its different toggle states"). Two ways, both at authoring, never in play:

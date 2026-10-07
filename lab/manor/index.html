@@ -47,6 +47,7 @@
 import * as THREE from "three/webgpu";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { makeKit } from "../painted/procedural.js";
+import { textureLog } from "../painted/texjobs.js";
 import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
@@ -114,13 +115,17 @@ const OUTDOOR = !STORY && Q.get("outdoor") !== "0";
 const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG;
 THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
-const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
+// (defer: the kit's textures are drawn in its workers while the house goes up, or come from the last visit's cache)
+const K = await makeKit(THREE, { floor: [8, 8], defer: true }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
 await step("raising the house, room by room, each by its purpose");
 const manor = buildManor({ settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
 ENG.mark("built");
+// every texture whole before the first frame (lab/painted/texjobs.js); what each cost: __textures()
+await step("finishing the textures"); await K.ready(); ENG.mark("textures");
+window.__textures = textureLog;
 
 // ---- light: one sun, its shadow map drawn once (the house is still); a soft fill; four window lights
 // that follow you room to room, so the count of lights never changes and nothing recompiles

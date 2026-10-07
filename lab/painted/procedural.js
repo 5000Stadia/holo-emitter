@@ -8,28 +8,9 @@
 // own frame (r along the wall from the left corner as you face it, z up, +depth toward the
 // room) and then turned into place, exactly as the painted shell is.
 
-// ---------------------------------------------------------------- noise
-function hash(i, j, s) {
-  let h = Math.imul(i, 374761393) ^ Math.imul(j, 668265263) ^ Math.imul(s + 1, 1442695041);
-  h = Math.imul(h ^ (h >>> 13), 1274126177);
-  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
-}
-const mod = (a, p) => ((a % p) + p) % p;
-// value noise, periodic over px x py lattice cells so every texture tiles
-function vnoise(x, y, px, py, s) {
-  const xi = Math.floor(x), yi = Math.floor(y), xf = x - xi, yf = y - yi;
-  const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf);
-  const x0 = mod(xi, px), x1 = mod(xi + 1, px), y0 = mod(yi, py), y1 = mod(yi + 1, py);
-  const a = hash(x0, y0, s), b = hash(x1, y0, s), c = hash(x0, y1, s), d = hash(x1, y1, s);
-  return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
-}
-function fbm(x, y, px, py, oct, s) {
-  let sum = 0, amp = 0.5, f = 1, norm = 0;
-  for (let o = 0; o < oct; o++) { sum += amp * vnoise(x * f, y * f, px * f, py * f, s + o * 17); norm += amp; amp *= 0.5; f *= 2; }
-  return sum / norm;
-}
-const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
-function rng(seed) { let s = seed >>> 0; return () => { s = Math.imul(s ^ (s >>> 15), 2246822507) + 0x9e3779b9 >>> 0; s ^= s >>> 13; return (s >>> 0) / 4294967296; }; }
+// ---------------------------------------------------------------- noise (texgen.js: pure, so the workers share it)
+import { hash, mod, vnoise, fbm, smooth, rng } from "./texgen.js";
+import { kitTexture, deferTextures, settled, drawn, mainOak, warmTextures } from "./texjobs.js";
 
 // ---------------------------------------------------------------- texture plumbing
 function canvasTex(THREE, w, h, fill, { srgb = true, repeat = true } = {}) {
@@ -58,200 +39,32 @@ function normalFrom(THREE, H, w, h, strength) {
 }
 
 // ---------------------------------------------------------------- materials
-// Oak: a 1 m periodic tile, grain running along v. Quarter-sawn English oak: straight close
-// latewood lines, silver ray fleck, fine fibre, slow tonal drift.
-function oakField(N) {
-  const A = new Float32Array(N * N * 3), H = new Float32Array(N * N);
-  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-    const u = x / N, v = y / N;
-    const warp = fbm(u * 2, v * 1, 2, 1, 3, 11) - 0.5;
-    const t = u * 70 + warp * 6 + (fbm(u * 12, v * 2, 12, 2, 2, 5) - 0.5) * 2.5;
-    const ring = t - Math.floor(t);
-    const late = smooth(0.6, 0.86, ring) * (1 - smooth(0.9, 1.0, ring));
-    const fibre = fbm(u * 300, v * 5, 300, 5, 2, 23);
-    // figure: broad light and dark streaks running with the grain, what reads from across a room
-    const figure = fbm(u * 7 + warp, v * 0.6, 7, 1, 3, 29);
-    const fl = vnoise(u * 50 + warp * 4, v * 12, 50, 12, 31);
-    const fleck = smooth(0.8, 0.92, fl) * (0.5 + 0.5 * vnoise(u * 140, v * 36, 140, 36, 37));
-    const tone = 0.72 + 0.56 * figure;                       // v2: the broad figure carries the wood; the fine grain whispers
-    const k = (0.82 + 0.18 * fibre) * (1 - 0.18 * late) * tone;
-    const i = (y * N + x) * 3;
-    // dark English oak, aged: warm brown; fleck paler, a touch of gold
-    // sRGB fractions: aged dark oak, olive-brown more than red, about (84, 59, 36)
-    // (zone-matched: the panelling read 15-50 % bright against the painting; this is 0.84 of the first pass)
-    A[i] = 0.277 * k + fleck * 0.03;          // (fleck halved with the quieter grain, or it spots)
-    A[i + 1] = 0.195 * k + fleck * 0.023;
-    A[i + 2] = 0.118 * k + fleck * 0.012;
-    H[y * N + x] = -late * 0.35 + fibre * 0.2 + fleck * 0.15;
-  }
-  return { A, H, N };
+// Each texture is a recipe for the kit's texture jobs (texjobs.js): its pixels drawn by texgen.js's
+// generator of the same name (the code that stood here until 2026-10-07, moved unchanged), in a pool of
+// workers or, when asked for at once, here; mode is "async", "sync" or (by default) "auto", which is
+// async only while a page has deferred its textures (makeKit's defer). Each call makes its own texture
+// objects, as before; the pixels are drawn once per recipe and shared.
+const OAK_N = 1024;                       // the oak field every oak texture, the floor and the carving sample
+// Oak: a 1 m periodic tile, grain running along v (rotate: across it); quarter-sawn English oak
+function oakTextures(THREE, { tint = [1, 1, 1], rotate = false } = {}, mode) {
+  return kitTexture(THREE, { gen: "oak", args: [OAK_N, rotate, tint] }, { mode });
 }
-function oakTextures(THREE, oak, { tint = [1, 1, 1], rotate = false } = {}) {
-  const { A, H, N } = oak;
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const s = rotate ? (x * N + (N - 1 - y)) : (y * N + x);
-      const o = (y * N + x) * 4;
-      d[o] = Math.min(255, A[s * 3] * tint[0] * 255); d[o + 1] = Math.min(255, A[s * 3 + 1] * tint[1] * 255); d[o + 2] = Math.min(255, A[s * 3 + 2] * tint[2] * 255); d[o + 3] = 255;
-    }
-  });
-  let Hr = H;
-  if (rotate) { Hr = new Float32Array(N * N); for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) Hr[y * N + x] = H[x * N + (N - 1 - y)]; }
-  return { map, normalMap: normalFrom(THREE, Hr, N, N, 1.6) };
+// Floor: boards running east-west, 160-240 mm wide, butt-jointed at random lengths, W x D metres at ppm
+// (periodic: a tile, every row's boards wrapping round its edge)
+function floorTexture(THREE, W, D, ppm, periodic = false, mode) {
+  return kitTexture(THREE, { gen: "floor", args: [W, D, ppm, !!periodic, OAK_N] }, { repeat: !!periodic, mode });
 }
-
-// Floor: boards running east-west, 160-240 mm wide, butt-jointed at random lengths; each
-// board a different cut of the same oak, darker and more worn than the panelling.
-function floorTexture(THREE, oak, W, D, ppm, periodic = false) {
-  const w = Math.round(W * ppm), h = Math.round(D * ppm), r = rng(7);
-  const rows = []; let y = 0;
-  while (y < D) { const bw = 0.16 + r() * 0.08; const joints = []; let x = periodic ? r() * 1.8 : -r() * 2.2;
-    while (x < W) { joints.push({ x, off: r() * 7, rot: r(), tone: 0.88 + r() * 0.2, sc: 0.65 + r() * 0.7, ac: 0.12 + r() * 0.16 }); x += 1.3 + r() * 1.9; }
-    rows.push({ y0: y, y1: Math.min(D, y + bw), joints }); y += bw; }
-  if (periodic) {   // a tile: the rows fill D exactly; each row's boards wrap round the tile's edge, so no joint lines up
-    const k = D / rows[rows.length - 1].y1; let acc = 0;
-    for (const row of rows) { const bw = (row.y1 - row.y0) * k; row.y0 = acc; row.y1 = acc = acc + bw; }
-    rows[rows.length - 1].y1 = D;
-  }
-  const H = new Float32Array(w * h), N = oak.N;
-  const map = canvasTex(THREE, w, h, (d) => {
-    let ri = 0;
-    for (let py = 0; py < h; py++) {
-      const Y = D - (py + 0.5) / ppm;               // texture row 0 = north edge
-      ri = rows.findIndex(b => Y >= b.y0 && Y < b.y1);
-      const b = rows[Math.max(0, ri)];
-      const across = (Y - b.y0) / (b.y1 - b.y0);
-      for (let px = 0; px < w; px++) {
-        const X = (px + 0.5) / ppm;
-        let j = b.joints.length - 1; while (j > 0 && b.joints[j].x > X) j--;
-        // in a tile, a board that crosses the edge carries on from the row's last joint
-        const wrap = periodic && X < b.joints[0].x, J = wrap ? b.joints[b.joints.length - 1] : b.joints[j];
-        const Xg = wrap ? X + W : X;
-        // sample the oak tile with the grain along X
-        const su = mod(Math.floor((across * J.ac + J.rot) * N), N), sv = mod(Math.floor((Xg + J.off) * N * 0.7 * J.sc), N);
-        const s = (sv * N + su) * 3;
-        const edge = Math.min(across, 1 - across) * (b.y1 - b.y0), jd = Math.abs(Xg - J.x);
-        // each board's edge rounded over 6 mm into the joint, not cut square: a groove one pixel wide and hard broke into
-        // dashes when seen low across the floor (Kabe, 2026-10-06, "harsh lines between butt up surfaces")
-        const sm = (x) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t); }, ge = sm(edge / 0.006), gj = sm(jd / 0.006), gap = (0.35 + 0.65 * ge) * (0.4 + 0.6 * gj);
-        const wear = 1 + 0.12 * Math.exp(-Math.pow((Y - D * 0.45) / 1.1, 2)) * Math.exp(-Math.pow((X - W * 0.5) / 1.6, 2));
-        const drift = 0.94 + 0.12 * fbm((Xg + J.off) * 0.6, across * 0.3 + J.rot * 5, 1000, 1000, 2, 131);   // slow, along the board
-        const k = J.tone * drift * gap * wear, o = (py * w + px) * 4;
-        // the floor is the same oak, worn lighter and waxed: the painting's boards sit well above its panelling
-        // ...and greyed by wear and dust: pulled a third of the way toward its own grey
-        const fr = oak.A[s] * 1.9 * k, fg = oak.A[s + 1] * 1.85 * k, fb = oak.A[s + 2] * 1.8 * k, fy = 0.3 * fr + 0.55 * fg + 0.15 * fb;
-        d[o] = Math.min(255, (fr * 0.64 + fy * 0.36) * 255);
-        d[o + 1] = Math.min(255, (fg * 0.64 + fy * 0.36) * 255);
-        d[o + 2] = Math.min(255, (fb * 0.64 + fy * 0.36) * 255);
-        d[o + 3] = 255;
-        H[py * w + px] = oak.H[sv * N + su] * 0.4 * ge * gj - 1.2 * (1 - ge * gj);
-      }
-    }
-  }, { repeat: periodic });
-  return { map, normalMap: normalFrom(THREE, H, w, h, 2.2) };
-}
-
-// Plaster (lime, smoke-aged), limestone, brick: all 1 m periodic tiles
-function plasterTexture(THREE, N = 512) {
-  const H = new Float32Array(N * N);
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const u = x / N, v = y / N;
-      const m = fbm(u * 3, v * 3, 3, 3, 4, 3), f = fbm(u * 60, v * 60, 60, 60, 2, 9);
-      const k = 0.86 + 0.18 * m + 0.05 * f, o = (y * N + x) * 4;
-      d[o] = 150 * k; d[o + 1] = 128 * k; d[o + 2] = 98 * k; d[o + 3] = 255;
-      H[y * N + x] = m * 0.6 + f * 0.3;
-    }
-  });
-  return { map, normalMap: normalFrom(THREE, H, N, N, 0.8) };
-}
-function stoneTexture(THREE, N = 512, base = [118, 108, 90], blots = true) {
-  const H = new Float32Array(N * N);
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const u = x / N, v = y / N;
-      const m = fbm(u * 5, v * 5, 5, 5, 4, 51), f = fbm(u * 80, v * 80, 80, 80, 2, 57);
-      const pit = smooth(0.9, 0.97, vnoise(u * 90, v * 90, 90, 90, 61));
-      const tool = 0.03 * Math.sin((u * 0.7 + v) * 380 + m * 6);
-      const blot = blots ? smooth(0.55, 0.8, fbm(u * 9, v * 9, 9, 9, 3, 67)) : 0;      // lichen-dark weathering blots
-      const k = (0.78 + 0.38 * m + 0.1 * f + 1.6 * tool) * (1 - 0.22 * pit) * (1 - 0.25 * blot), o = (y * N + x) * 4;
-      d[o] = base[0] * k; d[o + 1] = base[1] * k; d[o + 2] = base[2] * k; d[o + 3] = 255;
-      H[y * N + x] = m * 0.4 + f * 0.4 - pit;
-    }
-  });
-  return { map, normalMap: normalFrom(THREE, H, N, N, 1.2) };
-}
-function flagTexture(THREE, N = 768) {
-  const H = new Float32Array(N * N), r = rng(51);
-  const rows = [0, 0.52, 1.0, 1.46, 2.0].map(v => v / 2);     // course lines in tile units (tile = 2 m)
-  const cuts = rows.slice(0, -1).map(() => { const c = [0]; let x = 0.25 + r() * 0.1; while (x < 0.95) { c.push(x); x += 0.28 + r() * 0.12; } if (1 - c[c.length - 1] < 0.2) c.pop(); return c; });   // no sliver where a course wraps
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const u = x / N, v = y / N, row = rows.findIndex((a, i) => v >= a && v < rows[i + 1]);
-      const cs = cuts[row]; let j = cs.length - 1; while (j > 0 && cs[j] > u) j--;
-      const next = j + 1 < cs.length ? cs[j + 1] : 1;
-      const eu = Math.min(u - cs[j], next - u), ev = Math.min(v - rows[row], rows[row + 1] - v);
-      const joint = eu < 0.004 || ev < 0.004;
-      const t = hash(j, row, 53), m = fbm(u * 10, v * 10, 10, 10, 4, 57), f = fbm(u * 90, v * 90, 90, 90, 2, 59);
-      const k = joint ? 0.35 : (0.72 + 0.3 * t + 0.25 * m + 0.08 * f) * (1 - 0.3 * smooth(0.6, 0.85, fbm(u * 6, v * 6, 6, 6, 3, 61)));
-      const o = (y * N + x) * 4;
-      d[o] = 118 * k; d[o + 1] = 110 * k; d[o + 2] = 96 * k; d[o + 3] = 255;
-      H[y * N + x] = joint ? -1 : m * 0.3 + f * 0.3;
-    }
-  });
-  return { map, normalMap: normalFrom(THREE, H, N, N, 2) };
-}
-function brickTexture(THREE, N = 512) {
-  // 1 m tile: 4 bricks of 0.25 m per course (incl. joint), 13 courses of ~0.077 m
-  const H = new Float32Array(N * N), cw = 0.25, ch = 1 / 13;
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const u = x / N, v = y / N, row = Math.floor(v / ch), off = (row % 2) * cw / 2;
-      const bu = mod(u + off, 1), col = Math.floor(bu / cw);
-      const lu = (bu - col * cw) / cw, lv = (v - row * ch) / ch;
-      const joint = lu < 0.04 || lv < 0.1;
-      const t = hash(col, row, 71), m = fbm(u * 20, v * 20, 20, 20, 3, 73);
-      const soot = (0.55 + 0.45 * fbm(u * 2, v * 2, 2, 2, 3, 79)) * (0.7 + 0.3 * v);
-      const o = (y * N + x) * 4;
-      if (joint) { d[o] = 72 * soot; d[o + 1] = 64 * soot; d[o + 2] = 56 * soot; }
-      else { const k = (0.6 + 0.45 * t + 0.25 * m) * soot; d[o] = 104 * k; d[o + 1] = 56 * k; d[o + 2] = 40 * k; }
-      d[o + 3] = 255; H[y * N + x] = joint ? -1 : m * 0.4;
-    }
-  });
-  return { map, normalMap: normalFrom(THREE, H, N, N, 2.5) };
-}
-// carved frieze: a running vine with leaves between two fillets, as a height field on oak
+// Plaster (lime, smoke-aged), limestone, flags, brick: all periodic tiles
+function plasterTexture(THREE, N = 512, mode) { return kitTexture(THREE, { gen: "plaster", args: [N] }, { mode }); }
+function stoneTexture(THREE, N = 512, base = [118, 108, 90], blots = true, mode) { return kitTexture(THREE, { gen: "stone", args: [N, base, !!blots] }, { mode }); }
+function flagTexture(THREE, N = 768, mode) { return kitTexture(THREE, { gen: "flag", args: [N] }, { mode }); }
+function brickTexture(THREE, N = 512, mode) { return kitTexture(THREE, { gen: "brick", args: [N] }, { mode }); }
+// carved frieze: a running vine with leaves between two fillets, as a height field on oak (one per size)
 const CARVED = new Map();
 function carvedTextures(THREE, oak, len, ht, ppm = 400) {
   const key = `${len.toFixed(2)}x${ht.toFixed(3)}`;
-  if (!CARVED.has(key)) CARVED.set(key, carvedTexturesNew(THREE, oak, len, ht, ppm));
+  if (!CARVED.has(key)) CARVED.set(key, kitTexture(THREE, { gen: "carved", args: [len, ht, ppm, OAK_N] }, { repeat: false }));
   return CARVED.get(key);
-}
-function carvedTexturesNew(THREE, oak, len, ht, ppm) {
-  const w = Math.round(len * ppm), h = Math.round(ht * ppm), N = oak.N;
-  const Hc = new Float32Array(w * h), rep = 0.26;
-  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-    const X = x / ppm, Y = 1 - y / h;           // Y 0..1 bottom to top
-    const ph = (X / rep) * Math.PI * 2;
-    const vine = 0.5 + 0.22 * Math.sin(ph);
-    const dv = Math.abs(Y - vine);
-    let hgt = Math.exp(-Math.pow(dv / 0.06, 2));
-    // leaves: an ellipse off each crest and trough
-    for (const k of [0.25, 0.75]) {
-      const cx = (Math.floor(X / rep) + k) * rep, cy = k < 0.5 ? 0.78 : 0.22;
-      const ex = (X - cx) / (rep * 0.2), ey = (Y - cy) / 0.14;
-      hgt = Math.max(hgt, (1 - Math.min(1, ex * ex + ey * ey)) * (0.8 + 0.2 * Math.cos(ex * 6)));
-    }
-    const border = (Y < 0.08 || Y > 0.92) ? 1 : 0;
-    Hc[y * w + x] = Math.max(hgt, border) * 0.9 + 0.1 * fbm(X * 40, Y * 10, 400, 10, 2, 91);
-  }
-  const map = canvasTex(THREE, w, h, (d) => {
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const s = ((y % N) * N + (x % N)) * 3, k = 0.72 + 0.4 * Hc[y * w + x], o = (y * w + x) * 4;
-      d[o] = oak.A[s] * k * 255; d[o + 1] = oak.A[s + 1] * k * 255; d[o + 2] = oak.A[s + 2] * k * 255; d[o + 3] = 255;
-    }
-  }, { repeat: false });
-  return { map, normalMap: normalFrom(THREE, Hc, w, h, 3) };
 }
 // leaded lights: diamond quarries in lead cames, a shield of arms in the upper lights
 const LEADED = new Map();
@@ -295,20 +108,7 @@ function leadedTextureNew(THREE, wM, hM, shield, seed) {
   return t;
 }
 // what lies beyond the south windows: sky, a far line of trees, a lawn, soft and low in detail
-function outsideTexture(THREE) {
-  const w = 1024, h = 512;
-  return canvasTex(THREE, w, h, (d) => {
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const u = x / w, v = y / h, o = (y * w + x) * 4;
-      const ridge = 0.5 + 0.07 * (fbm(u * 6, 0.5, 6, 1, 4, 301) - 0.5) * 4;       // the tree line's top edge
-      let r, g2, b;
-      if (v < ridge) { const k = v / ridge; r = 200 - 40 * k; g2 = 214 - 30 * k; b = 226 - 34 * k; }     // sky, hazed toward the horizon
-      else if (v < 0.66) { const m = fbm(u * 30, v * 20, 30, 20, 3, 303); r = 40 + 26 * m; g2 = 54 + 30 * m; b = 42 + 18 * m; }  // trees: the one value break that must read
-      else { const m = fbm(u * 12, v * 24, 12, 24, 3, 307); r = 82 + 26 * m; g2 = 100 + 26 * m; b = 62 + 16 * m; }             // lawn
-      const haze = 0.18; d[o] = r * (1 - haze) + 214 * haze; d[o + 1] = g2 * (1 - haze) + 222 * haze; d[o + 2] = b * (1 - haze) + 226 * haze; d[o + 3] = 255;
-    }
-  }, { repeat: false });
-}
+function outsideTexture(THREE, mode) { return kitTexture(THREE, { gen: "outside", args: [] }, { repeat: false, mode }).map; }
 
 // ---------------------------------------------------------------- geometry
 // offset a polyline by d (positive = to the left of travel, i.e. inward for a CCW loop), mitred
@@ -526,27 +326,30 @@ const STYLE = {
 // Everything a room is made from, built once: materials grown from noise, and the helpers that give
 // each part its own cut of timber. floor = [W, D] for a floor texture sized to one room, or null for a
 // 4 m periodic tile (a house of many rooms).
-export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
+// The textures are drawn in the kit's workers (texjobs.js), all at once, and kept for the next visit.
+// By default makeKit waits for them, so its materials are whole when it returns; textures asked for later
+// (a wall's carving, the strongroom's) are drawn on the main thread as before. defer: true returns at
+// once, the materials' textures filling as their pixels arrive, and everything asked for until the page
+// awaits K.ready() is drawn in the workers too, alongside the building; K.ready() resolves when every
+// texture is whole (draw nothing before), and ends the deferring.
+export async function makeKit(THREE, { floor = null, onStep = () => {}, defer = false } = {}) {
   onStep("growing oak");
-  await new Promise(r => setTimeout(r));
-  const oak = oakField(1024);
-  const oakV = oakTextures(THREE, oak), oakH = oakTextures(THREE, oak, { rotate: true });
+  if (defer) deferTextures(true);
+  const starting = warmTextures(), A = "async";
+  // the floor first: the largest, drawn in bands across the pool
+  const fl = floor ? floorTexture(THREE, floor[0], floor[1], 360, floor[2], A) : floorTexture(THREE, 4, 4, 256, true, A);
+  const oakV = oakTextures(THREE, {}, A), oakH = oakTextures(THREE, { rotate: true }, A);
   const M = {
     oak: grime(THREE, new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
     oakH: grime(THREE, new THREE.MeshStandardMaterial({ ...oakH, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
     oakDim: new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.7, color: 0x6a6a6a, vertexColors: true, emissive: 0x0a0604, emissiveIntensity: 1 }),
   };
-  onStep("laying the floor");
-  await new Promise(r => setTimeout(r));
-  const fl = floor ? floorTexture(THREE, oak, floor[0], floor[1], 360, floor[2]) : floorTexture(THREE, oak, 4, 4, 256, true);
   M.floor = new THREE.MeshStandardMaterial({ ...fl, roughness: 0.64, normalScale: new THREE.Vector2(0.4, 0.4) });
-  onStep("plaster, stone and brick");
-  await new Promise(r => setTimeout(r));
-  M.plaster = new THREE.MeshStandardMaterial({ ...plasterTexture(THREE), roughness: 0.95 });
-  const stone = stoneTexture(THREE);
+  M.plaster = new THREE.MeshStandardMaterial({ ...plasterTexture(THREE, 512, A), roughness: 0.95 });
+  const stone = stoneTexture(THREE, 512, [118, 108, 90], true, A);
   M.stone = new THREE.MeshStandardMaterial({ ...stone, roughness: 0.82, normalScale: new THREE.Vector2(0.7, 0.7) });
-  M.hearth = new THREE.MeshStandardMaterial({ ...stoneTexture(THREE, 512, [96, 90, 80]), roughness: 0.75 });
-  M.brick = new THREE.MeshStandardMaterial({ ...brickTexture(THREE), roughness: 0.9 });
+  M.hearth = new THREE.MeshStandardMaterial({ ...stoneTexture(THREE, 512, [96, 90, 80], true, A), roughness: 0.75 });
+  M.brick = new THREE.MeshStandardMaterial({ ...brickTexture(THREE, 512, A), roughness: 0.9 });
   M.dark = new THREE.MeshStandardMaterial({ color: 0x050403, roughness: 1 });
   M.lead = new THREE.MeshStandardMaterial({ color: 0x2c2824, roughness: 0.6, metalness: 0.3 });
 
@@ -565,10 +368,19 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
     g.setAttribute("color", new THREE.BufferAttribute(c, 3));
     return g;
   };
-  M.limewash = new THREE.MeshStandardMaterial({ ...plasterTexture(THREE), roughness: 0.97, color: new THREE.Color(1.12, 1.1, 1.04) });
-  M.flags = new THREE.MeshStandardMaterial({ ...flagTexture(THREE), roughness: 0.8 });
+  M.limewash = new THREE.MeshStandardMaterial({ ...plasterTexture(THREE, 512, A), roughness: 0.97, color: new THREE.Color(1.12, 1.1, 1.04) });
+  M.flags = new THREE.MeshStandardMaterial({ ...flagTexture(THREE, 768, A), roughness: 0.8 });
   for (const [k, v] of Object.entries(M)) CLASS.set(v, k === "oakH" || k === "oakDim" ? "oak" : k);
-  return { M, oak, CLASS, cast, board, parts: 0 };
+  const K = { M, CLASS, cast, board, parts: 0, ready: async () => { await settled(); deferTextures(false); } };
+  // the oak field itself (A, H, N), drawn here only if something asks for it: the kit's textures are drawn from their own
+  Object.defineProperty(K, "oak", { get: () => mainOak(OAK_N), enumerable: true, configurable: true });
+  if (defer) await starting;       // the workers running before the caller blocks the main thread to build
+  else {
+    await Promise.all([drawn(oakV.map), drawn(oakH.map)]); onStep("laying the floor");
+    await drawn(fl.map); onStep("plaster, stone and brick");
+    await settled();
+  }
+  return K;
 }
 
 // ---------------------------------------------------------------- a wall
@@ -577,7 +389,7 @@ export async function makeKit(THREE, { floor = null, onStep = () => {} } = {}) {
 // shapes; T, lining and passage on an opening override the single-room defaults). style: "panelled"
 // or "limewashed". Returns the group, and the window lights it made.
 export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0, mitre = [1, 1] } = {}) {
-  const { M, oak, CLASS, cast, board } = K;
+  const { M, CLASS, cast, board } = K;
   const grp = new THREE.Group(), lights = [];
   const plain = style === "limewashed";
     let ctx = "panelling"; const count = {};
@@ -765,7 +577,8 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         const opening = [[fb.r0, 0], [fb.r0, fb.spring], ...arch, ...archR, [fb.r1, fb.spring], [fb.r1, 0]];
         const SD = 0.2, MO = 0.075, J = 0.002;
         // dressed limestone, each block its own tone, a soot plume over the opening
-        const dressed = stoneTexture(THREE, 512, [104, 92, 74]);     // v2: warmer, darker, weathered limestone
+        // v2: warmer, darker, weathered limestone; one texture for every chimney-piece (it was drawn afresh for each)
+        const dressed = K.dressedStone || (K.dressedStone = stoneTexture(THREE, 512, [104, 92, 74]));
         const stoneS = grime(THREE, new THREE.MeshStandardMaterial({ ...dressed, roughness: 0.88, vertexColors: true, normalScale: new THREE.Vector2(0.9, 0.9) }),
           [cx, fb.apex + 0.16, half * 1.05, 0.34, 0.6], false);
         stoneS.userData.cls = "stone";
@@ -813,7 +626,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
             pa.setZ(i, carveHeight(X, Y) * 0.011);
           }
           cg.computeVertexNormals(); cg.translate((m.r0 + m.r1) / 2, cy, fz + 0.002);
-          const carv = carvedTextures(THREE, oak, len, ch);
+          const carv = carvedTextures(THREE, null, len, ch);
           const carvM = grime(THREE, new THREE.MeshStandardMaterial({ map: carv.map, roughness: 0.55 }));
           carvM.userData.cls = "oak_carved";
           add(cg, carvM);
@@ -868,7 +681,8 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
   const { w: W, d: D, h: H } = schem.room;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x07060a);
-  const K = await makeKit(THREE, { floor: [W, D], onStep });
+  // the textures drawn in the kit's workers while the walls go up; the room returned whole
+  const K = await makeKit(THREE, { floor: [W, D], onStep, defer: true });
   const { M } = K;
   const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), M.floor);
   floor.userData = { instance: "floor", material: "floor", owner: "floor" };
@@ -889,6 +703,8 @@ export async function buildProcedural(THREE, schem, onStep = () => {}) {
     scene.add(w.grp); lights.push(...w.lights);
   }
   const parts = K.parts;
+  onStep("finishing the textures");
+  await K.ready();
 
   // the light, shaped the way bounced light falls: a low sun through the south windows, the sky in
   // the glass, and broad warm sources where the room hands light back: the floor, the sunlit patch
