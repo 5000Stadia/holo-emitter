@@ -6,7 +6,9 @@
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { buildBook, bookSpec } from "../../src/make/parts/books.js";
 import { build, lookC1660, shutterOpen } from "../../src/make/index.js";
-import { rect, slab, quad, run, loft, metric, metricAny, block, rng, hash, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex, normalFrom, fbm, smooth } from "../painted/procedural.js";
+import { rect, slab, quad, run, loft, metric, metricAny, block, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex } from "../painted/procedural.js";
+import { kitTexture } from "../painted/texjobs.js";
+import { LIB as SR_TEX } from "./strongroom-tex.js";
 
 const r2 = (x) => Math.round(x * 1000) / 1000;
 const PLACE = (W, D) => ({ N: { pos: [0, 0, -D], rot: 0 }, S: { pos: [W, 0, 0], rot: Math.PI }, E: { pos: [W, 0, -D], rot: -Math.PI / 2 }, W: { pos: [0, 0, 0], rot: Math.PI / 2 } });
@@ -44,67 +46,20 @@ function buckets(THREE, K) {
 
 // limewash over coursed ashlar: near white, washed on unevenly, the courses showing through faintly.
 // Stones as a mason lays them: level courses 0.4 m high, each stone 0.75–1.3 m long, every joint
-// broken over the stone below; a 4 m tile, so no wall shows the pattern twice.
+// broken over the stone below; a 4 m tile, so no wall shows the pattern twice. (Drawn by strongroom-tex.js,
+// in the kit's texture workers or here: lab/painted/texjobs.js.)
 function limewashTexture(THREE, N = 1024) {
-  const TILE = 4, COURSE = 0.4, NC = TILE / COURSE, H = new Float32Array(N * N), cuts = [];
-  const r = rng(1660);
-  for (let j = 0; j < NC; j++) {
-    // joints in tile units, periodic; each course's joints kept clear of the course below's
-    const below = cuts[j - 1] || [], c = [];
-    let x = r() * 0.3;
-    while (x < 1) {
-      let t = x;
-      for (let k = 0; k < 6 && below.some(b => Math.min(Math.abs(t - b), 1 - Math.abs(t - b)) < 0.06); k++) t += 0.035;
-      c.push(t % 1); x = t + (0.75 + r() * 0.55) / TILE;
-    }
-    if (c.length > 1 && 1 - c[c.length - 1] + c[0] < 0.6 / TILE) c.pop();      // no sliver where the course wraps
-    cuts.push(c);
-  }
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
-      const u = x / N, v = y / N, row = Math.floor(v * NC), fv = v * NC - row;
-      let du = 1; for (const c of cuts[row]) { const a = Math.abs(u - c); du = Math.min(du, a, 1 - a); }
-      const jt = Math.min(Math.min(fv, 1 - fv) / NC, du) * TILE;             // metres to the nearest joint
-      const joint = 1 - smooth(0.004, 0.012, jt);                              // the wash has filled it: a soft shallow line
-      const m = fbm(u * 8, v * 8, 8, 8, 4, 71), f = fbm(u * 128, v * 128, 128, 128, 2, 73), wash = fbm(u * 14, v * 14, 14, 14, 3, 79);
-      const k = (0.91 + 0.09 * m + 0.035 * f) * (1 - 0.05 * joint) * (1 - 0.05 * Math.max(0, wash - 0.55) * 4), o = (y * N + x) * 4;
-      d[o] = 226 * k; d[o + 1] = 221 * k; d[o + 2] = 206 * k; d[o + 3] = 255;
-      H[y * N + x] = -0.18 * joint + m * 0.45 + f * 0.22;
-    }
-  });
-  map.repeat.set(1 / TILE, 1 / TILE);
-  const nm = normalFrom(THREE, H, N, N, 1.2); nm.repeat.set(1 / TILE, 1 / TILE);
-  return { map, normalMap: nm };
+  const TILE = 4, t = kitTexture(THREE, { lib: SR_TEX, gen: "limewash", args: [N] });
+  t.map.repeat.set(1 / TILE, 1 / TILE); t.normalMap.repeat.set(1 / TILE, 1 / TILE);
+  return t;
 }
 
 // flagstones: large slabs in courses of varied width running across the room, each stone 0.6–1.1 m long,
 // its own tone and wear; joints wrap at the tile's edge (a 4 m tile) so no sliver stone appears
 function flagstoneTexture(THREE, N = 1024) {
-  const TILE = 4, r = rng(1662);
-  // course widths summing exactly to the tile
-  let rows = []; { let y = 0; while (y < TILE - 0.5) { const w = 0.55 + r() * 0.3; rows.push(w); y += w; } const k = TILE / rows.reduce((a, b) => a + b, 0); rows = rows.map(w => w * k); }
-  const edges = [0]; for (const w of rows) edges.push(edges[edges.length - 1] + w / TILE);
-  const cuts = rows.map((_, j) => { const c = []; let x = r() * 0.25; while (x < 1 - 0.0001) { c.push(x); x += (0.6 + r() * 0.5) / TILE; } if (c.length > 1 && 1 - c[c.length - 1] + c[0] < 0.45 / TILE) c.pop(); return c; });
-  const H = new Float32Array(N * N);
-  const map = canvasTex(THREE, N, N, (d) => {
-    for (let y = 0; y < N; y++) {
-      const v = y / N; let row = 0; while (row < rows.length - 1 && v >= edges[row + 1]) row++;
-      const dv = Math.min(v - edges[row], edges[row + 1] - v) * TILE, cs = cuts[row];
-      for (let x = 0; x < N; x++) {
-        const u = x / N;
-        let k0 = cs.length - 1; for (let q = 0; q < cs.length; q++) if (cs[q] <= u) k0 = q;      // which stone (wrapping)
-        let du = 1; for (const c of cs) { const a = Math.abs(u - c); du = Math.min(du, a, 1 - a); }
-        const jt = Math.min(dv, du * TILE), joint = 1 - smooth(0.002, 0.009, jt), edge = 1 - smooth(0.008, 0.05, jt);
-        const t = hash(k0, row, 53), m = fbm(u * 16 + k0 * 0.37, v * 16, 16, 16, 4, 57 + (k0 % 5)), f = fbm(u * 160, v * 160, 160, 160, 2, 59);
-        const stone = (0.78 + 0.22 * t + 0.16 * m + 0.06 * f) * (1 - 0.1 * edge), k = stone + (0.56 - stone) * joint, o = (y * N + x) * 4;   // lime-pointed joints: darker, not black
-        d[o] = 122 * k; d[o + 1] = 114 * k; d[o + 2] = 100 * k; d[o + 3] = 255;
-        H[y * N + x] = -0.6 * joint - 0.25 * edge + m * 0.3 + f * 0.2 + t * 0.1;
-      }
-    }
-  });
-  map.repeat.set(1 / TILE, 1 / TILE);
-  const nm = normalFrom(THREE, H, N, N, 1.6); nm.repeat.set(1 / TILE, 1 / TILE);
-  return { map, normalMap: nm };
+  const TILE = 4, t = kitTexture(THREE, { lib: SR_TEX, gen: "flagstone", args: [N] });
+  t.map.repeat.set(1 / TILE, 1 / TILE); t.normalMap.repeat.set(1 / TILE, 1 / TILE);
+  return t;
 }
 
 export function strongroomMaterials(THREE, K) {
