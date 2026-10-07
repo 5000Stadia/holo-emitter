@@ -51,6 +51,7 @@ import { textureLog } from "../painted/texjobs.js";
 import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
+import { makeWarm } from "../../src/make/warm.js";
 import { buildManor } from "../../src/make/manor.js";
 import { makeWalk } from "../../src/make/walk.js";
 import { planBanqueting } from "../../src/make/plans/banqueting.js";
@@ -402,12 +403,24 @@ window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map((
 // what was added after the house (the forecourt, the sky) to node twins too, the house's own where it shares them
 // (src/make/nodes.js): the forecourt's ashlar and iron are the house's, not classic copies three converts and builds again
 nodeify(scene);
+// every room compiled ahead after the first frame while there is time to spare, nearest first (src/make/warm.js): turning
+// round, or walking into a room, then makes nothing (its shaders, pipelines and textures are ready). ?warm=0: each at first sight
+const warm = Q.get("warm") === "0" ? null : (() => {
+  const box = new THREE.Box3().setFromObject(manor.scene), c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
+  const cam = new THREE.PerspectiveCamera(90, 1, 0.5, 4 * (s.x + s.y + s.z)); cam.position.set(c.x, box.max.y + Math.max(s.x, s.z), c.z + 0.01); cam.lookAt(c); cam.updateMatrixWorld();
+  // (only while the view has been still a second: a GPU pipeline it makes holds a frame up, unseen when nothing moves)
+  const W = makeWarm(renderer, scene, { camera: cam, at: () => camera.position.toArray(), quiet: () => performance.now() - lastMoved > 1000 }), inRooms = new Set();
+  for (const [id, r] of manor.rooms) { W.add(id, [r.grp, r.movers], { center: new THREE.Box3().setFromObject(r.grp).getCenter(new THREE.Vector3()).toArray() }); inRooms.add(r.grp).add(r.movers); }
+  // and the outside: the house's shell, its carved solid and stairs, the forecourt, the ground and the hillside as they stand
+  W.add("outside", [...manor.scene.children.filter(o => !inRooms.has(o)), FC?.group, hill?.group, ground?.group], { center: c.toArray() });
+  return W; })();
+window.__warm = () => warm?.stats();
 ENG.mark("ready");                                  // everything built and wired; next, the first frame
 // the pipelines compiled ahead of the first frame, asynchronously: measured worse (13 s compiling every room, hidden
 // ones too, and the first frame still 2 s, 2026-10-07), so on request only, for further tries
 if (Q.get("precompile") === "1" && renderer.compileAsync) { camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ"); camera.updateMatrixWorld();
   try { await renderer.compileAsync(scene, camera); } catch (_) {} ENG.mark("compiled"); }
-let last = performance.now();
+let last = performance.now(), lastMoved = 0;
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
   // your body at your size (a story's sizes; the manor's 1.6 m eye otherwise); a new size eases in, the walker with it
@@ -426,6 +439,7 @@ renderer.setAnimationLoop((now) => {
     let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; } }
   { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
   const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) * (crouch ? 0.55 : 1) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
+  if (moved) lastMoved = now;
   const eye = (B ? B.eye : EYE) * (crouch ? 0.55 : 1); camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
   works.tick(dt);
@@ -441,7 +455,7 @@ renderer.setAnimationLoop((now) => {
   const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
-  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
+  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
 </script>
