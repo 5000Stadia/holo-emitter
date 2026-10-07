@@ -19,7 +19,8 @@ export function topicsFor(k, who, frame) {
   const p = arr(k.cast).find(c => c.id === who); if (!p) return [];
   const out = new Map();
   // the case's general topics (the deceased, where were you, the land sale …), then each of this person's clues' topics
-  for (const t of arr(k.topics)) out.set(t.id, { id: t.id, label: t.label || t.id });
+  // (a topic carries its own words for reading your questions; one marked `after` opens once its clue is learned)
+  for (const t of arr(k.topics)) if (!t.after || frame.learned.has(t.after)) out.set(t.id, { id: t.id, label: t.label || t.id, words: t.words });
   for (const c of arr(p.clues)) { const id = c.gate?.topic || c.topic; if (id && !out.has(id)) out.set(id, { id, label: (arr(k.topics).find(t => t.id === id)?.label) || id.replace(/_/g, " ") }); }
   for (const c of arr(p.claims)) { const id = c.topic; if (id && !out.has(id)) out.set(id, { id, label: id.replace(/_/g, " ") }); }
   // and each other person, by name ("what of Master Hale?")
