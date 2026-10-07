@@ -347,10 +347,49 @@ function goTo(ndc) {
 }
 window.__goTo = (nx, ny) => goTo(new THREE.Vector2(nx, ny));
 const ray = new THREE.Raycaster(); ray.far = 2.6;
-const aim = (ndc) => { ray.setFromCamera(ndc || new THREE.Vector2(0, 0), camera); const h = ray.intersectObjects(works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point;
+// aiming, with a forgiving circle (Kabe, 2026-10-07: small things like keys or a gate's bars are "hard to click on precisely
+// … a radio circle around it of a larger size that is invisible … when two objects are close enough … the center dot
+// shortest distance to the closest item … receives the focus"): the ray through the dot first; if it finds nothing
+// usable, rays in two rings round it (about 14 and 28 px; 24 and 48 px for a finger), and of the usable things they
+// meet, the one whose hit lies nearest the dot on screen takes the focus. Each ray stops at the first surface, so
+// nothing behind a wall is ever chosen.
+const aimAt = {}; const RINGS = TOUCH ? [[24, 8], [48, 12]] : [[14, 8], [28, 12]], _p = new THREE.Vector3();
+// (only what lies within reach and inside the aiming cone is tested: a cheap sphere test over everything first, then the
+// rays against the few left; casting every ring ray at every mesh cost 10-19 ms an aim beside the gates)
+const _s = new THREE.Sphere(), _v = new THREE.Vector3(), _f = new THREE.Vector3();
+let near = null;
+function nearAim() { camera.getWorldDirection(_f); const cone = Math.atan(((RINGS.at(-1)[0] + 40) * 2 / innerHeight) * Math.tan(camera.fov * Math.PI / 360)) + 0.05, out = [];
+  for (const m of works.meshes()) { if (!m.geometry) continue; if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere(); _s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld);
+    _v.subVectors(_s.center, camera.position); const d = _v.length(); if (d - _s.radius > ray.far) continue;
+    if (d > _s.radius && Math.acos(Math.min(1, _v.dot(_f) / d)) - Math.asin(Math.min(1, _s.radius / d)) > cone) continue; out.push(m); }
+  return out; }
+function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(near || works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point;
   // a person present (a case's): the nearer of them and the thing aimed at
-  if (presences.size) { const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.parent?.visible !== false).map(q => q.p.hit), false)[0]; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
-  return t; };
+  if (presences.size) { const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
+  return t; }
+window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : { kind: t.b?.kind?.kind, aff: t.aff }) : null; };
+const _b = new THREE.Box3(), _c = new THREE.Vector3();
+const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(); const first = aimOne(c); if (first) { near = null; return first; }
+  // each usable thing near the aim: how far its outline lies from the dot on screen (its box's corners projected),
+  // nearest first; within the circle, one ray to its nearest point confirms it (and that nothing stands in front)
+  const R = RINGS.at(-1)[0], cands = [];
+  for (const m of near) { const t = works.find({ object: m }); if (!t) continue; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); _b.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, behind = false;
+    for (let k = 0; k < 8; k++) { _c.set(k & 1 ? _b.max.x : _b.min.x, k & 2 ? _b.max.y : _b.min.y, k & 4 ? _b.max.z : _b.min.z).project(camera); if (_c.z > 1) behind = true;
+      x0 = Math.min(x0, _c.x); x1 = Math.max(x1, _c.x); y0 = Math.min(y0, _c.y); y1 = Math.max(y1, _c.y); }
+    if (behind) continue;
+    const qx = Math.min(x1, Math.max(x0, c.x)), qy = Math.min(y1, Math.max(y0, c.y)), d = Math.hypot((qx - c.x) * innerWidth / 2, (qy - c.y) * innerHeight / 2);
+    if (d <= R) cands.push({ d, b: t.b, m, q: new THREE.Vector2(qx + (c.x - qx) * 0.02 + (qx === c.x ? 0 : Math.sign(qx - c.x) * 2 / innerWidth), qy + (qy === c.y ? 0 : Math.sign(qy - c.y) * 2 / innerHeight)) }); }
+  cands.sort((a, b) => a.d - b.d);
+  const tried = new Set();
+  for (const k of cands) { if (tried.has(k.b) || tried.size >= 4) continue; tried.add(k.b);
+    // the dot inside its outline (a gate seen between its bars): the rings cast at it alone find its nearest part
+    if (k.d === 0) { let q = null, qd = Infinity; const own = cands.filter(o => o.b === k.b).map(o => o.m);
+      for (const [px, n] of RINGS) { for (let j = 0; j < n; j++) { const a = j * 2 * Math.PI / n, r = new THREE.Vector2(c.x + Math.cos(a) * px * 2 / innerWidth, c.y + Math.sin(a) * px * 2 / innerHeight);
+          ray.setFromCamera(r, camera); if (ray.intersectObjects(own, true)[0]) { const dd = px; if (dd < qd) { qd = dd; q = r; } } } if (q) break; }
+      if (!q) continue; k.q = q; }
+    const t = aimOne(k.q); if (t && t.b === k.b) { near = null; return t; } }
+  near = null; return null; };
 function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; return actOn(t); }
 // a test hook: act on a thing as a click on it would (its affordance, or none to take or put down)
 window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
@@ -497,7 +536,8 @@ renderer.setAnimationLoop((now) => {
   const fading = winPool.step(dt) | firePool.step(dt);
   if (!window.__ok && !ENG.marks.tiles) ENG.mark("tiles");
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
-  const t = aim(locked ? null : hover), cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+  if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   // the cue re-aims at most ~15 times a second aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
+  const t = aimAt.v, cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
