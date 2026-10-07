@@ -65,6 +65,8 @@ import { STORY_ROOM_TYPES } from "../../src/make/rooms/story.js";
 import { makeSite, makeOutdoorWalk } from "../../src/make/terrain.js";
 import { makeGround, groundMaterial } from "../../src/make/terrain-mesh.js";
 import { buildForecourt } from "../../src/make/forecourt.js";
+import { makeFields } from "../../src/make/fields.js";
+import { makeHillside } from "../../src/make/hillside.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { rng as rngOf, seedOf } from "../../src/make/id.js";
 import { build } from "../../src/make/index.js";
@@ -156,8 +158,14 @@ window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null
 
 // ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
 // terrain-mesh.js), a sky and the haze of distance
-const site = OUTDOOR ? makeSite(plan) : null, ground = site ? makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") !== "0", material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)) }) }) : null;
-window.__site = site; window.__ground = ground;
+const site = OUTDOOR ? makeSite(plan) : null, fields = site ? makeFields(site) : null;
+if (fields) site.relief(fields.furrowZ);          // ridge and furrow in the ground's height, before anything samples it
+const ground = site ? makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") !== "0", material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)) }) }) : null;
+// the fields' walls, hedges, gates and trees (src/make/hillside.js), in tiles round you; impostors drawn once by this renderer, lit by this sun
+const hill = site ? makeHillside(THREE, site, fields, { renderer, near: ENG.phone ? 100 : 150, nearTile: ENG.phone ? 100 : 150,
+  light: { sun: sun.color.getHex(), sunI: sun.intensity, sky: 0xc8d0d8, ground: 0x3a2c1e, hemi: 0.55, dir: sun.position.clone().sub(sun.target.position).toArray() } }) : null;
+if (hill) scene.add(hill.group);
+window.__site = site; window.__ground = ground; window.__hill = hill;
 if (ground) { scene.add(ground.group);
   scene.fog = new THREE.Fog(0xb7c4cf, 220, 1500);
   // the sky: a dome that goes with you, pale at the horizon, deeper overhead
@@ -214,7 +222,7 @@ const walk0 = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isO
 const walkFor = (s) => { if (!SP) return walk0; if (!walkers.has(s)) { const b = bodyAt(STORY.story.sizes[s]); walkers.set(s, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { half: b.half, step: Math.max(0.05, b.step), head: b.head, soffit: 0.3 } })); } return walkers.get(s); };
 let walk = walkFor(SP ? SP.size() : null);
 // outside the house, the ground's own walker (src/make/terrain.js); inside its footprint, the house's
-const outdoorWalk = site ? makeOutdoorWalk(site, { plan, blocked: (x, y, half) => !!FC?.blocked(x, y, half) }) : null;
+const outdoorWalk = site ? makeOutdoorWalk(site, { plan, blocked: (x, y, half) => !!FC?.blocked(x, y, half) || !!hill?.blocked(x, y, half) }) : null;
 const joined = (w) => !outdoorWalk ? w : { ...w, groundAt: (x, y, h) => site.inHouse(x, y) ? w.groundAt(x, y, h) : outdoorWalk.groundAt(x, y, h) };
 walk = joined(walk);
 const { floorOf, roomAt } = walk;
@@ -374,6 +382,7 @@ renderer.setAnimationLoop((now) => {
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false;
+  const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, !window.__ok ? 3000 : ENG.phone ? 2 : 4) : false;
   const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, !window.__ok ? 3000 : ENG.phone ? 2 : 4) : false;   // all of it before the first frame; then a few ms a frame
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
   if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
@@ -381,7 +390,7 @@ renderer.setAnimationLoop((now) => {
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
-  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || works.busy() || !window.__ok });
+  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });

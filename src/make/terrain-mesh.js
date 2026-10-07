@@ -40,7 +40,9 @@ export function makeGround(THREE, site, { root = 1024, extent = 2, minSize = 32,
     g.setAttribute("position", new THREE.BufferAttribute(pos, 3)); g.setAttribute("normal", new THREE.BufferAttribute(nor, 3));
     g.setAttribute("uv", new THREE.BufferAttribute(uvs, 2)); g.setAttribute("splat", new THREE.BufferAttribute(spl, 1)); g.setIndex(idx);
     g.computeBoundingSphere(); g.computeBoundingBox();
-    const m = new THREE.Mesh(g, material); m.receiveShadow = true; m.matrixAutoUpdate = false; m.updateMatrix(); return m;
+    // (a bundle records only what was on screen when recorded, and replays exactly that: culled tiles were lost when you
+    // turned round; in a bundle a tile is never culled)
+    const m = new THREE.Mesh(g, material); m.receiveShadow = true; m.matrixAutoUpdate = false; m.updateMatrix(); if (group.isBundleGroup) m.frustumCulled = false; return m;
   }
   const keyOf = (t) => `${t.S}/${t.x0}/${t.y0}`;
   let last = null, built = 0, ms = 0;
