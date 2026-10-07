@@ -62,6 +62,9 @@ import { planStoryHall } from "../../src/make/plans/story-hall.js";
 import { compileStory, bodyAt } from "../../src/make/story.js";
 import { playStory } from "../../src/make/story-play.js";
 import { STORY_ROOM_TYPES } from "../../src/make/rooms/story.js";
+import { makeSite, makeOutdoorWalk } from "../../src/make/terrain.js";
+import { makeGround, groundMaterial } from "../../src/make/terrain-mesh.js";
+import { rng as rngOf, seedOf } from "../../src/make/id.js";
 import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
@@ -101,7 +104,10 @@ keep();
 const brief = await (await fetch("../brief/manor-1660.json")).json();
 
 // ---- the renderer, the kit, the house
-const ENG = await makeRender({ outdoor: false }), renderer = ENG.renderer; window.__eng = ENG;
+// a place with an outside (the manor, the banqueting house) is drawn with log depth, near and far (fps lab: a 5 km view holds
+// at no measurable cost); a story's hall underground is not
+const OUTDOOR = !STORY && Q.get("outdoor") !== "0";
+const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG;
 THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
 const K = await makeKit(THREE, { floor: [8, 8] }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
@@ -144,6 +150,19 @@ function flicker(now) {
 window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2) }),
   fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }) });
 
+// ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
+// terrain-mesh.js), a sky and the haze of distance
+const site = OUTDOOR ? makeSite(plan) : null, ground = site ? makeGround(THREE, site, { material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)) }) }) : null;
+window.__site = site; window.__ground = ground;
+if (ground) { scene.add(ground.group);
+  scene.fog = new THREE.Fog(0xb7c4cf, 220, 1500);
+  // the sky: a dome that goes with you, pale at the horizon, deeper overhead
+  const sg = new THREE.SphereGeometry(2400, 32, 16), col = [], top = new THREE.Color(0x6f8fb4), hor = new THREE.Color(0xc9d4dc), c = new THREE.Color();
+  for (let i = 0; i < sg.attributes.position.count; i++) { const y = sg.attributes.position.getY(i) / 2400; c.copy(hor).lerp(top, Math.max(0, Math.min(1, y * 1.6))); col.push(c.r, c.g, c.b); }
+  sg.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  const sky = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false })); sky.renderOrder = -1; sky.name = "sky";
+  sky.onBeforeRender = () => sky.position.copy(camera.position); scene.add(sky); window.__sky = sky; }
+
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
 const store = world.store();
 let viewDirty = true;
@@ -175,7 +194,7 @@ function buildGarden() { const g = plan.rooms.find(r => r.id === "garden"); if (
   scene.add(G); }
 
 // ---- walking: floor to floor by the stairs, through a doorway only while its door stands open
-const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 140); window.__camera = camera;
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, OUTDOOR ? 3000 : 140); window.__camera = camera;
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
 const EYE = 1.6, floors = [...plan.floors].sort((a, b) => a.level - b.level);
 const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
@@ -187,6 +206,10 @@ const passable = (id) => (!doorThing.get(id) || isOpen(doorThing.get(id))) && (!
 const walk0 = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable }), walkers = new Map();
 const walkFor = (s) => { if (!SP) return walk0; if (!walkers.has(s)) { const b = bodyAt(STORY.story.sizes[s]); walkers.set(s, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { half: b.half, step: Math.max(0.05, b.step), head: b.head, soffit: 0.3 } })); } return walkers.get(s); };
 let walk = walkFor(SP ? SP.size() : null);
+// outside the house, the ground's own walker (src/make/terrain.js); inside its footprint, the house's
+const outdoorWalk = site ? makeOutdoorWalk(site, { plan }) : null;
+const joined = (w) => !outdoorWalk ? w : { ...w, groundAt: (x, y, h) => site.inHouse(x, y) ? w.groundAt(x, y, h) : outdoorWalk.groundAt(x, y, h) };
+walk = joined(walk);
 const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 const start = plan.rooms.find(r => r.id === Q.get("room")) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
@@ -231,7 +254,8 @@ const showCue = cues($("cross"), renderer.domElement);
 // ---- what to draw: the room you stand in and what its open doorways show (refreshed on moving rooms, or a door)
 let here = null;
 function refreshView(force = false) {
-  const r = roomAt(px, py, ph);
+  // outside: the open court you stand in (the forecourt), seen from as a room is; beyond any, the outdoors
+  const r = roomAt(px, py, ph) || (site && !site.inHouse(px, py) ? (plan.rooms.find(q => q.type === "open" && px > q.rect.x0 && px < q.rect.x1 && py > q.rect.y0 && py < q.rect.y1) || { id: plan.entrance, name: "OUTSIDE", floor: "ground" }) : null);
   if (!r || (!force && r.id === here)) return;
   here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); inView = seen; lightsDirty = true;
   $("where").querySelector(".n").textContent = r.name; $("where").querySelector(".f").textContent = `${r.floor} floor`;
@@ -337,13 +361,14 @@ renderer.setAnimationLoop((now) => {
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false;
+  const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, !window.__ok ? 3000 : ENG.phone ? 2 : 4) : false;   // all of it before the first frame; then a few ms a frame
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
   if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
   const fading = winPool.step(dt) | firePool.step(dt);
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   const t = aim(locked ? null : hover), cue = t ? works.cue(t) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
-  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || works.busy() || !window.__ok });
+  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
