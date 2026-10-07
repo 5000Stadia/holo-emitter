@@ -171,8 +171,21 @@ export default [
     parts: [...legs("leg", "japan", "0.7", 0.05, "W", "D", 0.004),
       { id: "top", part: "box", role: "japan", size: ["$W", 0.04, "$D"], at: [0, 0, "=D/2"], on: "leg0", sink: 0.004 },
       { id: "case", part: "carcass", size: ["=W-0.04", 0.6, "=D-0.04"], at: [0, 0, "=D/2-0.02"], open: "front", role: "japan", inside: "japan", on: "top" },
-      // the small drawers behind the doors, three rows of two, each row on the one below
-      ...[0, 1, 2].flatMap(r => [-1, 1].map(sx => ({ id: `dr${r}${sx}`, part: "box", role: "gilt", size: ["=(W-0.12)/2-0.02", 0.18, "=D-0.095"], at: [`=${sx}*(W-0.12)/4`, 0, "=(D-0.055)/2"], ...(r === 0 ? { in: "case.inside" } : { on: `dr${r - 1}${sx}` }) }))),
+      // the small drawers behind the doors, three rows of two, each row on the one below: lacquered fronts, each with a
+      // gilt panel and a gilt knob, each its own drawer that runs out (Kabe, 2026-10-06, on six solid blocks of gilt:
+      // "weird yellow inside")
+      ...[0, 1, 2].flatMap(r => [-1, 1].flatMap(sx => { const id = `dr${r}${sx}`, mv = `d${r}${sx < 0 ? "l" : "r"}`; return [
+        { part: "mover", name: mv, pivot: [0, 0, 0] },
+        // (each row above the first on a divider across the case, as a cabinet's drawers run on: a drawer pulled out
+        // still rests on it)
+        ...(r > 0 && sx < 0 ? [{ id: `dv${r}`, part: "box", role: "japan", size: [1, 0.01, 1], fit: { to: "case.inside", axes: "xz" }, on: `dr${r - 1}-1`, seen: false, within: "a rail between the rows of drawers: only its front edge shows, a centimetre between the fronts" }] : []),
+        { id, part: "box", role: "japan", mover: mv, size: ["=(W-0.12)/2-0.02", 0.17, "=D-0.095"], at: [`=${sx}*(W-0.12)/4`, 0, "=(D-0.055)/2"], ...(r === 0 ? { in: "case.inside" } : { on: `dv${r}` }) },
+        // a gilt line round the front, a finger in from its edge, as the japanners drew it, and a gilt knob
+        { part: "box", role: "gilt", mover: mv, size: ["=(W-0.12)/2-0.06", 0.004, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.85 } },
+        { part: "box", role: "gilt", mover: mv, size: ["=(W-0.12)/2-0.06", 0.004, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.15 } },
+        { part: "box", role: "gilt", mover: mv, size: [0.004, 0.115, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.08, y: 0.5 } },
+        { part: "box", role: "gilt", mover: mv, size: [0.004, 0.115, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.92, y: 0.5 } },
+        { part: "box", role: "gilt", mover: mv, size: [0.02, 0.02, 0.014], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.5 } }]; })),
       { part: "mover", name: "left", pivot: { at: "case", x: "left", z: "front" } }, { part: "mover", name: "right", pivot: { at: "case", x: "right", z: "front" } },
       { id: "doorL", part: "box", role: "japan", mover: "left", size: ["=W/2-0.03", 0.58, 0.02], at: ["=-W/4", 0.75, 0], hangs: "case" },
       { id: "doorR", part: "box", role: "japan", mover: "right", size: ["=W/2-0.03", 0.58, 0.02], at: ["=W/4", 0.75, 0], hangs: "case" },
@@ -180,7 +193,9 @@ export default [
       { part: "box", role: "gilt", mover: "right", size: ["=W/2-0.1", 0.46, 0.004], at: ["=W/4", 0.81, 0], hangs: "doorR" }],
     affordances: {
       left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.8, verbs: ["open the cabinet", "close the cabinet"] },
-      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.8, verbs: ["open the cabinet", "close the cabinet"] } } },
+      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.8, verbs: ["open the cabinet", "close the cabinet"] },
+      ...Object.fromEntries([0, 1, 2].flatMap(r => ["l", "r"].map(x => [`d${r}${x}`, { mover: `d${r}${x}`, motion: "slide", axis: [0, 0, 1], travel: 0.22, verbs: ["open the drawer", "close the drawer"],
+        requires: { [x === "l" ? "left" : "right"]: "open" }, refused: "the cabinet's door is shut" }]))) } },
   // ---- the nursery and the gallery
   { kind: "chair/child", v: 1, noun: "the child's chair", fixed: false, why: "R §2: a child's chair (Middleton 1618)",
     size: [0.34, 0.65, 0.32], settings: {},
