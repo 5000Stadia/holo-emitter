@@ -36,6 +36,8 @@
 import * as THREE from "three/webgpu";
 import { makeRender } from "../../src/make/render.js";
 import { makeStreet } from "../../src/make/street.js";
+import { warmTextures } from "../painted/texjobs.js";
+import { LIB as OUT } from "../painted/outgen.js";
 import { fbm, mm } from "../../src/make/noise.js";
 import { touchControls, isTouch } from "../touch.js";
 
@@ -46,8 +48,10 @@ const ENG = await makeRender({ outdoor: true }), renderer = ENG.renderer; mark.r
 const LEN = num("length", 150), spine = [];
 { let x = 0, y = 0, a = -0.25; for (let s = 0; s <= LEN + 1e-6; s += 2) { spine.push([Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]); a += 0.0042 * (1 + 0.8 * Math.sin(Math.PI * s / LEN)); x += Math.cos(a) * 2; y += Math.sin(a) * 2; } }
 const ground = (x, y) => mm(0.016 * x + 0.45 * fbm(x, y, { cell: 70, octaves: 2, seed: 166 })) / 1000;
+await warmTextures(3000, [OUT]);      // the texture workers up before the main thread is busy building (a worker starts only when it is free)
 const street = makeStreet(THREE, { spine, width: num("width", 10), seed: num("seed", 1660), ground, order: Q.get("order") || undefined });
 mark.street = street.ms; window.__street = street;
+await street.ready; mark.textures = performance.now() - T0;     // the textures are drawn in the worker pool while the street goes up; the first frame waits for the last
 const scene = new THREE.Scene(); scene.add(street.group); window.__scene = scene;
 
 // the air: sea-coal haze (§B2, Evelyn's Fumifugium, 1661), brown-grey toward the horizon; a sky dome that goes with you

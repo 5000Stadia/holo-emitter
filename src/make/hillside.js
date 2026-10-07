@@ -15,11 +15,14 @@
 //   layoutHedgerows(site, fields, pkg, { tile }) -> { lineOf(edge), tileItems(ti, tj), heights(line, run, every, sides), fieldTrees(i, j), blocked(x, y, half) }   (pure)
 //   makeHillside(THREE, site, fields, { tile, radius, near, nearTile, renderer, materials, light, bundle }) ->
 //     { group, update(x, y, budgetMs) -> busy, blocked(x, y, half), stats(), layout, materials }
+//   (textures: "async" (the default) draws the looks in the kit's worker pool, filled when their pixels arrive; "sync", here and now)
 //   (renderer: draws the impostors once, at the start; light: the page's sun and fill, for the impostors and the leaves'
 //   glow; materials.sunDir.value is the direction toward the sun, to move with it; bundle: on WebGPU the far tiles are
 //   drawn as one render bundle)
 import { hashN, unit, valueNoise } from "./noise.js";
 import { rng, seedOf } from "./id.js";
+import { kitTexture } from "../../lab/painted/texjobs.js";
+import { LIB as OUT } from "../../lab/painted/outgen.js";
 
 // the package's numbers; each chosen (research-1660 gives few): see the comments
 export const HEDGEROWS_1660 = {
@@ -153,76 +156,38 @@ export function layoutHedgerows(site, fields, pkg = HEDGEROWS_1660, { tile = 128
   return { pkg, tile, lineOf, heights, fieldTrees, tileItems, blocked, cells: () => cells.size };
 }
 
-// ---- the looks, drawn in code (as src/make/manor.js draws its slates and ashlar)
-function canvasTexture(THREE, N, draw, { srgb = true, repeat = 1 } = {}) {
-  const cv = document.createElement("canvas"); cv.width = cv.height = N; draw(cv.getContext("2d"), N);
-  const t = new THREE.CanvasTexture(cv); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; t.repeat.set(repeat, repeat); return t;
-}
+// ---- the looks, drawn in code (as src/make/manor.js draws its slates and ashlar): in the kit's worker pool, kept in its
+// IndexedDB cache (lab/painted/outgen.js: the generators; texjobs.js: the pool). `mode`: "async" (the default) hands the
+// textures back at once, empty, and they fill when their pixels arrive (a page that must not draw an unfinished hillside
+// awaits texjobs.js's settled()); "sync" draws them here and now, as before.
+const kt = (THREE, mode, gen, opts) => kitTexture(THREE, { lib: OUT, gen, args: [] }, { mode, ...opts });
 // dry-stone rubble (research-1660 §A1, A5: limestone, pale grey-buff, uneven): stones in rough courses, no mortar, the
 // voids between them in deep shadow, lichen on some; a height map of the same stones for the bump. Covers 4 m by 4 m
 // (2 m before 2026-10-07: along a 100 m wall the same dozen stones came round every 2 m); the stones are the same size
-function rubbleTextures(THREE) {
-  const N = 1024, r = rng(seedOf("hillside/dry-stone")), cv = [0, 1].map(() => { const c = document.createElement("canvas"); c.width = c.height = N; return c; });
-  const g = cv[0].getContext("2d"), h = cv[1].getContext("2d");
-  g.fillStyle = "#47433a"; g.fillRect(0, 0, N, N); h.fillStyle = "#000"; h.fillRect(0, 0, N, N);
-  const courses = []; for (let y = 0; y < N;) { let ch = 26 + r() * 34; if (N - y - ch < 26) ch = N - y; courses.push([y, ch]); y += ch; }
-  const stone = (ctx, x, y, w, hh, j) => { ctx.beginPath(); ctx.moveTo(x + j[0], y + j[1]); ctx.quadraticCurveTo(x + w / 2, y + j[2] - 2, x + w - j[3], y + j[4]); ctx.quadraticCurveTo(x + w + 1, y + hh / 2, x + w - j[5], y + hh - j[6]);
-    ctx.quadraticCurveTo(x + w / 2, y + hh + j[7] * 0.4, x + j[8], y + hh - j[9]); ctx.quadraticCurveTo(x - 1, y + hh / 2, x + j[0], y + j[1]); ctx.closePath(); ctx.fill(); };
-  for (const [cy, ch] of courses) { let x = -r() * 70; const end = x + N;
-    while (x < end) { const w = Math.min(36 + r() * 92, end - x + 6), hh = ch - 2 - r() * 6, oy = cy + 1 + r() * (ch - hh - 2), j = Array.from({ length: 10 }, () => 2 + r() * 6);
-      const t = 164 + r() * 44, warm = r() * 10, dark = r() < 0.12 ? 0.82 : 1;
-      for (const ox of [0, -N, N]) { if (x + ox > N || x + ox + w < 0) continue;
-        const grad = g.createLinearGradient(0, oy, 0, oy + hh); grad.addColorStop(0, `rgb(${(t + 14 + warm) * dark | 0},${(t + 10 + warm * 0.6) * dark | 0},${(t - 4) * dark | 0})`); grad.addColorStop(1, `rgb(${(t - 22 + warm) * dark | 0},${(t - 25) * dark | 0},${(t - 36) * dark | 0})`);
-        g.fillStyle = grad; stone(g, x + ox, oy, w, hh, j);
-        const hg = h.createRadialGradient(x + ox + w / 2, oy + hh * 0.4, 2, x + ox + w / 2, oy + hh / 2, Math.max(w, hh) * 0.7); hg.addColorStop(0, "#fff"); hg.addColorStop(1, "#6a6a6a"); h.fillStyle = hg; stone(h, x + ox, oy, w, hh, j); }
-      // lichen: pale grey-green rosettes, now and then a yellow one
-      for (let k = r() < 0.55 ? 1 + (r() * 4 | 0) : 0; k > 0; k--) { const lx = x + w * (0.2 + r() * 0.6), ly = oy + hh * (0.2 + r() * 0.6), yl = r() < 0.15; g.fillStyle = yl ? "rgba(196,170,80,0.45)" : `rgba(${205 + r() * 30 | 0},${210 + r() * 25 | 0},${190 + r() * 20 | 0},0.38)`;
-        for (const ox of [0, -N, N]) { g.beginPath(); g.ellipse(lx + ox, ly, 2 + r() * 7, 1.5 + r() * 5, r() * 3, 0, 7); g.fill(); } }
-      for (let k = 0; k < 28; k++) { g.fillStyle = `rgba(${r() < 0.5 ? "70,64,52" : "235,230,214"},${0.05 + r() * 0.08})`; const px = x + 4 + r() * Math.max(1, w - 10), py = oy + 3 + r() * Math.max(1, hh - 6); g.fillRect(px, py, 1 + r() * 4, 1 + r() * 2); if (px > N - 6) g.fillRect(px - N, py, 3, 2); }
-      x += w + 2 + r() * 4; } }
-  const tex = cv.map((c, k) => { const t = new THREE.CanvasTexture(c); if (!k) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t; });
-  return { map: tex[0], bump: tex[1] };
-}
-// the same canvas as a second texture whose repeat is a half (the rubble covers 4 m, a wall's uv runs 2 m to the unit); the far strips
+function rubbleTextures(THREE, mode = "async") { const s = kt(THREE, mode, "rubble"); return { map: s.map, bump: s.normalMap }; }
+// the same pixels as a second pair whose repeat is a half (the rubble covers 4 m, a wall's uv runs 2 m to the unit); the far strips
 // scale their uv in the node instead
-const halfRepeat = (t) => { const c = t.clone(); c.repeat.set(0.5, 0.5); c.needsUpdate = true; return c; };
+function rubbleHalf(THREE, mode = "async") { const s = rubbleTextures(THREE, mode); for (const t of [s.map, s.bump]) t.repeat.set(0.5, 0.5); return s; }
 // a dressed stone's face (copes and stoops): grey-buff, pitted, lichened
-function roughStone(THREE) {
-  const r = rng(seedOf("hillside/cope"));
-  return canvasTexture(THREE, 256, (g, N) => { g.fillStyle = "#b0a993"; g.fillRect(0, 0, N, N);
-    for (let k = 0; k < 2600; k++) { const t = r(); g.fillStyle = `rgba(${t < 0.5 ? "84,78,64" : "226,220,200"},${0.06 + r() * 0.12})`; g.fillRect(r() * N, r() * N, 1 + r() * 5, 1 + r() * 3); }
-    for (let k = 0; k < 26; k++) { g.fillStyle = r() < 0.2 ? "rgba(190,166,82,0.4)" : "rgba(214,218,196,0.35)"; g.beginPath(); g.ellipse(r() * N, r() * N, 3 + r() * 10, 2 + r() * 7, r() * 3, 0, 7); g.fill(); } });
-}
+const roughStone = (THREE, mode = "async") => kt(THREE, mode, "cope").map;
 // hawthorn: small dark leaves, crowded, with the dark of the hedge's depth between; tiles at 1/2 m
-function hawthornLeaves(THREE) {
-  const r = rng(seedOf("hillside/hawthorn")), greens = ["#4a6a2c", "#557530", "#628036", "#6e8a3c", "#405e26", "#7a8a44", "#577030"];
-  return canvasTexture(THREE, 256, (g, N) => { g.fillStyle = "#26381a"; g.fillRect(0, 0, N, N);
-    for (let k = 0; k < 2600; k++) { const x = r() * N, y = r() * N, a = r() * 6.28, l = 2.5 + r() * 3.5; g.fillStyle = greens[r() * greens.length | 0];
-      for (const ox of x < 8 ? [0, N] : x > N - 8 ? [0, -N] : [0]) for (const oy of y < 8 ? [0, N] : y > N - 8 ? [0, -N] : [0]) { g.beginPath(); g.ellipse(x + ox, y + oy, l, l * 0.55, a, 0, 7); g.fill(); } }
-    for (let k = 0; k < 120; k++) { g.fillStyle = "rgba(10,16,8,0.5)"; g.beginPath(); g.ellipse(r() * N, r() * N, 1.5 + r() * 3, 1 + r() * 2, r() * 3, 0, 7); g.fill(); } }, { repeat: 2 });
-}
+function hawthornLeaves(THREE, mode = "async") { const t = kt(THREE, mode, "leaves").map; t.repeat.set(2, 2); return t; }
 // oak left out: silver-grey over brown, the grain along the board
-function weatheredOak(THREE) {
-  const r = rng(seedOf("hillside/oak"));
-  return canvasTexture(THREE, 256, (g, N) => { g.fillStyle = "#a09a8b"; g.fillRect(0, 0, N, N);
-    for (let k = 0; k < 140; k++) { const y = r() * N, t = r(); g.strokeStyle = t < 0.5 ? `rgba(70,62,50,${0.15 + r() * 0.25})` : `rgba(190,186,172,${0.1 + r() * 0.2})`; g.lineWidth = 0.6 + r() * 1.8; g.beginPath(); g.moveTo(0, y);
-      for (let x = 0; x <= N; x += 32) g.lineTo(x, y + Math.sin(x * 0.02 + k) * 2.5); g.stroke(); }
-    for (let k = 0; k < 4; k++) { g.fillStyle = "rgba(60,50,38,0.5)"; g.beginPath(); g.ellipse(r() * N, r() * N, 3 + r() * 4, 2 + r() * 2, 0, 0, 7); g.fill(); } });
-}
+const weatheredOak = (THREE, mode = "async") => kt(THREE, mode, "weathered").map;
 // leaves in a mass, as a grey to multiply a crown's colour by: lit clusters and dark gaps; and bark, fissured
-function speckle(THREE, name, draw) { const r = rng(seedOf(name)); return canvasTexture(THREE, 256, (g, N) => draw(g, N, r), { srgb: false }); }
-const leafSpeckle = (THREE) => speckle(THREE, "hillside/leaf-speckle", (g, N, r) => { g.fillStyle = "#8c8c8c"; g.fillRect(0, 0, N, N);
-  for (let k = 0; k < 1600; k++) { const x = r() * N, y = r() * N, l = 2 + r() * 5, v = r() < 0.45 ? 40 + r() * 60 | 0 : 170 + r() * 85 | 0; g.fillStyle = `rgb(${v},${v},${v})`;
-    for (const ox of x < 8 ? [0, N] : x > N - 8 ? [0, -N] : [0]) for (const oy of y < 8 ? [0, N] : y > N - 8 ? [0, -N] : [0]) { g.beginPath(); g.ellipse(x + ox, y + oy, l, l * 0.6, r() * 3, 0, 7); g.fill(); } } });
-const barkSpeckle = (THREE) => speckle(THREE, "hillside/bark", (g, N, r) => { g.fillStyle = "#c4c4c4"; g.fillRect(0, 0, N, N);
-  for (let k = 0; k < 90; k++) { const x = r() * N, v = 90 + r() * 50 | 0; g.strokeStyle = `rgb(${v},${v},${v})`; g.lineWidth = 1 + r() * 3; g.beginPath(); g.moveTo(x, 0); for (let y = 0; y <= N; y += 16) g.lineTo(x + Math.sin(y * 0.05 + k) * 3, y); g.stroke(); }
-  for (let k = 0; k < 60; k++) { const v = 190 + r() * 60 | 0; g.fillStyle = `rgba(${v},${v},${v - 20},0.5)`; g.beginPath(); g.ellipse(r() * N, r() * N, 2 + r() * 6, 1 + r() * 3, 0, 0, 7); g.fill(); } });
+const leafSpeckle = (THREE, mode = "async") => kt(THREE, mode, "leafSpeckle", { srgb: false }).map;
+const barkSpeckle = (THREE, mode = "async") => kt(THREE, mode, "bark", { srgb: false }).map;
+// every texture the hillside's materials use, asked for at once (a page may ask early, while it builds something else: the
+// pool draws them meanwhile, and hillsideMaterials then finds them drawn)
+export function hillsideTextures(THREE, mode = "async") {
+  return { rubble: rubbleTextures(THREE, mode), leaves: hawthornLeaves(THREE, mode), cope: roughStone(THREE, mode), wood: weatheredOak(THREE, mode), leafSpeckle: leafSpeckle(THREE, mode), bark: barkSpeckle(THREE, mode) };
+}
 // the materials, shared by every tile. Foliage passes some sunlight through: lit from behind (the sun beyond it) a crown
 // or a hedge glows a little rather than going black, as leaves do (a translucency term on the diffuse colour, by how
 // nearly you look toward the sun, `sunDir`: a uniform, the direction toward the sun in three's frame)
-export { rubbleTextures };   // for tools/check-textures.mjs
-export function hillsideMaterials(THREE, { sunDir, light = { sun: 0xffe2b8, sunI: 1.8 } } = {}) {
-  const T = THREE.TSL, rub = rubbleTextures(THREE), leaves = hawthornLeaves(THREE);
+export { rubbleTextures, hawthornLeaves, roughStone, weatheredOak, leafSpeckle, barkSpeckle };   // for tools/check-textures.mjs and the pixel-identity check
+export function hillsideMaterials(THREE, { sunDir, light = { sun: 0xffe2b8, sunI: 1.8 }, textures = "async" } = {}) {
+  const T = THREE.TSL, rub = rubbleTextures(THREE, textures), leaves = hawthornLeaves(THREE, textures);
   sunDir = sunDir || T.uniform(new THREE.Vector3(14, 22, 30).normalize());
   const back = T.max(T.dot(T.normalize(T.positionWorld.sub(T.cameraPosition)), sunDir), 0);
   const glow = (k = 1) => T.diffuseColor.rgb.mul(T.color(light.sun)).mul(T.float(0.1).add(back.pow(4).mul(0.5)).mul(light.sunI * k));
@@ -233,11 +198,11 @@ export function hillsideMaterials(THREE, { sunDir, light = { sun: 0xffe2b8, sunI
   const hedge = new THREE.MeshLambertNodeMaterial({ map: leaves }); hedge.emissiveNode = glow();
   // a tree: bark or leaves by a vertex weight, each a grey speckle over the vertex colour
   const tree = new THREE.MeshLambertNodeMaterial({ vertexColors: true }), leafy = T.attribute("leafy", "float");
-  tree.colorNode = T.mix(T.texture(barkSpeckle(THREE), T.uv().mul(T.vec2(2, 4))), T.texture(leafSpeckle(THREE), T.uv().mul(T.vec2(6, 3))), leafy).mul(1.15); tree.emissiveNode = glow().mul(leafy);
+  tree.colorNode = T.mix(T.texture(barkSpeckle(THREE, textures), T.uv().mul(T.vec2(2, 4))), T.texture(leafSpeckle(THREE, textures), T.uv().mul(T.vec2(6, 3))), leafy).mul(1.15); tree.emissiveNode = glow().mul(leafy);
   return {
-    stone: new THREE.MeshLambertMaterial({ map: halfRepeat(rub.map), bumpMap: halfRepeat(rub.bump), bumpScale: 2.2 }),
-    cope: new THREE.MeshLambertMaterial({ map: roughStone(THREE) }),
-    hedge, wood: new THREE.MeshLambertMaterial({ map: weatheredOak(THREE) }), tree, far, sunDir,
+    stone: (() => { const h = rubbleHalf(THREE, textures); return new THREE.MeshLambertMaterial({ map: h.map, bumpMap: h.bump, bumpScale: 2.2 }); })(),
+    cope: new THREE.MeshLambertMaterial({ map: roughStone(THREE, textures) }),
+    hedge, wood: new THREE.MeshLambertMaterial({ map: weatheredOak(THREE, textures) }), tree, far, sunDir,
   };
 }
 
@@ -336,9 +301,9 @@ function treeGeometry(THREE, kind) {
 
 // ---- the hillside drawn
 export function makeHillside(THREE, site, fields, { tile = 128, radius = 700, near = 150, nearTile = 150, renderer = null, materials = {}, pkg = HEDGEROWS_1660,
-  light = { sun: 0xffe2b8, sunI: 1.8, sky: 0xc8d0d8, ground: 0x3a2c1e, hemi: 0.55, dir: [14, 22, 30] }, capacity = 3000, bundle = false } = {}) {
+  light = { sun: 0xffe2b8, sunI: 1.8, sky: 0xc8d0d8, ground: 0x3a2c1e, hemi: 0.55, dir: [14, 22, 30] }, capacity = 3000, bundle = false, textures = "async" } = {}) {
   const T = THREE.TSL, lay = layoutHedgerows(site, fields, pkg, { tile }), W = pkg.wall, HG = pkg.hedge, G = pkg.gate;
-  const sunDir = T.uniform(new THREE.Vector3(...light.dir).normalize()), M = { ...hillsideMaterials(THREE, { sunDir, light }), ...materials };
+  const sunDir = T.uniform(new THREE.Vector3(...light.dir).normalize()), M = { ...hillsideMaterials(THREE, { sunDir, light, textures }), ...materials };
   const group = new THREE.Group(); group.name = "hillside";
   const tiles = new THREE.Group(); tiles.name = "hillside-tiles"; group.add(tiles);
   // the far tiles (a hundred light draws) as one render bundle on WebGPU, recorded again only when the set changes. A

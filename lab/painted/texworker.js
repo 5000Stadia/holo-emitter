@@ -82,6 +82,7 @@ postMessage({ hello: true });
 onmessage = async ({ data: job }) => {
   if (job.me) { me = job.me; return; }
   if (job.peer) { listen(job.peer, job.port); return; }
+  if (job.warm) { try { (await libOf(job.warm)).warm?.(); } catch (_) {} postMessage({ warmed: job.warm }); return; }
   const t0 = performance.now();
   try {
     const lib = await libOf(job.lib), G = lib.GEN[job.gen];
@@ -89,8 +90,9 @@ onmessage = async ({ data: job }) => {
     const [w, h] = G.size(job.args);
     let map = null, normal = null, from = "drawn", key = null, sig = null;
     if (job.cache) {
-      const [a, b] = await Promise.all([sigOf(TEXGEN), sigOf(job.lib)]);
-      if (a && b) { sig = `${job.v}|${a}|${b}`; key = `${new URL(job.lib).pathname}|${job.gen}|${JSON.stringify(job.args)}|${job.y0}-${job.y1}`; }
+      // (a generator module may list modules it imports, DEPS: a change to one of them draws its bands again)
+      const sigs = await Promise.all([sigOf(TEXGEN), sigOf(job.lib), ...(lib.DEPS || []).map(sigOf)]);
+      if (sigs.every(Boolean)) { sig = `${job.v}|${sigs.join("|")}`; key = `${new URL(job.lib).pathname}|${job.gen}|${JSON.stringify(job.args)}|${job.y0}-${job.y1}`; }
     }
     if (key) {
       const hit = await load(key), bytes = (job.y1 - job.y0) * w * 4;

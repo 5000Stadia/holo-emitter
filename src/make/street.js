@@ -13,13 +13,16 @@
 // stops at the one it meets; walls start behind the timbers' ends), so nothing shimmers (coplanar.js finds ~14 m² of
 // hidden residue in 255k triangles, from ~920 m² before).
 //   makeStreet(THREE, { spine: [[x, y], ...], width = 10, seed = 1660, ground = (x, y) => 0, era = "pre-fire",
-//                       order: "reverse" | "shuffle" (blocks built in another order: the same street), backland = true })
+//                       order: "reverse" | "shuffle" (blocks built in another order: the same street), backland = true,
+//                       textures: "async" | "sync" (the kit's textures drawn in the worker pool and filled when they arrive, or here and now) })
 //     -> { group, lots, posts, plan, blocked(x, y, half = 0.22) -> bool, heightAt(x, y), frame(s, t) -> { x, y, z, yaw },
-//          digest(), stats, ms, materials }
+//          digest(), stats, ms, materials, ready (a promise: every texture has its pixels) }
 //   streetPlan(same options) -> { spine, lots, posts, backland, profile, ... }: the data alone, pure
 // Plan coordinates x east, y north, z up; three's are (x, z, -y). A lot's own frame: u along its front (to your right
 // as you face it from the street), d into the house (negative: out over the street), z up from its ground floor.
 import { hashN, unit, valueNoise } from "./noise.js";
+import { kitTexture, drawn } from "../../lab/painted/texjobs.js";
+import { LIB as OUT, EMBLEMS } from "../../lab/painted/outgen.js";
 
 // ---- the rules: sourced [S] or chosen, as research-1660.md §B tags them
 export const STREET_1660 = {
@@ -42,7 +45,7 @@ export const STREET_1660 = {
   tile: ["#8f5638", "#7f4a33", "#96603f", "#744634", "#8a5a42", "#93573c"],   // clay plain tile, red-brown, weathered (§B3 [U])
   trades: ["draper", "mercer", "potter", "grocer", "baker", "chandler", "cutler", "haberdasher"],
 };
-export const EMBLEMS = ["bell", "swan", "keys", "crown", "star", "sun", "moon", "tuns", "anchor", "rose", "cock", "ship", "ball", "mitre", "book", "sheaf"];
+export { EMBLEMS };
 const r3 = (v) => Math.round(v * 1000) / 1000;          // whole millimetres
 const now = () => (typeof performance !== "undefined" ? performance.now() : Date.now());
 
@@ -292,86 +295,30 @@ function sideHoles(acc, X, u, d0, d1, z0, z1, holes, col, side, tex = 2) {
 // and the grime of where it stands
 const KITS = new WeakMap();
 const stream = (name) => { let s = 0x811c9dc5; for (let i = 0; i < name.length; i++) s = Math.imul(s ^ name.charCodeAt(i), 0x01000193) >>> 0; let i = 0; return () => unit(hashN(s, i++)); };
-// periodic value noise for textures: lattice values precomputed, so a 512-square octave costs a few ms; in [0, 1)
-function noiseTex(N, M, periods, seed, weights) {
-  const out = new Float32Array(N * M); let wsum = 0;
-  periods.forEach(([px, py], o) => { const w = weights ? weights[o] : 1 / (o + 1); wsum += w; const g = new Float32Array(px * py);
-    for (let j = 0; j < py; j++) for (let i = 0; i < px; i++) g[j * px + i] = unit(hashN(i, j, seed, o));
-    for (let y = 0; y < M; y++) { const fy = y / M * py, j = Math.floor(fy), ty = fy - j, sy = ty * ty * (3 - 2 * ty), j1 = (j + 1) % py;
-      for (let x = 0; x < N; x++) { const fx = x / N * px, i = Math.floor(fx), tx = fx - i, sx = tx * tx * (3 - 2 * tx), i1 = (i + 1) % px;
-        const a = g[j * px + i], b = g[j * px + i1], c = g[j1 * px + i], d = g[j1 * px + i1]; out[y * N + x] += w * (a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy); } } });
-  for (let k = 0; k < out.length; k++) out[k] /= wsum; return out;
-}
 export { streetKit };   // for tools/check-textures.mjs (lab/scale/materials.html)
-function streetKit(THREE) {
+// The street's textures are drawn in the kit's worker pool and kept in its IndexedDB cache (lab/painted/outgen.js: the
+// generators; texjobs.js: the pool). textures: "async" (the default) hands back the textures at once, empty, and they fill
+// when their pixels arrive (kit.ready: a promise for all of them; a page that must not draw an unfinished street awaits it);
+// "sync" draws them here and now, on the main thread, as before.
+function streetKit(THREE, { textures = "async" } = {}) {
   if (KITS.has(THREE)) return KITS.get(THREE);
-  const T0 = now(), cv = (w, h) => Object.assign(document.createElement("canvas"), { width: w, height: h });
-  const tex = (c, srgb = true) => { const t = new THREE.CanvasTexture(c); if (srgb) t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t; };
-  const pixels = (N, M, fn) => { const c = cv(N, M), g = c.getContext("2d"), im = g.createImageData(N, M), d = im.data;
-    for (let y = 0; y < M; y++) for (let x = 0; x < N; x++) { const o = (y * N + x) * 4, [r, gg, b] = fn(x, y); d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255; } g.putImageData(im, 0, 0); return c; };
-  // a normal map from heights (wrapping): canvas y runs down, the texture's v up
-  const normals = (h, N, M, k) => pixels(N, M, (x, y) => { const at = (i, j) => h[((j + M) % M) * N + ((i + N) % N)], gx = (at(x + 1, y) - at(x - 1, y)) * k, gy = (at(x, y + 1) - at(x, y - 1)) * k, l = Math.sqrt(gx * gx + gy * gy + 1);
-    return [(-gx / l * 0.5 + 0.5) * 255, (gy / l * 0.5 + 0.5) * 255, (1 / l * 0.5 + 0.5) * 255]; });
-  const T = {}, parts = {}; let tl = now(); const lap = (k) => { const t = now(); parts[k] = Math.round(t - tl); tl = t; };   // ms per texture, kept in kit.parts
+  const T0 = now(), kt = (gen, args) => kitTexture(THREE, { lib: OUT, gen, args }, { mode: textures });
+  const T = {}, parts = {}; let tl = now(); const lap = (k) => { const t = now(); parts[k] = Math.round(t - tl); tl = t; };   // ms per texture asked for, kept in kit.parts
   lap("start");
-  // limewash (the texture covers 4 m, 2 before 2026-10-07: a wall seen along the street showed its own dirt marks every 2 m): coats laid by brush, thicker and thinner, a little dirt in its hollows
-  { const N = 1024, n = noiseTex(N, N, [[8, 8], [18, 18], [48, 48], [128, 128]], 11, [1, 0.8, 0.5, 0.35]), r = stream("street/plaster");
-    const c = pixels(N, N, (x, y) => { const v = 0.9 + (n[y * N + x] - 0.5) * 0.2 + (r() - 0.5) * 0.025; return [246 * v, 241 * v, 230 * v]; });
-    const g = c.getContext("2d"); g.lineCap = "round";
-    for (let i = 0; i < 104; i++) { let x = r() * N, y = r() * N; g.strokeStyle = `rgba(80,70,55,${0.16 + r() * 0.16})`; g.lineWidth = 0.7 + r() * 0.6; g.beginPath(); g.moveTo(x, y);
-      for (let k = 0; k < 6; k++) { x += (r() - 0.5) * 26; y += (r() - 0.3) * 22; g.lineTo(x, y); } g.stroke(); }
-    T.plaster = tex(c); T.plaster.repeat.set(0.5, 0.5); }   // (uv are metres / 2: one tile to two uv units)
-  lap("plaster");
-  // weathered oak (2 m along the grain by 0.5 m across): silver-grey, the grain opened by weather, checks and knots
-  { const N = 512, M = 256, n = noiseTex(N, M, [[2, 48], [4, 96], [8, 24]], 21, [1, 0.6, 0.4]), r = stream("street/oak");
-    const c = pixels(N, M, (x, y) => { const k = n[y * N + x], line = Math.sin(y * 0.9 + k * 18) * 0.5 + 0.5, v = 0.78 + k * 0.3 - line * line * 0.12 + (r() - 0.5) * 0.04; return [168 * v, 160 * v, 148 * v]; });
-    const g = c.getContext("2d");
-    for (let i = 0; i < 70; i++) { const x = r() * N, y = r() * M, l = 20 + r() * 110; g.strokeStyle = `rgba(40,34,28,${0.35 + r() * 0.35})`; g.lineWidth = 0.8 + r() * 1.3; g.beginPath(); g.moveTo(x, y); g.quadraticCurveTo(x + l / 2, y + (r() - 0.5) * 4, x + l, y + (r() - 0.5) * 3); g.stroke(); }
-    for (let i = 0; i < 5; i++) { const x = r() * N, y = r() * M; g.fillStyle = "rgba(60,48,36,0.55)"; g.beginPath(); g.ellipse(x, y, 5 + r() * 6, 3 + r() * 3, 0, 0, 7); g.fill(); g.strokeStyle = "rgba(50,40,30,0.3)"; g.lineWidth = 1.5; g.beginPath(); g.ellipse(x, y, 11 + r() * 6, 5 + r() * 3, 0, 0, 7); g.stroke(); }
-    T.oak = tex(c); }
-  lap("oak");
-  // leaded quarries (0.42 m by 0.6 m): diamond panes of old crown glass, green-grey, each catching the sky its own way
-  { const N = 256, r = stream("street/glass");
-    T.glass = tex(pixels(N, N, (x, y) => { const p = (x + y) / 64, q = (x - y + 256) / 64, ip = Math.floor(p), iq = Math.floor(q), fp = p - ip, fq = q - iq, e = Math.min(fp, 1 - fp, fq, 1 - fq) * 45;
-      if (e < 2.2) return [38, 38, 36];
-      const h = unit(hashN(ip & 3, iq & 3, 5)), sky = Math.max(0, 1 - (fq + (1 - fp)) * 0.8) * (0.4 + 0.6 * h), v = 0.7 + 0.3 * h, gl = Math.min(1, (e - 2.2) / 3);
-      return [(78 + 110 * sky) * v * gl + 52 * (1 - gl), (92 + 112 * sky) * v * gl + 52 * (1 - gl), (86 + 116 * sky) * v * gl + 50 * (1 - gl)]; })); }
-  lap("glass");
-  // clay plain tiles (4 m square, 2 before 2026-10-07): courses of 0.1 m gauge, tiles 1/6 m wide, half-lapped; burnt and pale ones, moss,
-  // the shadow of each course on the next; and a normal map from the same heights
-  { const N = 1024, CH = N / 40, TW = N / 24, n = noiseTex(N, N, [[32, 32], [128, 128]], 31, [1, 0.5]), H = new Float32Array(N * N), TH = Float32Array.from({ length: 40 * 24 }, (_, i) => unit(hashN(i / 24 | 0, i % 24, 7))), TH2 = Float32Array.from({ length: 40 * 24 }, (_, i) => unit(hashN(i / 24 | 0, i % 24, 8)));
-    T.tile = tex(pixels(N, N, (x, y) => { const row = Math.floor(y / CH), fy = y / CH - row, off = (row & 1) * TW / 2, col = Math.floor(((x + off) % N) / TW), fx = ((x + off) % N) / TW - col;
-      const hi = row * 24 + col % 24, h = TH[hi], h2 = TH2[hi], gap = fx < 0.035 || fx > 0.965, lip = fy > 0.9;
-      H[y * N + x] = gap ? 0 : (0.25 + 0.75 * fy) * (lip ? 1 - (fy - 0.9) * 6 : 1);
-      let R = 96 + h * 30, G = 58 + h * 16, B = 45 + h * 10; if (h2 < 0.2) { R *= 0.72; G *= 0.72; B *= 0.74; } else if (h2 > 0.88) { R *= 1.1; G *= 1.1; B *= 1.08; }
-      const moss = Math.max(0, n[y * N + x] - 0.6) * 2.4; R = R * (1 - moss) + 96 * moss; G = G * (1 - moss) + 98 * moss; B = B * (1 - moss) + 72 * moss;
-      const sh = (gap ? 0.6 : 1) * (fy < 0.18 ? 0.7 + fy * 1.65 : 1) * (0.9 + n[y * N + x] * 0.18); return [R * sh, G * sh, B * sh]; }));
-    T.tileN = tex(normals(H, N, N, 2.2), false); T.tile.repeat.set(0.5, 0.5); T.tileN.repeat.set(0.5, 0.5); }   // (roof uv are metres / 2)
-  lap("tile");
-  // brick (4 m square, 1 before 2026-10-07: the bond came round every metre; and its header courses' perpends lay over the stretchers' so joints ran up through three or four courses, now a quarter brick over): English bond, red-brown stocks with some burnt headers, lime mortar
-  { const N = 1024, CH = N / 56, n = noiseTex(N, N, [[32, 32], [128, 128]], 41), BH = Float32Array.from({ length: 56 * 32 }, (_, i) => unit(hashN(i / 32 | 0, i % 32, 9)));
-    T.brick = tex(pixels(N, N, (x, y) => { const row = Math.floor(y / CH), fy = y / CH - row, hdr = row & 1, bw = hdr ? N / 32 : N / 16, off = hdr ? bw / 2 : (row & 2 ? bw / 2 : 0), col = Math.floor(((x + off) % N) / bw), fx = ((x + off) % N) / bw - col;
-      if (fy < 0.14 || fx < (hdr ? 0.07 : 0.035)) return [150, 141, 124].map(v => v * (0.85 + n[y * N + x] * 0.15));
-      const h = BH[row * 32 + col], burnt = hdr && h < 0.25, v = 0.82 + n[y * N + x] * 0.22; return burnt ? [104 * v, 70 * v, 58 * v] : [(128 + h * 26) * v, (74 + h * 16) * v, (58 + h * 10) * v]; })); T.brick.repeat.set(0.25, 0.25); }   // (brick uv are metres)
-  lap("brick");
-  // the street's pebbles (3.2 m square, 1.6 before 2026-10-07; the street's uv are metres / 1.6, so repeat a half): rounded river pebbles 80-150 mm set in sand and dirt, and their heights
-  { const N = 1024, G = 32, cs = N / G, r = stream("street/pebbles"), P = [];
-    for (let j = 0; j < G; j++) for (let i = 0; i < G; i++) { const a = r() * Math.PI, e = 0.72 + r() * 0.28, t = r();
-      P.push({ x: (i + 0.2 + r() * 0.6) * cs, y: (j + 0.2 + r() * 0.6) * cs, rad: cs * (0.5 + r() * 0.2), ca: Math.cos(a), sa: Math.sin(a), e,
-        col: t < 0.18 ? [92, 94, 98] : t < 0.45 ? [150, 140, 122] : t < 0.7 ? [128, 116, 98] : t < 0.85 ? [170, 160, 140] : [120, 98, 72] }); }
-    const n = noiseTex(N, N, [[64, 64], [256, 256]], 51), H = new Float32Array(N * N);
-    T.pebbles = tex(pixels(N, N, (x, y) => { const ci = Math.floor(x / cs), cj = Math.floor(y / cs); let best = null, bd = 9;
-      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { let ii = ci + di, jj = cj + dj; ii = ii < 0 ? ii + G : ii >= G ? ii - G : ii; jj = jj < 0 ? jj + G : jj >= G ? jj - G : jj; const p = P[jj * G + ii];
-        let dx = x - p.x, dy = y - p.y; dx = dx > N / 2 ? dx - N : dx < -N / 2 ? dx + N : dx; dy = dy > N / 2 ? dy - N : dy < -N / 2 ? dy + N : dy;
-        const u = (dx * p.ca + dy * p.sa) / p.rad, v = (-dx * p.sa + dy * p.ca) / (p.rad * p.e), d = u * u + v * v; if (d < bd) { bd = d; best = p; } }
-      const k = n[y * N + x];
-      if (bd >= 1) { H[y * N + x] = 0.1 * k; return [92 + 30 * k, 80 + 26 * k, 62 + 20 * k]; }
-      const dome = Math.sqrt(1 - bd); H[y * N + x] = 0.25 + 0.75 * dome; const v = (0.62 + 0.38 * dome) * (0.9 + 0.2 * k);
-      return [best.col[0] * v, best.col[1] * v, best.col[2] * v]; }));
-    T.pebblesN = tex(normals(H, N, N, 3.0), false); T.pebbles.repeat.set(0.5, 0.5); T.pebblesN.repeat.set(0.5, 0.5); }
-  lap("pebbles");
-  // the signs (an atlas of 16 boards): emblems painted or gilt on coloured grounds, in moulded frames, weathered
-  T.signs = tex(signAtlas(cv(1024, 1024))); T.signs.anisotropy = 4;
+  // limewash: the texture covers 4 m (uv are metres / 2: one tile to two uv units)
+  T.plaster = kt("plaster", [1024]).map; T.plaster.repeat.set(0.5, 0.5); lap("plaster");
+  // weathered oak (2 m along the grain by 0.5 m across)
+  T.oak = kt("oak", [512, 256]).map; lap("oak");
+  // leaded quarries (0.42 m by 0.6 m)
+  T.glass = kt("glass", [256]).map; lap("glass");
+  // clay plain tiles (4 m square) and their normal map (roof uv are metres / 2)
+  { const t = kt("tile", [1024]); T.tile = t.map; T.tileN = t.normalMap; T.tile.repeat.set(0.5, 0.5); T.tileN.repeat.set(0.5, 0.5); } lap("tile");
+  // brick (4 m square; brick uv are metres)
+  T.brick = kt("brick", [1024]).map; T.brick.repeat.set(0.25, 0.25); lap("brick");
+  // the street's pebbles (3.2 m square; the street's uv are metres / 1.6, so repeat a half) and their normal map
+  { const t = kt("pebbles", [1024]); T.pebbles = t.map; T.pebblesN = t.normalMap; T.pebbles.repeat.set(0.5, 0.5); T.pebblesN.repeat.set(0.5, 0.5); } lap("pebbles");
+  // the signs (an atlas of 16 boards)
+  T.signs = kt("signs", []).map; T.signs.anisotropy = 4;
   const S = (o) => new THREE.MeshStandardMaterial({ vertexColors: true, ...o });
   const mats = {
     plaster: S({ map: T.plaster, roughness: 0.95 }), oak: S({ map: T.oak, roughness: 0.86 }), glass: S({ map: T.glass, roughness: 0.32, metalness: 0 }),
@@ -381,81 +328,12 @@ function streetKit(THREE) {
   };
   mats.tile.normalScale.set(0.8, 0.8); mats.street.normalScale.set(1.1, 1.1);
   for (const [k, m] of Object.entries(mats)) m.name = `street/${k}`;
-  lap("signs"); const kit = { mats, T, parts, ms: Math.round(now() - T0) }; KITS.set(THREE, kit); return kit;
+  lap("signs"); const kit = { mats, T, parts, ms: Math.round(now() - T0), ready: Promise.all(Object.values(T).map(drawn)).then(() => {}) }; KITS.set(THREE, kit); return kit;
 }
 
-// ---- the signs: 16 boards in a 4 by 4 atlas (§B4: "carving and gilding"; the emblems are the common London signs:
-// the Bell, the Swan, the Cross Keys, the Crown, the Star, the Sun, the Half Moon, the Three Tuns, the Anchor, the Rose,
-// the Cock, the Ship, the Golden Ball, the Mitre, the Bible, the Wheatsheaf; colours chosen)
-const SIGN_STYLE = { bell: ["#1c1a18", "gold"], swan: ["#1f3554", "#efe9dc"], keys: ["#6e211c", "gold"], crown: ["#21402c", "gold"], star: ["#1f3554", "gold"], sun: ["#1c1a18", "gold"],
-  moon: ["#22385a", "#e8e4da"], tuns: ["#d8c8a0", "#6b4a2c"], anchor: ["#21402c", "gold"], rose: ["#d8c8a0", "#a3262a"], cock: ["#6e211c", "#efe9dc"], ship: ["#2a4566", "#efe9dc"],
-  ball: ["#1c1a18", "gold"], mitre: ["#6e211c", "#efe9dc"], book: ["#21402c", "#efe9dc"], sheaf: ["#1c1a18", "gold"] };
+// ---- the signs: the atlas of 16 boards (the Bell, the Swan, the Cross Keys ... the Wheatsheaf) is drawn in lab/painted/outgen.js (EMBLEMS, the
+// emblems, their colours), in the kit's workers; here, where a board lies in it
 export const signCell = (e) => [(e % 4) / 4, 1 - (Math.floor(e / 4) + 1) / 4];       // uv of a board's lower-left corner
-function signAtlas(c) {
-  const g = c.getContext("2d"), r = stream("street/signs"), C = 256;
-  EMBLEMS.forEach((name, e) => { const [ground, ink] = SIGN_STYLE[name]; g.save(); g.translate((e % 4) * C, Math.floor(e / 4) * C);
-    g.fillStyle = "#2a2018"; g.fillRect(0, 0, C, C);
-    const gold = () => { const gr = g.createLinearGradient(0, -1, 0, 1); gr.addColorStop(0, "#f4d986"); gr.addColorStop(0.45, "#cfa040"); gr.addColorStop(1, "#86601e"); return gr; };
-    g.fillStyle = ink === "gold" ? "#b48c2c" : "#c9b994"; g.fillRect(9, 9, C - 18, C - 18); g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(9, C - 15, C - 18, 6); g.fillRect(C - 15, 9, 6, C - 18);
-    g.fillStyle = ground; g.fillRect(17, 17, C - 34, C - 34);
-    g.save(); g.translate(C / 2, C / 2 + 4); g.scale(C * 0.37, C * 0.37); g.lineJoin = g.lineCap = "round";
-    emblem(g, name, ink === "gold" ? gold() : ink, ground); g.restore();
-    for (let i = 0; i < 300; i++) { g.fillStyle = `rgba(${r() < 0.5 ? "0,0,0" : "255,248,230"},${0.03 + r() * 0.06})`; g.fillRect(r() * C, r() * C, 2 + r() * 12, 1 + r() * 4); }
-    g.restore(); });
-  return c;
-}
-function emblem(g, name, ink, ground) {
-  const P = (pts, close = true) => { g.beginPath(); pts.forEach(([x, y], i) => i ? g.lineTo(x, y) : g.moveTo(x, y)); if (close) g.closePath(); };
-  const O = (x, y, r) => { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); }, E = (x, y, rx, ry, a = 0) => { g.beginPath(); g.ellipse(x, y, rx, ry, a, 0, Math.PI * 2); };
-  const fill = (c = ink) => { g.fillStyle = c; g.fill(); }, line = (w, c = ink) => { g.lineWidth = w; g.strokeStyle = c; g.stroke(); };
-  const dark = "rgba(24,18,12,0.6)", white = "#efe9dc", red = "#a8302a", yellow = "#d9a83a";
-  switch (name) {
-    case "bell": g.beginPath(); g.moveTo(-0.62, 0.55); g.bezierCurveTo(-0.48, 0.4, -0.42, 0.22, -0.4, -0.1); g.bezierCurveTo(-0.38, -0.56, -0.2, -0.68, 0, -0.68); g.bezierCurveTo(0.2, -0.68, 0.38, -0.56, 0.4, -0.1);
-      g.bezierCurveTo(0.42, 0.22, 0.48, 0.4, 0.62, 0.55); g.closePath(); fill(); P([[-0.66, 0.52], [0.66, 0.52], [0.66, 0.62], [-0.66, 0.62]]); fill(); P([[-0.09, -0.86], [0.09, -0.86], [0.09, -0.66], [-0.09, -0.66]]); fill();
-      O(0, 0.76, 0.11); fill(); g.beginPath(); g.moveTo(-0.39, 0.04); g.quadraticCurveTo(0, -0.04, 0.39, 0.04); line(0.04, dark); break;
-    case "swan": for (const y of [0.56, 0.7]) { g.beginPath(); for (let x = -0.8; x <= 0.8; x += 0.1) g.lineTo(x, y + Math.sin(x * 14) * 0.025); line(0.035, "#8fb0c8"); }
-      E(0.1, 0.24, 0.55, 0.22); fill(); P([[0.58, 0.2], [0.8, -0.02], [0.62, 0.34]]); fill(); g.beginPath(); g.moveTo(-0.15, 0.16); g.quadraticCurveTo(0.2, -0.2, 0.5, -0.1); g.quadraticCurveTo(0.35, 0.12, -0.15, 0.16); fill(); line(0.02, dark);
-      g.beginPath(); g.moveTo(-0.3, 0.16); g.bezierCurveTo(-0.6, -0.08, -0.12, -0.36, -0.36, -0.6); line(0.13); E(-0.42, -0.62, 0.13, 0.085); fill(); P([[-0.52, -0.66], [-0.72, -0.58], [-0.52, -0.56]]); fill("#d9772e"); O(-0.43, -0.65, 0.025); fill("#111"); break;
-    case "keys": for (const [a, m] of [[-Math.PI / 4, 1], [-3 * Math.PI / 4, -1]]) { g.save(); g.rotate(a); g.scale(1, m);
-        O(-0.62, 0, 0.2); fill(); O(-0.62, 0, 0.1); fill(ground); P([[-0.44, -0.05], [0.62, -0.05], [0.62, 0.05], [-0.44, 0.05]]); fill(); P([[0.36, 0.05], [0.6, 0.05], [0.6, 0.32], [0.36, 0.32]]); fill(); P([[0.45, 0.14], [0.51, 0.14], [0.51, 0.32], [0.45, 0.32]]); fill(ground); g.restore(); } break;
-    case "crown": P([[-0.62, 0.25], [-0.68, -0.3], [-0.46, -0.02], [-0.31, -0.46], [-0.16, -0.02], [0, -0.62], [0.16, -0.02], [0.31, -0.46], [0.46, -0.02], [0.68, -0.3], [0.62, 0.25]]); fill();
-      P([[-0.66, 0.22], [0.66, 0.22], [0.66, 0.5], [-0.66, 0.5]]); fill(); for (const [x, y] of [[-0.68, -0.3], [-0.31, -0.46], [0, -0.62], [0.31, -0.46], [0.68, -0.3]]) { O(x, y - 0.06, 0.075); fill(); }
-      P([[-0.03, -0.92], [0.03, -0.92], [0.03, -0.7], [-0.03, -0.7]]); fill(); P([[-0.1, -0.85], [0.1, -0.85], [0.1, -0.79], [-0.1, -0.79]]); fill();
-      for (const [x, c] of [[-0.38, red], [0, "#2c5a8a"], [0.38, red]]) { E(x, 0.36, 0.08, 0.06); fill(c); } break;
-    case "star": P(Array.from({ length: 16 }, (_, i) => { const a = i * Math.PI / 8 - Math.PI / 2, r = i & 1 ? 0.3 : 0.8; return [Math.cos(a) * r, Math.sin(a) * r]; })); fill(); line(0.02, dark); break;
-    case "sun": for (let i = 0; i < 16; i++) { const a = i * Math.PI / 8, r = i & 1 ? 0.68 : 0.86, w = 0.13; P([[Math.cos(a - w) * 0.4, Math.sin(a - w) * 0.4], [Math.cos(a) * r, Math.sin(a) * r], [Math.cos(a + w) * 0.4, Math.sin(a + w) * 0.4]]); fill(); }
-      O(0, 0, 0.42); fill(); for (const x of [-0.14, 0.14]) { O(x, -0.08, 0.04); fill(dark); } g.beginPath(); g.arc(0, 0.06, 0.18, 0.4, Math.PI - 0.4); line(0.035, dark); break;
-    case "moon": O(0, 0, 0.62); fill(); O(0.28, -0.12, 0.54); fill(ground);
-      for (const [x, y] of [[0.5, 0.45], [0.62, -0.55], [0.15, 0.62]]) { P(Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5 - Math.PI / 2, r = i & 1 ? 0.03 : 0.08; return [x + Math.cos(a) * r, y + Math.sin(a) * r]; })); fill(yellow); } break;
-    case "tuns": for (const [x, y] of [[-0.36, -0.32], [0.36, -0.32], [0, 0.34]]) { g.save(); g.translate(x, y); g.scale(0.95, 0.95);
-        g.beginPath(); g.moveTo(-0.32, -0.17); g.quadraticCurveTo(0, -0.27, 0.32, -0.17); g.lineTo(0.32, 0.17); g.quadraticCurveTo(0, 0.27, -0.32, 0.17); g.closePath(); fill();
-        E(0.32, 0, 0.07, 0.17); fill("#4a3018"); for (const hx of [-0.22, -0.1, 0.1, 0.22]) { g.beginPath(); g.moveTo(hx, -0.24 + Math.abs(hx) * 0.3); g.lineTo(hx, 0.24 - Math.abs(hx) * 0.3); line(0.03, "#2e1e10"); } g.restore(); } break;
-    case "anchor": O(0, -0.72, 0.11); line(0.06); P([[-0.38, -0.58], [0.38, -0.58], [0.38, -0.5], [-0.38, -0.5]]); fill(); for (const x of [-0.4, 0.4]) { O(x, -0.54, 0.06); fill(); }
-      P([[-0.055, -0.62], [0.055, -0.62], [0.055, 0.6], [-0.055, 0.6]]); fill(); g.beginPath(); g.arc(0, 0.02, 0.58, 0.35, Math.PI - 0.35); line(0.1);
-      for (const s of [-1, 1]) { const a = s > 0 ? 0.35 : Math.PI - 0.35, x = Math.cos(a) * 0.58, y = 0.02 + Math.sin(a) * 0.58; P([[x - 0.12 * s, y + 0.05], [x + 0.12 * s, y - 0.22], [x + 0.1 * s, y + 0.06]]); fill(); } break;
-    case "rose": for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2 + Math.PI / 5; P([[Math.cos(a) * 0.5, Math.sin(a) * 0.5], [Math.cos(a + 0.18) * 0.8, Math.sin(a + 0.18) * 0.8], [Math.cos(a - 0.18) * 0.8, Math.sin(a - 0.18) * 0.8]]); fill("#3f6a34"); }
-      for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2; O(Math.cos(a) * 0.36, Math.sin(a) * 0.36, 0.3); fill(); }
-      for (let i = 0; i < 5; i++) { const a = i * Math.PI * 2 / 5 - Math.PI / 2 + Math.PI / 5; O(Math.cos(a) * 0.17, Math.sin(a) * 0.17, 0.17); fill(white); } O(0, 0, 0.11); fill(yellow); break;
-    case "cock": for (let i = 0; i < 5; i++) { g.beginPath(); g.moveTo(0.25, 0.0 + i * 0.04); g.quadraticCurveTo(0.6 + i * 0.03, -0.62 + i * 0.12, 0.78, -0.05 + i * 0.12); line(0.07, i & 1 ? "#1d3a2a" : "#2a2420"); }
-      E(0.02, 0.12, 0.4, 0.3, -0.15); fill(); g.beginPath(); g.moveTo(-0.32, 0.0); g.lineTo(-0.38, -0.3); g.lineTo(-0.18, -0.3); g.lineTo(-0.05, -0.02); g.closePath(); fill(); O(-0.3, -0.36, 0.13); fill();
-      for (const [x, y] of [[-0.38, -0.5], [-0.28, -0.53], [-0.18, -0.48]]) { O(x, y, 0.06); fill(red); } E(-0.4, -0.22, 0.04, 0.07); fill(red); P([[-0.42, -0.4], [-0.58, -0.34], [-0.42, -0.31]]); fill(yellow); O(-0.33, -0.39, 0.022); fill("#111");
-      for (const x of [-0.06, 0.12]) { g.beginPath(); g.moveTo(x, 0.38); g.lineTo(x, 0.66); g.moveTo(x - 0.1, 0.68); g.lineTo(x + 0.1, 0.68); line(0.035, yellow); } break;
-    case "ship": for (const y of [0.58, 0.72]) { g.beginPath(); for (let x = -0.8; x <= 0.8; x += 0.1) g.lineTo(x, y + Math.sin(x * 12 + y * 9) * 0.03); line(0.035, "#a8c0d4"); }
-      P([[-0.72, 0.18], [0.72, 0.18], [0.5, 0.48], [-0.5, 0.48]]); fill("#6b4a2c"); P([[0.45, 0.18], [0.72, 0.18], [0.66, -0.02], [0.45, -0.02]]); fill("#6b4a2c");
-      g.beginPath(); g.moveTo(0, 0.2); g.lineTo(0, -0.82); line(0.05, "#5a3c22"); g.beginPath(); g.moveTo(-0.42, -0.62); g.lineTo(0.42, -0.62); g.quadraticCurveTo(0.52, -0.25, 0.44, 0.06); g.lineTo(-0.44, 0.06); g.quadraticCurveTo(-0.34, -0.25, -0.42, -0.62); fill();
-      P([[0, -0.82], [0.32, -0.76], [0, -0.7]]); fill(red); break;
-    case "ball": { const gr = g.createRadialGradient(-0.18, -0.2, 0.05, 0, 0, 0.6); gr.addColorStop(0, "#fbe9a8"); gr.addColorStop(0.5, "#cf9f3e"); gr.addColorStop(1, "#6e4c14"); O(0, 0.06, 0.56); fill(gr); O(0, -0.56, 0.08); line(0.045, "#cf9f3e"); break; }
-    case "mitre": g.beginPath(); g.moveTo(-0.45, 0.55); g.lineTo(-0.45, 0.0); g.quadraticCurveTo(-0.45, -0.52, 0, -0.85); g.quadraticCurveTo(0.45, -0.52, 0.45, 0.0); g.lineTo(0.45, 0.55); g.closePath(); fill();
-      P([[-0.07, -0.8], [0.07, -0.8], [0.07, 0.55], [-0.07, 0.55]]); fill(yellow); P([[-0.45, 0.34], [0.45, 0.34], [0.45, 0.46], [-0.45, 0.46]]); fill(yellow);
-      for (const x of [-0.3, 0.18]) { P([[x, 0.55], [x + 0.12, 0.55], [x + 0.12, 0.82], [x, 0.82]]); fill(); } break;
-    case "book": P([[-0.74, -0.32], [0.74, -0.32], [0.74, 0.44], [-0.74, 0.44]]); fill("#5a1e1a");
-      for (const s of [-1, 1]) { P([[0, -0.26], [0.7 * s, -0.36], [0.7 * s, 0.36], [0, 0.46]]); fill(); for (let i = 0; i < 6; i++) { const y = -0.2 + i * 0.1; g.beginPath(); g.moveTo(0.1 * s, y + 0.02); g.lineTo(0.6 * s, y - 0.02); line(0.022, dark); } }
-      g.beginPath(); g.moveTo(0, -0.26); g.lineTo(0, 0.46); line(0.03, dark); break;
-    case "sheaf": for (let i = -11; i <= 11; i++) { const tx = i * 0.05, bx = i * 0.034; g.beginPath(); g.moveTo(bx, 0.76); g.lineTo(i * 0.012, 0.24); g.lineTo(tx, -0.5); line(0.03);
-        E(tx * 1.05, -0.6, 0.035, 0.12, Math.atan2(tx, 1)); fill(); }
-      P([[-0.2, 0.17], [0.2, 0.17], [0.2, 0.3], [-0.2, 0.3]]); fill("#7a5a1e"); break;
-  }
-}
 
 // ---- a house from its lot. K: the block's accumulators by material. Local frame: u along the front, d into the
 // house (the street at negative d), z up from its ground floor
@@ -777,7 +655,7 @@ function buildLot(K, lot, plan, row) {
 const MATS = ["plaster", "oak", "glass", "tile", "brick", "iron", "sign", "paint", "street", "water"];
 const CAST = { plaster: true, oak: true, glass: false, tile: true, brick: true, iron: true, sign: true, paint: true, street: false, water: false };
 export function makeStreet(THREE, opts = {}) {
-  const T0 = now(), plan = streetPlan(opts), T1 = now(), kit = streetKit(THREE), T2 = now(), BL = opts.block || 40, L = plan.spine.length;
+  const T0 = now(), plan = streetPlan(opts), T1 = now(), kit = streetKit(THREE, { textures: opts.textures }), T2 = now(), BL = opts.block || 40, L = plan.spine.length;
   const rows = { L: [], R: [] }; for (const l of plan.lots) rows[l.side].push(l); for (const k in rows) rows[k].sort((a, b) => a.s0 - b.s0);
   // the blocks: a side's lots by where their middle falls along the spine, and the street's ground in the same lengths
   const blocks = new Map(), blockOf = (key) => { if (!blocks.has(key)) blocks.set(key, { key, lots: [], backs: [], K: Object.fromEntries(MATS.map(k => [k, new Acc()])) }); return blocks.get(key); };
@@ -832,5 +710,5 @@ export function makeStreet(THREE, opts = {}) {
   const T4 = now(), count = (k) => plan.lots.filter(l => l.kind === k).length;
   const stats = { lots: plan.lots.length, houses: count("house"), inns: count("inn"), lanes: count("lane"), entries: count("entry"), signs: plan.lots.filter(l => l.sign).length, posts: plan.posts.length,
     blocks: blocks.size, meshes, tris: Math.round(tris), verts, ms: { plan: +(T1 - T0).toFixed(1), textures: kit.ms, kitThisCall: +(T2 - T1).toFixed(1), geometry: +(T3 - T2).toFixed(1), meshes: +(T4 - T3).toFixed(1), total: +(T4 - T0).toFixed(1), perBlock: per } };
-  return { group, lots: plan.lots, posts: plan.posts, plan, blocked, heightAt, frame, digest, stats, ms: stats.ms.total, materials: kit.mats };
+  return { group, lots: plan.lots, posts: plan.posts, plan, blocked, heightAt, frame, digest, stats, ms: stats.ms.total, materials: kit.mats, ready: kit.ready };
 }

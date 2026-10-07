@@ -6,6 +6,8 @@
 // a frame (budget in ms), and kept in a cache by key, so walking back costs nothing.
 //   makeGround(THREE, site, { root, maxDepth, material }) -> { group, update(x, y, budgetMs) -> busy, stats() }
 import { texture, attribute, mix, uv, vec2, vec3, float } from "three/tsl";
+import { kitTexture } from "../../lab/painted/texjobs.js";
+import { LIB as OUT } from "../../lab/painted/outgen.js";
 
 const N = 32;
 export function makeGround(THREE, site, { root = 1024, extent = 2, minSize = 32, split = 0.8, skirt = 1.0, material, bundle = false } = {}) {
@@ -69,29 +71,18 @@ export function makeGround(THREE, site, { root = 1024, extent = 2, minSize = 32,
 // plainly a grid at the house's corner) are gone, the dry colour now comes from the tone fields. Gravel gets the
 // brightness part, lighter.
 export const GROUND_TONE_M = [12, 37];                 // metres each tone field covers before it repeats
-// a periodic value noise on a canvas: octaves of lattice values, smooth-stepped, wrapping; one grey in R
-function toneCanvas(rng, name, N, periods) {
-  const r = rng(name), c = document.createElement("canvas"); c.width = c.height = N; const g = c.getContext("2d"), im = g.createImageData(N, N), out = new Float32Array(N * N); let wsum = 0;
-  periods.forEach((p, o) => { const w = 1 / (o + 1); wsum += w; const lat = Float32Array.from({ length: p * p }, () => r());
-    for (let y = 0; y < N; y++) { const fy = y / N * p, j = Math.floor(fy), ty = fy - j, sy = ty * ty * (3 - 2 * ty), j1 = (j + 1) % p;
-      for (let x = 0; x < N; x++) { const fx = x / N * p, i = Math.floor(fx), tx = fx - i, sx = tx * tx * (3 - 2 * tx), i1 = (i + 1) % p, a = lat[j * p + i], b = lat[j * p + i1], c2 = lat[j1 * p + i], d = lat[j1 * p + i1];
-        out[y * N + x] += w * (a + (b - a) * sx + (c2 - a) * sy + (a - b - c2 + d) * sx * sy); } } });
-  for (let k = 0; k < N * N; k++) { const v = Math.max(0, Math.min(1, 0.5 + (out[k] / wsum - 0.5) * 1.8)) * 255; im.data[k * 4] = im.data[k * 4 + 1] = im.data[k * 4 + 2] = v; im.data[k * 4 + 3] = 255; }
-  g.putImageData(im, 0, 0); return c;
+// The four textures are drawn in the kit's worker pool and kept in its IndexedDB cache (lab/painted/outgen.js: the
+// generators, which seed their own streams as `rng` here did; texjobs.js: the pool). textures: "async" (the default) hands
+// them back at once, empty, and they fill when their pixels arrive (a page that must not draw an unfinished ground awaits
+// texjobs.js's settled()); "sync" draws them here and now, as before. `rng` is kept for callers' sake and no longer used.
+export function groundTextures(THREE, { textures = "async" } = {}) {
+  const kt = (gen, args, srgb = true) => kitTexture(THREE, { lib: OUT, gen, args }, { mode: textures, srgb }).map;
+  const toneA = kt("tone", ["ground/tone-12m", 256, [3, 6, 12]], false), toneB = kt("tone", ["ground/tone-37m", 256, [3, 6]], false);
+  toneA.anisotropy = toneB.anisotropy = 4;
+  return { grass: kt("grass", [512]), gravel: kt("gravel", [512]), toneA, toneB };
 }
-export function groundTextures(THREE, { rng }) {
-  const tex = (draw, N = 512) => { const c = document.createElement("canvas"); c.width = c.height = N; draw(c.getContext("2d"), N); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t; };
-  const grass = tex((g, N) => { const r = rng("ground/grass"); g.fillStyle = "#5b6d32"; g.fillRect(0, 0, N, N);
-    for (let k = 0; k < 9000; k++) { const x = r() * N, y = r() * N, l = 3 + r() * 7, t = r(), dx = (r() - 0.5) * 3; g.strokeStyle = `rgba(${70 + t * 60 | 0},${92 + t * 50 | 0},${36 + t * 20 | 0},0.55)`; g.lineWidth = 1 + r();
-      for (const ox of x < 4 ? [0, N] : x > N - 4 ? [0, -N] : [0]) for (const oy of y - l < 0 ? [0, N] : [0]) { g.beginPath(); g.moveTo(x + ox, y + oy); g.lineTo(x + ox + dx, y + oy - l); g.stroke(); } } });   // (blades at an edge are drawn again on the other side, so the tile wraps)
-  const gravel = tex((g, N) => { const r = rng("ground/gravel"); g.fillStyle = "#a59a80"; g.fillRect(0, 0, N, N);
-    for (let k = 0; k < 7000; k++) { const t = r(); g.fillStyle = `rgb(${130 + t * 90 | 0},${122 + t * 84 | 0},${100 + t * 70 | 0})`; const x = r() * N, y = r() * N, a = 1.5 + r() * 4, b = 1 + r() * 3, th = r() * 3; for (const ox of x < 6 ? [0, N] : x > N - 6 ? [0, -N] : [0]) for (const oy of y < 6 ? [0, N] : y > N - 6 ? [0, -N] : [0]) { g.beginPath(); g.ellipse(x + ox, y + oy, a, b, th, 0, 7); g.fill(); } }
-    g.fillStyle = "rgba(60,50,35,0.25)"; for (let k = 0; k < 2500; k++) { const x = r() * N, y = r() * N; g.fillRect(x, y, 2, 2); if (x > N - 2) g.fillRect(x - N, y, 2, 2); if (y > N - 2) g.fillRect(x, y - N, 2, 2); } });
-  const toneTex = (name, periods) => { const t = new THREE.CanvasTexture(toneCanvas(rng, name, 256, periods)); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t; };
-  return { grass, gravel, toneA: toneTex("ground/tone-12m", [3, 6, 12]), toneB: toneTex("ground/tone-37m", [3, 6]) };
-}
-export function groundMaterial(THREE, { rng }) {
-  const { grass, gravel, toneA, toneB } = groundTextures(THREE, { rng });
+export function groundMaterial(THREE, { textures } = {}) {
+  const { grass, gravel, toneA, toneB } = groundTextures(THREE, { textures });
   const m = new THREE.MeshStandardNodeMaterial({ roughness: 0.95, side: THREE.DoubleSide });
   const w = attribute("splat", "float");
   // uv is metres / 2: the tone fields cover 12 and 37 m

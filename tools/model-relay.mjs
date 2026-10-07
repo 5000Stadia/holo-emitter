@@ -10,8 +10,8 @@
 //     -> { ok:false, fallback:true, error, ... }   the page then uses the no-model path
 //   GET  /stats   running totals;   GET /health   { ok, provider }
 //
-// Providers: mock (deterministic, no key), openai (metered key, Decision 4a), subscription (a refusing stub, Decision 4b).
-// The key is read once, held in this process, sent only to the provider, and scrubbed from everything written or returned.
+// Providers: mock (deterministic, no key), openai (metered key, Decision 4a), subscription (the ChatGPT sign-in, Decision 4b).
+// A key or token is held in this process only, sent only to the provider, and scrubbed from everything written or returned.
 import http from "node:http";
 import fs from "node:fs";
 import os from "node:os";
@@ -218,12 +218,94 @@ function openaiProvider(cfg, key, scrub) {
   };
 }
 
-// Decision 4b (the ChatGPT subscription sign-in) is Kabe's to make (design/daily/2026-10-07.md decision 4). construct's
-// version presents itself as another client to an undocumented endpoint; this relay does neither that nor reads any other
-// tool's credential file. If 4b is chosen, an honest integration goes here behind this same interface.
-function subscriptionProvider() {
-  const msg = "subscription provider not implemented: awaiting Kabe's choice at design/daily/2026-10-07.md decision 4 (a metered key, or construct's sign-in path); use --provider openai or mock";
-  return { name: "subscription", modelFor: () => "none", async call() { throw Object.assign(new Error(msg), { fatal: true }); } };
+// Decision 4b, chosen by Kabe 2026-10-07 ("for four I only want open AI OAuth for the development process"): the person's
+// ChatGPT subscription sign-in, as construct does it (/home/k/Newproject/construct/provider.py CodexProvider, "the EXPLICIT
+// OPT-IN path", personal use). Mirrored: the credential is read fresh from ~/.codex/auth.json on every call (tokens.access_token,
+// tokens.account_id; the `codex` CLI keeps it fresh, nothing here refreshes or writes it); the same headers (including
+// originator "pi", which presents this as another client; that is construct's and the person's accepted choice, family-read.md
+// §6); POST {base}/codex/responses as a server-sent-event stream; the same body (store:false, stream:true, include
+// reasoning.encrypted_content, json_schema text format without `strict`, reasoning effort on gpt-5 models, prompt_cache_key);
+// the final output text from response.completed (else the text deltas). 401 is final ("run `codex login`"); a dropped
+// connection is retried twice with a backoff; a 40 KB payload cap. Development only: the token stays in this process, goes only
+// to the provider, and is scrubbed from logs, replies, stats and the cache (which holds outputs, never credentials).
+export const CODEX_PAYLOAD_CAP = 40 * 1024;
+function subscriptionProvider(cfg, secrets, scrub) {
+  const sessionId = `holo-relay-${crypto.randomUUID()}`;
+  const modelFor = (job) => cfg.models[job];
+  const arch = { x64: "x86_64", arm64: "aarch64" }[process.arch] || process.arch;
+  const userAgent = `pi (${os.platform()} ${[os.release(), arch].filter(Boolean).join("; ")})`;
+  const readAuth = () => {
+    let raw;
+    try { raw = fs.readFileSync(cfg.codexAuthPath, "utf8"); }
+    catch (e) { throw Object.assign(new Error(e.code === "ENOENT" ? `no Codex credential at ${cfg.codexAuthPath}; run \`codex login\`` : `cannot read Codex credential (${e.code || e.message}); run \`codex login\``), { fatal: true }); }
+    let t; try { const tk = JSON.parse(raw).tokens; t = { access: tk.access_token, account: tk.account_id }; }
+    catch (e) { throw Object.assign(new Error(`unreadable Codex credential (${e instanceof SyntaxError ? "not JSON" : "no tokens"}); run \`codex login\``), { fatal: true }); }
+    if (typeof t.access !== "string" || !t.access || typeof t.account !== "string" || !t.account) throw Object.assign(new Error("unreadable Codex credential (missing access_token or account_id); run `codex login`"), { fatal: true });
+    secrets.add(t.access); secrets.add(t.account);
+    return t;
+  };
+  const headers = (a) => ({ session_id: sessionId, "x-client-request-id": sessionId, authorization: `Bearer ${a.access}`, "chatgpt-account-id": a.account,
+    originator: "pi", "user-agent": userAgent, "content-type": "application/json", "openai-beta": "responses=experimental", accept: "text/event-stream" });
+  const bodyFor = (model, system, user, schema) => {
+    const body = { model,
+      instructions: `${system}\n\nAnswer with a single JSON object conforming exactly to the required schema. No prose outside the JSON.`,
+      input: [{ role: "user", content: user }], store: false, stream: true, include: ["reasoning.encrypted_content"],
+      text: { format: { type: "json_schema", name: "output", schema: toModelSchema(schema) } } };   // no strict: the consumer wire ships without it
+    if (model.startsWith("gpt-5")) body.reasoning = { effort: cfg.effort, summary: "auto" };
+    body.prompt_cache_key = sessionId;
+    return body;
+  };
+  // Read an SSE stream to the final output text. Events are blocks separated by a blank line; only `data:` lines matter.
+  const collect = async (res) => {
+    let final = {}, deltas = "", buf = "";
+    const handle = (block) => {
+      const data = block.split("\n").filter(l => l.startsWith("data:")).map(l => l.slice(5).trim()).join("\n").trim();
+      if (!data || data === "[DONE]") return;
+      let ev; try { ev = JSON.parse(data); } catch { return; }
+      if (ev.type === "response.completed" || ev.type === "response.done") final = ev.response || ev;
+      else if ((ev.type === "response.failed" || ev.type === "response.incomplete" || ev.type === "error") && !final.output) final = { failure: ev.response || ev };
+      else if (ev.type === "response.output_text.delta") deltas += ev.delta || "";
+    };
+    const dec = new TextDecoder();
+    for await (const chunk of res.body) {
+      buf += dec.decode(chunk, { stream: true }).replace(/\r\n/g, "\n");
+      let i; while ((i = buf.indexOf("\n\n")) >= 0) { handle(buf.slice(0, i)); buf = buf.slice(i + 2); }
+    }
+    buf += dec.decode(); if (buf.trim()) handle(buf);
+    for (const o of final.output || []) if (o.type === "message") for (const c of o.content || []) if (c.type === "output_text" && c.text) return { text: c.text, usage: final.usage };
+    if (deltas) return { text: deltas, usage: final.usage };
+    throw new Error(scrub(`response stream ended without output text; tail: ${JSON.stringify(final).slice(0, 300)}`));
+  };
+  const once = async (url, body) => {
+    const a = readAuth();                                   // fresh per call, as construct does
+    const payload = JSON.stringify(body);
+    if (payload.length > CODEX_PAYLOAD_CAP) throw Object.assign(new Error(`payload ${Math.ceil(payload.length / 1024)}KB exceeds the ${CODEX_PAYLOAD_CAP / 1024}KB Codex cap`), { fatal: true });
+    const ctl = new AbortController(); const timer = setTimeout(() => ctl.abort(), cfg.upstreamTimeoutMs);
+    try {
+      let res;
+      try { res = await fetch(url, { method: "POST", signal: ctl.signal, headers: headers(a), body: payload }); }
+      catch (e) { throw Object.assign(new Error(scrub(e.name === "AbortError" ? `Codex call exceeded ${cfg.upstreamTimeoutMs} ms` : `Codex transport error: ${e.cause?.code || e.message}`)), { transient: e.name !== "AbortError" }); }
+      if (res.status === 401) { await res.text().catch(() => ""); throw Object.assign(new Error("Codex auth failed (401); run `codex login`"), { fatal: true }); }
+      if (res.status >= 400) { const t = await res.text().catch(() => ""); throw Object.assign(new Error(scrub(`Codex API error (${res.status}): ${t.slice(0, 300)}`)), { fatal: res.status === 403 || res.status === 404 }); }
+      try { return await collect(res); }
+      catch (e) { if (e.name === "AbortError") throw new Error(`Codex call exceeded ${cfg.upstreamTimeoutMs} ms`); if (e instanceof TypeError || e.code) throw Object.assign(new Error(scrub(`Codex stream dropped: ${e.cause?.code || e.message}`)), { transient: true }); throw e; }
+    } finally { clearTimeout(timer); }
+  };
+  return {
+    name: "subscription", modelFor,
+    async call({ job, schema, prompt, retryNote }) {
+      const model = modelFor(job);
+      const system = prompt.system + (retryNote ? `\n\nYour previous reply was rejected (${retryNote}). Reply again with valid JSON.` : "");
+      const url = `${cfg.codexBase}/codex/responses`, body = bodyFor(model, system, prompt.user, schema);
+      let r;
+      for (let i = 0; ; i++) {
+        try { r = await once(url, body); break; }
+        catch (e) { if (!e.transient || i >= 2) throw e; await new Promise(res => setTimeout(res, cfg.transientBackoffMs * (i + 1))); }
+      }
+      let output; try { output = JSON.parse(r.text); } catch { output = r.text; }
+      return { output, tokens: { in: r.usage?.input_tokens ?? 0, out: r.usage?.output_tokens ?? 0 }, model };
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -238,17 +320,23 @@ export function loadKey(env = process.env, keyFile = path.join(os.homedir(), ".c
 
 export function configFromEnv(env = process.env, argv = []) {
   const arg = (n) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : undefined; };
-  const dflt = env.RELAY_MODEL || "gpt-4.1-mini";   // UNVERIFIED default; set RELAY_MODEL / RELAY_MODEL_<JOB> to what your account has
+  const provider = arg("provider") || env.RELAY_PROVIDER || "mock";
+  // openai: UNVERIFIED default; set RELAY_MODEL / RELAY_MODEL_<JOB> to what your account has. subscription: gpt-5.5, verified working on this account 2026-10-07 (construct's cheap default gpt-5.4-mini was refused: \"not supported when using Codex with a ChatGPT account\").
+  const dflt = env.RELAY_MODEL || (provider === "subscription" ? (env.HOLODECK_CODEX_CHEAP_MODEL || "gpt-5.5") : "gpt-4.1-mini");
   let prices = {}; try { prices = env.RELAY_PRICES ? JSON.parse(env.RELAY_PRICES) : {}; } catch { throw new Error("RELAY_PRICES must be JSON {model:[usdPerMTokIn,usdPerMTokOut]}"); }
   return {
-    provider: arg("provider") || env.RELAY_PROVIDER || "mock",
+    provider,
     port: Number(arg("port") ?? env.RELAY_PORT ?? 8798),
     cacheDir: arg("cache-dir") || env.RELAY_CACHE_DIR || null,
     testHooks: argv.includes("--test-hooks"),
     models: { read: env.RELAY_MODEL_READ || dflt, voice: env.RELAY_MODEL_VOICE || dflt, beat: env.RELAY_MODEL_BEAT || dflt },
     openaiApi: env.RELAY_OPENAI_API || "responses",
     openaiBase: (env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, ""),
-    upstreamTimeoutMs: Number(env.RELAY_UPSTREAM_TIMEOUT_MS || 20000),
+    upstreamTimeoutMs: Number(env.RELAY_UPSTREAM_TIMEOUT_MS || (provider === "subscription" ? 60000 : 20000)),
+    codexAuthPath: env.RELAY_CODEX_AUTH || path.join(os.homedir(), ".codex", "auth.json"),
+    codexBase: (env.RELAY_CODEX_BASE_URL || env.HOLODECK_CODEX_BASE_URL || "https://chatgpt.com/backend-api").replace(/\/$/, ""),
+    effort: env.RELAY_EFFORT || env.HOLODECK_CODEX_CHEAP_EFFORT || "low",         // gpt-5 reasoning effort; low is the latency floor
+    transientBackoffMs: Number(env.RELAY_TRANSIENT_BACKOFF_MS || 2000),
     maxOutputTokens: Number(env.RELAY_MAX_OUTPUT_TOKENS || 400),
     prices,                                                                   // model -> [usd per 1M input, usd per 1M output]
     defaultPrice: [Number(env.RELAY_PRICE_IN ?? 0.4), Number(env.RELAY_PRICE_OUT ?? 1.6)],   // UNVERIFIED placeholders
@@ -262,24 +350,26 @@ const canon = (v) => JSON.stringify(v, (k, x) => x && typeof x === "object" && !
 const localHost = (h) => /^(localhost|127\.0\.0\.1|\[::1\])$/.test(h);
 
 export async function startRelay(opts = {}) {
-  const cfg = { ...configFromEnv(), ...opts };
-  cfg.models = { ...configFromEnv().models, ...(opts.models || {}) };
+  const base = configFromEnv(process.env, opts.provider ? ["--provider", opts.provider] : []);   // provider-specific defaults (models, timeout)
+  const cfg = { ...base, ...opts };
+  cfg.models = { ...base.models, ...(opts.models || {}) };
   let key = null;
   if (cfg.provider === "openai") {
     key = cfg.key ?? loadKey();
     if (!key) throw new Error("openai provider needs OPENAI_API_KEY in the environment or a 0600 file ~/.config/holo-emitter/openai.key");
   }
-  const scrub = (s) => { s = String(s); if (key) s = s.split(key).join("[key]"); return s.replace(/sk-[A-Za-z0-9_-]{8,}/g, "[key]"); };
+  const secrets = new Set(key ? [key] : []);   // every credential this process has held (the subscription token is added when read)
+  const scrub = (s) => { s = String(s); for (const k of secrets) s = s.split(k).join("[key]"); return s.replace(/sk-[A-Za-z0-9_-]{8,}/g, "[key]").replace(/eyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}(\.[A-Za-z0-9_-]*)?/g, "[token]"); };
   const log = (...a) => { if (!cfg.quiet) console.log("[relay]", scrub(a.join(" "))); };
   const provider = cfg.provider === "mock" ? mockProvider() : cfg.provider === "openai" ? openaiProvider(cfg, key, scrub)
-    : cfg.provider === "subscription" ? subscriptionProvider() : (() => { throw new Error(`unknown provider ${cfg.provider}`); })();
+    : cfg.provider === "subscription" ? subscriptionProvider(cfg, secrets, scrub) : (() => { throw new Error(`unknown provider ${cfg.provider}`); })();
   if (cfg.cacheDir) fs.mkdirSync(cfg.cacheDir, { recursive: true });
 
   const memo = new Map();
   const blank = () => ({ calls: 0, ok: 0, cached: 0, failed: 0, retries: 0, tokens_in: 0, tokens_out: 0, cost_usd: 0, saved_usd: 0, ms_total: 0, ms_max: 0 });
   const stats = { started: new Date().toISOString(), provider: provider.name, total: blank(), jobs: Object.fromEntries(JOBS.map(j => [j, blank()])) };
   const bump = (job, f) => { f(stats.total); f(stats.jobs[job]); };
-  const priceOf = (model, t) => { const [pi, po] = cfg.prices[model] || cfg.defaultPrice; return provider.name === "mock" ? 0 : (t.in * pi + t.out * po) / 1e6; };
+  const priceOf = (model, t) => { const [pi, po] = cfg.prices[model] || cfg.defaultPrice; return provider.name === "mock" || provider.name === "subscription" ? 0 : (t.in * pi + t.out * po) / 1e6; };
 
   const cacheKey = (job, input, model) => crypto.createHash("sha256").update(`${provider.name}|${model}|${job}|${canon(input)}`).digest("hex");
   const cacheGet = (k) => {
@@ -373,6 +463,7 @@ export async function startRelay(opts = {}) {
   });
   await new Promise((resolve, reject) => { server.once("error", reject); server.listen(cfg.port, "127.0.0.1", resolve); });
   const port = server.address().port;
+  if (provider.name === "subscription") log(`NOTICE: using the person's ChatGPT SUBSCRIPTION credential (${cfg.codexAuthPath}, read fresh per call) against ${cfg.codexBase}, for DEVELOPMENT only. Not metered here (cost_usd is 0). Never expose this relay beyond localhost.`);
   log(`listening on http://127.0.0.1:${port}  provider=${provider.name}  models=${provider.name === "mock" ? "mock" : JSON.stringify(cfg.models)}${cfg.cacheDir ? "  cache=" + cfg.cacheDir : ""}`);
   return { server, port, url: `http://127.0.0.1:${port}`, stats, close: () => new Promise(r => server.close(() => r())) };
 }

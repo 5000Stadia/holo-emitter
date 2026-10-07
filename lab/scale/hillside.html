@@ -41,6 +41,8 @@ import { makeGround, groundMaterial } from "../../src/make/terrain-mesh.js";
 import { makeFields } from "../../src/make/fields.js";
 import { makeHillside } from "../../src/make/hillside.js";
 import { rng, seedOf } from "../../src/make/id.js";
+import { settled, warmTextures } from "../painted/texjobs.js";
+import { LIB as OUT } from "../painted/outgen.js";
 
 const Q = new URLSearchParams(location.search), num = (k, d) => Q.has(k) ? +Q.get(k) : d;
 const T0 = performance.now(), mark = {};
@@ -51,11 +53,13 @@ addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; cam
 
 // the site, its fields (ridge and furrow is part of the ground's height), the ground, the hillside
 const plan = planHybridE(GENTRY_SEAT_1660, { hearths: {} }), site = makeSite(plan), fields = makeFields(site); site.relief(fields.furrowZ);
+await warmTextures(3000, [OUT]);      // the texture workers up before the main thread is busy building (a worker starts only when it is free)
 const ground = makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") === "1", material: groundMaterial(THREE, { rng: (n) => rng(seedOf(n)) }) }); scene.add(ground.group);
 mark.site = performance.now() - T0;
 const hill = makeHillside(THREE, site, fields, { renderer, bundle: ENG.backend === "webgpu" && Q.get("bundle") === "1", radius: num("radius", 700), near: num("near", ENG.phone ? 100 : 150), nearTile: num("nearTile", ENG.phone ? 100 : 150) });
 scene.add(hill.group);
 mark.hillside = performance.now() - T0;
+await settled(); mark.textures = performance.now() - T0;     // the ground's and the hillside's textures are drawn in the worker pool meanwhile; the first frame waits for the last
 window.__site = site; window.__fields = fields; window.__hill = hill; window.__ground = ground; window.__THREE = THREE; window.__scene = scene; window.__renderer = renderer;
 
 // light as on the manor page: a sun to the south-south-east, its shadow box going with you; a hemisphere fill

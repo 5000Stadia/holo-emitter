@@ -144,12 +144,98 @@ ok(R.server.address().address === "127.0.0.1", "bound to 127.0.0.1 only");
 }
 await R.close();
 
-// ---- subscription stub
+// ---- subscription provider (the person's ChatGPT sign-in, as construct's CodexProvider) against a local fake SSE server
 {
-  const S = await startRelay({ provider: "subscription", port: 0, ...quiet });
-  const r = await post(S, READ);
-  ok(r.j.ok === false && r.j.fallback === true && /decision 4/.test(r.j.error), "subscription provider refuses and points to decision 4", r.j.error);
-  await S.close();
+  const TOKEN = "eyJfaketokenAAAAAAAA.fakepayloadBBBBBBBB.fakesigCCCCCCCC", ACCT = "acct-fake-0123";
+  const authFile = path.join(tmp, "auth.json");
+  const writeAuth = (tok = TOKEN, acct = ACCT) => fs.writeFileSync(authFile, JSON.stringify({ tokens: { access_token: tok, account_id: acct, refresh_token: "r-secret" } }), { mode: 0o600 });
+  writeAuth();
+  const seen = []; let mode = "completed", hits = 0;
+  const up = http.createServer((req, res) => {
+    let b = ""; req.on("data", c => b += c); req.on("end", () => {
+      hits++; const body = JSON.parse(b); seen.push({ url: req.url, h: req.headers, body });
+      if (mode === "401") { res.writeHead(401); return res.end(`bad token ${req.headers.authorization}`); }
+      if (mode === "400") { res.writeHead(400); return res.end(JSON.stringify({ detail: "The 'x' model is not supported when using Codex with a ChatGPT account." })); }
+      if (mode === "drop1" && hits === 1) return req.socket.destroy();
+      if (mode === "dropall") return req.socket.destroy();
+      res.writeHead(200, { "content-type": "text/event-stream" });
+      const user = JSON.parse(body.input[0].content);
+      const out = JSON.stringify({ topic: user.topics[0].id, stance: "press" });
+      const ev = (o) => `event: ${o.type}\ndata: ${JSON.stringify(o)}\n\n`;
+      let stream;
+      if (mode === "deltas") stream = ev({ type: "response.created", response: {} }) + ev({ type: "response.output_text.delta", delta: out.slice(0, 9) }) + ev({ type: "response.output_text.delta", delta: out.slice(9) }) + "data: [DONE]\n\n";
+      else if (mode === "failed") stream = ev({ type: "response.failed", response: { error: { message: `quota for ${req.headers.authorization}` } } });
+      else if (mode === "crlf") stream = (ev({ type: "response.completed", response: { output: [{ type: "message", content: [{ type: "output_text", text: out }] }], usage: { input_tokens: 50, output_tokens: 5 } } })).replace(/\n/g, "\r\n");
+      else stream = ev({ type: "response.created", response: {} }) + ev({ type: "response.reasoning_summary_text.delta", delta: "thinking" }) + ev({ type: "response.output_text.delta", delta: out }) +
+        ev({ type: "response.completed", response: { output: [{ type: "reasoning" }, { type: "message", content: [{ type: "output_text", text: out }] }], usage: { input_tokens: 120, output_tokens: 12 } } });
+      // deliver in awkward pieces: splits fall mid-event, even mid-line
+      const cut = [7, 31, 80, 140]; let at = 0;
+      for (const c of [...cut, stream.length]) { if (c > at) res.write(stream.slice(at, Math.min(c, stream.length))); at = Math.max(at, c); }
+      res.end();
+    });
+  });
+  await new Promise(r => up.listen(0, "127.0.0.1", r));
+  const logs = []; const orig = console.log; console.log = (...a) => logs.push(a.join(" "));
+  let S;
+  try {
+    S = await startRelay({ provider: "subscription", port: 0, codexAuthPath: authFile, codexBase: `http://127.0.0.1:${up.address().port}`, transientBackoffMs: 5, cacheDir: path.join(tmp, "subcache") });
+    console.log = orig;
+    ok(logs.some(l => /SUBSCRIPTION credential.*DEVELOPMENT only/.test(l)), "subscription: a clear startup notice names the credential and dev-only use");
+    ok(!logs.join("\n").includes(TOKEN), "subscription: startup log has no token");
+    const mark = logs.length; console.log = (...a) => logs.push(a.join(" "));
+    const r = await post(S, READ);
+    ok(r.j.ok && r.j.output.topic === "alibi" && r.j.output.stance === "press" && r.j.model === "gpt-5.5", "subscription: answer parsed from the SSE stream (default model gpt-5.5)", JSON.stringify(r.j));
+    ok(r.j.tokens.in === 120 && r.j.tokens.out === 12 && r.j.cost_usd === 0, "subscription: usage from the completed event; not metered (cost 0)");
+    const q = seen[0];
+    ok(q.url === "/codex/responses" && q.h.authorization === `Bearer ${TOKEN}` && q.h["chatgpt-account-id"] === ACCT, "subscription: POST /codex/responses with bearer token and account id");
+    ok(q.h.originator === "pi" && /^pi \(/.test(q.h["user-agent"]) && q.h["openai-beta"] === "responses=experimental" && q.h.accept === "text/event-stream" && q.h.session_id && q.h["x-client-request-id"] === q.h.session_id, "subscription: construct's headers");
+    const b = q.body;
+    ok(b.store === false && b.stream === true && b.include[0] === "reasoning.encrypted_content" && b.reasoning.effort === "low" && b.prompt_cache_key === q.h.session_id && Array.isArray(b.input) && b.input[0].role === "user" && /single JSON object/.test(b.instructions), "subscription: construct's body (store false, stream, include, low effort, input list)");
+    ok(b.text.format.type === "json_schema" && b.text.format.strict === undefined && b.text.format.schema.additionalProperties === false && b.text.format.schema.required.length === 2 && !JSON.stringify(b.text.format.schema).includes("maxLength"), "subscription: json_schema format without strict, forced-strict object schema");
+    // fresh auth per call: a refreshed token is used by the next call with no restart
+    writeAuth("eyJsecondtokenAAAAAAA.second2payloadBBBB.sig2CCCCCCC", "acct-2");
+    await post(S, { ...READ, input: { ...READ.input, utterance: "second call" } });
+    ok(seen[1].h.authorization.includes("secondtoken") && seen[1].h["chatgpt-account-id"] === "acct-2", "subscription: auth.json re-read on every call");
+    writeAuth();
+    // other stream shapes
+    for (const [m, label] of [["deltas", "text deltas without a completed event"], ["crlf", "CRLF event separators"]]) {
+      mode = m; const d = await post(S, { ...READ, input: { ...READ.input, utterance: "stream " + m } });
+      ok(d.j.ok && d.j.output.stance === "press", `subscription: ${label}`, JSON.stringify(d.j));
+    }
+    mode = "failed"; { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "stream failed" } });
+      ok(d.j.ok === false && d.j.fallback && !JSON.stringify(d.j).includes(TOKEN), "subscription: a failed stream falls back, token not echoed", JSON.stringify(d.j)); }
+    // 401: final (no retry), fix named, echoed token scrubbed
+    mode = "401"; hits = 0; { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "auth 401" } });
+      ok(d.j.ok === false && d.j.fallback && /codex login/.test(d.j.error) && hits === 1 && !JSON.stringify(d.j).includes(TOKEN), "subscription: 401 is final and names `codex login`", JSON.stringify(d.j)); }
+    mode = "400"; { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "model refused" } });
+      ok(d.j.ok === false && /not supported/.test(d.j.error), "subscription: API error text surfaces (e.g. a model the account lacks)"); }
+    // a dropped connection is a blip: retried; persistent drops fail
+    mode = "drop1"; hits = 0; { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "blip" } });
+      ok(d.j.ok && hits === 2, "subscription: a dropped connection is retried", `hits=${hits} ${JSON.stringify(d.j)}`); }
+    mode = "dropall"; hits = 0; { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "dead" } });
+      ok(d.j.ok === false && d.j.fallback && hits >= 3, "subscription: persistent drops end in fallback", `hits=${hits}`); }
+    // credential problems: named fix, no network
+    mode = "completed"; hits = 0;
+    fs.unlinkSync(authFile); { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "no auth" } });
+      ok(d.j.ok === false && /codex login/.test(d.j.error) && hits === 0, "subscription: missing auth.json names `codex login`, makes no call", d.j.error); }
+    fs.writeFileSync(authFile, "{nope", { mode: 0o600 }); { const d = await post(S, { ...READ, input: { ...READ.input, utterance: "bad auth" } });
+      ok(d.j.ok === false && /unreadable Codex credential/.test(d.j.error) && hits === 0, "subscription: unreadable auth.json"); }
+    // the token is nowhere it must not be
+    writeAuth();
+    const st = JSON.stringify(await get(S, "/stats"));
+    const disk = fs.readdirSync(path.join(tmp, "subcache")).map(f => fs.readFileSync(path.join(tmp, "subcache", f), "utf8")).join("\n");
+    const all = logs.join("\n") + st + disk;
+    ok(!all.includes("fakepayloadBBBB") && !all.includes("secondtoken") && !all.includes(ACCT) && !all.includes("r-secret"), "subscription: token, account id and refresh token absent from logs, stats and the cache");
+    ok(logs.some(l => /\bread\b.*subscription.*gpt-5\.5.*ok in=120 out=12/.test(l)), "subscription: per-call log line");
+    // cache hit makes no upstream call
+    mode = "completed"; hits = 0; const c = await post(S, READ);
+    ok(c.j.cached === true && hits === 0, "subscription: a cached answer makes no call");
+  } finally { console.log = orig; if (S) await S.close(); up.close(); }
+  // the credential file is never written by the relay
+  ok(JSON.parse(fs.readFileSync(authFile, "utf8")).tokens.refresh_token === "r-secret", "subscription: auth.json left untouched");
+  // model and effort are configurable
+  const S2 = await startRelay({ provider: "subscription", port: 0, quiet: true, codexAuthPath: authFile, codexBase: "http://127.0.0.1:1", models: { voice: "gpt-x" } });
+  ok(S2.server.listening, "subscription: starts with a custom model map"); await S2.close();
 }
 
 // ---- openai provider against a fake upstream (both API styles); the key must never leak

@@ -32,6 +32,7 @@ import { groundTextures, groundMaterial, GROUND_TONE_M } from "../../src/make/te
 import { hillsideMaterials, rubbleTextures } from "../../src/make/hillside.js";
 import { streetKit } from "../../src/make/street.js";
 import { rng, seedOf } from "../../src/make/id.js";
+import { settled } from "../painted/texjobs.js";
 
 const ENG = await makeRender({ outdoor: true }), renderer = ENG.renderer;
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0xb7c4cf);
@@ -44,6 +45,7 @@ const gt = time("ground", () => groundTextures(THREE, { rng: R })), gm = groundM
 const rub = time("rubble", () => rubbleTextures(THREE)), hm = hillsideMaterials(THREE);
 const kit = time("street", () => streetKit(THREE));
 const M = kit.mats;
+const t0 = performance.now(); await settled(); ms.drawn = +(performance.now() - t0).toFixed(1);       // the textures above are drawn in the worker pool (or read from its cache); wait for the last
 // id: what it is; role: what its viewing distance is judged as (wall, roof, ground, timber, glass); uv: metres a uv unit covers where it is used;
 // scale (the material's own multiplier on uv); map/mat; grain: the axis a mark may run the length of (a board's grain); course: courses a texture's height divides into (null: none);
 // macro: slow tone fields' periods in metres (what keeps a small tile's repetition from showing); kind: the panel's plane
@@ -60,7 +62,10 @@ const defs = [
   { id: "brick", role: "wall", uv: 1, map: kit.T.brick, mat: M.brick, course: 56, kind: "wall" },
   { id: "pebbles", role: "ground", uv: 1.6, macro: [12], map: kit.T.pebbles, mat: M.street, kind: "ground" },
 ];
-window.__textures = defs.map(d => ({ id: d.id, role: d.role, canvas: d.map.image, repeat: d.map.repeat.x * (d.scale || 1), uv: d.uv, grain: d.grain || null, course: d.course || null, macro: d.macro || null }));
+// (the check reads a canvas: a drawn texture is data in upload order, the rows turned back and put on one)
+const canvasOf = (t) => { const im = t.image; if (!im.data) return im; const c = document.createElement("canvas"); c.width = im.width; c.height = im.height; const w = im.width, h = im.height, d = new Uint8ClampedArray(w * h * 4);
+  for (let y = 0; y < h; y++) d.set(im.data.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4); c.getContext("2d").putImageData(new ImageData(d, w, h), 0, 0); return c; };
+window.__textures = defs.map(d => ({ id: d.id, role: d.role, canvas: canvasOf(d.map), repeat: d.map.repeat.x * (d.scale || 1), uv: d.uv, grain: d.grain || null, course: d.course || null, macro: d.macro || null }));
 window.__buildMs = { ...ms, streetParts: kit.parts }; window.__ids = defs.map(d => d.id);
 let mesh = null;
 window.__panel = async (id, dist) => {

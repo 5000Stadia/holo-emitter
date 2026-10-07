@@ -1,5 +1,5 @@
 // The kit's textures, drawn off the main thread (R46, "stream the manor first"). A texture is asked for by
-// recipe, { lib, gen, args }: a generator in a pure module (texgen.js, lab/brief/strongroom-tex.js) and
+// recipe, { lib, gen, args }: a generator in a pure module (texgen.js, outgen.js, lab/brief/strongroom-tex.js) and
 // what it is drawn from. It is drawn in a pool of module workers (texworker.js), in bands of rows spread
 // over them, each band kept in IndexedDB so a second visit draws nothing; the main thread only wraps the
 // pixels as three.js data textures, set as procedural.js's canvas textures were (sRGB maps, repeat,
@@ -12,6 +12,7 @@
 //     mode "auto":  async while deferTextures(true) is in force (a page that awaits settled() before it
 //                   draws), sync otherwise
 //   settled()       -> a promise: every texture asked for so far has its pixels
+//   warmTextures(timeout, libs) -> a promise: the pool running (and each worker's drawing ground, e.g. canvases, warmed: see below)
 //   textureLog()    -> what each texture cost, and where it came from (drawn in a worker, the cache, here)
 //
 // No SharedArrayBuffer (GitHub Pages can't send COOP/COEP): plain workers, pixels transferred. A worker
@@ -38,13 +39,13 @@ function pool() {
   if (typeof Worker !== "function" || Q.get("texworkers") === "0") return slots;
   for (let i = 0; i < POOL; i++) {
     let w; try { w = new Worker(new URL("./texworker.js", import.meta.url), { type: "module", name: `kit textures ${i + 1}` }); } catch (_) { break; }
-    const s = { w, i, load: 0, alive: true, jobs: new Map() };
+    const s = { w, i, load: 0, alive: true, jobs: new Map(), warming: new Map() };
     s.started = new Promise((res) => { s.hello = res; });
-    w.onmessage = ({ data }) => { if (data.hello) return s.hello(true);
+    w.onmessage = ({ data }) => { if (data.hello) return s.hello(true); if (data.warmed) return s.warming.get(data.warmed)?.();
       const j = s.jobs.get(data.id); if (!j) return; s.jobs.delete(data.id); s.load -= j.cost;
       if (data.ok) { data.worker = s.i + 1; j.resolve(data); } else { console.warn("kit textures: a worker failed, drawing here instead:", data.error); j.resolve(onMain(j)); } };
     // a worker that can't start (no module workers) or dies: its jobs, and the pool's from now on, are drawn here
-    w.onerror = (e) => { e.preventDefault?.(); s.alive = false; s.hello(false); try { w.terminate(); } catch (_) {} for (const j of s.jobs.values()) j.resolve(onMain(j)); s.jobs.clear(); };
+    w.onerror = (e) => { e.preventDefault?.(); s.alive = false; s.hello(false); for (const r of s.warming.values()) r(); try { w.terminate(); } catch (_) {} for (const j of s.jobs.values()) j.resolve(onMain(j)); s.jobs.clear(); };
     slots.push(s);
   }
   // a channel between each pair, so the oak field drawn in one is handed to the rest without the main thread
@@ -58,10 +59,14 @@ function pool() {
 }
 let oakKeeper = null;           // the worker that draws the oak field for the pool
 // the pool, running: Chrome starts a worker only when the page's main thread is free to, so a page about to
-// block it (building a house) waits for this first (a few tens of milliseconds), and the workers draw meanwhile
-export function warmTextures(timeout = 3000) {
-  const live = pool();
-  return Promise.race([Promise.all(live.map(s => s.started)), new Promise(r => setTimeout(r, timeout))]);
+// block it (building a house) waits for this first (a few tens of milliseconds), and the workers draw meanwhile.
+// libs: generator modules whose first use in a worker is slow: outgen.js draws on canvases, and a worker's first canvas
+// waits for the page's main thread, to hand it a GPU context, for as long as the main thread is busy (~400 ms in a street
+// build). Each worker imports and warms them now, with the main thread still free, and the promise waits for that.
+export function warmTextures(timeout = 3000, libs = []) {
+  const live = pool(), warmed = [];
+  for (const s of live) for (const l of libs) { warmed.push(new Promise((res) => { s.warming.set(l.url, res); })); s.w.postMessage({ warm: l.url }); }
+  return Promise.race([Promise.all([...live.map(s => s.started), ...warmed]), new Promise(r => setTimeout(r, timeout))]);
 }
 // one band, on the main thread
 function onMain(j) {

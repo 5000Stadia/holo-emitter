@@ -261,6 +261,13 @@ function turnOver(d, w, n) {
 // rows y0..y1 of generator G's texture (and its normal map), ready for upload: { w, h, map, normal }
 export function draw(G, args, y0, y1, ctx) {
   const [w, h] = G.size(args), n = y1 - y0;
+  // a generator that paints its whole texture at once (canvas drawing: lab/painted/outgen.js): paint(args, ctx) -> { map, normal? }
+  // in canvas row order, its second image (a normal or bump map) drawn by itself
+  if (G.paint) {
+    const r = G.paint(args, ctx);
+    turnOver(r.map, w, h); if (r.normal) turnOver(r.normal, w, h);
+    return { w, h, map: r.map, normal: r.normal || null };
+  }
   const map = new Uint8ClampedArray(n * w * 4);
   let normal = null;
   if (G.normal == null) G.rows(args, y0, y1, map, null, ctx);
@@ -282,7 +289,7 @@ export function draw(G, args, y0, y1, ctx) {
 }
 // how many bands a texture is drawn in (fixed by its size and cost, never by the machine, so a cached band
 // is found again on any): about a quarter second of work a band, at most four
-export function bandsOf(G, w, h) { return Math.max(1, Math.min(4, Math.round(w * h * G.cost / 250000))); }
+export function bandsOf(G, w, h) { return G.whole ? 1 : Math.max(1, Math.min(4, Math.round(w * h * G.cost / 250000))); }
 export function bandRows(h, k, n) { return [Math.round(h * k / n), Math.round(h * (k + 1) / n)]; }
 // what a worker (or the main thread) keeps between jobs: the oak field, drawn once (or handed over by a worker that drew it)
 export function makeCtx() {
