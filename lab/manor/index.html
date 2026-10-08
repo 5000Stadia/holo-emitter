@@ -360,7 +360,7 @@ if (CASE) {
       if (m.refused.length) console.warn("deck refused:", m.refused); } catch (e) { console.warn("deck:", e.message); window.__deck = { error: e.message }; } }
   // the live bridge to construct (R58 slice 2; ?bridge or ?bridge=<url>): this machine only, as the model relay is
   const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
-  const bridge = local && Q.has("bridge") ? makeBridge({ base: Q.get("bridge") || "http://127.0.0.1:8799", merge: (d) => narrator.merge(d), log: (t) => console.info(t) }) : null;
+  const bridge = local && Q.has("bridge") ? makeBridge({ base: Q.get("bridge") || "http://127.0.0.1:8799", merge: (d, o) => narrator.merge(d, o), log: (t) => console.info(t) }) : null;
   window.__bridge = () => bridge?.stats() || null;
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),

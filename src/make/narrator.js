@@ -374,10 +374,28 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
   // at load or while playing: each part checked as the case's own are (checkNarrator over the case with that part added),
   // a refused part dropped and named, never half-applied; a part that `replaces` a case beat holds that beat back
   //   merge({ beats?, clocks? }) -> { added: [ids], refused: [{ id, why }], replaced: [ids] }
-  const heldBack = new Set();
-  function merge(deck) {
-    const out = { added: [], refused: [], replaced: [] }, have = new Set([...beats.map(b => b.id), ...clocks.map(c => c.id)]);
+  // merge(deck, { patch: true }): a re-authored deck is a patch over the decks before it (construct's rule, 2026-10-08): a part
+  // already played stays as it was (its copy in the patch passes over); an unplayed part from an earlier deck is replaced by
+  // the patch's part of the same id (or kept, if the new one is refused); an unplayed deck part the patch leaves out is
+  // retired. The case's own beats are never replaced or retired by a patch
+  const heldBack = new Set(), fromDeck = new Set(), deckParts = new Map(), pendingSwap = new Map();
+  const played = (id) => S.done.includes(id) || id in S.fired;
+  function merge(deck, { patch = false } = {}) {
+    const out = { added: [], refused: [], replaced: [], kept: [], retired: [] };
+    if (patch) { const inPatch = new Set([...arr(deck?.beats), ...arr(deck?.clocks)].map(p => p?.id));
+      for (const id of [...fromDeck]) { if (played(id)) continue;
+        const swap = inPatch.has(id), part = [...arr(deck?.beats), ...arr(deck?.clocks)].find(p => p?.id === id);
+        if (swap && JSON.stringify(part) === JSON.stringify(deckParts.get(id))) continue;          // unchanged: stays
+        const bi = beats.findIndex(b => b.id === id), ci = clocks.findIndex(c => c.id === id), old = bi >= 0 ? beats[bi] : clocks[ci];
+        if (bi >= 0) beats.splice(bi, 1); else if (ci >= 0) clocks.splice(ci, 1);
+        fromDeck.delete(id);
+        if (!swap) { out.retired.push(id); continue; }
+        old.__restore = () => { if (bi >= 0) beats.push(old); else clocks.push(old); fromDeck.add(id); };
+        pendingSwap.set(id, old); } }
+    const have = new Set([...beats.map(b => b.id), ...clocks.map(c => c.id)]);
     const tryPart = (part, isClock) => {
+      if (part?.id && played(part.id)) return out.kept.push(part.id);
+      if (part?.id && fromDeck.has(part.id) && JSON.stringify(part) === JSON.stringify(deckParts.get(part.id))) return out.kept.push(part.id);   // (unchanged: stays as it is)
       if (!part?.id || have.has(part.id)) return out.refused.push({ id: part?.id, why: "no id, or one already in the story" });
       const probe = { ...k, beats: isClock ? arr(k.beats) : [...arr(k.beats), part], clocks: isClock ? [...arr(k.clocks), part] : arr(k.clocks) };
       const c = checkNarrator(probe, { rooms }), mine = c.findings.filter(f => String(f.at).includes(part.id));
@@ -385,10 +403,12 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
       try { if (isClock) clocks.push({ ...part, ast: parseExpr(part.when) });
         else beats.push({ ...part, ast: parseExpr(part.when), unlessAst: part.unless ? parseExpr(part.unless) : null, phase: part.phase || "setup", weight: part.weight || "optional", rung: part.rung || KIND_RUNG[part.kind] }); }
       catch (e) { return out.refused.push({ id: part.id, why: e.message }); }
-      have.add(part.id); out.added.push(part.id);
+      have.add(part.id); fromDeck.add(part.id); deckParts.set(part.id, part); if (pendingSwap.has(part.id)) { pendingSwap.delete(part.id); out.replaced.push(part.id); } else out.added.push(part.id);
       for (const r of arr(part.replaces)) if (beats.some(b => b.id === r)) { heldBack.add(r); out.replaced.push(r); } };
     for (const b of arr(deck?.beats)) tryPart(b, false);
     for (const c of arr(deck?.clocks)) tryPart(c, true);
+    // (a changed part the checks refused: the one it would have replaced stays in play)
+    for (const [id, old] of pendingSwap) { old.__restore(); out.kept.push(id); } pendingSwap.clear();
     return out;
   }
   return { observe, menu, pick, apply, step, merge, heldBack: () => [...heldBack], phase: () => S.phase, coverage, conclusion, state: stateOut, rung: rungName, callInput, accept, check };

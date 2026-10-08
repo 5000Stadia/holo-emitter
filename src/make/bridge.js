@@ -23,7 +23,7 @@ export function makeBridge({ base = "http://127.0.0.1:8799", merge, log = () => 
   async function poll() {
     if (performance.now() < downUntil) return;
     try { const r = await fetch(`${base}/deck?since=${S.version}`); if (r.status !== 200) return; const deck = await r.json();
-      const m = merge(deck); S.version = deck.version ?? S.version + 1; S.decks++; S.added += m.added.length; S.refused += m.refused.length;
+      const m = merge(deck, { patch: true }); S.version = deck.version ?? S.version + 1; S.decks++; S.added += m.added.length; S.refused += m.refused.length;
       log(`bridge: deck v${S.version} merged, ${m.added.length} parts in${m.refused.length ? `, ${m.refused.length} refused` : ""}`);
       if (m.refused.length) console.warn("bridge deck refused:", m.refused); }
     catch (_) { downUntil = performance.now() + 15000; } }
