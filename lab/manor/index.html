@@ -417,6 +417,9 @@ const seeRay = new THREE.Raycaster();
 function goTo(ndc) {
   seeRay.setFromCamera(ndc, camera); seeRay.far = OUTDOOR ? 400 : 60;
   const hit = seeRay.intersectObjects(scene.children, true).find(h => { let o = h.object; while (o) { if (!o.visible || o.name === "sky") return false; o = o.parent; }
+    // (an open door's leaf is passed through, as the way it opens: a double tap through an open doorway had set you nose to
+    // the leaf, in the room you meant to leave)
+    const w = works.find(h); if (w?.b?.kind?.kind?.startsWith("door/") && w.aff && works.stateOf(w.b, w.aff) === "open") return false;
     const m = h.object.material; return !(m?.isMeshBasicMaterial && m.blending === THREE.AdditiveBlending) && !(m?.visible === false); });
   if (!hit) return false;
   const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
