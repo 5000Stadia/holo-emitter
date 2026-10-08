@@ -95,7 +95,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     const claim = claimHeard(p, topic, a);
     frame.said.push({ who, topic, act: a.act, ...(claim ? { claim } : {}) }); if (claim && !notebook.heard.some(x => x.who === who && x.claim === claim)) notebook.heard.push({ who, claim }); pending.push({ type: "say", who, topic, act: a.act });
     let line = a.line;
-    if (voice?.available?.() && a.act !== "guarded") { panel.busy(true);
+    if ((voice && await voice.available()) && a.act !== "guarded") { panel.busy(true);
       R.calls++; const v = await voice.voice({ persona: [p.voice?.register, ...arr(p.voice?.phrases)].filter(Boolean).join("; "), act: a.act, facts: a.facts, last: frame.said.slice(-2), max_words: 60 },
         { check: (l) => truthCheck(l, { facts: a.facts, lexicon, allowed: [p.name, ...[...frame.learned].map(label)] }).ok });
       panel.busy(false); if (v && !v.fallback && v.line) line = v.line; }
@@ -113,7 +113,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     const who = talking; if (!who) return; panel.say({ who: "you", text }); R.words++;
     const ctx = { topics: topicsFor(k, who, frame).filter(t => !t.id.startsWith("person:")), people: arr(k.cast).filter(c => c.id !== who).map(c => ({ id: c.id, name: c.name, aka: c.aka })), evidence: evidence() };
     let r = readIntent(text, ctx);
-    if (r.topic === "none" && r.stance !== "accuse" && !r.evidence && voice?.available?.()) { panel.busy(true); R.calls++;
+    if (r.topic === "none" && r.stance !== "accuse" && !r.evidence && (voice && await voice.available())) { panel.busy(true); R.calls++;
       const v = await voice.read({ suspect: who, utterance: text.slice(0, 200), topics: topicsFor(k, who, frame).slice(0, 16) }); panel.busy(false);
       if (v && !v.fallback && v.topic && v.topic !== "none") r = { ...r, topic: v.topic, stance: v.stance || r.stance }; }
     // an accusation put to the one you question (or to no one named): what they have for it comes first (Daniel's

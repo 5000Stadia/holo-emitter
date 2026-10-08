@@ -177,15 +177,17 @@ let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: 
 // lights a room's own builder made (the muniment room's barred windows and door reveal, a candle in it) join the pools too:
 // out of the scene, so the count of lights never changes (seeing that room had taken the scene from 13 lights to 16 and
 // recompiled everything in view: a 2-4 s hitch), each still driven by its own code, its strength read from it each frame
-{ manor.scene.updateMatrixWorld(true); const P = new THREE.Vector3(), Q = new THREE.Quaternion(), D = new THREE.Vector3();
-  for (const [id, r] of manor.rooms) { const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); });
-    for (const l of own) { l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
+const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion(), D = new THREE.Vector3();
+  return (l, id) => { l.updateWorldMatrix(true, false); l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
       if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
         const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
       else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
         Object.defineProperty(it, "base", { get: () => l.intensity }); fireItems.push(it); }
-      else continue;
-      l.userData.pooled = true; l.removeFromParent(); } } }
+      else return;
+      l.userData.pooled = true; l.removeFromParent(); }; })();
+{ manor.scene.updateMatrixWorld(true);
+  for (const [id, r] of manor.rooms) { const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); });
+    for (const l of own) poolOwn(l, id); } }
 const winPool = makePool(rig, { place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
@@ -256,7 +258,10 @@ function buildGarden() { const g = plan.rooms.find(r => r.id === "garden"); if (
 
 // ---- walking: floor to floor by the stairs, through a doorway only while its door stands open
 const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, OUTDOOR ? 3000 : 140); window.__camera = camera;
-addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+// a phone held upright sees at least 50 degrees across (66 up and down had left 34 across: a person a metre to the side
+// two strides off was out of view); landscape and desktop keep 66 up and down
+const fit = () => { camera.aspect = innerWidth / innerHeight; camera.fov = Math.min(88, Math.max(66, 2 * Math.atan(Math.tan(25 * Math.PI / 180) / camera.aspect) * 180 / Math.PI)); camera.updateProjectionMatrix(); };
+fit(); addEventListener("resize", fit);
 const EYE = 1.6, floors = [...plan.floors].sort((a, b) => a.level - b.level);
 const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
 const doorThing = new Map(manor.things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
@@ -295,7 +300,10 @@ if (CASE) {
     if (sl) { const area = host.info?.slots?.[name]?.area, k = (sl.count = (sl.count || 0) + 1) - 1, w = Math.max(0.36, area?.[0] ?? 0.4);
       b.node.position.set(sl.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), sl.at[1], sl.at[2]); b.node.rotation.y = kindOf(t.kind)?.place?.turn ?? 0.35; sl.node.add(b.node); }
     else { const bb = new THREE.Box3().setFromObject(host.node); b.node.position.set((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2); scene.add(b.node); }
-    works.add(b); manor.things.push(b); byStory.set(t.id, b); }
+    works.add(b); manor.things.push(b); byStory.set(t.id, b);
+    // its own light (the case's candle on the muniment table) pooled like the room's: a light added to the room had kept
+    // it from being compiled ahead, and its first sight stalled 4-6 s
+    const lights = []; b.node.traverse(o => { if (o.isPointLight || o.isRectAreaLight) lights.push(o); }); for (const l of lights) poolOwn(l, host.node.userData.room || CASE.things.find(q => q.id === t.at)?.at || t.at); }
   // what is only looked at (the body laid out: nothing to work, nothing to carry), aimed at by its own meshes
   for (const b of byStory.values()) if (!Object.keys(b.kind.affordances || {}).length && (CASE.things.find(t => t.id === b.story)?.clue)) b.node.traverse(o => { if (o.isMesh) { o.userData.look = b.story; lookMeshes.push(o); } });
   // fair by the project's own check, at load (ms)
@@ -328,7 +336,9 @@ if (CASE) {
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
     onShow: (id, last) => CP.reply(CP.talking(), last || "death", "show", id), onAccuse: (c) => CP.accuse(c),
     onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onClose: () => {} });
-  CP = playCase({ kase: CASE, plan, manor, works, panel, voice: makeVoice(), narrator, say, presenceOf,
+  // (the model's relay is for development only, on this machine: the published page never asks for it; a phone had
+  // tried 127.0.0.1 on every reply, which Android may answer with a local-network prompt)
+  CP = playCase({ kase: CASE, plan, manor, works, panel, voice: /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && Q.get("voice") !== "0" ? makeVoice() : null, narrator, say, presenceOf,
     setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed."),
     saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
   // a minute gone with the house in view and nothing asked is a quiet turn to the narrator, so a lull in real time (not
@@ -608,7 +618,14 @@ renderer.setAnimationLoop((now) => {
   if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
   const n = Math.hypot(dx, dy);
   if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * dt; dy = dy / n * a * sp * dt;
-    let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; } }
+    const ox = px, oy = py, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+    let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; }
+    // stopped at a jamb a little off a doorway's middle (the playtest stuck there, 0.36 m off): slide across, at walking
+    // pace, towards the nearest way on within half a metre
+    if ((px - ox) * ux + (py - oy) * uy < 0.2 * L) { let side = 0;
+      for (let off = 0.05; off <= 0.5 && !side; off += 0.05) for (const sg of [1, -1]) { const lx = ox - uy * off * sg, ly = oy + ux * off * sg;
+        if (walk.groundAt(lx, ly, ph) != null && walk.groundAt(lx + ux * 0.35, ly + uy * 0.35, ph) != null) { side = sg; break; } }
+      if (side) { const nx = ox - uy * L * side, ny = oy + ux * L * side, h2 = walk.groundAt(nx, ny, ph); if (h2 != null) { px = nx; py = ny; ph = h2; } } } }
   { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
   const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) * (crouch ? 0.55 : 1) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   if (moved) lastMoved = now;
