@@ -39,7 +39,7 @@ const DROP = Q.get("texdrop") ? Q.get("texdrop") === "1" : TEX_HALF;
 const CACHE = Q.get("texcache") !== "0";  // ?texcache=0: draw everything, keep nothing (for measuring a first visit)
 
 let slots = null, seq = 0, deferring = false;
-const mainCtx = makeCtx(), known = new Map(), pending = new Set(), drawnOf = new WeakMap();
+const mainCtx = makeCtx(), known = new Map(), logs = [], pending = new Set(), drawnOf = new WeakMap();
 
 // ---------------------------------------------------------------- the pool
 function pool() {
@@ -119,7 +119,7 @@ function entry(lib, gen, args, mode, srgb = true) {
     if (!(lib === KIT && gen === "floor")) while (Math.max(w, h) > CAP && w % 2 === 0 && h % 2 === 0) { w /= 2; h /= 2; }
     e = { key, G, w, h, fw, fh, srgb, data: null, waiting: [], live: 0, log: { gen, args: JSON.stringify(args), w, h, bands: 0, from: "", worker_ms: 0, wall_ms: 0 } };
     if (w !== fw) e.log.full = [fw, fh];
-    known.set(key, e);
+    known.set(key, e); logs.push(e.log);
     if (mode === "async") {
       const n = bandsOf(G, fw, fh), t0 = performance.now();
       e.log.bands = n;
@@ -198,6 +198,6 @@ export const drawn = (tex) => drawnOf.get(tex) || Promise.resolve();
 // while on, textures asked for with mode "auto" are drawn in the workers and arrive later; the page awaits settled()
 export function deferTextures(on) { deferring = !!on; }
 export async function settled() { while (pending.size) await Promise.all([...pending]); }
-export const textureLog = () => [...known.values()].map(e => ({ ...e.log }));
+export const textureLog = () => logs.map(l => ({ ...l }));   // (every recipe drawn, those let go too)
 // the oak field on the main thread (procedural.js's K.oak), drawn on first use and shared with the textures drawn here
 export const mainOak = (N = 1024) => mainCtx.oak(N);
