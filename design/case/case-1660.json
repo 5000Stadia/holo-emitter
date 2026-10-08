@@ -419,7 +419,16 @@
     "murder",
     "fall",
     "fell",
-    "fit"
+    "fit",
+    "murdered",
+    "slain",
+    "pushed",
+    "accident",
+    "accidental",
+    "natural",
+    "poison",
+    "poisoned",
+    "cause"
    ]
   },
   {
@@ -427,15 +436,10 @@
    "label": "Who is in the house",
    "words": [
     "household",
-    "house",
     "everyone",
     "everybody",
-    "people",
     "guests",
-    "family",
     "servants",
-    "who",
-    "here",
     "present"
    ]
   },
@@ -452,7 +456,20 @@
     "late",
     "hour",
     "clock",
-    "alibi"
+    "alibi",
+    "parlour",
+    "parlor",
+    "nursery",
+    "retire",
+    "retired",
+    "sleep",
+    "slept",
+    "asleep",
+    "doing",
+    "whereabouts",
+    "sat",
+    "sit",
+    "sitting"
    ]
   },
   {
@@ -466,7 +483,9 @@
     "opened",
     "first",
     "shutters",
-    "discovered"
+    "discovered",
+    "daybreak",
+    "entered"
    ]
   },
   {
@@ -480,7 +499,12 @@
     "cord",
     "girdle",
     "nail",
-    "unlock"
+    "unlock",
+    "door",
+    "doors",
+    "bolt",
+    "bolted",
+    "green"
    ]
   },
   {
@@ -498,7 +522,21 @@
     "bond",
     "jointure",
     "sealing",
-    "seal"
+    "seal",
+    "land",
+    "lands",
+    "estate",
+    "selling",
+    "buying",
+    "bought",
+    "buy",
+    "purchase",
+    "debts",
+    "loan",
+    "lent",
+    "mortgage",
+    "settlement",
+    "asshover"
    ]
   },
   {
@@ -515,7 +553,20 @@
     "rasure",
     "scraped",
     "copy",
-    "release"
+    "release",
+    "engross",
+    "skins",
+    "erasure",
+    "correction",
+    "alteration",
+    "altered",
+    "forged",
+    "forgery",
+    "document",
+    "wrote",
+    "written",
+    "copied",
+    "writing"
    ]
   },
   {
@@ -530,7 +581,11 @@
     "exception",
     "excepted",
     "reserved",
-    "assay"
+    "assay",
+    "mining",
+    "mineral",
+    "rights",
+    "excepting"
    ]
   },
   {
@@ -543,7 +598,13 @@
     "candlestick",
     "snuffed",
     "burned",
-    "burnt"
+    "burnt",
+    "lit",
+    "flame",
+    "snuff",
+    "dark",
+    "darkness",
+    "taper"
    ]
   },
   {
@@ -556,7 +617,11 @@
     "blood",
     "struck",
     "hit",
-    "skull"
+    "skull",
+    "injury",
+    "injuries",
+    "bruise",
+    "gash"
    ]
   },
   {
@@ -572,7 +637,12 @@
     "lost",
     "won",
     "wager",
-    "money"
+    "money",
+    "gambling",
+    "gamble",
+    "bet",
+    "betting",
+    "owe"
    ]
   },
   {
@@ -584,7 +654,13 @@
     "glass",
     "bandage",
     "handkerchief",
-    "bleeding"
+    "bleeding",
+    "buttery",
+    "wine",
+    "canary",
+    "shirt",
+    "bandaged",
+    "bleed"
    ],
    "after": "anne_francis_blood"
   },
@@ -598,7 +674,13 @@
     "bribe",
     "note",
     "purse",
-    "vail"
+    "vail",
+    "afford",
+    "wages",
+    "savings",
+    "bribed",
+    "pay",
+    "paying"
    ],
    "after": "gold_note"
   },
@@ -609,7 +691,15 @@
     "hollins",
     "steward",
     "josias",
-    "master"
+    "master",
+    "victim",
+    "deceased",
+    "served",
+    "serve",
+    "service",
+    "enemies",
+    "enemy",
+    "taught"
    ]
   }
  ],
@@ -620,7 +710,8 @@
    "aka": [
     "Daniel",
     "Wragg",
-    "the clerk"
+    "the clerk",
+    "secretary"
    ],
    "role": "the steward's clerk",
    "intro": "(A thin young man in black, ink on his fingers, standing at the muniment door as if it might be taken from him.) Your Worship. Daniel Wragg, Mr Hollins's clerk. I have kept the door since we found him. Nothing has been moved, sir, but the engrossment Mr Cressy carried off.",
@@ -1243,7 +1334,8 @@
     "the attorney",
     "the London man",
     "the alderman's man",
-    "Ambrose"
+    "Ambrose",
+    "lawyer"
    ],
    "role": "attorney of Clifford's Inn, agent for Alderman Pargeter, the buyer",
    "intro": "(A spare man in good black and a lawyer's bands, standing over a table laid with parchment, wax and bags of money.) Ambrose Cressy, sir, of Clifford's Inn, for Alderman Pargeter. A sad business. I trust it need not keep us past noon.",
@@ -1742,7 +1834,9 @@
     "Master Francis",
     "the heir",
     "Mr Haywood",
-    "Haywood"
+    "Haywood",
+    "stepson",
+    "young master"
    ],
    "role": "Sir Gervase's son and heir",
    "intro": "(A young man by the parlour fire, his right hand bound in a fine handkerchief, a pot of small beer at his elbow.) Francis Haywood. You'll be the justice. Sit, if you like; my father's chairs are still ours till noon.",
@@ -2247,7 +2341,10 @@
     "my lady",
     "Lady Haywood",
     "the lady",
-    "his wife"
+    "his wife",
+    "stepmother",
+    "step-mother",
+    "ladyship"
    ],
    "role": "Sir Gervase's second wife, mistress of the household",
    "intro": "(A composed woman in dark silk, her keys at her waist, who has not slept.) Your Worship. I am Anne Haywood; I sent for you, since Sir Gervase cannot leave his bed. I'll answer what I can.",

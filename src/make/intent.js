@@ -127,7 +127,7 @@ const TEMPLATES = [
   [/\bhow did (he|she|him|\w+|mr \w+|master \w+) die\b|\bwhat killed\b|\bcause of (his|her|the) death\b|\bwho (killed|murdered|did it|(could|would|might) have done (it|this|that))\b/i, ["death", "body", "died"]],
   [/\bwhy would\b|\bwho (gains|profits|benefits)\b|\bwho would want\b|\b(his|any) enem(y|ies)\b|\bmotive\b/i, ["motive", "will", "sale", "inherit"]],
   [/\bwho (found|opened|discovered|went in)\b|\bthis morning\b/i, ["morning", "found"]],
-  [/\bwho (else )?(is|are|was|were|lives?|lived|stays?|stayed|sleeps?|slept)\b.*\b(here|house|household|staying|about|present|living)\b|\bwho else\b/i, ["household", "house", "present"]],
+  [/\bwho (else )?(is|are|was|were|lives?|lived|stays?|stayed|sleeps?|slept)\b.*\b(here|house|household|staying|about|present|living)\b|\bwho else\b|\bwhere (is|are) (every|all)\w*\b/i, ["household", "house", "present"]],
 ];
 
 const BASE_VOCAB = new Map(), BASE_FORMS = [];
