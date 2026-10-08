@@ -38,7 +38,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   const thingOf = new Map(manor.things.filter(b => b.story).map(b => [b.story, b]));
   const frame = { learned: new Set(), holding: new Set(), said: [], yielded: new Set(), guarded: new Map() };
   const notebook = { clues: [], persons: new Map(), caught: [], heard: [] };
-  let talking = null, lastTopic = null, turn = 0;
+  let talking = null, lastTopic = null, turn = 0; const threadN = {};
   // the play's receipts (R59): how long from arrival to the verdict, how it was questioned, what was found, model calls
   const R = { t0: performance.now(), words: 0, unread: 0, shown: 0, opened: 0, calls: 0, tries: 0, solved: null };
   const receipts = () => ({ minutes: +(((R.solved ?? performance.now()) - R.t0) / 60000).toFixed(1), questions: turn, by_topic: turn - (R.words - R.unread), in_words: R.words, words_unread: R.unread,
@@ -106,6 +106,10 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     for (const f of a.facts) for (const id of arr(arr(p.claims).find(c => c.id === f.id)?.tells_of)) if (!notebook.persons.has(id) && cast.has(id)) notebook.persons.set(id, { name: cast.get(id).name, role: cast.get(id).role, met: false });
     if (a.yielded) notebook.caught.push({ who, claim: a.yielded, label: arr(p.claims).find(c => c.id === a.yielded)?.label || "a lie", ...(shown ? { by: shown, byLabel: label(shown) } : {}) });
     panel.say({ who: "them", text: line, act: a.act, noted });
+    // their own thread: every fourth question to them, a word of what's on their mind (once each, holding no clue), so
+    // they are people between your questions, not a list of answers (the research's 'people who keep their own thread')
+    const asked = (threadN[who] = (threadN[who] || 0) + 1), th = arr(p.threads);
+    if (asked % 4 === 0 && th[asked / 4 - 1]) panel.say({ who: "them", text: th[asked / 4 - 1], act: "aside" });
     panel.setTopics(topicsFor(k, who, frame)); panel.setEvidence(evidence()); panel.guarded?.((frame.guarded.get(who) || 0) > 0);
     step();
   }
@@ -230,7 +234,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // written after every turn (a few KB); the house's own state (doors, drawers, what you carry) is the world document's
   function snapshot() {
     return { v: 1, case: k.id, learned: [...frame.learned], holding: [...frame.holding], said: frame.said.slice(-40), yielded: [...frame.yielded], guarded: [...frame.guarded],
-      notebook: { clues: notebook.clues, persons: [...notebook.persons], caught: notebook.caught, heard: notebook.heard }, papers: papersRead, turn, lastTopic, locked: [...locked], tries, leads: leadMemo,
+      notebook: { clues: notebook.clues, persons: [...notebook.persons], caught: notebook.caught, heard: notebook.heard }, papers: papersRead, turn, lastTopic, threadN, locked: [...locked], tries, leads: leadMemo,
       R: { ...R, t0: undefined, played: (R.solved ?? performance.now()) - R.t0 }, narrator: narrator?.state?.() ?? null,
       rooms: Object.fromEntries(arr(k.cast).map(c => [c.id, presenceOf(c.id)?.room]).filter(([, r]) => r)) };
   }
@@ -239,7 +243,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     for (const id of arr(saved.learned)) frame.learned.add(id); for (const id of arr(saved.holding)) frame.holding.add(id); for (const id of arr(saved.yielded)) frame.yielded.add(id);
     frame.said.push(...arr(saved.said)); for (const [w, n] of arr(saved.guarded)) frame.guarded.set(w, n);
     notebook.clues.push(...arr(saved.notebook?.clues)); for (const [id, p] of arr(saved.notebook?.persons)) notebook.persons.set(id, p); notebook.caught.push(...arr(saved.notebook?.caught)); notebook.heard.push(...arr(saved.notebook?.heard));
-    papersRead.push(...arr(saved.papers)); turn = saved.turn || 0; lastTopic = saved.lastTopic || null; for (const g of arr(saved.locked)) locked.add(g); tries = saved.tries || 0;
+    papersRead.push(...arr(saved.papers)); Object.assign(threadN, saved.threadN || {}); turn = saved.turn || 0; lastTopic = saved.lastTopic || null; for (const g of arr(saved.locked)) locked.add(g); tries = saved.tries || 0;
     Object.assign(R, saved.R || {}, { t0: performance.now() - (saved.R?.played || 0) }); if (saved.R?.solved != null) R.solved = performance.now();
     for (const [id, room] of Object.entries(saved.rooms || {})) presenceOf(id, room);
     leadMemo.raised.push(...arr(saved.leads?.raised)); leadMemo.closed.push(...arr(saved.leads?.closed));

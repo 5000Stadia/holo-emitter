@@ -1368,7 +1368,12 @@
      "turn": -0.32,
      "tilt": 0.02
     }
-   }
+   },
+   "threads": [
+    "(He glances back at the muniment door, though you are between him and it.) Nothing has been moved, sir. I have seen to that.",
+    "(He rubs at the ink on his fingers, which does not come off.) I beg your pardon. It is the black ink; it never wholly comes off.",
+    "(Low.) He would have had the evidences put in order for the sealing by now. He always had them in order."
+   ]
   },
   {
    "id": "cressy",
@@ -1897,7 +1902,12 @@
      "turn": 0.34,
      "tilt": 0
     }
-   }
+   },
+   "threads": [
+    "(He takes out a watch and looks at it, and puts it away.) Noon, sir. The Alderman does not like to be kept waiting, and nor do the bags.",
+    "(Dryly.) In London a man is buried and the business goes on the same day. You country gentlemen keep a slower clock.",
+    "(He straightens the bands at his throat.) I have a horse bespoke for one o’clock, sir, sealed or not."
+   ]
   },
   {
    "id": "francis",
@@ -2434,7 +2444,12 @@
      "turn": -0.26,
      "tilt": -0.03
     }
-   }
+   },
+   "threads": [
+    "(He drains his pot and holds it up, looking for someone to fill it.) Small beer. My father’s house runs to small beer this morning.",
+    "(He flexes the bound hand and winces.) It is nothing. It will mend sooner than the estate.",
+    "(Bitterly.) By noon these chairs are an alderman’s. Sit in one while it is still a Haywood’s, sir."
+   ]
   },
   {
    "id": "anne",
@@ -2991,7 +3006,12 @@
      "turn": 0.24,
      "tilt": 0.02
     }
-   }
+   },
+   "threads": [
+    "(She looks towards the stair, as if listening for Sir Gervase’s bell.) Forgive me. He wakes ill from his drops, and there is no one else he will have.",
+    "(Her hand goes to the keys at her waist and stays there.) The house must still be fed, your Worship, whatever lies upstairs.",
+    "(Quietly.) Ned will ask me where Mr Hollins is. I have not yet thought what I will tell him."
+   ]
   }
  ],
  "things": [
