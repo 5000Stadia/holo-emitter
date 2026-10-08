@@ -10,6 +10,7 @@
 // a title atlas and laid onto each spine's lettering-piece or label by the shader, so no two shelves need
 // the same title unless their seeds say so.
 import { rng, hash } from "../../../lab/painted/procedural.js";
+import { halfCanvas } from "../device.js";
 
 // English formats c. 1660, heights and thicknesses in metres
 export const SIZE_CLASSES = {
@@ -86,10 +87,10 @@ const pick = (r, weights) => { const e = Object.entries(weights).filter(([, w]) 
 
 function spineAtlas(THREE, seed) {
   const cw = 48, ch = 384, cols = 32, rows = Math.ceil((CELLS + 1) / cols);
-  const c = document.createElement("canvas"); c.width = cols * cw; c.height = rows * ch;
+  const c = document.createElement("canvas"); c.width = cols * cw; c.height = rows * ch; const CW = c.width, CH = c.height;
   const g = c.getContext("2d"), r = rng(seed);
   const gilt = (a) => `rgba(${196 + r() * 30},${158 + r() * 24},${70 + r() * 20},${a})`;
-  const cell = (k) => { const x = (k % cols) * cw, y = Math.floor(k / cols) * ch; return [x / c.width, 1 - (y + ch) / c.height, (x + cw) / c.width, 1 - y / c.height]; };
+  const cell = (k) => { const x = (k % cols) * cw, y = Math.floor(k / cols) * ch; return [x / CW, 1 - (y + ch) / CH, (x + cw) / CW, 1 - y / CH]; };
   const wear = (x, y, n) => { for (let q = 0; q < n; q++) { g.fillStyle = `rgba(${r() < 0.5 ? "0,0,0" : "255,240,220"},${0.03 + r() * 0.05})`; g.fillRect(x + r() * cw, y + r() * ch, 1 + r() * 3, 1 + r() * 6); } };
   const bandsAt = (y) => { const top = 0.06, step = 0.88 / 6; return [1, 2, 3, 4, 5].map(b => y + ch * (top + step * b)); };
   for (let k = 0; k < CELLS; k++) {
@@ -119,7 +120,8 @@ function spineAtlas(THREE, seed) {
   const px = (CELLS % cols) * cw, py = Math.floor(CELLS / cols) * ch;
   g.fillStyle = "rgb(222,210,182)"; g.fillRect(px, py, cw, ch);
   for (let q = 0; q < ch; q += 2) { g.fillStyle = `rgba(120,100,70,${0.05 + r() * 0.08})`; g.fillRect(px, py + q, cw, 1); }
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  // (a phone keeps the atlas at half size, 768 x 1728: 7 MB on the GPU, not 27; the cells are in 0..1, so nothing else changes)
+  const t = new THREE.CanvasTexture(halfCanvas(c)); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
   return { texture: t, cell, pages: cell(CELLS) };
 }
 
@@ -134,7 +136,7 @@ function titleAtlas(THREE) {
   const W = Math.max(hcols * hw, vcols * vw), Hh = hRows * hh, Hv = vRows * vh;
   const c = document.createElement("canvas"); c.width = W; c.height = Hh + Hv;
   const g = c.getContext("2d"), roman = ["", "I", "II", "III", "IV", "V"];
-  const rect = (x, y, w, h) => [x / W, 1 - (y + h) / c.height, (x + w) / W, 1 - y / c.height];
+  const CH = c.height, rect = (x, y, w, h) => [x / W, 1 - (y + h) / CH, (x + w) / W, 1 - y / CH];
   const cells = { gilt: [], ink: [], vellum: [] };
   let k = 0;
   FLAT.forEach((t, ti) => {
@@ -165,7 +167,8 @@ function titleAtlas(THREE) {
     g.fillText(t.full.length > 22 ? t.spine.filter(Boolean).map(l => l[0] + l.slice(1).toLowerCase()).join(" ") : t.full, 0, 0); g.restore();
     cells.vellum[ti] = rect(x, y, vw, vh);
   });
-  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+  // (half size on a phone, as the spines: 10 MB, not 40)
+  const tex = new THREE.CanvasTexture(halfCanvas(c)); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
   return { texture: tex, cells };
 }
 

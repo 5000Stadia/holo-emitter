@@ -18,6 +18,8 @@
 // No SharedArrayBuffer (GitHub Pages can't send COOP/COEP): plain workers, pixels transferred. A worker
 // that can't start or fails hands its work back here, so a page always gets its textures.
 import { draw, bandsOf, bandRows, makeCtx, LIB as KIT } from "./texgen.js";
+import { TEX_HALF } from "../../src/make/device.js";
+export { TEX_HALF };
 
 // bump to drop every stored texture (a change to the cache's form, or to anything the generators' source hash can't see)
 export const TEX_VERSION = 1;
@@ -27,10 +29,17 @@ const PHONE = typeof matchMedia === "function" && matchMedia("(pointer: coarse)"
 export const POOL = Math.max(1, Math.min(PHONE ? 2 : 4, (navigator.hardwareConcurrency || 2) - 1));
 const OAK_US = 1024 * 1024 * 0.75;        // the oak field's cost (µs, as a job's): paid once, by the worker that keeps it
 const Q = new URLSearchParams(typeof location === "object" ? location.search : "");
+// phones (design/perf/phone-2026.md, change 1): a phone draws at 1x density, so every texture is kept at most 512 texels a side
+// (larger ones halved as they arrive, 2x2 averaged in linear light, until they fit; the room floor is drawn at half its
+// density instead, procedural.js), and once a texture is on the GPU its pixels are let
+// go (the next texture of that recipe draws it again, from the workers' cache). ?tex=half / ?tex=full override the device;
+// ?texdrop=0 / 1 the letting go (TEX_HALF: src/make/device.js)
+const CAP = TEX_HALF ? 512 : Infinity;
+const DROP = Q.get("texdrop") ? Q.get("texdrop") === "1" : TEX_HALF;
 const CACHE = Q.get("texcache") !== "0";  // ?texcache=0: draw everything, keep nothing (for measuring a first visit)
 
 let slots = null, seq = 0, deferring = false;
-const mainCtx = makeCtx(), known = new Map(), pending = new Set(), drawnOf = new WeakMap();
+const mainCtx = makeCtx(), known = new Map(), logs = [], pending = new Set(), drawnOf = new WeakMap();
 
 // ---------------------------------------------------------------- the pool
 function pool() {
@@ -100,21 +109,23 @@ function assemble(parts, w, h, key) {
   return out;
 }
 // one recipe's pixels, shared by every texture made from it
-function entry(lib, gen, args, mode) {
+function entry(lib, gen, args, mode, srgb = true) {
   const key = `${lib.url}|${gen}|${JSON.stringify(args)}`;
   let e = known.get(key);
   if (!e) {
     const G = lib.GEN[gen];
     if (!G) throw new Error(`no texture generator "${gen}"`);
-    const [w, h] = G.size(args);
-    e = { key, G, w, h, data: null, waiting: [], log: { gen, args: JSON.stringify(args), w, h, bands: 0, from: "", worker_ms: 0, wall_ms: 0 } };
-    known.set(key, e);
+    const [fw, fh] = G.size(args); let w = fw, h = fh;
+    if (!(lib === KIT && gen === "floor")) while (Math.max(w, h) > CAP && w % 2 === 0 && h % 2 === 0) { w /= 2; h /= 2; }
+    e = { key, G, w, h, fw, fh, srgb, data: null, waiting: [], live: 0, log: { gen, args: JSON.stringify(args), w, h, bands: 0, from: "", worker_ms: 0, wall_ms: 0 } };
+    if (w !== fw) e.log.full = [fw, fh];
+    known.set(key, e); logs.push(e.log);
     if (mode === "async") {
-      const n = bandsOf(G, w, h), t0 = performance.now();
+      const n = bandsOf(G, fw, fh), t0 = performance.now();
       e.log.bands = n;
-      e.done = Promise.all(Array.from({ length: n }, (_, k) => { const [y0, y1] = bandRows(h, k, n); return band(lib, G, gen, args, y0, y1, w); }))
+      e.done = Promise.all(Array.from({ length: n }, (_, k) => { const [y0, y1] = bandRows(fh, k, n); return band(lib, G, gen, args, y0, y1, fw); }))
         .then((parts) => {
-          if (!e.data) e.data = { map: assemble(parts, w, h, "map"), normal: assemble(parts, w, h, "normal") };
+          if (!e.data) e.data = shrink(e, { map: assemble(parts, fw, fh, "map"), normal: assemble(parts, fw, fh, "normal") });
           e.log.from = [...new Set(parts.map(p => p.from))].join("+"); e.log.worker_ms = Math.round(parts.reduce((a, p) => a + p.draw_ms, 0)); e.log.wall_ms = Math.round(performance.now() - t0);
           // each band: which worker (0: here), when it began and ended drawing (page clock), how long it drew, and
           // how long it spent on the oak field first (drawing it, in the keeper; waiting for it, in the others)
@@ -127,8 +138,8 @@ function entry(lib, gen, args, mode) {
   }
   if (mode === "sync" && !e.data) {
     // asked for now: drawn here, whole (whatever was on its way from the workers is then not needed)
-    const t0 = performance.now(), r = draw(e.G, args, 0, e.h, mainCtx);
-    e.data = { map: new Uint8Array(r.map.buffer), normal: r.normal && new Uint8Array(r.normal.buffer) };
+    const t0 = performance.now(), r = draw(e.G, args, 0, e.fh, mainCtx);
+    e.data = shrink(e, { map: new Uint8Array(r.map.buffer), normal: r.normal && new Uint8Array(r.normal.buffer) });
     Object.assign(e.log, { bands: 1, from: "main", worker_ms: 0, wall_ms: Math.round(performance.now() - t0) });
     fill(e);
     if (!e.done) e.done = Promise.resolve(e);
@@ -144,17 +155,40 @@ function blank(THREE, w, h, srgb, repeat) {
   t.anisotropy = 8;
   return t;
 }
-const put = (t, data, w, h) => { t.image = { data, width: w, height: h }; t.needsUpdate = true; };
+// (phones: once uploaded, a texture lets its pixels go, and when every texture of a recipe has, the recipe does too: a
+// texture asked for later starts it again. three keeps the GPU copy; nothing reads the pixels back)
+const put = (t, data, w, h, e) => { t.image = { data, width: w, height: h }; t.needsUpdate = true;
+  if (DROP && e) { e.live++; t.onUpdate = () => { t.onUpdate = null; t.image = { data: null, width: w, height: h };
+    if (--e.live === 0 && !deferring && known.get(e.key) === e) { known.delete(e.key); e.data = null; } }; } };
 function fill(e) {
-  for (const { map, normalMap } of e.waiting) { put(map, e.data.map, e.w, e.h); if (normalMap) put(normalMap, e.data.normal, e.w, e.h); }
+  for (const { map, normalMap } of e.waiting) { put(map, e.data.map, e.w, e.h, e); if (normalMap) put(normalMap, e.data.normal, e.w, e.h, e); }
   e.waiting.length = 0;
+}
+// halve a recipe's pixels until they are its (capped) size: each texel the mean of four, in linear light for a colour map
+const LIN = new Float32Array(256).map((_, i) => { const c = i / 255; return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; });
+const SRGB = new Uint8Array(4096).map((_, i) => { const l = i / 4095, c = l <= 0.0031308 ? l * 12.92 : 1.055 * l ** (1 / 2.4) - 0.055; return Math.round(c * 255); });
+function half(src, w, h, srgb) {
+  const W = w >> 1, H = h >> 1, out = new Uint8Array(W * H * 4);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const a = ((2 * y) * w + 2 * x) * 4, b = a + 4, c = a + w * 4, d = c + 4, o = (y * W + x) * 4;
+    for (let k = 0; k < 3; k++) out[o + k] = srgb ? SRGB[Math.round((LIN[src[a + k]] + LIN[src[b + k]] + LIN[src[c + k]] + LIN[src[d + k]]) * 1023.75)] : (src[a + k] + src[b + k] + src[c + k] + src[d + k] + 2) >> 2;
+    out[o + 3] = (src[a + 3] + src[b + 3] + src[c + 3] + src[d + 3] + 2) >> 2;
+  }
+  return out;
+}
+function shrink(e, data) {
+  if (e.w === e.fw && e.h === e.fh) return data;
+  const t0 = performance.now(); let { map, normal } = data, w = e.fw, h = e.fh;
+  while (w > e.w) { map = half(map, w, h, e.srgb); if (normal) normal = half(normal, w, h, false); w >>= 1; h >>= 1; }
+  e.log.shrink_ms = Math.round(performance.now() - t0);
+  return { map, normal };
 }
 
 export function kitTexture(THREE, { lib = KIT, gen, args }, { srgb = true, repeat = true, mode = "auto" } = {}) {
-  const e = entry(lib, gen, args, mode === "auto" ? (deferring ? "async" : "sync") : mode);
+  const e = entry(lib, gen, args, mode === "auto" ? (deferring ? "async" : "sync") : mode, srgb);
   // (a normal map always repeats, as normalFrom's did, whatever its map does)
   const set = { map: blank(THREE, e.w, e.h, srgb, repeat), normalMap: e.G.normal != null ? blank(THREE, e.w, e.h, false, true) : null };
-  if (e.data) { put(set.map, e.data.map, e.w, e.h); if (set.normalMap) put(set.normalMap, e.data.normal, e.w, e.h); }
+  if (e.data) { put(set.map, e.data.map, e.w, e.h, e); if (set.normalMap) put(set.normalMap, e.data.normal, e.w, e.h, e); }
   else e.waiting.push(set);
   drawnOf.set(set.map, e.done); if (set.normalMap) drawnOf.set(set.normalMap, e.done);
   return set.normalMap ? { map: set.map, normalMap: set.normalMap } : { map: set.map };
@@ -164,6 +198,6 @@ export const drawn = (tex) => drawnOf.get(tex) || Promise.resolve();
 // while on, textures asked for with mode "auto" are drawn in the workers and arrive later; the page awaits settled()
 export function deferTextures(on) { deferring = !!on; }
 export async function settled() { while (pending.size) await Promise.all([...pending]); }
-export const textureLog = () => [...known.values()].map(e => ({ ...e.log }));
+export const textureLog = () => logs.map(l => ({ ...l }));   // (every recipe drawn, those let go too)
 // the oak field on the main thread (procedural.js's K.oak), drawn on first use and shared with the textures drawn here
 export const mainOak = (N = 1024) => mainCtx.oak(N);

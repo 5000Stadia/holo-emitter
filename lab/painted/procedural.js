@@ -10,7 +10,7 @@
 
 // ---------------------------------------------------------------- noise (texgen.js: pure, so the workers share it)
 import { hash, mod, vnoise, fbm, smooth, rng } from "./texgen.js";
-import { kitTexture, deferTextures, settled, drawn, mainOak, warmTextures } from "./texjobs.js";
+import { kitTexture, deferTextures, settled, drawn, mainOak, warmTextures, TEX_HALF } from "./texjobs.js";
 
 // ---------------------------------------------------------------- texture plumbing
 function canvasTex(THREE, w, h, fill, { srgb = true, repeat = true } = {}) {
@@ -337,7 +337,8 @@ export async function makeKit(THREE, { floor = null, onStep = () => {}, defer = 
   if (defer) deferTextures(true);
   const starting = warmTextures(), A = "async";
   // the floor first: the largest, drawn in bands across the pool
-  const fl = floor ? floorTexture(THREE, floor[0], floor[1], 360, floor[2], A) : floorTexture(THREE, 4, 4, 256, true, A);
+  // (a phone, TEX_HALF: the floor at half density, 180 px/m: 1440² for the manor's 8 m floor, not 2880², 88 MB of 196 MB with mips)
+  const fl = floor ? floorTexture(THREE, floor[0], floor[1], TEX_HALF ? 180 : 360, floor[2], A) : floorTexture(THREE, 4, 4, TEX_HALF ? 128 : 256, true, A);
   const oakV = oakTextures(THREE, {}, A), oakH = oakTextures(THREE, { rotate: true }, A);
   const M = {
     oak: grime(THREE, new THREE.MeshStandardMaterial({ ...oakV, roughness: 0.6, vertexColors: true, normalScale: new THREE.Vector2(0.18, 0.18) })),
