@@ -34,6 +34,10 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   const frame = { learned: new Set(), holding: new Set(), said: [], yielded: new Set(), guarded: new Map() };
   const notebook = { clues: [], persons: new Map(), caught: [] };
   let talking = null, lastTopic = null, turn = 0;
+  // the play's receipts (R59): how long from arrival to the verdict, how it was questioned, what was found, model calls
+  const R = { t0: performance.now(), words: 0, unread: 0, shown: 0, opened: 0, calls: 0, tries: 0, solved: null };
+  const receipts = () => ({ minutes: +(((R.solved ?? performance.now()) - R.t0) / 60000).toFixed(1), questions: turn, by_topic: turn - (R.words - R.unread), in_words: R.words, words_unread: R.unread,
+    shown: R.shown, opened: R.opened, clues: frame.learned.size, of_clues: clues.size, people: notebook.persons.size, wrong_tries: R.tries, model_calls: R.calls, solved: R.solved != null });
   const label = (id) => clues.get(id)?.label || arr(k.things).find(t => t.id === id)?.label || id.replace(/_/g, " ");
   // (the narrator hears each turn as one array of events: src/make/narrator.js observe)
   let pending = [];
@@ -46,7 +50,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     const id = t?.b?.story; if (!id) return;
     const thing = arr(k.things).find(q => q.id === id); if (!thing) return;
     if (r?.took) { frame.holding.add(id); pending.push({ type: "take", thing: id }); }
-    pending.push({ type: "open", id });
+    pending.push({ type: "open", id }); R.opened++;
     for (const c of arr(thing.clue)) if (learn(c, thing.label || thing.kind)) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
     step();
   }
@@ -58,11 +62,11 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   }
   // what they do, voiced: the relay's voice job with only the facts handed to it, checked; else the case's own line
   async function reply(who, topic, stance, shown = null) {
-    const p = cast.get(who), a = answer(k, who, { topic, stance, shown }, frame); lastTopic = topic; turn++;
+    const p = cast.get(who), a = answer(k, who, { topic, stance, shown }, frame); lastTopic = topic; turn++; if (shown) R.shown++;
     frame.said.push({ who, topic, act: a.act }); pending.push({ type: "say", who, topic, act: a.act });
     let line = a.line;
     if (voice?.available?.() && a.act !== "guarded") { panel.busy(true);
-      const v = await voice.voice({ persona: [p.voice?.register, ...arr(p.voice?.phrases)].filter(Boolean).join("; "), act: a.act, facts: a.facts, last: frame.said.slice(-2), max_words: 60 },
+      R.calls++; const v = await voice.voice({ persona: [p.voice?.register, ...arr(p.voice?.phrases)].filter(Boolean).join("; "), act: a.act, facts: a.facts, last: frame.said.slice(-2), max_words: 60 },
         { check: (l) => truthCheck(l, { facts: a.facts, lexicon, allowed: [p.name, ...[...frame.learned].map(label)] }).ok });
       panel.busy(false); if (v && !v.fallback && v.line) line = v.line; }
     if (!line) line = a.act === "dontknow" ? "I know nothing of that." : a.facts.map(f => f.text).join(" ");
@@ -74,14 +78,14 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   }
   // your own words: read in code first; the relay's read job only when unsure; else ask you to choose a topic
   async function words(text) {
-    const who = talking; if (!who) return; panel.say({ who: "you", text });
+    const who = talking; if (!who) return; panel.say({ who: "you", text }); R.words++;
     const ctx = { topics: topicsFor(k, who, frame).filter(t => !t.id.startsWith("person:")), people: arr(k.cast).filter(c => c.id !== who).map(c => ({ id: c.id, name: c.name, aka: c.aka })), evidence: evidence() };
     let r = readIntent(text, ctx);
-    if (r.topic === "none" && r.stance !== "accuse" && !r.evidence && voice?.available?.()) { panel.busy(true);
+    if (r.topic === "none" && r.stance !== "accuse" && !r.evidence && voice?.available?.()) { panel.busy(true); R.calls++;
       const v = await voice.read({ suspect: who, utterance: text.slice(0, 200), topics: topicsFor(k, who, frame).slice(0, 16) }); panel.busy(false);
       if (v && !v.fallback && v.topic && v.topic !== "none") r = { ...r, topic: v.topic, stance: v.stance || r.stance }; }
     if (r.stance === "accuse") return openAccusation();
-    if (r.topic === "none" && !r.evidence) return panel.say({ who: "aside", text: "They wait for you to be plainer. (Choose a matter below.)" });
+    if (r.topic === "none" && !r.evidence) { R.unread++; return panel.say({ who: "aside", text: "They wait for you to be plainer. (Choose a matter below.)" }); }
     return reply(who, r.topic === "none" ? lastTopic : r.topic, r.stance, r.evidence);
   }
 
@@ -115,13 +119,17 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   function accuse({ group, picks }) {
     const sol = k.solution || k.accusation || {}, truth = sol.truth || {}, keys = arr(sol.groups).find(g => g.id === group)?.keys || Object.keys(picks);
     const ok = keys.every(key => truth[key] === undefined || picks[key] === truth[key]);
-    if (!ok) { tries++; const r = sol.rebuttals?.[picks.suspect]; if (r && picks.suspect && picks.suspect !== truth.suspect) panel.say?.({ who: "aside", text: r }); }
+    if (!ok) { tries++; R.tries++; const r = sol.rebuttals?.[picks.suspect]; if (r && picks.suspect && picks.suspect !== truth.suspect) panel.say?.({ who: "aside", text: r }); }
     panel.accusationResult({ group, ok });
     if (ok) locked.add(group);
-    if (ok && arr(sol.groups).every(g => locked.has(g.id)) && sol.verdict) { panel.verdict(sol.verdict); onEnd({ solved: true, tries }); }
+    if (ok && arr(sol.groups).every(g => locked.has(g.id)) && sol.verdict) { R.solved = performance.now(); const q = receipts();
+      // the verdict carries the play's receipts, for a phone's screenshot
+      panel.verdict({ ...sol.verdict, text: `${sol.verdict.text || ""} (Solved in ${q.minutes} minutes: ${q.questions} questions, ${q.in_words} in your own words; ${q.clues} of ${q.of_clues} clues; ${q.wrong_tries} wrong ${q.wrong_tries === 1 ? "try" : "tries"}.)` });
+      try { localStorage.setItem(`case-receipt:${k.id}`, JSON.stringify({ ...q, at: new Date().toISOString() })); } catch (_) {}
+      onEnd({ solved: true, tries, receipts: q }); }
     if (picks.suspect || picks.who) { pending.push({ type: "accuse", who: picks.suspect || picks.who }); step(); }
     return ok;
   }
   const notebookView = () => ({ persons: [...notebook.persons].map(([id, p]) => ({ id, name: p.name, note: p.role })), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), contradictions: notebook.caught.map(c => ({ label: `${cast.get(c.who)?.name}: ${c.label}` })) });
-  return { afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  return { receipts, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
