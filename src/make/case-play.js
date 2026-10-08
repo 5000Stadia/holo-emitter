@@ -33,7 +33,7 @@ export function caseRequired(k, plan, known = null) {   // known: the catalogue'
   return out.sort((a, b) => (a.in ? 1 : 0) - (b.in ? 1 : 0));
 }
 
-export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {}, saved = null, persist = null }) {
+export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {}, saved = null, persist = null, onTurn = null }) {
   const clues = new Map(cluesOf(k).map(c => [c.id, c])), cast = new Map(arr(k.cast).map(c => [c.id, c]));
   const thingOf = new Map(manor.things.filter(b => b.story).map(b => [b.story, b]));
   const frame = { learned: new Set(), holding: new Set(), said: [], yielded: new Set(), guarded: new Map() };
@@ -169,6 +169,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     if (!narrator) { pending = []; return; }
     const events = [...pending, ...extra]; pending = []; if (!events.length) return;
     let r; try { r = narrator.observe(events); } catch (err) { console.warn("narrator:", err.message); return; }
+    try { onTurn?.({ turn: r.turn, events, phase: r.phase, phaseChanged: r.phaseChanged, quiet: r.quiet, done: narrator.state?.()?.done || [] }); } catch (_) {}
     for (const f of arr(r.fired)) { run(f.effects); tell(f.line); }
     if (r.due) { const m = narrator.menu(), b = narrator.pick(m); if (b) { run(narrator.apply(b)); tell(b.line || b.hook); } }
   }

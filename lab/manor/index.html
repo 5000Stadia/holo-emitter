@@ -85,6 +85,7 @@ import { makePresence } from "../../src/make/presence.js";
 import { makeVoice } from "../../src/make/voice.js";
 import { makeTalkPanel } from "../ui/talk-panel.js";
 import { paintSitter } from "../../src/make/sitter.js";
+import { makeBridge } from "../../src/make/bridge.js";
 import { makeHillside, hillsideTextures } from "../../src/make/hillside.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { rng as rngOf, seedOf } from "../../src/make/id.js";
@@ -354,6 +355,10 @@ if (CASE) {
   // checked as they are; what was refused is said in the console and in window.__deck
   if (Q.get("deck")) { try { const deck = await (await fetch(Q.get("deck"))).json(); const m = narrator.merge(deck); window.__deck = { from: Q.get("deck"), ...m };
       if (m.refused.length) console.warn("deck refused:", m.refused); } catch (e) { console.warn("deck:", e.message); window.__deck = { error: e.message }; } }
+  // the live bridge to construct (R58 slice 2; ?bridge or ?bridge=<url>): this machine only, as the model relay is
+  const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  const bridge = local && Q.has("bridge") ? makeBridge({ base: Q.get("bridge") || "http://127.0.0.1:8799", merge: (d) => narrator.merge(d), log: (t) => console.info(t) }) : null;
+  window.__bridge = () => bridge?.stats() || null;
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
     onShow: (id, topic) => CP.reply(CP.talking(), topic, "show", id), onAccuse: (c) => CP.accuse(c),
@@ -362,7 +367,7 @@ if (CASE) {
   // tried 127.0.0.1 on every reply, which Android may answer with a local-network prompt)
   CP = playCase({ kase: CASE, plan, manor, works, panel, voice: /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && Q.get("voice") !== "0" ? makeVoice() : null, narrator, say, presenceOf,
     setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed."),
-    saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
+    onTurn: bridge ? (t) => bridge.turn(t) : null, saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
   // a minute gone with the house in view and nothing asked is a quiet turn to the narrator, so a lull in real time (not
   // only in questions) brings a servant's word towards what you haven't found
   setInterval(() => { if (!document.hidden && !panel.isOpen()) CP.idle(); }, 60000);
