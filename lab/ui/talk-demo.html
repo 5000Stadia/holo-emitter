@@ -76,8 +76,8 @@ const panel = makeTalkPanel({
   onOpenPaper: (id) => panel.openReader(PAPERS[id]),
 });
 
-// ---- the reader: the real case's papers (design/case/case-1660.papers.json); the first reading notes its clues ---------------
-const [PAPERS, CASE] = await Promise.all(["../../design/case/case-1660.papers.json", "../../design/case/case-1660.json"].map((u) => fetch(u).then((r) => r.json())));
+// ---- the reader: the real case's papers (its `papers`, lab/case/case-1660.json); the first reading notes its clues ---------------
+const CASE = await fetch("../case/case-1660.json").then((r) => r.json()), PAPERS = CASE.papers;
 const CLUE = Object.fromEntries(CASE.clues.map((c) => [c.id, c])), papersRead = new Set();
 function readPaper(id) {
   const doc = PAPERS[id], first = !papersRead.has(id); papersRead.add(id);

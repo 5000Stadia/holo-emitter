@@ -4072,5 +4072,252 @@
    "case.js and talk.js read one all-of gate per clue. Dame Anne's visit (anne_visit) asks for Francis's word only, though Cressy's or Daniel's would serve as well; her yield sends you to Francis.",
    "The gather beat waits while you are with Daniel, so you can confront him at his chest; saddled cannot follow gather."
   ]
+ },
+ "papers": {
+  "settlement": {
+   "title": "Dame Anne's marriage settlement, 1650",
+   "clues": [
+    "jointure_settlement"
+   ],
+   "hand": "engrossing",
+   "parts": [
+    {
+     "mark": "aside",
+     "text": "A deed of parchment, its seal on a tag, under the Letters Patent and the Pardon."
+    },
+    {
+     "text": "This Indenture",
+     "mark": "caps"
+    },
+    {
+     "text": " made the sixth day of May in the yeare of our Lord God one thousand six hundred and fiftie, Betweene Sir Gervase Haywood of Wynstanton in the County of Derby, Baronet, of the one part, and his Trustees &c. of the other part.\n\nWitnesseth that in consideration of a marriage shortly to be had and solemnized betweene the said Sir Gervase and Anne his intended wife, and for a competent jointure for her, the said Sir Gervase hath granted unto the said Trustees one annuity or yearely rent charge of Two hundred and fiftie pounds of lawfull money of England, to be issuing out of the Mannor of Asshover in the said County and all the lands thereunto belonging, To the use of the said Anne for the terme of her naturall life for her jointure, payable at the Feasts of the Annunciation of the blessed Virgin Mary and of St Michaell the Archangell by equall portions &c."
+    },
+    {
+     "mark": "seal",
+     "text": "Gervase Haywood",
+     "hand": "italic"
+    },
+    {
+     "mark": "endorsed",
+     "text": "Dame Anne her jointure. 1650.\nAsshover. £250 p. ann."
+    }
+   ]
+  },
+  "engrossment": {
+   "title": "The engrossment of the release of Asshover",
+   "clues": [
+    "rasure"
+   ],
+   "hand": "engrossing",
+   "parts": [
+    {
+     "mark": "aside",
+     "text": "Three skins of parchment stitched at the head, unsealed, written throughout in one engrossing hand: Daniel Wragg's. The first skin begins:"
+    },
+    {
+     "text": "This Indenture",
+     "mark": "caps"
+    },
+    {
+     "text": " made the nine and twentieth day of September in the twelfth yeare of the reigne of our Soveraigne Lord Charles the Second, by the grace of God of England, Scotland, France and Ireland King, Defender of the Faith &c., Betweene Sir Gervase Haywood of Wynstanton in the County of Derby, Baronet, of the one part, and Thomas Pargeter, Citizen and Alderman of London, of the other part &c."
+    },
+    {
+     "mark": "aside",
+     "text": "The second skin, held to the window. At the fourteenth line:"
+    },
+    {
+     "text": "…hath granted, bargained, sold, released and confirmed unto the said Thomas Pargeter (in his actuall possession now being by vertue of a bargaine and sale for one whole yeare &c.) All that the Mannor or Lordshipp of Asshover in the said County of Derby, with all its rights, members and appurtenances, and all messuages, lands, tenements, meadowes, pastures, woods and commons thereunto belonging, "
+    },
+    {
+     "text": "together with all mines, mineralls and quarries",
+     "mark": "rasure"
+    },
+    {
+     "text": " in and under the same, To have and to hold the said Mannor and premisses unto the said Thomas Pargeter, his heires and assignes for ever &c."
+    },
+    {
+     "mark": "aside",
+     "text": "Below the third skin the seal tags hang empty."
+    }
+   ]
+  },
+  "draft_steward": {
+   "title": "The steward's draft of the release",
+   "clues": [
+    "draft_exception"
+   ],
+   "hand": "secretary",
+   "parts": [
+    {
+     "mark": "aside",
+     "text": "Sheets of paper tied with tape, in Mr Hollins's own hand, much corrected. The second sheet:"
+    },
+    {
+     "mark": "head",
+     "text": "Asshover. Release to Ald. Pargeter. Draught."
+    },
+    {
+     "mark": "margin",
+     "parts": [
+      {
+       "text": "‸ excepting and reserving to Sir Gervase Haywood and his heires all mines and veines of lead ore"
+      },
+      {
+       "text": "\nagreed, A.C., 14 Sept.",
+       "hand": "italic"
+      }
+     ]
+    },
+    {
+     "text": "…hath granted, bargained, sold, released and confirmed unto the sd Thomas Pargeter"
+    },
+    {
+     "text": "Alderman",
+     "mark": "added"
+    },
+    {
+     "text": " (in his actuall possession now being &c.) All that the Mannor or Lordshipp of Asshover in the sd County, with all its rights, members and appurtenances, and all messuages, lands, tenements, "
+    },
+    {
+     "text": "houses",
+     "mark": "struck"
+    },
+    {
+     "text": " meadowes, pastures, woods and commons thereunto belonging, ‸ in and under the same, To have and to hold the sd Mannor and premisses unto the sd Thomas Pargeter, his heires and assignes for ever &c."
+    },
+    {
+     "mark": "endorsed",
+     "text": "Draught of the release of Asshover.\nRead over with Mr Cressy, 14 Sept. 1660. J.H."
+    }
+   ]
+  },
+  "papers_cressy": {
+   "title": "Mr Cressy's papers",
+   "clues": [
+    "london_copy",
+    "pargeter_letter"
+   ],
+   "sheets": [
+    {
+     "title": "A copy of the draft, from London",
+     "clues": [
+      "london_copy"
+     ],
+     "hand": "italic",
+     "parts": [
+      {
+       "mark": "head",
+       "text": "Asshover. Copy of the Release."
+      },
+      {
+       "text": "…hath granted, bargained, sold, released and confirmed unto the said Thomas Pargeter (in his actual possession now being &c.) All that the Mannor or Lordship of Asshover in the said County of Derby, with all and singular the rights, members and appurtenances thereof whatsoever, and all messuages, lands, tenements, meadows, pastures, woods and commons thereunto belonging, To have and to hold the said Mannor and premisses unto the said Thomas Pargeter, his heires and assignes for ever &c."
+      },
+      {
+       "mark": "endorsed",
+       "text": "Asshover. Copy from London. A.C."
+      }
+     ]
+    },
+    {
+     "title": "A letter from Alderman Pargeter",
+     "clues": [
+      "pargeter_letter"
+     ],
+     "hand": "italic",
+     "parts": [
+      {
+       "text": "Mr Cressy,\n\nI have yours of the 15th, with the draught. The Asshover ore assayes better than we hoped, & my man is confident of the veine. See the mines pass with the land, and spare no reasonable cost.\n\nThe money shall be ready at Michaelmas, and Sir Gervase his bond, so long past its day, to be delivered up at the sealing. Lose no time, and write me how it goes."
+      },
+      {
+       "mark": "sign",
+       "text": "Your loving friend,\nTho. Pargeter"
+      },
+      {
+       "text": "London, 18 Sept. 1660."
+      },
+      {
+       "mark": "endorsed",
+       "text": "To my worthy friend Mr Ambrose Cressy, at Wynstanton in Derbyshire, these.\nAld. Pargeter, 18 Sept. Rec'd 22d."
+      }
+     ]
+    }
+   ]
+  },
+  "box_daniel": {
+   "title": "A note, in a twist of paper",
+   "clues": [
+    "gold_note"
+   ],
+   "hand": "italic",
+   "parts": [
+    {
+     "mark": "aside",
+     "text": "In Daniel's oak box, under a shirt: twenty pieces of gold in a twist of paper, and this, in a London hand."
+    },
+    {
+     "text": "The like again when it is sealed. Burn this."
+    },
+    {
+     "mark": "sign",
+     "text": "A.C."
+    }
+   ]
+  },
+  "press_N1": {
+   "title": "The Asshover drawer",
+   "clues": [
+    "drawer_asshover"
+   ],
+   "sheets": [
+    {
+     "title": "The steward's memorandum, pinned to the deed",
+     "clues": [
+      "drawer_asshover"
+     ],
+     "hand": "secretary",
+     "parts": [
+      {
+       "text": "Mem. The mines to be excepted to Sir Gervase in the sale to Pargeter. Agreed by Mr Cressy, 14 Sept."
+      },
+      {
+       "mark": "sign",
+       "text": "J.H."
+      }
+     ]
+    },
+    {
+     "title": "The deed of 1612",
+     "clues": [
+      "drawer_asshover"
+     ],
+     "hand": "engrossing",
+     "parts": [
+      {
+       "text": "This Indenture",
+       "mark": "caps"
+      },
+      {
+       "text": " made in the tenth yeare of the reigne of our Soveraigne Lord James, by the grace of God of England, France and Ireland King, Defender of the Faith &c., Witnesseth that &c. hath bargained and sold unto Sir Ralph Haywood of Wynstanton in the County of Derby, Knight, his heires and assignes for ever, All that the Mannor of Asshover in the said County, with all mines and veines of lead ore within the same, and all other the appurtenances &c."
+      },
+      {
+       "mark": "endorsed",
+       "text": "Asshover. The purchase, 1612. Feoffments i."
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "_papers_schema": {
+  "what": "The case's papers as they are written, for the reader (lab/ui/talk-panel.js openReader). Keyed by thing id in design/case/case-1660.json; pass an entry straight in: panel.openReader({ ...papers[thingId], noted }).",
+  "entry": "{ title, clues: [clue ids it shows], hand, ground?, parts } for one sheet, or { title, clues, sheets: [{ title, clues, hand, ground?, parts }] } for a bundle of several (Mr Cressy's papers; the Asshover drawer).",
+  "hand": "secretary (an English everyday hand: the steward's draft and memorandum) | italic (a London hand: Cressy's copy, Pargeter's letter, the note) | engrossing (the formal hand of a deed on parchment).",
+  "ground": "parchment | paper; when absent, parchment for an engrossing hand, paper for the others.",
+  "parts": "Runs of text in order. A part is { text, mark?, hand? } or, for a block mark, { mark, parts: [inline parts] }. In text, a blank line (\\n\\n) starts a new paragraph and \\n breaks the line. 'hand' on a part sets that run in another hand (Cressy's initials in the steward's draft).",
+  "marks": {
+   "inline": "rasure (scraped and written over: a rough paler patch, fresher ink) | struck (struck through) | added (interlined above, after a caret) | caps (the display opening words of a deed)",
+   "block": "head (the writer's own heading) | margin (a marginal note beside what follows) | sign (a signature or subscription, set right) | seal (a signature beside a wax seal) | endorsed (written on the back) | aside (not in the document: what you see of the thing itself, set apart from the hand)"
+  },
+  "canon": "Every text holds its clue's fact (design/case/case-1660.json clues) and nothing past it. Invented and harmless: the settlement's day (6 May 1650), the wording of the deeds, the corrections in the draft, the address and the bond sentence in Pargeter's letter (canon: the sale clears the £2,000 bond). Dates: Charles II's twelfth regnal year runs 30 Jan 1660 to 29 Jan 1661; James I's tenth year (24 Mar 1612 to 23 Mar 1613) holds the whole legal year 1612, which began on Lady Day."
  }
 }

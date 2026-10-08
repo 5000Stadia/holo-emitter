@@ -310,7 +310,7 @@ if (CASE) {
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
     onShow: (id, last) => CP.reply(CP.talking(), last || "death", "show", id), onAccuse: (c) => CP.accuse(c),
-    onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onClose: () => {} });
+    onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onClose: () => {} });
   CP = playCase({ kase: CASE, plan, manor, works, panel, voice: makeVoice(), narrator, say, presenceOf,
     setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed.") });
   window.__cp = CP; window.__presences = presences;

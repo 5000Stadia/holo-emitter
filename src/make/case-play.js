@@ -45,15 +45,26 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   const evidence = () => [...[...frame.learned].map(id => ({ id, label: label(id), kind: "clue" })), ...[...frame.holding].map(id => ({ id, label: label(id), kind: "thing" }))];
   const lexicon = [...arr(k.cast).map(c => c.name), ...arr(k.things).map(t => t.label).filter(Boolean)];
 
-  // ---- the house's things: opening, taking or reading one that carries a clue learns it (and taking it, holds it)
+  // ---- the house's things: opening, taking or reading one that carries a clue learns it (and taking it, holds it); a
+  // paper (the case's papers: its own text, the clue there to be noticed) opens in the reader instead of a line
+  const papersRead = [];
   function afterAct(t, r) {
     const id = t?.b?.story; if (!id) return;
     const thing = arr(k.things).find(q => q.id === id); if (!thing) return;
-    if (r?.took) { frame.holding.add(id); pending.push({ type: "take", thing: id }); }
+    // (a refusal teaches nothing: a locked box tried had given up its note; shutting a thing again doesn't read it again)
+    // (read already, a paper won't 'read' again: it opens in the reader as it is)
+    if (r?.refused && k.papers?.[id] && papersRead.includes(id)) return openPaper(id);
+    if (!r || r.refused || !(r.took || r.did)) return;
+    const shutting = !r.took && /^(closed|shut|locked|down)$/.test(r.state || "");
+    if (r.took) { frame.holding.add(id); pending.push({ type: "take", thing: id }); }
     pending.push({ type: "open", id }); R.opened++;
-    for (const c of arr(thing.clue)) if (learn(c, thing.label || thing.kind)) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
+    const fresh = []; if (!shutting) for (const c of arr(thing.clue)) if (learn(c, thing.label || thing.kind)) fresh.push(c);
+    const paper = k.papers?.[id];
+    if (paper && !shutting && panel.openReader) { if (!papersRead.includes(id)) papersRead.push(id); panel.openReader({ ...paper, noted: fresh.map(c => ({ label: label(c) })) }); }
+    else for (const c of fresh) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
     step();
   }
+  const openPaper = (id) => k.papers?.[id] && panel.openReader({ ...k.papers[id] });
 
   // ---- talking: open the panel on a person
   function talkTo(who) {
@@ -135,6 +146,6 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     return ok;
   }
   const roomName = (id) => plan.rooms.find(r => r.id === presenceOf(id)?.room)?.name;
-  const notebookView = () => ({ persons: [...notebook.persons].map(([id, p]) => ({ id, name: p.name, note: [p.role, roomName(id) && `now in the ${roomName(id).toLowerCase()}`, !p.met && "not yet questioned"].filter(Boolean).join(" · ") })), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), contradictions: notebook.caught.map(c => ({ label: `${cast.get(c.who)?.name}: ${c.label}` })) });
-  return { receipts, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  const notebookView = () => ({ persons: [...notebook.persons].map(([id, p]) => ({ id, name: p.name, note: [p.role, roomName(id) && `now in the ${roomName(id).toLowerCase()}`, !p.met && "not yet questioned"].filter(Boolean).join(" · ") })), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), papers: papersRead.map(id => ({ id, title: k.papers[id].title })), contradictions: notebook.caught.map(c => ({ label: `${cast.get(c.who)?.name}: ${c.label}` })) });
+  return { receipts, openPaper, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
