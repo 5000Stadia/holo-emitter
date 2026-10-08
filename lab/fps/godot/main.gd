@@ -16,6 +16,16 @@ var boxes: MultiMesh
 var physics_ms: Array = []
 var done := false
 var aim_tower := false
+# tonight's cases (2026-10-08): the kit's textures, window lights, standing still, and a still picture for the side-by-sides
+var kit := {}
+var shot := false
+var orbit_a := 0.0
+var fire: OmniLight3D
+var still_drawn0 := 0
+var still_t0 := 0.0
+var still_measuring := false
+var still_last_change := -1e9
+var gpu_ms: Array = []
 
 func _ready() -> void:
 	spec = JSON.parse_string(FileAccess.get_file_as_string("res://spec.json"))
@@ -23,6 +33,8 @@ func _ready() -> void:
 	if OS.has_feature("web"):
 		case_id = str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('case') || 'base'"))
 		aim_tower = str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('aim') || ''")) == "tower"
+		shot = str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('shot') || ''")) != ""
+		orbit_a = float(str(JavaScriptBridge.eval("new URLSearchParams(location.search).get('a') || '0'")))
 	else:
 		for a in OS.get_cmdline_user_args():
 			if a.begins_with("--case="):
@@ -33,6 +45,19 @@ func _ready() -> void:
 			for k in c.set:
 				C[k] = c.set[k]
 	build()
+	RenderingServer.viewport_set_measure_render_time(get_viewport().get_viewport_rid(), true)
+	if C.still != null:
+		# standing still: a 60 Hz display (max_fps), the camera held, a fire in view; "every" draws each tick, the rest
+		# only when something changed (low-processor mode: Godot's render-on-change); the flame changes at most every
+		# 62.5 ms (flicker16) or every tick (flicker60)
+		Engine.max_fps = 60
+		OS.low_processor_usage_mode = C.still != "every"
+		fire = OmniLight3D.new()
+		fire.light_color = Color8(0xff, 0x9a, 0x40)
+		fire.light_energy = 3.0
+		fire.omni_range = 12
+		fire.position = Vector3(spec.camera.look_at[0], 1.2, spec.camera.look_at[2] + 20)
+		add_child(fire)
 	t0 = Time.get_ticks_usec() / 1000.0
 	last = t0
 
@@ -52,6 +77,36 @@ func material() -> StandardMaterial3D:
 			m.clearcoat_roughness = 0.1
 	return m
 
+# the kit's textures, made natively (FastNoiseLite, the bump-to-normal pass, mipmaps): the same sizes and format (RGBA8,
+# mipmapped) as three.html's, not the same pixels; "half" is the full one halved (bilinear at exactly half: 2x2 means)
+func tex_of(img: Image, full: int) -> ImageTexture:
+	if C.textures == "half":
+		img.resize(full / 2, full / 2, Image.INTERPOLATE_BILINEAR)
+	img.generate_mipmaps()
+	return ImageTexture.create_from_image(img)
+
+func noise_image(n: int, freq: float, oct: int, sd: int) -> Image:
+	var f := FastNoiseLite.new()
+	f.noise_type = FastNoiseLite.TYPE_VALUE_CUBIC
+	f.frequency = freq
+	f.fractal_octaves = oct
+	f.seed = sd
+	var img := f.get_image(n, n)
+	img.convert(Image.FORMAT_RGBA8)
+	return img
+
+func make_kit() -> void:
+	var fc := noise_image(2880, 0.02, 4, 11)
+	var fn := noise_image(2880, 0.02, 4, 11)
+	fn.bump_map_to_normal_map(2.0)
+	fn.convert(Image.FORMAT_RGBA8)
+	var kc := noise_image(1024, 0.008, 5, 31)
+	var kn := noise_image(1024, 0.008, 5, 31)
+	kn.bump_map_to_normal_map(6.0)
+	kn.convert(Image.FORMAT_RGBA8)
+	var kr := noise_image(1024, 0.03, 3, 37)
+	kit = { "floor": tex_of(fc, 2880), "floor_n": tex_of(fn, 2880), "map": tex_of(kc, 1024), "normal": tex_of(kn, 1024), "rough": tex_of(kr, 1024) }
+
 func build() -> void:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -64,6 +119,8 @@ func build() -> void:
 	if "bloom" in C.post:
 		env.glow_enabled = true
 		env.glow_intensity = 0.6
+	if C.tonemap:
+		env.tonemap_mode = Environment.TONE_MAPPER_ACES
 	var we := WorldEnvironment.new()
 	we.environment = env
 	add_child(we)
@@ -98,7 +155,30 @@ func build() -> void:
 	gm.material = gmat
 	ground.mesh = gm
 	ground.position.y = -0.5
+	if C.textures != null:
+		make_kit()
+		var pm := PlaneMesh.new()
+		pm.size = Vector2(200, 200)
+		var fm := StandardMaterial3D.new()
+		fm.albedo_color = Color(0.66, 0.42, 0.24)
+		fm.albedo_texture = kit.floor
+		fm.normal_enabled = true
+		fm.normal_texture = kit.floor_n
+		fm.uv1_scale = Vector3(25, 25, 1)
+		pm.material = fm
+		ground.mesh = pm
+		ground.position.y = 0
 	add_child(ground)
+	# window lights: AreaLight3D (Godot 4.7) as three's RectAreaLight, a 2.5 x 3.5 m pane 3 m up facing the middle
+	for i in range(int(C.rect_lights)):
+		var L = layout.lights[i]
+		var al := AreaLight3D.new()
+		al.light_color = Color8(0xff, 0xf0, 0xdd)
+		al.light_energy = 6.0
+		al.area_size = Vector2(2.5, 3.5)
+		al.area_range = 20
+		add_child(al)
+		al.look_at_from_position(Vector3(L[0], 3, L[2]), Vector3(0, 1, 0))
 	if C.far:
 		cam.far = 10000
 		build_far()
@@ -126,6 +206,13 @@ func build() -> void:
 			mm.set_instance_color(i, Color(o[4], o[5], o[6]))
 		var mat := material()
 		mat.vertex_color_use_as_albedo = true
+		if C.textures != null:
+			mat.albedo_texture = kit.map
+			mat.normal_enabled = true
+			mat.normal_texture = kit.normal
+			mat.roughness_texture = kit.rough
+			mat.roughness_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+			mat.roughness = 1.0
 		sphere.material = mat
 		var mmi := MultiMeshInstance3D.new()
 		mmi.multimesh = mm
@@ -289,7 +376,44 @@ func _process(_delta: float) -> void:
 	var now := Time.get_ticks_usec() / 1000.0
 	var el := (now - t0) / 1000.0
 	var R = spec.camera
+	if shot or C.still != null:
+		el = orbit_a / R.turn_per_second
 	var a: float = el * R.turn_per_second
+	if shot:
+		cam.look_at_from_position(Vector3(sin(a) * R.orbit_radius, R.height, cos(a) * R.orbit_radius), Vector3(R.look_at[0], R.look_at[1], R.look_at[2]))
+		if aim_tower:
+			cam.fov = 4
+			cam.look_at_from_position(Vector3(0, 20, 0), Vector3(0, 150, -4000))
+		if Engine.get_frames_drawn() > 30:
+			done = true
+			JavaScriptBridge.eval("window.__shot = {engine: 'godot-web', case: '%s'}" % case_id)
+		return
+	if C.still != null:
+		if not still_measuring:
+			cam.look_at_from_position(Vector3(sin(a) * R.orbit_radius, R.height, cos(a) * R.orbit_radius), Vector3(R.look_at[0], R.look_at[1], R.look_at[2]))
+		var real_el := (now - t0) / 1000.0
+		if str(C.still).begins_with("flicker") and (C.still == "flicker60" or now - still_last_change >= 62.5):
+			fire.light_energy = 3.0 * (0.8 + 0.2 * sin(now * 0.023) * sin(now * 0.0071))
+			still_last_change = now
+		if not still_measuring and real_el > spec.warmup_seconds:
+			still_measuring = true
+			still_drawn0 = Engine.get_frames_drawn()
+			still_t0 = now
+		if still_measuring:
+			var g := RenderingServer.viewport_get_measured_render_time_gpu(get_viewport().get_viewport_rid())
+			if g > 0:
+				gpu_ms.append(g)
+		if real_el > spec.warmup_seconds + spec.seconds:
+			done = true
+			var per_s: float = (Engine.get_frames_drawn() - still_drawn0) / ((now - still_t0) / 1000.0)
+			var res := { "engine": "godot-web" if OS.has_feature("web") else "godot-native", "case": case_id, "still": C.still, "fps": snappedf(per_s, 0.1), "drawn_per_s": snappedf(per_s, 0.1),
+				"gpu_ms": median(gpu_ms), "buffer": [get_viewport().size.x, get_viewport().size.y] }
+			if OS.has_feature("web"):
+				JavaScriptBridge.eval("window.__result = " + JSON.stringify(res))
+			else:
+				print("FPSLAB " + JSON.stringify(res))
+				get_tree().quit()
+		return
 	cam.look_at_from_position(Vector3(sin(a) * R.orbit_radius, R.height, cos(a) * R.orbit_radius), Vector3(R.look_at[0], R.look_at[1], R.look_at[2]))
 	if aim_tower:
 		cam.fov = 4
@@ -298,6 +422,9 @@ func _process(_delta: float) -> void:
 		boxes.set_instance_transform(i, PhysicsServer3D.body_get_state(bodies[i], PhysicsServer3D.BODY_STATE_TRANSFORM))
 	if now - t0 > spec.warmup_seconds * 1000.0:
 		times.append(now - last)
+		var g := RenderingServer.viewport_get_measured_render_time_gpu(get_viewport().get_viewport_rid())
+		if g > 0:
+			gpu_ms.append(g)
 	last = now
 	if now - t0 > (spec.warmup_seconds + spec.seconds) * 1000.0:
 		done = true
@@ -321,9 +448,17 @@ func report() -> void:
 		"triangles": Performance.get_monitor(Performance.RENDER_TOTAL_PRIMITIVES_IN_FRAME),
 		"physics_ms": snappedf(pms / physics_ms.size(), 0.01) if physics_ms.size() > 0 else null,
 		"renderer": RenderingServer.get_video_adapter_name() + " / " + str(ProjectSettings.get_setting("rendering/renderer/rendering_method")),
+		"gpu_ms": median(gpu_ms), "buffer": [get_viewport().size.x, get_viewport().size.y],
 	}
 	if OS.has_feature("web"):
 		JavaScriptBridge.eval("window.__result = " + JSON.stringify(result))
 	else:
 		print("FPSLAB " + JSON.stringify(result))
 		get_tree().quit()
+
+func median(a: Array):
+	if a.size() == 0:
+		return null
+	var s := a.duplicate()
+	s.sort()
+	return snappedf(s[s.size() / 2], 0.001)

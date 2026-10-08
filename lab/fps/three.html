@@ -25,26 +25,89 @@ import { pass, mrt, output, normalView } from "three/tsl";
 const Q = new URLSearchParams(location.search), $ = (t) => { document.getElementById("hud").textContent = t; };
 const [spec, layout] = await Promise.all(["spec.json", "layout.json"].map(f => fetch(f).then(r => r.json())));
 const cs = spec.cases.find(c => c.id === (Q.get("case") || "base")), C = { ...spec.base, ...(cs.set || {}) };
-const renderer = new THREE.WebGPURenderer({ antialias: C.msaa, forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance", logarithmicDepthBuffer: C.depth === "log", reversedDepthBuffer: C.depth === "reversed" });
-renderer.setPixelRatio(C.pixel_ratio ?? spec.pixel_ratio); renderer.setSize(spec.viewport[0], spec.viewport[1]);
+// the viewport: the spec's, or the phone's (?w=390&h=844&dpr=3, as tools/fps-lab.mjs --phone sets it)
+const VW = +(Q.get("w") || spec.viewport[0]), VH = +(Q.get("h") || spec.viewport[1]), DPR = +(Q.get("dpr") || (C.pixel_ratio ?? spec.pixel_ratio));
+// ?gpu=1: WebGPU timestamps (WebGL's timer query where there is one), each frame's GPU ms
+const renderer = new THREE.WebGPURenderer({ antialias: C.msaa, forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance", logarithmicDepthBuffer: C.depth === "log", reversedDepthBuffer: C.depth === "reversed",
+  outputBufferType: C.out === 8 ? THREE.UnsignedByteType : THREE.HalfFloatType, trackTimestamp: Q.get("gpu") === "1" });
+renderer.setPixelRatio(DPR); renderer.setSize(VW, VH);
 renderer.shadowMap.enabled = C.shadows > 0; renderer.shadowMap.type = THREE.PCFShadowMap;
+if (C.tonemap) renderer.toneMapping = THREE.ACESFilmicToneMapping;
 document.body.prepend(renderer.domElement);
 if (C.lighting === "dynamic") { const { DynamicLighting } = await import("three/addons/lighting/DynamicLighting.js"); renderer.lighting = new DynamicLighting({ maxPointLights: 64 }); }
 if (C.lighting === "clustered") { const { ClusteredLighting } = await import("three/addons/lighting/ClusteredLighting.js"); renderer.lighting = new ClusteredLighting(); }
 await renderer.init();
 const backend = renderer.backend.isWebGPUBackend ? "three-webgpu" : "three-webgl2";
+// the depth the backend gave: WebGL 2 without EXT_clip_control has no reversed depth and falls back to ordinary
+const depthGot = renderer.logarithmicDepthBuffer ? "log" : renderer.reversedDepthBuffer ? "reversed" : "standard";
 
 const scene = new THREE.Scene(); scene.background = new THREE.Color(0x8fa3b5);
-const camera = new THREE.PerspectiveCamera(60, spec.viewport[0] / spec.viewport[1], 0.1, C.far ? 10000 : 300);
+const camera = new THREE.PerspectiveCamera(60, VW / VH, 0.1, C.far ? 10000 : 300);
 scene.add(new THREE.HemisphereLight(0xdde6ee, 0x404040, 1.0));
 const sun = new THREE.DirectionalLight(0xffffff, 2.5); sun.position.set(30, 50, 20);
 if (C.shadows) { sun.castShadow = true; sun.shadow.mapSize.set(C.shadows, C.shadows); Object.assign(sun.shadow.camera, { left: -45, right: 45, top: 45, bottom: -45, near: 1, far: 150 }); }
 scene.add(sun);
 for (const [x, y, z, r, g, b] of layout.lights.slice(0, C.point_lights)) { const l = new THREE.PointLight(new THREE.Color(r, g, b), 40, 20, 2); l.position.set(x, y, z); scene.add(l); }
-const ground = new THREE.Mesh(new THREE.BoxGeometry(200, 1, 200), new THREE.MeshStandardMaterial({ color: 0x6b6b5e })); ground.position.y = -0.5; ground.receiveShadow = true; scene.add(ground);
+// window lights: RectAreaLights as the manor's windows are, each a 2.5 x 3.5 m pane 3 m up facing the middle; every lit
+// pixel of every lit material pays for each one (the manor holds 8 slots on a desktop, 3 on a phone)
+if (C.rect_lights) {
+  const { RectAreaLightTexturesLib } = await import("three/addons/lights/RectAreaLightTexturesLib.js"); THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
+  for (const [x, , z] of layout.lights.slice(0, C.rect_lights)) { const l = new THREE.RectAreaLight(0xfff0dd, 6, 2.5, 3.5); l.position.set(x, 3, z); l.lookAt(0, 1, 0); scene.add(l); }
+}
+// textures, as the manor's: a floor at 360 px/m (2880 square over 8 m) and a kit of 1024 square colour, normal and roughness
+// maps; "half" is the phone's (floor 1440, kit 512), each the full one's 2x2 means in linear light, so the pictures match.
+// tex_drop: once a texture is on the GPU its pixels are let go (texture.onUpdate, as lab/painted/texjobs.js does)
+const tex = { bytes_gpu: 0, bytes_cpu: 0, gen_ms: 0 };
+const texSet = C.textures ? (() => {
+  const g0 = performance.now();
+  const hash = (x, y, s) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(s, 2246822519) | 0; h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+  // tiling value noise, octaves of period p..p/2^k cells across the square
+  function field(n, cells, oct, s) { const f = new Float32Array(n * n);
+    for (let o = 0, amp = 1, c = cells, tot = 0; o < oct; o++, amp *= 0.5, c *= 2) { tot += amp; const k = c / n, L = new Float32Array(c * c);
+      for (let j = 0; j < c; j++) for (let i = 0; i < c; i++) L[j * c + i] = hash(i, j, s + o);
+      for (let y = 0; y < n; y++) { const fy = y * k, y0 = fy | 0, ty = fy - y0, sy = ty * ty * (3 - 2 * ty), ya = (y0 % c) * c, yb = ((y0 + 1) % c) * c;
+        for (let x = 0; x < n; x++) { const fx = x * k, x0 = fx | 0, tx = fx - x0, sx = tx * tx * (3 - 2 * tx), xa = x0 % c, xb = (x0 + 1) % c;
+          const a = L[ya + xa], b = L[ya + xb], d = L[yb + xa], e = L[yb + xb];
+          f[y * n + x] += amp * ((a + (b - a) * sx) * (1 - sy) + (d + (e - d) * sx) * sy); } }
+      if (o === oct - 1) for (let i = 0; i < f.length; i++) f[i] /= tot; }
+    return f; }
+  const toLin = new Float32Array(256).map((_, i) => Math.pow(i / 255, 2.2)), toSrgb = (v) => Math.round(255 * Math.pow(Math.max(0, Math.min(1, v)), 1 / 2.2));
+  // floor boards: 8 boards across, grain along them, a seam between, a little height for the normal map
+  function floorMaps(n) { const grain = field(n, 64, 4, 11), blot = field(n, 6, 3, 23), col = new Uint8Array(n * n * 4), h = new Float32Array(n * n);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const i = y * n + x, bx = (x * 8 / n) % 1, seam = bx < 0.012 || bx > 0.988 ? 0.45 : 1, board = hash((x * 8 / n) | 0, 0, 5);
+      const v = (0.55 + 0.35 * grain[(y * n + ((x * 0.15) | 0)) % (n * n)] + 0.2 * blot[i] + 0.15 * board) * seam;
+      col[i * 4] = toSrgb(0.30 * v); col[i * 4 + 1] = toSrgb(0.19 * v); col[i * 4 + 2] = toSrgb(0.11 * v); col[i * 4 + 3] = 255; h[i] = seam * (0.7 + 0.3 * grain[i]); }
+    return [col, normalOf(h, n, 2)]; }
+  // the kit: a worn plaster-and-stone look, colour, normal and roughness
+  function kitMaps(n) { const a = field(n, 8, 5, 31), b = field(n, 32, 3, 37), col = new Uint8Array(n * n * 4), rough = new Uint8Array(n * n * 4), h = new Float32Array(n * n);
+    for (let i = 0; i < n * n; i++) { const v = 0.6 + 0.5 * a[i] + 0.2 * b[i]; col[i * 4] = toSrgb(0.62 * v); col[i * 4 + 1] = toSrgb(0.58 * v); col[i * 4 + 2] = toSrgb(0.50 * v); col[i * 4 + 3] = 255;
+      rough[i * 4] = rough[i * 4 + 2] = 0; rough[i * 4 + 1] = Math.round(255 * (0.55 + 0.4 * b[i])); rough[i * 4 + 3] = 255; h[i] = a[i] * 0.7 + b[i] * 0.3; }
+    return [col, normalOf(h, n, 6), rough]; }
+  function normalOf(h, n, k) { const o = new Uint8Array(n * n * 4);
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const dx = (h[y * n + (x + 1) % n] - h[y * n + (x + n - 1) % n]) * k, dy = (h[((y + 1) % n) * n + x] - h[((y + n - 1) % n) * n + x]) * k, l = Math.hypot(dx, dy, 1), i = (y * n + x) * 4;
+      o[i] = Math.round(127.5 * (1 - dx / l)); o[i + 1] = Math.round(127.5 * (1 - dy / l)); o[i + 2] = Math.round(127.5 * (1 + 1 / l)); o[i + 3] = 255; }
+    return o; }
+  // the phone's half: 2x2 means, colour in linear light
+  function halve(d, n, srgb) { const m = n / 2, o = new Uint8Array(m * m * 4);
+    for (let y = 0; y < m; y++) for (let x = 0; x < m; x++) for (let c = 0; c < 4; c++) { const p = (q, r) => d[((2 * y + r) * n + 2 * x + q) * 4 + c], s = [p(0, 0), p(1, 0), p(0, 1), p(1, 1)];
+      o[(y * m + x) * 4 + c] = srgb && c < 3 ? toSrgb(s.reduce((a, v) => a + toLin[v], 0) / 4) : Math.round(s.reduce((a, v) => a + v, 0) / 4); }
+    return o; }
+  const half = C.textures === "half", FL = 2880, KT = 1024;
+  const make = (d, n, srgb, rep) => { let size = n; if (half) { d = halve(d, n, srgb); size = n / 2; }
+    const t = new THREE.DataTexture(d, size, size, THREE.RGBAFormat, THREE.UnsignedByteType); t.colorSpace = srgb ? THREE.SRGBColorSpace : THREE.NoColorSpace;
+    t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep, rep); t.generateMipmaps = true; t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.needsUpdate = true;
+    tex.bytes_gpu += size * size * 4 * 4 / 3; tex.bytes_cpu += d.byteLength;
+    if (C.tex_drop) t.onUpdate = () => { t.onUpdate = null; tex.bytes_cpu -= t.image.data.byteLength; t.image = { data: null, width: size, height: size }; };
+    return t; };
+  const [fc, fn] = floorMaps(FL), [kc, kn, kr] = kitMaps(KT);
+  const set = { floor: { map: make(fc, FL, true, 25), normalMap: make(fn, FL, false, 25) }, kit: { map: make(kc, KT, true, 1), normalMap: make(kn, KT, false, 1), roughnessMap: make(kr, KT, false, 1) } };
+  tex.gen_ms = Math.round(performance.now() - g0);
+  return set;
+})() : null;
+const ground = new THREE.Mesh(new THREE.BoxGeometry(200, 1, 200), new THREE.MeshStandardMaterial({ color: texSet ? 0xffffff : 0x6b6b5e, ...(texSet?.floor || {}) })); ground.position.y = -0.5; ground.receiveShadow = true; scene.add(ground);
 
 const material = () => C.material === "basic" ? new THREE.MeshBasicMaterial({ color: 0xffffff }) : C.material === "lambert" ? new THREE.MeshLambertMaterial({ color: 0xffffff })
-  : C.material === "physical" ? new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.1 }) : new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+  : C.material === "physical" ? new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.4, clearcoat: 1, clearcoatRoughness: 0.1 }) : new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, ...(texSet?.kit || {}) });
 const m4 = new THREE.Matrix4(), col = new THREE.Color(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
 // a static object: its matrix worked out once, never again
 const freeze = (m) => { if (C.static) { m.updateMatrix(); m.updateMatrixWorld(true); m.matrixAutoUpdate = false; m.matrixWorldAutoUpdate = false; } };
@@ -129,13 +192,60 @@ if (C.post.length || C.render_scale !== 1) {
   post.outputNode = out;
 }
 
-// the run: the camera orbits the scene; frames are timed after the warm-up
-const times = [], t0 = performance.now(); let last = t0, frames = 0;
+// DirectRenderPipeline: tone mapping and the colour space in each material, drawn straight to the canvas (no half-float
+// intermediate target, no output pass)
+const pipe = C.direct ? new THREE.DirectRenderPipeline(renderer) : null;
+const draw = () => post ? post.render() : pipe ? pipe.render(scene, camera) : renderer.render(scene, camera);
+// each drawn frame's GPU ms, when ?gpu=1 and the backend can time it
+const gpuMs = []; let gpuBusy = false, timing = false;
+const timeGpu = () => { if (!renderer.backend.trackTimestamp || gpuBusy || !timing) return; gpuBusy = true;
+  renderer.resolveTimestampsAsync("render").then(v => { if (v > 0) gpuMs.push(v); }).catch(() => {}).finally(() => { gpuBusy = false; }); };
+const med = (a) => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y); return +s[s.length >> 1].toFixed(3); };
 const R = spec.camera, total = (spec.warmup_seconds + spec.seconds) * 1000;
+const pose = (el) => { const a = el * R.turn_per_second; camera.position.set(Math.sin(a) * R.orbit_radius, R.height, Math.cos(a) * R.orbit_radius); camera.lookAt(...R.look_at);
+  if (Q.get("aim") === "tower") { camera.fov = 4; camera.updateProjectionMatrix(); camera.position.set(0, 20, 0); camera.lookAt(0, 150, -4000); }     // a telephoto on the tower 4 km off, to see its panel flicker or hold
+  if (Q.get("cam")) { const [x, y, z, tx, ty, tz, fov] = Q.get("cam").split(",").map(Number); camera.position.set(x, y, z); camera.lookAt(tx, ty, tz); if (fov) { camera.fov = fov; camera.updateProjectionMatrix(); } } };
+
+// ?shot=1: a still picture for the side-by-sides; the camera at ?a= on the orbit (or ?aim= / ?cam=), 30 frames drawn, then held
+if (Q.get("shot")) {
+  pose(+(Q.get("a") || 0) / R.turn_per_second);
+  for (let i = 0; i < 30; i++) { draw(); await new Promise(r => requestAnimationFrame(r)); }
+  window.__shot = { engine: backend, case: cs.id, depth: depthGot };
+  $(""); document.getElementById("hud").style.display = "none";
+  await new Promise(() => {});    // nothing more to run
+}
+
+// standing still (C.still): the camera held, a 60 Hz display emulated (a tick every 16.7 ms), and a fire's flicker in view.
+//   every: drawn every tick, as a page with no render-on-change; change: drawn only when something changed (nothing does);
+//   flicker16: the flame changes every tick, redrawn at most every 62.5 ms (the manor's cap); flicker60: redrawn every tick.
+// Reported: frames drawn a second, the CPU and GPU ms of each, and their product, the busy ms a second (an energy proxy)
+if (C.still) {
+  const fire = new THREE.PointLight(0xff9a40, 30, 12, 2); fire.position.set(R.look_at[0], 1.2, R.look_at[2] + 20); scene.add(fire);
+  pose(0);
+  const cpu = []; let drawn = 0, nextTick = performance.now(), lastDraw = -1e9, dirty = true;
+  const t0 = performance.now(); timing = false;
+  await new Promise(done => renderer.setAnimationLoop(() => {
+    const now = performance.now();
+    if (now < nextTick) return; nextTick += 1000 / 60; if (now - nextTick > 100) nextTick = now;     // one display tick
+    const el = now - t0, measuring = el > spec.warmup_seconds * 1000;
+    if (measuring && !timing) { timing = true; drawn = 0; cpu.length = 0; gpuMs.length = 0; }
+    let want = dirty || C.still === "every";
+    if (C.still.startsWith("flicker")) { fire.intensity = 30 * (0.8 + 0.2 * Math.sin(now * 0.023) * Math.sin(now * 0.0071)); want = C.still === "flicker60" || now - lastDraw >= 62.5; }
+    if (want) { const c0 = performance.now(); draw(); cpu.push(performance.now() - c0); timeGpu(); drawn++; lastDraw = now; dirty = false; }
+    if (el > total) { renderer.setAnimationLoop(null); done(); }
+  }));
+  const perS = drawn / spec.seconds, c = med(cpu), g = med(gpuMs);
+  window.__result = { engine: backend, case: cs.id, still: C.still, fps: +perS.toFixed(1), drawn_per_s: +perS.toFixed(1), cpu_ms: c, gpu_ms: g,
+    busy_ms_per_s: +(perS * ((g ?? 0) + (c ?? 0))).toFixed(1), depth: depthGot, buffer: [renderer.domElement.width, renderer.domElement.height] };
+  $(JSON.stringify(window.__result, null, 1));
+  await new Promise(() => {});
+}
+
+// the run: the camera orbits the scene; frames are timed after the warm-up
+const times = [], t0 = performance.now(); let last = t0, frames = 0, firstFrame = null;
 await new Promise(done => renderer.setAnimationLoop(() => {
   const now = performance.now(), el = (now - t0) / 1000;
-  const a = el * R.turn_per_second; camera.position.set(Math.sin(a) * R.orbit_radius, R.height, Math.cos(a) * R.orbit_radius); camera.lookAt(...R.look_at);
-  if (Q.get("aim") === "tower") { camera.fov = 4; camera.updateProjectionMatrix(); camera.position.set(0, 20, 0); camera.lookAt(0, 150, -4000); }     // a telephoto on the tower 4 km off, to see its panel flicker or hold
+  pose(el);
   if (physics) {
     // a fixed 60 Hz step, as Godot's physics runs, so both engines do the same work per second
     physics.acc = Math.min(4 / 60, (physics.acc || 0) + (now - last) / 1000);
@@ -143,15 +253,26 @@ await new Promise(done => renderer.setAnimationLoop(() => {
     physics.bodies.forEach((b, i) => { const t = b.translation(), r = b.rotation(); boxes.setMatrixAt(i, m4.compose(v.set(t.x, t.y, t.z), q.set(r.x, r.y, r.z, r.w), sc.set(1, 1, 1))); });
     boxes.instanceMatrix.needsUpdate = true;
   }
-  post ? post.render() : renderer.render(scene, camera);
+  const c0 = performance.now(); draw(); if (firstFrame == null) firstFrame = performance.now() - c0;
   if (now - t0 > spec.warmup_seconds * 1000) times.push(now - last);
   last = now; frames++;
   if (frames % 30 === 0) $(`${backend} · ${cs.id} · ${Math.round(1000 / (times.slice(-30).reduce((x, y) => x + y, 0) / Math.max(1, Math.min(30, times.length))))} fps`);
   if (now - t0 > total) { renderer.setAnimationLoop(null); done(); }
 }));
+// GPU ms, after the timed run and apart from it: 40 frames over the same orbit, each drawn alone and its timestamps
+// awaited before the next (timestamps read while frames run back to back went unresolved at the phone's size)
+const info = { draws: renderer.info.render.drawCalls, triangles: renderer.info.render.triangles };     // the timed run's last frame
+if (renderer.backend.trackTimestamp) {
+  try { await renderer.resolveTimestampsAsync("render"); } catch (_) {}
+  for (let i = 0; i < 40; i++) { pose(spec.warmup_seconds + i * spec.seconds / 40); draw();
+    try { const g = await renderer.resolveTimestampsAsync("render"); if (g > 0) gpuMs.push(g); } catch (_) {} }
+}
 const sorted = [...times].sort((a, b) => a - b), mean = times.reduce((a, b) => a + b, 0) / times.length;
 window.__result = { engine: backend, case: cs.id, fps: Math.round(1000 / mean * 10) / 10, mean_ms: +mean.toFixed(2), p99_ms: +sorted[Math.floor(sorted.length * 0.99)].toFixed(2), frames: times.length,
-  draws: renderer.info.render.drawCalls, triangles: renderer.info.render.triangles, physics_ms: physics ? +(physics.ms.reduce((a, b) => a + b, 0) / physics.ms.length).toFixed(2) : null };
+  draws: info.draws, triangles: info.triangles, physics_ms: physics ? +(physics.ms.reduce((a, b) => a + b, 0) / physics.ms.length).toFixed(2) : null,
+  // tonight's measures: GPU ms a frame (median), the first frame's CPU ms (compiles, texture uploads), texture bytes, the depth got
+  gpu_ms: med(gpuMs), first_frame_ms: firstFrame == null ? null : +firstFrame.toFixed(1), depth: depthGot, buffer: [renderer.domElement.width, renderer.domElement.height],
+  ...(texSet ? { tex_gpu_mb: +(tex.bytes_gpu / 1048576).toFixed(1), tex_cpu_mb: +(tex.bytes_cpu / 1048576).toFixed(1), tex_gen_ms: tex.gen_ms } : {}) };
 $(JSON.stringify(window.__result, null, 1));
 </script>
 </body>
