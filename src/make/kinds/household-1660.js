@@ -106,6 +106,10 @@ export default [
     why: "a man laid out on his own bed until the coroner's jury has had its view of him (design/case/period-1660-death.md §1: the view of the body, within about two days, often in the house where he died): a sheet drawn up over his face, his head on a pillow; a shrouded form only, nothing of the man shown; it lies square in the bed, the head to the bolster end",
     size: ["$Wd", 0.3, "=L+over"], settings: { L: 1.7, Wd: 0.8, over: 0.05 }, traits: [],
     parts: [{ part: "shroud" }] },
+  { kind: "body/abed", v: 1, noun: "Sir Gervase, asleep", fixed: true, place: { anchor: "in", of: "bed/standing-curtained", slot: "bed", turn: 0 },
+    why: "a man asleep in his own bed (Sir Gervase on his opiate, design/case/case-1660.json lord_asleep: 'sleeps heavily, grey-faced, his bound foot on a cushion'): his head in a linen nightcap on the pillow and bolster, his face turned a little; his nightshirt over his shoulders; a green wool coverlet drawn up to his breast with the sheet turned down over it, one arm out over it in his nightshirt's sleeve; the coverlet thrown back from his gouty foot, bound in linen on a cushion. Lies square in the bed, the head to the bolster end, as the laid-out body does. Still: no breathing, since the page draws a frame only when something changes, and a rise and fall would draw every frame while he is in sight",
+    size: ["$Wd", 0.35, "$L"], settings: { L: 1.75, Wd: 1.5, turn: 0.45 }, traits: [],
+    parts: [{ part: "sleeper" }] },
   // shelving and bookcases: the structure, then the habit that dresses it from whoever keeps it
   { kind: "shelves/wall-boards", v: 1, noun: "the shelves", fixed: true, why: "boards on iron brackets fixed to a wall: a poor house's shelves",
     settings: { W: 0.9, D: 0.24, ys: { is: [0.95, 1.25] } }, rests: "wall", parts: [{ part: "shelf_boards" }, { part: "shelf_habit", frame: "the habit places the books and things it keeps in the kind's frame, shelf by shelf, from the shelves the part before it reports" }] },

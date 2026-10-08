@@ -3239,6 +3239,16 @@
     "body_cord"
    ],
    "noun": "Mr Hollins, laid out under a sheet"
+  },
+  {
+   "id": "gervase_abed",
+   "label": "Sir Gervase, asleep",
+   "kind": "body/abed",
+   "at": "bed_best",
+   "rel": "on",
+   "slot": "bed",
+   "carry": false,
+   "noun": "Sir Gervase, asleep on his opiate"
   }
  ],
  "clues": [

@@ -42,6 +42,9 @@ export function lookC1660(THREE, K, S) {
       bread: m("bread", { color: 0x8a5a2a, roughness: 0.8 }),
       soot: m("soot", { color: 0x141210, roughness: 0.95 }),
       wool: m("wool", { color: 0x4c463a, roughness: 0.95 }),                     // a drab cloak
+      coverlet: m("coverlet", { color: 0x3e5530, roughness: 0.97 }),             // a bed's coverlet of green wool (a sleeper's, over the bed's own)
+      cushion: m("cushion", { color: 0x7c2a2e, roughness: 0.8 }),                // a crimson cushion
+      flesh: m("flesh", { color: 0xb5a7a0, roughness: 0.62, vertexColors: true }), // an old man's, pale and grey (a part paints its vertices as multiples of it)
       carpet: (() => { const x = m("turkey_carpet", { map: turkeyCarpet(THREE), roughness: 0.95 }); return x; })(),
     },
   };
