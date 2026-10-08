@@ -87,7 +87,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // ---- talking: open the panel on a person
   function talkTo(who) {
     const p = cast.get(who); if (!p) return; talking = who; notebook.persons.set(who, { name: p.name, role: p.role, met: true });
-    panel.open({ who, name: p.name, role: p.role, portrait: presenceOf(who)?.picture, intro: p.intro, topics: topicsFor(k, who, frame), evidence: evidence() });
+    panel.open({ who, name: p.name, role: p.role, portrait: presenceOf(who)?.face || presenceOf(who)?.picture, intro: p.intro, topics: topicsFor(k, who, frame), evidence: evidence() });
   }
   // what they do, voiced: the relay's voice job with only the facts handed to it, checked; else the case's own line
   async function reply(who, topic, stance, shown = null) {

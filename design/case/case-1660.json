@@ -1324,7 +1324,38 @@
    ],
    "deflect": "I couldn't say, your Worship. I'd not like to say what I don't know.",
    "dontknow": "I know nothing of that, sir.",
-   "guarded": "(He folds his inky hands.) I've told your Worship all I know."
+   "guarded": "(He folds his inky hands.) I've told your Worship all I know.",
+   "look": {
+    "sex": "male",
+    "age": 22,
+    "build": "thin",
+    "face": {
+     "shape": "long",
+     "complexion": "pale",
+     "jaw": "narrow",
+     "eyes": "grey",
+     "nose": "straight"
+    },
+    "hair": {
+     "colour": "mid brown",
+     "style": "cropped to the collar",
+     "grey": 0
+    },
+    "beard": "none",
+    "dress": {
+     "colour": "rusty black",
+     "fabric": "wool",
+     "collar": "falling band"
+    },
+    "details": [
+     "ink on fingers"
+    ],
+    "expression": "wary",
+    "pose": {
+     "turn": -0.32,
+     "tilt": 0.02
+    }
+   }
   },
   {
    "id": "cressy",
@@ -1824,7 +1855,36 @@
    ],
    "deflect": "As to that, sir, I should want to see what you are driving at.",
    "dontknow": "I know nothing of it, sir. I am a stranger in this house.",
-   "guarded": "With submission, sir, I'll answer questions, not riddles."
+   "guarded": "With submission, sir, I'll answer questions, not riddles.",
+   "look": {
+    "sex": "male",
+    "age": 45,
+    "build": "spare",
+    "face": {
+     "shape": "long",
+     "complexion": "sallow",
+     "jaw": "firm",
+     "eyes": "grey",
+     "nose": "aquiline"
+    },
+    "hair": {
+     "colour": "dark brown",
+     "style": "close cap",
+     "grey": 0.45
+    },
+    "beard": "moustache and tuft",
+    "dress": {
+     "colour": "good black",
+     "fabric": "broadcloth",
+     "collar": "lawyer's bands"
+    },
+    "details": [],
+    "expression": "composed",
+    "pose": {
+     "turn": 0.34,
+     "tilt": 0
+    }
+   }
   },
   {
    "id": "francis",
@@ -2330,7 +2390,38 @@
    ],
    "deflect": "Ask me something I can answer, sir.",
    "dontknow": "How should I know? Ask the clerk; he knows everything in this house.",
-   "guarded": "Pox on it, sir, I've done with your questions for a while."
+   "guarded": "Pox on it, sir, I've done with your questions for a while.",
+   "look": {
+    "sex": "male",
+    "age": 26,
+    "build": "average",
+    "face": {
+     "shape": "oval",
+     "complexion": "ruddy",
+     "jaw": "firm",
+     "eyes": "brown",
+     "nose": "straight"
+    },
+    "hair": {
+     "colour": "brown",
+     "style": "curled to the shoulders",
+     "grey": 0
+    },
+    "beard": "moustache",
+    "dress": {
+     "colour": "russet",
+     "fabric": "silk",
+     "collar": "lace collar"
+    },
+    "details": [
+     "bound hand"
+    ],
+    "expression": "insolent",
+    "pose": {
+     "turn": -0.26,
+     "tilt": -0.03
+    }
+   }
   },
   {
    "id": "anne",
@@ -2851,7 +2942,43 @@
    ],
    "deflect": "I must beg you to let me think on that.",
    "dontknow": "I know nothing of that, your Worship.",
-   "guarded": "(She turns her ring.) I'll not be bullied in my own house, sir."
+   "guarded": "(She turns her ring.) I'll not be bullied in my own house, sir.",
+   "look": {
+    "sex": "female",
+    "age": 38,
+    "build": "slight",
+    "face": {
+     "shape": "oval",
+     "complexion": "pale",
+     "jaw": "soft",
+     "eyes": "hazel",
+     "nose": "straight"
+    },
+    "hair": {
+     "colour": "dark brown",
+     "style": "ringlets",
+     "grey": 0.05
+    },
+    "beard": "none",
+    "dress": {
+     "colour": "dark silk",
+     "fabric": "silk",
+     "collar": "lace tucker",
+     "jewels": [
+      "pearl necklace",
+      "pearl drops"
+     ]
+    },
+    "details": [
+     "keys at waist",
+     "has not slept"
+    ],
+    "expression": "weary",
+    "pose": {
+     "turn": 0.24,
+     "tilt": 0.02
+    }
+   }
   }
  ],
  "things": [

@@ -78,6 +78,7 @@ import { makeNarrator } from "../../src/make/narrator.js";
 import { makePresence } from "../../src/make/presence.js";
 import { makeVoice } from "../../src/make/voice.js";
 import { makeTalkPanel } from "../ui/talk-panel.js";
+import { paintSitter } from "../../src/make/sitter.js";
 import { makeHillside, hillsideTextures } from "../../src/make/hillside.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { rng as rngOf, seedOf } from "../../src/make/id.js";
@@ -301,7 +302,12 @@ if (CASE) {
   const fp = fairPlay(CASE, { plan }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)) });
   window.__case = { check: cc, fair: fp, placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) };
   // the people: each where the case puts them at the start, as the holodeck shows them, a portrait painted in code
-  const portrait = (id) => { const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
+  // painted in code from each person's look in the case (src/make/sitter.js): for the projection the figure alone, on
+  // nothing (a dark ground had shown as a smudge round them); for the panel's small circle the face, cropped close
+  const portrait = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (look) return paintSitter(look, { seed: seedOf(`sitter/${id}`), ground: false });
+    const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
+  const faceOf = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (!look) return null; const src = paintSitter(look, { seed: seedOf(`sitter/${id}`), w: 256, h: 320 }), f = src.face, r = f ? f.r * 1.9 : 90;
+    const cv = Object.assign(document.createElement("canvas"), { width: 128, height: 128 }); cv.getContext("2d").drawImage(src, (f?.x ?? 128) - r, (f?.y ?? 130) - r * 0.95, r * 2, r * 2, 0, 0, 128, 128); return cv; };
   const standIn = (roomId) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
     // (on open floor, clear of the hearth and the furniture by a stride: she had stood before the hall's fire, looking to be in it)
     const clear = (x, y) => !manor.blocks.some(q => q.room === roomId && x > q.x0 - 1.2 && x < q.x1 + 1.2 && y > q.y0 - 1.2 && y < q.y1 + 1.2);
@@ -314,7 +320,7 @@ if (CASE) {
     const picture = was?.picture || portrait(id), pr = makePresence(THREE, { picture, name: p.name, at, seed: id.length });
     pr.hit.userData.presence = id;            // aimed at, it answers to the person's id (it had answered with the name, and talking found no one)
     scene.add(pr.group);                       // in world space (a room's group has its own offset); shown while its room is
-    const rec = { p: pr, picture, room: to }; presences.set(id, rec); return rec; };
+    const rec = { p: pr, picture, face: was?.face || faceOf(id), room: to }; presences.set(id, rec); return rec; };
   for (const p of CASE.cast) presenceOf(p.id);
   let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null }); }
   catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) }); }

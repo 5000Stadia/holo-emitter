@@ -26,7 +26,7 @@
 <div id="ms"></div>
 <script type="module">
   import { paintSitter } from "../../src/make/sitter.js";
-  const looks = await (await fetch("../../design/case/case-1660.looks.json", { cache: "no-store" })).json();
+  const looks = Object.fromEntries((await (await fetch("./case-1660.json", { cache: "no-store" })).json()).cast.map((c) => [c.id, c.look]));
   const q = new URLSearchParams(location.search), full = q.has("full");
   const times = [];
   for (const [id, look] of Object.entries(looks)) {
