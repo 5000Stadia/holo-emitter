@@ -83,7 +83,8 @@ export function makeCard(E) {
     const lines = [
       `${s.backend} · ${adapter || "…"}`,
       `${os || "?"} ${br} · ${s.screen} @${s.dpr} · buf ${s.buf} (×${s.ratio})`,
-      `frames 3s: p50 ${f1(r.p50)} p95 ${f1(r.p95)} worst ${f1(r.worst)} ms · n ${r.n}`,
+      // (standing still the page draws only on change, so a few frames' gaps read as a crawl: said so instead)
+      r.n < 10 ? `frames 3s: still (drawn only when something changes: walk or look to measure) · n ${r.n}` : `frames 3s: p50 ${f1(r.p50)} p95 ${f1(r.p95)} worst ${f1(r.worst)} ms · n ${r.n}`,
       `since walkable: p50 ${f1(w.p50)} p95 ${f1(w.p95)} worst ${f1(w.worst)} · >50ms ${w.over50}/${w.n} · min ${f1(w.min)}`,
       `cpu render ${f1(s.cpu)} ms · gpu ${s.gpu == null ? (renderer.backend.trackTimestamp ? "…" : "n/a") : f1(s.gpu) + " ms"}`,
       `minutes p50: ${s.minutes.map((v, i) => `${minutes.length - s.minutes.length + i + 1}:${Math.round(v)}`).join(" ") || "…"}`,
