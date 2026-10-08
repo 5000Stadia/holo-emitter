@@ -470,6 +470,59 @@ test("check 21: every part of every kind hangs on a relation (0 relation finding
   expect(errs).toEqual([]);
 });
 
+// ---- checks 25-31 (vetted 2026-10-08 through the monitor, the daily session's decision 1 "yes", with 7 and 8 of 2026-10-07):
+// the outdoor textures from their construction; the case fair and its words held; the case's leads; the no-model reading of
+// your words; the case's works; the narrator engine; the CDN hook. Each is its tool's own pass, asserted here
+// ---- check 25: textures drawn from their construction, no repeat shorter than its viewing distance (tools/check-textures.mjs)
+test("check 25: every outdoor texture keeps to its construction and repeats no oftener than its viewing distance allows", () => {
+  const r = tool(["tools/check-textures.mjs"], 180_000);
+  expect(r.code, r.out).toBe(0);
+  const rows = r.out.split("\n").filter((l) => /\s(ok|FAIL|fail)$/.test(l.trim()));
+  expect(rows.length, "texture rows").toBeGreaterThanOrEqual(11);
+  expect(rows.filter((l) => !/\sok$/.test(l.trim())), "textures failing a rule").toEqual([]);
+});
+// ---- check 26: a case is fair and its words hold (tools/check-case.mjs: checkCase, fairPlay, checkNarrator, the accusation's
+// right answers offered and supported, the truth check refusing a stray, the page's copy byte for byte)
+test("check 26: the case is fair (every clue reachable, every pillar covered, every right answer offered) and the truth check holds", () => {
+  const r = tool(["tools/check-case.mjs", "case-1660"], 60_000);
+  expect(r.code, r.out).toBe(0);
+  expect(r.out).toMatch(/fair and sound/);
+  expect(r.out).toMatch(/47 clues, 47 reachable/);
+});
+// ---- check 27: the case's leads parse, name real things, and close along its own solution path (tests/.leads.mjs)
+test("check 27: every lead parses and every lead raised on the case's solution path is closed by its accusation", () => {
+  const r = tool(["tests/.leads.mjs"], 60_000);
+  expect(r.code, r.out).toBe(0);
+  expect(r.out).toMatch(/all leads hold/);
+});
+// ---- check 28: your own words read with no model (tests/.intent-eval.mjs over 258 questions): the ten typical ones 10 of 10,
+// and the held-out quarter at least where it stands today
+test("check 28: typed questions read right with no model: the ten typical 10 of 10, held out >= 90%", () => {
+  const r = tool(["tests/.intent-eval.mjs"], 60_000);
+  expect(r.out).toMatch(/the ten typical questions \(4d4c1351\): 10 of 10/);
+  const held = r.out.match(/HELD\s+both frames:.*?topic\s+([\d.]+)%/);
+  expect(held, r.out.slice(-800)).not.toBeNull();
+  expect(+held[1]).toBeGreaterThanOrEqual(90);
+});
+// ---- check 29: the case's works (tests/.case-works.mjs, the object page): gates of several keys, slots riding their movers,
+// starting states, a paper read stays read
+test("check 29: the works the case needs hold (keys, slots, starting states, reading)", () => {
+  const r = tool(["tests/.case-works.mjs"], 240_000);
+  expect(r.out).toMatch(/(\d+) of \1 pass/);
+});
+// ---- check 30: the narrator engine (tests/.narrator.mjs, pure): phases, menus, picks, closed effects, rungs, state
+test("check 30: the narrator engine passes its scripted play", () => {
+  const r = tool(["tests/.narrator.mjs"], 60_000);
+  expect(r.code, r.out).toBe(0);
+  expect(r.out).toMatch(/all passed/);
+});
+// ---- check 31: the CDN hook (tests/.assets-hook.mjs): listed files from the CDN, a failing CDN falls back unheard
+test("check 31: heavy files come from the CDN, and a CDN that fails falls back to the page's own bytes unheard", () => {
+  const r = tool(["tests/.assets-hook.mjs"], 120_000);
+  expect(r.code, r.out).toBe(0);
+  expect(r.out).toMatch(/all passed/);
+});
+
 // ---- section 2: checks on the house (lab/manor, one load shared by 3, 9, 11, 19, 20 and 22; 23 loads its own)
 
 // ---- check 9: it rests on something. Every built thing in a house stands on the floor (its base within 2 cm of its room's
