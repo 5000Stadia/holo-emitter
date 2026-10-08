@@ -284,11 +284,16 @@ if (CASE) {
   // the people: each where the case puts them at the start, as the holodeck shows them, a portrait painted in code
   const portrait = (id) => { const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
   const standIn = (roomId) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
-    for (let k = 0; k < 800; k++) { const a = k * 2.4, rr = 0.08 * Math.sqrt(k), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr; if (walk.groundAt(x, y, h) != null && rr > 0.9) return [x, y, h]; } return [cx, cy, h]; };
+    // (on open floor, clear of the hearth and the furniture by a stride: she had stood before the hall's fire, looking to be in it)
+    const clear = (x, y) => !manor.blocks.some(q => q.room === roomId && x > q.x0 - 1.2 && x < q.x1 + 1.2 && y > q.y0 - 1.2 && y < q.y1 + 1.2);
+    for (const need of [true, false]) for (let k = 0; k < 800; k++) { const a = k * 2.4, rr = 0.08 * Math.sqrt(k), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+      if (walk.groundAt(x, y, h) != null && rr > 0.9 && (!need || clear(x, y))) return [x, y, h]; }
+    return [cx, cy, h]; };
   const presenceOf = (id, room = null) => { const was = presences.get(id); if (was && (!room || was.room === room)) return was;
     const p = CASE.cast.find(c => c.id === id); if (!p) return null; const to = room || p.presence?.find(q => q.when === "start")?.room || p.home, at = standIn(to); if (!at) return null;
     if (was) was.p.group.removeFromParent();
     const picture = was?.picture || portrait(id), pr = makePresence(THREE, { picture, name: p.name, at, seed: id.length });
+    pr.hit.userData.presence = id;            // aimed at, it answers to the person's id (it had answered with the name, and talking found no one)
     scene.add(pr.group);                       // in world space (a room's group has its own offset); shown while its room is
     const rec = { p: pr, picture, room: to }; presences.set(id, rec); return rec; };
   for (const p of CASE.cast) presenceOf(p.id);
