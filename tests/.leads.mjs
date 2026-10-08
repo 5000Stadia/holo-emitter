@@ -11,7 +11,7 @@ import { compileLeads, stepLeads, leadFrame, checkLeads } from "../src/make/lead
 
 const H = new URL("..", import.meta.url).pathname;
 const k = JSON.parse(fs.readFileSync(H + (process.argv[2] || "design/case/case-1660.json"), "utf8"));
-const L = JSON.parse(fs.readFileSync(H + (process.argv[3] || "design/case/case-1660.leads.json"), "utf8")).leads;
+const L = JSON.parse(fs.readFileSync(H + (process.argv[3] || "design/case/case-1660.json"), "utf8")).leads;
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 let fails = 0; const fail = (m) => { fails++; console.log("  FAIL", m); };
 

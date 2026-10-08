@@ -6,7 +6,7 @@
 // its closed effects; the accusation confirmed a group at a time against the case's solution.
 //   caseRequired(kase, plan) -> plan.required entries (before the house is built)
 //   playCase({ kase, plan, manor, works, panel, voice, narrator, say, presenceOf(id, room?), setVar }) -> hooks
-// What stands open (src/make/leads.js): the case's leads (k.leads; until merged, design/case/<id>.leads.json, fetched),
+// What stands open (src/make/leads.js): the case's leads (k.leads),
 // stepped after every turn against the narrator's picture of the play (else the frame's own), raised and closed for good,
 // kept with the snapshot; notebookView() carries them, the people as a court record (where each is now, the claims you
 // have heard from them, a broken one with what broke it) and how many matters each still has worth raising.
@@ -224,11 +224,8 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     for (const [id, room] of Object.entries(saved.rooms || {})) presenceOf(id, room);
     leadMemo.raised.push(...arr(saved.leads?.raised)); leadMemo.closed.push(...arr(saved.leads?.closed));
   }
-  // the leads: the case's own, else (until they are merged into it) its side file beside the case's design
+  // the leads: the case's own
   if (k.leads) useLeads(k.leads);
-  // (the case's id is case-1660-muniment, its file case-1660: the shorter name is tried first)
-  else if (typeof fetch === "function" && k.id) (async () => { for (const id of new Set([k.id.replace(/-[a-z]+$/, ""), k.id])) {
-    try { const r = await fetch(new URL(`../../design/case/${id}.leads.json`, import.meta.url)); if (r.ok) { const j = await r.json(); if (j?.leads) return useLeads(j.leads); } } catch (_) {} } })();
   const resumed = saved?.case === k.id ? { minutes: +((saved.R?.played || 0) / 60000).toFixed(0), clues: frame.learned.size } : null;
   return { resumed, snapshot, receipts, openPaper, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
