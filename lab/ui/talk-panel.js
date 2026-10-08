@@ -6,7 +6,7 @@
 // that" (the player must catch it), the one honest sign is a brass rule when a line put something in your notebook.
 //
 //   makeTalkPanel({ onAsk(topicId, stance), onSay(text), onShow(clueOrThingId, topicId), onAccuse(choice), onClose(),
-//                   onOpenAccusation(), onOpenNotebook(), onOpenPaper(id) })   // the last three: the panel asks, the host answers
+//                   onOpenAccusation(), onOpenNotebook(), onOpenPaper(id), onHint(leadId) })   // the last three: the panel asks, the host answers
 //     -> { open({ who, name, role?, portrait: canvas, intro?, topics, evidence }), say({ who: "them"|"you"|"aside", text, act, noted }),
 //          setTopics(list), setEvidence(list), markAsked(topicId), busy(bool), guarded(bool), close(), openNotebook(summary),
 //          openAccusation({ suspects, pillars, groups? }), accusationResult({ group, ok, text? }), verdict({ title, text }),
@@ -136,6 +136,7 @@ const CSS = `
 .tp-page{flex:1;min-height:0;overflow-y:auto;padding:12px 18px 18px;display:flex;flex-direction:column;gap:14px}
 .tp-entry h3{margin:0;font:600 22px/1.1 var(--serif);color:var(--ink)}
 .tp-entry p{margin:2px 0 0;color:var(--dim);font-size:12px}
+.tp-hintbtn{margin-top:6px;min-height:44px;padding:0 12px;border:1px dashed var(--line);border-radius:8px;background:none;color:var(--dim);font:italic 500 16px/1 var(--serif)}
 .tp-entry.line{padding-left:12px;border-left:1px solid var(--line)}
 .tp-entry.struck h3{text-decoration:line-through;text-decoration-thickness:1px;color:var(--dim)}
 .tp-entry .by{color:var(--brass);font-size:11px}
@@ -144,6 +145,7 @@ const CSS = `
 .tp-entry.lead{padding-left:12px;border-left:2px solid var(--brass)}
 .tp-entry.lead h3{font:500 20px/1.25 var(--serif)}
 .tp-entry.lead p{font-size:12.5px;line-height:1.4;margin-top:4px}
+.tp-entry.lead p.hint{color:var(--ink);font:italic 500 17px/1.35 var(--serif);border-left:2px solid var(--brass);padding-left:9px;margin:6px 0 0}
 .tp-entry.lead p.now{color:var(--brass);opacity:.85;font-size:11.5px}
 .tp-entry.lead.done{border-left:1px solid var(--line);opacity:.62}
 .tp-entry.lead.done h3{font-size:18px}
@@ -261,7 +263,7 @@ function h(tag, a = {}, ...kids) {
 
 export function makeTalkPanel(options = {}) {
   const { onAsk = () => {}, onSay = () => {}, onShow = () => {}, onAccuse = () => {}, onClose = () => {},
-    onOpenAccusation = null, onOpenNotebook = null, onOpenPaper = null, history: useHistory = true } = options;
+    onOpenAccusation = null, onOpenNotebook = null, onOpenPaper = null, onHint = null, history: useHistory = true } = options;
 
   if (!document.getElementById("tp-css")) document.head.append(h("style", { id: "tp-css", text: CSS }));
   if (!document.getElementById("tp-fonts")) document.head.append(h("link", { id: "tp-fonts", rel: "stylesheet", href: FONTS }));
@@ -508,7 +510,10 @@ export function makeTalkPanel(options = {}) {
     if (!list.length && !(nbTab === "leads" && nbData.leads.done.length)) nbPage.append(h("div", { class: "tp-empty", text: quiet }));
     if (nbTab === "leads") {
       if (!list.length && nbData.leads.done.length) nbPage.append(h("p", { class: "tp-note", text: "Nothing stands open." }));
-      for (const x of list) nbPage.append(lineOf("lead", x.text, x.where && h("p", { text: x.where }), x.now && h("p", { class: "now", text: x.now })));
+      // (a further thought on request, a rung at a time: the host answers onHint(id) and reopens the notebook)
+      for (const x of list) nbPage.append(lineOf("lead", x.text, x.where && h("p", { text: x.where }), x.now && h("p", { class: "now", text: x.now }),
+        ...(x.hints || []).map((t) => h("p", { class: "hint", text: t })),
+        x.more && onHint ? h("button", { class: "tp-hintbtn", type: "button", text: x.hints?.length ? "A further thought…" : "A thought…", onclick: () => onHint(x.id) }) : null));
       if (nbData.leads.done.length) nbPage.append(h("div", { class: "tp-sect", text: "Settled" }), ...nbData.leads.done.map((x) => lineOf("lead done", x.text)));
       return;
     }

@@ -4758,13 +4758,21 @@
    "where": "Dame Anne will tell you who is in the house.",
    "who": [
     "anne"
+   ],
+   "hints": [
+    "Dame Anne is before you in the great hall.",
+    "Ask Dame Anne: Who is in the house."
    ]
   },
   {
    "id": "see_room",
    "text": "What is to be seen in the room where he lay?",
    "closed": "at:muniment_room or done:the_room",
-   "where": "The muniment room: up the great stair, through the best bedchamber and the closet beyond it."
+   "where": "The muniment room: up the great stair, through the best bedchamber and the closet beyond it.",
+   "hints": [
+    "The great stair, then the best bedchamber on the first floor; the closet lies beyond it, and the muniment room beyond that.",
+    "Daniel keeps the muniment door, in the closet. Go past him."
+   ]
   },
   {
    "id": "fall_or_blow",
@@ -4773,6 +4781,10 @@
    "where": "Ask how he died of whoever laid him out; look at the chest's corner.",
    "who": [
     "anne"
+   ],
+   "hints": [
+    "Whoever laid him out saw the wound; and a fall leaves its mark on what was fallen against.",
+    "Ask Dame Anne how he died; or look at the iron-bound chest's corner in the muniment room; or look at the body in the steward's chamber."
    ]
   },
   {
@@ -4780,7 +4792,11 @@
    "text": "Struck from behind, with something round: with what?",
    "raised": "learned:anne_wound or learned:body_wound or learned:chest_band_clean",
    "closed": "learned:candlestick_dent",
-   "where": "The muniment room: the table under the east window, and what stands on it."
+   "where": "The muniment room: the table under the east window, and what stands on it.",
+   "hints": [
+    "Something round, heavy enough to kill, within reach of a man at that table.",
+    "Look at the table candlestick, on the table under the east window."
+   ]
   },
   {
    "id": "keys",
@@ -4790,6 +4806,10 @@
    "who": [
     "anne",
     "daniel"
+   ],
+   "hints": [
+    "Two keys to that door, they say. Who wore one, and where hangs the other?",
+    "Ask Dame Anne, or Daniel: The door and its keys."
    ]
   },
   {
@@ -4797,7 +4817,11 @@
    "text": "His key-cord was cut at his girdle. Where is the key now?",
    "raised": "learned:anne_girdle_cord or learned:body_cord",
    "closed": "learned:key_cut_cord",
-   "where": "The muniment room: the table under the east window, where the key was laid this morning."
+   "where": "The muniment room: the table under the east window, where the key was laid this morning.",
+   "hints": [
+    "The key lies on the table under the east window: look at it closely, at its bow.",
+    "Tap the key on the muniment table: look at the cord through its bow."
+   ]
   },
   {
    "id": "key_by_hand",
@@ -4808,6 +4832,10 @@
    "who": [
     "anne",
     "daniel"
+   ],
+   "hints": [
+    "Daniel says the key lay by the hand. Dame Anne held the light in the doorway: what did she see?",
+    "With the key's cut cord learned, press Dame Anne on This morning at the door, or show her the key's cut cord."
    ]
   },
   {
@@ -4817,6 +4845,10 @@
    "where": "His clerk, Daniel Wragg, who keeps the muniment door.",
    "who": [
     "daniel"
+   ],
+   "hints": [
+    "His clerk read the engrossment with him last night.",
+    "Ask Daniel where he was last night, and about the candle."
    ]
   },
   {
@@ -4828,6 +4860,10 @@
    "who": [
     "francis",
     "cressy"
+   ],
+   "hints": [
+    "The great parlour's door gives on the foot of the great stair, and two sat at tables there all evening.",
+    "Ask Master Francis: What of Daniel Wragg."
    ]
   },
   {
@@ -4839,6 +4875,10 @@
    "who": [
     "francis",
     "cressy"
+   ],
+   "hints": [
+    "Someone saw the clerk later, and has a reason to keep quiet about where he himself was.",
+    "Ask Dame Anne of Master Francis, then press Francis on his cut hand; or, once you have found what Daniel keeps in his box, show it to Mr Cressy and ask him of Daniel."
    ]
   },
   {
@@ -4850,6 +4890,10 @@
    "who": [
     "francis",
     "cressy"
+   ],
+   "hints": [
+    "Blood from a cut, or from a blow? Where did Francis go at a quarter past eleven?",
+    "Ask Mr Cressy about the hand; press Francis on it. The buttery holds the broken glass."
    ]
   },
   {
@@ -4860,6 +4904,10 @@
    "where": "Whoever sat at tables with Mr Cressy last night.",
    "who": [
     "francis"
+   ],
+   "hints": [
+    "Mr Cressy sat at tables. With whom?",
+    "Ask Master Francis: What of Mr Cressy."
    ]
   },
   {
@@ -4871,7 +4919,11 @@
    "who": [
     "anne"
    ],
-   "side": true
+   "side": true,
+   "hints": [
+    "Francis says Dame Anne went up at ten. She says she was in the nursery.",
+    "Press Dame Anne on Last night, or show her what Francis said; ask Daniel or Mr Cressy of her."
+   ]
   },
   {
    "id": "engrossment",
@@ -4881,6 +4933,10 @@
    "where": "The engrossment, on the draw-table in the great chamber where Mr Cressy keeps it; and the draft, wherever it has gone.",
    "who": [
     "cressy"
+   ],
+   "hints": [
+    "The engrossment lies on the draw-table in the great chamber; the steward's draft went with his clerk.",
+    "Look at the engrossment in the great chamber; read the second skin closely. The draft is in Daniel's chest in the west garret."
    ]
   },
   {
@@ -4891,6 +4947,10 @@
    "where": "Mr Cressy, whose initials those may be.",
    "who": [
     "cressy"
+   ],
+   "hints": [
+    "A.C.: Ambrose Cressy. He will not own it for the asking.",
+    "Press Mr Cressy on the gold, or show him the note."
    ]
   },
   {
@@ -4901,6 +4961,10 @@
    "where": "Daniel’s chest in the servants’ chamber, west garret, up the back stair beyond the kitchen: what does he keep in it?",
    "who": [
     "daniel"
+   ],
+   "hints": [
+    "Daniel ran for his chest in the west garret.",
+    "Open Daniel's chest in the servants' chamber, west garret, and take out what is in it."
    ]
   },
   {
@@ -4908,7 +4972,11 @@
    "text": "Have I enough to lay before the coroner: who, why, by what means, when, and how the door was locked?",
    "raised": "done:gather or fired:noon",
    "closed": "phase:resolution",
-   "where": "The household waits in the great hall. Accuse, from any conversation."
+   "where": "The household waits in the great hall. Accuse, from any conversation.",
+   "hints": [
+    "Every blank you hold a proof for wears a seal.",
+    "Open the accusation from any conversation (Accuse), fill each blank, and confirm a group at a time."
+   ]
   }
  ]
 }
