@@ -197,6 +197,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     // the muniment room: its own builder, from its period brief
     if (spec.strong) {
       const sr = buildStrongroom(THREE, K, spec);
+      // (its builder hangs the holodeck grid beyond its door until the next room is built; in the house the next room is
+      // built, and the grid had stood inside the closet before the cabinet, filling the muniment door from either side)
+      const gone = []; sr.group.traverse(o => { if (o.isMesh && o.userData?.material === "grid" && /\/beyond$/.test(o.userData.instance || "")) gone.push(o); });
+      for (const o of gone) { o.removeFromParent(); o.geometry.dispose(); }
       sr.group.position.set(x0, Y, -y0); scene.add(sr.group); things.push(...sr.things);
       for (const l of sr.lights) l.userData.room = room.id;
       rooms.set(room.id, { room, grp: sr.group, movers: null, H, Y, lights: sr.lights, colliders: sr.colliders, strongroom: sr });

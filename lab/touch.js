@@ -59,7 +59,10 @@ export function actionButton(onPress) {
   b.setAttribute("aria-label", "Use");
   Object.assign(b.style, { position: "fixed", right: 18 + I.r + "px", bottom: 22 + I.b + "px", width: "72px", height: "72px", borderRadius: "50%", zIndex: 4,
     border: "1px solid rgba(236,228,210,0.45)", background: "rgba(22,19,16,0.6)", display: "none", padding: "0", touchAction: "none" });
-  b.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); onPress(); });
+  // (the click that follows a press is swallowed: the press opens the talk panel, and its click landed on the panel's
+  // Accuse button under the thumb, 13 times in 14 in the second playtest)
+  const swallow = (e) => { e.stopPropagation(); e.preventDefault(); };
+  b.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); addEventListener("click", swallow, { capture: true, once: true }); setTimeout(() => removeEventListener("click", swallow, { capture: true }), 600); onPress(); });
   document.body.append(b);
   let shown;
   return (mode) => { if (mode === shown) return; shown = mode; b.style.display = mode ? "grid" : "none"; b.style.placeItems = "center";

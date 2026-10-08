@@ -320,19 +320,23 @@ if (CASE) {
     const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
   const faceOf = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (!look) return null; const src = paintSitter(look, { seed: seedOf(`sitter/${id}`), w: 256, h: 320 }), f = src.face, r = f ? f.r * 1.3 : 60;
     const cv = Object.assign(document.createElement("canvas"), { width: 128, height: 128 }); cv.getContext("2d").drawImage(src, (f?.x ?? 128) - r, (f?.y ?? 130) - r * 0.95, r * 2, r * 2, 0, 0, 128, 128); return cv; };
-  const standIn = (roomId) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
+  const standIn = (roomId, others = []) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
     // (on open floor, clear of the hearth and the furniture by a stride: she had stood before the hall's fire, looking to be in it)
     // (and out of a doorway's way: Daniel had stood in the line of the muniment door, and a tap on the door spoke to him)
     const doors = plan.openings.filter(o => o.joins.includes(roomId) && o.rect).map(o => [(o.rect.x0 + o.rect.x1) / 2, (o.rect.y0 + o.rect.y1) / 2]);
     const seg = (x, y, [ax, ay], [bx, by]) => { const vx = bx - ax, vy = by - ay, t = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy || 1))); return Math.hypot(x - ax - vx * t, y - ay - vy * t); };
     // (nor on the way between two of the room's doors: crossing the closet to the muniment door, you met him)
     const offDoors = (x, y) => doors.every(([dx, dy]) => Math.hypot(x - dx, y - dy) > 1.6) && doors.every((a, i) => doors.slice(i + 1).every(b => seg(x, y, a, b) > 0.8));
-    const clear = (x, y, need) => need === 0 || ((need === 1 || !manor.blocks.some(q => q.room === roomId && x > q.x0 - 1.2 && x < q.x1 + 1.2 && y > q.y0 - 1.2 && y < q.y1 + 1.2)) && offDoors(x, y));
+    // (and a stride from whoever already stands there: at the gathering all four had stood on one spot, and a tap on Dame
+    // Anne spoke to Daniel)
+    const apart = (x, y) => others.every(([ox, oy]) => Math.hypot(x - ox, y - oy) > 1.1);
+    const clear = (x, y, need) => apart(x, y) && need === 0 || apart(x, y) && ((need === 1 || !manor.blocks.some(q => q.room === roomId && x > q.x0 - 1.2 && x < q.x1 + 1.2 && y > q.y0 - 1.2 && y < q.y1 + 1.2)) && offDoors(x, y));
     for (const need of [2, 1, 0]) for (let k = 0; k < 800; k++) { const a = k * 2.4, rr = 0.08 * Math.sqrt(k), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
       if (walk.groundAt(x, y, h) != null && rr > (need ? 0.3 : 0.9) && clear(x, y, need)) return [x, y, h]; }
     return [cx, cy, h]; };
   const presenceOf = (id, room = null) => { const was = presences.get(id); if (was && (!room || was.room === room)) return was;
-    const p = CASE.cast.find(c => c.id === id); if (!p) return null; const to = room || p.presence?.find(q => q.when === "start")?.room || p.home, at = standIn(to); if (!at) return null;
+    const p = CASE.cast.find(c => c.id === id); if (!p) return null; const to = room || p.presence?.find(q => q.when === "start")?.room || p.home;
+    const others = [...presences].filter(([k, q]) => k !== id && q.room === to).map(([, q]) => [q.p.group.position.x, -q.p.group.position.z]), at = standIn(to, others); if (!at) return null;
     if (was) was.p.group.removeFromParent();
     const picture = was?.picture || portrait(id), pr = makePresence(THREE, { picture, name: p.name, at, seed: id.length });
     pr.hit.userData.presence = id;            // aimed at, it answers to the person's id (it had answered with the name, and talking found no one)
@@ -396,6 +400,9 @@ function tapAt(x, y) {
   if (lastTap && now - lastTap.t < 320 && Math.hypot(x - lastTap.x, y - lastTap.y) < 40) { clearTimeout(tapWait); tapWait = null; lastTap = null; goTo(ndc); return; }
   lastTap = { t: now, x, y };
   if (aim(ndc)) tapWait = setTimeout(() => { tapWait = null; act(ndc); }, 250);
+  // a thing seen but out of reach: said so, and how to get there (taps beyond arm's length had done nothing at all)
+  else tapWait = setTimeout(() => { tapWait = null; const far0 = ray.far; ray.far = 12; ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(works.meshes(), true)[0]; ray.far = far0;
+    const t = h && works.find(h); if (t) say(`${(t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here. (Double-tap to go to it.)`); }, 250);
 }
 const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx * 1.6, dy * 1.6), onTap: tapAt }) : { active: false, stick: { x: 0, y: 0 } };
 if (TOUCH) $("gate").hidden = true;
@@ -452,11 +459,18 @@ function nearAim(c = null) { if (c) { ray.setFromCamera(c, camera); _f.copy(ray.
 function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(near || works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point;
   // a person present (a case's): the nearer of them and the thing aimed at
   if (lookMeshes.length) { const lh = ray.intersectObjects(lookMeshes.filter(m => m.visible !== false), false)[0]; if (lh && lh.distance < ray.far && (!h || lh.distance < h.distance)) return { look: lh.object.userData.look, point: lh.point }; }
-  if (presences.size) { const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
+  // (a person can be spoken to across a room, 7 m, not only within arm's reach: the playtest's taps on people 3 m off had
+  // done nothing)
+  if (presences.size) { const far0 = ray.far; ray.far = 7; const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; ray.far = far0; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
   return t; }
 window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff }) : null; };
 const _b = new THREE.Box3(), _c = new THREE.Vector3();
-const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(c); const first = aimOne(c); if (first) { near = null; return first; }
+const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(c); const first = aimOne(c);
+  // (a case's thing just beside what the ray hit is preferred to it: a tap 14 px off the steward's key had opened the
+  // table's drawer under it; only a tap dead on the key took it)
+  const clueOf = (b) => b?.story && CASE?.things.find(t => t.id === b.story)?.clue;
+  const plain = first && !first.presence && !first.look && !clueOf(first.b);
+  if (first && !(CASE && plain)) { near = null; return first; }
   // each usable thing near the aim: how far its outline lies from the dot on screen (its box's corners projected),
   // nearest first; within the circle, one ray to its nearest point confirms it (and that nothing stands in front)
   const R = RINGS.at(-1)[0], cands = [];
@@ -468,6 +482,13 @@ const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(
     const qx = Math.min(x1, Math.max(x0, c.x)), qy = Math.min(y1, Math.max(y0, c.y)), d = Math.hypot((qx - c.x) * innerWidth / 2, (qy - c.y) * innerHeight / 2);
     if (d <= R) cands.push({ d, b: t.b, m, q: new THREE.Vector2(qx + (c.x - qx) * 0.02 + (qx === c.x ? 0 : Math.sign(qx - c.x) * 2 / innerWidth), qy + (qy === c.y ? 0 : Math.sign(qy - c.y) * 2 / innerHeight)) }); }
   cands.sort((a, b) => a.d - b.d);
+  // (preferred: one that holds a clue or can be carried, the key, the padlock key; not another piece of furniture)
+  const wanted = (b) => clueOf(b) || (b?.story && CASE?.things.find(t => t.id === b.story)?.carry !== false);
+  if (first) { for (const k of cands) if (k.b !== first.b && wanted(k.b)) {
+      // (aimed at its middle: the tap may fall inside its outline yet past its thin iron, onto the table under it)
+      _b.setFromObject(k.b.node); _b.getCenter(_c).project(camera); const t = aimOne(new THREE.Vector2(_c.x, _c.y)) || aimOne(k.q);
+      if (t && t.b === k.b) { near = null; return t; } }
+    near = null; return first; }
   const tried = new Set();
   for (const k of cands) { if (tried.has(k.b) || tried.size >= 4) continue; tried.add(k.b);
     // the dot inside its outline (a gate seen between its bars): the rings cast at it alone find its nearest part
@@ -488,6 +509,8 @@ function actOn(t) {
   const refloor = () => { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); return true; };
   if (t?.look) { CP?.look(t.look); return refloor(); }
   if (t?.b?.story && CP?.wouldLook(t.b.story, t.i)) { CP.look(t.b.story, t.i); return refloor(); }
+  // (evidence the case says to leave as it lies, the fallen candle: looked at, never worked; a second tap had lit it)
+  { const keep = t?.b?.story && CASE?.things.find(q => q.id === t.b.story)?.keep; if (keep) { say(keep); return true; } }
   { const inner = t?.b?.story && CP?.reachIn(t.b.story), b = inner && manor.things.find(q => q.story === inner);
     if (b) t = { b, aff: Object.keys(b.kind.affordances || {})[0] || null, i: null }; }
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")

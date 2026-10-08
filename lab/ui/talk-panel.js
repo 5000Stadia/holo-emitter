@@ -523,7 +523,7 @@ export function makeTalkPanel(options = {}) {
         x.claims?.length ? h("ul", { class: "tp-claims", "aria-label": `What ${x.name} has told you` }, x.claims.map((c) => h("li", { class: c.broken ? "broken" : null },
           c.broken ? [h("s", { text: c.label }), h("span", { class: "tp-sr", text: " (broken)" }), c.by ? h("small", { text: "broken by " + c.by }) : null] : c.label))) : null));
       // (a clue that was a lie, once broken, struck through with what broke it: a naive player had kept weighing them)
-      else if (nbTab === "clues") nbPage.append(lineOf("line" + (x.struck ? " struck" : ""), x.label, x.from && h("p", { text: x.from }), x.struck && h("p", { class: "by", text: `broken by ${x.struck}` })));
+      else if (nbTab === "clues") nbPage.append(lineOf("line" + (x.struck ? " struck" : ""), x.label, x.from && h("p", { text: x.from }), x.struck && h("p", { class: "by", text: `set aside by ${x.struck}` })));
       else if (nbTab === "catch") nbPage.append(lineOf("line catch", x.text || x.label, x.by && h("p", { text: "broken by " + x.by })));
       else nbPage.append(h("button", { class: "tp-paper", type: "button", "data-paper": x.id, html: ICON.paper, onclick: () => onOpenPaper?.(x.id) }, h("span", { text: x.title || x.label || x.id })));
     }
@@ -657,7 +657,7 @@ export function makeTalkPanel(options = {}) {
       S.who = who; S.name = name || who; S.role = role; S.portrait = portrait; S.intro = intro; S.topics = topics; S.evidence = evidence;
       S.lastTopic = S.last.get(who) || null; S.busy = false; S.more = false; S.guarded = false; root.classList.remove("tp-busy");
       nameEl.textContent = S.name; nameEl.classList.toggle("long", S.name.length > 15); roleEl.textContent = role; talk.setAttribute("aria-label", "Speaking with " + S.name);
-      paintPortrait(portrait, S.name); setStance("ask"); renderLog(); renderChips(); sendBtn.disabled = false;
+      paintPortrait(portrait, S.name); setStance("ask"); renderLog(); renderChips(); chipsEl.scrollLeft = 0; sendBtn.disabled = false;   // (the row had kept the last person's scroll, a new person's first matters off the left)
       if (!layerOpen("talk")) show({ id: "talk", el: talk, focus: () => chipsEl.querySelector("button") || input, onHide: () => { S.stance = "ask"; onClose(); } });
       return api;
     },

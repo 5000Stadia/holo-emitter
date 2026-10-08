@@ -129,7 +129,9 @@ const TEMPLATES = [
   [/\b(last|when did (you|u)) (see|saw) (him|her|them)\b|\blast saw\b|\blast (time|seen)\b/i, ["last_seen", "last seen", ...WHERE_HINT]],
   [/\bwho (had|has|kept|keeps|held|holds) (the |a |his )?keys?\b|\bwho (could|can) (open|lock|get in)\b|\blocked (room|door)\b/i, ["key", "lock"]],
   [/\bhow did (he|she|him|\w+|mr \w+|master \w+) die\b|\bwhat killed\b|\bcause of (his|her|the) death\b|\bwho (killed|murdered|did it|(could|would|might) have done (it|this|that))\b/i, ["death", "body", "died"]],
-  [/\bwhy would\b|\bwho (gains|profits|benefits)\b|\bwho would want\b|\b(his|any) enem(y|ies)\b|\bmotive\b/i, ["motive", "will", "sale", "inherit"]],
+  // (who wished him dead is of the man and his enemies, and outweighs the word "dead": it had read as how he died)
+  [/\bwho (would|could|might|did) (want|wish|have wanted) (him|his master|mr hollins|the steward|hollins) dead\b|\bwanted him dead\b|\b(his|any) enem(y|ies)\b|\bwho hated\b/i, ["steward"], 2],
+  [/\bwhy would\b|\bwho (gains|profits|benefits)\b|\bwho would want\b|\bmotive\b/i, ["motive", "will", "sale", "inherit"]],
   [/\bwho (found|opened|discovered|went in)\b|\bthis morning\b/i, ["morning", "found"]],
   // (when the door was opened: the key where it lay then is the morning's, not the keys'; it outweighs the word "key")
   [/\bwhen (you|u|ye|thou|they|he|she|we) (went|came|got|broke|first went) in\b|\bwhen (you|u) (opened|found|entered|broke)\b|\bwhen the door was (opened|broken|forced)\b/i, ["morning", "found"], 1.5],

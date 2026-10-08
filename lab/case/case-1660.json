@@ -3064,7 +3064,8 @@
     "~burn": 0.66
    },
    "noun": "the table candle",
-   "why": "the weapon; its burn is the clock: 0.66 of its length left is 85 minutes at the kind's rate (6.67e-05 a second, src/make/kinds/strongroom-1660.js), lit 21:40, out about 23:05 when it fell"
+   "why": "the weapon; its burn is the clock: 0.66 of its length left is 85 minutes at the kind's rate (6.67e-05 a second, src/make/kinds/strongroom-1660.js), lit 21:40, out about 23:05 when it fell",
+   "keep": "Best leave it as it lies, your Worship: the coroner will want to see it so."
   },
   {
    "id": "chest1",
@@ -3988,7 +3989,7 @@
    {
     "id": "opportunity",
     "label": "when",
-    "lead": "; the murderer was with him by",
+    "lead": "; the murderer had him alone by",
     "options": [
      {
       "id": "stayed_on",
