@@ -91,6 +91,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   }
   // what they do, voiced: the relay's voice job with only the facts handed to it, checked; else the case's own line
   async function reply(who, topic, stance, shown = null) {
+    panel.markAsked?.(topic);             // (the chip marked asked, and the matter evidence is next shown on, however it was raised)
     const p = cast.get(who), a = answer(k, who, { topic, stance, shown }, frame); lastTopic = topic; turn++; if (shown) R.shown++;
     const claim = claimHeard(p, topic, a);
     frame.said.push({ who, topic, act: a.act, ...(claim ? { claim } : {}) }); if (claim && !notebook.heard.some(x => x.who === who && x.claim === claim)) notebook.heard.push({ who, claim }); pending.push({ type: "say", who, topic, act: a.act });
@@ -110,7 +111,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   }
   // your own words: read in code first; the relay's read job only when unsure; else ask you to choose a topic
   async function words(text) {
-    const who = talking; if (!who) return; panel.say({ who: "you", text }); R.words++;
+    const who = talking; if (!who) return; R.words++;
     const ctx = { topics: topicsFor(k, who, frame).filter(t => !t.id.startsWith("person:")), people: arr(k.cast).filter(c => c.id !== who).map(c => ({ id: c.id, name: c.name, aka: c.aka })), evidence: evidence() };
     let r = readIntent(text, ctx);
     if (r.topic === "none" && r.stance !== "accuse" && !r.evidence && (voice && await voice.available())) { panel.busy(true); R.calls++;

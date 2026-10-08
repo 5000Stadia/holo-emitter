@@ -339,7 +339,7 @@ if (CASE) {
   catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) }); }
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
-    onShow: (id, last) => CP.reply(CP.talking(), last || "death", "show", id), onAccuse: (c) => CP.accuse(c),
+    onShow: (id, topic) => CP.reply(CP.talking(), topic, "show", id), onAccuse: (c) => CP.accuse(c),
     onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onClose: () => {} });
   // (the model's relay is for development only, on this machine: the published page never asks for it; a phone had
   // tried 127.0.0.1 on every reply, which Android may answer with a local-network prompt)
