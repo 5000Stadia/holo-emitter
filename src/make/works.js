@@ -75,7 +75,9 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     // a light group on or off: meshes (a flame) shown or hidden; lights kept in the scene at zero, since
     // adding or removing a light recompiles every material (a visible hitch when a candle is lit)
     if (a.lights) b.node.traverse(o => { if (o.userData.lightGroup !== a.lights) return;
-      if (o.isLight) { o.userData.on ??= o.intensity; o.visible = true; o.intensity = t > 0.5 ? o.userData.on : 0; } else o.visible = t > 0.5; });
+      if (o.isLight) { o.userData.on ??= o.intensity; o.visible = true; o.intensity = t > 0.5 ? o.userData.on : 0; } else o.visible = t > 0.5;
+      // a flame's light the page took out of the scene into its pool (the count of lights is fixed): still the switch's to darken
+      const l = o.userData.light; if (l && !l.parent) { l.userData.on ??= l.intensity; l.intensity = t > 0.5 ? l.userData.on : 0; } });
     onMove(b, aff, i, t);
   }
   // a process's level now, from where it started and how long ago

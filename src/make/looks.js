@@ -24,6 +24,8 @@ export function lookC1660(THREE, K, S) {
       glass_clear: m("glass_clear", { color: 0xd9eee6, roughness: 0.05, metalness: 0.15, transparent: true, opacity: 0.3, depthWrite: false }),
       glazing: (() => { const g = m("glazing", { color: 0xe4ece6, roughness: 0.04, metalness: 0.1, transparent: true, opacity: 0.07, depthWrite: false }); return g; })(),
       treen: m("treen", { color: 0x7a5434, roughness: 0.7 }),
+      // a lantern's leaves of horn, scraped thin: a cloudy amber that lets the candle through (it draws without writing depth, as glass)
+      horn: m("horn", { color: 0x9a6a30, roughness: 0.55, transparent: true, opacity: 0.6, depthWrite: false }),
       porcelain: m("porcelain", { color: 0xe8ecf0, roughness: 0.2 }),
       porcelain_blue: m("porcelain_blue", { color: 0x3a5a9a, roughness: 0.25 }),
       globe: m("globe", { color: 0xc8b48a, roughness: 0.55 }),

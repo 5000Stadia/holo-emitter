@@ -284,6 +284,54 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       if (p.poly && !p.inside && (kindOf(p.kind)?.place?.layer || "stand") === "stand") { const xs = p.poly.map(q => q[0]), ys = p.poly.map(q => q[1]);
         blocks.push({ floor: room.floor, room: room.id, kind: p.kind, poly: p.poly, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) }); }
     });
+    // the lights the room's type names (T.light), each a thing that gives it, where such a light was kept: a lantern
+    // hung over the stairhead, a sconce beside the main door, a rushlight on a sill near the stair. Their lights are
+    // the room's own (rooms' lights), for the page to take into its pool: never a light in the scene, never a light
+    // without its flame (the picture never lies)
+    const ownLights = [], RW = x1 - x0, RD = y1 - y0, lightNotes = [];
+    const light = (kind, over, place) => { const b = build(THREE, K, look, kind, `manor/${room.id}/${kind}:light`, over); place(b.node, b);
+      b.node.userData.room = room.id; things.push(b); b.node.traverse(o => { if (o.isPointLight) ownLights.push(o); }); return b; };
+    const onWall = (F, r, y, z, node) => { const holder = new THREE.Group(); holder.position.set(...P[F].pos); holder.rotation.y = P[F].rot; movers.add(holder); node.position.set(r, y, z); holder.add(node); };
+    if (furnished) for (const what of T.light || []) {
+      if (what === "candle_at_stairhead") {
+        // over the head of the flight that arrives on this floor, 0.45 m on from its top step; on the floor a stair only
+        // leaves from, over its foot, 0.45 m before its first step. Under a ceiling, not the well
+        const flights = plan.stairs.filter(s => s.kind === "flight"), inside = ([x, y]) => x > x0 + 0.3 && x < x1 - 0.3 && y > y0 + 0.3 && y < y1 - 0.3;
+        const end = (s, top) => { const R = s.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, k = top ? 1 : -1;
+          return { N: [cx, top ? R.y1 : R.y0, 0, k], S: [cx, top ? R.y0 : R.y1, 0, -k], E: [top ? R.x1 : R.x0, cy, k, 0], W: [top ? R.x0 : R.x1, cy, -k, 0] }[s.up]; };
+        const arrive = flights.find(s => stairTo(s) === room.floor && s.z1 > 0.999 && inside(end(s, true))), leave = flights.find(s => stairFrom(s) === room.floor && s.z0 < 0.001 && inside(end(s, false)));
+        const e = arrive ? end(arrive, true) : leave ? end(leave, false) : null; if (!e) { lightNotes.push(`${what}: no stair`); continue; }
+        const x = e[0] + e[2] * 0.45, y = e[1] + e[3] * 0.45;
+        if ((plan.wells || []).some(w => w.from === room.floor && x > w.hole.x0 - 0.15 && x < w.hole.x1 + 0.15 && y > w.hole.y0 - 0.15 && y < w.hole.y1 + 0.15)) { lightNotes.push(`${what}: under the well`); continue; }
+        // clear of heads: its lowest point 2.25 m over the floor (the chain as long as the room's height allows, to 1.2 m)
+        light("lantern/stair", { drop: r2(Math.max(0.08, Math.min(1.2, H - 2.25 - 0.49))) }, (n) => { box.setFromObject(n);
+          n.position.set(x - x0, H - box.max.y, -(y - y0)); movers.add(n); n.userData.bottom = r2(H - box.max.y); });
+      } else if (what === "candle_at_door") {
+        // beside the room's main door (its widest), the plate's middle 1.5 m up, a hand clear of the door's opening on the
+        // side away from its hinge first, on a stretch of wall with nothing in it and nothing tall standing before it
+        const doors = Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "door").map(e => ({ F, e }))).sort((a, b) => (b.e.r1 - b.e.r0) - (a.e.r1 - a.e.r0));
+        let got1 = null;
+        for (const { F, e } of doors) { for (const r of [e.r1 + 0.3, e.r0 - 0.3]) { const L = spec.frames[F].L;
+            if (r < 0.25 || r > L - 0.25 || spec.walls[F].some(q => { const a = q.kind === "chimneypiece" ? q.mantel.r0 : q.r0, b = q.kind === "chimneypiece" ? q.mantel.r1 : q.r1; return a < r + 0.15 && b > r - 0.15; })) continue;
+            const [u, v] = wallToRoom(spec.frames[F], RW, RD, r, 0.15), px = x0 + u, py = y0 + v;
+            if (got.placed.some(p => (p.wall === F && Math.abs(p.r - r) < (p.w || 0.5) / 2 + 0.15) || (p.poly && (sizeOf(p.kind, p.over || {})?.[1] || 0) > 1.35 && Math.min(...p.poly.map(q => q[0])) < px + 0.3 && Math.max(...p.poly.map(q => q[0])) > px - 0.3 && Math.min(...p.poly.map(q => q[1])) < py + 0.3 && Math.max(...p.poly.map(q => q[1])) > py - 0.3))) continue;
+            got1 = { F, r }; break; }
+          if (got1) break; }
+        if (!got1) { lightNotes.push(`${what}: no clear wall by a door`); continue; }
+        light("sconce/candle", {}, (n) => onWall(got1.F, got1.r, 0, 0, n));
+      } else if (what === "rushlight") {
+        // on a window's sill, the window nearest the room's stair (else its first), a hand in from the wall's face
+        const wins = Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "window").map(e => ({ F, e, at: wallToRoom(spec.frames[F], RW, RD, (e.r0 + e.r1) / 2, 0) })));
+        const st = plan.stairs.find(s => s.kind === "flight" && (stairFrom(s) === room.floor || stairTo(s) === room.floor) && s.rect.x0 < x1 && s.rect.x1 > x0 && s.rect.y0 < y1 && s.rect.y1 > y0);
+        if (st) { const c = [(st.rect.x0 + st.rect.x1) / 2 - x0, (st.rect.y0 + st.rect.y1) / 2 - y0]; wins.sort((a, b) => Math.hypot(a.at[0] - c[0], a.at[1] - c[1]) - Math.hypot(b.at[0] - c[0], b.at[1] - c[1])); }
+        const w = wins.find(q => q.e.r1 - q.e.r0 > 0.45 && q.e.sill > 0.4);
+        if (w) { light("rushlight/nip", {}, (n) => onWall(w.F, (w.e.r0 + w.e.r1) / 2 - 0.05, w.e.sill, -Math.min(0.14, (w.e.T || 0.3) * 0.45), n)); continue; }
+        // a room with no window (the servants' hall): on its table, beside what is on it already
+        const host = builtHere.find(q => q.kind.kind.startsWith("table/") && q.slots.has("top")), s = host?.slots.get("top");
+        if (!s) { lightNotes.push(`${what}: no sill, no table`); continue; }
+        light("rushlight/nip", {}, (n) => { const k = (s.count = (s.count || 0) + 1) - 1; n.position.set(s.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 0.25 : 0), s.at[1], s.at[2]); s.node.add(n); });
+      }
+    }
     // each chimneypiece is solid to a body: its breast and the fire's mouth within it (Kabe, 2026-10-06: "the
     // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
     { const RW = room.rect.x1 - room.rect.x0, RD = room.rect.y1 - room.rect.y0;
@@ -306,7 +354,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       f.userData.fire = true; grp.add(f);
     }
     scene.add(grp, movers);
-    rooms.set(room.id, { room, grp, movers, H, Y, lights: [] });
+    rooms.set(room.id, { room, grp, movers, H, Y, lights: ownLights, lightNotes });
   }
   // the stairs: each flight its treads and risers on a sloping soffit, open beneath; each half-landing a
   // slab on newel posts; a balustrade (rail, turned balusters, newels) wherever a flight or a landing or a
