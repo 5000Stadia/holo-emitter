@@ -6,7 +6,8 @@
 //   - a resolution controller on frame time: it steps the pixel ratio down after 12 frames over budget,
 //     back up only after 30 under and a 12 s cooldown (after the game Kabe sent, design/perf/links-review.md);
 //   - render on change: a still view of a still world is not redrawn;
-//   - logarithmic depth outdoors (it held 4 km at no measurable cost in the fps lab), ordinary indoors;
+//   - depth: on a phone reversed (a float buffer, near at 1: the 4 km view holds and early-Z stays on, GPU -45% a frame
+//     headless; design/perf/phone-2026.md change 2), elsewhere logarithmic outdoors, ordinary indoors (?depth= overrides);
 //   - performance marks (first frame, walkable) and, with ?perf (or ?fps, ?bench=1), the perf card (src/make/perfcard.js).
 import * as THREE from "three/webgpu";
 import { makeCard, CARD } from "./perfcard.js";
@@ -26,8 +27,22 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   let memory = {}; try { memory = JSON.parse(localStorage.getItem(memoryKey) || "{}"); } catch (_) {}
   const want = Q.get("webgl") === "1" ? "webgl" : Q.get("webgpu") === "1" ? "webgpu"
     : memory.choice || (memory.webgpu == null ? "webgpu" : memory.webgl == null ? "webgl" : (memory.webgpu <= memory.webgl ? "webgpu" : "webgl"));
-  const renderer = new THREE.WebGPURenderer({ antialias: msaa, forceWebGL: want === "webgl", logarithmicDepthBuffer: outdoor, powerPreference: "high-performance",
+  // depth (?depth=reversed|log|std): log depth outdoors writes depth from every fragment shader, which turns off early-Z and
+  // hidden-surface removal for every draw; reversed depth (a float buffer, near at 1) holds the same 0.05 m to 3 km without
+  // it (phones by default: headless, GPU 7.4 -> 4.1 ms a frame at 1x, 68 -> 25 ms at DPR 3; near and far views alike).
+  // WebGL 2 without EXT_clip_control falls back to ordinary depth, so there the renderer is made again with log depth.
+  // flags only, measured no gain on the desktop GPU here (a phone's tiled GPU may differ; Kabe's card will say):
+  // ?direct=1: DirectRenderPipeline, tone mapping in each material and straight to the canvas (no half-float MSAA target,
+  // no output pass; the leaded glass blends after tone mapping, the view through it a little deeper in colour);
+  // ?out=8: the intermediate target at 8 bits a channel instead of half floats (bands in the candle-dark vaults);
+  // ?msaa=0 (above): GPU -10% here, and the edges Kabe asked for gone
+  const depthWant = Q.get("depth") || (PHONE ? "reversed" : outdoor ? "log" : "std");
+  const make = (depth) => new THREE.WebGPURenderer({ antialias: msaa, forceWebGL: want === "webgl", powerPreference: "high-performance",
+    logarithmicDepthBuffer: depth === "log", reversedDepthBuffer: depth === "reversed",
+    outputBufferType: Q.get("out") === "8" ? THREE.UnsignedByteType : THREE.HalfFloatType,
     trackTimestamp: CARD && Q.get("gpu") !== "0" });   // the card's GPU ms (WebGPU timestamps; WebGL's timer query where there is one)
+  let renderer = make(depthWant), depth = depthWant;
+  if (depth === "reversed") { await renderer.init(); if (!renderer.reversedDepthBuffer) { renderer.dispose(); depth = outdoor ? "log" : "std"; renderer = make(depth); } }
   let step = 0;
   const ratio = () => Math.min(devicePixelRatio, STEPS[step]);
   renderer.setPixelRatio(Q.get("dpr") ? +Q.get("dpr") : ratio());
@@ -60,7 +75,13 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
 
   // render on change: the page says when the view or the world moved; otherwise the frame is skipped
   let dirty = true, frames = 0, drawn = 0, ticked = false;
-  const flags = { msaa: msaa ? 4 : 0, depth: outdoor ? "log" : "std" };
+  const flags = { msaa: msaa ? 4 : 0, depth, out: Q.get("out") === "8" ? 8 : 16 };
+  // the direct pipeline: what the warm-up compiles ahead (src/make/warm.js) is compiled as the pipeline draws, tone mapping inside
+  const pipe = Q.get("direct") === "1" ? new THREE.DirectRenderPipeline(renderer) : null;
+  if (pipe) { flags.direct = 1; const compile = renderer.compileAsync.bind(renderer);
+    renderer.compileAsync = (...a) => { pipe._update(); const was = [renderer.contextNode, renderer.toneMapping, renderer.outputColorSpace];
+      renderer.contextNode = pipe._contextNode; renderer.toneMapping = THREE.NoToneMapping; renderer.outputColorSpace = THREE.ColorManagement.workingColorSpace;
+      try { return compile(...a); } finally { [renderer.contextNode, renderer.toneMapping, renderer.outputColorSpace] = was; } }; }
   const E = { renderer, backend, marks, flags };
   const card = makeCard(E);
   function frame(scene, camera, { changed = false, post = null } = {}) {
@@ -69,7 +90,7 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
     if (!dirty) { last = 0; ticked = false; return false; }    // nothing moved: no frame, and no gap counted
     measure(now);
     const c0 = performance.now();
-    post ? post.render() : renderer.render(scene, camera);
+    post ? post.render() : pipe ? pipe.render(scene, camera) : renderer.render(scene, camera);
     card.drawn(now, performance.now() - c0, scene, ticked); ticked = true;
     if (!drawn++) mark("first-frame");
     dirty = false;

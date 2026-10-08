@@ -89,7 +89,7 @@ export function makeCard(E) {
       `minutes p50: ${s.minutes.map((v, i) => `${minutes.length - s.minutes.length + i + 1}:${Math.round(v)}`).join(" ") || "…"}`,
       `scene: ${s.draws} draws · ${Math.round(s.tris / 1000)}k tris · ${s.programs} progs · rect ${L.rectLit ?? "?"}/${L.rect ?? "?"} point ${L.pointLit ?? "?"}/${L.point ?? "?"}`,
       `flags: ${Object.entries(fl).map(([k, v]) => `${k} ${v}`).join(" · ")}`,
-      `mem: tex ${s.mem.tex} · geo ${s.mem.geo} · gpu ${s.mem.total} MB · held tex ${s.mem.cpuTex} geo ${s.mem.cpuGeo} · heap ${s.mem.heap ?? "n/a"}${s.mem.device ? ` · dev ${s.mem.device} GB` : ""}`,
+      `mem: tex ${s.mem.tex} · geo ${s.mem.geo} · gpu ${s.mem.total} MB · held tex ${s.mem.cpuTex} geo ${s.mem.cpuGeo} · js heap ${s.mem.heap ?? "n/a"} (Chrome, coarse)${s.mem.device ? ` · dev ${s.mem.device} GB` : ""}`,
       `start: first frame ${((mk["first-frame"] || 0) / 1000).toFixed(1)} s · walkable ${((mk.walkable || 0) / 1000).toFixed(1)} s`,
       describe(prev),
     ];
