@@ -158,6 +158,9 @@ const CSS = `
 .tp-sentence .stop{margin-left:-5px}
 .tp-sentence .nb .tp-blank{white-space:normal;max-width:calc(100% - 12px);text-align:left;vertical-align:bottom;line-height:1.2;padding:9px 8px 7px}
 .tp-blank{display:inline-block;vertical-align:baseline;min-height:44px;min-width:92px;padding:0 8px;border:0;border-bottom:2px dashed var(--brass);background:rgba(201,163,92,.1);color:#b79a62;font:italic 500 21px/1 var(--serif);border-radius:4px 4px 0 0;line-height:40px}
+.tp-blank.sealed::after{content:" ✦";font-size:14px;color:var(--brass);font-style:normal}
+.tp-picknote{margin:10px 16px 4px;color:var(--dim);font:italic 500 17px/1.35 var(--serif)}
+.tp-picknote:empty{display:none}
 .tp-blank.set{border-bottom-style:solid;color:var(--brass);font-style:normal;font-weight:600;background:none}
 .tp-blank.right{color:#a9c98a;border-bottom-color:#a9c98a}
 .tp-note{margin:10px 0 0;font:italic 500 18px/1.35 var(--serif);color:var(--dim)}
@@ -534,8 +537,9 @@ export function makeTalkPanel(options = {}) {
   const groupOf = (key) => A.groups.find((g) => g.keys.includes(key));
   function renderAccusation() {
     const done = !!A.verdict, s = h("p", { class: "tp-sentence" });
-    const blank = (key) => { const v = labelOf(key), locked = A.locked.has(groupOf(key).id);
-      return h("button", { class: "tp-blank" + (v ? " set" : "") + (locked ? " right" : ""), type: "button", "data-blank": key, text: v || blankName(key),
+    // (a seal on a blank you hold proof for, not saying which answer it proves: after Golden Idol's word bank)
+    const blank = (key) => { const v = labelOf(key), locked = A.locked.has(groupOf(key).id), sealed = !locked && A.pillars.find((p) => p.id === key)?.sealed;
+      return h("button", { class: "tp-blank" + (v ? " set" : "") + (locked ? " right" : "") + (sealed ? " sealed" : ""), title: sealed ? "you hold proof for this" : null, type: "button", "data-blank": key, text: v || blankName(key),
         "aria-label": `${blankName(key)}: ${v || "not chosen"}${locked ? ", confirmed" : ""}`, disabled: done || locked || A.waiting || null, onclick: () => pickBlank(key) }); };
     // (a blank and the stop after it don't part: the line never starts "; he died of", nor ends on a lone ".")
     const keys = ["suspect", ...A.pillars.map((p) => p.id)];
@@ -570,12 +574,15 @@ export function makeTalkPanel(options = {}) {
     onAccuse({ group: g.id, picks: Object.fromEntries(g.keys.map((k) => [k, A.picks[k]])), all: { ...A.picks } });
   }
   const pk = sheet("short", "Choose");
-  const pkTitle = h("div", { class: "tp-title" }), pkList = h("ul", { class: "tp-opts", role: "radiogroup" });
-  pk.append(grip(pk), h("div", { class: "tp-head" }, pkTitle, h("button", { class: "tp-ib", "aria-label": "Cancel", html: ICON.close, onclick: back })), pkList);
+  const pkTitle = h("div", { class: "tp-title" }), pkList = h("ul", { class: "tp-opts", role: "radiogroup" }), pkNote = h("p", { class: "tp-picknote", role: "note" });
+  pk.append(grip(pk), h("div", { class: "tp-head" }, pkTitle, h("button", { class: "tp-ib", "aria-label": "Cancel", html: ICON.close, onclick: back })), pkNote, pkList);
   function pickBlank(key) {
     const cur = A.picks[key];
     pkTitle.textContent = key === "suspect" ? "Who is guilty?" : "Choose: " + blankName(key);
-    pkList.replaceChildren(...optsOf(key).map((o) => h("li", {}, h("button", { class: "tp-opt", type: "button", role: "radio", "aria-checked": String(o.id === cur), "data-option": o.id, text: o.label,
+    // (only what you have learned of is offered: an answer appears when a clue or a person names it)
+    const P = A.pillars.find((p) => p.id === key), more = P?.unknown || 0, opts = optsOf(key);
+    pkNote.textContent = !opts.length ? "Nothing you have learned answers this yet." : more ? "More may come to light as you learn." : "";
+    pkList.replaceChildren(...opts.map((o) => h("li", {}, h("button", { class: "tp-opt", type: "button", role: "radio", "aria-checked": String(o.id === cur), "data-option": o.id, text: o.label,
       onclick: () => { A.picks[key] = o.id; back(); renderAccusation(); } }))));
     show({ id: "picker", el: pk, focus: () => pkList.querySelector("[aria-checked=true]") || pkList.querySelector("button") });
   }

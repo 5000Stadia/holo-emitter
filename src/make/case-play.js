@@ -157,7 +157,13 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // ---- the accusation: a group of blanks at a time, confirmed only when all of it is right
   function openAccusation() {
     const sol = k.solution || k.accusation || {};
-    panel.openAccusation({ suspects: arr(k.cast).map(c => ({ id: c.id, name: c.name })), pillars: arr(sol.blanks || k.pillars).map(p => ({ id: p.id, label: p.label, lead: p.lead, options: arr(p.options) })), groups: sol.groups });
+    // only what you have learned of is offered (an option's appears_with: any of those clues learned; without it, always),
+    // the people you know of; a blank is sealed once you hold a genuine proof for it, without saying which answer it proves
+    const known = (o) => !o.appears_with || arr(o.appears_with).some(c => frame.learned.has(c));
+    const people = arr(k.cast).filter(c => notebook.persons.has(c.id));
+    panel.openAccusation({ suspects: (people.length ? people : arr(k.cast)).map(c => ({ id: c.id, name: c.name })),
+      pillars: arr(sol.blanks || k.pillars).map(p => { const opts = arr(p.options), shown = opts.filter(known);
+        return { id: p.id, label: p.label, lead: p.lead, options: shown, unknown: opts.length - shown.length, sealed: arr(sol.supports?.[p.id]).some(c => frame.learned.has(c)) }; }), groups: sol.groups });
     for (const g of locked) panel.accusationResult({ group: g, ok: true });     // (groups confirmed before a resume stay confirmed)
   }
   const locked = new Set(); let tries = 0;
