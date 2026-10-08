@@ -19,7 +19,9 @@
   #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(236,228,210,0.7); z-index: 2; pointer-events: none; }
   #cross.icon { width: 24px; height: 24px; margin: -12px 0 0 -12px; background: none; border-radius: 0; filter: drop-shadow(0 0 2px rgba(0,0,0,0.7)); }
   #cross[hidden], #line[hidden], #gate[hidden] { display: none !important; }
-  #line { position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; z-index: 2; }
+  #line { position: fixed; left: 0; right: 0; margin: 0 auto; width: fit-content; bottom: 70px; max-width: min(60ch, calc(100vw - 32px)); box-sizing: border-box; text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; z-index: 2; cursor: pointer; touch-action: manipulation; }
+  @media (pointer: coarse) { #line { bottom: calc(160px + env(safe-area-inset-bottom)); } }
+  #line.more::after { content: " ›"; color: var(--brass); }
   #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 3; border: 1px solid var(--brass); padding: 10px 18px; background: var(--panel); }
   #end { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); max-width: min(46ch, 88vw); text-align: center; font: 600 24px "Cormorant Garamond", Georgia, serif; color: var(--brass); background: var(--panel); border: 1px solid var(--line); padding: 16px 22px; z-index: 4; }
   #end small { display: block; margin-top: 8px; font: 12px "IBM Plex Mono", monospace; color: var(--dim); }
@@ -88,7 +90,14 @@ import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton } 
 fullscreenButton();
 
 const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
-window.__said = []; const say = (t) => { if (!t) return; window.__said.push(t); const l = $("line"); l.textContent = t; l.hidden = false; clearTimeout(say.t); say.t = setTimeout(() => { l.hidden = true; }, 4500); };
+// what the house says to you (a clue noted, the narrator's beat, a door that won't give): one line at a time, in turn, each
+// up as long as it takes to read (a beat is a paragraph: 4.5 s had shown a third of it, and the next line wiped it); a tap
+// on it goes on to the next
+window.__said = []; const sayQ = [];
+const sayNext = () => { clearTimeout(say.t); const l = $("line"), t = sayQ.shift(); if (!t) { l.hidden = true; return; }
+  l.textContent = t; l.hidden = false; l.classList.toggle("more", sayQ.length > 0); say.t = setTimeout(sayNext, Math.min(24000, 1800 + 330 * t.split(/\s+/).length)); };
+const say = (t) => { if (!t) return; window.__said.push(t); if (sayQ.at(-1) === t) return; sayQ.push(t); if ($("line").hidden) sayNext(); else $("line").classList.add("more"); };
+$("line").addEventListener("pointerdown", (e) => { e.stopPropagation(); sayNext(); });
 const step = (t) => { $("status").textContent = t + "…"; return new Promise(r => setTimeout(r)); };
 
 // ---- the world document: the house's plan sealed into it the first time it is seen (Kabe's P1): a
@@ -311,6 +320,15 @@ const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.star
 let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
+// a case brings you in facing whoever meets you there (you had arrived facing the panelling, Dame Anne behind you)
+// and from a side where no hearth stands behind them (seen against the fire, she had looked to stand in it): of twelve
+// spots a few strides off, the one whose line of sight past them runs farthest from any hearth
+{ const meet = CASE && [...presences.values()].find(q => q.room === start.id); if (meet) { const g = meet.p.group.position, mx = g.x, my = -g.z;
+    const fires = manor.blocks.filter(b => b.room === start.id && b.kind === "hearth").map(b => [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2]);
+    let best = null, bs = -1; for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6, x = mx + Math.cos(a) * 2.4, y = my + Math.sin(a) * 2.4; if (!standable(x, y, ph)) continue;
+      let sc = 9; for (let d = 0.5; d <= 5; d += 0.5) for (const [hx, hy] of fires) sc = Math.min(sc, Math.hypot(mx - Math.cos(a) * d - hx, my - Math.sin(a) * d - hy));
+      if (sc > bs) { bs = sc; best = [x, y]; } }
+    if (best) [px, py] = best; yaw = Math.atan2(-(mx - px), my - py); pitch = -0.12; } }
 window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
 const keys = {};
 // crouching (Kabe, 2026-10-07: "We should have a crouch option"): C or Ctrl, or the thumb's crouch button; the eye

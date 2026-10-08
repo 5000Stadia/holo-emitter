@@ -104,9 +104,11 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     if (!narrator) { pending = []; return; }
     const events = [...pending, ...extra]; pending = []; if (!events.length) return;
     let r; try { r = narrator.observe(events); } catch (err) { console.warn("narrator:", err.message); return; }
-    for (const f of arr(r.fired)) { run(f.effects); if (f.line) say(f.line); }
-    if (r.due) { const m = narrator.menu(), b = narrator.pick(m); if (b) { run(narrator.apply(b)); if (b.line || b.hook) say(b.line || b.hook); } }
+    for (const f of arr(r.fired)) { run(f.effects); tell(f.line); }
+    if (r.due) { const m = narrator.menu(), b = narrator.pick(m); if (b) { run(narrator.apply(b)); tell(b.line || b.hook); } }
   }
+  // (said in the panel while you're questioning someone, where you're reading; it had gone up behind the panel)
+  function tell(t) { if (!t) return; if (panel.isOpen?.()) panel.say({ who: "aside", text: t }); else say(t); }
   const enter = (room) => step([{ type: "enter", room }]);
   const idle = () => step([{ type: "idle" }]);
 

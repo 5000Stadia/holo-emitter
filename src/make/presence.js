@@ -26,6 +26,12 @@ export function makePresence(THREE, { picture, name, at, height = 1.62, seed = 1
     g.globalCompositeOperation = "destination-in"; const m = g.createRadialGradient(c, c, 60, c, c, c); m.addColorStop(0, "#000"); m.addColorStop(1, "rgba(0,0,0,0)"); g.fillStyle = m; g.fillRect(0, 0, 256, 256); }
   const floor = new THREE.Mesh(new THREE.CircleGeometry(0.55, 32), new Basic({ map: new THREE.CanvasTexture(disc), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
   floor.rotation.x = -Math.PI / 2; floor.position.y = 0.012; group.add(floor);
+  // the beam: a faint column of the emitter's light from the disc up to the bust, so the two read as one person standing
+  // there (without it the bust floated, and on a phone seemed to hang behind whatever stood beyond the disc)
+  const beamH = bust.position.y - H * 0.3, ramp = document.createElement("canvas"); ramp.width = 4; ramp.height = 64;
+  { const g = ramp.getContext("2d"), r = g.createLinearGradient(0, 64, 0, 0); r.addColorStop(0, "rgba(140,200,255,0.55)"); r.addColorStop(0.7, "rgba(140,200,255,0.18)"); r.addColorStop(1, "rgba(140,200,255,0)"); g.fillStyle = r; g.fillRect(0, 0, 4, 64); }
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.42, beamH, 24, 1, true), new Basic({ map: new THREE.CanvasTexture(ramp), transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, opacity: 0.32 }));
+  beam.position.y = beamH / 2 + 0.01; group.add(beam);
   // what you aim at to talk: an invisible column the body would fill
   const hit = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, height, 8), new Basic({ visible: false })); hit.position.y = height / 2; hit.userData.presence = name; group.add(hit);
   group.userData = { presence: name, hit };
