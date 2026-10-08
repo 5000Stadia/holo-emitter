@@ -1006,3 +1006,63 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - renderer process RSS 537–542 → 390–420 MB (WebGL 2: 507 → 352 MB); GPU process and renderer.info unchanged.
 - **Run time:** the sweep 25–35 ms in all by walkable + 10 s, in 3 ms slices every 1.5 s; then about 25 ms a minute of play (a walk of the scene graph every 1.5 s, new ground and hillside tiles let go as they come).
 - **Checked:** the case by taps at a phone (Dame Anne, the muniment key and candlestick, Daniel's chest reached into, the body, d18 opened and walked through, double taps on floor, wall and ground, the gates, down the hill): every step the same as ?geodrop=0 (positions to 0.02 m from key-hold timing), screenshots within 0.5 of a level; WebGL 2 the same; every material rebuilt and the shadow redrawn after the drop, no error; __sight/__fight/__seal identical.
+
+## R59 receipts (bot stand-in), 2026-10-08
+
+**What it stands in for:** R59 asks for the case played from arrival to accusation on a phone in 30–60 minutes, with the receipts. Until Kabe walks it himself, `tests/.naive-play.mjs` plays case-1660 the way a first-time player would, knowing nothing of the solution:
+- 390×844, touch, WebGPU, `&voice=0`;
+- it reaches into opened things;
+- it asks the notebook for thoughts when stuck;
+- it types some questions in its own words;
+- it reloads once mid-case;
+- it restarts and resumes after a browser crash.
+
+The report is `design/case/naive-play2-2026-10-08.md`.
+
+**New code:** `tests/.naive-play.mjs`, 407 → 609 lines (+285, −83):
+- the reach-in scan (step up to an opened thing and tilt over it for the "take out" hand);
+- thoughts, taken through the notebook in a conversation and followed at once;
+- typing, using phrasings from `tests/fixtures/intent-corpus-1660.json` for the matter meant, limited to words the game has shown, and recording what each line was read as;
+- presses on chips the panel badges "press";
+- a first visit to new places and people before re-asking;
+- the reload check;
+- crash restart from the mirrored saved case (`--crash-at N` tests it);
+- launch retries;
+- the person-time estimate.
+
+Reused: this morning's search, questioning and accusation. No game file changed.
+
+**Clock time:** 12:55–14:45, about 1 h 50 min.
+- Reading: 10 min.
+- The bot and its probes: 45 min.
+- Runs: four sets of six seeds, about 25 min each of machine time, two seeds at a time. Three sets were discarded as the bot was made fairer; each discard is named in the report's method.
+- Report and receipts: 20 min.
+- No helpers, no consults.
+
+**Per play** (six seeds, this machine, RX 460, other agents' GPU benchmarks running alongside):
+
+| seed | hand | solved | turns | person min (est.) | clues | wrong tries | thoughts | typed (read as none) | model calls | bot wall |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | chips | yes | 138 | 35.0 | 30/47 | 1 | 6 | 10 (1) | 0 | 423 s |
+| 2 | typing | yes | 123 | 34.1 | 26/47 | 1 | 5 | 22 (0) | 0 | 375 s |
+| 3 | chips | yes | 118 | 27.4 | 31/47 | 1 | 4 | 8 (0) | 0 | 368 s |
+| 4 | typing | yes | 101 | 26.5 | 26/47 | 3 | 3 | 23 (0) | 0 | 255 s |
+| 5 | chips | yes | 148 | 35.7 | 37/47 | 1 | 6 | 10 (0) | 0 | 465 s |
+| 6 | typing | yes | 141 | 41.1 | 35/47 | 0 | 7 | 38 (0) | 0 | 383 s |
+
+- **Cost per play:**
+  - 0 model calls in every run, so $0;
+  - person time 26.5–41.1 min (median 34.6), from the per-action table in the report (chip 6 s, typed 20 s, room search 40 s, walk 25 s plus 20 s a floor, paper 45 s, thought 10 s);
+  - typing is the biggest swing: 2.7 min on chip seeds, 7.3–12.7 min on typing seeds.
+- **The game's own receipt line,** seed 3 for example: "(Solved in 5.2 minutes: 73 questions, 8 in your own words; 31 of 47 clues; 1 wrong try; 4 thoughts asked.)". The minutes are the bot's clock, not a person's.
+- **Resume:**
+  - a reload at turns 66–71 resumed clues, notebook, leads and room in 6 of 6 runs;
+  - a killed browser (seed 3, turn 92) resumed with 27 of 27 clues and the same leads;
+  - 0 page errors and 0 bot errors in all six.
+- **Top game fixes** (detail and file:line in the report):
+  1. a shut drawer's padlock key can be aimed and taken as "the key". It happened in 4 of 6 runs, and 3 of 6 never learned the key's cut cord;
+  2. the notebook opens only inside a conversation;
+  3. reach-in is lost on reload;
+  4. an opened chest is hard to reach into from 2.5 m;
+  5. typed questions naming a person read as "What of <person>" (10 of 111 lines);
+  6. position and clock are saved only on a turn.
