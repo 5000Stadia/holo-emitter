@@ -127,3 +127,9 @@ It never reads the case file. Ids are used only as opaque keys.
 **Files.**
 - The bot: `tests/.naive-play.mjs`. Run it with `node tests/.naive-play.mjs --seeds 1,2,3 [--max 420] [--out DIR]`.
 - Per-run JSON (log, leads' lives, accusation ranking, receipts) goes to the scratchpad's `naive/run-N.json`.
+
+## After the fixes (rerun, seeds 1 and 3, same bot)
+
+- **Solved in 171 and 178 turns, 31 of 47 clues, 5 wrong tries each** (13 before). Broken lies are struck, the true motive shares its clues' words, and the gathering waits for a clue that names the motive.
+- **Daniel's chest:** opening a thing that holds the case's things now says what lies in it. While it stands open, a tap reaches in for what you haven't touched, with a hand cue reading "take out …". By real taps at the chest: Use opens it, Take gives the gold note, Take gives the draft, then Use closes it.
+- **The bot still left the garret without the gold.** Its search loop doesn't follow the "take out" cue on a thing it has already used. That is the bot's limit, not the game's. A fourth run then crashed its browser, so there are no numbers for that pass.
