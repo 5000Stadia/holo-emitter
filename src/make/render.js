@@ -7,8 +7,9 @@
 //     back up only after 30 under and a 12 s cooldown (after the game Kabe sent, design/perf/links-review.md);
 //   - render on change: a still view of a still world is not redrawn;
 //   - logarithmic depth outdoors (it held 4 km at no measurable cost in the fps lab), ordinary indoors;
-//   - performance marks (first frame, walkable) and, with ?perf=1, an overlay of fps, draws and marks.
+//   - performance marks (first frame, walkable) and, with ?perf (or ?fps, ?bench=1), the perf card (src/make/perfcard.js).
 import * as THREE from "three/webgpu";
+import { makeCard, CARD } from "./perfcard.js";
 
 const Q = new URLSearchParams(location.search);
 const PHONE = matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 900;
@@ -25,7 +26,8 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   let memory = {}; try { memory = JSON.parse(localStorage.getItem(memoryKey) || "{}"); } catch (_) {}
   const want = Q.get("webgl") === "1" ? "webgl" : Q.get("webgpu") === "1" ? "webgpu"
     : memory.choice || (memory.webgpu == null ? "webgpu" : memory.webgl == null ? "webgl" : (memory.webgpu <= memory.webgl ? "webgpu" : "webgl"));
-  const renderer = new THREE.WebGPURenderer({ antialias: msaa, forceWebGL: want === "webgl", logarithmicDepthBuffer: outdoor, powerPreference: "high-performance" });
+  const renderer = new THREE.WebGPURenderer({ antialias: msaa, forceWebGL: want === "webgl", logarithmicDepthBuffer: outdoor, powerPreference: "high-performance",
+    trackTimestamp: CARD && Q.get("gpu") !== "0" });   // the card's GPU ms (WebGPU timestamps; WebGL's timer query where there is one)
   let step = 0;
   const ratio = () => Math.min(devicePixelRatio, STEPS[step]);
   renderer.setPixelRatio(Q.get("dpr") ? +Q.get("dpr") : ratio());
@@ -57,21 +59,23 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   }
 
   // render on change: the page says when the view or the world moved; otherwise the frame is skipped
-  let dirty = true, frames = 0, drawn = 0;
-  const overlay = Q.get("perf") === "1" ? Object.assign(document.createElement("div"), { id: "perf-overlay", style: "position:fixed;right:8px;top:8px;z-index:9;font:11px ui-monospace,monospace;color:#ddd;background:rgba(0,0,0,.6);padding:6px 8px;white-space:pre;pointer-events:none" }) : null;
-  if (overlay) document.body.append(overlay);
-  let fpsAt = T0, fpsFrames = 0, fps = 0;
+  let dirty = true, frames = 0, drawn = 0, ticked = false;
+  const flags = { msaa: msaa ? 4 : 0, depth: outdoor ? "log" : "std" };
+  const E = { renderer, backend, marks, flags };
+  const card = makeCard(E);
   function frame(scene, camera, { changed = false, post = null } = {}) {
     const now = performance.now(); frames++;
     if (changed) dirty = true;
-    if (!dirty) { last = 0; return false; }                    // nothing moved: no frame, and no gap counted
+    if (!dirty) { last = 0; ticked = false; return false; }    // nothing moved: no frame, and no gap counted
     measure(now);
+    const c0 = performance.now();
     post ? post.render() : renderer.render(scene, camera);
+    card.drawn(now, performance.now() - c0, scene, ticked); ticked = true;
     if (!drawn++) mark("first-frame");
-    dirty = false; fpsFrames++;
-    if (overlay && now - fpsAt > 500) { fps = Math.round(fpsFrames * 1000 / (now - fpsAt)); fpsFrames = 0; fpsAt = now;   // frames drawn per second while drawing
-      overlay.textContent = `${backend} · ${fps} fps drawn · ${frames} ticks\n${renderer.info.render.drawCalls} draws · ${(renderer.info.render.triangles / 1000).toFixed(0)}k tris · ratio ${renderer.getPixelRatio().toFixed(2)}\n${Object.entries(marks).map(([k, v]) => `${k} ${v} ms`).join(" · ")}`; }
+    dirty = false;
     return true;
   }
-  return { renderer, backend, phone: PHONE, mark, marks, frame, drawn: () => drawn, ticks: () => frames, invalidate: () => { dirty = true; }, ratio: () => renderer.getPixelRatio(), memory };
+  const markOuter = mark;
+  const markAll = (k) => { markOuter(k); if (k === "walkable") card.walkable(); };
+  return { renderer, backend, phone: PHONE, mark: markAll, marks, flags, card, frame, drawn: () => drawn, ticks: () => frames, invalidate: () => { dirty = true; }, ratio: () => renderer.getPixelRatio(), memory };
 }
