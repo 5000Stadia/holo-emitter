@@ -423,6 +423,23 @@
    ]
   },
   {
+   "id": "household",
+   "label": "Who is in the house",
+   "words": [
+    "household",
+    "house",
+    "everyone",
+    "everybody",
+    "people",
+    "guests",
+    "family",
+    "servants",
+    "who",
+    "here",
+    "present"
+   ]
+  },
+  {
    "id": "whereabouts",
    "label": "Last night: where you were",
    "words": [
@@ -820,6 +837,24 @@
     }
    ],
    "claims": [
+    {
+     "id": "dc_household",
+     "label": "Daniel: who is in the house",
+     "topic": "household",
+     "false": false,
+     "tells_of": [
+      "anne",
+      "cressy",
+      "francis"
+     ],
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "fact": "Mr Cressy is in the great chamber; Master Francis in the great parlour; Dame Anne about the house.",
+     "line": "Mr Cressy is in the great chamber with his money, sir, and Master Francis in the parlour. My lady goes between the hall and Sir Gervase. I keep this door."
+    },
     {
      "id": "dc_half_ten",
      "label": "Daniel: down at half past ten",
@@ -1373,6 +1408,24 @@
    ],
    "claims": [
     {
+     "id": "cc_household",
+     "label": "Mr Cressy: who is in the house",
+     "topic": "household",
+     "false": false,
+     "tells_of": [
+      "anne",
+      "daniel",
+      "francis"
+     ],
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "fact": "Dame Anne has the house in hand; the heir is in the parlour; the clerk keeps the muniment door.",
+     "line": "Dame Anne has the house in hand, sir. The heir is in the parlour with his beer, the clerk sits on the muniment door like a hen on eggs, and I wait on a seal."
+    },
+    {
      "id": "cc_mines",
      "label": "Cressy: the mines never excepted",
      "topic": "mines",
@@ -1875,6 +1928,24 @@
    ],
    "claims": [
     {
+     "id": "fc_household",
+     "label": "Francis: who is in the house",
+     "topic": "household",
+     "false": false,
+     "tells_of": [
+      "anne",
+      "daniel",
+      "cressy"
+     ],
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "fact": "Dame Anne runs the house; Cressy is upstairs in the great chamber with the purchase money; the clerk keeps the muniment door.",
+     "line": "My stepmother runs the house, as you see. Cressy is upstairs in the great chamber, counting my inheritance into bags, and the clerk keeps the muniment door as if the old man might get up and walk."
+    },
+    {
      "id": "fc_abed",
      "label": "Francis: abed by eleven",
      "topic": "whereabouts",
@@ -2368,6 +2439,24 @@
     }
    ],
    "claims": [
+    {
+     "id": "ac_household",
+     "label": "Dame Anne: who is in the house",
+     "topic": "household",
+     "false": false,
+     "tells_of": [
+      "daniel",
+      "cressy",
+      "francis"
+     ],
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "fact": "Daniel Wragg keeps the muniment door, in the closet off the best bedchamber; Mr Cressy is in the great chamber with the engrossment and the purchase money; Francis is by the great parlour fire; Sir Gervase keeps his bed.",
+     "line": "(She counts them off.) Daniel Wragg, the clerk, keeps the muniment door, in the closet off the best bedchamber, up the great stair. Mr Cressy, the buyer’s attorney, sits in the great chamber with the engrossment and the money. My husband’s son Francis is by the great parlour fire. Sir Gervase keeps his bed; I beg you will not trouble him. The servants are below, if your Worship wants them."
+    },
     {
      "id": "ac_nursery",
      "label": "Dame Anne: in the nursery all evening",

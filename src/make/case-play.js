@@ -57,7 +57,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
 
   // ---- talking: open the panel on a person
   function talkTo(who) {
-    const p = cast.get(who); if (!p) return; talking = who; notebook.persons.set(who, { name: p.name, role: p.role });
+    const p = cast.get(who); if (!p) return; talking = who; notebook.persons.set(who, { name: p.name, role: p.role, met: true });
     panel.open({ who, name: p.name, role: p.role, portrait: presenceOf(who)?.picture, intro: p.intro, topics: topicsFor(k, who, frame), evidence: evidence() });
   }
   // what they do, voiced: the relay's voice job with only the facts handed to it, checked; else the case's own line
@@ -71,6 +71,8 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
       panel.busy(false); if (v && !v.fallback && v.line) line = v.line; }
     if (!line) line = a.act === "dontknow" ? "I know nothing of that." : a.facts.map(f => f.text).join(" ");
     const noted = []; for (const c of a.learned) if (learn(c, p.name)) noted.push({ label: label(c) });
+    // who they told you of (Dame Anne's "who is in the house"): into the notebook, with where they are, as direction
+    for (const f of a.facts) for (const id of arr(arr(p.claims).find(c => c.id === f.id)?.tells_of)) if (!notebook.persons.has(id) && cast.has(id)) notebook.persons.set(id, { name: cast.get(id).name, role: cast.get(id).role, met: false });
     if (a.yielded) notebook.caught.push({ who, label: arr(p.claims).find(c => c.id === a.yielded)?.label || "a lie" });
     panel.say({ who: "them", text: line, act: a.act, noted });
     panel.setTopics(topicsFor(k, who, frame)); panel.setEvidence(evidence()); panel.guarded?.((frame.guarded.get(who) || 0) > 0);
@@ -132,6 +134,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     if (picks.suspect || picks.who) { pending.push({ type: "accuse", who: picks.suspect || picks.who }); step(); }
     return ok;
   }
-  const notebookView = () => ({ persons: [...notebook.persons].map(([id, p]) => ({ id, name: p.name, note: p.role })), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), contradictions: notebook.caught.map(c => ({ label: `${cast.get(c.who)?.name}: ${c.label}` })) });
+  const roomName = (id) => plan.rooms.find(r => r.id === presenceOf(id)?.room)?.name;
+  const notebookView = () => ({ persons: [...notebook.persons].map(([id, p]) => ({ id, name: p.name, note: [p.role, roomName(id) && `now in the ${roomName(id).toLowerCase()}`, !p.met && "not yet questioned"].filter(Boolean).join(" · ") })), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), contradictions: notebook.caught.map(c => ({ label: `${cast.get(c.who)?.name}: ${c.label}` })) });
   return { receipts, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }

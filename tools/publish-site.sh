@@ -31,6 +31,13 @@ for fd in fixtures/*/; do
   fi
 done
 
+# [2026-10-08] THE CASE THE PAGE PLAYS IS THE CASE IN design/case/. The page fetches lab/case/<id>.json (design/ is not
+# published); the two had drifted (a topic added to design's never reached the page). A copy that differs refuses.
+for f in design/case/case-*.json; do
+  [[ "$f" == *.*.json ]] && continue      # (side files: case-1660.looks.json and the like, merged by hand)
+  if ! cmp -s "$f" "lab/case/$(basename "$f")"; then echo "publish refused: lab/case/$(basename "$f") differs from $f — cp it and commit" >&2; exit 2; fi
+done
+
 # [production law clause 6, 2026-08-25] NO STALE DERIVED ARTIFACT SHIPS EITHER,
 # and for the fixture's own reason. The bake above is one derived artifact out
 # of a dozen: the material provenance report and its legacy ledger, the room
