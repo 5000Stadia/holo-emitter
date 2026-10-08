@@ -280,7 +280,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       // the slot's floor (the box and the draft in Daniel's chest had overlapped)
       if (p.inside) { const host = builtHere[p.inside.host], s = host?.slots.get(p.inside.slot);
         if (s) { const area = host.info?.slots?.[p.inside.slot]?.area, k = (s.count = (s.count || 0) + 1) - 1, w = area?.[0] ?? 0.3;
-          n.position.set(s.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), s.at[1], s.at[2]); n.rotation.y = kindOf(p.kind)?.place?.turn ?? 0.35; s.node.add(n); } else got.refused.push({ kind: p.kind, why: `${host?.kind.kind} has no ${p.inside.slot}` }); }
+          n.position.set(s.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), s.at[1], s.at[2]); n.rotation.y = kindOf(p.kind)?.place?.turn ?? 0.35; s.node.add(n);
+          b.host = { b: host, slot: p.inside.slot }; } else got.refused.push({ kind: p.kind, why: `${host?.kind.kind} has no ${p.inside.slot}` }); }
       else if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
       else { // free standing: its back (the origin) half its depth behind its middle, facing the way it is turned
         const [u, v] = p.at, f = [Math.sin(p.rot), -Math.cos(p.rot)]; n.rotation.y = p.rot; n.position.set(u - f[0] * d / 2, 0, -(v - f[1] * d / 2)); movers.add(n); }

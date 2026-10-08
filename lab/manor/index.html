@@ -307,12 +307,15 @@ if (CASE) {
     // several in one slot laid side by side within it, as the placer does (src/make/manor.js): the steward's key had been
     // set at the very point the table candlestick stood, inside its foot, and could not be seen or tapped
     if (sl) { const area = host.info?.slots?.[name]?.area, k = (sl.count = (sl.count || 0) + 1) - 1, w = Math.max(0.36, area?.[0] ?? 0.4);
-      b.node.position.set(sl.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), sl.at[1], sl.at[2]); b.node.rotation.y = kindOf(t.kind)?.place?.turn ?? 0.35; sl.node.add(b.node); }
+      b.node.position.set(sl.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), sl.at[1], sl.at[2]); b.node.rotation.y = kindOf(t.kind)?.place?.turn ?? 0.35; sl.node.add(b.node);
+      b.host = { b: host, slot: name }; }     // (kept in it: not seen to the aim, nor taken, while what shuts it in is shut; src/make/works.js)
     else { const bb = new THREE.Box3().setFromObject(host.node); b.node.position.set((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2); scene.add(b.node); }
     works.add(b); manor.things.push(b); byStory.set(t.id, b);
     // its own light (the case's candle on the muniment table) pooled like the room's: a light added to the room had kept
     // it from being compiled ahead, and its first sight stalled 4-6 s
     const lights = []; b.node.traverse(o => { if (o.isPointLight || o.isRectAreaLight) lights.push(o); }); for (const l of lights) poolOwn(l, host.node.userData.room || CASE.things.find(q => q.id === t.at)?.at || t.at); }
+  // each called as the case labels it ("take Mr Hollins's key", "take the steward's padlock key"): both keys had read "take the key"
+  for (const [id, b] of byStory) { const l = CASE.things.find(q => q.id === id)?.label; if (l) b.name = l; }
   // what is only looked at (the body laid out: nothing to work, nothing to carry), aimed at by its own meshes
   for (const b of byStory.values()) if (!Object.keys(b.kind.affordances || {}).length && (CASE.things.find(t => t.id === b.story)?.clue)) b.node.traverse(o => { if (o.isMesh) { o.userData.look = b.story; lookMeshes.push(o); } });
   // fair by the project's own check, at load (ms)
@@ -367,6 +370,25 @@ if (CASE) {
   // only in questions) brings a servant's word towards what you haven't found
   setInterval(() => { if (!document.hidden && !panel.isOpen()) CP.idle(); }, 60000);
   window.__cp = CP; window.__presences = presences;
+
+  // the notebook from anywhere (the bot playtest: it opened only from a conversation's header, and each of 31 thoughts
+  // asked had cost a detour to someone): a button at the top, beside the full-screen one, its brass dot when something new
+  // is in it; the panel's own sheet, over everything, opened straight to it
+  { const fs = document.querySelector('button[aria-label="Full screen"]'), nb = document.createElement("button");
+    nb.id = "hud-notebook"; nb.setAttribute("aria-label", "Notebook");
+    nb.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C9.8 5 6.8 4.5 3.5 5v13c3.3-.5 6.3 0 8.5 1.5 2.2-1.5 5.2-2 8.5-1.5V5c-3.3-.5-6.3 0-8.5 1.5z"/><path d="M12 6.5v13"/></svg><i></i>';
+    Object.assign(nb.style, { position: "fixed", top: "calc(12px + env(safe-area-inset-top))", right: fs ? "64px" : "12px", zIndex: 5, width: "44px", height: "44px", borderRadius: "6px", padding: "0",
+      display: "grid", placeItems: "center", border: "1px solid rgba(236,228,210,0.35)", background: "rgba(22,19,16,0.72)", color: "#ece4d2", cursor: "pointer", touchAction: "manipulation" });
+    const dot = nb.querySelector("i"); Object.assign(dot.style, { position: "absolute", top: "6px", right: "6px", width: "8px", height: "8px", borderRadius: "50%", background: "#c9a35c", display: "none" });
+    nb.addEventListener("pointerdown", (e) => e.stopPropagation());
+    nb.addEventListener("click", (e) => { e.stopPropagation(); panel.openNotebook(CP.notebookView()); });
+    const fresh0 = panel.fresh, open0 = panel.openNotebook; panel.fresh = () => { fresh0?.(); dot.style.display = "block"; };
+    panel.openNotebook = (s) => { dot.style.display = "none"; return open0(s); };
+    document.body.append(nb); }
+  // kept as you leave, not only on a turn: where you stand and the case's clock (a walk after the last question had been
+  // lost on a reload, the clock set back; a phone kills a hidden tab without a word)
+  addEventListener("pagehide", () => CP.saveNow());
+  document.addEventListener("visibilitychange", () => { if (document.hidden) CP.saveNow(); });
 }
 const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
 // a story starts you where the text brings you in: the hall's near end, from the passage the Rabbit took
@@ -438,9 +460,9 @@ function farTap(ndc) {
     if (ph && (!h || ph.distance < h.distance + 0.3)) t = { presence: ph.object.userData.presence, point: ph.point }; }
   if (!t) return;
   const P = t.point || h.point;
-  if (!TAPGO) { if (!t.presence) say(`${(t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here. (Double-tap to go to it.)`); return; }
+  if (!TAPGO) { if (!t.presence) say(`${(t.b.name || t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here. (Double-tap to go to it.)`); return; }
   goNear(P, t.presence ? 1.6 : 1.1, () => { if (t.presence) return actOn(t);
-    const d = camera.position.distanceTo(P); if (d > ray.far + 0.3) { say(`${(t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here.`); return; }
+    const d = camera.position.distanceTo(P); if (d > ray.far + 0.3) { say(`${(t.b.name || t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here.`); return; }
     actOn({ b: t.b, aff: t.aff, i: t.i, point: P }); });
 }
 // to a stand a little short of P on the straight line to it (the nearest floor you can stand on there), facing it, in a
