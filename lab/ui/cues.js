@@ -14,6 +14,18 @@ export const ICONS = {
 };
 const cursorOf = (k) => `url("data:image/svg+xml,${encodeURIComponent(ICONS[k])}") 12 12, pointer`;
 
+// On a phone, what a tap will do, shown as the finger comes down: the cue's icon a thumb's width above the
+// touch (the finger hides the spot), so you see that you have the key, not the table, before you lift; gone
+// when the touch becomes a drag or a moment after it lifts. fingerCue() -> show(x, y, mode | null)
+export function fingerCue() {
+  const el = document.createElement("div");
+  el.style.cssText = "position:fixed;width:40px;height:40px;margin:-62px 0 0 -20px;border-radius:50%;background:rgba(18,15,12,0.72);border:1px solid rgba(201,163,92,0.7);display:none;place-items:center;pointer-events:none;z-index:6";
+  document.body.append(el); let t = null;
+  return (x, y, mode) => { clearTimeout(t);
+    if (!mode) { t = setTimeout(() => { el.style.display = "none"; }, 220); return; }
+    el.innerHTML = ICONS[mode] || ""; el.style.left = x + "px"; el.style.top = Math.max(62, y) + "px"; el.style.display = "grid"; };
+}
+
 // mount the cue on a page: dot is the centre dot element, canvas the 3D canvas
 export function cues(dot, canvas) {
   const live = Object.assign(document.createElement("div"), { role: "status", ariaLive: "polite" });
