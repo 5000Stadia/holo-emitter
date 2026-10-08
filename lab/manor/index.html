@@ -20,7 +20,12 @@
   #cross.icon { width: 24px; height: 24px; margin: -12px 0 0 -12px; background: none; border-radius: 0; filter: drop-shadow(0 0 2px rgba(0,0,0,0.7)); }
   #cross[hidden], #line[hidden], #gate[hidden] { display: none !important; }
   #line { position: fixed; left: 0; right: 0; margin: 0 auto; width: fit-content; bottom: 70px; max-width: min(60ch, calc(100vw - 32px)); box-sizing: border-box; text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; z-index: 2; cursor: pointer; touch-action: manipulation; }
-  @media (pointer: coarse) { #line { bottom: calc(160px + env(safe-area-inset-bottom)); } }
+  /* a phone: the line up top, under the room's name, clear of both thumbs and of what you have just opened below the
+     dot (it had sat over the stick's ground, and a thumb set down on it to walk dismissed it instead, and walked nowhere);
+     it takes no touch of its own: a tap on it still goes on to the next (tapAt), a drag begun on it walks or looks */
+  @media (pointer: coarse) { #line { bottom: auto; top: calc(70px + env(safe-area-inset-top)); pointer-events: none; }
+    #where { left: calc(14px + env(safe-area-inset-left)); top: calc(12px + env(safe-area-inset-top)); } }
+  @media (pointer: coarse) and (orientation: landscape) { #line { top: calc(10px + env(safe-area-inset-top)); max-width: min(60ch, calc(100vw - 440px)); } }
   #line.more::after { content: " ›"; color: var(--brass); }
   #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 3; border: 1px solid var(--brass); padding: 10px 18px; background: var(--panel); }
   #end { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); max-width: min(46ch, 88vw); text-align: center; font: 600 24px "Cormorant Garamond", Georgia, serif; color: var(--brass); background: var(--panel); border: 1px solid var(--line); padding: 16px 22px; z-index: 4; }
@@ -87,8 +92,8 @@ import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
 import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, kindOf, hashOf, GENERATOR } from "../../src/make/index.js";
-import { cues } from "../ui/cues.js";
-import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton } from "../touch.js";
+import { cues, fingerCue } from "../ui/cues.js";
+import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton, hint, doorAssist } from "../touch.js";
 fullscreenButton();
 
 const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
@@ -392,19 +397,76 @@ document.addEventListener("mousemove", e => { if (document.pointerLockElement ==
 const TOUCH = isTouch(), hover = new THREE.Vector2();
 // a tap uses what it lands on; a double tap goes there (Kabe, 2026-10-07: "double tap somewhere on my phone … if it's the
 // ground, I teleport to that location … if it's a wall or object … right in front of my face"): a single tap on a thing
-// waits a quarter of a second for a second tap, so a double tap on a door goes to it without opening it
-let tapWait = null, lastTap = null;
+// waits a quarter of a second for a second tap, so a double tap on a door goes to it without opening it; a tap that takes,
+// talks or looks acts at once (the wait had been paid on every use, and nothing else is meant by a second tap on those)
+// (a double tap forgives 350 ms and 64 px between its taps, nearer Android's own 300 ms and 100 dp: 320 ms and 40 px had
+// been tight for a thumb)
+// ?autodoor=0: walking into a shut door doesn't open it; ?tapgo=0: a tap on something out of reach only says so
+const AUTODOOR = Q.get("autodoor") !== "0", TAPGO = Q.get("tapgo") !== "0";
+let tapWait = null, lastTap = null, glide = null;
 const ndcOf = (x, y) => new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
+const onLine = (x, y) => { const l = $("line"); if (l.hidden) return false; const r = l.getBoundingClientRect(); return x >= r.left - 6 && x <= r.right + 6 && y >= r.top - 6 && y <= r.bottom + 6; };
+const instant = (t) => /^(take|talk|look)$/.test(cueOf(t)?.mode || "");
 function tapAt(x, y) {
+  fingerAt?.(x, y, null);
+  if (glide) { glide.cancel = true; return; }                // a tap while you go to something: you arrive, and leave it be
+  if (onLine(x, y)) { sayNext(); return; }                   // the line takes no touch on a phone; a tap on it goes on
   const now = performance.now(), ndc = ndcOf(x, y);
-  if (lastTap && now - lastTap.t < 320 && Math.hypot(x - lastTap.x, y - lastTap.y) < 40) { clearTimeout(tapWait); tapWait = null; lastTap = null; goTo(ndc); return; }
+  if (lastTap && now - lastTap.t < 350 && Math.hypot(x - lastTap.x, y - lastTap.y) < 64) { clearTimeout(tapWait); tapWait = null; lastTap = null; goTo(ndc); return; }
   lastTap = { t: now, x, y };
-  if (aim(ndc)) tapWait = setTimeout(() => { tapWait = null; act(ndc); }, 250);
-  // a thing seen but out of reach: said so, and how to get there (taps beyond arm's length had done nothing at all)
-  else tapWait = setTimeout(() => { tapWait = null; const far0 = ray.far; ray.far = 12; ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(works.meshes(), true)[0]; ray.far = far0;
-    const t = h && works.find(h); if (t) say(`${(t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here. (Double-tap to go to it.)`); }, 250);
+  const t = aim(ndc), d = t && instant(t) ? aimOne(ndc) : null;
+  // (at once only when the finger is on it, not when the forgiving rings found it: a double tap on the floor beside
+  // a person had opened the talk panel, and the second tap landed on the panel)
+  if (d && (t.presence ? d.presence === t.presence : t.look ? d.look === t.look : d.b === t.b)) { actOn(t); return; }
+  if (t) tapWait = setTimeout(() => { tapWait = null; act(ndc); }, 250);
+  // a thing or a person seen but out of reach: you go to it and use it (a tap on the way stops the use); ?tapgo=0 says so
+  // instead, and how to get there (taps beyond arm's length had done nothing at all)
+  else tapWait = setTimeout(() => { tapWait = null; farTap(ndc); }, 250);
 }
-const touch = TOUCH ? touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx * 1.6, dy * 1.6), onTap: tapAt }) : { active: false, stick: { x: 0, y: 0 } };
+// the first thing seen along a ray (as goTo sees: glass, glows and open door leaves passed), within far
+function seenAt(ndc, far) { seeRay.setFromCamera(ndc, camera); seeRay.far = far;
+  return seeRay.intersectObjects(scene.children, true).find(h => { let o = h.object; while (o) { if (!o.visible || o.name === "sky") return false; o = o.parent; }
+    const w = works.find(h); if (w?.b?.kind?.kind?.startsWith("door/") && w.aff && works.stateOf(w.b, w.aff) === "open") return false;
+    const m = h.object.material; return !(m?.isMeshBasicMaterial && m.blending === THREE.AdditiveBlending) && !(m?.visible === false); }) || null; }
+function farTap(ndc) {
+  const h = seenAt(ndc, 14); let t = h && works.find(h);
+  if (presences.size) { seeRay.far = 14; const ph = seeRay.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0];
+    if (ph && (!h || ph.distance < h.distance + 0.3)) t = { presence: ph.object.userData.presence, point: ph.point }; }
+  if (!t) return;
+  const P = t.point || h.point;
+  if (!TAPGO) { if (!t.presence) say(`${(t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here. (Double-tap to go to it.)`); return; }
+  goNear(P, t.presence ? 1.6 : 1.1, () => { if (t.presence) return actOn(t);
+    const d = camera.position.distanceTo(P); if (d > ray.far + 0.3) { say(`${(t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here.`); return; }
+    actOn({ b: t.b, aff: t.aff, i: t.i, point: P }); });
+}
+// to a stand a little short of P on the straight line to it (the nearest floor you can stand on there), facing it, in a
+// short glide (a third of a second: you see that you moved, and a tap on the way can stop the use), then then()
+function goNear(P, off, then) {
+  const hx = P.x, hy = -P.z, d = Math.hypot(hx - px, hy - py), k = Math.max(0, d - off) / (d || 1);
+  let tx = px + (hx - px) * k, ty = py + (hy - py) * k;
+  // the floor it stands on (the highest storey at or below it), or the ground outside; one height, searched round the
+  // stand (every storey tried at each point had found the study under the closet floor, and dropped you into it)
+  const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= P.y + 0.3).sort((a, b) => b - a)[0];
+  const h0 = lv == null ? ph : Math.abs(lv - ph) < 0.6 ? ph : lv, tries = site && !site.inHouse(tx, ty) ? [site.z(tx, ty)] : [h0];
+  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, h); if (g != null && Math.abs(g - h) < 0.6) return g; } return null; };
+  let g = stand(tx, ty);
+  for (let j = 1; g == null && j < 300; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
+  if (g == null) { then(); return; }
+  const yaw1 = Math.atan2(-(hx - tx), hy - ty), eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1), pitch1 = Math.max(-0.9, Math.min(0.6, Math.atan2(P.y - (g + eye), Math.hypot(hx - tx, hy - ty))));
+  let dyaw = yaw1 - yaw; while (dyaw > Math.PI) dyaw -= 2 * Math.PI; while (dyaw < -Math.PI) dyaw += 2 * Math.PI;
+  glide = { from: [px, py, ph, yaw, pitch], to: [tx, ty, g, yaw + dyaw, pitch1], t0: performance.now(), ms: Math.min(450, 180 + 60 * Math.hypot(tx - px, ty - py)), then, cancel: false };
+}
+const fingerAt = TOUCH ? fingerCue() : null;
+// (looking slows to 0.6 while the dot holds something and the drag is slow: fine aim, unnoticed on a turn (Mandryk &
+// Gutwin's sticky targets; Halo's friction))
+const touch = TOUCH ? touchControls(renderer.domElement, { strideLock: true, onLook: (dx, dy, speed = 1) => { const f = speed < 0.35 && aimAt.v ? 0.6 : 1; look(dx * 1.6 * f, dy * 1.6 * f); },
+  onTap: tapAt, onDown: (x, y) => { if (!onLine(x, y)) { const t = aim(ndcOf(x, y)); fingerAt(x, y, t ? cueOf(t)?.mode : null); } }, onLift: () => fingerAt(0, 0, null) }) : { active: false, stick: { x: 0, y: 0 }, stride: 0 };
+// the doorway helpers for the thumb (lab/touch.js doorAssist): steering onto a doorway's middle, and a shut door opened by walking into it
+const assist = TOUCH ? doorAssist({ openings: plan.openings, floorAt: (h) => floorOf(h), isOpen: (id) => passable(id), autodoor: AUTODOOR,
+  shutDoor: (id) => { const b = doorThing.get(id); return b && !isOpen(b) ? b : null; }, use: (b) => actOn({ b, aff: "leaf", i: null }) }) : null;
+window.__touch = () => ({ active: touch.active, stride: touch.stride, auto: !!touch.auto, glide: !!glide });
+const firstHint = () => window.__ok ? hint("touch-1", "stick on the left to walk · drag on the right to look · double-tap to go there", 7000) : setTimeout(firstHint, 500);
+if (TOUCH) setTimeout(firstHint, 1500);
 if (TOUCH) $("gate").hidden = true;
 // on a phone the centre dot aims and the thumb's button acts on what it is on
 const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
@@ -423,8 +485,22 @@ function goTo(ndc) {
     const m = h.object.material; return !(m?.isMeshBasicMaterial && m.blending === THREE.AdditiveBlending) && !(m?.visible === false); });
   if (!hit) return false;
   const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
-  const half = (SP ? SP.body().half : 0.22), floorish = n.y > 0.6;
-  let tx = hit.point.x, ty = -hit.point.z, th = hit.point.y;
+  const half = (SP ? SP.body().half : 0.22);
+  let tx = hit.point.x, ty = -hit.point.z, th = hit.point.y, floorish = n.y > 0.6;
+  // a stair's riser is the front of its tread: a double tap up a flight goes onto it (from the half landing, a tap up the
+  // next flight had found a riser as a wall, and set you on the floor under the stair)
+  if (!floorish && (plan.stairs || []).some(s => s.kind === "flight" && tx > s.rect.x0 - 0.05 && tx < s.rect.x1 + 0.05 && ty > s.rect.y0 - 0.05 && ty < s.rect.y1 + 0.05
+    && th > manor.levelOf(s.from) - 0.05 && th < manor.levelOf(s.to) + 0.05)) { floorish = true; th += 0.05; }
+  // a double tap at an open doorway (its jamb, its reveal, the floor just past it) goes through it, to a stride beyond its
+  // far side (the tap had set you before the jamb, still in the room you meant to leave)
+  if (TOUCH || Q.has("doorway")) { const f = floorOf(ph);
+    for (const o of plan.openings) { if (!o.rect || o.floor !== f || !passable(o.id)) continue;
+      const R = o.rect, ew = o.axis === "EW", cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, me = ew ? px - cx : py - cy, at = ew ? tx - cx : ty - cy, across = ew ? ty - cy : tx - cx, hw = (ew ? R.y1 - R.y0 : R.x1 - R.x0) / 2;
+      if (Math.abs(me) < 0.5 || Math.abs(across) > hw + 0.5) continue;
+      const past = Math.sign(at) === -Math.sign(me) && Math.abs(at) < 1.3, onJamb = !floorish && Math.abs(at) < 0.5 && th < manor.levelOf(f) + 2.4;
+      if (!past && !onJamb) continue;
+      tx = ew ? cx - Math.sign(me) * 0.9 : cx; ty = ew ? cy : cy - Math.sign(me) * 0.9; th = manor.levelOf(f); floorish = true;
+      yaw = ew ? (me > 0 ? Math.PI / 2 : -Math.PI / 2) : (me > 0 ? Math.PI : 0); break; } }
   if (!floorish) { const hz = new THREE.Vector2(n.x, -n.z); if (hz.lengthSq() < 1e-6) hz.set(Math.sin(yaw), -Math.cos(yaw)); hz.normalize(); tx += hz.x * (half + 0.45); ty += hz.y * (half + 0.45); }
   // the floor there: the hit's own height if a floor, else the floor under the point (try where you are, the storeys, the ground)
   // (a wall: your own storey first, then the storeys at or below the point you touched, highest first; from the hit's own
@@ -444,10 +520,11 @@ const ray = new THREE.Raycaster(); ray.far = 2.6;
 // aiming, with a forgiving circle (Kabe, 2026-10-07: small things like keys or a gate's bars are "hard to click on precisely
 // … a radio circle around it of a larger size that is invisible … when two objects are close enough … the center dot
 // shortest distance to the closest item … receives the focus"): the ray through the dot first; if it finds nothing
-// usable, rays in two rings round it (about 14 and 28 px; 24 and 48 px for a finger), and of the usable things they
+// usable, rays in two rings round it (about 14 and 28 px; 28 and 56 px for a finger: 56 css px is the 9 mm a thumb needs,
+// Parhi et al. 2006, Android's 48 dp and more; 48 had been 7-8 mm), and of the usable things they
 // meet, the one whose hit lies nearest the dot on screen takes the focus. Each ray stops at the first surface, so
 // nothing behind a wall is ever chosen.
-const aimAt = {}; const RINGS = TOUCH ? [[24, 8], [48, 12]] : [[14, 8], [28, 12]], _p = new THREE.Vector3();
+const aimAt = {}; const RINGS = TOUCH ? [[28, 8], [56, 12]] : [[14, 8], [28, 12]], _p = new THREE.Vector3();
 // (only what lies within reach and inside the aiming cone is tested: a cheap sphere test over everything first, then the
 // rays against the few left; casting every ring ray at every mesh cost 10-19 ms an aim beside the gates)
 const _s = new THREE.Sphere(), _v = new THREE.Vector3(), _f = new THREE.Vector3();
@@ -507,6 +584,7 @@ window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
 // the room's line under its name: its floor, and once the case's things in it have given all they hold, that you've done here
 function whereFloor(r) { $("where").querySelector(".f").textContent = `${r.floor} floor${CP?.searched(r.id) ? " · nothing more to find here" : ""}`; }
 function actOn(t) {
+  touch.stop?.();                                      // a locked stride ends at anything you do
   if (t?.presence) { CP?.talkTo(t.presence); return true; }
   // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
   const refloor = () => { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); return true; };
@@ -531,6 +609,10 @@ function actOn(t) {
   refreshView(true); return true; }
 function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
 const showCue = cues($("cross"), renderer.domElement);
+// what acting on t would do, as the cue shows it: talk, look, take, act, locked
+function cueOf(t) { return t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` }
+    : t.look || (t.b?.story && CP?.wouldLook(t.b.story, t.i)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` }
+    : t.b?.story && CP?.reachIn(t.b.story) ? { mode: "take", label: `take out ${CASE.things.find(q => q.id === CP.reachIn(t.b.story))?.label || "what is in it"}` } : works.cue(t)) : null; }
 
 // ---- what to draw: the room you stand in and what its open doorways show (refreshed on moving rooms, or a door)
 let here = null;
@@ -646,6 +728,17 @@ ENG.mark("ready");                                  // everything built and wire
 if (Q.get("precompile") === "1" && renderer.compileAsync) { camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ"); camera.updateMatrixWorld();
   try { await renderer.compileAsync(scene, camera); } catch (_) {} ENG.mark("compiled"); }
 let last = performance.now(), lastMoved = 0, flickAt = 0;
+// after a thumb's step: a shut door walked into opens (?autodoor=0: not); a locked stride that stalls ends; and the words
+// for the controls, once each, when they help (a long walk at walking pace, a stride, a stop at a jamb)
+const tw = { walk: 0, stride: 0, stuck: 0 };
+function thumbWalk(dt, ux, uy, blocked) {
+  if (assist) assist.push(px, py, ph, ux, uy, blocked, dt);
+  tw.stuck = blocked ? tw.stuck + dt : 0;
+  if (touch.auto && tw.stuck > 0.5) touch.stop();
+  if (touch.stride > 0.5) { tw.stride += dt; if (tw.stride > 2.5) hint("lock", "to keep striding: slide on up to the arrows and let go", 5000); }
+  else if (Math.hypot(touch.stick.x, touch.stick.y) > 0.5) { tw.walk += dt; if (tw.walk > 6) hint("stride", "push the stick to its edge to stride", 5000); }
+  const nd = tw.stuck > 1 && assist?.near(px, py, ph, ux, uy); if (nd && passable(nd.o.id)) hint("jamb", "double-tap the doorway to go through", 5000);
+}
 // ?fps / ?perf: the perf card (src/make/perfcard.js), timing drawn frames only, in render.js
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.05, (now - last) / 1000); last = now;
@@ -659,9 +752,13 @@ renderer.setAnimationLoop((now) => {
   let dx = 0, dy = 0;
   if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
-  if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
-  const n = Math.hypot(dx, dy);
-  if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * dt; dy = dy / n * a * sp * dt;
+  // the thumb: the stick pushed past four-fifths of its reach strides, up to the keyboard's shift pace (lab/touch.js);
+  // walking roughly at a doorway bends onto its middle (doorAssist); a tap's glide to something carries you
+  if (touch.active && !glide) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; if (assist) [dx, dy] = assist.steer(px, py, ph, dx, dy); }
+  const n = Math.hypot(dx, dy), tsp = touch.active ? 1 + touch.stride : 1;
+  if (glide) { const g = glide, k = Math.min(1, (now - g.t0) / g.ms), e = k * k * (3 - 2 * k), L = (i) => g.from[i] + (g.to[i] - g.from[i]) * e;
+    px = L(0); py = L(1); ph = L(2); yaw = L(3); pitch = L(4); if (k >= 1) { glide = null; if (!g.cancel) g.then(); } }
+  else if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * tsp * dt; dy = dy / n * a * sp * tsp * dt;
     const ox = px, oy = py, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
     let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; }
     // stopped at a jamb a little off a doorway's middle (the playtest stuck there, 0.36 m off): slide across, at walking
@@ -669,7 +766,8 @@ renderer.setAnimationLoop((now) => {
     if ((px - ox) * ux + (py - oy) * uy < 0.2 * L) { let side = 0;
       for (let off = 0.05; off <= 0.5 && !side; off += 0.05) for (const sg of [1, -1]) { const lx = ox - uy * off * sg, ly = oy + ux * off * sg;
         if (walk.groundAt(lx, ly, ph) != null && walk.groundAt(lx + ux * 0.35, ly + uy * 0.35, ph) != null) { side = sg; break; } }
-      if (side) { const nx = ox - uy * L * side, ny = oy + ux * L * side, h2 = walk.groundAt(nx, ny, ph); if (h2 != null) { px = nx; py = ny; ph = h2; } } } }
+      if (side) { const nx = ox - uy * L * side, ny = oy + ux * L * side, h2 = walk.groundAt(nx, ny, ph); if (h2 != null) { px = nx; py = ny; ph = h2; } } }
+    if (touch.active) thumbWalk(dt, ux, uy, (px - ox) * ux + (py - oy) * uy < 0.3 * L); }
   { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
   const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) * (crouch ? 0.55 : 1) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   if (moved) lastMoved = now;
@@ -687,9 +785,7 @@ renderer.setAnimationLoop((now) => {
   if (!window.__ok && !ENG.marks.tiles) ENG.mark("tiles");
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   /* the cue re-aims at most ~15 times a second */ aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
-  const t = aimAt.v, cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` }
-    : t.look || (t.b?.story && CP?.wouldLook(t.b.story, t.i)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` }
-    : t.b?.story && CP?.reachIn(t.b.story) ? { mode: "take", label: `take out ${CASE.things.find(q => q.id === CP.reachIn(t.b.story))?.label || "what is in it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+  const cue = cueOf(aimAt.v); showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   // (a fire's flicker alone redraws at most 20 times a second: a hall with its fire in view had drawn every frame standing
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
   const burning = flicker(now) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
