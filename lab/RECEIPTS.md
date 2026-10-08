@@ -996,3 +996,13 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
 - **New code:** src/make/assets.js (~110 lines), tools/asset-manifest.mjs (~100), tools/inject-assets.mjs (~40), 15 lines in tools/publish-site.sh, tests/.assets-hook.mjs (draft, awaiting vetting). Reused: nothing (jsDelivr's `gh/<repo>@<sha>/<path>` form is its own).
 - **Moved:** 197 files, 129 MB (123 paintings, 26 meshes, the painted-room textures, gallery images) in 49 commits; 9.7 KB manifest. Publish cost: about 80 s once, for one HEAD per commit to warm jsDelivr.
 - **Run time:** the hook adds nothing measurable per request (a hash lookup); a first visit costs the same bytes and time as before; a visit after Pages' 10 minutes re-validates no heavy file at all.
+
+## Vertex arrays let go on phones (2026-10-08)
+- **New code:** src/make/geodrop.js (~75 lines), 5 lines in lab/manor/index.html; tests/.geodrop.mjs (memory), tests/.geodrop-play.mjs (the case played by taps, to diff against ?geodrop=0). Reused: nothing (three r186's WebGPU backend has no onUpload hook: its call is commented out).
+- **What goes:** normals, uvs, colours and other static attributes, each once the GPU has it; positions and indexes stay (every raycast: aim, the double tap's goTo over the whole scene, the body, the presences, the authoring checks). Phones by default; ?geodrop=0 keeps all, ?geodrop=1 on a desktop.
+- **Measured** (headless Chromium, RX 460, 390×844 at DPR 3, ?case=case-1660&fresh, after warm and a GC):
+  - held vertex arrays 187 → 68 MB (118.6 MB let go, 4105 attributes of 1344 geometries);
+  - JS heap with array buffers (performance.memory) 247 → 130 MB;
+  - renderer process RSS 537–542 → 390–420 MB (WebGL 2: 507 → 352 MB); GPU process and renderer.info unchanged.
+- **Run time:** the sweep 25–35 ms in all by walkable + 10 s, in 3 ms slices every 1.5 s; then about 25 ms a minute of play (a walk of the scene graph every 1.5 s, new ground and hillside tiles let go as they come).
+- **Checked:** the case by taps at a phone (Dame Anne, the muniment key and candlestick, Daniel's chest reached into, the body, d18 opened and walked through, double taps on floor, wall and ground, the gates, down the hill): every step the same as ?geodrop=0 (positions to 0.02 m from key-hold timing), screenshots within 0.5 of a level; WebGL 2 the same; every material rebuilt and the shadow redrawn after the drop, no error; __sight/__fight/__seal identical.
