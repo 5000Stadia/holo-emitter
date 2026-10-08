@@ -69,6 +69,19 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     else for (const c of fresh) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
     step();
   }
+  // looking: a thing whose clue is had by looking (the body, the chest's clean corner, the candlestick's dent, a drawer
+  // standing open on a paper) is looked at on the first tap, before it is worked: the playtest's taps had lit the evidence
+  // candle, shut the open drawer unread, and been refused by the padlocked chest, and taught nothing
+  const lookClues = (id) => arr(arr(k.things).find(q => q.id === id)?.clue).filter(c => /look/.test(clues.get(c)?.reveal || "") && !frame.learned.has(c));
+  const wouldLook = (id) => !!id && lookClues(id).length > 0;
+  function look(id) {
+    const thing = arr(k.things).find(q => q.id === id), want = lookClues(id); if (!thing || !want.length) return false;
+    pending.push({ type: "open", id }); R.opened++;
+    const fresh = want.filter(c => learn(c, thing.label || thing.kind)), paper = k.papers?.[id];
+    if (paper && panel.openReader) { if (!papersRead.includes(id)) papersRead.push(id); panel.openReader({ ...paper, noted: fresh.map(c => ({ label: label(c) })) }); }
+    else for (const c of fresh) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
+    step(); return true;
+  }
   const openPaper = (id) => k.papers?.[id] && panel.openReader({ ...k.papers[id] });
 
   // ---- talking: open the panel on a person
@@ -227,5 +240,5 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // the leads: the case's own
   if (k.leads) useLeads(k.leads);
   const resumed = saved?.case === k.id ? { minutes: +((saved.R?.played || 0) / 60000).toFixed(0), clues: frame.learned.size } : null;
-  return { resumed, snapshot, receipts, openPaper, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  return { resumed, snapshot, receipts, openPaper, look, wouldLook, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }

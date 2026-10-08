@@ -3093,7 +3093,11 @@
    "kind": "bed/standing-curtained",
    "at": "steward_chamber",
    "carry": false,
-   "why": "the steward's chamber is a bedchamber; its anchor"
+   "why": "the steward's chamber is a bedchamber; its anchor; its curtains drawn back: he is laid out to be seen, and they had hidden him (playtest 2026-10-08)",
+   "state": {
+    "left": "open",
+    "right": "open"
+   }
   },
   {
    "id": "body_hollins",

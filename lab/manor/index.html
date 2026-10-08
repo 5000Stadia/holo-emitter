@@ -274,7 +274,7 @@ const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 // ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
 // narrator in code (the live narrative is construct's, over the contract: design/case/boundary-with-construct.md)
-let CP = null; const presences = new Map();
+let CP = null; const presences = new Map(), lookMeshes = [];
 if (CASE) {
   const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values());
   // what the house's own builders made (the muniment room is built from its brief, not by the placer): adopted by kind
@@ -288,10 +288,15 @@ if (CASE) {
   const knownKinds = new Set(kinds().map(k => k.kind));
   for (let pass = 0; pass < 4; pass++) for (const t of CASE.things || []) { if (byStory.has(t.id) || !knownKinds.has(t.kind)) continue; const host = byStory.get(t.at); if (!host) continue;
     const b = build(THREE, K, look1660, t.kind, `case/${t.id}`, caseSettings(t)); b.story = t.id; b.node.userData.story = t.id;
-    const sl = host.slots?.get(t.slot || kindOf(t.kind)?.place?.slot || "top") || host.slots?.get("top") || host.slots?.get("inside");
-    if (sl) { b.node.position.set(...sl.at); sl.node.add(b.node); }
+    const want = t.slot || kindOf(t.kind)?.place?.slot || "top", name = host.slots?.has(want) ? want : host.slots?.has("top") ? "top" : "inside", sl = host.slots?.get(name);
+    // several in one slot laid side by side within it, as the placer does (src/make/manor.js): the steward's key had been
+    // set at the very point the table candlestick stood, inside its foot, and could not be seen or tapped
+    if (sl) { const area = host.info?.slots?.[name]?.area, k = (sl.count = (sl.count || 0) + 1) - 1, w = Math.max(0.36, area?.[0] ?? 0.4);
+      b.node.position.set(sl.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), sl.at[1], sl.at[2]); b.node.rotation.y = kindOf(t.kind)?.place?.turn ?? 0.35; sl.node.add(b.node); }
     else { const bb = new THREE.Box3().setFromObject(host.node); b.node.position.set((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2); scene.add(b.node); }
     works.add(b); manor.things.push(b); byStory.set(t.id, b); }
+  // what is only looked at (the body laid out: nothing to work, nothing to carry), aimed at by its own meshes
+  for (const b of byStory.values()) if (!Object.keys(b.kind.affordances || {}).length && (CASE.things.find(t => t.id === b.story)?.clue)) b.node.traverse(o => { if (o.isMesh) { o.userData.look = b.story; lookMeshes.push(o); } });
   // fair by the project's own check, at load (ms)
   const fp = fairPlay(CASE, { plan }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)) });
   window.__case = { check: cc, fair: fp, placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) };
@@ -409,18 +414,21 @@ const aimAt = {}; const RINGS = TOUCH ? [[24, 8], [48, 12]] : [[14, 8], [28, 12]
 // rays against the few left; casting every ring ray at every mesh cost 10-19 ms an aim beside the gates)
 const _s = new THREE.Sphere(), _v = new THREE.Vector3(), _f = new THREE.Vector3();
 let near = null;
-function nearAim() { camera.getWorldDirection(_f); const cone = Math.atan(((RINGS.at(-1)[0] + 40) * 2 / innerHeight) * Math.tan(camera.fov * Math.PI / 360)) + 0.05, out = [];
+// (the cone round the tapped point's ray, not the screen's middle: a tap low on the screen, on the padlock key in an open
+// drawer, had found only what lay round the middle, and shut the drawer instead)
+function nearAim(c = null) { if (c) { ray.setFromCamera(c, camera); _f.copy(ray.ray.direction); } else camera.getWorldDirection(_f); const cone = Math.atan(((RINGS.at(-1)[0] + 40) * 2 / innerHeight) * Math.tan(camera.fov * Math.PI / 360)) + 0.05, out = [];
   for (const m of works.meshes()) { if (!m.geometry) continue; if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere(); _s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld);
     _v.subVectors(_s.center, camera.position); const d = _v.length(); if (d - _s.radius > ray.far) continue;
     if (d > _s.radius && Math.acos(Math.min(1, _v.dot(_f) / d)) - Math.asin(Math.min(1, _s.radius / d)) > cone) continue; out.push(m); }
   return out; }
 function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(near || works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point;
   // a person present (a case's): the nearer of them and the thing aimed at
+  if (lookMeshes.length) { const lh = ray.intersectObjects(lookMeshes.filter(m => m.visible !== false), false)[0]; if (lh && lh.distance < ray.far && (!h || lh.distance < h.distance)) return { look: lh.object.userData.look, point: lh.point }; }
   if (presences.size) { const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
   return t; }
-window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : { kind: t.b?.kind?.kind, aff: t.aff }) : null; };
+window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff }) : null; };
 const _b = new THREE.Box3(), _c = new THREE.Vector3();
-const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(); const first = aimOne(c); if (first) { near = null; return first; }
+const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(c); const first = aimOne(c); if (first) { near = null; return first; }
   // each usable thing near the aim: how far its outline lies from the dot on screen (its box's corners projected),
   // nearest first; within the circle, one ray to its nearest point confirms it (and that nothing stands in front)
   const R = RINGS.at(-1)[0], cands = [];
@@ -446,6 +454,9 @@ function act(ndc) { const t = aim(ndc || (document.pointerLockElement === render
 window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
 function actOn(t) {
   if (t?.presence) { CP?.talkTo(t.presence); return true; }
+  // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
+  if (t?.look) { CP?.look(t.look); return true; }
+  if (t?.b?.story && CP?.wouldLook(t.b.story)) { CP.look(t.b.story); return true; }
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
   if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
   if (SP?.beforeAct(t)) return true;
@@ -609,7 +620,8 @@ renderer.setAnimationLoop((now) => {
   if (!window.__ok && !ENG.marks.tiles) ENG.mark("tiles");
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   /* the cue re-aims at most ~15 times a second */ aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
-  const t = aimAt.v, cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+  const t = aimAt.v, cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` }
+    : t.look || (t.b?.story && CP?.wouldLook(t.b.story)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); }

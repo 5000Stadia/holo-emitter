@@ -8,6 +8,8 @@ export const ICONS = {
   act: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path ${STROKE} d="M9.5 13V4.6a1.5 1.5 0 0 1 3 0V11l4.6.9a2.4 2.4 0 0 1 1.9 2.7l-.7 4.4A3.5 3.5 0 0 1 14.8 22H11a3.6 3.6 0 0 1-2.9-1.5l-3.3-4.6a1.5 1.5 0 0 1 2.3-1.9z"/></svg>`,
   // a person present to question (a case's): a speech bubble
   talk: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path ${STROKE} d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5h-8l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5z"/></svg>`,
+  // a thing to look at (a case's: the body, a mark on the chest): an eye
+  look: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path ${STROKE} d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3.2" fill="#f2ead8"/></svg>`,
   locked: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><rect ${STROKE} x="5" y="11" width="14" height="10" rx="2"/><path ${STROKE} fill="none" d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.4" fill="#f2ead8"/></svg>`,
 };
 const cursorOf = (k) => `url("data:image/svg+xml,${encodeURIComponent(ICONS[k])}") 12 12, pointer`;
