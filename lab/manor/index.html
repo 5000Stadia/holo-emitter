@@ -49,7 +49,7 @@
 import * as THREE from "three/webgpu";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { makeKit } from "../painted/procedural.js";
-import { textureLog } from "../painted/texjobs.js";
+import { textureLog, TEX_HALF } from "../painted/texjobs.js";
 import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
@@ -133,7 +133,7 @@ const brief = await (await fetch("../brief/manor-1660.json")).json();
 // a place with an outside (the manor, the banqueting house) is drawn with log depth, near and far (fps lab: a 5 km view holds
 // at no measurable cost); a story's hall underground is not
 const OUTDOOR = !STORY && Q.get("outdoor") !== "0";
-const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG;
+const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG; ENG.flags.tex = TEX_HALF ? "half" : "full";
 THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
 // (defer: the kit's textures are drawn in its workers while the house goes up, or come from the last visit's cache)
