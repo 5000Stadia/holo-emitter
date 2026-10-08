@@ -1,6 +1,6 @@
 // How well the no-model reader (src/make/intent.js) reads a real player's questions to the four suspects of case-1660:
 // the corpus tests/fixtures/intent-corpus-1660.json (each question labelled with the topic and stance a good game master
-// would pick, `also` the other topics one could equally pick; a quarter marked `held`, kept out of tuning: its misses
+// would pick, `also` the other topics one could equally pick, `else` what is right while that topic isn't open; a quarter marked `held`, kept out of tuning: its misses
 // print only with --held), read with
 // the context src/make/case-play.js words() builds, in two frames: the start (nothing learned) and mid-game (about half
 // the clues learned, so the topics marked `after` are open, and three things held). The proposed topic words in
@@ -49,7 +49,8 @@ function run(items, frameName, withOwn = false) {
     const ctx = { ...ctxOf(it.who, frame), ...(withOwn ? { own: ownOf(it.who) } : {}) }, open = new Set([...ctx.topics.map(t => t.id), ...ctx.people.map(p => `person:${p.id}`)]);
     // what counts as right here: the label and its equals that are open in this frame; a closed one reads right as none
     let want = it.topic === "*" ? null : it.topic === "none" ? ["none"] : [it.topic, ...arr(it.also)].filter(t => open.has(t));
-    if (want && !want.length) want = ["none"];
+    // (`else`: what is right while the matter isn't open yet, "what of Francis" for his buttery before his hand is a matter)
+    if (want && !want.length) { const alt = arr(it.else).filter(t => open.has(t)); want = alt.length ? alt : ["none"]; }
     const t0 = performance.now(), r = readIntent(it.q, ctx), ms = performance.now() - t0;
     rows.push({ it, r, ms, want, topicOk: !want || want.includes(r.topic), stanceOk: r.stance === it.stance || arr(it.stanceAlso).includes(r.stance) });
   }

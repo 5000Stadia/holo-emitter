@@ -95,6 +95,10 @@ const rawWords = (s) => { let r = RAW.get(s); if (r) return r; r = plain(s).spli
   if (RAW.size > 5000) RAW.clear(); RAW.set(s, r); return r; };
 const words = (s) => rawWords(s).filter(w => !STOP.has(w)).map(stem);
 const GROUP_OF = new Map(); for (const g of GROUPS) for (const w of g) GROUP_OF.set(stem(w), g.map(stem));
+// the words said of anyone at all (when, where, money, blood, a table: the house has three): naming a person with only
+// these is about them ("what did Francis do last night?", "was he bleeding?", "did the lawyer leave the table?"); any
+// other matter word named beside a person is about the matter (below)
+const GENERAL = new Set("where night evening yesterday late hour clock last time master money first blood bloody bleed bled table".split(" ").map(stem));
 const vowelless = (w) => w.replace(/[aeiouy]/g, "").replace(/(.)\1+/g, "$1");
 const collapse = (w) => w.replace(/(.)\1+/g, "$1");
 // the optimal-string-alignment distance (an edit, or two letters swapped), giving up past `max`
@@ -139,6 +143,8 @@ const TEMPLATES = [
   [/\b(did|didst) (you|u|thou) (see|hear|meet|pass) (any|anyone|anybody|someone|somebody|any one|a soul|aught)\b|\b(see|saw|seen|hear|heard)\b.*\b(stairs?|staircase|passage|gallery|landing)\b/i, WHERE_HINT, 1, "unnamed"],
   // what brings the stranger here: his business is the sale
   [/\b(what|which) (business|errand|affair|purpose)\b|\b(bring|brings|brought) (you|thee|ye|an? \w+( \w+)?) (here|hither)\b|\bhither\b/i, ["sale"]],
+  // money handed to someone ("did you give money to Wragg?") is a payment: the matter of money paid, not the one paid
+  [/\b(give|gave|given|giving|pay|paid|slip|slipped|hand|handed|lend|lent)\s+(\w+\s+)?(money|coin|coins|gold|pounds|guineas|shillings)\b|\b(money|gold|coin|coins) to\b/i, ["gold", "bribe", "pay"]],
   // the threat at supper: "he'd not live to see it sealed" is of the steward
   [/\b(not|never|wouldn'?t|would not|won'?t|will not|shan'?t|shall not) live to see\b|\blive to see (it|the deed|the sale)\b/i, ["steward"]],
   [/\bwho (else )?(is|are|was|were|lives?|lived|stays?|stayed|sleeps?|slept)\b.*\b(here|house|household|staying|about|present|living)\b|\bwho else\b|\bwhere (is|are) (every|all)\w*\b/i, ["household", "house", "present"]],
@@ -206,11 +212,13 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
 
   // ---- the scores
   const score = new Map(), first = new Map(), add = (id, v, at = 99) => { if (!id || !v) return; score.set(id, (score.get(id) || 0) + v); if (!first.has(id) || at < first.get(id)) first.set(id, at); };
+  let matter = 0;   // the strongest word for a matter of its own (not a time, a place in general, money in general, him)
   for (const c of cands) { let strong = 0, weak = 0, at = 99;
-    for (const x of said) { let best = 0, isWeak = false;
+    for (const x of said) { let best = 0, isWeak = false, bs = null;
       // (the deceased is the subject of nearly every question: naming him is a weak vote for the topic about him)
-      for (const [s, v] of x.stems) if (c.keys.has(s)) { const weak = WEAK.has(s) || TITLES.has(s) || c.dead, wt = TITLES.has(s) ? 0.25 * v : weak ? 0.6 * v : v; if (wt > best) { best = wt; isWeak = weak; } }
-      if (!best) continue; at = Math.min(at, x.at); if (isWeak) weak = Math.max(weak, best); else strong += best; }
+      for (const [s, v] of x.stems) if (c.keys.has(s)) { const weak = WEAK.has(s) || TITLES.has(s) || c.dead, wt = TITLES.has(s) ? 0.25 * v : weak ? 0.6 * v : v; if (wt > best) { best = wt; isWeak = weak; bs = s; } }
+      if (!best) continue; at = Math.min(at, x.at); if (isWeak) weak = Math.max(weak, best); else strong += best;
+      if (!c.dead && !GENERAL.has(bs) && !TITLES.has(bs)) matter = Math.max(matter, best); }
     if (strong + weak) add(c.id, strong + weak, at); }
   // a name with 's and a thing that is a matter of its own ("Francis's hand", the hand open as a matter) is about the
   // thing: the name counts half, and the question isn't about them ("blood on Francis's shirt" is still about Francis
@@ -223,7 +231,10 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
       for (const gw of g) { let hit = 0; for (const x of said) { const v = x.stems.get(gw) || 0; if (v > hit) { hit = v; pos = Math.min(pos, x.at); } } ok = Math.min(ok, hit); }
       if (ok > best) { best = ok; at = pos; } }
     const own = p.groups.some(g => g.length === 1 && owns.has(g[0]));
-    if (best) { add(p.id, own ? best / 2 : best, at); if (own) why.push(`${p.id}'s`); else if (!named || at < named.at) named = { id: p.id, at, female: p.female }; } }
+    // (another person named beside a matter of its own is the matter's: "did Francis go to the buttery?" is his cut hand,
+    // "how much did Francis lose?" the cards; they had read as "what of Francis", and the player got Cressy's view of him)
+    const side = !own && matter >= 0.5;
+    if (best) { add(p.id, own || side ? best / 2 : best, at); if (own) why.push(`${p.id}'s`); else { if (side) why.push(`${p.id} beside a matter`); if (!named || at < named.at) named = { id: p.id, at, female: p.female, side }; } } }
   // pronouns: "she/her" the one woman not being questioned, when no one is named; "he/him/his" the deceased, when no
   // one else is
   const pron = raw.find(w => /^(he|him|his|she|her|hers)$/.test(w));
@@ -236,7 +247,7 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
   if (test(TIME) || TIME.test(raw.map(w => num.get(w) || w).join(" "))) { add(whereTopic, 0.6); why.push("a time"); }
   for (const [re, hints, wt = 1, only] of TEMPLATES) if (!(only === "unnamed" && named) && test(re)) { const t = hintTopic(hints); if (t) { add(t, wt, 50); why.push(`template → ${t}`); } }
   // a question with no "you" in it that names someone is about them ("where was Francis at eleven?")
-  if (named && !toThem) { add(named.id, 0.5); why.push(`about ${named.id}`); }
+  if (named && !toThem && !named.side) { add(named.id, 0.5); why.push(`about ${named.id}`); }
   // a question to them with "you" in it, naming another and a matter of theirs, is about the matter ("did you play
   // cards with Cressy?"): the matter wins a tie with the person
   const ranked = [...score].sort((a, b) => b[1] - a[1] || tieBreak(a[0], b[0]));
