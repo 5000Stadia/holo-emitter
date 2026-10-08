@@ -6,16 +6,24 @@
 // that" (the player must catch it), the one honest sign is a brass rule when a line put something in your notebook.
 //
 //   makeTalkPanel({ onAsk(topicId, stance), onSay(text), onShow(clueOrThingId, lastTopicId), onAccuse(choice), onClose(),
-//                   onOpenAccusation(), onOpenNotebook() })     // the last two: the panel asks, the host answers by calling
+//                   onOpenAccusation(), onOpenNotebook(), onOpenPaper(id) })   // the last three: the panel asks, the host answers
 //     -> { open({ who, name, role?, portrait: canvas, intro?, topics, evidence }), say({ who: "them"|"you"|"aside", text, act, noted }),
 //          setTopics(list), setEvidence(list), busy(bool), guarded(bool), close(), openNotebook(summary),
-//          openAccusation({ suspects, pillars, groups? }), accusationResult({ group, ok, text? }), verdict({ title, text }), isOpen(), destroy() }
+//          openAccusation({ suspects, pillars, groups? }), accusationResult({ group, ok, text? }), verdict({ title, text }),
+//          openReader({ title, hand?, ground?, parts | sheets, noted?, onClose? }), isOpen(), destroy() }
 //   stance is "ask" or "press" (a toggle that applies to the next topic); "show" is onShow, which carries the last topic.
 //   topics [{ id, label }], in the order the host wants them (what you have learned first): the first six not yet asked are
 //   shown, the rest behind "More…", so the player is never stuck and the text box is only a shortcut. Ids "person:<id>" read as
 //   "What of <name>". guarded(true) is a suspect who has closed up (a wrong item shown): the chips dim, nothing is lost.
 //   evidence [{ id, label, kind: "clue"|"thing" }].
-//   notebook summary { persons: [{ id, name, note }], clues: [{ id, label, from }], contradictions: [{ id, text }] }.
+//   notebook summary { persons: [{ id, name, note }], clues: [{ id, label, from }], contradictions: [{ id, text }], papers?: [{ id, title }] };
+//     papers (what you have read) get their own tab, and tapping one calls onOpenPaper(id): the host answers with openReader.
+//   reader: a paper as it is written, on parchment or paper (design/case/case-1660.papers.json documents the shape and is
+//     passed straight in). hand "secretary" | "italic" | "engrossing"; ground "parchment" | "paper" (by the hand if absent);
+//     parts [{ text, mark?, hand? }] flow as paragraphs ("\n\n" a new one, "\n" a line), inline marks rasure | struck | added |
+//     caps, block marks { mark, text | parts } head | margin | sign | seal | endorsed | aside (what you see, not what is
+//     written); sheets [{ title, hand, ground?, parts }] for a bundle. noted [label | { label }] is the brass "In your book"
+//     line when the reading put clues in the notebook. Nothing marks where the clue is but the paper itself.
 //   accusation { suspects: [{ id, name }], pillars: [{ id, label, lead?, options: [{ id, label }] }],
 //     groups?: [{ id, label, keys: ["suspect", pillarId, ...] }] }; blanks are confirmed a group at a time (after Return of the
 //     Obra Dinn), so guessing one blank cannot win: onAccuse({ group, picks: { key: optionId }, all }) and the host answers
@@ -28,6 +36,10 @@ const LEADS = { victim: "killed", killed: "killed", means: "by", method: "by", w
 
 const CSS = `
 .tp{--ink:#ece4d2;--dim:#a89e88;--line:rgba(236,228,210,.18);--brass:#c9a35c;--paper:rgba(18,15,12,.965);--serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --fell:"IM Fell English",Georgia,"Times New Roman",serif;--fellsc:"IM Fell English SC","IM Fell English",Georgia,serif;--hand:"Fondamento","IM Fell English",Georgia,serif;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .36 0 0 0 0 .24 0 0 0 0 .1 0 0 0 .3 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --scrape:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='60'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .9' numOctaves='2' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .32 0 0 0 0 .16 0 0 0 1.1 -.42'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+  --mottle:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.011' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .32 0 0 0 0 .1 0 0 0 .55 -.16'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
   position:fixed;inset:0;z-index:30;pointer-events:none;color:var(--ink);font:13px/1.45 var(--mono);-webkit-text-size-adjust:100%}
 .tp *{box-sizing:border-box}
 .tp :where(button){font:inherit;color:inherit;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
@@ -122,10 +134,51 @@ const CSS = `
 .tp-opt[aria-checked=true]::before{border-color:var(--brass);background:radial-gradient(var(--brass) 45%,transparent 50%)}
 .tp-verdict h2{margin:6px 0 8px;font:600 32px/1.05 var(--serif);color:var(--brass)}
 .tp-verdict p{margin:0 0 10px;font:500 20px/1.35 var(--serif)}
+.tp-paper{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;text-align:left;padding:8px 12px;border:1px solid rgba(201,163,92,.45);border-radius:8px;background:rgba(201,163,92,.07);font:500 20px/1.15 var(--serif)}
+.tp-paper svg{flex:none;width:22px;height:22px;stroke:var(--brass);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.tp-paper:hover{border-color:var(--brass)}
+.tp-sheet.tall.rd{height:auto;max-height:min(calc(var(--vvh,100vh) * .9),780px)}
+.rd .tp-read{flex:0 1 auto}
+.tp-rdhead .tp-title{font-size:21px;line-height:1.12}
+.tp-read{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px 12px 24px;display:flex;flex-direction:column;gap:14px;outline:0}
+.tp-leafcap{flex:none;margin:4px 4px -6px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tp-leaf{--quill:#2e1d0d;--faint:rgba(70,45,18,.62);flex:none;position:relative;color:var(--quill);padding:22px 20px 24px;border-radius:2px;font:18.5px/1.5 var(--fell);
+  box-shadow:0 8px 26px rgba(0,0,0,.6),inset 0 0 0 1px rgba(90,60,20,.22),inset 0 0 42px rgba(120,78,28,.34);-webkit-hyphens:auto;hyphens:auto;overflow-wrap:break-word;animation:tp-in .3s ease-out}
+.tp-leaf::after{content:"";display:block;clear:both}
+.tp-leaf.parchment{background:var(--mottle),var(--grain),radial-gradient(130% 90% at 45% 35%,#f3e5c3,#e6d1a2 62%,#d2b67f)}
+.tp-leaf.paper{background:var(--grain),repeating-linear-gradient(90deg,transparent 0 34px,rgba(110,80,40,.06) 34px 35px),repeating-linear-gradient(0deg,transparent 0 2px,rgba(110,80,40,.03) 2px 3px),linear-gradient(170deg,#f3ecdb,#e8dcc0);
+  box-shadow:0 8px 26px rgba(0,0,0,.6),inset 0 0 0 1px rgba(90,60,20,.18),inset 0 0 30px rgba(120,78,28,.22)}
+.tp-leaf p{margin:0 0 .65em}
+.tp-leaf .h-engrossing,.tp-leaf.h-engrossing{font-family:var(--fell);font-style:normal}
+.tp-leaf.h-engrossing{--quill:#2c1d0e;font-size:17.5px;text-align:justify;line-height:1.55}
+.tp-leaf .h-italic,.tp-leaf.h-italic{font-family:var(--fell);font-style:italic}
+.tp-leaf .h-secretary,.tp-leaf.h-secretary{font-family:var(--hand);font-style:normal}
+.tp-leaf.h-secretary{--quill:#3a2312;font-size:17.5px;line-height:1.6}
+.tp-caps{font:1.45em/1 var(--fellsc);letter-spacing:.03em}
+.tp-ras{padding:.08em .2em;margin:0 -.05em;color:#090502;letter-spacing:.07em;word-spacing:.12em;text-shadow:0 0 .8px rgba(20,10,0,.75),.3px 0 .6px rgba(20,10,0,.35);-webkit-box-decoration-break:clone;box-decoration-break:clone;
+  background:var(--scrape),linear-gradient(90deg,rgba(250,243,222,0),rgba(250,243,222,.62) .5em,rgba(247,239,214,.5) 45%,rgba(250,243,222,.66) calc(100% - .5em),rgba(250,243,222,0))}
+.tp-leaf s{text-decoration:line-through 1.5px;text-decoration-color:rgba(46,29,13,.85);color:var(--faint)}
+.tp-add{white-space:nowrap}
+.tp-add sup{font-size:.68em;line-height:0;vertical-align:.95em;margin-left:-.1em}
+.tp-marg{float:right;width:44%;margin:.1em -.3em .5em .75em;padding:.05em 0 .1em .55em;border-left:1px solid rgba(60,35,10,.32);font-size:.8em;line-height:1.38;text-align:left}
+.tp-dhead{margin:0 0 .55em;text-align:center;font-size:1.04em}
+.tp-sign{margin:.15em 0 .55em;text-align:right}
+.tp-sealrow{display:flex;justify-content:flex-end;align-items:center;gap:12px;margin:.3em 0 .6em}
+.tp-seal{flex:none;width:44px;height:44px;border-radius:50%;position:relative;background:radial-gradient(circle at 37% 33%,#c4493b,#8e2419 56%,#5c130c);box-shadow:0 2px 4px rgba(0,0,0,.4)}
+.tp-seal::after{content:"";position:absolute;inset:7px;border-radius:50%;border:1.5px solid rgba(255,190,170,.28)}
+.tp-endorse{clear:both;margin:1em 0 0;padding-top:.65em;border-top:1px dashed rgba(60,35,10,.34);font-size:.86em;line-height:1.4;color:var(--faint)}
+.tp-endorse small{display:block;margin-bottom:.45em;font:500 9.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;font-style:normal;color:rgba(70,45,18,.55)}
+.tp-desc{clear:both;margin:0 0 .75em;font:italic 500 16px/1.32 var(--serif);color:var(--faint);text-align:left}
+.tp-desc + .tp-desc,.tp-leaf > :last-child.tp-desc{margin-bottom:0}
+.tp-rdfoot{flex:none;padding:9px 16px 12px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
+.tp-rdfoot:empty{display:none}
+.tp-rdfoot .tp-noted{margin:0}
+.tp-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
 @media (min-width:700px){
   .tp-sheet{left:auto;right:16px;bottom:calc(var(--vvb,0px) + 16px);width:410px;height:min(660px,calc(var(--vvh,100vh) - 32px));border:1px solid var(--brass);border-radius:14px}
   .tp-sheet.tall{left:50%;right:auto;margin-left:-290px;width:580px;height:min(740px,calc(var(--vvh,100vh) - 32px))}
   .tp-sheet.short{height:min(520px,calc(var(--vvh,100vh) - 32px))}
+  .tp-sheet.tall.rd{height:auto;max-height:min(740px,calc(var(--vvh,100vh) - 32px))}
 }
 @media (max-height:520px){
   .tp-sheet{height:calc(var(--vvh,100vh) - 12px)}
@@ -142,7 +195,11 @@ const ICON = {
   book: '<svg viewBox="0 0 24 24"><path d="M12 6.5C9.8 5 6.8 4.5 3.5 5v13c3.3-.5 6.3 0 8.5 1.5 2.2-1.5 5.200-2 8.500-1.500V5c-3.300-.5-6.300 0-8.500 1.500z"/><path d="M12 6.500v13"/></svg>',
   send: '<svg viewBox="0 0 24 24"><path d="M4 12h14M12 5l7 7-7 7"/></svg>',
   back: '<svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>',
+  paper: '<svg viewBox="0 0 24 24"><path d="M6 3.5h9l3.5 3.5v13.5H6z"/><path d="M15 3.5V7h3.5M9 11h6.5M9 14h6.5M9 17h4"/></svg>',
 };
+// the papers' faces: IM Fell (the Fell types, cut in the 1670s) for the engrossing and italic hands, Fondamento for the
+// secretary's everyday hand; Georgia stands in until they load, or for good if they never do
+const FONTS = "https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Fondamento&display=swap";
 
 function h(tag, a = {}, ...kids) {
   const e = document.createElement(tag);
@@ -157,9 +214,10 @@ function h(tag, a = {}, ...kids) {
 
 export function makeTalkPanel(options = {}) {
   const { onAsk = () => {}, onSay = () => {}, onShow = () => {}, onAccuse = () => {}, onClose = () => {},
-    onOpenAccusation = null, onOpenNotebook = null, history: useHistory = true } = options;
+    onOpenAccusation = null, onOpenNotebook = null, onOpenPaper = null, history: useHistory = true } = options;
 
   if (!document.getElementById("tp-css")) document.head.append(h("style", { id: "tp-css", text: CSS }));
+  if (!document.getElementById("tp-fonts")) document.head.append(h("link", { id: "tp-fonts", rel: "stylesheet", href: FONTS }));
   const root = h("div", { class: "tp" });
   document.body.append(root);
 
@@ -357,22 +415,24 @@ export function makeTalkPanel(options = {}) {
   const nb = sheet("tall", "Your notebook");
   const nbTabs = h("div", { class: "tp-tabs", role: "tablist" }), nbPage = h("div", { class: "tp-page", role: "tabpanel", tabindex: "0" });
   nb.append(grip(nb), h("div", { class: "tp-head" }, h("div", { class: "tp-title", text: "Your notebook" }), h("button", { class: "tp-ib", "aria-label": "Close notebook", html: ICON.close, onclick: back })), nbTabs, nbPage);
-  let nbData = { persons: [], clues: [], contradictions: [] }, nbTab = "clues";
+  let nbData = { persons: [], clues: [], contradictions: [], papers: [] }, nbTab = "clues";
   function renderNotebook() {
     const tabs = [["persons", "Persons", nbData.persons], ["clues", "Clues", nbData.clues], ["catch", "Caught out", nbData.contradictions]];
+    if (nbData.papers.length) tabs.push(["papers", "Papers", nbData.papers]); else if (nbTab === "papers") nbTab = "clues";
     nbTabs.replaceChildren(...tabs.map(([k, label, list]) => h("button", { class: "tp-tab", role: "tab", "aria-selected": String(nbTab === k), text: `${label} ${list.length || ""}`.trim(), onclick: () => { nbTab = k; renderNotebook(); } })));
     nbPage.replaceChildren();
     const quiet = { persons: "No one met yet.", clues: "Nothing set down yet.", catch: "No one caught in a falsehood, yet." }[nbTab];
-    const list = nbTab === "persons" ? nbData.persons : nbTab === "clues" ? nbData.clues : nbData.contradictions;
+    const list = tabs.find(([k]) => k === nbTab)[2];
     if (!list.length) nbPage.append(h("div", { class: "tp-empty", text: quiet }));
     for (const x of list) {
       if (nbTab === "persons") nbPage.append(h("div", { class: "tp-entry" }, h("h3", { text: x.name }), x.note ? h("p", { text: x.note }) : null));
       else if (nbTab === "clues") nbPage.append(h("div", { class: "tp-entry line" }, h("h3", { text: x.label }), x.from ? h("p", { text: x.from }) : null));
-      else nbPage.append(h("div", { class: "tp-entry line catch" }, h("h3", { text: x.text })));
+      else if (nbTab === "catch") nbPage.append(h("div", { class: "tp-entry line catch" }, h("h3", { text: x.text })));
+      else nbPage.append(h("button", { class: "tp-paper", type: "button", "data-paper": x.id, html: ICON.paper, onclick: () => onOpenPaper?.(x.id) }, h("span", { text: x.title || x.label || x.id })));
     }
   }
   function openNotebook(summary) {
-    if (summary) nbData = { persons: summary.persons || [], clues: summary.clues || [], contradictions: summary.contradictions || [] };
+    if (summary) nbData = { persons: summary.persons || [], clues: summary.clues || [], contradictions: summary.contradictions || [], papers: summary.papers || [] };
     S.nbFresh = false; nbBtn.classList.remove("fresh");
     renderNotebook();
     if (!layerOpen("notebook")) show({ id: "notebook", el: nb, focus: () => nbTabs.querySelector("[aria-selected=true]") });
@@ -433,6 +493,55 @@ export function makeTalkPanel(options = {}) {
     if (!layerOpen("accusation")) show({ id: "accusation", el: acc, focus: () => accBody.querySelector("button") });
   }
 
+  // ---- the reader: a paper as it is written, in its hand, on parchment or paper; the clue is there to be noticed, unmarked --
+  const rd = sheet("tall rd", "A paper");
+  const rdTitle = h("div", { class: "tp-title" }), rdBody = h("div", { class: "tp-read", tabindex: "0" }), rdFoot = h("div", { class: "tp-rdfoot", role: "status" });
+  rd.append(grip(rd), h("div", { class: "tp-head tp-rdhead" }, rdTitle, h("button", { class: "tp-ib", "aria-label": "Put it down", html: ICON.close, onclick: back })), rdBody, rdFoot);
+  const HANDS = new Set(["secretary", "italic", "engrossing"]), BLOCKS = new Set(["head", "margin", "sign", "seal", "endorsed", "aside"]);
+  const SAYS = { rasure: "scraped and written over: ", struck: "struck through: ", added: "written in above: " };   // for a screen reader, what the eye sees
+  const handCls = (x) => (HANDS.has(x) ? "h-" + x : null);
+  const lines = (t) => String(t ?? "").split("\n").flatMap((l, i) => (i ? [h("br"), l] : [l]));
+  function run(part, text) {                                       // one inline run
+    const m = part.mark, cls = handCls(part.hand), sr = SAYS[m] ? h("span", { class: "tp-sr", text: "(" + SAYS[m] }) : null, end = sr ? h("span", { class: "tp-sr", text: ")" }) : null;
+    if (m === "rasure") return h("span", { class: ["tp-ras", cls].filter(Boolean).join(" ") }, sr, lines(text), end);
+    if (m === "struck") return h("s", { class: cls }, sr, lines(text), end);
+    if (m === "added") return h("span", { class: ["tp-add", cls].filter(Boolean).join(" ") }, sr, h("span", { "aria-hidden": "true", text: "\u2038" }), h("sup", {}, lines(text)), end);
+    if (m === "caps") return h("span", { class: ["tp-caps", cls].filter(Boolean).join(" ") }, lines(text));
+    return h("span", { class: cls }, lines(text));
+  }
+  function block(part) {
+    const body = part.parts ? part.parts.map((q) => run(q, q.text)) : [run({ hand: part.hand }, part.text)];
+    switch (part.mark) {
+      case "margin": return h("aside", { class: "tp-marg", "aria-label": "In the margin" }, body);
+      case "head": return h("div", { class: "tp-dhead" }, body);
+      case "sign": return h("div", { class: "tp-sign" }, body);
+      case "seal": return h("div", { class: "tp-sealrow" }, h("span", {}, body), h("i", { class: "tp-seal", role: "img", "aria-label": "a seal of red wax" }));
+      case "endorsed": return h("div", { class: "tp-endorse" }, h("small", { text: "On the back" }), h("div", {}, body));
+      default: return h("p", { class: "tp-desc" }, part.parts ? part.parts.map((q) => q.text).join("") : part.text);   // aside
+    }
+  }
+  function leaf(sh) {
+    const hand = HANDS.has(sh.hand) ? sh.hand : "secretary", ground = sh.ground === "paper" || sh.ground === "parchment" ? sh.ground : hand === "engrossing" ? "parchment" : "paper";
+    const el = h("article", { class: `tp-leaf ${ground} h-${hand}`, "aria-label": sh.title || null });
+    let p = null; const para = () => p || (p = el.appendChild(h("p")));
+    for (const part of sh.parts || []) {
+      if (BLOCKS.has(part.mark)) { p = null; el.append(block(part)); continue; }
+      String(part.text ?? "").split(/\n{2,}/).forEach((chunk, i) => { if (i) p = null; if (chunk) para().append(run(part, chunk)); });
+    }
+    return el;
+  }
+  function openReader(doc = {}) {
+    const sheets = doc.sheets?.length ? doc.sheets : [doc];
+    rdTitle.textContent = doc.title || sheets[0].title || "A paper"; rd.setAttribute("aria-label", rdTitle.textContent);
+    rdBody.replaceChildren(...sheets.flatMap((sh) => (sheets.length > 1 && sh.title ? [h("div", { class: "tp-leafcap", text: sh.title }), leaf(sh)] : [leaf(sh)])));
+    rdFoot.replaceChildren(...(doc.noted || []).map((n) => h("div", { class: "tp-noted", text: "In your book: " + (n.label || n) })));
+    if (doc.noted?.length) { S.nbFresh = true; nbBtn.classList.add("fresh"); }
+    rdBody.scrollTop = 0;
+    const layer = stack.find((l) => l.id === "reader");
+    if (layer) { layer.onHide = doc.onClose; return; }
+    show({ id: "reader", el: rd, focus: () => rdBody, onHide: doc.onClose });
+  }
+
   // ---- the API -----------------------------------------------------------------------------------------------------------
   const api = {
     open({ who, name, role = "", portrait = null, intro = "", topics = [], evidence = [] }) {
@@ -464,6 +573,7 @@ export function makeTalkPanel(options = {}) {
     },
     openNotebook,
     openAccusation,
+    openReader,
     accusationResult({ group, ok, text }) {
       if (!A) return; A.waiting = null;
       if (ok) { A.locked.add(group); A.note = text || ""; }

@@ -23,6 +23,9 @@
   <button data-go="verney">Mistress Verney</button>
   <button id="nb">Notebook</button>
   <button id="key">Take the key from the drawer</button>
+  <button data-read="engrossment">Read the engrossment</button>
+  <button data-read="draft_steward">The steward's draft</button>
+  <button data-read="papers_cressy">Mr Cressy's papers</button>
 </div>
 <div id="where"><b>The Long Gallery</b>A demo of the questioning panel; no 3D here. Everything said is from src/make/talk.js over a small stub case.</div>
 <script type="module">
@@ -70,13 +73,24 @@ const panel = makeTalkPanel({
   onClose: () => { who = null; document.getElementById("hud").style.display = ""; draw(); },
   onOpenAccusation: () => panel.openAccusation(ACCUSATION),
   onOpenNotebook: () => panel.openNotebook(notebook()),
+  onOpenPaper: (id) => panel.openReader(PAPERS[id]),
 });
+
+// ---- the reader: the real case's papers (design/case/case-1660.papers.json); the first reading notes its clues ---------------
+const [PAPERS, CASE] = await Promise.all(["../../design/case/case-1660.papers.json", "../../design/case/case-1660.json"].map((u) => fetch(u).then((r) => r.json())));
+const CLUE = Object.fromEntries(CASE.clues.map((c) => [c.id, c])), papersRead = new Set();
+function readPaper(id) {
+  const doc = PAPERS[id], first = !papersRead.has(id); papersRead.add(id);
+  document.getElementById("hud").style.display = "none";
+  panel.openReader({ ...doc, noted: first ? (doc.clues || []).map((c) => ({ id: c, label: CLUE[c]?.label || c })) : [], onClose: () => { if (!panel.isOpen()) document.getElementById("hud").style.display = ""; } });
+}
 
 const evidence = () => [...[...frame.learned].map(id => ({ id, label: clueById[id].label, kind: "clue" })), ...[...frame.holding].map(id => ({ id, label: K.things.find(t => t.id === id).label, kind: "thing" }))];
 const notebook = () => ({
   persons: [...met].map(id => ({ id, name: PEOPLE[id].name, note: PEOPLE[id].role })),
   clues: [...frame.learned].map(id => ({ id, label: clueById[id].label, from: "from " + clueById[id].from.name })),
   contradictions: caught,
+  papers: [...papersRead].map(id => ({ id, title: PAPERS[id].title })),
 });
 function open(id) {
   who = id; met.add(id); document.getElementById("hud").style.display = "none";
@@ -186,9 +200,10 @@ function draw() {
 }
 addEventListener("resize", draw); draw();
 for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => open(b.dataset.go));
+for (const b of document.querySelectorAll("[data-read]")) b.addEventListener("click", () => readPaper(b.dataset.read));
 document.getElementById("nb").addEventListener("click", () => panel.openNotebook(notebook()));
 document.getElementById("key").addEventListener("click", () => { frame.holding.add("t_key"); panel.setEvidence(evidence()); document.getElementById("key").textContent = "You hold the key"; });
-window.__demo = { panel, frame, K };
+window.__demo = { panel, frame, K, PAPERS, readPaper };
 window.__ok = true;
 </script>
 </body>
