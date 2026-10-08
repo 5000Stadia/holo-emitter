@@ -651,7 +651,8 @@ renderer.setAnimationLoop((now) => {
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   /* the cue re-aims at most ~15 times a second */ aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
   const t = aimAt.v, cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` }
-    : t.look || (t.b?.story && CP?.wouldLook(t.b.story, t.i)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+    : t.look || (t.b?.story && CP?.wouldLook(t.b.story, t.i)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` }
+    : t.b?.story && CP?.reachIn(t.b.story) ? { mode: "take", label: `take out ${CASE.things.find(q => q.id === CP.reachIn(t.b.story))?.label || "what is in it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); }
