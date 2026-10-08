@@ -268,5 +268,9 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // the leads: the case's own
   if (k.leads) useLeads(k.leads);
   const resumed = saved?.case === k.id ? { minutes: +((saved.R?.played || 0) / 60000).toFixed(0), clues: frame.learned.size } : null;
-  return { resumed, snapshot, receipts, openPaper, look, wouldLook, reachIn, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  // a room searched out: every clue its things hold is learned (the research's 'searched' mark; a naive player had searched
+  // the same rooms again and again); null where the case keeps nothing
+  const roomOf = (t, n = 0) => { const h = arr(k.things).find(q => q.id === t.at); return h && n < 8 ? roomOf(h, n + 1) : t.at; };
+  const searched = (room) => { const cs = arr(k.things).filter(t => roomOf(t) === room).flatMap(t => arr(t.clue)); return cs.length ? cs.every(c => frame.learned.has(c)) : null; };
+  return { resumed, snapshot, receipts, openPaper, look, wouldLook, reachIn, searched, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }

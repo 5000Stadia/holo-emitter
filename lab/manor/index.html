@@ -473,11 +473,14 @@ const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(
 function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; return actOn(t); }
 // a test hook: act on a thing as a click on it would (its affordance, or none to take or put down)
 window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
+// the room's line under its name: its floor, and once the case's things in it have given all they hold, that you've done here
+function whereFloor(r) { $("where").querySelector(".f").textContent = `${r.floor} floor${CP?.searched(r.id) ? " · nothing more to find here" : ""}`; }
 function actOn(t) {
   if (t?.presence) { CP?.talkTo(t.presence); return true; }
   // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
-  if (t?.look) { CP?.look(t.look); return true; }
-  if (t?.b?.story && CP?.wouldLook(t.b.story, t.i)) { CP.look(t.b.story, t.i); return true; }
+  const refloor = () => { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); return true; };
+  if (t?.look) { CP?.look(t.look); return refloor(); }
+  if (t?.b?.story && CP?.wouldLook(t.b.story, t.i)) { CP.look(t.b.story, t.i); return refloor(); }
   { const inner = t?.b?.story && CP?.reachIn(t.b.story), b = inner && manor.things.find(q => q.story === inner);
     if (b) t = { b, aff: Object.keys(b.kind.affordances || {})[0] || null, i: null }; }
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
@@ -490,6 +493,7 @@ function actOn(t) {
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
   CP?.afterAct(t, r);                                  // a case's clue in what you opened or took
+  { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); }
   lightsDirty = true;                                  // a lamp lit or put out, a shutter opened
   refreshView(true); return true; }
 function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
@@ -503,7 +507,7 @@ function refreshView(force = false) {
   if (!r || (!force && r.id === here)) return;
   if (CP && r.id !== here) CP.enter(r.id);
   here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); inView = seen; lightsDirty = true;
-  $("where").querySelector(".n").textContent = r.name; $("where").querySelector(".f").textContent = `${r.floor} floor`;
+  $("where").querySelector(".n").textContent = r.name; whereFloor(r);
   ENG.invalidate();
 }
 // a test hook: walk in a straight line in 5 cm steps under the same rules, on floor; where you stopped
