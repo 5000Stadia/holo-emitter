@@ -54,6 +54,7 @@ import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { makeWarm } from "../../src/make/warm.js";
+import { makeGeoDrop, geodropWanted } from "../../src/make/geodrop.js";
 import { buildManor } from "../../src/make/manor.js";
 import { makeWalk } from "../../src/make/walk.js";
 import { planBanqueting } from "../../src/make/plans/banqueting.js";
@@ -605,6 +606,10 @@ const warm = Q.get("warm") === "0" ? null : (() => {
   W.add("outside", [...manor.scene.children.filter(o => !inRooms.has(o)), FC?.group, hill?.group, ground?.group], { center: [cx, 0, -cy] });
   return W; })();
 window.__warm = () => warm?.stats();
+// vertex arrays the GPU already holds, let go on a phone (src/make/geodrop.js: normals, uvs, colours; positions and indexes
+// stay, for every raycast the page makes); ?geodrop=0 keeps everything
+const geodrop = geodropWanted(ENG.phone) ? makeGeoDrop(renderer, scene) : null; if (geodrop) ENG.flags.geodrop = 1;
+window.__geodrop = () => geodrop?.stats();
 ENG.mark("ready");                                  // everything built and wired; next, the first frame
 // the pipelines compiled ahead of the first frame, asynchronously: measured worse (13 s compiling every room, hidden
 // ones too, and the first frame still 2 s, 2026-10-07), so on request only, for further tries
@@ -657,7 +662,7 @@ renderer.setAnimationLoop((now) => {
     : t.b?.story && CP?.reachIn(t.b.story) ? { mode: "take", label: `take out ${CASE.things.find(q => q.id === CP.reachIn(t.b.story))?.label || "what is in it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
-  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); }
+  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start(); }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
 </script>
