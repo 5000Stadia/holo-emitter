@@ -43,10 +43,13 @@
   for (const [id, look] of Object.entries(looks)) for (const bg of ["grey", "wood"]) {
     const cv = paintSitter(look, { seed: id.length * 7919, ground: false }); const f = document.createElement("figure"); f.className = `bare ${bg}`; f.append(cv); document.getElementById("bare").append(f);
   }
-  // timing: warm runs
-  const runs = []; for (let k = 0; k < 5; k++) for (const [id, look] of Object.entries(looks)) for (const ground of [true, false]) { const t0 = performance.now(); paintSitter(look, { seed: id.length * 7919, ground }); runs.push(performance.now() - t0); }
-  runs.sort((a, b) => a - b);
-  document.getElementById("ms").textContent = `first paint: ${times.map(([i, t]) => `${i} ${t.toFixed(1)} ms`).join(", ")}; warm median ${runs[runs.length >> 1].toFixed(1)} ms, worst ${runs[runs.length - 1].toFixed(1)} ms`;
+  // timing: warm runs of what the manor paints at case load (each figure at 512 x 640 on nothing, for the projection,
+  // and each face at 256 x 320, for the talk panel's round), each read back once so the canvas's deferred drawing is
+  // counted too
+  const runs = [], sets = [];
+  for (let k = 0; k < 5; k++) { let set = 0; for (const [id, look] of Object.entries(looks)) for (const o of [{ ground: false }, { w: 256, h: 320 }]) { const t0 = performance.now(); paintSitter(look, { seed: id.length * 7919, ...o }).getContext("2d").getImageData(0, 0, 1, 1); const dt = performance.now() - t0; runs.push(dt); set += dt; } sets.push(set); }
+  runs.sort((a, b) => a - b); sets.sort((a, b) => a - b);
+  document.getElementById("ms").textContent = `first paint: ${times.map(([i, t]) => `${i} ${t.toFixed(1)} ms`).join(", ")}; warm median ${runs[runs.length >> 1].toFixed(1)} ms, worst ${runs[runs.length - 1].toFixed(1)} ms; the case's 8 (4 figures + 4 faces) ${sets[sets.length >> 1].toFixed(0)} ms`;
   window.__ok = true;
 </script>
 </body>
