@@ -2,7 +2,11 @@
 // construct's reveal gates): what a person does when asked about a topic, decided in code from their own frame and
 // what the player has learned and holds; never from a model. A model, if there is one, only voices the result and may
 // state only the facts handed to it (the truth check). With no model, the case's own written lines are said.
-//   topicsFor(kase, who, frame) -> [{ id, label }]            what can be raised with them now
+//   topicsFor(kase, who, frame) -> [{ id, label, words?, dry?, retired? }]   what can be raised with them now
+//     dry: asking it now would give nothing new (no unlearned clue of theirs on it whose gate asking or pressing opens with
+//     what is held and learned now, and their claim on it already heard); retired: every clue on it, from anyone, is
+//     learned, and they have no unbroken lie on it (Heaven's Vault: a question leaves everyone once answered anywhere).
+//     Neither says anything of the future: a dry topic wakes when something learned opens a gate on it.
 //   answer(kase, who, { topic, stance, shown }, frame) -> { act, facts: [{ id, text }], line, learned: [clue ids], yielded? }
 //     act: tell | deflect | refuse | lie | dontknow | guarded; frame: { learned: Set, holding: Set, said: [],
 //     yielded: Set (claims broken, which stay broken), guarded: Map (who -> turns they stay closed up) }
@@ -15,17 +19,36 @@ const opens = (gate, frame, stance) => { const r = gate?.requires || {};
   return (!gate?.stance || arr(gate.stance).includes(stance)) && arr(r.learned).every(l => frame.learned.has(l)) && arr(r.holding).every(h => frame.holding.has(h)); };
 const textOf = (f) => typeof f === "string" ? f : f?.text || (Array.isArray(f) ? f.join(" ") : JSON.stringify(f));
 
+export const gateOpen = opens;
 export function topicsFor(k, who, frame) {
   const p = arr(k.cast).find(c => c.id === who); if (!p) return [];
-  const out = new Map();
-  // the case's general topics (the deceased, where were you, the land sale …), then each of this person's clues' topics
-  // (a topic carries its own words for reading your questions; one marked `after` opens once its clue is learned)
-  for (const t of arr(k.topics)) if (!t.after || frame.learned.has(t.after)) out.set(t.id, { id: t.id, label: t.label || t.id, words: t.words });
-  for (const c of arr(p.clues)) { const id = c.gate?.topic || c.topic; if (id && !out.has(id)) out.set(id, { id, label: (arr(k.topics).find(t => t.id === id)?.label) || id.replace(/_/g, " ") }); }
-  for (const c of arr(p.claims)) { const id = c.topic; if (id && !out.has(id)) out.set(id, { id, label: id.replace(/_/g, " ") }); }
+  const out = new Map(), general = new Map(arr(k.topics).map(t => [t.id, t])), learned = frame.learned || new Set();
+  const open = (t) => !t?.after || learned.has(t.after);
+  const named = (id) => id.startsWith("person:") ? arr(k.cast).find(c => `person:${c.id}` === id)?.name : null;
+  // the case's general topics (the deceased, where were you, the land sale …), then each of this person's clues' and claims'
+  // topics (a topic carries its own words for reading your questions; one marked `after` opens once its clue is learned)
+  for (const t of arr(k.topics)) if (open(t)) out.set(t.id, { id: t.id, label: t.label || t.id, words: t.words });
+  const add = (id) => { if (!id || out.has(id)) return; const t = general.get(id); if (t && !open(t)) return;
+    out.set(id, { id, label: t?.label || named(id) || id.replace(/_/g, " "), ...(t?.words ? { words: t.words } : {}) }); };
+  for (const c of arr(p.clues)) add(c.gate?.topic || c.topic);
+  for (const c of arr(p.claims)) add(c.topic);
   // and each other person, by name ("what of Master Hale?")
   for (const q of arr(k.cast)) if (q.id !== who && !out.has(`person:${q.id}`)) out.set(`person:${q.id}`, { id: `person:${q.id}`, label: q.name });
+  for (const t of out.values()) { const w = wellOf(k, p, t.id, frame); if (w.dry) t.dry = true; if (w.retired) t.retired = true; }
   return [...out.values()];
+}
+// is the well dry: what asking or pressing on a topic now would give them (see topicsFor)
+const topicOf = (c) => c.gate?.topic || c.topic;
+function wellOf(k, p, topic, frame) {
+  const learned = frame.learned || new Set(), f = { learned, holding: frame.holding || new Set() };
+  const asking = (c) => { const st = c.gate?.stance; return (st ? arr(st).filter(s => s === "ask" || s === "press") : ["ask"]).some(s => opens(c.gate, f, s)); };
+  const live = arr(p.clues).some(c => topicOf(c) === topic && !learned.has(c.id) && asking(c));
+  const claim = arr(p.claims).find(c => c.topic === topic);
+  const heard = arr(frame.said).some(s => s.who === p.id && s.topic === topic && s.act !== "guarded");
+  const dry = !live && (!claim || heard);
+  const all = arr(k.cast).flatMap(c => arr(c.clues)).filter(c => topicOf(c) === topic && !arr(c.gate?.stance).includes("accuse"));
+  const lie = arr(p.claims).some(c => c.topic === topic && c.false && !frame.yielded?.has(c.id));
+  return { dry, retired: dry && all.length > 0 && all.every(c => learned.has(c.id)) && !lie };
 }
 
 export const GUARD_TURNS = 3;

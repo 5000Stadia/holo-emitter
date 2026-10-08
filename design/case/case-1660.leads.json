@@ -1,0 +1,133 @@
+{
+  "_about": "What stands open (M7; design/case/prior-art-investigation-ux.md §1, item 1): the Justice's open questions for case-1660, shown in the notebook's first tab. Each is raised and closed by the narrator's condition language (src/make/narrator.js; also said:WHO/any, once that person has been questioned at all); no raised means open from the arrival. where names whom to ask or where to go, never the answer; who lists the people it names, whose present room the notebook adds. side: a herring's question the shortest solution need not settle (still closable in one question). Evaluated by src/make/leads.js; checked by node tests/.leads.mjs (every expression parses and names real things; along the _fairness solution path every lead raised is closed, a side one closable in one more question). To be merged into case-1660.json as its leads.",
+  "leads": [
+    {
+      "id": "household",
+      "text": "Who is in the house this morning, and where shall I find them?",
+      "closed": "said:household or (said:daniel/any and said:cressy/any and said:francis/any)",
+      "where": "Dame Anne will tell you who is in the house.",
+      "who": ["anne"]
+    },
+    {
+      "id": "see_room",
+      "text": "What is to be seen in the room where he lay?",
+      "closed": "at:muniment_room or done:the_room",
+      "where": "The muniment room: up the great stair, through the best bedchamber and the closet beyond it."
+    },
+    {
+      "id": "fall_or_blow",
+      "text": "Did he fall against the chest in the dark, as Sir Gervase will have it, or was he struck?",
+      "closed": "learned:anne_wound or learned:body_wound or learned:chest_band_clean",
+      "where": "Ask how he died of whoever laid him out; look at the chest's corner.",
+      "who": ["anne"]
+    },
+    {
+      "id": "what_struck",
+      "text": "Struck from behind, with something round: with what?",
+      "raised": "learned:anne_wound or learned:body_wound or learned:chest_band_clean",
+      "closed": "learned:candlestick_dent",
+      "where": "The muniment room: whatever stood within reach of him last night."
+    },
+    {
+      "id": "keys",
+      "text": "Who had a key to the muniment room?",
+      "closed": "learned:daniel_wore_key or learned:anne_lord_key or learned:anne_girdle_cord",
+      "where": "Ask Dame Anne, or the clerk who keeps the muniment door, of the door and its keys.",
+      "who": ["anne", "daniel"]
+    },
+    {
+      "id": "cord_cut",
+      "text": "His key-cord was cut at his girdle. Where is the key now?",
+      "raised": "learned:anne_girdle_cord or learned:body_cord",
+      "closed": "learned:key_cut_cord",
+      "where": "The muniment room, where the door was locked upon him."
+    },
+    {
+      "id": "key_by_hand",
+      "text": "Was the key truly by his hand when the door was opened this morning?",
+      "raised": "learned:daniel_says_key_by_hand or learned:key_cut_cord or learned:anne_girdle_cord or learned:body_cord",
+      "closed": "learned:anne_dawn",
+      "where": "Those who stood at the door at dawn: the clerk went in first; Dame Anne held the light.",
+      "who": ["anne", "daniel"]
+    },
+    {
+      "id": "with_him",
+      "text": "Who was with Mr Hollins among his deeds last night, and until what hour?",
+      "closed": "learned:daniel_says_half_ten or learned:daniel_went_up or learned:anne_visit or learned:daniel_lady_left",
+      "where": "His clerk, Daniel Wragg, who keeps the muniment door.",
+      "who": ["daniel"]
+    },
+    {
+      "id": "half_ten",
+      "text": "Who saw the clerk come down the great stair at half past ten?",
+      "raised": "learned:daniel_says_half_ten",
+      "closed": "learned:francis_no_one_down or learned:cressy_saw_daniel or learned:francis_saw_daniel",
+      "where": "Whoever sat up last night where the stair foot can be seen: the great parlour's door gives on it.",
+      "who": ["francis", "cressy"]
+    },
+    {
+      "id": "when_down",
+      "text": "If not at half past ten, when did the clerk come down, and who saw him?",
+      "raised": "learned:francis_no_one_down or done:lie_half_ten",
+      "closed": "learned:francis_saw_daniel or learned:cressy_saw_daniel",
+      "where": "Those who were up past eleven: Master Francis and Mr Cressy, at tables in the great parlour.",
+      "who": ["francis", "cressy"]
+    },
+    {
+      "id": "francis_blood",
+      "text": "Whose blood was on Master Francis's hand and shirt at one in the morning?",
+      "raised": "learned:anne_francis_blood",
+      "closed": "learned:buttery_glass or learned:cressy_francis_buttery or learned:francis_saw_daniel",
+      "where": "Master Francis, of his cut hand; or Mr Cressy, who sat at tables with him.",
+      "who": ["francis", "cressy"]
+    },
+    {
+      "id": "cressy_stair",
+      "text": "Was Mr Cressy on the great stair at half past ten, as the clerk says?",
+      "raised": "learned:daniel_blames_cressy",
+      "closed": "learned:francis_cressy_sat",
+      "where": "Whoever sat at tables with Mr Cressy last night.",
+      "who": ["francis"]
+    },
+    {
+      "id": "anne_ten",
+      "text": "Why did Dame Anne go up to the muniment room at ten at night, and when did she come down?",
+      "raised": "learned:francis_names_anne",
+      "closed": "learned:anne_visit or learned:daniel_lady_left or learned:cressy_saw_anne",
+      "where": "Dame Anne herself, pressed on where she was; or anyone who was in that room, or could see the stair.",
+      "who": ["anne"],
+      "side": true
+    },
+    {
+      "id": "engrossment",
+      "text": "What did Mr Hollins find when he read the engrossment against his draft?",
+      "raised": "learned:daniel_says_half_ten or learned:daniel_went_up or learned:daniel_engrossed or learned:cressy_took_deed or learned:anne_cressy_pale or learned:anne_visit or learned:drawer_asshover",
+      "closed": "learned:rasure or learned:draft_exception or learned:cressy_cheat or learned:cressy_bribe",
+      "where": "The engrossment, on the draw-table in the great chamber where Mr Cressy keeps it; and the draft, wherever it has gone.",
+      "who": ["cressy"]
+    },
+    {
+      "id": "gold",
+      "text": "Twenty pieces of gold in a clerk's box, and a note signed A.C.: who paid him, and for what?",
+      "raised": "learned:gold_note",
+      "closed": "learned:cressy_bribe or learned:cressy_cheat",
+      "where": "Mr Cressy, whose initials those may be.",
+      "who": ["cressy"]
+    },
+    {
+      "id": "fled",
+      "text": "Why has the clerk run up to the garret, white as whey?",
+      "raised": "done:garret_flight",
+      "closed": "done:cornered or opened:box_daniel or holding:draft_steward or learned:gold_note or learned:draft_exception",
+      "where": "The servants' chamber in the west garret, up the back stair beyond the kitchen.",
+      "who": ["daniel"]
+    },
+    {
+      "id": "coroner",
+      "text": "Have I enough to lay before the coroner: who, why, by what means, when, and how the door was locked?",
+      "raised": "done:gather or fired:noon",
+      "closed": "phase:resolution",
+      "where": "The household waits in the great hall. Accuse, from any conversation."
+    }
+  ]
+}

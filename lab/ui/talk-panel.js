@@ -10,13 +10,21 @@
 //     -> { open({ who, name, role?, portrait: canvas, intro?, topics, evidence }), say({ who: "them"|"you"|"aside", text, act, noted }),
 //          setTopics(list), setEvidence(list), busy(bool), guarded(bool), close(), openNotebook(summary),
 //          openAccusation({ suspects, pillars, groups? }), accusationResult({ group, ok, text? }), verdict({ title, text }),
-//          openReader({ title, hand?, ground?, parts | sheets, noted?, onClose? }), isOpen(), destroy() }
+//          openReader({ title, hand?, ground?, parts | sheets, noted?, onClose? }), fresh(), isOpen(), destroy() }
+//   fresh(): the notebook's brass dot (something new in it: a clue noted, a question raised).
 //   stance is "ask" or "press" (a toggle that applies to the next topic); "show" is onShow, which carries the last topic.
 //   topics [{ id, label }], in the order the host wants them (what you have learned first): the first six not yet asked are
 //   shown, the rest behind "More…", so the player is never stuck and the text box is only a shortcut. Ids "person:<id>" read as
 //   "What of <name>". guarded(true) is a suspect who has closed up (a wrong item shown): the chips dim, nothing is lost.
+//   A topic { dry: true } (asking it now would give nothing new: src/make/talk.js topicsFor) is shown after the others,
+//   dimmed; one { retired: true } (all its facts learned) leaves the six shown, still under "More…".
 //   evidence [{ id, label, kind: "clue"|"thing" }].
-//   notebook summary { persons: [{ id, name, note }], clues: [{ id, label, from }], contradictions: [{ id, text }], papers?: [{ id, title }] };
+//   notebook summary { leads?: { open: [{ id, text, where?, now? }], done: [...] }, persons: [{ id, name, note, claims?: [{ label, broken?, by? }],
+//     fresh?: n }], clues: [{ id, label, from }], contradictions: [{ id, text, by? }], papers?: [{ id, title }] };
+//     leads (what stands open, src/make/leads.js) are the first tab when given: the Justice's open questions, each with whom
+//     to ask or where to go and where those people are now, then those settled; persons are a court record: where each is
+//     now, the claims heard from them, a broken one struck through with what broke it, and how many matters are still worth
+//     raising (fresh, the chips' own reckoning).
 //     papers (what you have read) get their own tab, and tapping one calls onOpenPaper(id): the host answers with openReader.
 //   reader: a paper as it is written, on parchment or paper (design/case/case-1660.papers.json documents the shape and is
 //     passed straight in). hand "secretary" | "italic" | "engrossing"; ground "parchment" | "paper" (by the hand if absent);
@@ -84,6 +92,7 @@ const CSS = `
 .tp-chips::-webkit-scrollbar{display:none}
 .tp-chip{flex:none;scroll-snap-align:start;min-height:44px;min-width:44px;padding:0 15px;border-radius:22px;border:1px solid var(--line);background:rgba(236,228,210,.05);font:500 18px/1 var(--serif);white-space:nowrap}
 .tp-chip.asked{border-style:dashed;color:var(--dim)}
+.tp-chip.dry{opacity:.5;color:var(--dim)}
 .tp-chip:hover{border-color:var(--dim)}
 .pressing .tp-chip{border-color:var(--brass)}
 .guarded .tp-chip:not(.more){opacity:.5;border-style:dotted}
@@ -105,8 +114,9 @@ const CSS = `
 .tp-card small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
 .tp-card span{font:500 19px/1.12 var(--serif)}
 .tp-card:hover{border-color:var(--brass)}
-.tp-tabs{flex:none;display:flex;gap:6px;padding:8px 16px 0}
-.tp-tab{flex:1;min-height:44px;white-space:nowrap;padding:0 2px;border:0;border-bottom:2px solid var(--line);background:none;color:var(--dim);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+.tp-tabs{flex:none;display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;scrollbar-width:none}
+.tp-tabs::-webkit-scrollbar{display:none}
+.tp-tab{flex:1 0 auto;min-height:44px;min-width:44px;white-space:nowrap;padding:0 5px;border:0;border-bottom:2px solid var(--line);background:none;color:var(--dim);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
 .tp-tab[aria-selected=true]{color:var(--brass);border-color:var(--brass)}
 .tp-page{flex:1;min-height:0;overflow-y:auto;padding:12px 18px 18px;display:flex;flex-direction:column;gap:14px}
 .tp-entry h3{margin:0;font:600 22px/1.1 var(--serif);color:var(--ink)}
@@ -114,6 +124,18 @@ const CSS = `
 .tp-entry.line{padding-left:12px;border-left:1px solid var(--line)}
 .tp-entry.line h3{font:500 19px/1.3 var(--serif)}
 .tp-entry.catch{border-left-color:var(--brass)}
+.tp-entry.lead{padding-left:12px;border-left:2px solid var(--brass)}
+.tp-entry.lead h3{font:500 20px/1.25 var(--serif)}
+.tp-entry.lead p{font-size:12.5px;line-height:1.4;margin-top:4px}
+.tp-entry.lead p.now{color:var(--brass);opacity:.85;font-size:11.5px}
+.tp-entry.lead.done{border-left:1px solid var(--line);opacity:.62}
+.tp-entry.lead.done h3{font-size:18px}
+.tp-sect{margin:6px 0 -6px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tp-claims{list-style:none;margin:6px 0 0;padding:0 0 0 12px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:3px}
+.tp-claims li{font:500 17px/1.3 var(--serif)}
+.tp-claims li.broken s{text-decoration:line-through 1.5px;text-decoration-color:var(--brass);color:var(--dim)}
+.tp-claims li small{display:block;font:11px/1.35 var(--mono);color:var(--brass);letter-spacing:.01em}
+.tp-entry p.fresh{color:var(--ink);opacity:.8}
 .tp-acc{flex:1;min-height:0;overflow-y:auto;padding:6px 20px 14px}
 .tp-lede{color:var(--dim);font-size:12px;margin:2px 0 12px}
 .tp-sentence{font:500 25px/2.15 var(--serif);margin:0}
@@ -359,9 +381,11 @@ export function makeTalkPanel(options = {}) {
   const topicLabel = (t) => (t.id.startsWith("person:") || t.kind === "person") && !/^what of /i.test(t.label) ? "What of " + t.label : t.label;
   function renderChips() {
     chipsEl.replaceChildren();
-    const done = askedOf(S.who), all = S.topics, list = S.more ? all : all.slice(0, MAXCHIPS);
-    for (const t of list) chipsEl.append(h("button", { class: "tp-chip" + (done.has(t.id) ? " asked" : ""), type: "button", "data-topic": t.id, text: topicLabel(t), onclick: () => chip(t) }));
-    if (all.length > MAXCHIPS) chipsEl.append(h("button", { class: "tp-chip more", type: "button", text: S.more ? "Fewer" : "More…", "aria-expanded": String(!!S.more), onclick: () => { S.more = !S.more; renderChips(); } }));
+    // what has something new first, then the dry (dimmed), then the retired (only under More…)
+    const done = askedOf(S.who), front = [...S.topics.filter((t) => !t.dry && !t.retired), ...S.topics.filter((t) => t.dry && !t.retired)];
+    const all = [...front, ...S.topics.filter((t) => t.retired)], list = S.more ? all : front.slice(0, MAXCHIPS);
+    for (const t of list) chipsEl.append(h("button", { class: "tp-chip" + (done.has(t.id) ? " asked" : "") + (t.dry || t.retired ? " dry" : ""), type: "button", "data-topic": t.id, "data-dry": t.dry || t.retired ? "" : null, text: topicLabel(t), onclick: () => chip(t) }));
+    if (all.length > list.length || S.more) chipsEl.append(h("button", { class: "tp-chip more", type: "button", text: S.more ? "Fewer" : "More…", "aria-expanded": String(!!S.more), onclick: () => { S.more = !S.more; renderChips(); } }));
     setStance(S.stance);
   }
   function setStance(s) {
@@ -415,24 +439,36 @@ export function makeTalkPanel(options = {}) {
   const nb = sheet("tall", "Your notebook");
   const nbTabs = h("div", { class: "tp-tabs", role: "tablist" }), nbPage = h("div", { class: "tp-page", role: "tabpanel", tabindex: "0" });
   nb.append(grip(nb), h("div", { class: "tp-head" }, h("div", { class: "tp-title", text: "Your notebook" }), h("button", { class: "tp-ib", "aria-label": "Close notebook", html: ICON.close, onclick: back })), nbTabs, nbPage);
-  let nbData = { persons: [], clues: [], contradictions: [], papers: [] }, nbTab = "clues";
+  let nbData = { leads: null, persons: [], clues: [], contradictions: [], papers: [] }, nbTab = null;
+  const lineOf = (cls, title, ...ps) => h("div", { class: "tp-entry " + cls }, h("h3", { text: title }), ...ps.filter(Boolean));
   function renderNotebook() {
     const tabs = [["persons", "Persons", nbData.persons], ["clues", "Clues", nbData.clues], ["catch", "Caught out", nbData.contradictions]];
-    if (nbData.papers.length) tabs.push(["papers", "Papers", nbData.papers]); else if (nbTab === "papers") nbTab = "clues";
-    nbTabs.replaceChildren(...tabs.map(([k, label, list]) => h("button", { class: "tp-tab", role: "tab", "aria-selected": String(nbTab === k), text: `${label} ${list.length || ""}`.trim(), onclick: () => { nbTab = k; renderNotebook(); } })));
+    if (nbData.leads) tabs.unshift(["leads", "Open", nbData.leads.open]);
+    if (nbData.papers.length) tabs.push(["papers", "Papers", nbData.papers]);
+    if (!tabs.some(([k]) => k === nbTab)) nbTab = nbData.leads ? "leads" : "clues";
+    nbTabs.replaceChildren(...tabs.map(([k, label, list]) => h("button", { class: "tp-tab", role: "tab", "data-tab": k, "aria-selected": String(nbTab === k), text: `${label} ${list.length || ""}`.trim(), onclick: () => { nbTab = k; renderNotebook(); } })));
     nbPage.replaceChildren();
-    const quiet = { persons: "No one met yet.", clues: "Nothing set down yet.", catch: "No one caught in a falsehood, yet." }[nbTab];
+    const quiet = { leads: "Nothing stands open.", persons: "No one met yet.", clues: "Nothing set down yet.", catch: "No one caught in a falsehood, yet." }[nbTab];
     const list = tabs.find(([k]) => k === nbTab)[2];
-    if (!list.length) nbPage.append(h("div", { class: "tp-empty", text: quiet }));
+    if (!list.length && !(nbTab === "leads" && nbData.leads.done.length)) nbPage.append(h("div", { class: "tp-empty", text: quiet }));
+    if (nbTab === "leads") {
+      if (!list.length && nbData.leads.done.length) nbPage.append(h("p", { class: "tp-note", text: "Nothing stands open." }));
+      for (const x of list) nbPage.append(lineOf("lead", x.text, x.where && h("p", { text: x.where }), x.now && h("p", { class: "now", text: x.now })));
+      if (nbData.leads.done.length) nbPage.append(h("div", { class: "tp-sect", text: "Settled" }), ...nbData.leads.done.map((x) => lineOf("lead done", x.text)));
+      return;
+    }
     for (const x of list) {
-      if (nbTab === "persons") nbPage.append(h("div", { class: "tp-entry" }, h("h3", { text: x.name }), x.note ? h("p", { text: x.note }) : null));
-      else if (nbTab === "clues") nbPage.append(h("div", { class: "tp-entry line" }, h("h3", { text: x.label }), x.from ? h("p", { text: x.from }) : null));
-      else if (nbTab === "catch") nbPage.append(h("div", { class: "tp-entry line catch" }, h("h3", { text: x.text })));
+      if (nbTab === "persons") nbPage.append(h("div", { class: "tp-entry" }, h("h3", { text: x.name }), x.note ? h("p", { text: x.note }) : null,
+        x.fresh != null ? h("p", { class: "fresh", text: x.fresh ? `${x.fresh} ${x.fresh === 1 ? "matter" : "matters"} still worth raising` : "Nothing new to ask them now" }) : null,
+        x.claims?.length ? h("ul", { class: "tp-claims", "aria-label": `What ${x.name} has told you` }, x.claims.map((c) => h("li", { class: c.broken ? "broken" : null },
+          c.broken ? [h("s", { text: c.label }), h("span", { class: "tp-sr", text: " (broken)" }), c.by ? h("small", { text: "broken by " + c.by }) : null] : c.label))) : null));
+      else if (nbTab === "clues") nbPage.append(lineOf("line", x.label, x.from && h("p", { text: x.from })));
+      else if (nbTab === "catch") nbPage.append(lineOf("line catch", x.text || x.label, x.by && h("p", { text: "broken by " + x.by })));
       else nbPage.append(h("button", { class: "tp-paper", type: "button", "data-paper": x.id, html: ICON.paper, onclick: () => onOpenPaper?.(x.id) }, h("span", { text: x.title || x.label || x.id })));
     }
   }
   function openNotebook(summary) {
-    if (summary) nbData = { persons: summary.persons || [], clues: summary.clues || [], contradictions: summary.contradictions || [], papers: summary.papers || [] };
+    if (summary) nbData = { leads: summary.leads || null, persons: summary.persons || [], clues: summary.clues || [], contradictions: summary.contradictions || [], papers: summary.papers || [] };
     S.nbFresh = false; nbBtn.classList.remove("fresh");
     renderNotebook();
     if (!layerOpen("notebook")) show({ id: "notebook", el: nb, focus: () => nbTabs.querySelector("[aria-selected=true]") });
@@ -567,6 +603,7 @@ export function makeTalkPanel(options = {}) {
       if (S.busy && S.who != null) thinkTimer = setTimeout(() => { if (S.busy) { S.thinkShown = true; logEl.append(thinking()); scrollLog(); } }, THINK_AFTER);
     },
     guarded(on) { S.guarded = !!on; setStance(S.stance); },
+    fresh() { S.nbFresh = true; nbBtn.classList.add("fresh"); },
     close() {
       while (stack.length) popTop();
       if (useHistory && pushed > 0) { skip++; const n = pushed; pushed = 0; history.go(-n); }
