@@ -1132,6 +1132,19 @@
      ],
      "fact": "Dame Anne came up a little before ten and went within the quarter hour.",
      "line": "As I said, sir: my lady came and went before the quarter past ten."
+    },
+    {
+     "id": "dc_steward",
+     "label": "Daniel: his master",
+     "topic": "steward",
+     "false": false,
+     "triple": [
+      "person:hollins",
+      "kept",
+      "the evidences, and taught his clerk"
+     ],
+     "fact": "Mr Hollins took Daniel from the free school at fourteen and taught him a fair engrossing hand.",
+     "line": "He took me from the free school at fourteen, sir, and taught me my hand. He had no enemies that I know of. He was a hard man to cheat, that was all."
     }
    ],
    "clues": [
@@ -3865,23 +3878,52 @@
     "options": [
      {
       "id": "cheat_found",
-      "label": "the steward found the cheat in the engrossment, written for gold"
+      "label": "the steward found the cheat in the engrossment, written for gold",
+      "appears_with": [
+       "rasure",
+       "gold_note",
+       "draft_exception",
+       "cressy_bribe",
+       "cressy_cheat",
+       "daniel_engrossed"
+      ]
      },
      {
       "id": "jointure",
-      "label": "the sale would take Dame Anne's jointure"
+      "label": "the sale would take Dame Anne's jointure",
+      "appears_with": [
+       "jointure_settlement",
+       "anne_jointure",
+       "anne_visit"
+      ]
      },
      {
       "id": "inheritance",
-      "label": "the sale would strip the heir of Asshover"
+      "label": "the sale would strip the heir of Asshover",
+      "appears_with": [
+       "francis_threat",
+       "anne_francis_blood",
+       "anne_mines"
+      ]
      },
      {
       "id": "collation",
-      "label": "the steward's reading would spoil the London bargain"
+      "label": "the steward's reading would spoil the London bargain",
+      "appears_with": [
+       "anne_cressy_pale",
+       "cressy_took_deed",
+       "london_copy",
+       "pargeter_letter"
+      ]
      },
      {
       "id": "debt",
-      "label": "of sixty pounds lost at tables"
+      "label": "of sixty pounds lost at tables",
+      "appears_with": [
+       "cressy_sat_till_one",
+       "francis_cressy_sat",
+       "francis_saw_purse"
+      ]
      }
     ]
    },
@@ -3892,7 +3934,12 @@
     "options": [
      {
       "id": "candlestick",
-      "label": "a blow from behind with the table candlestick"
+      "label": "a blow from behind with the table candlestick",
+      "appears_with": [
+       "candlestick_dent",
+       "anne_wound",
+       "body_wound"
+      ]
      },
      {
       "id": "chest_fall",
@@ -3900,11 +3947,21 @@
      },
      {
       "id": "glass",
-      "label": "a blow with a broken glass"
+      "label": "a blow with a broken glass",
+      "appears_with": [
+       "buttery_glass",
+       "anne_francis_blood",
+       "cressy_francis_buttery"
+      ]
      },
      {
       "id": "opiate",
-      "label": "Sir Gervase's opiate in his cup"
+      "label": "Sir Gervase's opiate in his cup",
+      "appears_with": [
+       "opiate_bottle",
+       "lord_asleep",
+       "anne_lord_key"
+      ]
      }
     ]
    },
@@ -3915,19 +3972,42 @@
     "options": [
      {
       "id": "stayed_on",
-      "label": "staying on in the muniment room past eleven"
+      "label": "staying on in the muniment room past eleven",
+      "appears_with": [
+       "cressy_saw_daniel",
+       "francis_saw_daniel",
+       "candle_burnt",
+       "francis_no_one_down",
+       "daniel_says_half_ten"
+      ]
      },
      {
       "id": "stair_half_ten",
-      "label": "going up the great stair at half past ten"
+      "label": "going up the great stair at half past ten",
+      "appears_with": [
+       "daniel_blames_cressy",
+       "daniel_says_half_ten"
+      ]
      },
      {
       "id": "visit_ten",
-      "label": "going up to him at ten o'clock"
+      "label": "going up to him at ten o'clock",
+      "appears_with": [
+       "anne_visit",
+       "cressy_saw_anne",
+       "daniel_lady_left",
+       "francis_names_anne"
+      ]
      },
      {
       "id": "parlour_gap",
-      "label": "slipping away from the parlour after eleven"
+      "label": "slipping away from the parlour after eleven",
+      "appears_with": [
+       "cressy_francis_buttery",
+       "francis_bed_empty",
+       "anne_francis_blood",
+       "buttery_glass"
+      ]
      }
     ]
    },
@@ -3938,7 +4018,12 @@
     "options": [
      {
       "id": "cut_key",
-      "label": "his own key, cut from his girdle and dropped by his hand at dawn"
+      "label": "his own key, cut from his girdle and dropped by his hand at dawn",
+      "appears_with": [
+       "key_cut_cord",
+       "body_cord",
+       "anne_girdle_cord"
+      ]
      },
      {
       "id": "from_within",
@@ -3946,7 +4031,11 @@
      },
      {
       "id": "lords_key",
-      "label": "Sir Gervase's key, taken from the nail at his bed-head"
+      "label": "Sir Gervase's key, taken from the nail at his bed-head",
+      "appears_with": [
+       "anne_lord_key",
+       "daniel_wore_key"
+      ]
      },
      {
       "id": "window",
