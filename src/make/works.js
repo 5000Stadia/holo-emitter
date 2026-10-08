@@ -29,6 +29,12 @@
 // with two thirds of it left). The kind's own initial state is the default; what is done in play overrides both.
 // A name or a state the thing hasn't is an error when it is added, never a guess.
 //
+// A thing kept in another (a key in a table's drawer, a box in a chest: the placer says so, b.host = { b, slot }) is
+// within what shuts it in: the drawer its slot rides in, or the lid over a slot named "inside". While that is shut (or
+// its own keeper is) it is neither aimed at nor taken nor worked: a padlock key in a shut drawer had been taken through
+// the table. A thing holding things under a lid is aimed at by its whole body, so an open chest is reached into from
+// wherever it is seen, not only past its swung lid.
+//
 // An affordance with one verb is a deed that can be done again but never undone (reading a letter: read it
 // twice, it stays read); it says it is one-way, as a drunk bottle does, by a release gate no one opens.
 import { value, takeable } from "./catalogue.js";
@@ -62,6 +68,19 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // holding one of these (a list is any of them)
   const holding = (name) => [].concat(name).some(n => held().some(id => things.has(id) && answers(things.get(id), n)) || ask("holding", n));
   const canTake = (b) => !!b.kind.size && takeable(b.kind, value(b.kind.size, b.settings));
+  // what it is kept within, if anything: the host's affordance that shuts it in, and whether it rides out on it (a drawer)
+  function withinOf(b) {
+    const host = b.host?.b, sl = host?.slots?.get(b.host.slot); if (!sl) return null;
+    const affs = Object.entries(host.kind.affordances || {}), mover = [...(host.movers || [])].find(([, g]) => g === sl.node)?.[0];
+    if (mover) { const e = affs.find(([, a]) => a.mover === mover); return e ? { b: host, aff: e[0], rides: true } : null; }
+    if (b.host.slot !== "inside") return null;
+    const e = affs.find(([n]) => n === "lid") || affs.find(([, a]) => a.motion === "hinge" && !a.states); return e ? { b: host, aff: e[0], rides: false } : null;
+  }
+  // shut in: what keeps it is shut, or is itself shut in (a box in a shut chest)
+  const shutIn = (b, n = 0) => !!b.within && n < 6 && (!moved(b.within.b, b.within.aff) || shutIn(b.within.b, n + 1));
+  // what a thing holding things under a lid opens by (aimed at by its body): the lid
+  const lids = new Map(), lidOf = (b) => lids.get(b) || null;
+  const nameOf = (b) => b.name || b.kind.noun || "it";
 
   // ---- motion
   const _v = new THREE.Vector3(), _q = new THREE.Quaternion();
@@ -174,6 +193,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   }
   function add(b) {
     checkStart(b);
+    if (b.host && !b.within) b.within = withinOf(b);
+    if (b.within && !b.within.rides) lids.set(b.within.b, b.within.aff);
     things.set(b.id, b); targets = null;
     for (const ch of b.children || []) add(ch);
     if (held().includes(b.id)) b.node.visible = false;
@@ -191,12 +212,12 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     // each thing's own meshes are found once; which things count is asked each time, since a room comes
     // into view (and its things with it) when a door opens
     if (!targets) { targets = new Map();
-      for (const b of things.values()) { const list = [], affs = Object.values(b.kind.affordances || {}), whole = affs.some(a => a.hit === "body") || canTake(b);
+      for (const b of things.values()) { const list = [], affs = Object.values(b.kind.affordances || {}), whole = affs.some(a => a.hit === "body") || canTake(b) || !!lidOf(b);
         b.node.traverse(o => { if (!o.isMesh) return; const m = o.userData.make;
           if (whole || (m && (m.mover || m.bank) && affs.some(a => a.mover === (m.mover || m.bank)))) list.push(o); });
         targets.set(b, list); } }
     const out = [];
-    for (const [b, list] of targets) if (b.node.visible && !held().includes(b.id)) out.push(...list);
+    for (const [b, list] of targets) if (b.node.visible && !held().includes(b.id) && !shutIn(b)) out.push(...list);
     return out;
   }
   // what a ray hit, as a thing, an affordance (none: it can only be taken) and an index
@@ -206,13 +227,15 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (!o) return null;
     const m = o.userData.make, b = things.get(m.thing || m.id);
     const entries = Object.entries(b.kind.affordances || {});
-    const e = entries.find(([, a]) => a.mover && a.mover === (m.mover || m.bank)) || entries.find(([, a]) => a.hit === "body");
+    if (shutIn(b)) return null;
+    const lid = lidOf(b);
+    const e = entries.find(([, a]) => a.mover && a.mover === (m.mover || m.bank)) || entries.find(([, a]) => a.hit === "body") || (lid && entries.find(([n]) => n === lid));
     if (e) return { b, aff: e[0], i: m.bank ? hit.instanceId : null };
     return canTake(b) ? { b, aff: null, i: null } : null;
   }
   function hint(t) {
     if (!t) return "";
-    const take = canTake(t.b) ? `take ${t.b.kind.noun || "it"}` : "";
+    const take = canTake(t.b) ? `take ${nameOf(t.b)}` : "";
     if (!t.aff) return take + (unmet(t.b, t.b.kind.take?.requires) ? ` (${t.b.kind.take.refused || "it won't come"})` : "");
     const a = t.b.kind.affordances[t.aff], [doV, undoV] = a.verbs || DEFAULT_VERBS[a.motion].map(v => `${v} ${t.b.kind.noun || "it"}`);
     const label = t.i != null && t.b.banks.get(a.mover)?.labelOf?.(t.i);
@@ -234,6 +257,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   function act(t) {
     if (!t) return { did: false };
     if (!t.aff) return take(t);
+    if (shutIn(t.b)) return { did: false, refused: "It is shut away." };
     const a = t.b.kind.affordances[t.aff], k = key(t.b.id, t.aff, t.i);
     if (unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i)) return { did: false, refused: a.refused || "It won't move." };
     // a deed done again (a letter read twice): nothing turns, it stays as it is
@@ -252,11 +276,12 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // take it into your keeping, if it can be taken and its gate is open
   function take(t) {
     if (!t || !canTake(t.b)) return { did: false, refused: "It is not a thing you can carry." };
+    if (shutIn(t.b)) return { did: false, refused: "It is shut away." };
     const shut = unmet(t.b, t.b.kind.take?.requires);
     if (shut) return { did: false, refused: t.b.kind.take?.refused || "It won't come away." };
     store["@held"] = [...held(), t.b.id]; t.b.node.visible = false; targets = null;
     settle();
-    return { did: true, took: t.b.kind.noun };
+    return { did: true, took: nameOf(t.b) };
   }
   // put what you hold down again (Alice leaves the golden key on the table): out of your keeping, shown where the
   // caller seats it
@@ -282,7 +307,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // drawer), and play the motion there
   function set(b, aff, i, state) { if (stateOf(b, aff, i) !== state) { turn(b, aff, i, state); settle(); } }
   return {
-    add, meshes, find, hint, cue, act, take, put, set, tick, stateOf, level, things,
+    add, meshes, find, hint, cue, act, take, put, set, tick, stateOf, level, things, shutIn,
     rules: (list) => { rules = list; settle(); },
     vars: () => Object.fromEntries(Object.entries(store).filter(([k]) => k[0] === "$").map(([k, v]) => [k.slice(1), v])),
     held: () => held().map(id => things.get(id)).filter(Boolean),

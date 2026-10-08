@@ -57,7 +57,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // thing (a dark box low in a chest is hard to tap past its front on a phone)
   const reachIn = (id) => openNow.has(id) ? arr(k.things).find(q => q.at === id && (q.rel || "in") === "in" && !touched.has(q.id))?.id || null : null;
   function afterAct(t, r) {
-    const id = t?.b?.story; if (!id) return;
+    const id = t?.b?.story; if (!id) return notTheOne(t, r);
     const thing = arr(k.things).find(q => q.id === id); if (!thing) return;
     // (a refusal teaches nothing: a locked box tried had given up its note; shutting a thing again doesn't read it again)
     // (read already, a paper won't 'read' again: it opens in the reader as it is)
@@ -70,13 +70,22 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     const fresh = []; if (!shutting) for (const c of arr(thing.clue)) if (learn(c, thing.label || thing.kind)) fresh.push(c);
     // what it holds, said as it opens (the first time): Daniel's chest had opened on a box and a bundle too low and dark to
     // see over its front from where you stand on a phone, and a naive player searched it twice and left
-    if (!shutting && !r.took && !toldInside.has(id)) { const inside = arr(k.things).filter(q => q.at === id && (q.rel || "in") === "in");
+    // (only what is still in it: the padlock key already in your pocket had been listed as in the drawer)
+    if (!shutting && !r.took && !toldInside.has(id)) { const inside = arr(k.things).filter(q => q.at === id && (q.rel || "in") === "in" && !touched.has(q.id) && !frame.holding.has(q.id));
       if (inside.length) { toldInside.add(id); const n = inside.map(q => q.noun || q.label), list = n.length > 1 ? `${n.slice(0, -1).join(", ")} and ${n.at(-1)}` : n[0];
         say(`In ${thing.label || "it"}: ${list}.`); } }
     const paper = k.papers?.[id];
     if (paper && !shutting && panel.openReader) { if (!papersRead.includes(id)) papersRead.push(id); panel.openReader({ ...paper, noted: fresh.map(c => ({ label: label(c) })) }); }
     else for (const c of fresh) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
     step();
+  }
+  // the house's own thing of the same kind as one of the case's in that room, opened (the maid's chest beside Daniel's):
+  // said to be not the one, once (it had opened silently, and a player took it for his, empty)
+  const toldNot = new Set();
+  function notTheOne(t, r) {
+    const b = t?.b, room = b?.node?.userData?.room; if (!b || !room || !r?.did || r.took || toldNot.has(b.id) || /^(closed|shut|locked|down)$/.test(r.state || "")) return;
+    const twin = arr(k.things).find(q => q.kind === b.kind.kind && q.label && roomOf(q) === room); if (!twin) return;
+    toldNot.add(b.id); say(`Not ${twin.label}: someone else's, and nothing in it to the purpose.`);
   }
   // looking: a thing whose clue is had by looking (the body, the chest's clean corner, the candlestick's dent, a drawer
   // standing open on a paper) is looked at on the first tap, before it is worked: the playtest's taps had lit the evidence
@@ -261,15 +270,20 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   function snapshot() {
     return { v: 1, case: k.id, learned: [...frame.learned], holding: [...frame.holding], said: frame.said.slice(-40), yielded: [...frame.yielded], guarded: [...frame.guarded],
       notebook: { clues: notebook.clues, persons: [...notebook.persons], caught: notebook.caught, heard: notebook.heard }, papers: papersRead, turn, lastTopic, threadN, hintsShown, locked: [...locked], tries, leads: leadMemo,
+      // (what stands open and what you have touched: an open chest's "take out" had gone on a reload, till shut and opened again)
+      openNow: [...openNow], touched: [...touched], toldInside: [...toldInside],
       R: { ...R, t0: undefined, played: (R.solved ?? performance.now()) - R.t0 }, narrator: narrator?.state?.() ?? null,
       rooms: Object.fromEntries(arr(k.cast).map(c => [c.id, presenceOf(c.id)?.room]).filter(([, r]) => r)) };
   }
-  let saveT = 0; function save() { if (!persist) return; clearTimeout(saveT); saveT = setTimeout(() => { try { persist(snapshot()); } catch (e) { console.warn("case save:", e.message); } }, 250); }
+  let saveT = 0; function save() { if (!persist) return; clearTimeout(saveT); saveT = setTimeout(saveNow, 250); }
+  // at once (the page going away: pagehide, or hidden, when a phone may kill the tab), with where you stand and the clock now
+  function saveNow() { if (!persist) return; clearTimeout(saveT); try { persist(snapshot()); } catch (e) { console.warn("case save:", e.message); } }
   if (saved?.case === k.id) {
     for (const id of arr(saved.learned)) frame.learned.add(id); for (const id of arr(saved.holding)) frame.holding.add(id); for (const id of arr(saved.yielded)) frame.yielded.add(id);
     frame.said.push(...arr(saved.said)); for (const [w, n] of arr(saved.guarded)) frame.guarded.set(w, n);
     notebook.clues.push(...arr(saved.notebook?.clues)); for (const [id, p] of arr(saved.notebook?.persons)) notebook.persons.set(id, p); notebook.caught.push(...arr(saved.notebook?.caught)); notebook.heard.push(...arr(saved.notebook?.heard));
-    papersRead.push(...arr(saved.papers)); Object.assign(threadN, saved.threadN || {}); Object.assign(hintsShown, saved.hintsShown || {}); turn = saved.turn || 0; lastTopic = saved.lastTopic || null; for (const g of arr(saved.locked)) locked.add(g); tries = saved.tries || 0;
+    papersRead.push(...arr(saved.papers)); for (const id of arr(saved.openNow)) openNow.add(id); for (const id of arr(saved.touched)) touched.add(id); for (const id of arr(saved.toldInside)) toldInside.add(id);
+    Object.assign(threadN, saved.threadN || {}); Object.assign(hintsShown, saved.hintsShown || {}); turn = saved.turn || 0; lastTopic = saved.lastTopic || null; for (const g of arr(saved.locked)) locked.add(g); tries = saved.tries || 0;
     Object.assign(R, saved.R || {}, { t0: performance.now() - (saved.R?.played || 0) }); if (saved.R?.solved != null) R.solved = performance.now();
     for (const [id, room] of Object.entries(saved.rooms || {})) presenceOf(id, room);
     leadMemo.raised.push(...arr(saved.leads?.raised)); leadMemo.closed.push(...arr(saved.leads?.closed));
@@ -283,5 +297,5 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   const searched = (room) => { const cs = arr(k.things).filter(t => roomOf(t) === room).flatMap(t => arr(t.clue)); return cs.length ? cs.every(c => frame.learned.has(c)) : null; };
   // the panel put down: no one is being questioned (talking:P false), and moves held back for them go ahead
   function closed() { if (!talking) return; talking = null; step([{ type: "talk", who: null }]); }
-  return { closed, hint, resumed, snapshot, receipts, openPaper, look, wouldLook, reachIn, searched, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  return { closed, hint, resumed, snapshot, saveNow, receipts, openPaper, look, wouldLook, reachIn, searched, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
