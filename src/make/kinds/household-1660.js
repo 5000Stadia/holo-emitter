@@ -10,6 +10,59 @@ export default [
     affordances: { light: { hit: "body", motion: "switch", lights: "flame", starts: "burn", verbs: ["light the candle", "put out the candle"] } },
     take: { requires: { light: "out" }, refused: "not while it burns" },
     processes: { burn: { initial: 1, phases: [{ to: 0.1, rate: 0.0003 }], drives: [{ mover: "candle", scale: [0, 1, 0] }, { mover: "flame", axis: [0, 1, 0], travel: "$length" }] } } },
+  // the lights a room type names (src/make/rooms/england-1660.js `light`), each a thing that gives it: a lantern at the
+  // stairhead, a sconce by a passage's door, a rushlight in the back stair. Each is lit from the start and can be put
+  // out and lit again; its flame burns steady in the still air indoors (no animation, and its pooled light kept from the
+  // hearths' flicker, so a lit one never asks for a frame of its own) and its light is only ever where its flame is
+  { kind: "lantern/stair", v: 1, noun: "the lantern", fixed: true, rests: "held", held: "hung from the ceiling on its chain",
+    why: "a hanging lantern for a stairhead, c. 1660: a square iron frame on a base plate, leaves of scraped horn (glass was dearer, and a stair's lantern is a working light), a pyramid roof with a ring, hung on an iron chain from a plate in the ceiling; a tallow candle in a socket inside, lit. Its lowest point is y = 0, the ceiling at its top; drop is the chain's length",
+    size: [0.212, "=drop+0.49", 0.212], settings: { drop: 0.6, glow: 2.2 },
+    // by relations: the corner posts on the base, the horn leaves on the base between them, the top on the posts, the roof on
+    // the top, the finial on the roof, the ring on the finial, the chain hanging in the ring (its lowest link through it,
+    // resting on it), the ceiling plate on the chain; the candle's socket on the base, the candle in it
+    parts: [
+      { id: "base", part: "box", role: "iron", size: [0.2, 0.016, 0.2] },
+      ...[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sz], i) => ({ id: `post${i}`, part: "box", role: "iron", size: [0.012, 0.3, 0.012], at: [sx * 0.092, 0, sz * 0.092], on: "base" })),
+      ...[1, -1].flatMap(s => [{ part: "box", role: "horn", size: [0.172, 0.296, 0.003], at: [0, 0, s * 0.0915], on: "base" }, { part: "box", role: "horn", size: [0.003, 0.296, 0.172], at: [s * 0.0915, 0, 0], on: "base" }]),
+      { id: "top", part: "box", role: "iron", size: [0.2, 0.012, 0.2], on: "post0" },
+      { id: "roof", part: "cone", role: "iron", r: 0.15, h: 0.09, segments: 4, ops: [["ry", P / 4]], on: "top" },
+      { id: "finial", part: "cylinder", role: "iron", r: 0.01, h: 0.025, segments: 10, on: "roof", sink: 0.005 },
+      { id: "ring", part: "torus", role: "iron", r: 0.018, tube: 0.004, radial: 6, tubular: 16, on: "finial", sink: 0.004 },
+      { id: "chain", part: "chain", length: "$drop", r: 0.011, tube: 0.0025, stretch: 1.4, on: "ring", sink: 0.0153 },
+      { part: "cylinder", role: "iron", r: 0.04, h: 0.01, segments: 16, on: "chain", sink: 0.004, within: "the chain's top link stapled into the ceiling plate" },
+      // (inside the horn, which the check counts as solid: they show through it, dimly, as the candle's light does)
+      { id: "socket", part: "lathe", role: "iron", segments: 14, profile: [[0, 0], [0.016, 0], [0.016, 0.03], [0.0125, 0.03], [0.0125, 0.006], [0, 0.006]], on: "base", seen: false },
+      { part: "cylinder", role: "wax", r: 0.012, h: 0.12, segments: 12, on: "socket", sink: 0.024, seen: false },
+      { part: "flame", at: [0, 0.156, 0], r: 0.006, light: "$glow", still: true, halo: [0.07, 0.3], frame: "the flame on the candle's wick, 1.4 cm over its top (0.142 m: the base 0.016, the socket's floor 0.006 up it, the candle 0.12); the horn glowing from within" }],
+    affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the lantern", "put out the lantern"] } } },
+  { kind: "sconce/candle", v: 1, noun: "the sconce", fixed: true, traits: ["wall"],
+    why: "a wall sconce of latten (brass), c. 1660: a back plate with a boss that throws the light back into the room, an arm, a drip pan and a socket, a tallow candle in it, lit; fixed beside a passage's door, at_y the plate's middle",
+    size: [0.1, 0.3, 0.16], settings: { at_y: 1.5, glow: 1.2 },
+    // by relations: the plate on the wall, the boss and the arm on the plate, the pan on the arm's end, the socket on the pan,
+    // the candle in the socket
+    parts: [
+      { id: "plate", part: "box", role: "metal", size: [0.1, 0.26, 0.004], at: [0, "=at_y-0.13", 0], hangs: "wall" },
+      { part: "cylinder", role: "metal", r: 0.03, h: 0.005, segments: 20, ops: [["rx", P / 2], ["t", 0, "=at_y+0.07", 0]], hangs: "plate" },
+      { id: "arm", part: "box", role: "metal", size: [0.02, 0.014, 0.06], at: [0, "=at_y-0.113", 0], hangs: "plate" },
+      { id: "pan", part: "cylinder", role: "metal", r: 0.05, h: 0.01, segments: 20, at: [0, "=at_y-0.11", 0], meets: { to: "arm", face: "front" }, sink: 0.008 },
+      { id: "socket", part: "lathe", role: "metal", segments: 16, profile: [[0, 0], [0.014, 0], [0.014, 0.035], [0.0115, 0.035], [0.0115, 0.006], [0, 0.006]], at: [0, 0, 0.106], on: "pan" },
+      { part: "cylinder", role: "wax", r: 0.011, h: 0.16, segments: 14, at: [0, 0, 0.106], on: "socket", sink: 0.029 },
+      { part: "flame", at: [0, "=at_y+0.079", 0.106], r: 0.006, light: "$glow", still: true, frame: "the flame on the wick, 1.3 cm over the candle's top (at_y + 0.066: the pan's top at_y - 0.1, the socket's floor 0.006 up it, the candle 0.16), over the pan's middle (0.106 m out from the wall)" }],
+    affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the candle", "put out the candle"] } } },
+  { kind: "rushlight/nip", v: 1, noun: "the rushlight", fixed: true,
+    why: "a rushlight holder: an iron nip on a stem set in a turned wooden block, its jaw closed by a weighted lever, gripping a peeled rush dipped in fat at a slant, lit at its upper end: the servants' and the back stair's light, about a third of a candle's (Gilbert White, Selborne, 1775, describes the making)",
+    size: [0.24, 0.4, 0.1], settings: { glow: 0.6 },
+    // by relations: the stem in the block, the jaw on the stem, the lever off the jaw's side, its knob on its end; the rush
+    // set through the jaw by its own turn
+    parts: [
+      { id: "block", part: "lathe", role: "treen", profile: [[0, 0], [0.05, 0], [0.05, 0.022], [0.04, 0.034], [0.026, 0.042], [0, 0.042]] },
+      { id: "stem", part: "cylinder", role: "iron", r: 0.005, h: 0.2, segments: 8, on: "block", sink: 0.012 },
+      { id: "jaw", part: "box", role: "iron", size: [0.03, 0.014, 0.012], on: "stem", sink: 0.004 },
+      { id: "lever", part: "cylinder", role: "iron", r: 0.0035, h: 0.07, segments: 6, ops: [["rz", -P / 2 - 0.5], ["t", 0, 0.233, 0]], meets: { to: "jaw", face: "right" }, sink: 0.004 },
+      { part: "sphere", role: "iron", r: 0.008, w: 10, h: 8, meets: { to: "lever", face: "right" }, sink: 0.003, align: { y: 0 } },
+      { part: "cylinder", role: "wax", r: 0.0028, h: 0.32, segments: 6, ops: [["t", 0, -0.096, 0], ["rz", -0.8], ["t", 0, 0.233, 0]], frame: "a third of the rush below the jaw's middle (0.233 m: the block 0.042, the stem 0.2 let 0.012 in, the jaw 0.014 let 0.004 on), slanted 0.8 rad up and away", within: "gripped between the nip's jaws, through them" },
+      { part: "flame", at: [0.163, 0.396, 0], r: 0.005, light: "$glow", still: true, frame: "the flame on the rush's upper end (0.224 m up its slant from the jaw: x 0.161, y 0.389)" }],
+    affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the rushlight", "put out the rushlight"] } } },
   { kind: "key/iron", v: 1, noun: "the key", why: "a wrought-iron key, about 11 cm: a looped bow, a round shank, a warded bit",
     size: [0.11, 0.02, 0.04], settings: {}, traits: [],
     // by relations: the shank let 4 mm into the bow's far rim, the bit on the shank's end

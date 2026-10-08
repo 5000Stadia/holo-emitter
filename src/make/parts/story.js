@@ -479,18 +479,22 @@ definePart("sleeper", {
 
 // a flame and its glow, as a candle's, for a lamp: shown while its affordance (`when`, default "light") is
 // moved; a light group `group` the affordance turns on and off; it flickers. light 0 makes no point light
-// (a row of lamps would be a row of lights): the flame and a soft glow only.
+// (a row of lamps would be a row of lights): the flame and a soft glow only. still: a steady flame in still air (a
+// lantern's candle, a sconce's): no animation and a steady light (userData.still, which the page's pool keeps from
+// flickering), so a lit one never asks for a frame of its own; halo: [radius,
+// opacity] of the glow (a lantern's horn lit from within). The flame keeps its light (userData.light), so putting it
+// out still darkens a light the page has taken out of the scene into its pool
 definePart("flame", {
-  build(c, { at = [0, 0, 0], r = 0.007, light = 0.6, reach = 5, group = "flame", when = "light" }) {
+  build(c, { at = [0, 0, 0], r = 0.007, light = 0.6, reach = 5, group = "flame", when = "light", still = false, halo = null }) {
     const { THREE } = c;
     const flameMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0.92 });
     const flame = new THREE.Mesh(new THREE.SphereGeometry(r, 10, 8), flameMat); flame.scale.set(1, 2.4, 1); flame.position.set(...at); flame.userData.lightGroup = group;
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: 0.16, depthWrite: false });
-    const glow = new THREE.Mesh(new THREE.SphereGeometry(r * 3.4, 12, 8), glowMat); glow.position.set(...at); glow.userData.lightGroup = group;
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xffc070, transparent: true, opacity: halo ? halo[1] : 0.16, depthWrite: false });
+    const glow = new THREE.Mesh(new THREE.SphereGeometry(halo ? halo[0] : r * 3.4, 12, 8), glowMat); glow.position.set(...at); glow.userData.lightGroup = group;
     c.extra(flame); c.extra(glow);
     let lamp = null;
-    if (light > 0) { lamp = new THREE.PointLight(0xffb070, light, reach, 2); lamp.position.set(at[0], at[1] + r, at[2]); lamp.userData.lightGroup = group; c.extra(lamp); }
-    c.animate((t, isLit) => { if (!isLit(when)) return;
+    if (light > 0) { lamp = new THREE.PointLight(0xffb070, light, reach, 2); lamp.position.set(at[0], at[1] + r, at[2]); lamp.userData.lightGroup = group; lamp.userData.still = still; c.extra(lamp); flame.userData.light = lamp; }
+    if (!still) c.animate((t, isLit) => { if (!isLit(when)) return;
       const f = 1 + 0.07 * Math.sin(t * 6.1 + at[0] * 40) + 0.05 * Math.sin(t * 11.3 + 1.7) + 0.03 * Math.sin(t * 27.9);
       flame.scale.set(1, 2.4 * f, 1); glow.scale.setScalar(1 + (f - 1) * 0.5); if (lamp) lamp.intensity = (lamp.userData.on ?? light) * f; });
   },

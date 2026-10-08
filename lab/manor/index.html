@@ -183,7 +183,7 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
   return (l, id) => { l.updateWorldMatrix(true, false); l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
       if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
         const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
-      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
+      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
         Object.defineProperty(it, "base", { get: () => l.intensity }); fireItems.push(it); }
       else return;
       l.userData.pooled = true; l.removeFromParent(); }; })();
@@ -196,10 +196,10 @@ let inView = new Set(), lightsDirty = true, snapLights = true;
 // (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting")
 const alight = (it) => !it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out";
 function lightView(at) { winPool.update(winItems.filter(it => inView.has(it.room)), at); firePool.update(fireItems.filter(it => inView.has(it.room) && alight(it)), at); }
-// the fires flicker, and the flames with them, while any is in view
+// the fires flicker, and the flames with them, while any is in view (a still flame's light, a lantern's or a sconce's, is steady)
 function flicker(now) {
   const t = now / 1000; let any = false;
-  fires.forEach((l, i) => { if (!l.intensity) return; any = true; l.intensity *= 0.82 + 0.1 * Math.sin(t * 7.3 + i * 2) + 0.08 * Math.sin(t * 13.1 + i); });
+  fires.forEach((l, i) => { if (!l.intensity || firePool.slots[i].item?.still) return; any = true; l.intensity *= 0.82 + 0.1 * Math.sin(t * 7.3 + i * 2) + 0.08 * Math.sin(t * 13.1 + i); });
   for (const f of manor.flames) { if (!f.parent.parent.visible) continue; any = true; const p = f.userData.phase; f.scale.set(1, 0.8 + 0.25 * Math.sin(t * 9 + p) + 0.1 * Math.sin(t * 17 + p * 2), 1); }
   return any;
 }
