@@ -125,6 +125,11 @@ if (CASE) fresh.required = [...(fresh.required || []), ...caseRequired(CASE, fre
 const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`;
 let doc = null; try { if (Q.has("fresh")) localStorage.removeItem(WKEY); else doc = JSON.parse(localStorage.getItem(WKEY) || "null"); } catch (_) {}
 const world = makeWorld(doc), keep = () => { try { localStorage.setItem(WKEY, JSON.stringify(world.doc)); } catch (_) {} };
+// a case's own progress kept beside the world (src/make/case-play.js snapshot); ?fresh clears it, and then leaves the
+// address, so a phone that reloads the tab (iOS does, when it is short of memory) takes the case up again, not afresh
+const CKEY = CASE ? `${WKEY}/case/${CASE.id}` : null; let caseSaved = null;
+try { if (CKEY && Q.has("fresh")) localStorage.removeItem(CKEY); else if (CKEY) caseSaved = JSON.parse(localStorage.getItem(CKEY) || "null"); } catch (_) {}
+if (Q.has("fresh")) { const u = new URL(location.href); u.searchParams.delete("fresh"); history.replaceState(null, "", u); }
 const plan = world.seal("manor", { plan: fresh, kinds: KINDS, generator: GENERATOR }).plan;
 keep();
 const brief = await (await fetch("../brief/manor-1660.json")).json();
@@ -306,13 +311,15 @@ if (CASE) {
     scene.add(pr.group);                       // in world space (a room's group has its own offset); shown while its room is
     const rec = { p: pr, picture, room: to }; presences.set(id, rec); return rec; };
   for (const p of CASE.cast) presenceOf(p.id);
-  const narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) });
+  let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null }); }
+  catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) }); }
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
     onShow: (id, last) => CP.reply(CP.talking(), last || "death", "show", id), onAccuse: (c) => CP.accuse(c),
     onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onClose: () => {} });
   CP = playCase({ kase: CASE, plan, manor, works, panel, voice: makeVoice(), narrator, say, presenceOf,
-    setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed.") });
+    setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed."),
+    saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
   window.__cp = CP; window.__presences = presences;
 }
 const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
@@ -329,6 +336,9 @@ for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r =
       let sc = 9; for (let d = 0.5; d <= 5; d += 0.5) for (const [hx, hy] of fires) sc = Math.min(sc, Math.hypot(mx - Math.cos(a) * d - hx, my - Math.sin(a) * d - hy));
       if (sc > bs) { bs = sc; best = [x, y]; } }
     if (best) [px, py] = best; yaw = Math.atan2(-(mx - px), my - py); pitch = -0.12; } }
+// taken up again: where you stood, and a line to say so
+if (CP?.resumed) { const [x, y, h, a] = caseSaved.at || []; if (x != null && standable(x, y, h)) { px = x; py = y; ph = h; yaw = a; }
+  say(`You take up the case again, ${CP.resumed.minutes} minutes in, with ${CP.resumed.clues} ${CP.resumed.clues === 1 ? "clue" : "clues"} in your book.`); }
 window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
 const keys = {};
 // crouching (Kabe, 2026-10-07: "We should have a crouch option"): C or Ctrl, or the thumb's crouch button; the eye

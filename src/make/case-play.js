@@ -28,7 +28,7 @@ export function caseRequired(k, plan, known = null) {   // known: the catalogue'
   return out.sort((a, b) => (a.in ? 1 : 0) - (b.in ? 1 : 0));
 }
 
-export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {} }) {
+export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {}, saved = null, persist = null }) {
   const clues = new Map(cluesOf(k).map(c => [c.id, c])), cast = new Map(arr(k.cast).map(c => [c.id, c]));
   const thingOf = new Map(manor.things.filter(b => b.story).map(b => [b.story, b]));
   const frame = { learned: new Set(), holding: new Set(), said: [], yielded: new Set(), guarded: new Map() };
@@ -114,6 +114,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     }
   }
   function step(extra = []) {
+    save();
     if (!narrator) { pending = []; return; }
     const events = [...pending, ...extra]; pending = []; if (!events.length) return;
     let r; try { r = narrator.observe(events); } catch (err) { console.warn("narrator:", err.message); return; }
@@ -129,6 +130,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   function openAccusation() {
     const sol = k.solution || k.accusation || {};
     panel.openAccusation({ suspects: arr(k.cast).map(c => ({ id: c.id, name: c.name })), pillars: arr(sol.blanks || k.pillars).map(p => ({ id: p.id, label: p.label, lead: p.lead, options: arr(p.options) })), groups: sol.groups });
+    for (const g of locked) panel.accusationResult({ group: g, ok: true });     // (groups confirmed before a resume stay confirmed)
   }
   const locked = new Set(); let tries = 0;
   function accuse({ group, picks }) {
@@ -147,5 +149,24 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   }
   const roomName = (id) => plan.rooms.find(r => r.id === presenceOf(id)?.room)?.name;
   const notebookView = () => ({ persons: [...notebook.persons].map(([id, p]) => ({ id, name: p.name, note: [p.role, roomName(id) && `now in the ${roomName(id).toLowerCase()}`, !p.met && "not yet questioned"].filter(Boolean).join(" · ") })), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), papers: papersRead.map(id => ({ id, title: k.papers[id].title })), contradictions: notebook.caught.map(c => ({ label: `${cast.get(c.who)?.name}: ${c.label}` })) });
-  return { receipts, openPaper, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  // ---- kept between visits (a phone's tab is killed and reloaded, or you come back tomorrow): everything you have learned,
+  // been told, read and confirmed, the narrator's own state, where each person now is, how long you've played. Plain JSON,
+  // written after every turn (a few KB); the house's own state (doors, drawers, what you carry) is the world document's
+  function snapshot() {
+    return { v: 1, case: k.id, learned: [...frame.learned], holding: [...frame.holding], said: frame.said.slice(-40), yielded: [...frame.yielded], guarded: [...frame.guarded],
+      notebook: { clues: notebook.clues, persons: [...notebook.persons], caught: notebook.caught }, papers: papersRead, turn, lastTopic, locked: [...locked], tries,
+      R: { ...R, t0: undefined, played: (R.solved ?? performance.now()) - R.t0 }, narrator: narrator?.state?.() ?? null,
+      rooms: Object.fromEntries(arr(k.cast).map(c => [c.id, presenceOf(c.id)?.room]).filter(([, r]) => r)) };
+  }
+  let saveT = 0; function save() { if (!persist) return; clearTimeout(saveT); saveT = setTimeout(() => { try { persist(snapshot()); } catch (e) { console.warn("case save:", e.message); } }, 250); }
+  if (saved?.case === k.id) {
+    for (const id of arr(saved.learned)) frame.learned.add(id); for (const id of arr(saved.holding)) frame.holding.add(id); for (const id of arr(saved.yielded)) frame.yielded.add(id);
+    frame.said.push(...arr(saved.said)); for (const [w, n] of arr(saved.guarded)) frame.guarded.set(w, n);
+    notebook.clues.push(...arr(saved.notebook?.clues)); for (const [id, p] of arr(saved.notebook?.persons)) notebook.persons.set(id, p); notebook.caught.push(...arr(saved.notebook?.caught));
+    papersRead.push(...arr(saved.papers)); turn = saved.turn || 0; lastTopic = saved.lastTopic || null; for (const g of arr(saved.locked)) locked.add(g); tries = saved.tries || 0;
+    Object.assign(R, saved.R || {}, { t0: performance.now() - (saved.R?.played || 0) }); if (saved.R?.solved != null) R.solved = performance.now();
+    for (const [id, room] of Object.entries(saved.rooms || {})) presenceOf(id, room);
+  }
+  const resumed = saved?.case === k.id ? { minutes: +((saved.R?.played || 0) / 60000).toFixed(0), clues: frame.learned.size } : null;
+  return { resumed, snapshot, receipts, openPaper, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
