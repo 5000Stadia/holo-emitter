@@ -1,0 +1,42 @@
+{
+  "daniel": {
+    "sex": "male", "age": 22, "build": "thin",
+    "face": { "shape": "long", "complexion": "pale", "jaw": "narrow", "eyes": "grey", "nose": "straight" },
+    "hair": { "colour": "mid brown", "style": "cropped to the collar", "grey": 0 },
+    "beard": "none",
+    "dress": { "colour": "rusty black", "fabric": "wool", "collar": "falling band" },
+    "details": ["ink on fingers"],
+    "expression": "wary",
+    "pose": { "turn": -0.32, "tilt": 0.02 }
+  },
+  "cressy": {
+    "sex": "male", "age": 45, "build": "spare",
+    "face": { "shape": "long", "complexion": "sallow", "jaw": "firm", "eyes": "grey", "nose": "aquiline" },
+    "hair": { "colour": "dark brown", "style": "close cap", "grey": 0.45 },
+    "beard": "moustache and tuft",
+    "dress": { "colour": "good black", "fabric": "broadcloth", "collar": "lawyer's bands" },
+    "details": [],
+    "expression": "composed",
+    "pose": { "turn": 0.34, "tilt": 0 }
+  },
+  "francis": {
+    "sex": "male", "age": 26, "build": "average",
+    "face": { "shape": "oval", "complexion": "ruddy", "jaw": "firm", "eyes": "brown", "nose": "straight" },
+    "hair": { "colour": "brown", "style": "curled to the shoulders", "grey": 0 },
+    "beard": "moustache",
+    "dress": { "colour": "russet", "fabric": "silk", "collar": "lace collar" },
+    "details": ["bound hand"],
+    "expression": "insolent",
+    "pose": { "turn": -0.26, "tilt": -0.03 }
+  },
+  "anne": {
+    "sex": "female", "age": 38, "build": "slight",
+    "face": { "shape": "oval", "complexion": "pale", "jaw": "soft", "eyes": "hazel", "nose": "straight" },
+    "hair": { "colour": "dark brown", "style": "ringlets", "grey": 0.05 },
+    "beard": "none",
+    "dress": { "colour": "dark silk", "fabric": "silk", "collar": "lace tucker", "jewels": ["pearl necklace", "pearl drops"] },
+    "details": ["keys at waist", "has not slept"],
+    "expression": "weary",
+    "pose": { "turn": 0.24, "tilt": 0.02 }
+  }
+}
