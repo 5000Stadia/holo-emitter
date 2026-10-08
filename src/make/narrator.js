@@ -38,10 +38,10 @@ const ID = /^[\w./-]+$/;
 
 // ---- the condition language ------------------------------------------------------------------------------------
 // text:   learned:will and (holding:key or not opened:study) or quiet>=9      JSON: { all:[…] } { any:[…] } { not:… } or a string
-// atoms:  learned:CLUE  holding:THING  opened:ID  said:TOPIC | said:WHO/TOPIC  at:ROOM  here:PERSON  var:NAME[=VALUE]
+// atoms:  learned:CLUE  holding:THING  opened:ID  said:TOPIC | said:WHO/TOPIC  at:ROOM  here:PERSON  talking:PERSON  var:NAME[=VALUE]
 //         genuine:PILLAR  misled:PILLAR  covered:PILLAR  fired:CLOCK  done:BEAT  revealed:THING  phase:NAME
 //         turns>=N  quiet>=N  learned>=N  genuine>=N  covered>=N  beats>=N      (also > <= < ==)
-const ARG_ATOMS = new Set(["learned", "holding", "opened", "said", "at", "here", "var", "genuine", "misled", "covered", "fired", "done", "revealed", "phase"]);
+const ARG_ATOMS = new Set(["learned", "holding", "opened", "said", "at", "here", "talking", "var", "genuine", "misled", "covered", "fired", "done", "revealed", "phase"]);
 const NUM_ATOMS = new Set(["turns", "quiet", "learned", "genuine", "covered", "beats"]);
 const CMP = { ">=": (a, b) => a >= b, "<=": (a, b) => a <= b, ">": (a, b) => a > b, "<": (a, b) => a < b, "==": (a, b) => a === b };
 
@@ -99,6 +99,8 @@ export function evalExpr(ast, f) {
     case "said": return f.said.has(ast.arg);
     case "at": return f.at === ast.arg;
     case "here": return f.at != null && f.people[ast.arg] === f.at;
+    // (in conversation with them now: the panel open on them; a deck can keep its moves off them, 2026-10-08 with construct)
+    case "talking": return f.talking === ast.arg;
     case "var": { const v = f.vars[ast.name]; return ast.value === true ? !!v : v === ast.value; }
     case "genuine": return f.cov[ast.arg] === "genuine";
     case "misled": return f.cov[ast.arg] === "false";
@@ -149,7 +151,7 @@ export function checkNarrator(k, { rooms = null } = {}) {
       else if (a.atom === "holding") { if (!things.has(a.arg) && !arr(k.things).some(t => t.kind === a.arg)) say(at, `holding:${a.arg} — no such thing`); }
       else if (a.atom === "revealed") m(a, "thing", things);
       else if (["genuine", "misled", "covered"].includes(a.atom)) m(a, "pillar", pillars);
-      else if (a.atom === "here") m(a, "person", people);
+      else if (a.atom === "here" || a.atom === "talking") m(a, "person", people);
       else if (a.atom === "fired") m(a, "clock", clockIds);
       else if (a.atom === "done") m(a, "beat", beatIds);
       else if (a.atom === "said") { const t = a.arg.includes("/") ? a.arg.split("/")[1] : a.arg; if (!topics.has(t)) say(at, `said:${a.arg} — no such topic`); }
@@ -207,7 +209,7 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
   const add = (key, v) => { if (v != null && !S[key].includes(v)) S[key].push(v); };
 
   const frame = () => {
-    const f = { learned: new Set(S.learned), held: new Set(S.held), opened: new Set(S.opened), said: new Set(S.said), vars: S.vars, at: S.at, people: S.people,
+    const f = { learned: new Set(S.learned), held: new Set(S.held), opened: new Set(S.opened), said: new Set(S.said), vars: S.vars, at: S.at, people: S.people, talking: S.talking || null,
       turns: S.turns, quiet: S.quiet, phase: S.phase, cov: {}, fired: new Set(Object.keys(S.fired)), done: new Set(S.done), revealed: new Set(S.revealed) };
     f.cov = coverageOf(f); return f;
   };
@@ -285,6 +287,7 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
       case "open": add("opened", ev.id ?? ev.thing ?? ev.room); break;
       case "say": add("said", ev.topic); if (ev.who) add("said", `${ev.who}/${ev.topic}`); break;
       case "enter": S.at = ev.room; break;
+      case "talk": S.talking = ev.who || null; break;
       case "accuse": S.accused = ev.who; break;
       case "var": S.vars[ev.name] = ev.value; break;
       case "idle": break;
@@ -303,7 +306,7 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
     if (ws.quiet != null) S.quiet = ws.quiet;
   }
   function observe(evs) {
-    const list = arr(evs), counts = list.some(e => e.type !== "var" && e.type !== "sync");
+    const list = arr(evs), counts = list.some(e => e.type !== "var" && e.type !== "sync" && e.type !== "talk");
     let touched = false;
     for (const e of list) { one(e); if (TOUCH.has(e.type)) touched = true; }
     if (counts) { S.turns++; S.quiet = touched ? 0 : S.quiet + 1; }

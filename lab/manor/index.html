@@ -357,7 +357,7 @@ if (CASE) {
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
     onShow: (id, topic) => CP.reply(CP.talking(), topic, "show", id), onAccuse: (c) => CP.accuse(c),
-    onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onHint: (id) => { if (CP.hint(id)) panel.openNotebook(CP.notebookView()); }, onClose: () => {} });
+    onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onHint: (id) => { if (CP.hint(id)) panel.openNotebook(CP.notebookView()); }, onClose: () => CP?.closed() });
   // (the model's relay is for development only, on this machine: the published page never asks for it; a phone had
   // tried 127.0.0.1 on every reply, which Android may answer with a local-network prompt)
   CP = playCase({ kase: CASE, plan, manor, works, panel, voice: /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && Q.get("voice") !== "0" ? makeVoice() : null, narrator, say, presenceOf,

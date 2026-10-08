@@ -100,6 +100,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // ---- talking: open the panel on a person
   function talkTo(who) {
     const p = cast.get(who); if (!p) return; talking = who; notebook.persons.set(who, { name: p.name, role: p.role, met: true });
+    pending.push({ type: "talk", who });               // (the narrator's talking:P: a deck keeps its moves off whoever you're questioning)
     panel.open({ who, name: p.name, role: p.role, portrait: presenceOf(who)?.face || presenceOf(who)?.picture, intro: p.intro, topics: topicsFor(k, who, frame), evidence: evidence() });
     panel.guarded?.((frame.guarded.get(who) || 0) > 0);   // (closed up still, if they were: it had looked open again on reopening)
   }
@@ -279,5 +280,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // the same rooms again and again); null where the case keeps nothing
   const roomOf = (t, n = 0) => { const h = arr(k.things).find(q => q.id === t.at); return h && n < 8 ? roomOf(h, n + 1) : t.at; };
   const searched = (room) => { const cs = arr(k.things).filter(t => roomOf(t) === room).flatMap(t => arr(t.clue)); return cs.length ? cs.every(c => frame.learned.has(c)) : null; };
-  return { hint, resumed, snapshot, receipts, openPaper, look, wouldLook, reachIn, searched, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  // the panel put down: no one is being questioned (talking:P false), and moves held back for them go ahead
+  function closed() { if (!talking) return; talking = null; step([{ type: "talk", who: null }]); }
+  return { closed, hint, resumed, snapshot, receipts, openPaper, look, wouldLook, reachIn, searched, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
