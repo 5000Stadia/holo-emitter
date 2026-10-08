@@ -2570,8 +2570,8 @@
      "id": "anne_girdle_cord",
      "label": "The key-cord cut at his girdle",
      "pillar": "locked",
-     "effect": "context",
-     "tier": "lead",
+     "effect": "genuine",
+     "tier": "supporting",
      "gate": {
       "topic": "keys",
       "stance": [
@@ -3249,8 +3249,8 @@
    "id": "body_cord",
    "label": "The cut cord at his girdle",
    "pillar": "locked",
-   "effect": "context",
-   "tier": "lead",
+   "effect": "genuine",
+   "tier": "supporting",
    "reveal": "look",
    "on_missing_kind": true,
    "triple": [
@@ -3684,7 +3684,9 @@
    ],
    "locked": [
     "anne_dawn",
-    "key_cut_cord"
+    "key_cut_cord",
+    "body_cord",
+    "anne_girdle_cord"
    ]
   },
   "attempts": 3,
@@ -4071,7 +4073,8 @@
    "Circumstantial clues are leads, not genuine (francis_saw_purse, anne_girdle_cord, body_cord), so the narrator's phases follow real proof: the pressure phase arrives with the garret, not before.",
    "case.js and talk.js read one all-of gate per clue. Dame Anne's visit (anne_visit) asks for Francis's word only, though Cressy's or Daniel's would serve as well; her yield sends you to Francis.",
    "The gather beat waits while you are with Daniel, so you can confront him at his chest; saddled cannot follow gather."
-  ]
+  ],
+  "three_clues": "2026-10-08: the locked door had two routes to proof (the Three Clue Rule asks three; design/case/prior-art-investigation-ux.md): the cord cut at his girdle, seen on the body or told by Dame Anne, now count as genuine for it, since either proves the key was cut from him and not turned from within"
  },
  "papers": {
   "settlement": {
