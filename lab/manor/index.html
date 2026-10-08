@@ -478,6 +478,8 @@ function actOn(t) {
   // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
   if (t?.look) { CP?.look(t.look); return true; }
   if (t?.b?.story && CP?.wouldLook(t.b.story, t.i)) { CP.look(t.b.story, t.i); return true; }
+  { const inner = t?.b?.story && CP?.reachIn(t.b.story), b = inner && manor.things.find(q => q.story === inner);
+    if (b) t = { b, aff: Object.keys(b.kind.affordances || {})[0] || null, i: null }; }
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
   if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
   if (SP?.beforeAct(t)) return true;

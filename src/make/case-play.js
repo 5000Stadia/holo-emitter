@@ -52,7 +52,10 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
 
   // ---- the house's things: opening, taking or reading one that carries a clue learns it (and taking it, holds it); a
   // paper (the case's papers: its own text, the clue there to be noticed) opens in the reader instead of a line
-  const papersRead = [];
+  const papersRead = [], toldInside = new Set(), touched = new Set(), openNow = new Set();
+  // reaching in: a tap on a thing you've opened that still holds one of the case's things you haven't touched goes to that
+  // thing (a dark box low in a chest is hard to tap past its front on a phone)
+  const reachIn = (id) => openNow.has(id) ? arr(k.things).find(q => q.at === id && (q.rel || "in") === "in" && !touched.has(q.id))?.id || null : null;
   function afterAct(t, r) {
     const id = t?.b?.story; if (!id) return;
     const thing = arr(k.things).find(q => q.id === id); if (!thing) return;
@@ -63,8 +66,13 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     if (!r || r.refused || !(r.took || r.did)) return;
     const shutting = !r.took && /^(closed|shut|locked|down)$/.test(r.state || "");
     if (r.took) { frame.holding.add(id); pending.push({ type: "take", thing: id }); }
-    pending.push({ type: "open", id }); R.opened++;
+    pending.push({ type: "open", id }); R.opened++; touched.add(id); if (shutting) openNow.delete(id); else openNow.add(id);
     const fresh = []; if (!shutting) for (const c of arr(thing.clue)) if (learn(c, thing.label || thing.kind)) fresh.push(c);
+    // what it holds, said as it opens (the first time): Daniel's chest had opened on a box and a bundle too low and dark to
+    // see over its front from where you stand on a phone, and a naive player searched it twice and left
+    if (!shutting && !r.took && !toldInside.has(id)) { const inside = arr(k.things).filter(q => q.at === id && (q.rel || "in") === "in");
+      if (inside.length) { toldInside.add(id); const n = inside.map(q => q.noun || q.label), list = n.length > 1 ? `${n.slice(0, -1).join(", ")} and ${n.at(-1)}` : n[0];
+        say(`In ${thing.label || "it"}: ${list}.`); } }
     const paper = k.papers?.[id];
     if (paper && !shutting && panel.openReader) { if (!papersRead.includes(id)) papersRead.push(id); panel.openReader({ ...paper, noted: fresh.map(c => ({ label: label(c) })) }); }
     else for (const c of fresh) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
@@ -260,5 +268,5 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // the leads: the case's own
   if (k.leads) useLeads(k.leads);
   const resumed = saved?.case === k.id ? { minutes: +((saved.R?.played || 0) / 60000).toFixed(0), clues: frame.learned.size } : null;
-  return { resumed, snapshot, receipts, openPaper, look, wouldLook, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
+  return { resumed, snapshot, receipts, openPaper, look, wouldLook, reachIn, afterAct, talkTo, reply, words, accuse, openAccusation, frame, notebook, notebookView, step, enter, idle, talking: () => talking, evidence, isClue: (b) => !!b?.story };
 }
