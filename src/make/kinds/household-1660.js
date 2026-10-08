@@ -37,7 +37,7 @@ export default [
     affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the lantern", "put out the lantern"] } } },
   { kind: "sconce/candle", v: 1, noun: "the sconce", fixed: true, traits: ["wall"],
     why: "a wall sconce of latten (brass), c. 1660: a back plate with a boss that throws the light back into the room, an arm, a drip pan and a socket, a tallow candle in it, lit; fixed beside a passage's door, at_y the plate's middle",
-    size: [0.1, 0.3, 0.16], settings: { at_y: 1.5, glow: 1.2 },
+    size: [0.1, 0.3, 0.16], settings: { at_y: 1.5, glow: 1.2, candle: "wax" },        // candle: tallow ("wax"), or a great room's "beeswax"
     // by relations: the plate on the wall, the boss and the arm on the plate, the pan on the arm's end, the socket on the pan,
     // the candle in the socket
     parts: [
@@ -46,9 +46,25 @@ export default [
       { id: "arm", part: "box", role: "metal", size: [0.02, 0.014, 0.06], at: [0, "=at_y-0.113", 0], hangs: "plate" },
       { id: "pan", part: "cylinder", role: "metal", r: 0.05, h: 0.01, segments: 20, at: [0, "=at_y-0.11", 0], meets: { to: "arm", face: "front" }, sink: 0.008 },
       { id: "socket", part: "lathe", role: "metal", segments: 16, profile: [[0, 0], [0.014, 0], [0.014, 0.035], [0.0115, 0.035], [0.0115, 0.006], [0, 0.006]], at: [0, 0, 0.106], on: "pan" },
-      { part: "cylinder", role: "wax", r: 0.011, h: 0.16, segments: 14, at: [0, 0, 0.106], on: "socket", sink: 0.029 },
+      { part: "cylinder", role: "$candle", r: 0.011, h: 0.16, segments: 14, at: [0, 0, 0.106], on: "socket", sink: 0.029 },
       { part: "flame", at: [0, "=at_y+0.079", 0.106], r: 0.006, light: "$glow", still: true, frame: "the flame on the wick, 1.3 cm over the candle's top (at_y + 0.066: the pan's top at_y - 0.1, the socket's floor 0.006 up it, the candle 0.16), over the pan's middle (0.106 m out from the wall)" }],
     affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the candle", "put out the candle"] } } },
+  { kind: "candlestick/branched", v: 1, noun: "the branched candlestick", fixed: true,
+    why: "a brass branched candlestick for a hall's table, c. 1660: a turned stem on a domed foot, a socket at its top and two arms curving out and up to a socket each, three wax candles; a hall's light at supper, set out by day and not lit while the windows serve",
+    size: [0.27, 0.6, 0.15], settings: { glow: 1.8 },
+    // by relations: the stem on the foot, the middle socket on the stem, its candle in it; the arms through the stem, a socket
+    // on each arm's end, a candle in each. One light for the three flames, at the middle one (three would be three lights)
+    parts: [
+      { id: "foot", part: "lathe", role: "metal", segments: 24, profile: [[0, 0], [0.075, 0], [0.075, 0.01], [0.06, 0.018], [0.03, 0.032], [0.02, 0.05], [0, 0.05]] },
+      { id: "stem", part: "lathe", role: "metal", segments: 16, profile: [[0, 0], [0.014, 0], [0.014, 0.04], [0.024, 0.06], [0.014, 0.08], [0.012, 0.2], [0.02, 0.22], [0.012, 0.24], [0.012, 0.33], [0, 0.33]], on: "foot", sink: 0.004 },
+      { id: "socketM", part: "lathe", role: "metal", segments: 16, profile: [[0, 0], [0.016, 0], [0.016, 0.035], [0.0125, 0.035], [0.0125, 0.006], [0, 0.006]], on: "stem", sink: 0.004 },
+      { part: "cylinder", role: "beeswax", r: 0.011, h: 0.18, segments: 14, on: "socketM", sink: 0.029 },
+      { id: "arms", part: "torus", role: "metal", r: 0.12, tube: 0.007, radial: 8, tubular: 24, arc: P, ops: [["rz", P], ["t", 0, 0.3, 0]], frame: "the arms' bow 0.18 m up the stem, its ends 0.3 m up, 0.12 m out either side", within: "the arms' bow passes through the stem, socketed in it" },
+      ...[-1, 1].flatMap(s => [{ id: `socket${s}`, part: "lathe", role: "metal", segments: 16, profile: [[0, 0], [0.016, 0], [0.016, 0.035], [0.0125, 0.035], [0.0125, 0.006], [0, 0.006]], at: [s * 0.12, 0, 0], on: "arms", sink: 0.003 },
+        { part: "cylinder", role: "beeswax", r: 0.011, h: 0.16, segments: 14, at: [s * 0.12, 0, 0], on: `socket${s}`, sink: 0.029 },
+        { part: "flame", at: [s * 0.12, 0.477, 0], r: 0.006, light: 0, still: true, frame: "the flame on the arm's candle, 1.4 cm over its top (0.463 m: the arm's end 0.3, the socket's floor 0.003 below it plus 0.006, the candle 0.16)" }]),
+      { part: "flame", at: [0, 0.572, 0], r: 0.006, light: "$glow", still: true, frame: "the flame on the middle candle, 1.4 cm over its top (0.558 m: the stem's top 0.376, the socket's floor 0.006 up it less 0.004, the candle 0.18)" }],
+    affordances: { light: { motion: "switch", lights: "flame", hit: "body", verbs: ["light the candles", "put out the candles"] } } },
   { kind: "rushlight/nip", v: 1, noun: "the rushlight", fixed: true,
     why: "a rushlight holder: an iron nip on a stem set in a turned wooden block, its jaw closed by a weighted lever, gripping a peeled rush dipped in fat at a slant, lit at its upper end: the servants' and the back stair's light, about a third of a candle's (Gilbert White, Selborne, 1775, describes the making)",
     size: [0.24, 0.4, 0.1], settings: { glow: 0.6 },

@@ -55,7 +55,11 @@ export function shellOf(plan, { gap = 0.35, ext = 0.75 } = {}) {
     // them tall, a display as much as a flue: to 1.4 m over
     // the ridge of the range it stands in, and never less than 1.2 m over the roof where it rises
     const roof = zs.length ? Math.max(...zs) : topOver(s), ridge = home.length ? Math.max(...home.map(R => R.top + R.rise)) : roof;
-    s.z0 = (home.length ? Math.max(...home.map(R => R.top)) : roof) - 0.6; s.z1 = Math.max(roof + 1.2, ridge + 1.4); }
+    // never down into a room: where the base stands over one (a flue in a 0.3 m wall between two rooms, its base 0.8 m
+    // deep), it starts 2 cm over that room's ceiling (the long gallery's stack had hung 0.22 m below the garret
+    // landing's ceiling and 0.55 m into it, a stone box in the air, 2026-10-08)
+    const B = baseOf(s), over = built.filter(r => r.rect.x0 < B.x1 - 0.01 && r.rect.x1 > B.x0 + 0.01 && r.rect.y0 < B.y1 - 0.01 && r.rect.y1 > B.y0 + 0.01).map(r => levelOf(r.floor) + heightOf(r) + 0.02);
+    s.z0 = Math.max((home.length ? Math.max(...home.map(R => R.top)) : roof) - 0.6, ...over); s.z1 = Math.max(roof + 1.2, ridge + 1.4); }
   // the footprint the plinth runs round: the plan's outline, and each room standing outside it (the porch) with its walls
   const inOutline = (x, y) => { const o = plan.outline; if (!o) return false; let c = false; for (let i = 0, j = o.length - 1; i < o.length; j = i++) { const [ax, ay] = o[i], [bx, by] = o[j]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
   const footprints = [...(plan.outline ? [plan.outline] : []), ...built.filter(r => !r.outline && !inOutline((r.rect.x0 + r.rect.x1) / 2, (r.rect.y0 + r.rect.y1) / 2))
@@ -64,6 +68,11 @@ export function shellOf(plan, { gap = 0.35, ext = 0.75 } = {}) {
   return { roofs, pyramids, stacks, roofZ, footprints };
 }
 const inside = (R, r) => r.x0 >= R.x0 - 0.01 && r.x1 <= R.x1 + 0.01 && r.y0 >= R.y0 - 0.01 && r.y1 <= R.y1 + 0.01;
+// a stack's base in plan: across its flues' shafts (0.46 m each, 0.1 m apart) and 0.12 m beyond, 0.8 m deep on its wall's line
+const SHAFT = 0.46, SHAFT_GAP = 0.1;
+const runOf = (s) => s.flues * SHAFT + (s.flues - 1) * SHAFT_GAP;
+function baseOf(s) { const along = s.along === "x", mid = along ? (s.y0 + s.y1) / 2 : (s.x0 + s.x1) / 2, a = s.c - runOf(s) / 2 - 0.12, b = s.c + runOf(s) / 2 + 0.12;
+  return along ? { x0: a, x1: b, y0: mid - 0.4, y1: mid + 0.4 } : { x0: mid - 0.4, x1: mid + 0.4, y0: a, y1: b }; }
 
 // ---- built: geometry from the shell, a draw per material (slate, stone, glass)
 export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone, windows = [], mergeGeometries }) {
@@ -116,9 +125,9 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
       const [gax, gay] = grow(ax, ay), [gbx, gby] = grow(bx, by), z = Py.top - EAVE * Math.tan(PITCH); tri(slates, V(gbx, gby, z), V(gax, gay, z), apex); }
     const s = new THREE.SphereGeometry(0.22, 10, 8); s.translate(apex.x, apex.y + 0.3, apex.z); stones.push(s.toNonIndexed()); }
   // the stacks: a base through the roof, then a shaft for each flue, each with its cap
-  for (const s of shell.stacks) { const along = s.along === "x", n = s.flues, sw = 0.46, gp = 0.1, run = n * sw + (n - 1) * gp, c = s.c, shaftH = 1.1;
-    const baseTop = s.z1 - shaftH, mid = along ? (s.y0 + s.y1) / 2 : (s.x0 + s.x1) / 2;
-    if (along) box(stones, c - run / 2 - 0.12, c + run / 2 + 0.12, mid - 0.4, mid + 0.4, s.z0, baseTop); else box(stones, mid - 0.4, mid + 0.4, c - run / 2 - 0.12, c + run / 2 + 0.12, s.z0, baseTop);
+  for (const s of shell.stacks) { const along = s.along === "x", n = s.flues, sw = SHAFT, gp = SHAFT_GAP, run = runOf(s), c = s.c, shaftH = 1.1;
+    const baseTop = s.z1 - shaftH, mid = along ? (s.y0 + s.y1) / 2 : (s.x0 + s.x1) / 2, B = baseOf(s);
+    box(stones, B.x0, B.x1, B.y0, B.y1, s.z0, baseTop);
     for (let i = 0; i < n; i++) { const a = c - run / 2 + i * (sw + gp);
       // (each shaft let 5 cm into the base and 4 cm into its cap: its foot and head on their faces shared those faces' planes)
       if (along) { box(stones, a, a + sw, mid - sw / 2, mid + sw / 2, baseTop - 0.05, s.z1 + 0.04); box(stones, a - 0.05, a + sw + 0.05, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, s.z1, s.z1 + 0.12); }
