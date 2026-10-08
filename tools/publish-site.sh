@@ -38,6 +38,11 @@ for f in design/case/case-*.json; do
   if ! cmp -s "$f" "lab/case/$(basename "$f")"; then echo "publish refused: lab/case/$(basename "$f") differs from $f — cp it and commit" >&2; exit 2; fi
 done
 
+# [2026-10-08] the rooms the family checks decks against (lab/case/rooms-1660.json) are the plan's as built: re-exported
+# here, and a publish whose export moved refuses until it's committed
+node tools/export-rooms.mjs >/dev/null 2>&1 || { echo "publish refused: tools/export-rooms.mjs failed" >&2; exit 2; }
+if ! git diff --quiet -- lab/case/rooms-1660.json; then echo "publish refused: lab/case/rooms-1660.json was stale against the plan; it is re-exported now — commit it and publish again" >&2; exit 2; fi
+
 # [production law clause 6, 2026-08-25] NO STALE DERIVED ARTIFACT SHIPS EITHER,
 # and for the fixture's own reason. The bake above is one derived artifact out
 # of a dozen: the material provenance report and its legacy ledger, the room
