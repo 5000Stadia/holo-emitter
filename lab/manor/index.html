@@ -320,6 +320,9 @@ if (CASE) {
   CP = playCase({ kase: CASE, plan, manor, works, panel, voice: makeVoice(), narrator, say, presenceOf,
     setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed."),
     saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
+  // a minute gone with the house in view and nothing asked is a quiet turn to the narrator, so a lull in real time (not
+  // only in questions) brings a servant's word towards what you haven't found
+  setInterval(() => { if (!document.hidden && !panel.isOpen()) CP.idle(); }, 60000);
   window.__cp = CP; window.__presences = presences;
 }
 const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");

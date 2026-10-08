@@ -3551,6 +3551,86 @@
      "value": true
     }
    ]
+  },
+  {
+   "id": "nudge_key",
+   "kind": "discovery",
+   "phase": "setup",
+   "weight": "optional",
+   "rung": "converge",
+   "when": "not learned:key_cut_cord and not at:muniment_room",
+   "hook": "Margery, bringing fresh candles, stops at your elbow. ‘The muniment key lies on the table up there, your Worship, where Daniel set it down. Nobody has touched it since, my lady said not to.’",
+   "effects": [
+    {
+     "type": "set_var",
+     "name": "nudged_nudge_key",
+     "value": true
+    }
+   ]
+  },
+  {
+   "id": "nudge_body",
+   "kind": "discovery",
+   "phase": "setup",
+   "weight": "optional",
+   "rung": "converge",
+   "when": "not learned:body_wound and not learned:anne_wound and not at:steward_chamber",
+   "hook": "Old Ralph, at the foot of the stair, takes off his cap. ‘They have laid him out on his own bed, sir, in the steward’s chamber, against the coroner coming. You may see him if you will.’",
+   "effects": [
+    {
+     "type": "set_var",
+     "name": "nudged_nudge_body",
+     "value": true
+    }
+   ]
+  },
+  {
+   "id": "nudge_candle",
+   "kind": "discovery",
+   "phase": "setup",
+   "weight": "flavor",
+   "rung": "converge",
+   "when": "learned:key_cut_cord and not learned:candlestick_dent and not at:muniment_room",
+   "hook": "Margery again, uneasy. ‘The candlestick off Mr Hollins’s table, sir: I would have cleaned it this morning, but my lady said leave all as it lies.’",
+   "effects": [
+    {
+     "type": "set_var",
+     "name": "nudged_nudge_candle",
+     "value": true
+    }
+   ]
+  },
+  {
+   "id": "nudge_deed",
+   "kind": "discovery",
+   "phase": "setup",
+   "weight": "flavor",
+   "rung": "converge",
+   "when": "not learned:rasure and not at:great_chamber",
+   "hook": "A footman passing with a ewer: ‘Mr Cressy has the engrossment out on the draw-table in the great chamber, your Worship. He has read it over twice this morning, they say.’",
+   "effects": [
+    {
+     "type": "set_var",
+     "name": "nudged_nudge_deed",
+     "value": true
+    }
+   ]
+  },
+  {
+   "id": "nudge_chest",
+   "kind": "discovery",
+   "phase": "setup",
+   "weight": "flavor",
+   "rung": "converge",
+   "when": "learned:candlestick_dent and not learned:chest_band_clean and not at:muniment_room",
+   "hook": "Ralph, carrying wood up: ‘They said he fell against the great chest, sir. I would look at that chest, if it were me.’",
+   "effects": [
+    {
+     "type": "set_var",
+     "name": "nudged_nudge_chest",
+     "value": true
+    }
+   ]
   }
  ],
  "clocks": [
