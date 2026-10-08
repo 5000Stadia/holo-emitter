@@ -58,6 +58,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     const thing = arr(k.things).find(q => q.id === id); if (!thing) return;
     // (a refusal teaches nothing: a locked box tried had given up its note; shutting a thing again doesn't read it again)
     // (read already, a paper won't 'read' again: it opens in the reader as it is)
+    if (!atSpot(id, t.i)) return;
     if (r?.refused && k.papers?.[id] && papersRead.includes(id)) return openPaper(id);
     if (!r || r.refused || !(r.took || r.did)) return;
     const shutting = !r.took && /^(closed|shut|locked|down)$/.test(r.state || "");
@@ -73,9 +74,13 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // standing open on a paper) is looked at on the first tap, before it is worked: the playtest's taps had lit the evidence
   // candle, shut the open drawer unread, and been refused by the padlocked chest, and taught nothing
   const lookClues = (id) => arr(arr(k.things).find(q => q.id === id)?.clue).filter(c => /look/.test(clues.get(c)?.reveal || "") && !frame.learned.has(c));
-  const wouldLook = (id) => !!id && lookClues(id).length > 0;
-  function look(id) {
-    const thing = arr(k.things).find(q => q.id === id), want = lookClues(id); if (!thing || !want.length) return false;
+  // (a thing of many drawers holds its clue in one: the case's start names it, "drawers#5"; the others are plain drawers,
+  // which had each re-opened the Asshover paper)
+  const spotOf = (thing) => { for (const key of Object.keys(thing?.state || {})) { const m = /#(\d+)$/.exec(key); if (m) return +m[1]; } return null; };
+  const atSpot = (id, i) => { const n = spotOf(arr(k.things).find(q => q.id === id)); return n == null || i == null || i === n; };
+  const wouldLook = (id, i = null) => !!id && atSpot(id, i) && lookClues(id).length > 0;
+  function look(id, i = null) {
+    const thing = arr(k.things).find(q => q.id === id), want = lookClues(id); if (!thing || !want.length || !atSpot(id, i)) return false;
     pending.push({ type: "open", id }); R.opened++;
     const fresh = want.filter(c => learn(c, thing.label || thing.kind)), paper = k.papers?.[id];
     if (paper && panel.openReader) { if (!papersRead.includes(id)) papersRead.push(id); panel.openReader({ ...paper, noted: fresh.map(c => ({ label: label(c) })) }); }
@@ -88,6 +93,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   function talkTo(who) {
     const p = cast.get(who); if (!p) return; talking = who; notebook.persons.set(who, { name: p.name, role: p.role, met: true });
     panel.open({ who, name: p.name, role: p.role, portrait: presenceOf(who)?.face || presenceOf(who)?.picture, intro: p.intro, topics: topicsFor(k, who, frame), evidence: evidence() });
+    panel.guarded?.((frame.guarded.get(who) || 0) > 0);   // (closed up still, if they were: it had looked open again on reopening)
   }
   // what they do, voiced: the relay's voice job with only the facts handed to it, checked; else the case's own line
   async function reply(who, topic, stance, shown = null) {
@@ -214,7 +220,8 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   function leadsView() {
     if (!leads) return null;
     const raised = new Set(leadMemo.raised), closed = new Set(leadMemo.closed);
-    return { open: leads.filter(l => raised.has(l.id) && !closed.has(l.id)).map(leadView), done: leadMemo.closed.filter(id => raised.has(id)).map(id => leads.find(l => l.id === id)).filter(Boolean).map(leadView).reverse() };
+    // (the newest raised first: it is what just happened, and a naive player had worked down the oldest)
+    return { open: [...leadMemo.raised].reverse().filter(id => !closed.has(id)).map(id => leads.find(l => l.id === id)).filter(Boolean).map(leadView), done: leadMemo.closed.filter(id => raised.has(id)).map(id => leads.find(l => l.id === id)).filter(Boolean).map(leadView).reverse() };
   }
   // the people as a court record: who, where now, the claims heard (a broken one struck, with what broke it), and how many
   // matters are still worth raising with them (the chips' own reckoning: talk.js topicsFor dry)
@@ -227,7 +234,9 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     const fresh = p.met ? topicsFor(k, id, frame).filter(t => !t.dry && !t.retired && !t.id.startsWith("person:")).length : null;
     return { id, name: p.name, note: [p.role, roomName(id) && `now in the ${roomName(id).toLowerCase()}`, !p.met && "not yet questioned"].filter(Boolean).join(" · "), claims, ...(fresh != null ? { fresh } : {}) };
   }
-  const notebookView = () => ({ leads: leadsView(), persons: [...notebook.persons].map(([id, p]) => personView(id, p)), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}` })), papers: papersRead.map(id => ({ id, title: k.papers[id].title })),
+  // a lie set down as a clue, once something you hold debunks it: struck, with what broke it
+  const brokenBy = (id) => { const c = clues.get(id); if (c?.effect !== "false") return null; const by = arr(c.debunked_by).find(d => frame.learned.has(d)); return by ? label(by) : null; };
+  const notebookView = () => ({ leads: leadsView(), persons: [...notebook.persons].map(([id, p]) => personView(id, p)), clues: notebook.clues.map(c => ({ id: c.id, label: c.label, from: `from ${c.where}`, struck: brokenBy(c.id) })), papers: papersRead.map(id => ({ id, title: k.papers[id].title })),
     contradictions: notebook.caught.map(c => { const t = `${cast.get(c.who)?.name}: ${bare(c.label)}`; return { label: t, text: t, by: c.byLabel || "" }; }) });
   // ---- kept between visits (a phone's tab is killed and reloaded, or you come back tomorrow): everything you have learned,
   // been told, read and confirmed, the narrator's own state, where each person now is, how long you've played. Plain JSON,

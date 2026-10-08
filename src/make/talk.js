@@ -35,7 +35,7 @@ export function topicsFor(k, who, frame) {
   for (const c of arr(p.claims)) add(c.topic);
   // and each other person, by name ("what of Master Hale?")
   for (const q of arr(k.cast)) if (q.id !== who && !out.has(`person:${q.id}`)) out.set(`person:${q.id}`, { id: `person:${q.id}`, label: q.name });
-  for (const t of out.values()) { const w = wellOf(k, p, t.id, frame); if (w.dry) t.dry = true; if (w.retired) t.retired = true; }
+  for (const t of out.values()) { const w = wellOf(k, p, t.id, frame); if (w.dry) t.dry = true; if (w.retired) t.retired = true; if (w.press) t.press = true; }
   return [...out.values()];
 }
 // is the well dry: what asking or pressing on a topic now would give them (see topicsFor)
@@ -49,7 +49,10 @@ function wellOf(k, p, topic, frame) {
   const dry = !live && (!claim || heard);
   const all = arr(k.cast).flatMap(c => arr(c.clues)).filter(c => topicOf(c) === topic && !arr(c.gate?.stance).includes("accuse"));
   const lie = arr(p.claims).some(c => c.topic === topic && c.false && !frame.yielded?.has(c.id) && !ownedUp(p, c, learned));
-  return { dry, retired: dry && all.length > 0 && all.every(c => learned.has(c.id)) && !lie };
+  // (asked once, and what's left on it opens only to Press: the chip says so, since Ask repeats the old answer word for word;
+  // a naive player asked three times and moved on)
+  const press = heard && arr(p.clues).some(c => topicOf(c) === topic && !learned.has(c.id) && !opens(c.gate, f, "ask") && opens(c.gate, f, "press"));
+  return { dry, press, retired: dry && all.length > 0 && all.every(c => learned.has(c.id)) && !lie };
 }
 
 // a lie they have themselves given up: a clue of theirs that undoes it has been learned from them (one the claim lists as

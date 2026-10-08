@@ -3696,7 +3696,7 @@
    "phase": "pressure",
    "weight": "required",
    "rung": "now",
-   "when": "covered>=4 and not here:daniel",
+   "when": "covered>=4 and (learned:gold_note or learned:cressy_bribe or learned:cressy_cheat or learned:draft_exception) and not here:daniel",
    "hook": "Enough to lay before the coroner. Sir Gervase has himself carried down to the great hall in his chair and bids the household attend you there.",
    "effects": [
     {
@@ -3898,7 +3898,7 @@
     "options": [
      {
       "id": "cheat_found",
-      "label": "the steward found the cheat in the engrossment, written for gold",
+      "label": "the steward found the mines cut from the engrossment, a cheat written for gold",
       "appears_with": [
        "rasure",
        "gold_note",
@@ -4116,7 +4116,6 @@
     "anne_girdle_cord"
    ]
   },
-  "attempts": 3,
   "rebuttals": {
    "cressy": "A cheat, sir, I own, and a matter for Chancery. But I sat at tables with Mr Haywood until he went for wine, and the candle on that table went out before then. Ask him.",
    "francis": "I was at the parlour table with the alderman's man until a quarter past eleven, and then in the buttery bleeding into the canary. Look at the hogshead.",
@@ -4125,7 +4124,8 @@
   "verdict": {
    "title": "It is Daniel Wragg.",
    "text": "(He sits down where he stands, his inky hands over his face.) 'He held the skin to the candle and said, This is thy hand, Daniel. Who paid thee?'"
-  }
+  },
+  "_attempts": "no limit: wrong tries are counted in the receipts (2026-10-08: the case had said 3 and nothing kept it; losing a 45-minute case on a phone to a third wrong group is harsh, and Golden Idol keeps none)"
  },
  "endings": {
   "solved": [
@@ -4780,7 +4780,7 @@
    "text": "Struck from behind, with something round: with what?",
    "raised": "learned:anne_wound or learned:body_wound or learned:chest_band_clean",
    "closed": "learned:candlestick_dent",
-   "where": "The muniment room: whatever stood within reach of him last night."
+   "where": "The muniment room: the table under the east window, and what stands on it."
   },
   {
    "id": "keys",
@@ -4797,7 +4797,7 @@
    "text": "His key-cord was cut at his girdle. Where is the key now?",
    "raised": "learned:anne_girdle_cord or learned:body_cord",
    "closed": "learned:key_cut_cord",
-   "where": "The muniment room, where the door was locked upon him."
+   "where": "The muniment room: the table under the east window, where the key was laid this morning."
   },
   {
    "id": "key_by_hand",
@@ -4897,8 +4897,8 @@
    "id": "fled",
    "text": "Why has the clerk run up to the garret, white as whey?",
    "raised": "done:garret_flight",
-   "closed": "done:cornered or opened:box_daniel or holding:draft_steward or learned:gold_note or learned:draft_exception",
-   "where": "The servants' chamber in the west garret, up the back stair beyond the kitchen.",
+   "closed": "opened:box_daniel or learned:gold_note",
+   "where": "Daniel’s chest in the servants’ chamber, west garret, up the back stair beyond the kitchen: what does he keep in it?",
    "who": [
     "daniel"
    ]

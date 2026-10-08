@@ -477,7 +477,7 @@ function actOn(t) {
   if (t?.presence) { CP?.talkTo(t.presence); return true; }
   // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
   if (t?.look) { CP?.look(t.look); return true; }
-  if (t?.b?.story && CP?.wouldLook(t.b.story)) { CP.look(t.b.story); return true; }
+  if (t?.b?.story && CP?.wouldLook(t.b.story, t.i)) { CP.look(t.b.story, t.i); return true; }
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
   if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
   if (SP?.beforeAct(t)) return true;
@@ -649,7 +649,7 @@ renderer.setAnimationLoop((now) => {
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   /* the cue re-aims at most ~15 times a second */ aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
   const t = aimAt.v, cue = t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` }
-    : t.look || (t.b?.story && CP?.wouldLook(t.b.story)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+    : t.look || (t.b?.story && CP?.wouldLook(t.b.story, t.i)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` } : works.cue(t)) : null; showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   const burning = flicker(now);
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); }

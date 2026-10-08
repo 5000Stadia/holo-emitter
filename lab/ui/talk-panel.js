@@ -97,6 +97,7 @@ const CSS = `
   -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 30px),transparent)}
 .tp-chips::-webkit-scrollbar{display:none}
 .tp-chip{flex:none;scroll-snap-align:start;min-height:44px;min-width:44px;padding:0 15px;border-radius:22px;border:1px solid var(--line);background:rgba(236,228,210,.05);font:500 18px/1 var(--serif);white-space:nowrap}
+.tp-chip.press::after{content:"press";margin-left:7px;font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--brass)}
 .tp-chip.asked{border-style:dashed;color:var(--dim)}
 .tp-chip.dry{opacity:.5;color:var(--dim)}
 .tp-chip:hover{border-color:var(--dim)}
@@ -136,6 +137,8 @@ const CSS = `
 .tp-entry h3{margin:0;font:600 22px/1.1 var(--serif);color:var(--ink)}
 .tp-entry p{margin:2px 0 0;color:var(--dim);font-size:12px}
 .tp-entry.line{padding-left:12px;border-left:1px solid var(--line)}
+.tp-entry.struck h3{text-decoration:line-through;text-decoration-thickness:1px;color:var(--dim)}
+.tp-entry .by{color:var(--brass);font-size:11px}
 .tp-entry.line h3{font:500 19px/1.3 var(--serif)}
 .tp-entry.catch{border-left-color:var(--brass)}
 .tp-entry.lead{padding-left:12px;border-left:2px solid var(--brass)}
@@ -409,7 +412,7 @@ export function makeTalkPanel(options = {}) {
     // what has something new first, then the dry (dimmed), then the retired (only under More…)
     const done = askedOf(S.who), front = [...S.topics.filter((t) => !t.dry && !t.retired), ...S.topics.filter((t) => t.dry && !t.retired)];
     const all = [...front, ...S.topics.filter((t) => t.retired)], list = S.more ? all : front.slice(0, MAXCHIPS);
-    for (const t of list) chipsEl.append(h("button", { class: "tp-chip" + (done.has(t.id) ? " asked" : "") + (t.dry || t.retired ? " dry" : ""), type: "button", "data-topic": t.id, "data-dry": t.dry || t.retired ? "" : null, text: topicLabel(t), onclick: () => chip(t) }));
+    for (const t of list) chipsEl.append(h("button", { class: "tp-chip" + (done.has(t.id) ? " asked" : "") + (t.dry || t.retired ? " dry" : "") + (t.press && !t.dry ? " press" : ""), type: "button", "data-topic": t.id, "aria-label": t.press && !t.dry ? `${topicLabel(t)}, press for more` : null, "data-dry": t.dry || t.retired ? "" : null, text: topicLabel(t), onclick: () => chip(t) }));
     if (all.length > list.length || S.more) chipsEl.append(h("button", { class: "tp-chip more", type: "button", text: S.more ? "Fewer" : "More…", "aria-expanded": String(!!S.more), onclick: () => { S.more = !S.more; renderChips(); } }));
     setStance(S.stance);
   }
@@ -514,7 +517,8 @@ export function makeTalkPanel(options = {}) {
         x.fresh != null ? h("p", { class: "fresh", text: x.fresh ? `${x.fresh} ${x.fresh === 1 ? "matter" : "matters"} still worth raising` : "Nothing new to ask them now" }) : null,
         x.claims?.length ? h("ul", { class: "tp-claims", "aria-label": `What ${x.name} has told you` }, x.claims.map((c) => h("li", { class: c.broken ? "broken" : null },
           c.broken ? [h("s", { text: c.label }), h("span", { class: "tp-sr", text: " (broken)" }), c.by ? h("small", { text: "broken by " + c.by }) : null] : c.label))) : null));
-      else if (nbTab === "clues") nbPage.append(lineOf("line", x.label, x.from && h("p", { text: x.from })));
+      // (a clue that was a lie, once broken, struck through with what broke it: a naive player had kept weighing them)
+      else if (nbTab === "clues") nbPage.append(lineOf("line" + (x.struck ? " struck" : ""), x.label, x.from && h("p", { text: x.from }), x.struck && h("p", { class: "by", text: `broken by ${x.struck}` })));
       else if (nbTab === "catch") nbPage.append(lineOf("line catch", x.text || x.label, x.by && h("p", { text: "broken by " + x.by })));
       else nbPage.append(h("button", { class: "tp-paper", type: "button", "data-paper": x.id, html: ICON.paper, onclick: () => onOpenPaper?.(x.id) }, h("span", { text: x.title || x.label || x.id })));
     }
