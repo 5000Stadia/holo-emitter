@@ -15,6 +15,7 @@ export function lookC1660(THREE, K, S) {
       metal: m("brass", { color: 0xb08a4a, metalness: 0.7, roughness: 0.35 }),
       pewter: m("pewter", { color: 0x9a968c, metalness: 0.55, roughness: 0.42 }),
       wax: m("tallow", { color: 0xe6dcc2, roughness: 0.55 }),
+      beeswax: m("beeswax", { color: 0xf3eedf, roughness: 0.4 }),               // bleached wax candles: a great room's, at several times tallow's price
       seal_wax: m("seal_wax", { color: 0x8a2a1e, roughness: 0.5 }),
       stoneware: m("stoneware", { color: 0x8a6a46, roughness: 0.45 }),       // salt-glazed brown
       earthenware: m("earthenware", { color: 0x9a5a34, roughness: 0.7 }),

@@ -194,8 +194,9 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
 const winPool = makePool(rig, { share: RECT < 8 ? 1.6 : 0, place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
-// (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting")
-const alight = (it) => !it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out";
+// (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at
+// zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern)
+const alight = (it) => it.base !== 0 && (!it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out");
 function lightView(at) { winPool.update(winItems.filter(it => inView.has(it.room)), at); firePool.update(fireItems.filter(it => inView.has(it.room) && alight(it)), at); }
 // the fires flicker, and the flames with them, while any is in view (a still flame's light, a lantern's or a sconce's, is steady)
 function flicker(now) {

@@ -288,10 +288,28 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     // hung over the stairhead, a sconce beside the main door, a rushlight on a sill near the stair. Their lights are
     // the room's own (rooms' lights), for the page to take into its pool: never a light in the scene, never a light
     // without its flame (the picture never lies)
-    const ownLights = [], RW = x1 - x0, RD = y1 - y0, lightNotes = [];
-    const light = (kind, over, place) => { const b = build(THREE, K, look, kind, `manor/${room.id}/${kind}:light`, over); place(b.node, b);
+    const ownLights = [], RW = x1 - x0, RD = y1 - y0, lightNotes = [], made = new Map();
+    const light = (kind, over, place) => { const k = (made.get(kind) || 0) + 1; made.set(kind, k);
+      const b = build(THREE, K, look, kind, `manor/${room.id}/${kind}:light${k > 1 ? k : ""}`, over); place(b.node, b);
       b.node.userData.room = room.id; things.push(b); b.node.traverse(o => { if (o.isPointLight) ownLights.push(o); }); return b; };
-    const onWall = (F, r, y, z, node) => { const holder = new THREE.Group(); holder.position.set(...P[F].pos); holder.rotation.y = P[F].rot; movers.add(holder); node.position.set(r, y, z); holder.add(node); };
+    // (on a tapestried wall a sconce stands on the hanging's face, 5.5 cm out, not behind it)
+    const onWall = (F, r, y, z, node) => { const holder = new THREE.Group(); holder.position.set(...P[F].pos); holder.rotation.y = P[F].rot; movers.add(holder); node.position.set(r, y, z + (T.walls === "tapestry" && z >= 0 ? 0.055 : 0)); holder.add(node); };
+    // a stretch of wall clear for a sconce at r: inside the wall, nothing in the wall there, nothing hung there, nothing tall before it
+    const clearAt = (F, r) => { const L = spec.frames[F].L;
+      if (r < 0.25 || r > L - 0.25 || spec.walls[F].some(q => { const a = q.kind === "chimneypiece" ? q.mantel.r0 : q.r0, b = q.kind === "chimneypiece" ? q.mantel.r1 : q.r1; return a < r + 0.15 && b > r - 0.15; })) return false;
+      const [u, v] = wallToRoom(spec.frames[F], RW, RD, r, 0.15), px = x0 + u, py = y0 + v;
+      return !got.placed.some(p => (p.wall === F && Math.abs(p.r - r) < (p.w || 0.5) / 2 + 0.15) || (p.poly && (sizeOf(p.kind, p.over || {})?.[1] || 0) > 1.35 && Math.min(...p.poly.map(q => q[0])) < px + 0.3 && Math.max(...p.poly.map(q => q[0])) > px - 0.3 && Math.min(...p.poly.map(q => q[1])) < py + 0.3 && Math.max(...p.poly.map(q => q[1])) > py - 0.3)); };
+    // beside the room's main door (its widest), a hand clear of the door's opening, on the side away from its hinge first
+    const byDoor = () => { for (const { F, e } of Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "door").map(e => ({ F, e }))).sort((a, b) => (b.e.r1 - b.e.r0) - (a.e.r1 - a.e.r0)))
+      for (const r of [e.r1 + 0.3, e.r0 - 0.3]) if (clearAt(F, r)) return { F, r }; return null; };
+    // a room is dim by day when its windows' glass is under a fifteenth of its floor (the nursery has none, the little
+    // parlour 0.059; the great rooms 0.09-0.2): only there is a candle the house sets out burning in the morning
+    const dim = Object.values(spec.walls).flat().filter(e => e.kind === "window").reduce((s, e) => s + (e.r1 - e.r0) * (e.top - e.sill), 0) / (W * D) < 0.065;
+    // set on top of a placed thing (a table, a cabinet, a court cupboard), at the first of a few spots clear of what is on it
+    const onTop = (host, node, fs = [0.3, -0.3, 0, 0.42, -0.42]) => { const i = builtHere.indexOf(host), p = got.placed[i], [w, h, d] = sizeOf(p.kind, p.over || {});
+      const taken = []; host.node.traverse(o => { if (o !== host.node && o.userData.make?.kind) taken.push(o.position.x); });
+      const x = fs.map(f => f * w).find(x => taken.every(t => Math.abs(t - x) > 0.18)) ?? 0;
+      node.position.set(x, h, d / 2); node.rotation.y = 0; host.node.add(node); };
     if (furnished) for (const what of T.light || []) {
       if (what === "candle_at_stairhead") {
         // over the head of the flight that arrives on this floor, 0.45 m on from its top step; on the floor a stair only
@@ -307,18 +325,32 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         light("lantern/stair", { drop: r2(Math.max(0.08, Math.min(1.2, H - 2.25 - 0.49))) }, (n) => { box.setFromObject(n);
           n.position.set(x - x0, H - box.max.y, -(y - y0)); movers.add(n); n.userData.bottom = r2(H - box.max.y); });
       } else if (what === "candle_at_door") {
-        // beside the room's main door (its widest), the plate's middle 1.5 m up, a hand clear of the door's opening on the
-        // side away from its hinge first, on a stretch of wall with nothing in it and nothing tall standing before it
-        const doors = Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "door").map(e => ({ F, e }))).sort((a, b) => (b.e.r1 - b.e.r0) - (a.e.r1 - a.e.r0));
-        let got1 = null;
-        for (const { F, e } of doors) { for (const r of [e.r1 + 0.3, e.r0 - 0.3]) { const L = spec.frames[F].L;
-            if (r < 0.25 || r > L - 0.25 || spec.walls[F].some(q => { const a = q.kind === "chimneypiece" ? q.mantel.r0 : q.r0, b = q.kind === "chimneypiece" ? q.mantel.r1 : q.r1; return a < r + 0.15 && b > r - 0.15; })) continue;
-            const [u, v] = wallToRoom(spec.frames[F], RW, RD, r, 0.15), px = x0 + u, py = y0 + v;
-            if (got.placed.some(p => (p.wall === F && Math.abs(p.r - r) < (p.w || 0.5) / 2 + 0.15) || (p.poly && (sizeOf(p.kind, p.over || {})?.[1] || 0) > 1.35 && Math.min(...p.poly.map(q => q[0])) < px + 0.3 && Math.max(...p.poly.map(q => q[0])) > px - 0.3 && Math.min(...p.poly.map(q => q[1])) < py + 0.3 && Math.max(...p.poly.map(q => q[1])) > py - 0.3))) continue;
-            got1 = { F, r }; break; }
-          if (got1) break; }
-        if (!got1) { lightNotes.push(`${what}: no clear wall by a door`); continue; }
-        light("sconce/candle", {}, (n) => onWall(got1.F, got1.r, 0, 0, n));
+        // beside the room's main door, the plate's middle 1.5 m up
+        const at = byDoor(); if (!at) { lightNotes.push(`${what}: no clear wall by a door`); continue; }
+        light("sconce/candle", {}, (n) => onWall(at.F, at.r, 0, 0, n));
+      } else if (what === "candles") {
+        // a brass candlestick with a tallow candle on the room's table, else on a cabinet or a court cupboard; with none of
+        // them (a bedchamber, the nursery, the long gallery) a sconce beside the door. Lit only in a dim room
+        const start = { light: dim ? "lit" : "out" };
+        const host = builtHere.find(q => /^table\//.test(q.kind.kind) && q.kind.kind !== "table/kitchen") || builtHere.find(q => q.kind.kind === "cabinet/japanned") || builtHere.find(q => q.kind.kind === "cupboard/court");
+        if (host) { light("candle/in-candlestick", { still: true, glow: 1.2, start }, (n) => onTop(host, n)); continue; }
+        const at = byDoor(); if (!at) { lightNotes.push(`${what}: no table and no clear wall by a door`); continue; }
+        light("sconce/candle", { start }, (n) => onWall(at.F, at.r, 0, 0, n));
+      } else if (what === "wax_candles") {
+        // a pair of brass sconces with wax candles flanking the chimneypiece, 0.3 m clear of its mantel's ends (else beside
+        // the door); set out, not lit, unless the room is dim
+        const start = { light: dim ? "lit" : "out" }, cp = Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "chimneypiece").map(e => ({ F, e })))[0];
+        const spots = cp ? [cp.e.mantel.r0 - 0.3, cp.e.mantel.r1 + 0.3].filter(r => clearAt(cp.F, r)).map(r => ({ F: cp.F, r })) : [];
+        if (spots.length < 2) { const at = byDoor(); if (at && !spots.length) spots.push(at); }
+        if (!spots.length) { lightNotes.push(`${what}: no clear wall by the chimneypiece or a door`); continue; }
+        // (their plates' middles a hand over the mantel's shelf, so they stand above it, not beside it)
+        const at_y = r2(Math.min(H - 0.6, Math.max(1.55, (cp?.e.mantel.top ?? 0) + 0.25)));
+        for (const at of spots) light("sconce/candle", { candle: "beeswax", at_y, start }, (n) => onWall(at.F, at.r, 0, 0, n));
+      } else if (what === "branched_candlestick") {
+        // a branched candlestick in the middle of the hall's table: set out, lit at supper
+        const host = builtHere.find(q => /^table\//.test(q.kind.kind));
+        if (!host) { lightNotes.push(`${what}: no table`); continue; }
+        light("candlestick/branched", { start: { light: dim ? "lit" : "out" } }, (n) => onTop(host, n, [0, 0.25, -0.25]));
       } else if (what === "rushlight") {
         // on a window's sill, the window nearest the room's stair (else its first), a hand in from the wall's face
         const wins = Object.entries(spec.walls).flatMap(([F, es]) => es.filter(e => e.kind === "window").map(e => ({ F, e, at: wallToRoom(spec.frames[F], RW, RD, (e.r0 + e.r1) / 2, 0) })));
