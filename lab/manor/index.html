@@ -416,7 +416,10 @@ function goTo(ndc) {
   let tx = hit.point.x, ty = -hit.point.z, th = hit.point.y;
   if (!floorish) { const hz = new THREE.Vector2(n.x, -n.z); if (hz.lengthSq() < 1e-6) hz.set(Math.sin(yaw), -Math.cos(yaw)); hz.normalize(); tx += hz.x * (half + 0.45); ty += hz.y * (half + 0.45); }
   // the floor there: the hit's own height if a floor, else the floor under the point (try where you are, the storeys, the ground)
-  const tries = [th, ph, ...plan.floors.map(f => manor.levelOf(f.id)), site ? site.z(tx, ty) : 0];
+  // (a wall: your own storey first, then the storeys at or below the point you touched, highest first; from the hit's own
+  // height a tall wall seen through the great chamber's doorway had found the garret's floor above it)
+  const below = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= th + 0.3).sort((a, b) => b - a);
+  const tries = floorish ? [th, ph, ...plan.floors.map(f => manor.levelOf(f.id)), site ? site.z(tx, ty) : 0] : [ph, ...below, site ? site.z(tx, ty) : 0];
   const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, floorish ? h : h); if (g != null && (!floorish || Math.abs(g - th) < 0.6)) return g; } return null; };
   let g = stand(tx, ty), fx = tx, fy = ty;
   for (let k = 1; g == null && k < 300; k++) { const a = k * 2.4, r = 0.05 * Math.sqrt(k), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; fx = x; fy = y; } }
