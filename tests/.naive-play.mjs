@@ -18,7 +18,7 @@ const SEEDS = String(A.seeds || "1,2,3").split(",").map(Number), MAX = +(A.max |
 const OUT = A.out || "/tmp/claude-1000/-home-k-Projects-holo-emitter/97770d23-8695-4407-9f5e-30bf8e241f72/scratchpad/naive";
 mkdirSync(OUT, { recursive: true });
 // (voice=0: no model at all; the relay is the page's only model path)
-const ORIGIN = "http://localhost:8794", PAGE = `${ORIGIN}/lab/manor/index.html?case=case-1660&fresh&webgpu=1&voice=0`;
+const ORIGIN = "http://localhost:8794", PAGE = `${ORIGIN}/lab/manor/index.html?case=case-1660&fresh&webgpu=1&voice=0${A.deck ? `&deck=${A.deck}` : ""}`;   // --deck URL: a construct deck merged beside the case
 const URL_AGAIN = PAGE.replace("&fresh", "");     // the address the page leaves after a fresh start (it drops ?fresh)
 const CORPUS = JSON.parse(readFileSync(new URL("./fixtures/intent-corpus-1660.json", import.meta.url), "utf8"));
 
