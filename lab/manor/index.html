@@ -345,6 +345,10 @@ if (CASE) {
   for (const p of CASE.cast) presenceOf(p.id);
   let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null }); }
   catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) }); }
+  // a deck written ahead (construct's, over the contract: ?deck=<url>), merged beside the case's own beats, each part
+  // checked as they are; what was refused is said in the console and in window.__deck
+  if (Q.get("deck")) { try { const deck = await (await fetch(Q.get("deck"))).json(); const m = narrator.merge(deck); window.__deck = { from: Q.get("deck"), ...m };
+      if (m.refused.length) console.warn("deck refused:", m.refused); } catch (e) { console.warn("deck:", e.message); window.__deck = { error: e.message }; } }
   const panel = makeTalkPanel({
     onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
     onShow: (id, topic) => CP.reply(CP.talking(), topic, "show", id), onAccuse: (c) => CP.accuse(c),

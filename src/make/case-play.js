@@ -151,15 +151,19 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   // ---- the narrator: after each turn, the beat it stages (a closed list of effects, run by the world's own rules)
   // one turn: what happened goes to the narrator; the clocks that fired run, then a beat if one is due; every effect is
   // one of the closed list, run by the world's own rules
+  // (never the person you're questioning, mid-conversation: a move for them waits until the panel is put down; a deck's
+  // beats bring people to you, and one had walked off while you spoke)
+  let heldMoves = [];
   function run(effects) {
     for (const e of arr(effects)) {
+      if ((e.type === "spawn_person" || e.type === "move_person") && e.id === talking && panel.isOpen?.()) { heldMoves.push(e); continue; }
       if (e.type === "spawn_person") presenceOf(e.id, e.at);
       else if (e.type === "move_person") presenceOf(e.id, e.to);
       else if (e.type === "set_var") setVar(e.name, e.value);
       else if (e.type === "reveal_thing") { const b = thingOf.get(e.id); if (b) b.node.traverse(o => o.layers.set(0)); setVar(`revealed.${e.id}`, true); }
     }
   }
-  function step(extra = []) { narrate(extra); stepOpen(); save(); }
+  function step(extra = []) { if (heldMoves.length && !panel.isOpen?.()) { const m = heldMoves; heldMoves = []; run(m); } narrate(extra); stepOpen(); save(); }
   function narrate(extra) {
     if (!narrator) { pending = []; return; }
     const events = [...pending, ...extra]; pending = []; if (!events.length) return;

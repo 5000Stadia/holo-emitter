@@ -317,7 +317,7 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
   // the menu: only beats provable true now. unreachable (unless) closes a beat; a beat belongs to its phase and later
   function menuNow() {
     const f = frame(), pi = PHASES.indexOf(S.phase);
-    return beats.filter(b => !f.done.has(b.id) && PHASES.indexOf(b.phase) <= pi && !(b.unlessAst && evalExpr(b.unlessAst, f)) && evalExpr(b.ast, f))
+    return beats.filter(b => !f.done.has(b.id) && !heldBack.has(b.id) && PHASES.indexOf(b.phase) <= pi && !(b.unlessAst && evalExpr(b.unlessAst, f)) && evalExpr(b.ast, f))
       .map(b => ({ id: b.id, kind: b.kind, seed: b.seed || b.hook, effects: arr(b.effects).map(e => ({ ...e })), rung: b.rung, weight: b.weight, phase: b.phase }));
   }
   function menu(ws = null) {
@@ -367,5 +367,26 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
   }
 
   const stateOut = () => JSON.parse(JSON.stringify(S));
-  return { observe, menu, pick, apply, step, phase: () => S.phase, coverage, conclusion, state: stateOut, rung: rungName, callInput, accept, check };
+  // a deck written ahead by another author (construct, over the contract: design/case/boundary-with-construct.md) merged in,
+  // at load or while playing: each part checked as the case's own are (checkNarrator over the case with that part added),
+  // a refused part dropped and named, never half-applied; a part that `replaces` a case beat holds that beat back
+  //   merge({ beats?, clocks? }) -> { added: [ids], refused: [{ id, why }], replaced: [ids] }
+  const heldBack = new Set();
+  function merge(deck) {
+    const out = { added: [], refused: [], replaced: [] }, have = new Set([...beats.map(b => b.id), ...clocks.map(c => c.id)]);
+    const tryPart = (part, isClock) => {
+      if (!part?.id || have.has(part.id)) return out.refused.push({ id: part?.id, why: "no id, or one already in the story" });
+      const probe = { ...k, beats: isClock ? arr(k.beats) : [...arr(k.beats), part], clocks: isClock ? [...arr(k.clocks), part] : arr(k.clocks) };
+      const c = checkNarrator(probe, { rooms }), mine = c.findings.filter(f => String(f.at).includes(part.id));
+      if (mine.length) return out.refused.push({ id: part.id, why: mine.map(f => f.what).join("; ") });
+      try { if (isClock) clocks.push({ ...part, ast: parseExpr(part.when) });
+        else beats.push({ ...part, ast: parseExpr(part.when), unlessAst: part.unless ? parseExpr(part.unless) : null, phase: part.phase || "setup", weight: part.weight || "optional", rung: part.rung || KIND_RUNG[part.kind] }); }
+      catch (e) { return out.refused.push({ id: part.id, why: e.message }); }
+      have.add(part.id); out.added.push(part.id);
+      for (const r of arr(part.replaces)) if (beats.some(b => b.id === r)) { heldBack.add(r); out.replaced.push(r); } };
+    for (const b of arr(deck?.beats)) tryPart(b, false);
+    for (const c of arr(deck?.clocks)) tryPart(c, true);
+    return out;
+  }
+  return { observe, menu, pick, apply, step, merge, heldBack: () => [...heldBack], phase: () => S.phase, coverage, conclusion, state: stateOut, rung: rungName, callInput, accept, check };
 }
