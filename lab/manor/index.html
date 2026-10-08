@@ -316,7 +316,7 @@ if (CASE) {
   // nothing (a dark ground had shown as a smudge round them); for the panel's small circle the face, cropped close
   const portrait = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (look) return paintSitter(look, { seed: seedOf(`sitter/${id}`), ground: false });
     const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
-  const faceOf = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (!look) return null; const src = paintSitter(look, { seed: seedOf(`sitter/${id}`), w: 256, h: 320 }), f = src.face, r = f ? f.r * 1.9 : 90;
+  const faceOf = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (!look) return null; const src = paintSitter(look, { seed: seedOf(`sitter/${id}`), w: 256, h: 320 }), f = src.face, r = f ? f.r * 1.3 : 60;
     const cv = Object.assign(document.createElement("canvas"), { width: 128, height: 128 }); cv.getContext("2d").drawImage(src, (f?.x ?? 128) - r, (f?.y ?? 130) - r * 0.95, r * 2, r * 2, 0, 0, 128, 128); return cv; };
   const standIn = (roomId) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
     // (on open floor, clear of the hearth and the furniture by a stride: she had stood before the hall's fire, looking to be in it)
