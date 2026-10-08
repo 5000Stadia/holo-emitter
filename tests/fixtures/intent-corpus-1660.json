@@ -15,7 +15,7 @@
   {"who":"daniel","q":"Was there much blood?","topic":"wound","stance":"ask"},
   {"who":"daniel","q":"Who found the body?","topic":"morning","stance":"ask"},
   {"who":"daniel","q":"What happened when the door was opened this morning?","topic":"morning","stance":"ask","held":true},
-  {"who":"daniel","q":"Where was the key when you went in?","topic":"morning","stance":"ask","also":["keys"]},
+  {"who":"daniel","q":"Where was the key when you went in?","topic":"morning","stance":"ask"},
   {"who":"daniel","q":"Who has keys to the muniment room?","topic":"keys","stance":"ask"},
   {"who":"daniel","q":"Did your master always lock himself in?","topic":"keys","stance":"ask","also":["morning"]},
   {"who":"daniel","q":"What do you know about the green cord?","topic":"keys","stance":"ask","held":true},
@@ -256,5 +256,11 @@
   {"who":"anne","q":"mr cresy?","topic":"person:cressy","stance":"ask","held":true},
   {"who":"anne","q":"the stewrd was honest?","topic":"steward","stance":"ask"},
   {"who":"anne","q":"Who is in the household?","topic":"household","stance":"ask"},
-  {"who":"anne","q":"Which servants are about?","topic":"household","stance":"ask"}
+  {"who":"anne","q":"Which servants are about?","topic":"household","stance":"ask"},
+  {"who":"anne","q":"What do you make of Mr Cressy?","topic":"person:cressy","stance":"ask"},
+  {"who":"cressy","q":"Did you see anyone on the stairs?","topic":"whereabouts","stance":"ask","also":["person:anne","person:daniel"]},
+  {"who":"cressy","q":"What happened to Francis's hand?","topic":"hand","stance":"ask"},
+  {"who":"cressy","q":"Prithee sir, what business brings a London attorney hither?","topic":"sale","stance":"ask"},
+  {"who":"cressy","q":"did u kill him","topic":"*","stance":"accuse"},
+  {"who":"francis","q":"You said he wouldn't live to see the deed sealed. Why?","topic":"steward","stance":"ask"}
 ]

@@ -5,14 +5,19 @@
 // like a transcript, not bubbles; no label or colour tells a lie from the truth or a deflection from "I know nothing of
 // that" (the player must catch it), the one honest sign is a brass rule when a line put something in your notebook.
 //
-//   makeTalkPanel({ onAsk(topicId, stance), onSay(text), onShow(clueOrThingId, lastTopicId), onAccuse(choice), onClose(),
+//   makeTalkPanel({ onAsk(topicId, stance), onSay(text), onShow(clueOrThingId, topicId), onAccuse(choice), onClose(),
 //                   onOpenAccusation(), onOpenNotebook(), onOpenPaper(id) })   // the last three: the panel asks, the host answers
 //     -> { open({ who, name, role?, portrait: canvas, intro?, topics, evidence }), say({ who: "them"|"you"|"aside", text, act, noted }),
-//          setTopics(list), setEvidence(list), busy(bool), guarded(bool), close(), openNotebook(summary),
+//          setTopics(list), setEvidence(list), markAsked(topicId), busy(bool), guarded(bool), close(), openNotebook(summary),
 //          openAccusation({ suspects, pillars, groups? }), accusationResult({ group, ok, text? }), verdict({ title, text }),
 //          openReader({ title, hand?, ground?, parts | sheets, noted?, onClose? }), fresh(), isOpen(), destroy() }
 //   fresh(): the notebook's brass dot (something new in it: a clue noted, a question raised).
-//   stance is "ask" or "press" (a toggle that applies to the next topic); "show" is onShow, which carries the last topic.
+//   stance is "ask" or "press" (a toggle that applies to the next topic); "show" is onShow(id, topicId): the drawer names the
+//   matter it is shown on ("Show it on: This morning at the door", the last matter raised with this person, changed by a
+//   row of the matters), and with none raised yet it asks for one before anything is shown; topicId is never empty.
+//   markAsked(topicId): a matter the host read from the player's own words (or raised itself): its chip shows asked, and
+//   it is the matter the next thing shown goes on. say({ who: "you" }) with the very line the panel just set down (the
+//   player's typed question, which send() shows at once) is not set down twice.
 //   topics [{ id, label }], in the order the host wants them (what you have learned first): the first six not yet asked are
 //   shown, the rest behind "More…", so the player is never stuck and the text box is only a shortcut. Ids "person:<id>" read as
 //   "What of <name>". guarded(true) is a suspect who has closed up (a wrong item shown): the chips dim, nothing is lost.
@@ -67,8 +72,9 @@ const CSS = `
 .tp-port{flex:none;width:48px;height:48px;border-radius:50%;border:1px solid var(--brass);overflow:hidden;background:#0d0b09}
 .tp-port canvas{display:block;width:100%;height:100%}
 .tp-id{flex:1;min-width:0}
-.tp-name{font:600 25px/1.05 var(--serif);color:var(--brass);letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tp-role{color:var(--dim);font-size:11px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tp-name{font:600 25px/1.05 var(--serif);color:var(--brass);letter-spacing:.03em;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}
+.tp-name.long{font-size:21px;line-height:1.02}
+.tp-role{color:var(--dim);font-size:11px;line-height:1.3;letter-spacing:.04em;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
 .tp-ib{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid transparent;background:none;display:grid;place-items:center;color:var(--dim)}
 .tp-ib:hover{color:var(--ink);border-color:var(--line)}
 .tp-ib svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
@@ -87,7 +93,7 @@ const CSS = `
 .tp-think{align-self:flex-start;margin-left:13px;font:500 30px/1 var(--serif);color:var(--ink);animation:tp-pulse 1.3s ease-in-out infinite}
 .tp-empty{color:var(--dim);font:italic 500 17px/1.35 var(--serif);text-align:center;margin:auto 0;padding:0 12px}
 .tp-hint{flex:none;padding:2px 16px 0;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-.tp-chips{flex:none;display:flex;gap:8px;overflow-x:auto;padding:5px 16px 9px;scrollbar-width:none;scroll-snap-type:x proximity;overscroll-behavior-x:contain;
+.tp-chips{flex:none;display:flex;gap:8px;overflow-x:auto;padding:5px 16px 9px;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-inline:16px;overscroll-behavior-x:contain;
   -webkit-mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(90deg,transparent 0,#000 12px,#000 calc(100% - 30px),transparent)}
 .tp-chips::-webkit-scrollbar{display:none}
 .tp-chip{flex:none;scroll-snap-align:start;min-height:44px;min-width:44px;padding:0 15px;border-radius:22px;border:1px solid var(--line);background:rgba(236,228,210,.05);font:500 18px/1 var(--serif);white-space:nowrap}
@@ -108,11 +114,19 @@ const CSS = `
 .tp-send svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .tp-send:disabled,.tp-busy .tp-chip,.tp-busy .tp-st{opacity:.4;cursor:default}
 .tp.kb .tp-hint,.tp.kb .tp-chips,.tp.kb .tp-stances{display:none}
-.tp-grid{flex:1;min-height:0;overflow-y:auto;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr;gap:10px;align-content:start}
-.tp-card{min-height:76px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:rgba(236,228,210,.045);display:flex;flex-direction:column;gap:6px;justify-content:space-between}
+.tp-grid{flex:1;min-height:0;overflow-y:auto;padding:12px 16px 14px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:auto;gap:10px;align-content:start}
+.tp-card{min-height:76px;height:auto;min-width:0;text-align:left;padding:9px 11px 10px;border:1px solid var(--line);border-radius:8px;background:rgba(236,228,210,.045);display:flex;flex-direction:column;gap:5px;justify-content:flex-start;overflow:hidden}
+.tp-card.held{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass)}
+.tp-cards-sect{grid-column:1/-1;margin:4px 0 -4px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tp-on{flex:none;padding:8px 0 2px;border-bottom:1px solid var(--line)}
+.tp-on-lab{padding:0 16px;font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.tp-on-lab b{font:500 17px/1.25 var(--serif);letter-spacing:0;text-transform:none;color:var(--brass);margin-left:4px}
+.tp-on.ask .tp-on-lab{color:#d6a08c}
+.tp-on .tp-chips{padding-top:6px}
+.tp-chip[aria-pressed=true]{border-color:var(--brass);color:var(--brass);background:rgba(201,163,92,.14)}
 .tp-card.thing{border-color:rgba(201,163,92,.5);background:rgba(201,163,92,.07)}
 .tp-card small{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
-.tp-card span{font:500 19px/1.12 var(--serif)}
+.tp-card span{font:500 17px/1.15 var(--serif);overflow-wrap:break-word}
 .tp-card:hover{border-color:var(--brass)}
 .tp-tabs{flex:none;display:flex;gap:4px;padding:8px 12px 0;overflow-x:auto;scrollbar-width:none}
 .tp-tabs::-webkit-scrollbar{display:none}
@@ -136,10 +150,13 @@ const CSS = `
 .tp-claims li.broken s{text-decoration:line-through 1.5px;text-decoration-color:var(--brass);color:var(--dim)}
 .tp-claims li small{display:block;font:11px/1.35 var(--mono);color:var(--brass);letter-spacing:.01em}
 .tp-entry p.fresh{color:var(--ink);opacity:.8}
-.tp-acc{flex:1;min-height:0;overflow-y:auto;padding:6px 20px 14px}
+.tp-acc{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:6px 20px 14px}
 .tp-lede{color:var(--dim);font-size:12px;margin:2px 0 12px}
 .tp-sentence{font:500 25px/2.15 var(--serif);margin:0}
 .tp-sentence .w{margin:0 4px 0 0;white-space:nowrap}
+.tp-sentence .nb{white-space:nowrap}
+.tp-sentence .stop{margin-left:-5px}
+.tp-sentence .nb .tp-blank{white-space:normal;max-width:calc(100% - 12px);text-align:left;vertical-align:bottom;line-height:1.2;padding:9px 8px 7px}
 .tp-blank{display:inline-block;vertical-align:baseline;min-height:44px;min-width:92px;padding:0 8px;border:0;border-bottom:2px dashed var(--brass);background:rgba(201,163,92,.1);color:#b79a62;font:italic 500 21px/1 var(--serif);border-radius:4px 4px 0 0;line-height:40px}
 .tp-blank.set{border-bottom-style:solid;color:var(--brass);font-style:normal;font-weight:600;background:none}
 .tp-blank.right{color:#a9c98a;border-bottom-color:#a9c98a}
@@ -154,7 +171,9 @@ const CSS = `
 .tp-opt::before{content:"";flex:none;width:16px;height:16px;border-radius:50%;border:1px solid var(--dim)}
 .tp-opt[aria-checked=true]{color:var(--brass)}
 .tp-opt[aria-checked=true]::before{border-color:var(--brass);background:radial-gradient(var(--brass) 45%,transparent 50%)}
+.tp-verdict{margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 .tp-verdict h2{margin:6px 0 8px;font:600 32px/1.05 var(--serif);color:var(--brass)}
+.tp-note.rebut{color:var(--ink);font-style:normal}
 .tp-verdict p{margin:0 0 10px;font:500 20px/1.35 var(--serif)}
 .tp-paper{width:100%;min-height:52px;display:flex;align-items:center;gap:12px;text-align:left;padding:8px 12px;border:1px solid rgba(201,163,92,.45);border-radius:8px;background:rgba(201,163,92,.07);font:500 20px/1.15 var(--serif)}
 .tp-paper svg{flex:none;width:22px;height:22px;stroke:var(--brass);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
@@ -244,7 +263,8 @@ export function makeTalkPanel(options = {}) {
   document.body.append(root);
 
   const S = { who: null, name: "", role: "", portrait: null, intro: "", topics: [], evidence: [], stance: "ask", busy: false, lastTopic: null, more: false, guarded: false,
-    logs: new Map(), asked: new Map(), nbFresh: false };
+    logs: new Map(), asked: new Map(), last: new Map(), nbFresh: false };
+  const raised = (id) => { S.lastTopic = id; if (S.who != null && id) S.last.set(S.who, id); };
   const logOf = (w) => { if (!S.logs.has(w)) S.logs.set(w, []); return S.logs.get(w); };
   const askedOf = (w) => { if (!S.asked.has(w)) S.asked.set(w, new Set()); return S.asked.get(w); };
 
@@ -370,6 +390,8 @@ export function makeTalkPanel(options = {}) {
   const thinking = () => h("div", { class: "tp-think", role: "status", "aria-label": `${S.name} is thinking`, text: "…" });
   function append(e) {
     const log = logOf(S.who), prev = log.at(-1)?.who ?? null;
+    // (the host echoing the player's typed line, already set down by send(): once is enough)
+    if (e.who === "you" && log.at(-1)?.who === "you" && log.at(-1).typed && !e.tag && log.at(-1).text === e.text) { log.at(-1).typed = false; return; }
     log.push(e);
     if (S.who == null || !talk.classList.contains("on")) return;
     logEl.querySelector(".tp-empty")?.remove();
@@ -398,7 +420,7 @@ export function makeTalkPanel(options = {}) {
     if (S.busy) return;
     const stance = S.stance === "press" ? "press" : "ask";
     askedOf(S.who).add(t.id);
-    S.lastTopic = t.id;
+    raised(t.id);
     append({ who: "you", tag: stance, text: topicLabel(t).replace(/^./, (c) => c.toLowerCase()) });
     setStance("ask"); renderChips();
     onAsk(t.id, stance);
@@ -407,7 +429,7 @@ export function makeTalkPanel(options = {}) {
     const text = input.value.trim();
     if (!text || S.busy) return;
     input.value = "";
-    append({ who: "you", text });
+    append({ who: "you", text, typed: true });
     onSay(text);
   }
   function stanceTap(k) {
@@ -418,21 +440,48 @@ export function makeTalkPanel(options = {}) {
   }
 
   // ---- the evidence drawer -----------------------------------------------------------------------------------------------
+  // what is shown goes on a matter, named at the top ("Show it on: This morning at the door"), the last raised with this
+  // person or one chosen from the row; with none yet, the drawer asks for one, and a card tapped first waits for it
   const drawer = sheet("", "Show what?");
-  const grid = h("div", { class: "tp-grid" });
-  drawer.append(grip(drawer), h("div", { class: "tp-head" }, h("button", { class: "tp-ib", "aria-label": "Back to the conversation", html: ICON.back, onclick: back }), h("div", { class: "tp-title", text: "Show what?" }), h("button", { class: "tp-ib", "aria-label": "Close", html: ICON.close, onclick: back })), grid);
-  function renderDrawer() {
-    grid.replaceChildren();
-    if (!S.evidence.length) { grid.append(h("div", { class: "tp-empty", style: "grid-column:1/-1", text: "You hold nothing, and have learned nothing, worth putting before them." })); return; }
-    for (const ev of S.evidence) grid.append(h("button", { class: "tp-card " + (ev.kind === "thing" ? "thing" : "clue"), type: "button", "data-evidence": ev.id, onclick: () => pick(ev) },
-      h("small", { text: ev.kind === "thing" ? "In your hand" : "Learned" }), h("span", { text: ev.label })));
+  const grid = h("div", { class: "tp-grid" }), onLab = h("div", { class: "tp-on-lab", role: "status" }), onChips = h("div", { class: "tp-chips", role: "group", "aria-label": "Show it on which matter" });
+  const onRow = h("div", { class: "tp-on" }, onLab, onChips);
+  drawer.append(grip(drawer), h("div", { class: "tp-head" }, h("button", { class: "tp-ib", "aria-label": "Back to the conversation", html: ICON.back, onclick: back }), h("div", { class: "tp-title", text: "Show what?" }), h("button", { class: "tp-ib", "aria-label": "Close", html: ICON.close, onclick: back })), onRow, grid);
+  const D = { topic: null, ev: null };
+  const topicById = (id) => S.topics.find((t) => t.id === id);
+  function renderOn() {
+    const cur = D.topic && topicById(D.topic);
+    onRow.classList.toggle("ask", !cur); onChips.scrollLeft = 0;
+    onLab.replaceChildren(...(cur ? ["Show it on:", h("b", { text: topicLabel(cur) })] : [D.ev ? "Show it on which matter? Choose one:" : "First, on which matter? Choose one:"]));
+    // the chosen matter first, then those with something new, the dry, the retired
+    const order = [...S.topics.filter((t) => !t.dry && !t.retired), ...S.topics.filter((t) => t.dry && !t.retired), ...S.topics.filter((t) => t.retired)];
+    if (cur) order.sort((a, b) => (b.id === cur.id) - (a.id === cur.id));
+    onChips.replaceChildren(...order.map((t) => h("button", { class: "tp-chip" + (t.dry || t.retired ? " dry" : ""), type: "button", "data-on": t.id, "aria-pressed": String(t.id === D.topic), text: topicLabel(t),
+      onclick: () => { D.topic = t.id; if (D.ev) { const ev = S.evidence.find((e) => e.id === D.ev); if (ev) return pick(ev); } renderOn(); onChips.scrollLeft = 0; } })));
   }
-  function openDrawer() { if (layerOpen("drawer")) return; renderDrawer(); show({ id: "drawer", el: drawer, focus: () => grid.querySelector("button") }); }
+  function renderDrawer() {
+    renderOn(); grid.replaceChildren();
+    if (!S.evidence.length) { grid.append(h("div", { class: "tp-empty", style: "grid-column:1/-1", text: "You hold nothing, and have learned nothing, worth putting before them." })); return; }
+    // what is in your hand first, then what you have learned (the latest first)
+    const things = S.evidence.filter((e) => e.kind === "thing"), learned = S.evidence.filter((e) => e.kind !== "thing").reverse();
+    const sects = things.length > 0 && learned.length > 0;
+    const card = (ev) => h("button", { class: "tp-card " + (ev.kind === "thing" ? "thing" : "clue") + (D.ev === ev.id ? " held" : ""), type: "button", "data-evidence": ev.id, "aria-pressed": D.ev === ev.id ? "true" : null, onclick: () => pick(ev) },
+      sects ? null : h("small", { text: ev.kind === "thing" ? "In your hand" : "Learned" }), h("span", { text: ev.label }));
+    if (sects) grid.append(h("div", { class: "tp-cards-sect", text: "In your hand" }), ...things.map(card), h("div", { class: "tp-cards-sect", text: "What you have learned" }), ...learned.map(card));
+    else grid.append(...[...things, ...learned].map(card));
+  }
+  function openDrawer() {
+    if (layerOpen("drawer")) return;
+    D.topic = S.last.get(S.who) || null; if (D.topic && !topicById(D.topic)) D.topic = null; D.ev = null;
+    renderDrawer(); show({ id: "drawer", el: drawer, focus: () => { onChips.scrollLeft = 0; return (D.topic ? grid : onChips).querySelector("button"); } });
+  }
   function pick(ev) {
+    if (!D.topic) { D.ev = ev.id; renderDrawer(); onChips.querySelector("button")?.focus({ preventScroll: true }); return; }
+    const t = topicById(D.topic), topic = D.topic; D.ev = null;
     back();
-    append({ who: "you", tag: "show", text: ev.label });
+    raised(topic);
+    append({ who: "you", tag: "show", text: `${ev.label}, on ${t ? topicLabel(t).replace(/^./, (c) => c.toLowerCase()) : topic}` });
     setStance("ask");
-    onShow(ev.id, S.lastTopic);
+    onShow(ev.id, topic);
   }
 
   // ---- the notebook ------------------------------------------------------------------------------------------------------
@@ -488,18 +537,20 @@ export function makeTalkPanel(options = {}) {
     const blank = (key) => { const v = labelOf(key), locked = A.locked.has(groupOf(key).id);
       return h("button", { class: "tp-blank" + (v ? " set" : "") + (locked ? " right" : ""), type: "button", "data-blank": key, text: v || blankName(key),
         "aria-label": `${blankName(key)}: ${v || "not chosen"}${locked ? ", confirmed" : ""}`, disabled: done || locked || A.waiting || null, onclick: () => pickBlank(key) }); };
-    s.append(blank("suspect"));
-    A.pillars.forEach((p) => {
-      let lead = p.lead ?? LEADS[p.id] ?? `, ${p.label}:`;
-      const m = lead.match(/^([;,.])\s*(.*)$/);
-      if (m) { s.append("\u2060" + m[1], " "); lead = m[2]; } else s.append(" ");
-      s.append(h("span", { class: "w", text: lead }), " ", blank(p.id));
+    // (a blank and the stop after it don't part: the line never starts "; he died of", nor ends on a lone ".")
+    const keys = ["suspect", ...A.pillars.map((p) => p.id)];
+    keys.forEach((key, i) => {
+      const next = A.pillars[i]; let lead = next ? next.lead ?? LEADS[next.id] ?? `, ${next.label}:` : ".", stop = "";
+      const m = lead.match(/^([;,.])\s*(.*)$/); if (m) { stop = m[1]; lead = m[2]; }
+      s.append(h("span", { class: "nb" }, blank(key), stop ? h("span", { class: "stop", text: stop }) : null));
+      if (next) s.append(" ", h("span", { class: "w", text: lead }), " ");
     });
-    s.append(".");
+    const verdictEl = A.verdict ? h("div", { class: "tp-verdict", role: "status" }, h("h2", { text: A.verdict.title || "" }), A.verdict.text ? h("p", { text: A.verdict.text }) : null) : null;
     accBody.replaceChildren(...[
+      verdictEl,
       A.verdict ? null : h("p", { class: "tp-lede", text: "Fill each blank from what you have learned, then confirm it a few at a time: a group is accepted only when every blank in it is right." }), s,
-      A.note ? h("p", { class: "tp-note", role: "status", text: A.note }) : null,
-      A.verdict ? h("div", { class: "tp-verdict", role: "status" }, h("h2", { text: A.verdict.title || "" }), A.verdict.text ? h("p", { text: A.verdict.text }) : null) : null].filter(Boolean));
+      A.aside && !A.verdict ? h("p", { class: "tp-note rebut", text: A.aside }) : null,
+      A.note ? h("p", { class: "tp-note", role: "status", text: A.note }) : null].filter(Boolean));
     accFoot.replaceChildren();
     if (done) { accFoot.append(h("button", { class: "tp-btn", type: "button", text: "Close", onclick: back })); return; }
     for (const g of A.groups) {
@@ -508,8 +559,14 @@ export function makeTalkPanel(options = {}) {
         text: locked ? "Confirmed: " + g.label : "Confirm " + g.label, onclick: () => confirmGroup(g) }));
     }
   }
+  // what the room answers, brought into view under the sentence (it had been drawn below the fold)
+  function noteInView() {
+    requestAnimationFrame(() => { const n = accBody.querySelector(".tp-note:last-of-type"); if (!n) return;
+      const top = n.offsetTop - accBody.offsetTop, room = accBody.clientHeight;
+      if (top + n.offsetHeight > accBody.scrollTop + room) accBody.scrollTo({ top: Math.max(0, top + n.offsetHeight - room + 12), behavior: "smooth" }); });
+  }
   function confirmGroup(g) {
-    A.waiting = g.id; A.note = "The room waits."; renderAccusation();
+    A.waiting = g.id; A.note = "The room waits."; A.aside = ""; renderAccusation();
     onAccuse({ group: g.id, picks: Object.fromEntries(g.keys.map((k) => [k, A.picks[k]])), all: { ...A.picks } });
   }
   const pk = sheet("short", "Choose");
@@ -524,7 +581,7 @@ export function makeTalkPanel(options = {}) {
   }
   function openAccusation(spec) {
     const pillars = spec.pillars || [], keys = ["suspect", ...pillars.map((p) => p.id)];
-    A = { suspects: spec.suspects || [], pillars, picks: {}, verdict: null, locked: new Set(), waiting: null, note: "", groups: spec.groups?.length ? spec.groups : [{ id: "all", label: "the accusation", keys }] };
+    A = { suspects: spec.suspects || [], pillars, picks: {}, verdict: null, locked: new Set(), waiting: null, note: "", aside: "", groups: spec.groups?.length ? spec.groups : [{ id: "all", label: "the accusation", keys }] };
     renderAccusation();
     if (!layerOpen("accusation")) show({ id: "accusation", el: acc, focus: () => accBody.querySelector("button") });
   }
@@ -582,18 +639,21 @@ export function makeTalkPanel(options = {}) {
   const api = {
     open({ who, name, role = "", portrait = null, intro = "", topics = [], evidence = [] }) {
       S.who = who; S.name = name || who; S.role = role; S.portrait = portrait; S.intro = intro; S.topics = topics; S.evidence = evidence;
-      S.lastTopic = null; S.busy = false; S.more = false; S.guarded = false; root.classList.remove("tp-busy");
-      nameEl.textContent = S.name; roleEl.textContent = role; talk.setAttribute("aria-label", "Speaking with " + S.name);
+      S.lastTopic = S.last.get(who) || null; S.busy = false; S.more = false; S.guarded = false; root.classList.remove("tp-busy");
+      nameEl.textContent = S.name; nameEl.classList.toggle("long", S.name.length > 15); roleEl.textContent = role; talk.setAttribute("aria-label", "Speaking with " + S.name);
       paintPortrait(portrait, S.name); setStance("ask"); renderLog(); renderChips(); sendBtn.disabled = false;
       if (!layerOpen("talk")) show({ id: "talk", el: talk, focus: () => chipsEl.querySelector("button") || input, onHide: () => { S.stance = "ask"; onClose(); } });
       return api;
     },
     say({ who = "them", text, act, noted }) {
+      // (an aside while the accusation is open, the accused's answer to it, is said there too, under the sentence)
+      if (who === "aside" && A && !A.verdict && stack.at(-1)?.id === "accusation") { A.aside = text; renderAccusation(); noteInView(); }
       const e = { who, text, act }; if (noted?.length) e.noted = noted;
       append(e);
       if (noted?.length) { S.nbFresh = true; nbBtn.classList.add("fresh"); }
     },
-    setTopics(list) { S.topics = list || []; renderChips(); },
+    setTopics(list) { S.topics = list || []; renderChips(); if (layerOpen("drawer")) renderOn(); },
+    markAsked(topicId) { if (!topicId || S.who == null) return; askedOf(S.who).add(topicId); raised(topicId); renderChips(); },
     setEvidence(list) { S.evidence = list || []; if (layerOpen("drawer")) renderDrawer(); },
     busy(b) {
       S.busy = !!b; S.thinkShown = false; root.classList.toggle("tp-busy", S.busy); sendBtn.disabled = S.busy;
@@ -615,9 +675,9 @@ export function makeTalkPanel(options = {}) {
       if (!A) return; A.waiting = null;
       if (ok) { A.locked.add(group); A.note = text || ""; }
       else A.note = text || "Something in that does not hold. Think again, and change what you must.";
-      renderAccusation();
+      renderAccusation(); noteInView();
     },
-    verdict({ title, text }) { if (!A) return; A.verdict = { title, text }; A.waiting = null; A.note = ""; renderAccusation(); if (layerOpen("accusation")) accBody.scrollTop = 0; },
+    verdict({ title, text }) { if (!A) return; A.verdict = { title, text }; A.waiting = null; A.note = ""; A.aside = ""; renderAccusation(); if (layerOpen("accusation")) { accBody.scrollTop = 0; accBody.scrollLeft = 0; } },
     isOpen: () => stack.length > 0,
     destroy() { api.close(); removeEventListener("popstate", onPop); document.removeEventListener("keydown", onKey, true); removeEventListener("resize", fit);
       if (vv) { vv.removeEventListener("resize", fit); vv.removeEventListener("scroll", fit); } root.remove(); },

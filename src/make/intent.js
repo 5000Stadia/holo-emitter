@@ -6,7 +6,7 @@
 //   readIntent(text, { topics: [{ id, label, words? }], people: [{ id, name, aka? }], evidence: [{ id, label, words? }],
 //                      own?: [topic ids of the suspect's own clues and claims], last?: topic id last asked })
 //     -> { topic, stance, evidence, score, why }
-// Measured against 258 phone-typed questions to the four suspects of case-1660 (tests/fixtures/intent-corpus-1660.json,
+// Measured against 264 phone-typed questions to the four suspects of case-1660 (tests/fixtures/intent-corpus-1660.json,
 // a quarter held out from tuning): node tests/.intent-eval.mjs.
 //
 // How it reads, in order:
@@ -112,10 +112,14 @@ const FEMALE = /\b(dame|lady|mrs|mistress|madam|miss|wife|widow|mother|daughter|
 
 // stance cues, strongest first
 const CUES = [
-  ["accuse", /\b(i accuse|accuse you|you (killed|murdered|did it|did this|poisoned|struck|slew|stabbed|smothered|pushed|had him killed|are the (murderer|killer|culprit))|you('re| are) (the )?(murderer|killer|culprit|guilty)|it was you|(you|thou) (art )?(a |the )?murderer|confess)\b/i],
-  ["show", /\b(look at|see this|see these|see here|behold|what of this|explain this|explain these|how do you (account|explain)|what do you make of|what('s| is) this|do you (recogni[sz]e|know) this|recogni[sz]e this|seen this|i (found|have) (this|these|here)|here('s| is) (the|a|your)|read this|read these|care to explain|check this)\b/i],
+  ["accuse", /\b(i accuse|accuse you|you (killed|murdered|did it|did this|poisoned|struck|slew|stabbed|smothered|pushed|had him killed|are the (murderer|killer|culprit))|you('re| are) (the )?(murderer|killer|culprit|guilty)|it was you|(you|thou) (art )?(a |the )?murderer|confess|(did|didst) (you|thou) (kill|murder|slay|slew|poison|smother|stab) (him|hollins|the steward|your master|mr hollins|master hollins))\b/i],
+  ["show", /\b(look at|see this|see these|see here|behold|what of this|explain this|explain these|how do you (account|explain)|what do you make of (this|these|that|it)|what('s| is) this|do you (recogni[sz]e|know) this|recogni[sz]e this|seen this|i (found|have) (this|these|here)|here('s| is) (the|a|your)|read this|read these|care to explain|check this)\b/i],
   ["press", /\b((you('re| are| were)?|youre|u r|ur) (lying|lie|lied|a liar)|lying to me|liar|lies|(that('s| is)|thats|it('s| is)) (a lie|false|not true|untrue|impossible|nonsense)|not (the )?(whole )?truth|the truth|truthful|come now|come on|i don'?t believe|i do not believe|don'?t believe|nonsense|rubbish|i know you|we know you|someone saw you|you were seen|admit it|admit|own it|out with it|spit it out|stop lying|don'?t lie|do not lie|speak plainly|i doubt|are you sure|but you said|(you('re| are)|youre) hiding|what are you hiding|again)\b/i],
 ];
+
+// "what do you make of …" shows only when what follows names a thing or clue by more than a person's name ("what do you
+// make of the cut cord?"); "what do you make of Mr Cressy?" asks of him
+const SOFT_SHOW = /\bwhat do (you|u|ye|thou) make of\b/i;
 
 // the common questions, as phrases (their words are mostly small words), voting for the topic whose id or label holds
 // the hint: "where were you" for the whereabouts, "who had the key" for the keys
@@ -127,6 +131,14 @@ const TEMPLATES = [
   [/\bhow did (he|she|him|\w+|mr \w+|master \w+) die\b|\bwhat killed\b|\bcause of (his|her|the) death\b|\bwho (killed|murdered|did it|(could|would|might) have done (it|this|that))\b/i, ["death", "body", "died"]],
   [/\bwhy would\b|\bwho (gains|profits|benefits)\b|\bwho would want\b|\b(his|any) enem(y|ies)\b|\bmotive\b/i, ["motive", "will", "sale", "inherit"]],
   [/\bwho (found|opened|discovered|went in)\b|\bthis morning\b/i, ["morning", "found"]],
+  // (when the door was opened: the key where it lay then is the morning's, not the keys'; it outweighs the word "key")
+  [/\bwhen (you|u|ye|thou|they|he|she|we) (went|came|got|broke|first went) in\b|\bwhen (you|u) (opened|found|entered|broke)\b|\bwhen the door was (opened|broken|forced)\b/i, ["morning", "found"], 1.5],
+  // what they saw or heard abroad in the night ("did you see anyone on the stairs?")
+  [/\b(did|didst) (you|u|thou) (see|hear|meet|pass) (any|anyone|anybody|someone|somebody|any one|a soul|aught)\b|\b(see|saw|seen|hear|heard)\b.*\b(stairs?|staircase|passage|gallery|landing)\b/i, WHERE_HINT, 1, "unnamed"],
+  // what brings the stranger here: his business is the sale
+  [/\b(what|which) (business|errand|affair|purpose)\b|\b(bring|brings|brought) (you|thee|ye|an? \w+( \w+)?) (here|hither)\b|\bhither\b/i, ["sale"]],
+  // the threat at supper: "he'd not live to see it sealed" is of the steward
+  [/\b(not|never|wouldn'?t|would not|won'?t|will not|shan'?t|shall not) live to see\b|\blive to see (it|the deed|the sale)\b/i, ["steward"]],
   [/\bwho (else )?(is|are|was|were|lives?|lived|stays?|stayed|sleeps?|slept)\b.*\b(here|house|household|staying|about|present|living)\b|\bwho else\b|\bwhere (is|are) (every|all)\w*\b/i, ["household", "house", "present"]],
 ];
 
@@ -155,7 +167,7 @@ function indexOf(topics, people, evidence) {
   for (const t of topics) rawWords(labelWords(t)).forEach(know);
   for (const p of people) rawWords(`${p.name} ${(p.aka || []).join(" ")}`).forEach(know);
   for (const e of evidence) rawWords(`${e.label || ""} ${(e.words || []).join(" ")}`).forEach(know);
-  ix = { cands, persons, vocab, forms, deceased, hintTopic, whereTopic: hintTopic(WHERE_HINT), near: new Map() };
+  ix = { cands, persons, nameStems, vocab, forms, deceased, hintTopic, whereTopic: hintTopic(WHERE_HINT), near: new Map() };
   if (INDEX.size > 16) INDEX.delete(INDEX.keys().next().value); INDEX.set(key, ix); return ix;
 }
 // a word the reader does not know, met by a near spelling of one it does: of five letters, a letter left out or two
@@ -178,6 +190,7 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
   const why = [], src = String(text || "").slice(0, 400), norm = rawWords(src).join(" ");
   const test = (re) => re.test(src) || re.test(norm);
   let stance = "ask"; for (const [s, re] of CUES) if (test(re)) { stance = s; why.push(`stance:${s}`); break; }
+  const soft = stance === "ask" && test(SOFT_SHOW); if (soft) stance = "show";
   const raw = rawWords(src.replace(GREETING, " ")), toThem = SECOND.test(norm);
   const ix = indexOf(topics, people, evidence), { cands, persons, vocab, deceased, hintTopic, whereTopic } = ix;
 
@@ -197,12 +210,18 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
       for (const [s, v] of x.stems) if (c.keys.has(s)) { const weak = WEAK.has(s) || TITLES.has(s) || c.dead, wt = TITLES.has(s) ? 0.25 * v : weak ? 0.6 * v : v; if (wt > best) { best = wt; isWeak = weak; } }
       if (!best) continue; at = Math.min(at, x.at); if (isWeak) weak = Math.max(weak, best); else strong += best; }
     if (strong + weak) add(c.id, strong + weak, at); }
+  // a name with 's and a thing that is a matter of its own ("Francis's hand", the hand open as a matter) is about the
+  // thing: the name counts half, and the question isn't about them ("blood on Francis's shirt" is still about Francis
+  // while no matter answers to "shirt")
+  const owns = new Set([...src.toLowerCase().replace(/’/g, "'").matchAll(/\b([a-z]+)'s\s+([a-z]+)/g)]
+    .filter(m => cands.some(c => c.keys.has(stem(m[2])))).map(m => stem(m[1])));
   let named = null;
   for (const p of persons) { let best = 0, at = 99;
     for (const g of p.groups) { let ok = 1, pos = 99;
       for (const gw of g) { let hit = 0; for (const x of said) { const v = x.stems.get(gw) || 0; if (v > hit) { hit = v; pos = Math.min(pos, x.at); } } ok = Math.min(ok, hit); }
       if (ok > best) { best = ok; at = pos; } }
-    if (best) { add(p.id, best, at); if (!named || at < named.at) named = { id: p.id, at, female: p.female }; } }
+    const own = p.groups.some(g => g.length === 1 && owns.has(g[0]));
+    if (best) { add(p.id, own ? best / 2 : best, at); if (own) why.push(`${p.id}'s`); else if (!named || at < named.at) named = { id: p.id, at, female: p.female }; } }
   // pronouns: "she/her" the one woman not being questioned, when no one is named; "he/him/his" the deceased, when no
   // one else is
   const pron = raw.find(w => /^(he|him|his|she|her|hers)$/.test(w));
@@ -213,7 +232,7 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
   // (a number word misspelt, "elevn", is still a time)
   const num = new Map(said.map(x => [x.w, [...x.stems.keys()].find(k => NUMBER_WORDS.includes(k))]));
   if (test(TIME) || TIME.test(raw.map(w => num.get(w) || w).join(" "))) { add(whereTopic, 0.6); why.push("a time"); }
-  for (const [re, hints] of TEMPLATES) if (test(re)) { const t = hintTopic(hints); if (t) { add(t, 1, 50); why.push(`template → ${t}`); } }
+  for (const [re, hints, wt = 1, only] of TEMPLATES) if (!(only === "unnamed" && named) && test(re)) { const t = hintTopic(hints); if (t) { add(t, wt, 50); why.push(`template → ${t}`); } }
   // a question with no "you" in it that names someone is about them ("where was Francis at eleven?")
   if (named && !toThem) { add(named.id, 0.5); why.push(`about ${named.id}`); }
   // a question to them with "you" in it, naming another and a matter of theirs, is about the matter ("did you play
@@ -234,9 +253,10 @@ export function readIntent(text, { topics = [], people = [], evidence = [], own 
   // ---- evidence named: a clue or a thing the player holds, by its words (naming a thing is not showing it: "who had the
   // key?" asks about the key; only a cue shows it)
   let ev = null, evScore = 0;
-  if (stance === "show") for (const e of evidence) { const k = new Set(words(`${e.label} ${(e.words || []).join(" ")}`).filter(w => !TITLES.has(w)));
+  if (stance === "show") for (const e of evidence) { const k = new Set(words(`${e.label} ${(e.words || []).join(" ")}`).filter(w => !TITLES.has(w) && !(soft && ix.nameStems.has(w))));
     let hit = 0; for (const x of said) { let b = 0; for (const [s, v] of x.stems) if (k.has(s)) b = Math.max(b, v); hit += b; }
     const s = hit / Math.max(1, Math.min(3, k.size)); if (s > evScore) { evScore = s; ev = e.id; } }
   if (ev && evScore >= 0.3) why.push(`shows ${ev}`); else ev = null;
+  if (soft && !ev) { stance = "ask"; why.push("make of: nothing shown, asks"); } else if (soft) why.push("stance:show (make of)");
   return { topic: sure ? best : "none", stance, evidence: ev, score: +top.toFixed(2), why };
 }
