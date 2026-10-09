@@ -572,7 +572,12 @@ function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectOb
   if (lookMeshes.length) { const lh = ray.intersectObjects(lookMeshes.filter(m => m.visible !== false), false)[0]; if (lh && lh.distance < ray.far && (!h || lh.distance < h.distance)) return { look: lh.object.userData.look, point: lh.point }; }
   // (a person can be spoken to across a room, 7 m, not only within arm's reach: the playtest's taps on people 3 m off had
   // done nothing)
-  if (presences.size) { const far0 = ray.far; ray.far = 7; const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; ray.far = far0; if (ph && (!h || ph.distance < h.distance)) return { presence: ph.object.userData.presence, point: ph.point }; }
+  if (presences.size) { const far0 = ray.far; ray.far = 7; const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; ray.far = far0;
+    // (a person is a projection: a case thing with something still to give, under the dot just behind them, is what you
+    // meant; since people answer across a room, Cressy beside the draw-table had taken every tap on the engrossment, and
+    // Daniel kneeling at his chest every tap on the chest)
+    const wanted = t?.b?.story && (CP?.wouldLook(t.b.story, t.i) || CP?.reachIn(t.b.story) || (CASE?.things.find(q => q.id === t.b.story)?.clue && !CASE.things.find(q => q.id === t.b.story).keep));
+    if (ph && (!h || ph.distance < h.distance) && !(wanted && h.distance - ph.distance < 1.2)) return { presence: ph.object.userData.presence, point: ph.point }; }
   return t; }
 window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff }) : null; };
 const _b = new THREE.Box3(), _c = new THREE.Vector3();
