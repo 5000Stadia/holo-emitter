@@ -105,7 +105,7 @@ async function play(seed) {
     for (const c of V.clues) learnWords(c.label);
     const lsig = `${(V.leads?.open || []).map(l => l.id).join()}|${V.contradictions.length}`;
     const prog = !!(fresh.length || V.clues.length !== nClues || lsig !== M.lsig); if (prog) M.lastProgress = T.turns; nClues = V.clues.length; M.lsig = lsig;
-    const lines = await heardLines(); noteLines(lines, kind === "idle" ? "idle" : "world");
+    const lines = await heardLines(); noteLines(lines, kind === "idle" ? "idle" : "world"); await heardAsides();
     T.log.push({ t: T.turns, kind, detail, est: Math.round(T.est), ...(prog ? { prog } : {}), ...(fresh.length ? { learned: fresh } : {}), ...(lines.length ? { heard: lines } : {}), ...extra });
     if (fresh.length) console.log(`  [${seed}] t${T.turns} ${kind} ${detail} -> +${fresh.join(" | ")}`);
   }
@@ -188,14 +188,17 @@ async function play(seed) {
       log: [...talk.querySelectorAll(".tp-log > *")].map(e => ({ cls: e.className, text: e.textContent })) }; });
   async function expandChips() { const s = await panelState(); if (s?.more === "More…") { await p.click('.tp-sheet.on .tp-chip.more'); await p.waitForTimeout(60); } const t = await panelState(); for (const c of t?.chips || []) learnWords(c.label); return t; }
   async function waitIdle() { for (let i = 0; i < 60; i++) { const busy = await p.evaluate(() => document.querySelector(".tp")?.classList.contains("tp-busy")); if (!busy) break; await p.waitForTimeout(100); } await p.waitForTimeout(80); }
-  const lastLines = async (n0) => { const s = await panelState(); return (s?.log || []).slice(n0).filter(e => /tp-them|tp-aside|tp-noted/.test(e.cls)).map(e => e.text); };
+  // an aside the house said into an open panel (a beat dealt as you question someone, or as you read a paper) is recorded as
+  // heard; recorded only, so the bot plays as it did before (its runs stay comparable with the ones before this)
+  const heardAsides = async () => { const all = await p.evaluate(() => window.__asides || []).catch(() => []); if (all.length < (M.asideN || 0)) M.asideN = 0; for (const t of all.slice(M.asideN || 0)) M.heard.push({ turn: T.turns, where: "aside", text: t }); M.asideN = all.length; };
+  const lastLines = async (n0) => { const s = await panelState(); const got = (s?.log || []).slice(n0).filter(e => /tp-them|tp-aside|tp-noted/.test(e.cls)).map(e => e.text); return got; };
 
   async function ask(who, chipT, stance = "ask") {
     const s0 = await panelState(), n0 = s0.log.length;
     if (stance === "press") await p.click('.tp-sheet.on .tp-st:has-text("Press for more")');
     await p.click(`.tp-sheet.on .tp-chip[data-topic="${chipT.topic}"]`); await waitIdle();
     const said = await lastLines(n0); said.forEach(learnWords); spend("chip");
-    await tick("q", `${stance} ${PEOPLE.find(x => x.id === who)?.name.split(" ").at(-1)}: ${chipT.label}`, { said: said.join(" / ").slice(0, 300) });
+    await tick("q", `${stance} ${PEOPLE.find(x => x.id === who)?.name.split(" ").at(-1)}: ${chipT.label}`, { said: said.join(" / ") });
     return said;
   }
   // in its own words: a phrasing people typed for this matter (tests/fixtures/intent-corpus-1660.json), only one whose
@@ -216,7 +219,7 @@ async function play(seed) {
     const miss = !none && !wasAsked && !nowAsked;          // (read, but as another matter than the one meant)
     const readAs = miss ? (s1?.chips.filter(c => c.asked && !asked0.has(c.topic)).map(c => c.label).join(", ") || "a matter already raised") : null;
     if (none) T.typedNone++; if (miss) T.typedMiss++;
-    await tick("q", `typed ${PEOPLE.find(x => x.id === who)?.name.split(" ").at(-1)}: "${q}" (meant: ${chipT.label}${stance === "press" ? ", pressed" : ""})${none ? " -> read as none" : miss ? ` -> read as: ${readAs}` : ""}`, { said: said.join(" / ").slice(0, 300), typed: { q, meant: chipT.topic, meantLabel: chipT.label, none, miss, readAs } });
+    await tick("q", `typed ${PEOPLE.find(x => x.id === who)?.name.split(" ").at(-1)}: "${q}" (meant: ${chipT.label}${stance === "press" ? ", pressed" : ""})${none ? " -> read as none" : miss ? ` -> read as: ${readAs}` : ""}`, { said: said.join(" / "), typed: { q, meant: chipT.topic, meantLabel: chipT.label, none, miss, readAs } });
     // (not understood: the chip, as the aside asks)
     if (none) return ask(who, chipT, stance);
     return said;
@@ -228,7 +231,7 @@ async function play(seed) {
     await p.click(`.tp-sheet.on .tp-chips button[data-on="${topic}"]`); await p.waitForTimeout(60);
     await p.click(`.tp-sheet.on .tp-card[data-evidence="${evId}"]`); await waitIdle();
     const said = await lastLines(n0); said.forEach(learnWords); spend("show");
-    await tick("q", `show ${PEOPLE.find(x => x.id === who)?.name.split(" ").at(-1)}: "${evLabel}" on ${topicLabel}`, { said: said.join(" / ").slice(0, 300) });
+    await tick("q", `show ${PEOPLE.find(x => x.id === who)?.name.split(" ").at(-1)}: "${evLabel}" on ${topicLabel}`, { said: said.join(" / ") });
     return said;
   }
 
@@ -579,6 +582,8 @@ async function play(seed) {
         await mirror();
         M.seals = await peekSeals();
         acc = await accuse(why);
+        // what the narrator dealt, by its own count of turns (a silent clock shows only here)
+        M.narr = await p.evaluate(() => { const s = window.__narrator?.state(); return s ? { turns: s.turns, beats: s.log, clocks: s.fired } : null; }).catch(() => null);
       }
       break;
     } catch (e) {
@@ -599,7 +604,7 @@ async function play(seed) {
     why, seals: M.seals, accusation: acc, receipts: rec, reload: M.reload, crashes: S.crashes, loadFails: S.loadFails || 0, restarts: S.restarts, simulated_crash_at: S.simulated || null, botErrors: S.botErrors, thoughts: M.thoughts, stalls,
     clues: V.clues.map(c => `${c.label} (${c.from})`), contradictions: V.contradictions, leads, open_at_end: (V.leads?.open || []).map(l => ({ id: l.id, text: l.text, where: l.where, now: l.now, hints: l.hints })),
     persons: V.persons, stuck: M.stuck, hints_followed: M.hints.map(h => ({ text: h.text, turn: h.turn })), heard: M.heard, reads: M.reads.map(r => ({ turn: r.turn, title: r.title, noted: r.noted })),
-    searched: [...M.searched].map(([id, s]) => ({ id, ...s })), wall_s: Math.round((Date.now() - t0) / 1000), errors: errs.slice(0, 8), log: T.log };
+    searched: [...M.searched].map(([id, s]) => ({ id, ...s })), wall_s: Math.round((Date.now() - t0) / 1000), errors: errs.slice(0, 8), narrator: M.narr || null, log: T.log };
   writeFileSync(`${OUT}/run-${seed}.json`, JSON.stringify(out, null, 1));
   await b.close();
   return out;
