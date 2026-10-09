@@ -579,7 +579,7 @@ function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectOb
     const wanted = t?.b?.story && (CP?.wouldLook(t.b.story, t.i) || CP?.reachIn(t.b.story) || (CASE?.things.find(q => q.id === t.b.story)?.clue && !CASE.things.find(q => q.id === t.b.story).keep));
     if (ph && (!h || ph.distance < h.distance) && !(wanted && h.distance - ph.distance < 1.2)) return { presence: ph.object.userData.presence, point: ph.point }; }
   return t; }
-window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff }) : null; };
+window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff, story: t.b?.story } : null; };
 const _b = new THREE.Box3(), _c = new THREE.Vector3();
 const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(c); const first = aimOne(c);
   // (a case's thing just beside what the ray hit is preferred to it: a tap 14 px off the steward's key had opened the

@@ -364,7 +364,9 @@ async function play(seed) {
           if (mode === "Take" && /^take out/i.test(label)) return { f: { mode, label, aim: window.__aim(0, 0) }, pose: [x, y, base + dyaw, pitch] }; } }
       return null; }, { c, floor });
   }
-  const pressUse = () => p.evaluate(() => { const btn = [...document.querySelectorAll("body > button")].find(b => b.style.width === "72px"); btn.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true, pointerType: "touch" })); });
+  const pressUse = () => p.evaluate(() => { const btn = [...document.querySelectorAll("body > button")].find(b => b.style.width === "72px"); const r = btn.getBoundingClientRect(), at = { bubbles: true, cancelable: true, pointerType: "touch", pointerId: 77, clientX: r.x + r.width / 2, clientY: r.y + r.height / 2 };
+    // (the button acts when the finger lifts, unmoved, since 2026-10-08's touch work: a press is down then up)
+    btn.dispatchEvent(new PointerEvent("pointerdown", at)); btn.dispatchEvent(new PointerEvent("pointerup", at)); });
   async function afterPress() {
     await p.waitForTimeout(250);
     const rd = await p.evaluate(() => { const r = document.querySelector(".tp-sheet.on.rd"); return r ? { title: r.querySelector(".tp-title")?.textContent, noted: r.querySelector(".tp-rdfoot")?.textContent || "", text: r.querySelector(".tp-read")?.textContent.slice(0, 2000) } : null; });
