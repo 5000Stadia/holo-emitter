@@ -588,3 +588,9 @@ Run on the case as it was before round 3, the new rules find what pattern-buffer
 - **The give-away is not checked here.** The check holds the door data and every sighting against it. Whether an open
   door would have handed a witness the case is a simulation question. `tools/case-sim.mjs` answers it on the study
   branch; that gate goes to Kabe for vetting before it joins the test list.
+
+## Open, after pattern-buffer's final probe (round 4, 2026-10-08: 36 of 39 pass, no hand rows, 79 of 79 learned-at dates agreed)
+
+- **Receipt dates for letters and hearsay.** Ten rows are lower bounds today. For example, Cressy 'knows' Pargeter's letter from 18 September, not from the day it reached him. A letter needs its own receipt.
+- **When a span is learned.** A span (Cressy at the tables 21:00–01:00) counts as learned at its start. Whether it should count at its end, or by parts, is undecided.
+- **Withdrawn lies.** We adopt pattern-buffer's convention: a lie whose `says_until` event says `then: null` is *withdrawn*. The liar stops saying it and says nothing in its place, so neither side treats the silence as a new claim.
