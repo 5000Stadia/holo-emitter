@@ -1006,3 +1006,15 @@ Also: three.js's core remapped to its minified build, 162 KB less to download.
   - renderer process RSS 537–542 → 390–420 MB (WebGL 2: 507 → 352 MB); GPU process and renderer.info unchanged.
 - **Run time:** the sweep 25–35 ms in all by walkable + 10 s, in 3 ms slices every 1.5 s; then about 25 ms a minute of play (a walk of the scene graph every 1.5 s, new ground and hillside tiles let go as they come).
 - **Checked:** the case by taps at a phone (Dame Anne, the muniment key and candlestick, Daniel's chest reached into, the body, d18 opened and walked through, double taps on floor, wall and ground, the gates, down the hill): every step the same as ?geodrop=0 (positions to 0.02 m from key-hold timing), screenshots within 0.5 of a level; WebGL 2 the same; every material rebuilt and the shadow redrawn after the drop, no error; __sight/__fight/__seal identical.
+
+## The fps lab, round 3: the phone measures (R50, 2026-10-08)
+
+- **Built:** 16 cases (group "phone" in `lab/fps/spec.json`), each one change from m-ref, the manor's desktop set on the lab's scene.
+  - **three.html** (+~90 lines): RectAreaLight windows, procedural kit and floor textures (full or half by 2x2 means in linear light, pixels let go on `onUpdate`), the output target, DirectRenderPipeline, ACES, the still modes on an emulated 60 Hz display, still shots (`?shot`), and GPU ms timed serially after each run.
+  - **Godot main.gd** (+~130 lines): textures (FastNoiseLite, native), AreaLight3D, ACES, the still modes (`max_fps` 60 and low-processor mode), and shots.
+  - **Tools:** `tools/fps-lab.mjs` gains `--repeat`, `--phone`, `--gpu`, `--group` and the heap after a GC. New are `tools/fps-shots.mjs` and `tools/fps-compare.py`. Nothing reused from the manor but its flags' meanings.
+- **Runs:** 5 repeats round-robin, at 1280x720 1x and at 390x844 DPR 3, in three.js WebGPU, three.js WebGL 2 and Godot web. That is 410 runs, about 2 h 20 min of machine time. The first pass's GPU ms were dropped: timestamps read while frames ran back to back went unresolved at the phone's size, so they are now timed serially.
+- **Spread:** other sessions' headless browsers shared the GPU. fps spreads were up to 3x; the serial GPU ms held within about 2%.
+- **Run time of the pieces:** texture generation 3-4 s per page (not timed in a frame); the serial GPU pass 40 frames, about 1 s.
+- **Results:** see `design/perf/plan.md` ("The phone measures, in the lab") and the ledger.
+- **Time:** about 3 h 30 min of my work, the runs included. Godot's export ran first time from the command line (4.7.2, templates installed).

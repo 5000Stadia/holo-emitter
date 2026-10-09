@@ -40,7 +40,7 @@
   "shadows-static": "The sun's shadow map drawn once (light.shadow.autoUpdate off): 86 to 136 fps. The renderer-wide switch (renderer.shadowMap.autoUpdate) does nothing in WebGPURenderer.",
   "far-standard": "Through a telephoto at 4 km: with ordinary depth, three.js loses one facade panel into its wall and breaks the tower's; Godot's web build holds every panel.",
   "far-log": "Logarithmic depth: every panel holds at 4 km, at no measurable cost here.",
-  "far-reversed": "Reversed depth: better than ordinary, but the tower's panel still breaks; it needs floating-point depth to pay off. To check.",
+  "far-reversed": "Reversed depth: better than ordinary, but the tower's panel still broke in the first shot (2026-10-06). Re-shot 2026-10-08 from m-depth-reversed (r186, depth32float): every panel holds at 4 km on WebGPU and on WebGL 2 (EXT_clip_control), the same picture as log depth (lab/fps/shots/depth.jpg).",
   "candles-64": "64 point lights: three.js default 117 fps; Godot's web build again shows no point-light pools, so its number is not a comparison.",
   "candles-64-dynamic": "DynamicLighting is no faster per frame (and worse at p99); its gain is no shader recompile when lights come and go (a candle lit or put out).",
   "candles-64-clustered": "Clustered lighting: 147 fps against 117 default for 64 candles. WebGPU only, and only point lights without shadows.",
@@ -56,5 +56,131 @@
  "sizes": {
   "three-webgpu": "three.webgpu.min.js 0.8 MB (about 0.23 MB gzipped)",
   "godot-web": "index.wasm 39.5 MB + index.js 0.28 MB + the pack"
+ },
+ "phone": {
+  "_what": "The phone measures of 2026-10-08 (the ledger's 'Phones' section): the groups the table shows, what each case does to the picture (from the side-by-sides in lab/fps/shots/, looked at, with compare.json's numbers: mean absolute difference over the picture in 0-255 levels, and the share of pixels off by more than 3 levels), the figures, and what we choose.",
+  "groups": [
+   [
+    "The reference",
+    [
+     "m-ref"
+    ]
+   ],
+   [
+    "Depth",
+    [
+     "m-depth-log",
+     "m-depth-reversed"
+    ]
+   ],
+   [
+    "Window lights (RectAreaLight)",
+    [
+     "m-rect-3",
+     "m-rect-0"
+    ]
+   ],
+   [
+    "Textures",
+    [
+     "m-tex-half",
+     "m-tex-drop",
+     "m-tex-half-drop"
+    ]
+   ],
+   [
+    "Edges and the output",
+    [
+     "m-msaa-0",
+     "m-out-8",
+     "m-direct"
+    ]
+   ],
+   [
+    "The phone's set together",
+    [
+     "m-phone"
+    ]
+   ],
+   [
+    "Standing still (60 Hz display emulated; a fire in view)",
+    [
+     "still-every",
+     "still-change",
+     "still-flicker16",
+     "still-flicker60"
+    ]
+   ]
+  ],
+  "picture": {
+   "m-ref": "At 4 km, ordinary depth loses facade panels into their walls: three of them on WebGPU, and on WebGL 2 the tower's whole panel. At the phone's size the far facades also show a moiré of z-fighting.",
+   "m-depth-log": "Every panel holds at 4 km. Costs 37% more GPU time on the desktop viewport and 55% more at the phone's: the fragment-shader depth write turns early-Z off.",
+   "m-depth-reversed": "The same picture as log depth (identical pixels in the tower shot), on WebGPU and on WebGL 2 (this ANGLE has EXT_clip_control). It costs what ordinary depth costs.",
+   "m-rect-3": "Fewer pools of window light: by the five unlit windows the floor and the spheres' near sides are darker. Mean difference 5.4 levels; 6.5% of pixels differ by more than 12. In the manor the pool shares out what the missing windows would give, so it differs less there.",
+   "m-rect-0": "No window pools at all: 7.4 levels mean, 15% of pixels more than 12 off.",
+   "m-tex-half": "Not seen. At the phone's DPR 3, a step from the floor: mean 0.18 levels, 0.07% of pixels more than 12 off. The desktop: 0.13 and 0.",
+   "m-tex-drop": "Identical: the GPU's copy is the same. Only the CPU's copy goes.",
+   "m-tex-half-drop": "Identical to half textures (pixel for pixel).",
+   "m-msaa-0": "Jagged stair-stepped edges on every sphere and on the far town: 4% of pixels more than 3 off.",
+   "m-out-8": "Not seen in this daylit scene: 0.01% of pixels more than 3 off. The manor saw bands in its candle-dark vaults, which this scene has none of: to check where it is dark.",
+   "m-direct": "Same colours, but the edges are as jagged as with no MSAA: in r186 the direct pipeline drew without the multisampled target here, on both backends (side-by-side, edges at 2×). Its WebGL 2 speed-up is mostly the anti-aliasing it dropped.",
+   "m-phone": "The far facades lose their z-fighting moiré (reversed depth). There are fewer window pools. The rest is the same.",
+   "still-every": "Nothing to see. The cost is energy: every tick drawn though nothing moved but a flame.",
+   "still-change": "0 frames a second (three.js); Godot's low-processor mode draws 0.2 a second.",
+   "still-flicker16": "The flame steps about 14 times a second, not 60. It reads as a flame: a cap of 62.5 ms on a 60 Hz display falls on every 4th tick, so about 14-15 a second.",
+   "still-flicker60": "As every tick: a flame that changes every tick redraws everything every tick."
+  },
+  "figures": [
+   [
+    "depth.jpg",
+    "Depth, a telephoto on the tower and town 4 km off. Ordinary depth loses three facade panels on WebGPU and the tower's whole panel on WebGL 2. Log depth and reversed depth (both backends) hold every panel, pixel for pixel the same. Reversed costs nothing over ordinary; log costs 37-55% of the GPU frame."
+   ],
+   [
+    "phone-set.jpg",
+    "m-ref against the phone's set, at the phone's viewport (390×844, DPR 3). The far facades' z-fighting moiré is gone, and some window pools are dimmer. GPU 18.3 → 8.6 ms a frame."
+   ],
+   [
+    "rect.jpg",
+    "Window lights, 8 / 3 / none, standing among them. The pools on the floor and the lit sides of the spheres go with each light. 8 → 3 is −54 to −56% of the GPU frame."
+   ],
+   [
+    "tex-phone.jpg",
+    "Textures at the phone's DPR 3, a step from the floor: full (2880² floor, 1024² kit), half (1440², 512²), and half with the CPU's pixels let go. Not told apart (0.07% of pixels more than 12 levels off). GPU texture memory 100 → 25 MB; the JS heap 84 → 27 → 8.5 MB."
+   ],
+   [
+    "tex-desk.jpg",
+    "The same at the desktop's 1×: not told apart."
+   ],
+   [
+    "msaa.jpg",
+    "4× MSAA and none, at 2×: none is jagged everywhere. −28% GPU on the desktop, −15% at the phone's size."
+   ],
+   [
+    "direct-gl-edges.jpg",
+    "DirectRenderPipeline at 2×: the edges are jagged as with no MSAA, on WebGL 2 and WebGPU alike. The direct path drew without the multisampled target here."
+   ],
+   [
+    "out8.jpg",
+    "The half-float target, the 8-bit target and the direct pipeline among the window lights: the same in daylight. The banding the manor showed was in candle-dark rooms, which this scene lacks."
+   ],
+   [
+    "direct.jpg",
+    "The default pipeline, the direct one, and the 8-bit target on WebGPU, the orbit view: the colours match."
+   ],
+   [
+    "godot.jpg",
+    "Godot's web build (Compatibility): m-ref, no area lights, half textures, no MSAA. Its AreaLight3D does light, faintly (3 levels mean), and costs about as much as three's per light. Its textures differ from three's in pattern, not in size or format."
+   ]
+  ],
+  "choose": [
+   "<b>Depth: reversed everywhere it exists, not just on phones.</b> It holds the 4 km view exactly as log depth does, on WebGPU and WebGL 2, at the cost of ordinary depth. Log depth costs 37% of the GPU frame at 1× and 55% at the phone's size, here, on a desktop GPU without tiles. The manor's phone default stands. Its desktop default (log outdoors, ordinary indoors) should become reversed, with log only where a WebGL 2 lacks EXT_clip_control. That is a one-line change in src/make/render.js, left to whoever holds that file.",
+   "<b>Window lights: the largest lever measured.</b> Each RectAreaLight slot costs about 1 ms of GPU time at 1× and about 2 ms at the phone's size, lit or not. 8 → 3 takes 54-56% off the frame; the picture loses pools that the manor's sharing partly gives back. The phone's 3 stands. On a desktop, 8 costs 8 ms of a 16.7 ms budget on this GPU: worth a tier (5 on laptops), or the baked bounce of R48 step 6 for windows not in view.",
+   "<b>Half textures and letting pixels go: for memory, not speed.</b> The GPU time is unchanged on this GPU (it has the bandwidth to spare). GPU texture memory falls 100 → 25 MB, and the JS heap 84 → 27 MB, then to 8.5 MB with the pixels let go. That is the iPhone kill margin, and the picture can't be told apart at the phone's density. Keep both on phones. Letting pixels go is free on the desktop too, where the manor doesn't yet do it.",
+   "<b>MSAA stays.</b> It costs 28% of the GPU frame at 1× and 15% at the phone's size here. Without it every edge is jagged, and Kabe asked for the edges. The resolution controller should drop the pixel ratio before it drops MSAA.",
+   "<b>The 8-bit target and DirectRenderPipeline: no.</b> Neither gains anything on WebGPU (±2%, inside the spread). The direct pipeline loses the anti-aliasing in r186, so its WebGL 2 speed-up at the phone's size (26.8 → 59.9 fps) is mostly that. Both stay as flags for a phone's tiled GPU to answer, through Kabe's perf card.",
+   "<b>Draw on change, and the flame's cap, stay.</b> Standing still with a flame in view, drawing every tick keeps the GPU busy 600 ms of each second at 1× and 1,270 ms at the phone's size: more than it has, so it falls behind. Drawing only on change makes that 0. The flame capped at about 14 a second makes it 170 and 270 ms: −72% and −78%. Godot does the same with its low-processor mode (0.2 and 15 drawn a second).",
+   "<b>The phone's set together:</b> −53 to −54% GPU (18.3 → 8.6 ms at 1170×2532) and the heap 84 → 8 MB, with the far view cleaner than the reference's. Nearly all the time saved is the window lights; the memory saved is the textures.",
+   "<b>Godot</b> runs the cases it has the same way: its area lights cost as three's do (30 → 65 → 229 fps at the phone's size for 8 / 3 / 0), MSAA off is +20%, and half textures change the time by nothing and take its WASM heap 197 → 150 MB. Nothing here moves the engine choice. Its web renderer still has no depth, output-target or pipeline switches to try."
+  ]
  }
 }

@@ -11,3 +11,5 @@ lab/painted/*/zones/
 # the fps lab: Godot's import cache and its web export (rebuilt by the export; published by tools/publish-site.sh from the working tree)
 lab/fps/godot/.godot/
 lab/fps/godot-web/
+# the fps lab's raw shots (tools/fps-shots.mjs); the side-by-sides made from them (tools/fps-compare.py, *.jpg) are kept
+lab/fps/shots/*.png

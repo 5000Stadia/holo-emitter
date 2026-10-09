@@ -23,7 +23,46 @@ The engine is three.js r186+ `WebGPURenderer` with its WebGL 2 fallback. Kabe ag
   - a still sun's shadow map drawn once: 86 to 136 fps;
   - only big casters: 86 to 106 fps.
 - **Effects:** GTAO at 2× density with 16 samples cost 90% of a frame. r186 has a cheaper SSAO pass at half resolution.
-- **Distance:** logarithmic depth holds detail at 4 km at no measurable cost.
+- **Distance:** logarithmic depth holds detail at 4 km at no measurable cost in a draw-bound scene. Where fill counts it costs 37–55% (below), and reversed depth holds the same view for nothing.
+
+## The phone measures, in the lab (2026-10-08)
+
+Measured in the fps lab (`lab/fps/`, the ledger's "Phones" section), on the RX 460, 5 runs each, medians. The ms are GPU time per frame, timed serially. Each case is one change from the manor's desktop set: 8 window lights, full textures, 4× MSAA, ACES, a half-float target and ordinary depth.
+
+| Change | GPU ms at 1× (1280×720) | GPU ms at the phone's 1170×2532 | What it does to the picture |
+|---|---|---|---|
+| The reference | 9.36 | 18.27 | At 4 km, facade panels vanish into their walls |
+| Log depth | 12.86 (+37%) | 28.24 (+55%) | Every far panel holds |
+| Reversed depth | 9.36 (0) | 18.59 (+2%) | Every far panel holds, the same pixels as log, on WebGPU and WebGL 2 |
+| 3 window lights, not 8 | 4.13 (−56%) | 8.37 (−54%) | The pools of 5 windows go |
+| No window lights | 1.15 | 2.40 | No pools |
+| Half textures | 9.40 (0) | 18.33 (0) | Not told apart. GPU textures 100 → 25 MB; JS heap 84 → 27 MB |
+| Pixels let go after upload | 9.40 (0) | 18.38 (0) | Identical. JS heap → 8.5 MB |
+| No MSAA | 6.70 (−28%) | 15.51 (−15%) | Every edge jagged |
+| An 8-bit target | 9.47 (0) | 18.38 (0) | Unchanged in daylight; the manor bands in candle-dark rooms |
+| DirectRenderPipeline | 9.54 (0) | 18.54 (0) | Edges jagged: the multisampling is lost in r186 |
+| The phone's set together | 4.26 (−54%) | 8.63 (−53%) | Far view cleaner, fewer pools; heap 84 → 8 MB |
+
+**Standing still with a flame in view** (60 Hz):
+
+| Drawing | GPU busy at 1× | GPU busy at the phone's size |
+|---|---|---|
+| Every frame | 600 ms a second | 1,270 ms a second (more than the GPU has) |
+| On change only | 0 | 0 |
+| The flame capped at ~14 a second | 170 ms a second (−72%) | 270 ms a second (−78%) |
+
+**What we choose:**
+
+- **Reversed depth everywhere `reversedDepthBuffer` takes.** It holds the far view as log depth does, at the price of ordinary depth.
+  - **Log depth** only where WebGL 2 lacks `EXT_clip_control`.
+  - **This changes rule 7 below.** The manor's desktop still uses log depth outdoors, a one-line change in `src/make/render.js` for whoever holds it.
+- **Window lights are the biggest lever,** about 1 ms per slot at 1× and 2 ms at the phone's size, lit or not.
+  - Phones keep 3.
+  - A laptop tier of 5, or baked bounce (R48 step 6) for windows out of view, would take back a quarter to half of a desktop frame.
+- **Half textures and letting pixels go buy memory, not speed.** Keep both on phones. Letting pixels go is free on the desktop too.
+- **MSAA stays.** The resolution controller drops the pixel ratio first.
+- **The 8-bit target and DirectRenderPipeline stay flags.** Neither gains anything on WebGPU, and direct loses the anti-aliasing. Its WebGL 2 speed-up at the phone's size (27 → 60 fps) is mostly that. A phone's tiled GPU may still differ: Kabe's perf card answers that.
+- **Draw on change and the flame's cap stay.**
 - **The WebGL 2 fallback has no render bundles.** About 1 in 5 iPhones, and some Android phones, run it, so the fallback needs its own path: merged still rooms and per-room culling.
 
 ## The engine's standing rules (to build)
@@ -65,7 +104,7 @@ The engine is three.js r186+ `WebGPURenderer` with its WebGL 2 fallback. Kabe ag
 - Built-in upscaling (FSR1) where it looks right.
 - MSAA store flags off on phones.
 
-**7. Depth:** logarithmic outdoors, ordinary indoors. Distant things become stand-ins (impostors, merged chunks).
+**7. Depth:** reversed wherever the backend gives it (the fps lab, 2026-10-08: the 4 km view held as log depth holds it, at the cost of ordinary depth; log costs 37–55% of a fill-bound frame). Logarithmic only outdoors on a WebGL 2 without `EXT_clip_control`. Distant things become stand-ins (impostors, merged chunks).
 
 **8. Effects are tiered:**
 - **phones:** none;
