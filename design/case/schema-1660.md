@@ -8,8 +8,12 @@ A second round followed the same day (sections 5 to 9). Its sources were pattern
 `research/case-1660-probe-r2`, `build2.py` and `ask2_output.json`) and our own case-generation study (branch
 `study/case-sim-2026-10-08`, `design/case/case-sim-2026-10-08.md`).
 
-Both rounds are additions. Everything that read the case before still reads it unchanged; the intent eval's output
-is identical. The case is `design/case/case-1660.json`, with a byte-identical copy at `lab/case/case-1660.json`.
+A third round followed that evening (sections 10 to 13). Its source was pattern-buffer's third probe (branch
+`research/case-1660-probe-r3`, `build3.py`, `ask3.py`, `build3_audit.json`): 31 of 36 questions passed with no hand
+rows, and it named four open points, all ours.
+
+All three rounds are additions. Everything that read the case before still reads it unchanged; the intent eval's output
+is identical. Round 3 changes play in two small places, both fixing a contradiction its check found (section 11). The case is `design/case/case-1660.json`, with a byte-identical copy at `lab/case/case-1660.json`.
 Field notes are in its `_schema` and `timeline._what`. `node tools/check-case.mjs` (check 26) holds all of it.
 
 ## 1. Facts, each stated once (S1, S3)
@@ -283,7 +287,200 @@ past eleven"), and it is all Francis saw. It still breaks Daniel's "Cressy on th
 `contradicts` stays `cressy_sat_parlour` (21:00 to 01:00), the canon truth. Point Francis's knows entry back at that
 fact, and the `saw` rule catches it: he was at the buttery from 23:15 to 23:35.
 
-## What the check holds (check 26, about 16 ms for the schema, 50 ms in all)
+## 10. Every saw and told entry has a date (r3 item 1, S6)
+
+pattern-buffer found 29 `saw` entries and 5 `told` entries on facts with no machine time. Each fact now has a time, and
+learned-at is read from the case by rule. It is not written as data.
+
+**A fact's time** is the earliest of three things:
+
+- its placements (`at`, `absent`, `seen`, `unseen`, `held`);
+- **new:** the intervals and thing stints that enact it. Each one lists the true facts it enacts in **`fact_ids`**;
+- **new:** its own **`when: {from, to, chosen?}`**. This is only for a fact before the night, which the timeline
+  doesn't reach: supper, the days before, the years before. A fact the timeline already times has no `when`.
+
+**A state** gets one more field. A fact like the wound, the cut cord or the rasure stays true from its time on. Its
+**`on`** (`person:<id>` or `thing:<id>`) names what bears it, and it is seen where that bearer is. A state with `on`
+and no time is standing: the chest's corner has always been square.
+
+What enacts what:
+
+| enacted by | facts |
+|---|---|
+| the gold's hand-off stint, 25 Sept 16:05 (Cressy to Daniel) | `cressy_paid_daniel`, `cressy_procured_cheat`, `francis_saw_purse` |
+| the candle in Daniel's hand at 23:05 (the blow) | `daniel_struck_hollins`, `hollins_died_of_blow`, `wound_round_back` |
+| the candle on the flags, 23:06 to 23:12 | `daniel_staged_fall` |
+| the key's stint from 23:16 (cut from the girdle) | `daniel_cut_key`, `girdle_cord_cut` |
+| Francis at tables, 21:00 to 23:15 | `francis_note_of_hand`, `francis_plays_deep` |
+| **new** stints before the night: the draft and the engrossment in Daniel's keeping, 24 to 26 Sept | `daniel_engrossed` |
+| **new** stint: the engrossment with Daniel, the night of 26 Sept | `daniel_scraped_skin2`, `rasure_skin2` |
+
+Facts with `when`:
+
+- supper on the 28th, 18:00 to 19:30 (`chosen`): Francis's threat, the steward naming the collation, Cressy going white;
+- 14 Sept: the exception agreed, and written into the draft's margin;
+- 18 Sept: Pargeter's letter;
+- the summer of 1660 (`chosen`): Sir Gervase must sell;
+- 1655: the bond;
+- 1650: the jointure;
+- 1652: the steward taking Daniel from the free school (he is 22, taken at 14);
+- the wars, 1642 to 1646: the steward teaching Francis his letters, and keeping the evidences.
+
+States with `on`:
+
+| fact | on |
+|---|---|
+| `wound_round_back`, `girdle_cord_cut` | `person:hollins` |
+| `rasure_skin2` | `thing:engrossment` |
+| `draft_margin_exception` | `thing:draft_steward` |
+| `chest_corner_square` | `thing:chest1` (standing) |
+
+**The rules.** `node tools/check-case.mjs --learned` prints every entry's date and its basis.
+
+- **`saw`** is the fact's time, as pattern-buffer had it (the first placement). For a state with `on`, it is the first
+  minute from the state's start when the knower is in the room with its bearer, or holds it.
+  - Before the night, the only test is holding it, on the things' timeline. Daniel holds the draft from 24 September,
+    so he knows its margin from then.
+  - Dame Anne knows the wound and the cut cord from 07:00, when she washes the body in the steward's chamber. She did
+    not learn them at 23:05.
+  - Cressy knows the rasure from 07:14, in the muniment room with the engrossment. Seeing it carried up the stair at
+    21:38, across the parlour door, does not count: a state needs the same room.
+- **`told`** is the first minute the knower and the teller (`from`) are in one room, at or after the moment the teller
+  knew it. There are two other cases:
+  - **The teller knew it before the night.** Then the telling was before the night too. Sir Gervase told Francis and Dame
+    Anne that he must sell.
+  - **The teller is off the timeline.** That is the household, or Pargeter by letter. The date is then the fact's time,
+    a lower bound.
+  - Cressy hears of Francis's cut in the buttery at 23:35, when Francis comes back to the parlour.
+- `inferred` is dated no earlier than the fact. `routine` is timeless.
+
+The count: all 59 `saw` and all 10 `told` entries are dated. Of the `saw` entries, 53 take the fact's time, 4 take the
+first minute with the bearer, and 2 take holding before the night. Of the `told` entries, 1 is the first minute
+together, 2 are before the night, and 7 come from tellers off the timeline.
+
+**A `saw` is held to what enacts the fact.** The knower must be in sight of each enacting interval or stint inside the
+night, just as for placements. A state with `on` is held instead to the same-room rule.
+
+**A span is learned when it starts.** For a span (Cressy at tables from 21:00 to 01:00), "the fact's time" is when it
+began. An engine asking "does X know the whole span at T" should read the span's end. We kept pattern-buffer's rule
+rather than add a second date.
+
+## 11. What a liar says, and from when (r3 item 2)
+
+Seven of the 15 lies are later told true by the liar: Daniel's confession, and the yields. pattern-buffer could not write
+both stances in one `says:` frame. Each lie now has **`says_until`**: the events in play that end it, and what the liar
+says after each one.
+
+```json
+{ "id": "fc_hand", "false": true, "fact_id": "francis_cut_at_supper", "contradicts": "francis_buttery_cut",
+  "says_until": [
+    { "shown": ["buttery_glass", "cressy_francis_buttery"], "then": "francis_buttery_cut" },
+    { "told": "francis_saw_daniel", "then": "francis_buttery_cut" },
+    { "yielded": "fc_abed", "then": "francis_buttery_cut" } ] }
+```
+
+**How to read "what does P say about F" at a point in play:**
+
+- **Until the first event:** P says the lie (`fact_id`) and denies its truth (`contradicts`).
+- **After an event:** P says that event's **`then`**. A `then` of null means the lie is set aside and the truth is not
+  said. Daniel's key lie works this way: "I'll say no more about the key". A later event may still bring the truth.
+
+The events are moments in play, not clock times:
+
+- **`shown`**: one of its breakers is put before P. This is exactly `broken_by`, and `then` is the yield's fact
+  (`yield_fact`).
+- **`told`**: a clue of P's is learned that owns the lie up. These are exactly the clues talk.js's `ownedUp` accepts:
+  - a clue in `broken_by` or `contradicted_by`;
+  - or a clue on the lie's topic that had to be pressed, shown or accused out of P.
+- **`yielded`**: another lie of P's is broken, and its yield admits the truth this one denies.
+
+All 15 lies have `says_until`, with 24 events in all. The seven pattern-buffer listed are now stance splits:
+
+- Dame Anne's nursery: told `anne_visit`;
+- Cressy's "paid nothing": shown, or told `cressy_bribe`;
+- Cressy's "only at 21:40": told `cressy_saw_daniel`;
+- Francis abed by eleven: told `francis_no_one_down` (new);
+- Francis cut at supper: yielded `fc_abed` (new);
+- Daniel's fall: told `daniel_confession`;
+- Cressy's "never excepted": shown, or told `cressy_cheat`.
+
+**What the check found, and the two play changes.** The rule that every telling of a denied truth must be an event of
+`says_until` found two real contradictions in play:
+
+1. **Francis's `francis_no_one_down`** ("no one came down ... until I went for wine at a quarter past eleven") told
+   `francis_at_tables` while his "abed by eleven" stood. Ask him where he was next, and he would say abed again. The
+   lie now has **`contradicted_by: ["francis_no_one_down"]`**, a field talk.js already reads. Telling that clue sets
+   the lie aside.
+2. **Francis's "abed" yield** ("not abed. I was in the buttery past eleven. Ask me of my hand, and I'll tell you the
+   whole of it") admitted the buttery while "cut at supper" stood. Ask him of his hand, and he would lie about it.
+   `src/make/talk.js` now sets aside, along with a broken lie, any other lie of the same person that denies the truth
+   its yield admits (`setAside`). The `yielded` event says so.
+
+The intent eval's output is unchanged, and the leads' solution path is unchanged.
+
+**What the check holds:**
+
+- every lie has `says_until`;
+- each event is exactly one of `shown`, `told` or `yielded`, with a `then`;
+- `shown` is `broken_by`, and its `then` is `yield_fact`;
+- the `told` events are exactly the clues `ownedUp` accepts. The check calls talk.js's own function;
+- the `yielded` events are exactly the other lies whose yield admits this lie's truth;
+- each `then` is a true fact in P's knows, and stated by its event. A told clue that states the denied truth has that
+  truth as its `then`;
+- the liar tells the denied truth only on one of these events;
+- **talk.js agrees.** Every event is played through `answer()` on a fresh frame, and afterwards the lie must be set
+  aside.
+
+## 12. Which side a door was locked from (r3 item 3)
+
+Every `locked` row in `timeline.doors` has **`locked_from`**: the room it was locked from, one of the two the door
+joins.
+
+| door | row | locked_from |
+|---|---|---|
+| d21 (muniment) | 21:00 to 21:40, kept locked, the key on the steward's girdle (`chosen`) | `closet_best` |
+| d21 | 21:40, the steward locks himself in | `muniment_room` |
+| d21 | 22:10, locked after Dame Anne | `muniment_room` |
+| d21 | 23:18, Daniel, with the key he cut | `closet_best` |
+| d30 (gallery west) | 21:00 to 06:00, the butler | `back_stair_garret` |
+| d1 (hall's outer door), d12 (bakehouse to forecourt) | 21:00 to 06:00, the butler (`chosen`, new) | `porch`, `bakehouse` |
+
+The 21:50 unlocking now names who made it (`by: hollins`).
+
+**What the check holds:**
+
+- A lock or an unlocking made on the timeline by one of its people is made by someone standing in the right place,
+  holding a key to the door:
+  - **for a lock**, that person is in the `locked_from` room at that minute;
+  - **for an unlocking**, that person is in either room the door joins.
+- Daniel at 23:18 is in the closet with the steward's key. Ralph at 06:15 is in the closet with Sir Gervase's key.
+- An unlocking must name who made it.
+- A row that starts the night is a state carried in, so it is not held to a position.
+- Locks by the butler, who is not on the timeline, are not held to a position.
+
+## 13. Every door has a state (r3 item 4)
+
+pattern-buffer defaulted 27 unstated doors to shut. Now all 32 doors of the plan have a stated state from 21:00 to
+10:01, in 45 rows. Where canon is silent, the state comes from the house's routine and is marked `chosen`:
+
+- **Inner doors** are shut all night and morning. Whoever passes opens one and shuts it behind them.
+- **The outer doors** (d1, d12) are locked from nine to six, like the gallery's west door (d30), and shut after.
+- **The muniment door** is locked from 21:00 until the steward goes in at 21:40.
+- **The parlour door** (d14) is shut at one, when they go up.
+- **The buttery door** (d4) is shut either side of Francis's quarter of an hour in it.
+
+No one on the timeline passes a locked door without its key. **One rule changed:** someone may pass a locked door
+**beside someone who holds its key**, on the same step at the same minute. At 21:40 the steward unlocks the muniment
+door and Daniel goes in with him.
+
+**What the check holds:**
+
+- every door of the rooms graph has a state at every minute of the night and morning;
+- every row says what it is (`doing`);
+- every `locked_from` is a room the door joins, and appears only on a lock;
+- a locked door is passed only with its key, or beside someone who has it.
+
+## What the check holds (check 26, about 30 ms for the schema, 65 ms in all)
 
 - Every fact referred to exists, and its truth fits what refers to it.
 - Every lie has `contradicts` and its breakers. If a lie is placed in time, so is its truth.
@@ -303,6 +500,21 @@ fact, and the `saw` rule catches it: he was at the buttery from 23:15 to 23:35.
 - **People at play** are in their home rooms.
 - **No subject-and-predicate collisions** without a time between them or a declared contradiction.
 - **Every `knows` entry has `how`.** A `saw` had the knower in sight of every placement.
+- **Round 3, learned-at:**
+  - every `saw` and `told` entry's fact has a time;
+  - every such entry is dated by the rules of section 10;
+  - a `saw` was in sight of what enacts the fact;
+  - `fact_ids` name true facts;
+  - `when` is only for a fact before the night that the timeline doesn't time;
+  - `on` names a real person or thing.
+- **Round 3, lies:** every lie has `says_until`, its events agree with its own fields and with talk.js, and the liar
+  tells the denied truth only on one of them.
+- **Round 3, doors:**
+  - every door has a state all night and morning, and every row says what it is;
+  - every lock says its side;
+  - a lock or an unlocking on the timeline is made from the right side, with a key;
+  - an unlocking names who made it;
+  - a locked door is passed only with its key, or beside someone who has it.
 
 Round 1 planted 22 faults, one per rule, and every one was caught. Round 2 planted 24 more, one per new rule, and every
 one was caught:
@@ -320,10 +532,55 @@ missing truths, the 23 told facts missing from frames, the three true-fact colli
 `how`. `node tools/check-case.mjs --src FILE`
 checks any file.
 
+Round 3 planted 26 more, one per new rule, and every one was caught:
+
+- **Eight on learned-at:**
+  - a saw on an undated fact;
+  - a state never shared with its bearer;
+  - a told never shared with its teller after;
+  - a false fact in `fact_ids`;
+  - a `when` inside the night;
+  - a `when` on a timed fact;
+  - an `on` naming nothing;
+  - a saw out of sight of its enacting interval.
+- **Eight on lies:**
+  - a missing `says_until`;
+  - `shown` not `broken_by`;
+  - `shown` with the wrong `then`;
+  - `told` events against `ownedUp`;
+  - a missing `yielded`;
+  - a `then` the clue doesn't state;
+  - a denied truth told off `says_until`;
+  - talk.js without its `setAside`.
+- **Six on locks:**
+  - no `locked_from`;
+  - the wrong side;
+  - no key;
+  - a side the door doesn't join;
+  - an unlocking by no one;
+  - an unlocking from neither side.
+- **Four on doors:**
+  - a door left unstated;
+  - a row with no `doing`;
+  - Daniel through a locked larder door;
+  - Daniel into the muniment room at 21:40 with the steward a minute behind.
+
+The plants are scripted in `/media/k/Blank/holo-emitter-scratch/schema3/plant.mjs`. The talk.js plant ran on a copy
+with `setAside`'s cascade removed.
+
+Run on the case as it was before round 3, the new rules find what pattern-buffer reported:
+
+- **32 entries on undated facts.** That is its 34, less two `saw` entries whose facts were placed by `absent`. Its
+  learned-at read only `at`, `seen` and `held`.
+- **15 lies without `says_until`.**
+- **31 doors without a state for the whole span.** That is the 27 never stated, plus d21, d4, d14 and d30 in part.
+- **Four locks without a side, and one unlocking by no one.**
+
 ## Still open
 
-- **S6: learned-at.** `how` says how a person knows a thing, but not yet when they learned it. The timeline's
-  sightings give the moment for many `saw` entries. A `told` or `inferred` entry has no time.
+- **S6: learned-at** is answered by rule for `saw` and `told` (section 10). Two things are left:
+  - an `inferred` entry is dated only "not before the fact";
+  - a span is learned from its start (section 10, last paragraph).
 - **S9: overlays.** The frames are still sparse copies, not overlays on canon. Each `knows` list is now a complete set
   of fact ids (section 6), so building it as an overlay is straightforward.
 - **pattern-buffer's E1** (`holds` turned into `held_by` without swapping its direction) is still on pattern-buffer's

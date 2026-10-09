@@ -7,8 +7,8 @@
   "effect": "genuine (a true cause of the ending) | false (a red herring held as a cause; names debunked_by) | context (texture; never fills a pillar alone). construct's coverage_effect.",
   "tier": "+ essential (on a solution path, or a lie the path must break) | lead (points the way) | texture (colour and red herrings). Kept apart so the essentials are never buried (design/case/prior-art-interrogation.md §9).",
   "gate": "{topic, stance, requires:{learned:[clue ids], holding:[thing ids]}}: the clue is told when its topic is raised with one of its stances and every requirement is met. Stances: ask | press | show | accuse (chat never releases a clue). One gate per clue: case.js and talk.js read all-of requirements only.",
-  "claims": "+ What a person says on a topic where none of their clues is open: false:true is a lie, with why (the reason they tell it), press (the detail pressing gets, for when talk.js reads it), yield (what they say once it is broken: talk.js act refuse, and it stays broken) and broken_by (the clues or held things whose showing breaks it: talk.js answer(..., { stance: 'show', shown })). Anything else shown against a lie closes the person up for three turns with their guarded line. talk.js reads the first claim per topic, so each person has at most one claim a topic.",
-  "knows": "+ The person's own frame (knows:<id>): the true facts they hold, each {id, triple, text}. hides: which of them they keep back, why, and what brings them out. A voice may state only what a clue being told or a claim being said hands it. + fact_id, and topic or untold (fact_id), and how: saw (first hand: saw or heard it happen, or did it) | told (heard it said; from: who told them) | inferred (worked it out) | routine (the household's habit). A 'saw' is held to the timeline: the person was in sight of every placement of the fact. Every fact a person tells (a clue, a claim that is no lie, a yield) and every truth a lie of theirs denies is in their knows.",
+  "claims": "+ What a person says on a topic where none of their clues is open: false:true is a lie, with why (the reason they tell it), press (the detail pressing gets, for when talk.js reads it), yield (what they say once it is broken: talk.js act refuse, and it stays broken) and broken_by (the clues or held things whose showing breaks it: talk.js answer(..., { stance: 'show', shown })). Anything else shown against a lie closes the person up for three turns with their guarded line. talk.js reads the first claim per topic, so each person has at most one claim a topic. + (round 3) says_until, on every lie: the events in play that end it, [{shown: [its breakers] | told: <a clue of theirs> | yielded: <another lie of theirs>, then: <fact> | null}]. Until the first, they say the lie (fact_id) and deny its truth (contradicts); after an event they say its then (null: the lie set aside, the truth not said). shown is exactly broken_by, its then the yield's fact (yield_fact); told is each clue of theirs whose learning owns the lie up (talk.js ownedUp: in broken_by or contradicted_by, or wrung out on its topic); yielded is another lie whose yield admits the truth this one denies (talk.js sets both aside). contradicted_by: clues of theirs that undo the lie when told (talk.js ownedUp).",
+  "knows": "+ The person's own frame (knows:<id>): the true facts they hold, each {id, triple, text}. hides: which of them they keep back, why, and what brings them out. A voice may state only what a clue being told or a claim being said hands it. + fact_id, and topic or untold (fact_id), and how: saw (first hand: saw or heard it happen, or did it) | told (heard it said; from: who told them) | inferred (worked it out) | routine (the household's habit). A 'saw' is held to the timeline: the person was in sight of every placement of the fact. Every fact a person tells (a clue, a claim that is no lie, a yield) and every truth a lie of theirs denies is in their knows. + (round 3) Learned-at is read by rule, not written: saw is the fact's time (for a state with on, the first minute from its time that they are in the room with its bearer or hold it); told is the first minute they and from are in one room after from knew it (before the night if from knew it before the night; the fact's time if from is off the timeline). tools/check-case.mjs --learned prints each entry's date and basis.",
   "voice": "+ {note (about 60 words), register, tics, phrases (6 to 8 period phrases, design/case/period-1660-death.md §4), address (how they name the others)}.",
   "presence": "Where a person can be found: [{room, when, doing}]; home is where they are at the start (narrator.js); when is 'start' or a narrator condition.",
   "things": "{id, kind (src/make/kinds), at (a plan room id, or another thing's id: in or on it), rel (+ in | on), slot (+ the host's slot), address (+ the birth address of a thing the house already builds), carry (false: fixed), key (+ the lock name a key opens), state (+ initial works.js states; ~burn is a process level), gate, clue (one id or a list), missing (+ what the house still lacks to build it)}.",
@@ -22,12 +22,12 @@
   "label": "+ A short name on every clue, thing and claim, for the notebook, the evidence drawer and the truth check's lexicon (case-play.js label()).",
   "cast_lines": "+ intro (what you see and hear when you first speak to them), deflect (a clue of theirs on the topic is still shut), dontknow (nothing in their frame), guarded (closed up after a wrong thing was shown).",
   "what_happened": "+ The truth in plain words (who, motive, means, opportunity, the lock). Not named 'solution', because case-play.js reads k.solution before k.accusation.",
-  "facts": "+ Every proposition of the case stated once: {id, text, triple, truth: true|false, at?, absent?, seen?, unseen?, unplaced?}. truth:true is canon; truth:false is what a liar says or what a misleading truth suggests. Positions and times as data, held against the timeline: at [{who, room, from, to}] (who was in room over [from, to); an instant when from = to); absent [{who?, room, from, to}] (no one, or not who, there then); seen [{who, by, from, to}] (who was seen by by); unseen (who was not); held [{thing, by | place, from, to}] (the thing was with by, or in or on place, on timeline.things). A true fact's placements all hold; a false fact's do not all hold. unplaced: why a fact naming a clock time has no placement. canon.facts is kept as written; each of its triples is the triple of one fact here.",
+  "facts": "+ Every proposition of the case stated once: {id, text, triple, truth: true|false, at?, absent?, seen?, unseen?, unplaced?}. truth:true is canon; truth:false is what a liar says or what a misleading truth suggests. Positions and times as data, held against the timeline: at [{who, room, from, to}] (who was in room over [from, to); an instant when from = to); absent [{who?, room, from, to}] (no one, or not who, there then); seen [{who, by, from, to}] (who was seen by by); unseen (who was not); held [{thing, by | place, from, to}] (the thing was with by, or in or on place, on timeline.things). A true fact's placements all hold; a false fact's do not all hold. unplaced: why a fact naming a clock time has no placement. + (round 3) when {from, to, chosen?}: the time of a fact before the night, which the timeline doesn't reach (supper, the days before, the years before); a fact the timeline times (placements, or an interval or thing stint naming it in fact_ids) has no when. on: person:<id> | thing:<id>, the bearer of a fact that is a state (the wound on the steward, the rasure on the engrossment): it holds from its time on, and it is seen where its bearer is. A fact's time is the first of its placements, what enacts it (fact_ids) and its when; a state with on and no time is standing (the chest's corner). canon.facts is kept as written; each of its triples is the triple of one fact here.",
   "fact_id": "+ On every clue, claim and knows entry: the id of the fact it states (its own fact/text/hook/line stay its wording; talk.js still reads fact as the plain statement). also: other facts its words state. yield_fact: (a claim) the truth its yield line owns.",
   "contradicts": "+ On a lie (a claim with false:true, or a clue with kind:'lie'): the fact id of the truth it denies; its breakers stay in broken_by / debunked_by.",
   "kind": "+ On a clue with effect:'false': 'lie' (its teller knows it false; its fact is false) or 'misleading' (its fact is true, and it points the wrong way: suggests names the false fact it suggests). effect:'false' stays for fairPlay.",
   "topic": "+ Every clue has a topic (a person's clue by its gate; a thing's clue by topic: the matter it bears on). Every knows entry has topic (the topic on which one of the person's clues or claims tells its fact, or a claim's yield owns it) or untold: why it is never told.",
-  "timeline": "+ Where everyone was, where the things that move or change hands were, and the doors that matter, as intervals [from, to) (timeline._what).",
+  "timeline": "+ Where everyone was, where the things that move or change hands were, and the doors that matter, as intervals [from, to) (timeline._what). + (round 3) fact_ids on an interval or stint: the true facts it enacts. Every door of the plan has a state all night and morning; locked_from on every lock.",
   "rooms": "+ The rooms graph reference, the rooms used, and the sightlines (rooms._what)."
  },
  "schema": "case/1",
@@ -581,7 +581,11 @@
     "agreed",
     "the exception of the mines, initialled 'A.C.', 14 September"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1660-09-14T00:00",
+    "to": "1660-09-15T00:00"
+   }
   },
   {
    "id": "cressy_procured_cheat",
@@ -601,7 +605,11 @@
     "wrote",
     "'See the mines pass with the land', 18 September"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1660-09-18T00:00",
+    "to": "1660-09-19T00:00"
+   }
   },
   {
    "id": "hollins_found_rasure",
@@ -653,7 +661,12 @@
     "announced",
     "the collation, at supper"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1660-09-28T18:00",
+    "to": "1660-09-28T19:30",
+    "chosen": "at supper (francis_threat_supper)"
+   }
   },
   {
    "id": "cressy_went_white",
@@ -663,7 +676,12 @@
     "went_white",
     "at supper, when the collation was named"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1660-09-28T18:00",
+    "to": "1660-09-28T19:30",
+    "chosen": "at supper (francis_threat_supper)"
+   }
   },
   {
    "id": "rasure_skin2",
@@ -673,7 +691,8 @@
     "skin_2_line_14",
     "scraped and written over: the mines passed, not excepted"
    ],
-   "truth": true
+   "truth": true,
+   "on": "thing:engrossment"
   },
   {
    "id": "draft_margin_exception",
@@ -683,7 +702,13 @@
     "margin_reads",
     "the exception of the mines, 'agreed, A.C., 14 Sept.'"
    ],
-   "truth": true
+   "truth": true,
+   "on": "thing:draft_steward",
+   "when": {
+    "from": "1660-09-14T00:00",
+    "to": "1660-09-15T00:00",
+    "chosen": "written into the draft's margin and initialled the day it was agreed"
+   }
   },
   {
    "id": "drawer_deed_and_memo",
@@ -1201,7 +1226,12 @@
     "said_at_supper",
     "the steward would not live to see the deed sealed"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1660-09-28T18:00",
+    "to": "1660-09-28T19:30",
+    "chosen": "canon says only 'at supper'; six, a country house's supper hour in 1660"
+   }
   },
   {
    "id": "gervase_slept_opiate",
@@ -1323,7 +1353,12 @@
     "charged_with",
     "Dame Anne's jointure of £250 a year (settlement of 1650)"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1650-01-01T00:00",
+    "to": "1651-01-01T00:00",
+    "chosen": "the settlement of 1650; the day is not given"
+   }
   },
   {
    "id": "gervase_owes_pargeter",
@@ -1333,7 +1368,12 @@
     "owes",
     "person:pargeter £2,000 on bond since 1655, long past its day"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1655-01-01T00:00",
+    "to": "1656-01-01T00:00",
+    "chosen": "the bond of 1655; the day is not given"
+   }
   },
   {
    "id": "gervase_must_sell",
@@ -1343,7 +1383,12 @@
     "must_sell",
     "manor:asshover"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1660-06-01T00:00",
+    "to": "1660-09-14T00:00",
+    "chosen": "the case's choice: the sale settled on after the King came home in May, before the exception was agreed on 14 September"
+   }
   },
   {
    "id": "ralph_opened_d21",
@@ -1397,7 +1442,8 @@
     "wound",
     "at the back of the head, round, the size of a crown piece"
    ],
-   "truth": true
+   "truth": true,
+   "on": "person:hollins"
   },
   {
    "id": "chest_corner_square",
@@ -1407,7 +1453,8 @@
     "corner",
     "square"
    ],
-   "truth": true
+   "truth": true,
+   "on": "thing:chest1"
   },
   {
    "id": "girdle_cord_cut",
@@ -1417,7 +1464,8 @@
     "girdle_cord",
     "cut"
    ],
-   "truth": true
+   "truth": true,
+   "on": "person:hollins"
   },
   {
    "id": "key_cord_cut",
@@ -1563,7 +1611,12 @@
     "kept",
     "the evidences through the wars"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1642-08-22T00:00",
+    "to": "1646-06-24T00:00",
+    "chosen": "through the wars (the committee men came in 'forty-five)"
+   }
   },
   {
    "id": "hollins_taught_daniel",
@@ -1573,7 +1626,12 @@
     "taught_by",
     "person:hollins: a fair engrossing hand, from the free school at fourteen"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1652-01-01T00:00",
+    "to": "1656-01-01T00:00",
+    "chosen": "Daniel is twenty-two and was taken from the free school at fourteen: 1652; how long the teaching ran is the case's choice"
+   }
   },
   {
    "id": "hollins_taught_francis",
@@ -1583,7 +1641,12 @@
     "taught",
     "person:francis his letters"
    ],
-   "truth": true
+   "truth": true,
+   "when": {
+    "from": "1642-08-22T00:00",
+    "to": "1646-06-24T00:00",
+    "chosen": "while Sir Gervase was at the wars: from the raising of the standard to the surrender of Oxford"
+   }
   },
   {
    "id": "daniel_steward_shadow",
@@ -1839,7 +1902,7 @@
   }
  ],
  "timeline": {
-  "_what": "Where everyone was, as intervals [from, to) on the plan's rooms: the evening of Friday 28 September 1660 (Julian) from 21:00 to 01:00, gapless for the four suspects and the steward, and the morning through the minute play opens (morning.play, 10:00, when the justice arrives: intervals that run into play end at 10:01, so 10:00 falls inside them). An instant t is in [from, to) when from <= t < to. via: the rooms passed through, in order, on the way into room from the previous interval's room. seen_by / saw: a sighting, both ends declared (mutual), within one room or across a declared sightline whose door (rooms.sightlines through) stands open then. chosen: the interval is the case's choice where canon is silent. things: where the things that move or change hands were, as intervals [from, to): {thing, from, to, holder (a person) | place (a room, or a thing it is in or on), rel, by (who put it there), doing, state (works.js states), chosen}; a hand-off is made where both ends are. unbuilt: things in the story the house doesn't build, named in things. doors: door states, {door (an opening of the rooms graph), from, to, state open|shut|locked, by, doing, chosen}; a locked door is passed only by someone holding a key to it.",
+  "_what": "Where everyone was, as intervals [from, to) on the plan's rooms: the evening of Friday 28 September 1660 (Julian) from 21:00 to 01:00, gapless for the four suspects and the steward, and the morning through the minute play opens (morning.play, 10:00, when the justice arrives: intervals that run into play end at 10:01, so 10:00 falls inside them). An instant t is in [from, to) when from <= t < to. via: the rooms passed through, in order, on the way into room from the previous interval's room. seen_by / saw: a sighting, both ends declared (mutual), within one room or across a declared sightline whose door (rooms.sightlines through) stands open then. chosen: the interval is the case's choice where canon is silent. things: where the things that move or change hands were, as intervals [from, to): {thing, from, to, holder (a person) | place (a room, or a thing it is in or on), rel, by (who put it there), doing, state (works.js states), chosen}; a hand-off is made where both ends are. unbuilt: things in the story the house doesn't build, named in things. doors: door states, {door (an opening of the rooms graph), from, to, state open|shut|locked, by, locked_from (a lock: the room it was locked from), doing, chosen}, for every door of the plan from the evening's start to play (shut by the house's routine where canon is silent, marked chosen); a shut door is opened by whoever passes; a locked door is passed only by someone holding a key to it, or beside someone who does; a lock or an unlocking on the timeline is made by its by, standing on the locked_from side (a lock) or either side (an unlocking), holding a key. fact_ids, on an interval or a thing stint: the true facts it enacts (the gold's hand-off enacts cressy_paid_daniel), so those facts have a time.",
   "calendar": "Julian; times are local clock time",
   "evening": {
    "from": "1660-09-28T21:00",
@@ -2223,6 +2286,10 @@
      "hollins",
      "daniel",
      "anne"
+    ],
+    "fact_ids": [
+     "francis_note_of_hand",
+     "francis_plays_deep"
     ]
    },
    {
@@ -2640,7 +2707,11 @@
     "holder": "daniel",
     "rel": "sleeve",
     "doing": "cut from the girdle cord with Daniel's penknife; he locks the door from the closet side at 23:18 and keeps the key in his sleeve all night",
-    "chosen": "the minute of the cut, between the blow at 23:05 and the locking at 23:18, is the case's choice"
+    "chosen": "the minute of the cut, between the blow at 23:05 and the locking at 23:18, is the case's choice",
+    "fact_ids": [
+     "daniel_cut_key",
+     "girdle_cord_cut"
+    ]
    },
    {
     "thing": "key_steward",
@@ -2693,6 +2764,31 @@
    },
    {
     "thing": "engrossment",
+    "from": "1660-09-24T08:00",
+    "to": "1660-09-26T18:00",
+    "holder": "daniel",
+    "rel": "at his desk",
+    "doing": "engrossed by Daniel from the steward's draft, three skins",
+    "fact_ids": [
+     "daniel_engrossed"
+    ],
+    "chosen": "the days are canon (24 to 26 September); the hours are the case's"
+   },
+   {
+    "thing": "engrossment",
+    "from": "1660-09-26T23:00",
+    "to": "1660-09-27T01:00",
+    "holder": "daniel",
+    "rel": "at his desk",
+    "doing": "Daniel scrapes the exception of the mines from skin 2, line 14, and writes over it in his own hand",
+    "fact_ids": [
+     "daniel_scraped_skin2",
+     "rasure_skin2"
+    ],
+    "chosen": "the night is canon (26 September); the hours are the case's"
+   },
+   {
+    "thing": "engrossment",
     "from": "1660-09-28T21:00",
     "to": "1660-09-28T21:37",
     "place": "steward_chamber",
@@ -2731,6 +2827,18 @@
     "rel": "on",
     "by": "cressy",
     "doing": "on the draw-table in the great chamber, waiting on the sealing"
+   },
+   {
+    "thing": "draft_steward",
+    "from": "1660-09-24T08:00",
+    "to": "1660-09-26T18:00",
+    "holder": "daniel",
+    "rel": "at his desk",
+    "doing": "Daniel engrosses the release from it, three skins; the exception of the mines stands in its margin, initialled",
+    "fact_ids": [
+     "daniel_engrossed"
+    ],
+    "chosen": "the days are canon (24 to 26 September); the hours are the case's"
    },
    {
     "thing": "draft_steward",
@@ -2803,7 +2911,12 @@
     "doing": "the blow at the north press: the candle falls from the stick and goes out on the flags, splashing tallow before the press",
     "state": {
      "light": "out"
-    }
+    },
+    "fact_ids": [
+     "daniel_struck_hollins",
+     "hollins_died_of_blow",
+     "wound_round_back"
+    ]
    },
    {
     "thing": "desk1_candle",
@@ -2816,7 +2929,10 @@
     "state": {
      "light": "out"
     },
-    "chosen": "where the stick lay while he dragged the body is the case's choice"
+    "chosen": "where the stick lay while he dragged the body is the case's choice",
+    "fact_ids": [
+     "daniel_staged_fall"
+    ]
    },
    {
     "thing": "desk1_candle",
@@ -2844,7 +2960,12 @@
     "to": "1660-09-25T16:30",
     "holder": "daniel",
     "doing": "given him by Mr Cressy; Francis sees something heavy pass",
-    "chosen": "the hour is the case's choice"
+    "chosen": "the hour is the case's choice",
+    "fact_ids": [
+     "cressy_paid_daniel",
+     "cressy_procured_cheat",
+     "francis_saw_purse"
+    ]
    },
    {
     "thing": "gold",
@@ -2858,11 +2979,47 @@
   ],
   "doors": [
    {
-    "door": "d14",
+    "door": "d1",
     "from": "1660-09-28T21:00",
-    "to": "1660-09-29T01:00",
-    "state": "open",
-    "doing": "the great parlour's door to the stair hall, open for the fire while they play"
+    "to": "1660-09-29T06:00",
+    "state": "locked",
+    "by": "the butler",
+    "locked_from": "porch",
+    "doing": "the hall's outer door, locked and barred from within at nine",
+    "chosen": "the house's routine, as the long gallery's west door (d30): locked every night from nine to six; canon is silent"
+   },
+   {
+    "door": "d1",
+    "from": "1660-09-29T06:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "by": "the butler",
+    "doing": "unbarred at six; shut",
+    "chosen": "the house's routine, as the long gallery's west door (d30): locked every night from nine to six; canon is silent"
+   },
+   {
+    "door": "d2",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between porch and screens passage, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d3",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between screens passage and great hall, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d4",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-28T23:17",
+    "state": "shut",
+    "doing": "the buttery door, shut",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
    },
    {
     "door": "d4",
@@ -2870,6 +3027,256 @@
     "to": "1660-09-28T23:32",
     "state": "open",
     "doing": "Francis at the buttery door with the jug"
+   },
+   {
+    "door": "d4",
+    "from": "1660-09-28T23:32",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "by": "francis",
+    "doing": "pulled to behind him as he goes back with the jug",
+    "chosen": "not in canon"
+   },
+   {
+    "door": "d5",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between screens passage and kitchen passage, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d6",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between screens passage and pantry, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d7",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between kitchen passage and kitchen, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d8",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between kitchen and larder, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d9",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between larder and back stair, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d10",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between back stair and servants hall, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d11",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between servants hall and bakehouse, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d12",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T06:00",
+    "state": "locked",
+    "by": "the butler",
+    "locked_from": "bakehouse",
+    "doing": "the bakehouse door to the forecourt, locked at nine",
+    "chosen": "the house's routine, as the long gallery's west door (d30): locked every night from nine to six; canon is silent"
+   },
+   {
+    "door": "d12",
+    "from": "1660-09-29T06:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "by": "the butler",
+    "doing": "unlocked at six; shut",
+    "chosen": "the house's routine, as the long gallery's west door (d30): locked every night from nine to six; canon is silent"
+   },
+   {
+    "door": "d13",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between great hall and great stair, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d14",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T01:00",
+    "state": "open",
+    "doing": "the great parlour's door to the stair hall, open for the fire while they play"
+   },
+   {
+    "door": "d14",
+    "from": "1660-09-29T01:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "by": "francis",
+    "doing": "shut behind them as they go up to bed at one",
+    "chosen": "not in canon"
+   },
+   {
+    "door": "d15",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between great parlour and little parlour, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d16",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between little parlour and study, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d17",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between stair landing and great chamber, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d18",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between great chamber and withdrawing chamber, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d19",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between withdrawing chamber and best bedchamber, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d20",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between best bedchamber and closet best, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-28T21:40",
+    "state": "locked",
+    "by": "hollins",
+    "locked_from": "closet_best",
+    "doing": "the muniment room kept locked, the key on the steward's girdle",
+    "chosen": "the house's routine for its evidences; canon is silent on the hour before the collation"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T21:40",
+    "to": "1660-09-28T21:50",
+    "state": "locked",
+    "by": "hollins",
+    "locked_from": "muniment_room",
+    "doing": "the steward locks himself in with the key on his girdle cord"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T21:50",
+    "to": "1660-09-28T22:10",
+    "state": "shut",
+    "by": "hollins",
+    "doing": "unlocked to let Dame Anne in",
+    "chosen": "canon has him let her in and lock it after her; unlocked while she is within is the case's reading"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T22:10",
+    "to": "1660-09-28T23:18",
+    "state": "locked",
+    "by": "hollins",
+    "locked_from": "muniment_room",
+    "doing": "locked after Dame Anne, from within"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T23:18",
+    "to": "1660-09-29T06:15",
+    "state": "locked",
+    "by": "daniel",
+    "locked_from": "closet_best",
+    "doing": "locked from the closet side by Daniel, who keeps the key"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-29T06:15",
+    "to": "1660-09-29T10:01",
+    "state": "open",
+    "by": "ralph",
+    "doing": "unlocked by Ralph with Sir Gervase's key, and left unlocked since (doors.d21)"
+   },
+   {
+    "door": "d22",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between bedchamber passage and bedchamber west, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d23",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between bedchamber west and closet west, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d24",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between closet west and cooks chamber, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d25",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between cooks chamber and steward chamber, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d26",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between nursery and bedchamber south, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
    },
    {
     "door": "d27",
@@ -2895,44 +3302,20 @@
     "chosen": "not in canon"
    },
    {
-    "door": "d21",
-    "from": "1660-09-28T21:40",
-    "to": "1660-09-28T21:50",
-    "state": "locked",
-    "by": "hollins",
-    "doing": "the steward locks himself in with the key on his girdle cord"
-   },
-   {
-    "door": "d21",
-    "from": "1660-09-28T21:50",
-    "to": "1660-09-28T22:10",
-    "state": "shut",
-    "doing": "unlocked to let Dame Anne in",
-    "chosen": "canon has him let her in and lock it after her; unlocked while she is within is the case's reading"
-   },
-   {
-    "door": "d21",
-    "from": "1660-09-28T22:10",
-    "to": "1660-09-28T23:18",
-    "state": "locked",
-    "by": "hollins",
-    "doing": "locked after Dame Anne, from within"
-   },
-   {
-    "door": "d21",
-    "from": "1660-09-28T23:18",
-    "to": "1660-09-29T06:15",
-    "state": "locked",
-    "by": "daniel",
-    "doing": "locked from the closet side by Daniel, who keeps the key"
-   },
-   {
-    "door": "d21",
-    "from": "1660-09-29T06:15",
+    "door": "d28",
+    "from": "1660-09-28T21:00",
     "to": "1660-09-29T10:01",
-    "state": "open",
-    "by": "ralph",
-    "doing": "unlocked by Ralph with Sir Gervase's key, and left unlocked since (doors.d21)"
+    "state": "shut",
+    "doing": "between back stair first and steward chamber, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d29",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between back stair garret and servants chamber west, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
    },
    {
     "door": "d30",
@@ -2940,7 +3323,33 @@
     "to": "1660-09-29T06:00",
     "state": "locked",
     "by": "the butler",
+    "locked_from": "back_stair_garret",
     "doing": "the long gallery's west door, locked every night from nine to six"
+   },
+   {
+    "door": "d30",
+    "from": "1660-09-29T06:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "by": "the butler",
+    "doing": "unlocked at six; shut",
+    "chosen": "the house's routine (locked nine to six)"
+   },
+   {
+    "door": "d31",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between gallery landing and long gallery, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
+   },
+   {
+    "door": "d32",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "between gallery landing and servants chamber east, shut; whoever passes opens it and shuts it behind them",
+    "chosen": "the house's routine: doors kept shut at night and in the morning, against draughts and the fire; canon is silent"
    }
   ]
  },
@@ -3803,6 +4212,16 @@
       "cressy_saw_daniel",
       "francis_saw_daniel"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "francis_no_one_down",
+        "cressy_saw_daniel",
+        "francis_saw_daniel"
+       ],
+       "then": "daniel_stayed_till_2318"
+      }
+     ],
      "why": "puts him out of the room more than half an hour before the blow",
      "yield_fact": "daniel_stayed_till_2318"
     },
@@ -3827,6 +4246,16 @@
       "key_cut_cord",
       "key_steward"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "anne_dawn",
+        "key_cut_cord",
+        "key_steward"
+       ],
+       "then": null
+      }
+     ],
      "why": "a key inside with the dead man makes the door locked from within, and the death an accident"
     },
     {
@@ -3850,6 +4279,21 @@
       "candlestick_dent",
       "anne_wound",
       "body_wound"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "chest_band_clean",
+        "candlestick_dent",
+        "anne_wound",
+        "body_wound"
+       ],
+       "then": null
+      },
+      {
+       "told": "daniel_confession",
+       "then": "hollins_died_of_blow"
+      }
      ],
      "why": "a fall is God's doing, and no one's"
     },
@@ -3876,6 +4320,18 @@
       "draft_steward",
       "engrossment"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "rasure",
+        "draft_exception",
+        "gold_note",
+        "draft_steward",
+        "engrossment"
+       ],
+       "then": null
+      }
+     ],
      "why": "the rasure is in his hand, and it is a forgery"
     },
     {
@@ -3899,6 +4355,16 @@
       "draft_exception",
       "drawer_asshover",
       "draft_steward"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "draft_exception",
+        "drawer_asshover",
+        "draft_steward"
+       ],
+       "then": "draft_margin_exception"
+      }
      ],
      "why": "the exception is the thing he scraped out"
     },
@@ -3924,6 +4390,16 @@
       "cressy_bribe",
       "francis_saw_purse"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "gold_note",
+        "cressy_bribe",
+        "francis_saw_purse"
+       ],
+       "then": "cressy_paid_daniel"
+      }
+     ],
      "why": "the gold is the bribe"
     },
     {
@@ -3944,6 +4420,14 @@
      "yield": "Then I was mistaken in the man. I was mistaken in a great many things last night.",
      "broken_by": [
       "francis_cressy_sat"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "francis_cressy_sat"
+       ],
+       "then": null
+      }
      ],
      "why": "puts another man on the way to the room after the hour he says he left"
     },
@@ -4579,6 +5063,20 @@
       "drawer_asshover",
       "draft_steward"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "draft_exception",
+        "drawer_asshover",
+        "draft_steward"
+       ],
+       "then": "cressy_agreed_exception"
+      },
+      {
+       "told": "cressy_cheat",
+       "then": "cressy_agreed_exception"
+      }
+     ],
      "why": "hides that he agreed the exception and then had it cut out"
     },
     {
@@ -4599,6 +5097,18 @@
      "yield": "(He sets down his pen.) I saw him. I'll tell you what I saw when you tell me what you have.",
      "broken_by": [
       "francis_saw_daniel"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "francis_saw_daniel"
+       ],
+       "then": null
+      },
+      {
+       "told": "cressy_saw_daniel",
+       "then": "cressy_saw_daniel_stair"
+      }
      ],
      "why": "the clerk, accused, would name him for the bribe"
     },
@@ -4626,6 +5136,18 @@
       "draft_steward",
       "engrossment"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "rasure",
+        "draft_exception",
+        "gold_note",
+        "draft_steward",
+        "engrossment"
+       ],
+       "then": "rasure_skin2"
+      }
+     ],
      "why": "the rasure is his cheat"
     },
     {
@@ -4647,6 +5169,18 @@
      "yield": "Twenty pieces. Yes.",
      "broken_by": [
       "gold_note"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "gold_note"
+       ],
+       "then": "cressy_paid_daniel"
+      },
+      {
+       "told": "cressy_bribe",
+       "then": "cressy_paid_daniel"
+      }
      ],
      "why": "the gold is his bribe"
     },
@@ -5267,6 +5801,28 @@
       "cressy_sat_till_one",
       "francis_saw_daniel"
      ],
+     "contradicted_by": [
+      "francis_no_one_down"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "buttery_glass",
+        "cressy_francis_buttery",
+        "cressy_sat_till_one",
+        "francis_saw_daniel"
+       ],
+       "then": "francis_buttery_cut"
+      },
+      {
+       "told": "francis_saw_daniel",
+       "then": "francis_buttery_cut"
+      },
+      {
+       "told": "francis_no_one_down",
+       "then": "francis_at_tables"
+      }
+     ],
      "why": "hides the deep play, the debt and the drinking"
     },
     {
@@ -5290,6 +5846,23 @@
       "buttery_glass",
       "cressy_francis_buttery"
      ],
+     "says_until": [
+      {
+       "shown": [
+        "buttery_glass",
+        "cressy_francis_buttery"
+       ],
+       "then": "francis_buttery_cut"
+      },
+      {
+       "told": "francis_saw_daniel",
+       "then": "francis_buttery_cut"
+      },
+      {
+       "yielded": "fc_abed",
+       "then": "francis_buttery_cut"
+      }
+     ],
      "why": "the same: the night he will not own"
     },
     {
@@ -5311,6 +5884,14 @@
      "yield": "For money. Sixty pounds I haven't got, and the alderman's man has my note for it. Don't tell my father until I do.",
      "broken_by": [
       "cressy_sat_till_one"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "cressy_sat_till_one"
+       ],
+       "then": "francis_note_of_hand"
+      }
      ],
      "why": "the debt"
     },
@@ -5971,6 +6552,20 @@
       "francis_names_anne",
       "cressy_saw_anne",
       "daniel_lady_left"
+     ],
+     "says_until": [
+      {
+       "shown": [
+        "francis_names_anne",
+        "cressy_saw_anne",
+        "daniel_lady_left"
+       ],
+       "then": null
+      },
+      {
+       "told": "anne_visit",
+       "then": "anne_visited_muniment"
+      }
      ],
      "why": "hides her visit to the steward, against her husband's sale"
     },
