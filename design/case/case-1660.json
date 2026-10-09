@@ -6935,7 +6935,8 @@
      "name": "daniel_doubted",
      "value": true
     }
-   ]
+   ],
+   "trigger": "act"
   },
   {
    "id": "lie_key",
@@ -6951,7 +6952,8 @@
      "name": "key_planted",
      "value": true
     }
-   ]
+   ],
+   "trigger": "act"
   },
   {
    "id": "garret_flight",
@@ -7010,7 +7012,7 @@
    "kind": "pressure",
    "phase": "rising",
    "weight": "flavor",
-   "rung": "draw",
+   "rung": "now",
    "when": "learned:anne_francis_blood and not learned:francis_saw_daniel and not learned:cressy_francis_buttery",
    "hook": "Below, Francis Haywood is shouting at a footman for more small beer. He has heard what his stepmother told you of his hand.",
    "effects": [
@@ -7019,7 +7021,8 @@
      "name": "francis_angry",
      "value": true
     }
-   ]
+   ],
+   "trigger": "act"
   },
   {
    "id": "saddled",

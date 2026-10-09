@@ -36,7 +36,9 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   // no output pass; the leaded glass blends after tone mapping, the view through it a little deeper in colour);
   // ?out=8: the intermediate target at 8 bits a channel instead of half floats (bands in the candle-dark vaults);
   // ?msaa=0 (above): GPU -10% here, and the edges Kabe asked for gone
-  const depthWant = Q.get("depth") || (PHONE ? "reversed" : outdoor ? "log" : "std");
+  // (desktop too since 2026-10-08: the fps lab measured reversed depth drawing the 4 km view with log depth's exact pixels
+  // at no cost, where log depth cost 37-55% of the GPU frame; lab/fps, the Phones section)
+  const depthWant = Q.get("depth") || "reversed";
   const make = (depth) => new THREE.WebGPURenderer({ antialias: msaa, forceWebGL: want === "webgl", powerPreference: "high-performance",
     logarithmicDepthBuffer: depth === "log", reversedDepthBuffer: depth === "reversed",
     outputBufferType: Q.get("out") === "8" ? THREE.UnsignedByteType : THREE.HalfFloatType,
