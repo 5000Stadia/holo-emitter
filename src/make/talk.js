@@ -71,6 +71,13 @@ function again(p) {
   return /your worship/i.test(own) ? "As I told your Worship:" : /\bmadam\b/i.test(own) ? "As I told you, madam:" : /\bsir\b/i.test(own) ? "As I told you, sir:" : "As I told you:";
 }
 
+// a lie set aside, and its yield said: any other lie of theirs denying the truth that yield admits goes with it (Francis's
+// "not abed: I was in the buttery past eleven" sets aside "cut at supper" too; the case's says_until lists it as yielded)
+function setAside(p, claim, frame) {
+  frame.yielded.add(claim.id);
+  if (claim.yield_fact) for (const o of arr(p.claims)) if (o.false && o.id !== claim.id && o.contradicts === claim.yield_fact) frame.yielded.add(o.id);
+}
+
 export const GUARD_TURNS = 3;
 export function answer(k, who, { topic, stance = "ask", shown = null }, frame) {
   const p = arr(k.cast).find(c => c.id === who); if (!p) return { act: "dontknow", facts: [], line: "", learned: [] };
@@ -90,10 +97,10 @@ export function answer(k, who, { topic, stance = "ask", shown = null }, frame) {
   const claim = arr(p.claims).find(c => c.topic === topic);
   if (claim) { const breakers = arr(claim.broken_by || claim.debunked_by);
     // broken once, broken for good: asked again they give what they gave when caught
-    if (claim.false && !frame.yielded.has(claim.id) && ownedUp(p, claim, frame.learned)) frame.yielded.add(claim.id);
+    if (claim.false && !frame.yielded.has(claim.id) && ownedUp(p, claim, frame.learned)) setAside(p, claim, frame);
     if (claim.false && frame.yielded.has(claim.id)) return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [] };
     if (claim.false && stance === "show" && shown && breakers.includes(shown) && (frame.learned.has(shown) || frame.holding.has(shown))) {
-      frame.yielded.add(claim.id); return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [], yielded: claim.id }; }
+      setAside(p, claim, frame); return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [], yielded: claim.id }; }
     if (claim.false && stance === "show" && shown) { frame.guarded.set(who, GUARD_TURNS); return { act: "guarded", facts: [], line: p.guarded || claim.line || "", learned: [] }; }
     if (claim.false) return { act: "lie", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] };
     return { act: "tell", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] }; }
