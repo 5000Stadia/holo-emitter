@@ -522,6 +522,13 @@ test("check 31: heavy files come from the CDN, and a CDN that fails falls back t
   expect(r.code, r.out).toBe(0);
   expect(r.out).toMatch(/all passed/);
 });
+// ---- check 32: what a tap finds in the case (tests/.case-aim.mjs, a phone-sized page): the steward's key on and beside it, not
+// the padlock key through a shut drawer, the engrossment and Daniel's chest though a person stands by them, the body looked at
+test("check 32: a tap finds the case's things, not the people standing by them", () => {
+  const r = tool(["tests/.case-aim.mjs"], 600_000);
+  expect(r.code, r.out).toBe(0);
+  expect(r.out).toMatch(/all ok/);
+});
 
 // ---- section 2: checks on the house (lab/manor, one load shared by 3, 9, 11, 19, 20 and 22; 23 loads its own)
 
