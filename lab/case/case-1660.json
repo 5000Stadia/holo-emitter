@@ -8,7 +8,7 @@
   "tier": "+ essential (on a solution path, or a lie the path must break) | lead (points the way) | texture (colour and red herrings). Kept apart so the essentials are never buried (design/case/prior-art-interrogation.md §9).",
   "gate": "{topic, stance, requires:{learned:[clue ids], holding:[thing ids]}}: the clue is told when its topic is raised with one of its stances and every requirement is met. Stances: ask | press | show | accuse (chat never releases a clue). One gate per clue: case.js and talk.js read all-of requirements only.",
   "claims": "+ What a person says on a topic where none of their clues is open: false:true is a lie, with why (the reason they tell it), press (the detail pressing gets, for when talk.js reads it), yield (what they say once it is broken: talk.js act refuse, and it stays broken) and broken_by (the clues or held things whose showing breaks it: talk.js answer(..., { stance: 'show', shown })). Anything else shown against a lie closes the person up for three turns with their guarded line. talk.js reads the first claim per topic, so each person has at most one claim a topic.",
-  "knows": "+ The person's own frame (knows:<id>): the true facts they hold, each {id, triple, text}. hides: which of them they keep back, why, and what brings them out. A voice may state only what a clue being told or a claim being said hands it.",
+  "knows": "+ The person's own frame (knows:<id>): the true facts they hold, each {id, triple, text}. hides: which of them they keep back, why, and what brings them out. A voice may state only what a clue being told or a claim being said hands it. + fact_id, and topic or untold (fact_id), and how: saw (first hand: saw or heard it happen, or did it) | told (heard it said; from: who told them) | inferred (worked it out) | routine (the household's habit). A 'saw' is held to the timeline: the person was in sight of every placement of the fact. Every fact a person tells (a clue, a claim that is no lie, a yield) and every truth a lie of theirs denies is in their knows.",
   "voice": "+ {note (about 60 words), register, tics, phrases (6 to 8 period phrases, design/case/period-1660-death.md §4), address (how they name the others)}.",
   "presence": "Where a person can be found: [{room, when, doing}]; home is where they are at the start (narrator.js); when is 'start' or a narrator condition.",
   "things": "{id, kind (src/make/kinds), at (a plan room id, or another thing's id: in or on it), rel (+ in | on), slot (+ the host's slot), address (+ the birth address of a thing the house already builds), carry (false: fixed), key (+ the lock name a key opens), state (+ initial works.js states; ~burn is a process level), gate, clue (one id or a list), missing (+ what the house still lacks to build it)}.",
@@ -22,12 +22,12 @@
   "label": "+ A short name on every clue, thing and claim, for the notebook, the evidence drawer and the truth check's lexicon (case-play.js label()).",
   "cast_lines": "+ intro (what you see and hear when you first speak to them), deflect (a clue of theirs on the topic is still shut), dontknow (nothing in their frame), guarded (closed up after a wrong thing was shown).",
   "what_happened": "+ The truth in plain words (who, motive, means, opportunity, the lock). Not named 'solution', because case-play.js reads k.solution before k.accusation.",
-  "facts": "+ Every proposition of the case stated once: {id, text, triple, truth: true|false, at?, absent?, seen?, unseen?, unplaced?}. truth:true is canon; truth:false is what a liar says or what a misleading truth suggests. Positions and times as data, held against the timeline: at [{who, room, from, to}] (who was in room over [from, to); an instant when from = to); absent [{who?, room, from, to}] (no one, or not who, there then); seen [{who, by, from, to}] (who was seen by by); unseen (who was not). A true fact's placements all hold; a false fact's do not all hold. unplaced: why a fact naming a clock time has no placement. canon.facts is kept as written; each of its triples is the triple of one fact here.",
+  "facts": "+ Every proposition of the case stated once: {id, text, triple, truth: true|false, at?, absent?, seen?, unseen?, unplaced?}. truth:true is canon; truth:false is what a liar says or what a misleading truth suggests. Positions and times as data, held against the timeline: at [{who, room, from, to}] (who was in room over [from, to); an instant when from = to); absent [{who?, room, from, to}] (no one, or not who, there then); seen [{who, by, from, to}] (who was seen by by); unseen (who was not); held [{thing, by | place, from, to}] (the thing was with by, or in or on place, on timeline.things). A true fact's placements all hold; a false fact's do not all hold. unplaced: why a fact naming a clock time has no placement. canon.facts is kept as written; each of its triples is the triple of one fact here.",
   "fact_id": "+ On every clue, claim and knows entry: the id of the fact it states (its own fact/text/hook/line stay its wording; talk.js still reads fact as the plain statement). also: other facts its words state. yield_fact: (a claim) the truth its yield line owns.",
   "contradicts": "+ On a lie (a claim with false:true, or a clue with kind:'lie'): the fact id of the truth it denies; its breakers stay in broken_by / debunked_by.",
   "kind": "+ On a clue with effect:'false': 'lie' (its teller knows it false; its fact is false) or 'misleading' (its fact is true, and it points the wrong way: suggests names the false fact it suggests). effect:'false' stays for fairPlay.",
   "topic": "+ Every clue has a topic (a person's clue by its gate; a thing's clue by topic: the matter it bears on). Every knows entry has topic (the topic on which one of the person's clues or claims tells its fact, or a claim's yield owns it) or untold: why it is never told.",
-  "timeline": "+ Where everyone was, as intervals (timeline._what).",
+  "timeline": "+ Where everyone was, where the things that move or change hands were, and the doors that matter, as intervals [from, to) (timeline._what).",
   "rooms": "+ The rooms graph reference, the rooms used, and the sightlines (rooms._what)."
  },
  "schema": "case/1",
@@ -419,7 +419,15 @@
     "cut",
     "thing:key_steward from the girdle cord of person:hollins"
    ],
-   "truth": true
+   "truth": true,
+   "held": [
+    {
+     "thing": "key_steward",
+     "by": "daniel",
+     "from": "1660-09-28T23:16",
+     "to": "1660-09-28T23:16"
+    }
+   ]
   },
   {
    "id": "daniel_locked_door",
@@ -434,6 +442,14 @@
     {
      "who": "daniel",
      "room": "closet_best",
+     "from": "1660-09-28T23:18",
+     "to": "1660-09-28T23:18"
+    }
+   ],
+   "held": [
+    {
+     "thing": "key_steward",
+     "by": "daniel",
      "from": "1660-09-28T23:18",
      "to": "1660-09-28T23:18"
     }
@@ -452,6 +468,14 @@
     {
      "who": "daniel",
      "room": "muniment_room",
+     "from": "1660-09-29T06:15",
+     "to": "1660-09-29T06:15"
+    }
+   ],
+   "held": [
+    {
+     "thing": "key_steward",
+     "place": "muniment_room",
      "from": "1660-09-29T06:15",
      "to": "1660-09-29T06:15"
     }
@@ -508,6 +532,14 @@
     {
      "who": "daniel",
      "room": "servants_chamber_west",
+     "from": "1660-09-28T23:33",
+     "to": "1660-09-28T23:33"
+    }
+   ],
+   "held": [
+    {
+     "thing": "draft_steward",
+     "place": "chest_daniel",
      "from": "1660-09-28T23:33",
      "to": "1660-09-28T23:33"
     }
@@ -688,8 +720,8 @@
    "text": "On Tuesday in the stable yard Francis saw Mr Cressy put something heavy in a twist of paper into Daniel's hand.",
    "triple": [
     "person:francis",
-    "saw",
-    "person:cressy give person:daniel something heavy in paper, stable yard, Tuesday 25 September"
+    "saw_hand_over",
+    "person:cressy to person:daniel: something heavy in a twist of paper, stable yard, Tuesday 25 September"
    ],
    "truth": true
   },
@@ -946,6 +978,30 @@
    ]
   },
   {
+   "id": "cressy_sat_till_2315",
+   "text": "Mr Cressy never left the parlour table from nine until Francis went down for wine at a quarter past eleven.",
+   "triple": [
+    "person:cressy",
+    "stayed_at",
+    "the parlour table, 21:00 to 23:15, Francis with him"
+   ],
+   "truth": true,
+   "at": [
+    {
+     "who": "cressy",
+     "room": "great_parlour",
+     "from": "1660-09-28T21:00",
+     "to": "1660-09-28T23:15"
+    },
+    {
+     "who": "francis",
+     "room": "great_parlour",
+     "from": "1660-09-28T21:00",
+     "to": "1660-09-28T23:15"
+    }
+   ]
+  },
+  {
    "id": "no_one_down_stair",
    "text": "No one came down the great stair after Dame Anne at ten past ten until Francis went for wine at a quarter past eleven.",
    "triple": [
@@ -1106,7 +1162,7 @@
     {
      "who": "hollins",
      "room": "steward_chamber",
-     "from": "1660-09-29T01:00",
+     "from": "1660-09-29T01:05",
      "to": "1660-09-29T01:05"
     }
    ]
@@ -1429,6 +1485,14 @@
      "from": "1660-09-29T07:15",
      "to": "1660-09-29T07:15"
     }
+   ],
+   "held": [
+    {
+     "thing": "engrossment",
+     "by": "cressy",
+     "from": "1660-09-29T07:15",
+     "to": "1660-09-29T07:15"
+    }
    ]
   },
   {
@@ -1505,9 +1569,9 @@
    "id": "hollins_taught_daniel",
    "text": "Mr Hollins took Daniel from the free school at fourteen and taught him a fair engrossing hand.",
    "triple": [
-    "person:hollins",
-    "kept",
-    "the evidences, and taught his clerk"
+    "person:daniel",
+    "taught_by",
+    "person:hollins: a fair engrossing hand, from the free school at fourteen"
    ],
    "truth": true
   },
@@ -1558,7 +1622,14 @@
     "by the right hand of person:hollins at 06:15"
    ],
    "truth": false,
-   "unplaced": "where a thing lay; the timeline holds people"
+   "held": [
+    {
+     "thing": "key_steward",
+     "place": "muniment_room",
+     "from": "1660-09-28T23:18",
+     "to": "1660-09-29T06:15"
+    }
+   ]
   },
   {
    "id": "hollins_fell",
@@ -1768,7 +1839,7 @@
   }
  ],
  "timeline": {
-  "_what": "Where everyone was, as intervals [from, to) on the plan's rooms: the evening of Friday 28 September 1660 (Julian) from 21:00 to 01:00, gapless for the four suspects and the steward, and the morning to the justice's arrival at 10:00 (gaps allowed). via: the rooms passed through, in order, on the way into room from the previous interval's room. seen_by / saw: a sighting, both ends declared (mutual), within one room or across a declared sightline. chosen: the interval is the case's choice where canon is silent.",
+  "_what": "Where everyone was, as intervals [from, to) on the plan's rooms: the evening of Friday 28 September 1660 (Julian) from 21:00 to 01:00, gapless for the four suspects and the steward, and the morning through the minute play opens (morning.play, 10:00, when the justice arrives: intervals that run into play end at 10:01, so 10:00 falls inside them). An instant t is in [from, to) when from <= t < to. via: the rooms passed through, in order, on the way into room from the previous interval's room. seen_by / saw: a sighting, both ends declared (mutual), within one room or across a declared sightline whose door (rooms.sightlines through) stands open then. chosen: the interval is the case's choice where canon is silent. things: where the things that move or change hands were, as intervals [from, to): {thing, from, to, holder (a person) | place (a room, or a thing it is in or on), rel, by (who put it there), doing, state (works.js states), chosen}; a hand-off is made where both ends are. unbuilt: things in the story the house doesn't build, named in things. doors: door states, {door (an opening of the rooms graph), from, to, state open|shut|locked, by, doing, chosen}; a locked door is passed only by someone holding a key to it.",
   "calendar": "Julian; times are local clock time",
   "evening": {
    "from": "1660-09-28T21:00",
@@ -1783,7 +1854,8 @@
   },
   "morning": {
    "from": "1660-09-29T05:25",
-   "to": "1660-09-29T10:00"
+   "to": "1660-09-29T10:01",
+   "play": "1660-09-29T10:00"
   },
   "intervals": [
    {
@@ -1838,7 +1910,7 @@
    {
     "who": "hollins",
     "from": "1660-09-29T07:00",
-    "to": "1660-09-29T10:00",
+    "to": "1660-09-29T10:01",
     "room": "steward_chamber",
     "via": [
      "closet_best",
@@ -2022,7 +2094,7 @@
    {
     "who": "daniel",
     "from": "1660-09-29T06:30",
-    "to": "1660-09-29T10:00",
+    "to": "1660-09-29T10:01",
     "room": "closet_best",
     "doing": "keeps the muniment door, 'so nothing is moved'",
     "saw": [
@@ -2132,7 +2204,7 @@
    {
     "who": "cressy",
     "from": "1660-09-29T07:16",
-    "to": "1660-09-29T10:00",
+    "to": "1660-09-29T10:01",
     "room": "great_chamber",
     "via": [
      "closet_best",
@@ -2229,7 +2301,7 @@
    {
     "who": "francis",
     "from": "1660-09-29T09:30",
-    "to": "1660-09-29T10:00",
+    "to": "1660-09-29T10:01",
     "room": "great_parlour",
     "via": [
      "bedchamber_west",
@@ -2362,14 +2434,14 @@
      "back_stair",
      "back_stair_first"
     ],
-    "doing": "back to the nursery by the back stair; sits up"
+    "doing": "back to the nursery by the back stair; sits up within, the door shut (timeline.doors d27)"
    },
    {
     "who": "anne",
     "from": "1660-09-29T00:58",
     "to": "1660-09-29T01:10",
     "room": "nursery",
-    "doing": "at the nursery door; sees Francis come up the back stair with blood on his hand",
+    "doing": "opens the nursery door at Francis's singing; sees Francis come up the back stair with blood on his hand",
     "saw": [
      "francis",
      "cressy"
@@ -2438,7 +2510,7 @@
    {
     "who": "anne",
     "from": "1660-09-29T07:25",
-    "to": "1660-09-29T10:00",
+    "to": "1660-09-29T10:01",
     "room": "great_hall",
     "via": [
      "back_stair_first",
@@ -2460,7 +2532,7 @@
    {
     "who": "sir_gervase",
     "from": "1660-09-29T06:30",
-    "to": "1660-09-29T10:00",
+    "to": "1660-09-29T10:01",
     "room": "best_bedchamber",
     "doing": "woken and in pain: a fall in a fit, send to the coroner and a justice, seal at noon regardless; sleeps again"
    },
@@ -2538,10 +2610,342 @@
     "room": "nursery",
     "doing": "abed, his nurse by him"
    }
+  ],
+  "unbuilt": [
+   {
+    "id": "gold",
+    "label": "twenty pieces of gold in a twist of paper, with Mr Cressy's note",
+    "why": "the house builds Daniel's oak box (box_daniel), not the coins in it; the box's clue (gold_note) shows them"
+   },
+   {
+    "id": "key_d21_lord",
+    "label": "Sir Gervase's key to the muniment door",
+    "key": "muniment_door",
+    "why": "the second key, on a nail at Sir Gervase's bed-head (gervase_second_key); the house builds no key for it since play never needs it"
+   }
+  ],
+  "things": [
+   {
+    "thing": "key_steward",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-28T23:16",
+    "holder": "hollins",
+    "rel": "girdle",
+    "doing": "on his girdle on the green cord, night and day; he locks himself in with it at 21:40 and after Dame Anne at 22:10"
+   },
+   {
+    "thing": "key_steward",
+    "from": "1660-09-28T23:16",
+    "to": "1660-09-29T06:15",
+    "holder": "daniel",
+    "rel": "sleeve",
+    "doing": "cut from the girdle cord with Daniel's penknife; he locks the door from the closet side at 23:18 and keeps the key in his sleeve all night",
+    "chosen": "the minute of the cut, between the blow at 23:05 and the locking at 23:18, is the case's choice"
+   },
+   {
+    "thing": "key_steward",
+    "from": "1660-09-29T06:15",
+    "to": "1660-09-29T06:16",
+    "place": "muniment_room",
+    "rel": "by the dead man's right hand",
+    "doing": "let fall from his sleeve as he kneels; he cries that it lay by his master's hand"
+   },
+   {
+    "thing": "key_steward",
+    "from": "1660-09-29T06:16",
+    "to": "1660-09-29T10:01",
+    "place": "desk1",
+    "rel": "on",
+    "by": "daniel",
+    "doing": "taken up and laid on the muniment table"
+   },
+   {
+    "thing": "key_d21_lord",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T05:55",
+    "place": "bed_best",
+    "rel": "on the nail at its head",
+    "doing": "on the nail at the bed-head, Sir Gervase asleep below it"
+   },
+   {
+    "thing": "key_d21_lord",
+    "from": "1660-09-29T05:55",
+    "to": "1660-09-29T06:30",
+    "holder": "ralph",
+    "doing": "Ralph takes it down (Sir Gervase sleeps on) and unlocks the muniment door with it at 06:15",
+    "chosen": "the minute Ralph takes it down is the case's choice"
+   },
+   {
+    "thing": "key_chest_steward",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "place": "desk1",
+    "rel": "in",
+    "doing": "in the muniment table's drawer, the steward's key to one of the chest's padlocks"
+   },
+   {
+    "thing": "key_chest_lord",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T10:01",
+    "place": "cabinet_closet",
+    "rel": "in",
+    "doing": "in the japanned cabinet in the closet, Sir Gervase's key to the other padlock"
+   },
+   {
+    "thing": "engrossment",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-28T21:37",
+    "place": "steward_chamber",
+    "rel": "on the steward's table",
+    "doing": "made ready for the collation with the draft",
+    "chosen": "where it lay before they went up is not in canon"
+   },
+   {
+    "thing": "engrossment",
+    "from": "1660-09-28T21:37",
+    "to": "1660-09-28T21:40",
+    "holder": "daniel",
+    "doing": "carried up the great stair with the draft and Daniel's chamber candle"
+   },
+   {
+    "thing": "engrossment",
+    "from": "1660-09-28T21:40",
+    "to": "1660-09-29T07:15",
+    "place": "desk1",
+    "rel": "on",
+    "by": "daniel",
+    "doing": "under the table candle; the steward collates it against the draft, finds the rasure at about 21:50 and holds skin 2 to the candle at 23:00"
+   },
+   {
+    "thing": "engrossment",
+    "from": "1660-09-29T07:15",
+    "to": "1660-09-29T07:16",
+    "holder": "cressy",
+    "doing": "Mr Cressy takes it from the muniment table"
+   },
+   {
+    "thing": "engrossment",
+    "from": "1660-09-29T07:16",
+    "to": "1660-09-29T10:01",
+    "place": "drawtable_gc",
+    "rel": "on",
+    "by": "cressy",
+    "doing": "on the draw-table in the great chamber, waiting on the sealing"
+   },
+   {
+    "thing": "draft_steward",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-28T21:37",
+    "place": "steward_chamber",
+    "rel": "on the steward's table",
+    "doing": "made ready for the collation with the engrossment",
+    "chosen": "where it lay before they went up is not in canon"
+   },
+   {
+    "thing": "draft_steward",
+    "from": "1660-09-28T21:37",
+    "to": "1660-09-28T21:40",
+    "holder": "daniel",
+    "doing": "carried up the great stair with the engrossment"
+   },
+   {
+    "thing": "draft_steward",
+    "from": "1660-09-28T21:40",
+    "to": "1660-09-28T23:16",
+    "place": "desk1",
+    "rel": "on",
+    "by": "daniel",
+    "doing": "on the muniment table; Daniel reads it aloud while his master follows the engrossment"
+   },
+   {
+    "thing": "draft_steward",
+    "from": "1660-09-28T23:16",
+    "to": "1660-09-28T23:33",
+    "holder": "daniel",
+    "doing": "taken after the blow, down the great stair and up the back stair",
+    "chosen": "the minute he takes it, between the blow and the locking, is the case's choice"
+   },
+   {
+    "thing": "draft_steward",
+    "from": "1660-09-28T23:33",
+    "to": "1660-09-29T10:01",
+    "place": "chest_daniel",
+    "rel": "in",
+    "doing": "hidden in his chest in the west garret with the gold and the note"
+   },
+   {
+    "thing": "desk1_candle",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-28T21:40",
+    "place": "desk1",
+    "rel": "on",
+    "doing": "on the muniment table, unlit",
+    "state": {
+     "light": "out"
+    }
+   },
+   {
+    "thing": "desk1_candle",
+    "from": "1660-09-28T21:40",
+    "to": "1660-09-28T23:05",
+    "place": "desk1",
+    "rel": "on",
+    "doing": "lit by the steward from Daniel's chamber candle",
+    "state": {
+     "light": "lit"
+    }
+   },
+   {
+    "thing": "desk1_candle",
+    "from": "1660-09-28T23:05",
+    "to": "1660-09-28T23:06",
+    "holder": "daniel",
+    "doing": "the blow at the north press: the candle falls from the stick and goes out on the flags, splashing tallow before the press",
+    "state": {
+     "light": "out"
+    }
+   },
+   {
+    "thing": "desk1_candle",
+    "from": "1660-09-28T23:06",
+    "to": "1660-09-28T23:12",
+    "place": "muniment_room",
+    "rel": "on the flags before the north press",
+    "by": "daniel",
+    "doing": "where it fell while he drags the body to the chest",
+    "state": {
+     "light": "out"
+    },
+    "chosen": "where the stick lay while he dragged the body is the case's choice"
+   },
+   {
+    "thing": "desk1_candle",
+    "from": "1660-09-28T23:12",
+    "to": "1660-09-29T10:01",
+    "place": "desk1",
+    "rel": "on",
+    "by": "daniel",
+    "doing": "set back on the table, the candle crooked in its stick",
+    "state": {
+     "light": "out"
+    }
+   },
+   {
+    "thing": "gold",
+    "from": "1660-09-25T16:00",
+    "to": "1660-09-25T16:05",
+    "holder": "cressy",
+    "doing": "in the stable yard, in a twist of paper with his note",
+    "chosen": "the hour in the stable yard is the case's choice; canon gives only the day"
+   },
+   {
+    "thing": "gold",
+    "from": "1660-09-25T16:05",
+    "to": "1660-09-25T16:30",
+    "holder": "daniel",
+    "doing": "given him by Mr Cressy; Francis sees something heavy pass",
+    "chosen": "the hour is the case's choice"
+   },
+   {
+    "thing": "gold",
+    "from": "1660-09-25T16:30",
+    "to": "1660-09-29T10:01",
+    "place": "box_daniel",
+    "rel": "in",
+    "doing": "in his oak box under a shirt in his chest, the note with it",
+    "chosen": "when he put it in the box is the case's choice"
+   }
+  ],
+  "doors": [
+   {
+    "door": "d14",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T01:00",
+    "state": "open",
+    "doing": "the great parlour's door to the stair hall, open for the fire while they play"
+   },
+   {
+    "door": "d4",
+    "from": "1660-09-28T23:17",
+    "to": "1660-09-28T23:32",
+    "state": "open",
+    "doing": "Francis at the buttery door with the jug"
+   },
+   {
+    "door": "d27",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T00:58",
+    "state": "shut",
+    "doing": "the nursery door shut on Ned and his nurse, Dame Anne within from 22:12",
+    "chosen": "canon is silent, and the case rests on it: with the door open from 22:12 Dame Anne would have seen Daniel come up the back stair at 23:30 (design/case/case-sim-2026-10-08.md, Finding 4)"
+   },
+   {
+    "door": "d27",
+    "from": "1660-09-29T00:58",
+    "to": "1660-09-29T01:10",
+    "state": "open",
+    "doing": "Dame Anne opens it at Francis's singing and stands in it"
+   },
+   {
+    "door": "d27",
+    "from": "1660-09-29T01:10",
+    "to": "1660-09-29T10:01",
+    "state": "shut",
+    "doing": "shut behind her as she goes to bed",
+    "chosen": "not in canon"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T21:40",
+    "to": "1660-09-28T21:50",
+    "state": "locked",
+    "by": "hollins",
+    "doing": "the steward locks himself in with the key on his girdle cord"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T21:50",
+    "to": "1660-09-28T22:10",
+    "state": "shut",
+    "doing": "unlocked to let Dame Anne in",
+    "chosen": "canon has him let her in and lock it after her; unlocked while she is within is the case's reading"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T22:10",
+    "to": "1660-09-28T23:18",
+    "state": "locked",
+    "by": "hollins",
+    "doing": "locked after Dame Anne, from within"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-28T23:18",
+    "to": "1660-09-29T06:15",
+    "state": "locked",
+    "by": "daniel",
+    "doing": "locked from the closet side by Daniel, who keeps the key"
+   },
+   {
+    "door": "d21",
+    "from": "1660-09-29T06:15",
+    "to": "1660-09-29T10:01",
+    "state": "open",
+    "by": "ralph",
+    "doing": "unlocked by Ralph with Sir Gervase's key, and left unlocked since (doors.d21)"
+   },
+   {
+    "door": "d30",
+    "from": "1660-09-28T21:00",
+    "to": "1660-09-29T06:00",
+    "state": "locked",
+    "by": "the butler",
+    "doing": "the long gallery's west door, locked every night from nine to six"
+   }
   ]
  },
  "rooms": {
-  "_what": "The rooms graph the timeline walks (doors and stair flights, from the plan the page builds: tools/export-rooms.mjs), the rooms this case uses, and the sightlines its sightings use.",
+  "_what": "The rooms graph the timeline walks (doors and stair flights, from the plan the page builds: tools/export-rooms.mjs), the rooms this case uses, and the sightlines its sightings use; a sightline through a door (through) holds only while timeline.doors has that door open.",
   "graph": "lab/case/rooms-1660.json",
   "used": [
    "back_stair",
@@ -2577,28 +2981,32 @@
      "great_parlour",
      "great_stair"
     ],
-    "why": "the parlour door stood open to the stair hall for the fire: no light comes off the great stair unseen"
+    "why": "the parlour door stood open to the stair hall for the fire: no light comes off the great stair unseen",
+    "through": "d14"
    },
    {
     "between": [
      "buttery",
      "screens_passage"
     ],
-    "why": "from the buttery door, the screens passage"
+    "why": "from the buttery door, the screens passage",
+    "through": "d4"
    },
    {
     "between": [
      "nursery",
      "back_stair_first"
     ],
-    "why": "from the nursery door, the back-stair landing"
+    "why": "from the nursery door, the back-stair landing, only while that door stands open (timeline.doors d27)",
+    "through": "d27"
    },
    {
     "between": [
      "closet_best",
      "muniment_room"
     ],
-    "why": "the muniment door open at dawn, a candle held in the doorway"
+    "why": "the muniment door open at dawn, a candle held in the doorway",
+    "through": "d21"
    }
   ]
  },
@@ -3037,7 +3445,8 @@
      ],
      "text": "He engrossed the release of Asshover on three skins from his master's draft.",
      "fact_id": "daniel_engrossed",
-     "topic": "deed"
+     "topic": "deed",
+     "how": "saw"
     },
     {
      "id": "kd_paid",
@@ -3048,7 +3457,8 @@
      ],
      "text": "Mr Cressy gave him twenty pieces of gold in the stable yard on Tuesday, with a note promising as many at the sealing.",
      "fact_id": "cressy_paid_daniel",
-     "topic": "gold"
+     "topic": "gold",
+     "how": "saw"
     },
     {
      "id": "kd_scraped",
@@ -3059,7 +3469,8 @@
      ],
      "text": "On Wednesday night he scraped the exception of the mines from the second skin and wrote 'together with all mines, minerals and quarries' over it.",
      "fact_id": "daniel_scraped_skin2",
-     "untold": "he owns only a scraped 'blot' when pressed on the deed (dc_deed's press), never the cheat; the rasure, the draft, the gold note and Mr Cressy tell it"
+     "untold": "he owns only a scraped 'blot' when pressed on the deed (dc_deed's press), never the cheat; the rasure, the draft, the gold note and Mr Cressy tell it",
+     "how": "saw"
     },
     {
      "id": "kd_found",
@@ -3070,7 +3481,8 @@
      ],
      "text": "His master found the rasure a little before ten and said nothing of it while my lady was in the room.",
      "fact_id": "hollins_found_rasure",
-     "untold": "he never owns when his master found it; Dame Anne's visit (anne_visit) shows it"
+     "untold": "he never owns when his master found it; Dame Anne's visit (anne_visit) shows it",
+     "how": "saw"
     },
     {
      "id": "kd_thy_hand",
@@ -3081,7 +3493,8 @@
      ],
      "text": "Near eleven his master said, 'This is thy hand, Daniel. Who paid thee?', and that he and Mr Cressy should go before the justice in the morning.",
      "fact_id": "hollins_said_thy_hand",
-     "topic": "death"
+     "topic": "death",
+     "how": "saw"
     },
     {
      "id": "kd_struck",
@@ -3092,7 +3505,8 @@
      ],
      "text": "As his master stooped at the north press he struck him on the back of the head with the brass candlestick from the table.",
      "fact_id": "daniel_struck_hollins",
-     "topic": "death"
+     "topic": "death",
+     "how": "saw"
     },
     {
      "id": "kd_staged",
@@ -3103,7 +3517,8 @@
      ],
      "text": "He dragged the body to the iron-bound chest and laid the head by its corner, to look like a fall.",
      "fact_id": "daniel_staged_fall",
-     "untold": "the rope: the chest's clean band and the wound show it; even confessing he says only that he struck"
+     "untold": "the rope: the chest's clean band and the wound show it; even confessing he says only that he struck",
+     "how": "saw"
     },
     {
      "id": "kd_cut_key",
@@ -3114,7 +3529,8 @@
      ],
      "text": "He cut the key from his master's knotted girdle cord with his penknife, went out, locked the door behind him and kept the key.",
      "fact_id": "daniel_cut_key",
-     "untold": "the rope: the key's cut cord and the girdle cord show it"
+     "untold": "the rope: the key's cut cord and the girdle cord show it",
+     "how": "saw"
     },
     {
      "id": "kd_hid_draft",
@@ -3125,7 +3541,8 @@
      ],
      "text": "He took the steward's draft and hid it in his chest in the west garret with the gold and the note.",
      "fact_id": "daniel_hid_draft",
-     "untold": "found by searching his chest in the west garret, never told"
+     "untold": "found by searching his chest in the west garret, never told",
+     "how": "saw"
     },
     {
      "id": "kd_seen",
@@ -3136,7 +3553,8 @@
      ],
      "text": "Coming down the great stair at twenty past eleven, he saw Mr Cressy at the table see him.",
      "fact_id": "daniel_saw_cressy",
-     "untold": "to own it is to own he came down at twenty past eleven; Mr Cressy tells it (cressy_saw_daniel)"
+     "untold": "to own it is to own he came down at twenty past eleven; Mr Cressy tells it (cressy_saw_daniel)",
+     "how": "saw"
     },
     {
      "id": "kd_planted",
@@ -3147,7 +3565,8 @@
      ],
      "text": "At dawn, first into the dark room, he let the key fall from his sleeve by his master's hand and cried that he had found it.",
      "fact_id": "daniel_planted_key",
-     "untold": "the rope: Dame Anne's dawn and the cut cord show it; caught, he will 'say no more about the key'"
+     "untold": "the rope: Dame Anne's dawn and the cut cord show it; caught, he will 'say no more about the key'",
+     "how": "saw"
     },
     {
      "id": "kd_lady",
@@ -3158,7 +3577,8 @@
      ],
      "text": "My lady came up a little before ten and was gone within the quarter hour; both men were well when she left.",
      "fact_id": "anne_visited_muniment",
-     "topic": "person:anne"
+     "topic": "person:anne",
+     "how": "saw"
     },
     {
      "id": "kd_wore_key",
@@ -3169,7 +3589,8 @@
      ],
      "text": "His master wore the door key at his girdle on a green cord, night and day.",
      "fact_id": "hollins_wore_key",
-     "topic": "keys"
+     "topic": "keys",
+     "how": "routine"
     },
     {
      "id": "kd_lord_key",
@@ -3180,7 +3601,8 @@
      ],
      "text": "Sir Gervase keeps the other key on a nail at his bed-head.",
      "fact_id": "gervase_second_key",
-     "topic": "keys"
+     "topic": "keys",
+     "how": "routine"
     },
     {
      "id": "kd_went_up",
@@ -3191,7 +3613,129 @@
      ],
      "text": "They went up at twenty to ten; his master lit the table candle from Daniel's and closed the shutters.",
      "fact_id": "collation_began_2140",
-     "topic": "candle"
+     "topic": "candle",
+     "how": "saw"
+    },
+    {
+     "id": "kd_daniel_stayed_till_2318",
+     "triple": [
+      "person:daniel",
+      "in_muniment_room",
+      "21:40 to 23:18"
+     ],
+     "text": "He was in the muniment room with his master from twenty to ten until near twenty past eleven.",
+     "fact_id": "daniel_stayed_till_2318",
+     "topic": "whereabouts",
+     "how": "saw"
+    },
+    {
+     "id": "kd_hollins_died_of_blow",
+     "triple": [
+      "person:hollins",
+      "died_of",
+      "a blow to the back of the head with the brass candlestick from the muniment table"
+     ],
+     "text": "He died of a blow to the back of the head with the brass candlestick from the muniment table.",
+     "fact_id": "hollins_died_of_blow",
+     "topic": "death",
+     "how": "saw"
+    },
+    {
+     "id": "kd_rasure_skin2",
+     "triple": [
+      "thing:engrossment",
+      "skin_2_line_14",
+      "scraped and written over: the mines passed, not excepted"
+     ],
+     "text": "Skin 2, line 14, of the engrossment is scraped and written over in Daniel's hand: where the draft excepts the mines, the engrossment passes them.",
+     "fact_id": "rasure_skin2",
+     "untold": "he owns only a scraped 'blot' when pressed (dc_deed's press), never that it passes the mines; the rasure and the draft show it",
+     "how": "saw"
+    },
+    {
+     "id": "kd_draft_margin_exception",
+     "triple": [
+      "thing:draft_steward",
+      "margin_reads",
+      "the exception of the mines, 'agreed, A.C., 14 Sept.'"
+     ],
+     "text": "The steward's draft carries the exception of the mines in the margin of its second sheet, initialled 'agreed, A.C., 14 Sept.'",
+     "fact_id": "draft_margin_exception",
+     "topic": "mines",
+     "how": "saw"
+    },
+    {
+     "id": "kd_cressy_sat_parlour",
+     "triple": [
+      "person:cressy",
+      "stayed_in",
+      "room:great_parlour, 21:00 to 01:00"
+     ],
+     "text": "Mr Cressy was at the parlour table when he went up at twenty to ten and when he came down at twenty past eleven; he sat there all evening.",
+     "fact_id": "cressy_sat_parlour",
+     "untold": "he never owns it, since it gives the lie to his 'Mr Cressy on the stair'; Francis tells it (francis_cressy_sat)",
+     "how": "inferred"
+    },
+    {
+     "id": "kd_anne_left_hollins_alive",
+     "triple": [
+      "person:anne",
+      "left",
+      "room:muniment_room before 22:15, both men alive"
+     ],
+     "text": "Dame Anne left the muniment room by ten past ten with both men alive at their reading.",
+     "fact_id": "anne_left_hollins_alive",
+     "topic": "person:anne",
+     "how": "saw"
+    },
+    {
+     "id": "kd_hollins_lit_table_candle",
+     "triple": [
+      "person:hollins",
+      "lit",
+      "the table candle, 21:40"
+     ],
+     "text": "Mr Hollins lit the table candle from Daniel's chamber candle and closed the shutters.",
+     "fact_id": "hollins_lit_table_candle",
+     "topic": "candle",
+     "how": "saw"
+    },
+    {
+     "id": "kd_household_this_morning",
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "text": "At ten Daniel keeps the muniment door in the closet, Mr Cressy is in the great chamber with the engrossment and the purchase money, Francis by the great parlour fire, Dame Anne in the hall, Sir Gervase abed.",
+     "fact_id": "household_this_morning",
+     "topic": "household",
+     "how": "told",
+     "from": "the household"
+    },
+    {
+     "id": "kd_francis_threat_supper",
+     "triple": [
+      "person:francis",
+      "said_at_supper",
+      "the steward would not live to see the deed sealed"
+     ],
+     "text": "At supper, in drink, Francis spoke hard to the steward and said he would not live to see the deed sealed.",
+     "fact_id": "francis_threat_supper",
+     "topic": "person:francis",
+     "how": "saw"
+    },
+    {
+     "id": "kd_hollins_taught_daniel",
+     "triple": [
+      "person:daniel",
+      "taught_by",
+      "person:hollins: a fair engrossing hand, from the free school at fourteen"
+     ],
+     "text": "Mr Hollins took Daniel from the free school at fourteen and taught him a fair engrossing hand.",
+     "fact_id": "hollins_taught_daniel",
+     "topic": "steward",
+     "how": "saw"
     }
    ],
    "hides": [
@@ -3259,7 +3803,8 @@
       "cressy_saw_daniel",
       "francis_saw_daniel"
      ],
-     "why": "puts him out of the room more than half an hour before the blow"
+     "why": "puts him out of the room more than half an hour before the blow",
+     "yield_fact": "daniel_stayed_till_2318"
     },
     {
      "id": "dc_key",
@@ -3450,9 +3995,9 @@
      "topic": "steward",
      "false": false,
      "triple": [
-      "person:hollins",
-      "kept",
-      "the evidences, and taught his clerk"
+      "person:daniel",
+      "taught_by",
+      "person:hollins: a fair engrossing hand, from the free school at fourteen"
      ],
      "fact": "Mr Hollins took Daniel from the free school at fourteen and taught him a fair engrossing hand.",
      "fact_id": "hollins_taught_daniel",
@@ -3668,7 +4213,8 @@
      "fact": "Daniel confesses: his master found the rasure and said he would take him before the justice; as he stooped at the press, Daniel struck him with the candlestick.",
      "fact_id": "daniel_struck_hollins",
      "also": [
-      "hollins_said_thy_hand"
+      "hollins_said_thy_hand",
+      "hollins_died_of_blow"
      ],
      "hook": "(He sits down where he stands.) He held the skin to the candle and said, 'This is thy hand, Daniel. Who paid thee?' He said I should stand before your Worship in the morning, and Mr Cressy with me. He turned to the press for the old deed, and I had the candlestick in my hand before I knew it. God forgive me. I only wanted him not to speak."
     }
@@ -3785,7 +4331,8 @@
      ],
      "text": "He agreed the exception of the mines with the steward on 14 September and initialled it.",
      "fact_id": "cressy_agreed_exception",
-     "topic": "mines"
+     "topic": "mines",
+     "how": "saw"
     },
     {
      "id": "kc_letter",
@@ -3796,7 +4343,9 @@
      ],
      "text": "Alderman Pargeter wrote that the ore assays well and the mines must pass with the land.",
      "fact_id": "pargeter_wrote_mines",
-     "topic": "mines"
+     "topic": "mines",
+     "how": "told",
+     "from": "pargeter"
     },
     {
      "id": "kc_bribe",
@@ -3807,7 +4356,8 @@
      ],
      "text": "He gave Daniel twenty pieces of gold in the stable yard on Tuesday, with a note promising as many at the sealing, to leave the exception out of the second skin.",
      "fact_id": "cressy_paid_daniel",
-     "topic": "gold"
+     "topic": "gold",
+     "how": "saw"
     },
     {
      "id": "kc_supper",
@@ -3818,7 +4368,8 @@
      ],
      "text": "At supper the steward said he would read the engrossment against the draft that night.",
      "fact_id": "hollins_announced_collation",
-     "untold": "it would show why he went white at supper; Dame Anne tells that (anne_cressy_pale)"
+     "untold": "it would show why he went white at supper; Dame Anne tells that (anne_cressy_pale)",
+     "how": "saw"
     },
     {
      "id": "kc_saw_daniel",
@@ -3829,7 +4380,8 @@
      ],
      "text": "At about twenty past eleven, alone at the table, he saw the clerk come down the great stair, his candle shielded, white in the face.",
      "fact_id": "cressy_saw_daniel_stair",
-     "topic": "person:daniel"
+     "topic": "person:daniel",
+     "how": "saw"
     },
     {
      "id": "kc_francis",
@@ -3840,7 +4392,9 @@
      ],
      "text": "Francis went down for wine at a quarter past eleven and came back with his hand cut; Cressy bound it with his handkerchief.",
      "fact_id": "francis_buttery_cut",
-     "topic": "hand"
+     "topic": "hand",
+     "how": "told",
+     "from": "francis"
     },
     {
      "id": "kc_took",
@@ -3851,7 +4405,8 @@
      ],
      "text": "He took the engrossment from the muniment table this morning.",
      "fact_id": "cressy_took_engrossment",
-     "topic": "deed"
+     "topic": "deed",
+     "how": "saw"
     },
     {
      "id": "kc_note_of_hand",
@@ -3862,7 +4417,8 @@
      ],
      "text": "He holds Francis's note of hand for sixty pounds lost at tables.",
      "fact_id": "francis_note_of_hand",
-     "topic": "cards"
+     "topic": "cards",
+     "how": "saw"
     },
     {
      "id": "kc_anne",
@@ -3873,7 +4429,8 @@
      ],
      "text": "Dame Anne went up a little before ten and came down within the quarter hour.",
      "fact_id": "anne_seen_on_stair",
-     "topic": "person:anne"
+     "topic": "person:anne",
+     "how": "saw"
     },
     {
      "id": "kc_sat",
@@ -3884,7 +4441,82 @@
      ],
      "text": "He never left the parlour from nine until one.",
      "fact_id": "cressy_sat_parlour",
-     "topic": "whereabouts"
+     "topic": "whereabouts",
+     "how": "saw"
+    },
+    {
+     "id": "kc_rasure_skin2",
+     "triple": [
+      "thing:engrossment",
+      "skin_2_line_14",
+      "scraped and written over: the mines passed, not excepted"
+     ],
+     "text": "Skin 2, line 14, of the engrossment is scraped and written over in Daniel's hand: where the draft excepts the mines, the engrossment passes them.",
+     "fact_id": "rasure_skin2",
+     "topic": "deed",
+     "how": "saw"
+    },
+    {
+     "id": "kc_cressy_bound_hand",
+     "triple": [
+      "person:cressy",
+      "bound",
+      "the hand of person:francis"
+     ],
+     "text": "Mr Cressy bound Francis's cut hand with his own handkerchief, marked A.C.",
+     "fact_id": "cressy_bound_hand",
+     "topic": "hand",
+     "how": "saw"
+    },
+    {
+     "id": "kc_cressy_procured_cheat",
+     "triple": [
+      "person:cressy",
+      "had_left_out",
+      "the exception of the mines from skin 2, by the clerk who engrossed it"
+     ],
+     "text": "Mr Cressy had the clerk who engrossed the deed leave the exception of the mines out of the second skin, because his principal wanted the mines.",
+     "fact_id": "cressy_procured_cheat",
+     "topic": "mines",
+     "how": "saw"
+    },
+    {
+     "id": "kc_household_this_morning",
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "text": "At ten Daniel keeps the muniment door in the closet, Mr Cressy is in the great chamber with the engrossment and the purchase money, Francis by the great parlour fire, Dame Anne in the hall, Sir Gervase abed.",
+     "fact_id": "household_this_morning",
+     "topic": "household",
+     "how": "told",
+     "from": "the household"
+    },
+    {
+     "id": "kc_gervase_owes_pargeter",
+     "triple": [
+      "person:sir_gervase",
+      "owes",
+      "person:pargeter £2,000 on bond since 1655, long past its day"
+     ],
+     "text": "Sir Gervase has owed Alderman Pargeter £2,000 on bond since 1655, long past its day; the alderman takes Asshover at a fair price, less the bond.",
+     "fact_id": "gervase_owes_pargeter",
+     "topic": "sale",
+     "how": "told",
+     "from": "pargeter"
+    },
+    {
+     "id": "kc_francis_plays_deep",
+     "triple": [
+      "person:francis",
+      "plays",
+      "deep"
+     ],
+     "text": "Francis plays deep and loses handsomely.",
+     "fact_id": "francis_plays_deep",
+     "topic": "person:francis",
+     "how": "saw"
     }
    ],
    "hides": [
@@ -4365,7 +4997,8 @@
      ],
      "text": "He sat at tables with Cressy in the great parlour from nine until one, the door open.",
      "fact_id": "francis_at_tables",
-     "topic": "person:daniel"
+     "topic": "person:daniel",
+     "how": "saw"
     },
     {
      "id": "kf_lost",
@@ -4376,7 +5009,8 @@
      ],
      "text": "He lost sixty pounds to Cressy and gave his note of hand.",
      "fact_id": "francis_note_of_hand",
-     "topic": "cards"
+     "topic": "cards",
+     "how": "saw"
     },
     {
      "id": "kf_saw_up",
@@ -4387,7 +5021,8 @@
      ],
      "text": "He saw the steward and Daniel go up at twenty to ten.",
      "fact_id": "francis_saw_them_up",
-     "untold": "texture: the hour they went up is Daniel's own (daniel_went_up)"
+     "untold": "texture: the hour they went up is Daniel's own (daniel_went_up)",
+     "how": "saw"
     },
     {
      "id": "kf_saw_anne",
@@ -4398,7 +5033,8 @@
      ],
      "text": "He saw his stepmother go up a little before ten and come down at ten past.",
      "fact_id": "anne_seen_on_stair",
-     "topic": "person:anne"
+     "topic": "person:anne",
+     "how": "saw"
     },
     {
      "id": "kf_no_one",
@@ -4409,7 +5045,8 @@
      ],
      "text": "No one else came down the great stair while he sat at the table.",
      "fact_id": "no_one_down_stair",
-     "topic": "person:daniel"
+     "topic": "person:daniel",
+     "how": "saw"
     },
     {
      "id": "kf_gallery",
@@ -4420,7 +5057,8 @@
      ],
      "text": "The gallery's west door is locked at nine; there's no other way down from the state rooms at night.",
      "fact_id": "gallery_locked",
-     "topic": "person:daniel"
+     "topic": "person:daniel",
+     "how": "routine"
     },
     {
      "id": "kf_buttery",
@@ -4431,7 +5069,8 @@
      ],
      "text": "He drew canary in the buttery past eleven, broke the glass and cut his hand.",
      "fact_id": "francis_buttery_cut",
-     "topic": "hand"
+     "topic": "hand",
+     "how": "saw"
     },
     {
      "id": "kf_saw_daniel",
@@ -4442,7 +5081,8 @@
      ],
      "text": "Coming out of the buttery near half past eleven he saw Daniel cross the screens passage from the hall door to the kitchen passage, alone, his candle shaking.",
      "fact_id": "francis_saw_daniel_screens",
-     "topic": "hand"
+     "topic": "hand",
+     "how": "saw"
     },
     {
      "id": "kf_bound",
@@ -4453,18 +5093,20 @@
      ],
      "text": "Cressy bound his hand with his own handkerchief.",
      "fact_id": "cressy_bound_hand",
-     "untold": "his shame; Mr Cressy tells it (cressy_francis_buttery)"
+     "untold": "his shame; Mr Cressy tells it (cressy_francis_buttery)",
+     "how": "saw"
     },
     {
      "id": "kf_purse",
      "triple": [
       "person:francis",
-      "saw",
-      "person:cressy give person:daniel something heavy in paper, stable yard, Tuesday 25 September"
+      "saw_hand_over",
+      "person:cressy to person:daniel: something heavy in a twist of paper, stable yard, Tuesday 25 September"
      ],
      "text": "On Tuesday in the stable yard he saw Cressy put something heavy in a twist of paper into Daniel's hand.",
      "fact_id": "francis_saw_purse",
-     "topic": "mines"
+     "topic": "mines",
+     "how": "saw"
     },
     {
      "id": "kf_bed_empty",
@@ -4475,7 +5117,8 @@
      ],
      "text": "The steward's bed was empty when he went through to his own at one.",
      "fact_id": "hollins_bed_empty_0100",
-     "topic": "death"
+     "topic": "death",
+     "how": "saw"
     },
     {
      "id": "kf_threat",
@@ -4486,7 +5129,8 @@
      ],
      "text": "At supper, in drink, he said the steward would not live to see the deed sealed.",
      "fact_id": "francis_threat_supper",
-     "topic": "steward"
+     "topic": "steward",
+     "how": "saw"
     },
     {
      "id": "kf_mines",
@@ -4497,7 +5141,70 @@
      ],
      "text": "His father has excepted the mines of Asshover in every grant since his grandfather bought it.",
      "fact_id": "haywood_except_mines",
-     "untold": "Dame Anne tells it (anne_mines); one teller is enough"
+     "untold": "Dame Anne tells it (anne_mines); one teller is enough",
+     "how": "routine"
+    },
+    {
+     "id": "kf_cressy_sat_till_2315",
+     "triple": [
+      "person:cressy",
+      "stayed_at",
+      "the parlour table, 21:00 to 23:15, Francis with him"
+     ],
+     "text": "Cressy never stirred from the table but to deal, till he went down for wine past eleven.",
+     "fact_id": "cressy_sat_till_2315",
+     "topic": "person:cressy",
+     "how": "saw"
+    },
+    {
+     "id": "kf_household_this_morning",
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "text": "At ten Daniel keeps the muniment door in the closet, Mr Cressy is in the great chamber with the engrossment and the purchase money, Francis by the great parlour fire, Dame Anne in the hall, Sir Gervase abed.",
+     "fact_id": "household_this_morning",
+     "topic": "household",
+     "how": "told",
+     "from": "the household"
+    },
+    {
+     "id": "kf_gervase_must_sell",
+     "triple": [
+      "person:sir_gervase",
+      "must_sell",
+      "manor:asshover"
+     ],
+     "text": "Sir Gervase must sell Asshover: the composition and the war debts have eaten them.",
+     "fact_id": "gervase_must_sell",
+     "topic": "sale",
+     "how": "told",
+     "from": "sir_gervase"
+    },
+    {
+     "id": "kf_daniel_steward_shadow",
+     "triple": [
+      "person:daniel",
+      "is",
+      "the steward's shadow"
+     ],
+     "text": "Daniel was the steward's shadow, a good clerk.",
+     "fact_id": "daniel_steward_shadow",
+     "topic": "person:daniel",
+     "how": "routine"
+    },
+    {
+     "id": "kf_hollins_taught_francis",
+     "triple": [
+      "person:hollins",
+      "taught",
+      "person:francis his letters"
+     ],
+     "text": "Mr Hollins taught Francis his letters while Sir Gervase was at the wars.",
+     "fact_id": "hollins_taught_francis",
+     "topic": "steward",
+     "how": "saw"
     }
    ],
    "hides": [
@@ -4751,7 +5458,7 @@
       "the parlour table until 23:15"
      ],
      "fact": "Francis says Cressy never left the table before he himself went down for wine past eleven.",
-     "fact_id": "cressy_sat_parlour",
+     "fact_id": "cressy_sat_till_2315",
      "hook": "Cressy on the stair at half past ten? He never stirred from that table but to deal, till I went down for wine past eleven. Whoever told you so is a liar."
     },
     {
@@ -4803,8 +5510,8 @@
      },
      "triple": [
       "person:francis",
-      "saw",
-      "person:cressy give person:daniel something heavy in paper, Tuesday 25 September"
+      "saw_hand_over",
+      "person:cressy to person:daniel: something heavy in paper, Tuesday 25 September"
      ],
      "fact": "Francis saw Cressy put something heavy in a twist of paper into Daniel's hand in the stable yard on Tuesday, and Daniel hid it in his doublet.",
      "fact_id": "francis_saw_purse",
@@ -4971,7 +5678,8 @@
      ],
      "text": "She gave Sir Gervase his opiate at nine; he heard nothing after.",
      "fact_id": "gervase_slept_opiate",
-     "topic": "keys"
+     "topic": "keys",
+     "how": "inferred"
     },
     {
      "id": "ka_visit",
@@ -4982,7 +5690,8 @@
      ],
      "text": "She went up a little before ten to beg the steward to stay the sale until her new jointure was sealed.",
      "fact_id": "anne_visited_muniment",
-     "topic": "whereabouts"
+     "topic": "whereabouts",
+     "how": "saw"
     },
     {
      "id": "ka_saw_line",
@@ -4993,7 +5702,8 @@
      ],
      "text": "She found him grey-faced over the engrossment with his finger on a line; Daniel, reading the draft aloud, stopped when she came in; Mr Hollins said, 'Not tonight, madam. There is something here I must see to first.'",
      "fact_id": "hollins_finger_on_line",
-     "topic": "whereabouts"
+     "topic": "whereabouts",
+     "how": "saw"
     },
     {
      "id": "ka_locked_after",
@@ -5004,7 +5714,8 @@
      ],
      "text": "He locked the door behind her.",
      "fact_id": "hollins_locked_after_anne",
-     "topic": "whereabouts"
+     "topic": "whereabouts",
+     "how": "saw"
     },
     {
      "id": "ka_jointure",
@@ -5015,7 +5726,8 @@
      ],
      "text": "Her jointure of £250 a year is charged on Asshover; she must join in a fine to let it go and is promised a new one on Tibshelfe.",
      "fact_id": "asshover_jointure",
-     "topic": "sale"
+     "topic": "sale",
+     "how": "saw"
     },
     {
      "id": "ka_francis_blood",
@@ -5026,7 +5738,8 @@
      ],
      "text": "Francis came up the back stair after one, singing, with blood on his hand and his shirt.",
      "fact_id": "francis_blood_0100",
-     "topic": "person:francis"
+     "topic": "person:francis",
+     "how": "saw"
     },
     {
      "id": "ka_threat",
@@ -5037,7 +5750,8 @@
      ],
      "text": "At supper Francis swore the steward would not live to see the deed sealed.",
      "fact_id": "francis_threat_supper",
-     "topic": "person:francis"
+     "topic": "person:francis",
+     "how": "saw"
     },
     {
      "id": "ka_cressy_pale",
@@ -5048,7 +5762,8 @@
      ],
      "text": "Mr Cressy went white at supper when Mr Hollins said he would read the engrossment against the draft that night.",
      "fact_id": "cressy_went_white",
-     "topic": "person:cressy"
+     "topic": "person:cressy",
+     "how": "saw"
     },
     {
      "id": "ka_dawn",
@@ -5059,7 +5774,8 @@
      ],
      "text": "At dawn she held the candle in the doorway; Daniel went in first, to the shutters he said; she saw the dead man's hand on the flags, open and empty, before Daniel knelt by it and cried that the key lay there.",
      "fact_id": "anne_saw_hand_empty",
-     "topic": "morning"
+     "topic": "morning",
+     "how": "saw"
     },
     {
      "id": "ka_wound",
@@ -5070,7 +5786,8 @@
      ],
      "text": "She washed the body: the wound is at the back of the head, round, the size of a crown piece; the chest's corner is square.",
      "fact_id": "wound_round_back",
-     "topic": "death"
+     "topic": "death",
+     "how": "saw"
     },
     {
      "id": "ka_cord",
@@ -5081,7 +5798,8 @@
      ],
      "text": "When they laid him out his key-cord hung cut from his girdle.",
      "fact_id": "girdle_cord_cut",
-     "topic": "keys"
+     "topic": "keys",
+     "how": "saw"
     },
     {
      "id": "ka_lord_key",
@@ -5092,7 +5810,8 @@
      ],
      "text": "Sir Gervase's key hangs on a nail at his bed-head; Ralph took it down at dawn to open the door.",
      "fact_id": "gervase_second_key",
-     "topic": "keys"
+     "topic": "keys",
+     "how": "routine"
     },
     {
      "id": "ka_mines",
@@ -5103,7 +5822,95 @@
      ],
      "text": "Sir Gervase has excepted the mines of Asshover in every lease and grant since his father bought it.",
      "fact_id": "haywood_except_mines",
-     "topic": "mines"
+     "topic": "mines",
+     "how": "routine"
+    },
+    {
+     "id": "ka_chest_corner_square",
+     "triple": [
+      "thing:chest1",
+      "corner",
+      "square"
+     ],
+     "text": "The chest's iron corner, on which he is said to have fallen, is square.",
+     "fact_id": "chest_corner_square",
+     "topic": "death",
+     "how": "saw"
+    },
+    {
+     "id": "ka_hollins_announced_collation",
+     "triple": [
+      "person:hollins",
+      "announced",
+      "the collation, at supper"
+     ],
+     "text": "At supper the steward said he would read the engrossment against the draft that night.",
+     "fact_id": "hollins_announced_collation",
+     "topic": "person:cressy",
+     "how": "saw"
+    },
+    {
+     "id": "ka_household_this_morning",
+     "triple": [
+      "house:wynstanton",
+      "holds",
+      "the household this morning"
+     ],
+     "text": "At ten Daniel keeps the muniment door in the closet, Mr Cressy is in the great chamber with the engrossment and the purchase money, Francis by the great parlour fire, Dame Anne in the hall, Sir Gervase abed.",
+     "fact_id": "household_this_morning",
+     "topic": "household",
+     "how": "told",
+     "from": "the household"
+    },
+    {
+     "id": "ka_ralph_opened_d21",
+     "triple": [
+      "person:ralph",
+      "opened",
+      "door d21 with Sir Gervase's key, 06:15"
+     ],
+     "text": "At a quarter past six Ralph opened the muniment door with Sir Gervase's key; it was locked fast.",
+     "fact_id": "ralph_opened_d21",
+     "topic": "morning",
+     "how": "saw"
+    },
+    {
+     "id": "ka_gervase_must_sell",
+     "triple": [
+      "person:sir_gervase",
+      "must_sell",
+      "manor:asshover"
+     ],
+     "text": "Sir Gervase must sell Asshover: the composition and the war debts have eaten them.",
+     "fact_id": "gervase_must_sell",
+     "topic": "sale",
+     "how": "told",
+     "from": "sir_gervase"
+    },
+    {
+     "id": "ka_daniel_kept_door",
+     "triple": [
+      "person:daniel",
+      "kept",
+      "the muniment door all morning"
+     ],
+     "text": "Daniel has kept the muniment door all morning: he was at it each time she went through to Sir Gervase.",
+     "fact_id": "daniel_kept_door",
+     "topic": "person:daniel",
+     "how": "inferred"
+    },
+    {
+     "id": "ka_hollins_kept_evidences",
+     "triple": [
+      "person:hollins",
+      "kept",
+      "the evidences through the wars"
+     ],
+     "text": "Mr Hollins kept the evidences through the wars and hid them from the committee men.",
+     "fact_id": "hollins_kept_evidences",
+     "topic": "steward",
+     "how": "told",
+     "from": "the household"
     }
    ],
    "hides": [
