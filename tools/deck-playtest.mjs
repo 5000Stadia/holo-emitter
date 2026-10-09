@@ -25,11 +25,14 @@ for (const rp of runPaths) {
     B.after.push(log.filter(e => e.t > hit.turn && e.t <= hit.turn + 5).map(e => `${e.kind} ${e.detail}`.slice(0, 90))); }
   runs.push({ run: rp.split("/").pop(), seed: r.seed, solved: r.solved, turns: r.turns, person_minutes: r.est_minutes, clues: r.clues?.length ?? r.clues,
     wrong_tries: r.accusation?.tries ?? r.receipts?.wrong_tries ?? null, hints: (r.thoughts || []).map(t => ({ turn: t.turn, lead: t.lead, thought: t.thought, why: t.why })),
-    stalls: (r.stalls || []).map(s => ({ from: s.from, to: s.to, turns: s.turns, doing: (s.doing || []).slice(0, 6) })), beats_heard: [...heardIds] });
+    stalls: (r.stalls || []).map(s => ({ from: s.from, to: s.to, turns: s.turns, doing: (s.doing || []).slice(0, 6) })), beats_heard: [...heardIds],
+    // the narrator's own record, when the run kept it (its turns count only what the narrator counts, not the bot's)
+    ...(r.narrator ? { dealt: r.narrator.beats.map(b => ({ id: b.beat, narrator_turn: b.turn, phase: b.phase })), clocks_fired: r.narrator.clocks } : {}) });
+  for (const id of Object.keys(r.narrator?.clocks || {})) if (beats[id]) { beats[id].fired_in = (beats[id].fired_in || 0) + 1; }
 }
 const out = { case: k.id, deck: deck ? { path: deckPath, version: deck.version ?? null, made_at: deck.made_at ?? null } : null, runs,
   beats, never_heard: Object.entries(beats).filter(([id, b]) => !b.heard_in && !silent.has(id)).map(([id, b]) => ({ id, from: b.from, phase: b.phase })),
-  // a part with no line (a clock that only moves someone) can't be heard; the runs don't yet say when it fired
+  // a part with no line (a clock that only moves someone) can't be heard; runs made since 2026-10-08 say when it fired (fired_in)
   silent: [...silent],
   hints_by_lead: runs.flatMap(r => r.hints).reduce((m, h) => (m[h.lead] = (m[h.lead] || 0) + 1, m), {}) };
 console.log(JSON.stringify(out, null, 1));

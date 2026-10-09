@@ -374,7 +374,7 @@ if (CASE) {
   // a minute gone with the house in view and nothing asked is a quiet turn to the narrator, so a lull in real time (not
   // only in questions) brings a servant's word towards what you haven't found
   setInterval(() => { if (!document.hidden && !panel.isOpen()) CP.idle(); }, 60000);
-  window.__cp = CP; window.__presences = presences;
+  window.__cp = CP; window.__presences = presences; window.__narrator = narrator;
 
   // the notebook from anywhere (the bot playtest: it opened only from a conversation's header, and each of 31 thoughts
   // asked had cost a detour to someone): a button at the top, beside the full-screen one, its brass dot when something new
