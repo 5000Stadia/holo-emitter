@@ -11,6 +11,7 @@ const parts = [...(k.beats || []).map(b => ({ ...b, from: "case" })), ...(k.cloc
   ...(deck?.beats || []).map(b => ({ ...b, from: "deck" })), ...(deck?.clocks || []).map(c => ({ ...c, hook: c.hook || c.line, from: "deck" }))];
 const norm = (s) => String(s || "").replace(/[‘’]/g, "'").replace(/\s+/g, " ").trim().toLowerCase();
 const key = (p) => norm(p.hook || p.line).slice(0, 48);
+const silent = new Set(parts.filter(p => key(p).length < 12).map(p => p.id));
 const beats = Object.fromEntries(parts.map(p => [p.id, { from: p.from, kind: p.kind, phase: p.phase, heard_in: 0, turns: [], after: [] }]));
 const runs = [];
 for (const rp of runPaths) {
@@ -27,6 +28,8 @@ for (const rp of runPaths) {
     stalls: (r.stalls || []).map(s => ({ from: s.from, to: s.to, turns: s.turns, doing: (s.doing || []).slice(0, 6) })), beats_heard: [...heardIds] });
 }
 const out = { case: k.id, deck: deck ? { path: deckPath, version: deck.version ?? null, made_at: deck.made_at ?? null } : null, runs,
-  beats, never_heard: Object.entries(beats).filter(([, b]) => !b.heard_in).map(([id, b]) => ({ id, from: b.from, phase: b.phase })),
+  beats, never_heard: Object.entries(beats).filter(([id, b]) => !b.heard_in && !silent.has(id)).map(([id, b]) => ({ id, from: b.from, phase: b.phase })),
+  // a part with no line (a clock that only moves someone) can't be heard; the runs don't yet say when it fired
+  silent: [...silent],
   hints_by_lead: runs.flatMap(r => r.hints).reduce((m, h) => (m[h.lead] = (m[h.lead] || 0) + 1, m), {}) };
 console.log(JSON.stringify(out, null, 1));
