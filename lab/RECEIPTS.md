@@ -1066,3 +1066,14 @@ Reused: this morning's search, questioning and accusation. No game file changed.
   4. an opened chest is hard to reach into from 2.5 m;
   5. typed questions naming a person read as "What of <person>" (10 of 111 lines);
   6. position and clock are saved only on a turn.
+## The fps lab, round 3: the phone measures (R50, 2026-10-08)
+
+- **Built:** 16 cases (group "phone" in `lab/fps/spec.json`), each one change from m-ref, the manor's desktop set on the lab's scene.
+  - **three.html** (+~90 lines): RectAreaLight windows, procedural kit and floor textures (full or half by 2x2 means in linear light, pixels let go on `onUpdate`), the output target, DirectRenderPipeline, ACES, the still modes on an emulated 60 Hz display, still shots (`?shot`), and GPU ms timed serially after each run.
+  - **Godot main.gd** (+~130 lines): textures (FastNoiseLite, native), AreaLight3D, ACES, the still modes (`max_fps` 60 and low-processor mode), and shots.
+  - **Tools:** `tools/fps-lab.mjs` gains `--repeat`, `--phone`, `--gpu`, `--group` and the heap after a GC. New are `tools/fps-shots.mjs` and `tools/fps-compare.py`. Nothing reused from the manor but its flags' meanings.
+- **Runs:** 5 repeats round-robin, at 1280x720 1x and at 390x844 DPR 3, in three.js WebGPU, three.js WebGL 2 and Godot web. That is 410 runs, about 2 h 20 min of machine time. The first pass's GPU ms were dropped: timestamps read while frames ran back to back went unresolved at the phone's size, so they are now timed serially.
+- **Spread:** other sessions' headless browsers shared the GPU. fps spreads were up to 3x; the serial GPU ms held within about 2%.
+- **Run time of the pieces:** texture generation 3-4 s per page (not timed in a frame); the serial GPU pass 40 frames, about 1 s.
+- **Results:** see `design/perf/plan.md` ("The phone measures, in the lab") and the ledger.
+- **Time:** about 3 h 30 min of my work, the runs included. Godot's export ran first time from the command line (4.7.2, templates installed).

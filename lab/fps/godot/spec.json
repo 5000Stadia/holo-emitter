@@ -42,7 +42,14 @@
   "depth": "standard",
   "lighting": "default",
   "render_scale": 1,
-  "upscale": null
+  "upscale": null,
+  "rect_lights": 0,
+  "textures": null,
+  "tex_drop": false,
+  "out": 16,
+  "direct": false,
+  "tonemap": false,
+  "still": null
  },
  "cases": [
   {
@@ -476,6 +483,299 @@
    "engines": [
     "three-webgpu",
     "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-ref",
+   "group": "phone",
+   "change": "the manor's desktop set, the reference for what follows: 1,000 instanced spheres in the kit's textures (1024 colour, normal, roughness), a board floor at 360 px/m (2880 square), 8 window lights (RectAreaLight), 4x MSAA, ACES tone mapping, a half-float intermediate target, ordinary depth, the far town out to 5 km",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-depth-log",
+   "group": "phone",
+   "change": "logarithmic depth (the manor's desktop outdoors): depth written from every fragment shader",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "depth": "log"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-depth-reversed",
+   "group": "phone",
+   "change": "reversed depth (the manor's phone default): a float buffer, near at 1",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "depth": "reversed"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-rect-3",
+   "group": "phone",
+   "change": "3 window lights, not 8 (the phone's pool)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 3,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-rect-0",
+   "group": "phone",
+   "change": "no window lights",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 0,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-tex-half",
+   "group": "phone",
+   "change": "textures at half density (floor 1440, kit 512: the phone's), 2x2 means of the full ones",
+   "set": {
+    "instanced": true,
+    "textures": "half",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-tex-drop",
+   "group": "phone",
+   "change": "full textures, their pixels let go on the CPU once on the GPU",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "tex_drop": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-tex-half-drop",
+   "group": "phone",
+   "change": "half textures, pixels let go (the phone's textures as shipped)",
+   "set": {
+    "instanced": true,
+    "textures": "half",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "tex_drop": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-msaa-0",
+   "group": "phone",
+   "change": "no MSAA",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": false,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-out-8",
+   "group": "phone",
+   "change": "the intermediate target at 8 bits a channel, not half floats",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "out": 8
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-direct",
+   "group": "phone",
+   "change": "DirectRenderPipeline: tone mapping in each material, straight to the canvas (no intermediate target, no output pass)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "direct": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-phone",
+   "group": "phone",
+   "change": "the phone's set together: reversed depth, 3 window lights, half textures let go; MSAA, half floats and the usual pipeline kept",
+   "set": {
+    "instanced": true,
+    "textures": "half",
+    "rect_lights": 3,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "depth": "reversed",
+    "tex_drop": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "still-every",
+   "group": "phone",
+   "change": "standing still, a fire flickering in view, every display tick drawn (60 Hz emulated): a page with no render-on-change",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "every"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "still-change",
+   "group": "phone",
+   "change": "standing still, the fire steady: drawn only on change (nothing changes)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "change"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "still-flicker16",
+   "group": "phone",
+   "change": "standing still, the fire flickering, redrawn at most every 62.5 ms (the manor's cap)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "flicker16"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "still-flicker60",
+   "group": "phone",
+   "change": "standing still, the fire flickering, redrawn on every change (each tick)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "flicker60"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
    ]
   }
  ]
