@@ -101,7 +101,7 @@ const Q = new URLSearchParams(location.search), $ = (id) => document.getElementB
 // what the house says to you (a clue noted, the narrator's beat, a door that won't give): one line at a time, in turn, each
 // up as long as it takes to read (a beat is a paragraph: 4.5 s had shown a third of it, and the next line wiped it); a tap
 // on it goes on to the next
-window.__said = []; const sayQ = [];
+window.__said = []; window.__asides = []; const sayQ = [];
 const sayNext = () => { clearTimeout(say.t); const l = $("line"), t = sayQ.shift(); if (!t) { l.hidden = true; return; }
   l.textContent = t; l.hidden = false; l.classList.toggle("more", sayQ.length > 0); say.t = setTimeout(sayNext, Math.min(24000, 1800 + 330 * t.split(/\s+/).length)); };
 const say = (t) => { if (!t) return; window.__said.push(t); if (sayQ.at(-1) === t) return; sayQ.push(t); if ($("line").hidden) sayNext(); else $("line").classList.add("more"); };

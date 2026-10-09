@@ -183,7 +183,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     if (r.due) { const m = narrator.menu(), b = narrator.pick(m); if (b) { run(narrator.apply(b)); tell(b.line || b.hook); } }
   }
   // (said in the panel while you're questioning someone, where you're reading; it had gone up behind the panel)
-  function tell(t) { if (!t) return; if (panel.isOpen?.()) panel.say({ who: "aside", text: t }); else say(t); }
+  function tell(t) { if (!t) return; if (panel.isOpen?.()) { panel.say({ who: "aside", text: t }); globalThis.__asides?.push(t); } else say(t); }
   const enter = (room) => step([{ type: "enter", room }]);
   const idle = () => step([{ type: "idle" }]);
 
