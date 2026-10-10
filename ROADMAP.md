@@ -90,6 +90,7 @@ Agreed with you 2026-10-07 ("Yes"): the smallest thing that flies toward the nor
 - [x] R57 Suspects who speak: each a period portrait (the portrait part, procedural) that appears where they stand in the house, a name, and a voice; questioning by your words or by topics; their answers drawn only from what they know, voiced by a model and checked (nothing they don't know, no clue invented); the no-model fallback by topics. Passed 2026-10-09 on our own screenshot check at phone size: Daniel, Cressy, Francis and Dame Anne each a distinct portrait where they stand (the closet by the muniment door, the great chamber, the parlour, the hall), the panel with name, role, a greeting in voice, topics and your own words; Sir Gervase abed, as the case has him. Sheets: `design/daily/img/2026-10-09-suspects-*.jpg`
 - [~] R58 The narrator: construct's own (you, 2026-10-07: "Perfect the programmatic space while the dynamic narrative from an LLM call probably should be improved and shaped by that project"): holo-emitter speaks to construct over a narrow contract (world in, events out, beats in as closed effects run by the world's own rules; `design/case/boundary-with-construct.md`), and keeps its code narrator (`src/make/narrator.js`, built 2026-10-07) only as the no-model stand-in and test harness
 - [~] R59 The case played: 30–60 minutes from arrival to accusation on a phone, your walk-through, and the receipts (time, calls, cost per play)
+- [ ] R65 The manor loads fast (the fresh-eyes audit, `design/audit/fresh-eyes-2026-10-10.md`; you, 2026-10-10: "Thats fine you can cool on whatever is productive here"): about 7.5 s to walkable on desktop, 12–15 s on a phone network. The second visit no longer tries the slower renderer when the first holds its frame budget; the built house kept between visits; the anti-flicker pass and the furniture's sizes and swings done at authoring, not at load; the code bundled. Target: half the time, the look unchanged
 
 ## M8 — People from place
 
@@ -100,6 +101,15 @@ You, 2026-10-10: "I just want a computationally smart npc builder maybe with goo
 - [ ] R62 People from place: who can be in a place at an hour from its influences, era and events; households and errands, not singles; rank sets rarity and company; named people exist once; ms checks at generation (no lone baby, no second princess)
 - [ ] R63 Wardrobe kits per setting: 1660 England first (doublets, coifs, breeches, aprons, by rank and trade), then one other to prove the builder crosses settings
 - [ ] R64 The manor's suspects and the London street peopled by it
+
+## M9 — The look, filled
+
+From the fresh-eyes audit of 2026-10-10 (`design/audit/fresh-eyes-2026-10-10.md`, its five most glaring problems as a player meets them; the people are M8), placed on your word that day ("Thats fine"). In this order, empty rooms first because they hurt the case most:
+
+- [ ] R66 Rooms that are lived in: a kitchen with its hearth, pots and work, every room's small things (dishes, tools, papers, linen) by its purpose and its owner's influences, where today 34 rooms hold about 6 things each
+- [ ] R67 Windows seen from outside: glass that shows the sky and a glimpse of the room, not black holes
+- [ ] R68 Light that bounces: the probe-grid module in `src/make/light.js` used by the manor, so panelling and stairs read dim, not black, on a phone too
+- [ ] R69 Ground that grows: grass, tufts, weeds and worn edges at walking height, and fires and sky that read as fire and sky
 
 ## Later
 
