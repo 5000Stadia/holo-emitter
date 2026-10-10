@@ -546,7 +546,12 @@ const RESTS = () => { const M = window.__manor, T = window.__THREE, plan = windo
     if (k.rests === "held") how = "held";
     else if (hostOf(b)) how = "in a slot of another thing";
     else if (lvl != null && Math.abs(bb.min.y - lvl) <= TOL) how = "on the floor";
-    else if (room && ((k.traits || []).includes("wall") || k.rests === "wall")) { const R = room.rect, d = Math.min(Math.abs(bb.min.x - R.x0), Math.abs(bb.max.x - R.x1), Math.abs(-bb.max.z - R.y0), Math.abs(-bb.min.z - R.y1)); if (d <= TOL && bb.min.y > lvl) how = "hung on its wall"; }
+    else if (room && ((k.traits || []).includes("wall") || k.rests === "wall")) { const R = room.rect, d = Math.min(Math.abs(bb.min.x - R.x0), Math.abs(bb.max.x - R.x1), Math.abs(-bb.max.z - R.y0), Math.abs(-bb.min.z - R.y1)); const hung = (o) => { let t = false; o?.traverse((m) => { if (m.material?.userData?.cls === "tapestry") t = true; }); return t; };
+      // (on a wall hung with tapestry a wall thing stands on the hanging's face, 5.5 cm out: src/make/manor.js onWall)
+      if ((d <= TOL || (Math.abs(d - 0.055) <= TOL && hung(M.rooms.get(room.id)?.grp))) && bb.min.y > lvl) how = "hung on its wall"; }
+    // on the room's own surface (a window's sill, a ledge): a ray down from the middle of its base meets it within the tolerance
+    if (!how && room) { const g = M.rooms.get(room.id)?.grp, c = bb.getCenter(new T.Vector3()); c.y = bb.min.y + 0.01;
+      const hit = g && new T.Raycaster(c, new T.Vector3(0, -1, 0), 0, 0.01 + TOL).intersectObject(g, true)[0]; if (hit) how = "on the room's own surface (a sill)"; }
     if (!how) for (const [o, ob] of boxes) if (o !== b && Math.abs(bb.min.y - ob.max.y) <= TOL && bb.min.x < ob.max.x && bb.max.x > ob.min.x && bb.min.z < ob.max.z && bb.max.z > ob.min.z) { how = "on another thing"; break; }
     if (how) out.how[how] = (out.how[how] || 0) + 1; else out.floating.push(`${b.address} ${k.kind} base ${bb.min.y.toFixed(3)} floor ${lvl}`); }
   // the control: lift the first thing standing on the floor by 10 cm and ask again
