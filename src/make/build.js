@@ -97,11 +97,12 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
   for (const mv of movers.values()) if (mv.pivot && !Array.isArray(mv.pivot)) mv.pivot = pivotOf(mv.pivot, placed, kindName);
   node.userData.make = { id, kind: kind.kind, address };
   // faces two parts lay on one plane, facing the same way, would flicker as you move: in each rigid node (the body,
-  // each mover) the smaller of each such pair is lifted a hair (src/make/coplanar.js settleFaces)
+  // each mover) the smaller of each such pair is lifted a hair (src/make/coplanar.js settleFaces); not in a build made
+  // only to be measured (context.measure: a kind's size, its doors' sweep), whose box a millimetre's lift inside it can't move
   const sideOf = (mat) => mat.side === THREE.BackSide ? -1 : mat.side === THREE.DoubleSide ? 0 : 1;
   // all at rest, in the thing's own frame, together: a shut lid's sides lie flush with its box's
   { const maps = [body, ...[...movers.values()].map(mv => mv.parts)], all = maps.flatMap(m => [...m.values()]), flat = all.flat(), sides = maps.flatMap(m => [...m].flatMap(([mat, gs]) => gs.map(() => sideOf(mat))));
-    const ts = performance.now(); c.info.settled = flat.length > 1 ? settleFaces(flat, 0.001, sides) : 0; c.info.settle_ms = performance.now() - ts; let k = 0; for (const gs of all) for (let j = 0; j < gs.length; j++) gs[j] = flat[k++]; }
+    const ts = performance.now(); c.info.settled = flat.length > 1 && !context.measure ? settleFaces(flat, 0.001, sides) : 0; c.info.settle_ms = performance.now() - ts; let k = 0; for (const gs of all) for (let j = 0; j < gs.length; j++) gs[j] = flat[k++]; }
   for (const m of meshesOf(THREE, body, id, "body")) node.add(m);
   const moverNodes = new Map();
   for (const [name, mv] of movers) {
@@ -113,7 +114,7 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
   }
   // a bank's meshes are one instance's pieces (a drawer's front, its bottom, its label): settled together too
   for (const b of banks.values()) { const ms = b.meshes.filter(m => m.isMesh && !m.material?.transparent), gs = ms.map(m => m.geometry);
-    if (gs.length > 1) { c.info.settled += settleFaces(gs, 0.001, ms.map(m => sideOf(m.material))); ms.forEach((m, k) => { m.geometry = gs[k]; }); } }
+    if (gs.length > 1 && !context.measure) { c.info.settled += settleFaces(gs, 0.001, ms.map(m => sideOf(m.material))); ms.forEach((m, k) => { m.geometry = gs[k]; }); } }
   for (const [name, b] of banks) for (const m of b.meshes) { m.userData.make = { thing: id, bank: name }; node.add(m); }
   for (const [o, mv] of extras) { if (mv) { const g = moverNodes.get(mv); o.position.sub(g.position); g.add(o); } else node.add(o); }
   // slots as points in their mover's frame, so whatever is put there moves with it

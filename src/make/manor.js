@@ -166,14 +166,14 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // a kind's size in its own frame (from its data, or measured once from a build)
   const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3();
   const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
-      if (k && !s) { const b = build(THREE, K, look, kind, `probe/${kind}`, over); box.setFromObject(b.node).getSize(v3); s = [v3.x, v3.y, box.max.z]; }
+      if (k && !s) { const b = build(THREE, K, look, kind, `probe/${kind}`, over, { measure: true }); box.setFromObject(b.node).getSize(v3); s = [v3.x, v3.y, box.max.z]; }
       sizes.set(key, s); } return sizes.get(key); };
   // the space a kind's moving parts sweep (R54: a lid swung back, a door swung out), in its own frame: each
   // mover turned or slid through its travel in 8 steps, its box at each step joined; measured once a kind
   const sweeps = new Map(), q0 = new THREE.Quaternion();
   const sweptOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (sweeps.has(key)) return sweeps.get(key);
     const k = kindOf(kind); let S = null;
-    if (k?.affordances) { const b = build(THREE, K, look, kind, `probe/${kind}`, over), all = new THREE.Box3(), bb = new THREE.Box3();
+    if (k?.affordances) { const b = build(THREE, K, look, kind, `probe/${kind}`, over, { measure: true }), all = new THREE.Box3(), bb = new THREE.Box3();
       for (const a of Object.values(k.affordances)) { const g = a.mover && b.movers.get(a.mover); if (!g || !["hinge", "lever", "slide"].includes(a.motion)) continue;
         const ax = new THREE.Vector3(...(a.axis || [0, 1, 0])).normalize(), ang = value(a.angle ?? 0, b.settings), tr = value(a.travel ?? 0.3, b.settings), home = g.userData.home;
         for (let i = 0; i <= 8; i++) { const t = i / 8; g.position.copy(home.position); g.quaternion.copy(home.quaternion);
