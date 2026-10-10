@@ -30,17 +30,43 @@ export function coplanar(meshes, { minArea = 2e-5 } = {}) {
     // swept along an axis lying in the plane (sorting along the normal's own axis would put every face level)
     const n0 = list[0].n, ax = Math.abs(n0[0]) > Math.abs(n0[1]) ? (Math.abs(n0[0]) > Math.abs(n0[2]) ? 0 : 2) : (Math.abs(n0[1]) > Math.abs(n0[2]) ? 1 : 2), sw = (ax + 1) % 3;
     list.sort((a, b) => a.lo[sw] - b.lo[sw]);
-    for (let a = 0; a < list.length; a++) for (let b = a + 1; b < list.length; b++) {
-      const A = list[a], B = list[b]; if (B.lo[sw] > A.hi[sw] + 1e-5) break; if (!A.home && !B.home) continue;
+    const ot = 3 - ax - sw;
+    const P = near(list, sw, ot, minArea * Math.abs(n0[ax]));
+    for (let j = 0; j < P.length; j += 2) {
+      const A = list[P[j]], B = list[P[j + 1]]; if (!A.home && !B.home) continue;
       if (A.n[0] * B.n[0] + A.n[1] * B.n[1] + A.n[2] * B.n[2] < 0.99995) continue;
       if (Math.abs((A.n[0] * A.t[A.i] + A.n[1] * A.t[A.i + 1] + A.n[2] * A.t[A.i + 2]) - (A.n[0] * B.t[B.i] + A.n[1] * B.t[B.i + 1] + A.n[2] * B.t[B.i + 2])) > 5e-4) continue;
       if (B.lo[1] > A.hi[1] + 1e-5 || A.lo[1] > B.hi[1] + 1e-5 || B.lo[2] > A.hi[2] + 1e-5 || A.lo[2] > B.hi[2] + 1e-5 || B.lo[0] > A.hi[0] + 1e-5 || A.lo[0] > B.hi[0] + 1e-5) continue;
       // two triangles of one mesh sharing an edge, lying on one plane, don't overlap (a surface's own tiling)
       if (A.mi === B.mi && shared(A.t, A.i, B.t, B.i) >= 2) continue;
+      // the shared area is at most the boxes' common rectangle in the plane: tiles that only touch along an edge or at a corner
+      // (a floor's neighbours, most of the pairs) need no clipping
+      const wu = Math.min(A.hi[sw], B.hi[sw]) - Math.max(A.lo[sw], B.lo[sw]), wv = Math.min(A.hi[ot], B.hi[ot]) - Math.max(A.lo[ot], B.lo[ot]);
+      if (wu <= 0 || wv <= 0 || wu * wv < minArea * Math.abs(A.n[ax])) continue;
       const area = overlap(A, B); if (area < minArea) continue;
       out.push({ a: meshes[A.mi].key, b: meshes[B.mi].key, ma: A.mi, mb: B.mi, ia: A.i / 9, ib: B.i / 9, area, n: A.n,
         at: [0, 1, 2].map(k => (A.lo[k] + A.hi[k] + B.lo[k] + B.hi[k]) / 4), ta: [...A.t.slice(A.i, A.i + 9)], tb: [...B.t.slice(B.i, B.i + 9)] });
     }
+  }
+  return out;
+}
+// the pairs [a < b] of a plane's faces whose boxes meet in the plane (within 1e-5): a sweep along one axis for a few faces;
+// for many (a floor's thousands of tiles all on one plane, where a sweep met every face of a row: 11 M pairs a manor) a
+// grid in the plane's two axes, each pair met once, in the cell holding the larger of their two low corners
+function near(list, sw, ot, least) {
+  const e = 1e-5, out = [];
+  if (list.length <= 64) { for (let a = 0; a < list.length; a++) for (let b = a + 1; b < list.length; b++) { if (list[b].lo[sw] > list[a].hi[sw] + e) break; out.push(a, b); } return out; }
+  let ext = 0; for (const f of list) ext += Math.max(f.hi[sw] - f.lo[sw], f.hi[ot] - f.lo[ot]);
+  const cs = Math.max(ext / list.length, 1e-3), cell = (v) => Math.floor(v / cs), grid = new Map();
+  list.forEach((f, i) => { const u0 = cell(f.lo[sw] - e), u1 = cell(f.hi[sw] + e), v0 = cell(f.lo[ot] - e), v1 = cell(f.hi[ot] + e);
+    for (let u = u0; u <= u1; u++) for (let v = v0; v <= v1; v++) { const k = u * 1048576 + v; let c = grid.get(k); if (!c) grid.set(k, c = []); c.push(i); } });
+  for (const [k, c] of grid) for (let x = 0; x < c.length; x++) for (let y = x + 1; y < c.length; y++) {
+    const A = list[c[x]], B = list[c[y]];
+    if (B.lo[sw] > A.hi[sw] + e || A.lo[sw] > B.hi[sw] + e || B.lo[ot] > A.hi[ot] + e || A.lo[ot] > B.hi[ot] + e) continue;
+    const wu = Math.min(A.hi[sw], B.hi[sw]) - Math.max(A.lo[sw], B.lo[sw]), wv = Math.min(A.hi[ot], B.hi[ot]) - Math.max(A.lo[ot], B.lo[ot]);
+    if (wu <= 0 || wv <= 0 || wu * wv < least * 0.98) continue;     // only touching (and below the least area clipping could find)
+    if (cell(Math.max(A.lo[sw], B.lo[sw]) - e) * 1048576 + cell(Math.max(A.lo[ot], B.lo[ot]) - e) !== k) continue;
+    if (c[x] < c[y]) out.push(c[x], c[y]); else out.push(c[y], c[x]);
   }
   return out;
 }
