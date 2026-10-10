@@ -350,7 +350,9 @@ if (CASE) {
     const picture = was?.picture || portrait(id), pr = makePresence(THREE, { picture, name: p.name, at, seed: id.length });
     pr.hit.userData.presence = id;            // aimed at, it answers to the person's id (it had answered with the name, and talking found no one)
     scene.add(pr.group);                       // in world space (a room's group has its own offset); shown while its room is
-    const rec = { p: pr, picture, face: was?.face || faceOf(id), room: to }; presences.set(id, rec); return rec; };
+    // (the panel's face painted when the panel first opens on them, not at load: four of them were 0.3 s of the case's start)
+    let face = was?.faceMade ? was.face : undefined;
+    const rec = { p: pr, picture, room: to, get faceMade() { return face !== undefined; }, get face() { if (face === undefined) face = faceOf(id); return face; } }; presences.set(id, rec); return rec; };
   for (const p of CASE.cast) presenceOf(p.id);
   let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null }); }
   catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) }); }
