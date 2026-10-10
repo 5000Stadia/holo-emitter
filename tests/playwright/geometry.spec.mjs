@@ -1038,7 +1038,7 @@ test("through the doorway, the next room stands at the distance the plan puts it
     const bestStep = ref;
     return { x: bestX, val: bestVal, row: bestRow, step: bestStep,
       sampleX0: x0, sampleX1: x1,
-      beyond_m: ap.beyond_m, offset: ap.beyond_offset_m };
+      beyond_m: ap.beyond_m, offset: ap.beyond_offset_m, foot: ap.y + ap.h };
   });
 
   /* The meta's own two numbers are the plan's, and they are what the renderer
@@ -1066,15 +1066,22 @@ test("through the doorway, the next room stands at the distance the plan puts it
 
   /* THE VERTICAL HALF. A floor point at distance D draws at
      `horizon + focal × eye / D` under the pinned lens, and the far room's own
-     wall-floor junction is such a point: 612 px, computed from the same four
-     numbers. This is what makes the floor beyond continue the floor here
-     instead of starting a second camera at the sill. */
+     wall-floor junction is such a point: 622 px, computed from the same four
+     numbers. That was the whole clause until Kabe, 2026-08-29/30 (f64fcaa4,
+     859fe33c, then the threshold laws in src/renderer.js): where the far frame's
+     bottom would land above the doorway's foot, the frame MOVES DOWN to butt
+     against it ("join the edge, do not fill the gap"; "a smaller lie than any
+     invented floor"), and never goes below the wall's own floor line. So the
+     foot is no longer the pinhole's row: it is that row or lower, by the gap,
+     and never below the opening. (Red from 859fe33c to 2026-10-10 against the
+     pinhole row alone: 661 drawn, 622 predicted, the 39 px being the move.) */
   const predictedFoot = LIT.horizon_y * LIT.H + LIT.focal_px * LIT.eye_m / D;
   expect(res.step, "the far room's corner stands proud of the wall beside it").toBeGreaterThan(8);
   expect(res.row, "and it ends somewhere inside the opening").toBeGreaterThan(0);
-  expect(Math.abs(res.row - predictedFoot),
-    `the far room's floor line is drawn at ${res.row}, and a wall ${D.toFixed(2)} m away puts its foot at ${predictedFoot.toFixed(1)}`)
-    .toBeLessThanOrEqual(3);
+  expect(res.row,
+    `the far room's floor line is drawn at ${res.row}, above where a wall ${D.toFixed(2)} m away puts its foot (${predictedFoot.toFixed(1)}): the far frame only ever moves down`)
+    .toBeGreaterThanOrEqual(predictedFoot - 3);
+  expect(res.row, `and never below the doorway's foot (${res.foot.toFixed(1)})`).toBeLessThanOrEqual(res.foot + 3);
 });
 
 test("the facing glyph is 0.35 m of wall, and never a fifth of the frame", async ({ page }) => {

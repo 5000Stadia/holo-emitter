@@ -186,9 +186,15 @@ test.describe("the whole manor is one document, checked facing by facing", () =>
        its 50 doorways and the court mouth from each of its two ends. Stairs
        are not carriers on a facing wall — a flight stands on the floor — so
        the manor's four `stair_` exits are not counted here and are `stair.spec`'s. */
+    /* [2026-10-10] Less one: the court's own end of the mouth. Since af4e6eee (2026-08-30, Kabe's long room in
+       underground-2) a facing whose wall line lies beyond a full-width open edge looks THROUGH the edge at the far
+       wall, and the edge is no carrier of the viewed plane; the court's south facing is such a facing (it views the
+       approach's far side), so the mouth is drawn from the approach's end only. Named here, so any other exit that
+       loses its drawing still fails. (Red from af4e6eee to 2026-10-10: 51 drawn against 52.) */
+    const THROUGH = new Set(["entrance_court|op_court_mouth"]);
     expect(drawn.length, "one drawn opening per door or open-edge exit of the manor")
       .toBe(NAV.locations.reduce((n, l) => n + (l.exits || [])
-        .filter((e) => e.id.startsWith("door_") || e.id.startsWith("way_")).length, 0));
+        .filter((e) => (e.id.startsWith("door_") || e.id.startsWith("way_")) && !THROUGH.has(`${l.id}|${e.via}`)).length, 0));
   });
 
   /* THE `+` JUNCTION GUARD, MANOR-WIDE, AND WHAT IT FINDS. It exists for
@@ -974,7 +980,22 @@ test.describe("§12.2 over a manor route, in both engines", () => {
     return await page.evaluate(async (route) => {
       const A = window.HOLO_APP;
       const c = document.getElementById("scene");
+      /* [2026-10-10] THE PICTURE IS HASHED ONCE IT HAS ARRIVED. Since row 45 a wall's painting comes by URL when it is
+         looked at (and its neighbours after), and the page repaints when one lands; hashed at once, a frame was the grid
+         on one load and the painting on the other whenever a neighbour seen through a doorway raced the hash (red one
+         run in two or three on Chromium). So every painting this view shows (its wall, the walls its doorways look onto)
+         is asked for and waited on, in or failed, and the repaint it causes allowed to land. */
+      const settle = async () => {
+        const vs = A.harness.viewstate, keys = [vs.location + "/" + vs.facing, ...(A.neighbourKeys(vs) || [])];
+        for (const k of keys) if (A.manifest[k] && A.backdrops[k]) A.requestPainting(k);
+        for (let i = 0; i < 400; i++) {
+          if (keys.every((k) => { const im = A.requested[k]; return !im || im.failed || (im.complete && im.naturalWidth > 0 && A.backdrops[k]?.image === im); })) break;
+          await new Promise((r) => setTimeout(r, 25));
+        }
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      };
       const hash = async () => {
+        await settle();
         const b = await new Promise((r) => c.toBlob(r, "image/png"));
         const d = await crypto.subtle.digest("SHA-256", await b.arrayBuffer());
         return [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, "0")).join("");
