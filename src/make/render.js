@@ -25,8 +25,13 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   // the backend: measured per device, unless the address says
   const memoryKey = `holo/backend/${BUILD}/${navigator.userAgent.length}-${screen.width}x${screen.height}`;
   let memory = {}; try { memory = JSON.parse(localStorage.getItem(memoryKey) || "{}"); } catch (_) {}
+  // WebGL 2 is tried only when WebGPU missed the frame budget here: a device that holds it at the screen's refresh can't
+  // show WebGL doing better (both gaps read the refresh), and the trial cost a returning player 2-8 s of first frame
+  // (fresh-eyes audit, 2026-10-10)
+  const budget = PHONE ? 1000 / 30 : 1000 / 60;
   const want = Q.get("webgl") === "1" ? "webgl" : Q.get("webgpu") === "1" ? "webgpu"
-    : memory.choice || (memory.webgpu == null ? "webgpu" : memory.webgl == null ? "webgl" : (memory.webgpu <= memory.webgl ? "webgpu" : "webgl"));
+    : memory.choice || (memory.webgpu == null || memory.webgpu <= budget * 1.15 ? "webgpu"
+      : memory.webgl == null ? "webgl" : (memory.webgpu <= memory.webgl ? "webgpu" : "webgl"));
   // depth (?depth=reversed|log|std): log depth outdoors writes depth from every fragment shader, which turns off early-Z and
   // hidden-surface removal for every draw; reversed depth (a float buffer, near at 1) holds the same 0.05 m to 3 km without
   // it (phones by default: headless, GPU 7.4 -> 4.1 ms a frame at 1x, 68 -> 25 ms at DPR 3; near and far views alike).
@@ -60,7 +65,6 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
 
   // frame time: a rolling record of the gaps between frames; the controller and the backend memory read it
   const gaps = []; let last = 0, over = 0, under = 0, cooldownUntil = 0, sampled = 0;
-  const budget = PHONE ? 1000 / 30 : 1000 / 60;
   function measure(now) {
     if (last) { const g = now - last; gaps.push(g); if (gaps.length > 120) gaps.shift();
       if (!Q.get("dpr") && now > cooldownUntil) {
