@@ -4,10 +4,10 @@ Kabe, 2026-10-10: "I just want a computationally smart npc builder maybe with go
 reuse like a digital mr potato man"; the painted busts are "kinda 2d weird right now and the faces are pretty jank";
 "Bonus points if we do bodies too. Our biggest gap is npcs - think the london street again or hell any future populated
 place. Can we apply the locational variety that we have to npcs in a smart way?"; and "babys vs kids vs teens vs adults
-vs elderly".
+vs elderly"; and "Future dystopian old man warrior vs past young princess child sort of ranges".
 My reading: the painted busts of R57 (src/make/sitter.js) are judged not good enough; he wants 3D people, heads and
 bodies, built from reusable parts, generated from the place the way our rooms and street lots are (looks.js,
-influence.js), across every age, in crowds. Nothing is on the roadmap for it yet; placing it is his call.
+influence.js), across every age, in crowds, and across settings: the same builder dresses a far-future old soldier or a 1660 child princess, so the body and the wardrobe are separate (a wardrobe per era or genre, as looks.js is a set of materials per era). Nothing is on the roadmap for it yet; placing it is his call.
 Two read-only passes (opus helpers), every claim linked in their reports; condensed here.
 
 ## Bodies and heads: what to build on
