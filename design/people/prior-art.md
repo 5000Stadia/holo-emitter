@@ -49,3 +49,11 @@ motion; a ms-arithmetic variety check at generation; tiers (full rigs near, bake
 Movement made in code (gait from age, build, load: pace, stride, stoop) rather than from a library, which also avoids
 the Quaternius and Mixamo traps. Rejected: Quaternius and Mixamo files in the repo, SMPL/STAR, MB-Lab, VRoid, Ready
 Player Me; buying anything.
+
+## Kabe's bar on sense (2026-10-10)
+
+"consideration that they aren't multiple random princess babies walking London streets and such so the system has to be
+smart enough". My reading: the crowd is a census, not dice. Who can be in a place at an hour follows from the place
+(its influences, era, hour, event), people come as households and errands rather than singly, rank governs how common
+someone is and with whom they go, and named or singular people (a princess, the steward) exist once in the world.
+Checked at generation, in ms, like the house's soundness checks.
