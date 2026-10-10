@@ -91,6 +91,16 @@ Agreed with you 2026-10-07 ("Yes"): the smallest thing that flies toward the nor
 - [~] R58 The narrator: construct's own (you, 2026-10-07: "Perfect the programmatic space while the dynamic narrative from an LLM call probably should be improved and shaped by that project"): holo-emitter speaks to construct over a narrow contract (world in, events out, beats in as closed effects run by the world's own rules; `design/case/boundary-with-construct.md`), and keeps its code narrator (`src/make/narrator.js`, built 2026-10-07) only as the no-model stand-in and test harness
 - [~] R59 The case played: 30–60 minutes from arrival to accusation on a phone, your walk-through, and the receipts (time, calls, cost per play)
 
+## M8 — People from place
+
+You, 2026-10-10: "I just want a computationally smart npc builder maybe with good mix and match face details you can reuse like a digital mr potato man"; the painted busts are "kinda 2d weird right now and the faces are pretty jank"; "Bonus points if we do bodies too. Our biggest gap is npcs - think the london street again or hell any future populated place"; every age, "babys vs kids vs teens vs adults vs elderly"; every setting, "Future dystopian old man warrior vs past young princess child"; and sense, "they aren't multiple random princess babies walking London streets"; voices dropped for now, "but wire compatibility"; placed here on your "Sounds good". My reading: 3D people, heads and bodies, from one builder of reusable parts (genes for face and build, an age curve, a wardrobe kit per setting), generated from the place the way rooms and street lots are, as households and errands with rank and uniqueness respected, cheap enough for a crowd on a phone. Prior art: `design/people/prior-art.md` (MakeHuman CC0 base for every age, sliders, rig and mouth shapes; Census/RimWorld/CK3 for profile-first generation and inheritance; crowd-perception studies for where variety counts).
+
+- [ ] R60 The side-by-side trial, on a side branch, replacing nothing: Daniel as a 3D person beside his painted bust, a 1660 child and a far-future old soldier from the same builder, and 300 people walking on a phone (frame time measured); two fresh views before anything replaces R57's busts
+- [ ] R61 The builder: a person as data (genes, age, build, wardrobe slots and dyes, props, a voice slot left empty), children inheriting from parents, movement made in code from age and build (a child's quick steps, an old man's stoop, a baby carried)
+- [ ] R62 People from place: who can be in a place at an hour from its influences, era and events; households and errands, not singles; rank sets rarity and company; named people exist once; ms checks at generation (no lone baby, no second princess)
+- [ ] R63 Wardrobe kits per setting: 1660 England first (doublets, coifs, breeches, aprons, by rank and trade), then one other to prove the builder crosses settings
+- [ ] R64 The manor's suspects and the London street peopled by it
+
 ## Later
 
 - [ ] R4 Real M0 sprites (desk, drawer, key, coin) produced and ingested; the placeholders retired (row 4; architecture "What row 4 inherits — the list")
