@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Muniment Room · Painted Shell</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root { --ink: #ece4d2; --ink-dim: #a89e88; --panel: rgba(22, 19, 16, 0.72); --line: rgba(236, 228, 210, 0.2); --brass: #c9a961; }
+  html, body { height: 100%; margin: 0; background: #0c0a08; color: var(--ink); overflow: hidden;
+    font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
+  canvas { display: block; }
+  .hud { position: fixed; inset: 0; pointer-events: none; display: grid; grid-template-rows: auto 1fr auto; padding: 18px; gap: 12px; }
+  .top, .bottom { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+  .bottom { align-items: flex-end; }
+  .room { background: var(--panel); border: 1px solid var(--line); padding: 12px 16px 10px; }
+  .room .eyebrow { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-dim); }
+  .room .name { font-family: "Josefin Sans", sans-serif; font-weight: 600; font-size: 24px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; color: var(--brass); }
+  .keys { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); line-height: 1.8; }
+  .keys kbd { font-family: inherit; color: var(--ink); border: 1px solid var(--line); padding: 0 5px; border-radius: 2px; }
+  .note { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; color: var(--ink-dim); max-width: 42ch; line-height: 1.55; }
+  .note b { color: var(--ink); font-weight: 500; }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 2; border: 1px solid var(--brass); padding: 12px 22px; background: var(--panel); text-align: center; }
+  #gate .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 20px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #gate .s { margin-top: 4px; color: var(--ink-dim); }
+  #gate[hidden], #status[hidden], #ghost[hidden] { display: none !important; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; z-index: 3; text-align: center; padding: 24px; }
+  #status .t { font-family: "Josefin Sans", sans-serif; font-weight: 300; font-size: 26px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--brass); }
+  #status .s { margin-top: 12px; color: var(--ink-dim); }
+  #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(236,228,210,0.7); z-index: 1; pointer-events: none; }
+  #hint { position: fixed; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 4px 10px; z-index: 1; pointer-events: none; font-size: 12px; letter-spacing: 0.04em; }
+  #line { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; color: var(--ink); background: var(--panel); border: 1px solid var(--line); padding: 10px 16px; z-index: 1; pointer-events: none; font-family: "Josefin Sans", sans-serif; font-size: 16px; letter-spacing: 0.02em; line-height: 1.45; transition: opacity 0.6s; }
+  #held { position: fixed; right: 18px; bottom: 18px; color: var(--ink-dim); background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; z-index: 1; pointer-events: none; }
+  #held b { color: var(--brass); font-weight: 500; }
+  #cross[hidden], #hint[hidden], #line[hidden], #held[hidden] { display: none !important; }
+  #ghost { position: fixed; inset: 0; pointer-events: none; background-size: cover; background-position: center; opacity: 0.5; z-index: 1; }
+  @media (max-width: 640px), (pointer: coarse) { .hud { padding: 10px; font-size: 11px; } .room .name { font-size: 16px; } .note { display: none; } #gate { top: 70px; } }
+</style>
+</head>
+<body>
+<div id="status"><div><div class="t">Muniment Room</div><div class="s" id="statusText">loading the room…</div></div></div>
+<div id="ghost" hidden></div>
+<div id="cross" hidden></div>
+<div id="hint" hidden></div>
+<div id="line" hidden></div>
+<div id="held" hidden></div>
+<div id="gate" tabindex="0"><div class="t">click to walk</div><div class="s">esc releases the mouse · or drag to look</div></div>
+<div class="hud">
+  <div class="top">
+    <div class="room"><div class="eyebrow">you are in</div><div class="name">Muniment Room</div><div class="eyebrow" id="modeName" style="margin-top:6px"></div></div>
+    <div class="note" id="note"></div>
+  </div>
+  <div></div>
+  <div class="bottom">
+    <div class="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk &nbsp; mouse look &nbsp; <kbd>shift</kbd> stride<br>
+      <kbd>1</kbd>–<kbd>4</kbd> stand where the N / E / S / W painting was painted from &nbsp; <kbd>G</kbd> ghost the painting over it<br><kbd>P</kbd> cycle: the paintings → zero assets v1 → zero assets v2<br>click (or <kbd>E</kbd>) what is in front of you: the desk's drawer opens</div>
+  </div>
+</div>
+<script>
+  window.__fail = (why) => { const s = document.getElementById("status"); s.hidden = false; document.getElementById("statusText").innerHTML = why; };
+  window.addEventListener("error", (e) => { if (!window.__ok) window.__fail("the page hit an error: " + (e.message || e.type)); });
+</script>
+<script src="../../src/harness.js"></script>
+<script type="importmap">{"imports": {"three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from "three";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { RectAreaLightUniformsLib } from "three/addons/lights/RectAreaLightUniformsLib.js";
+import { makeGI } from "./gi.js";
+import { touchControls, isTouch, fullscreenButton } from "../touch.js";
+fullscreenButton();
+import { buildProcedural as buildV1 } from "./procedural-v1.js";
+import { buildProcedural as buildV2, buildDesk, buildKey } from "./procedural.js";
+
+// ?room=muniment_room (the folder beside this page that tools/paint-shell.py baked)
+const Q = new URLSearchParams(location.search);
+const ROOM = Q.get("room") || "muniment_room";
+const base = `./${ROOM}/`;
+const shell = await (await fetch(base + "shell.json")).json();
+const { w: W, d: D, h: H } = shell.room_m;
+const EYE = 1.5, T = 0.22, PASSAGE = 1.6;
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(isTouch() ? 1 : Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NoToneMapping;       // the paintings already carry their light: show them as painted
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0c0a08);
+const camera = new THREE.PerspectiveCamera(62, innerWidth / innerHeight, 0.03, 60);
+
+const loader = new THREE.TextureLoader();
+const aniso = renderer.capabilities.getMaxAnisotropy();
+const tex = (f) => new Promise((ok, bad) => loader.load(base + f, t => { t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = aniso; ok(t); }, undefined, bad));
+const painted = (t) => new THREE.MeshBasicMaterial({ map: t });
+const flat = (rgb) => new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(rgb[0] / 255, rgb[1] / 255, rgb[2] / 255, THREE.SRGBColorSpace) });
+
+// plan metres: X east, Y north. three: x = X, z = -Y, y up.
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), painted(await tex(shell.floor.tex)));
+floor.rotation.x = -Math.PI / 2; floor.position.set(W / 2, 0, -D / 2); scene.add(floor);
+const ceil = new THREE.Mesh(new THREE.PlaneGeometry(W, D), painted(await tex(shell.ceiling.tex)));
+ceil.rotation.x = Math.PI / 2; ceil.position.set(W / 2, H, -D / 2); scene.add(ceil);
+
+// each wall is built in its own frame: r along the wall from the painting's left corner, up is up,
+// the painted face toward the room; then turned and set in place
+const PLACE = {
+  N: { pos: [0, 0, -D], rot: 0 },
+  S: { pos: [W, 0, 0], rot: Math.PI },
+  E: { pos: [W, 0, -D], rot: -Math.PI / 2 },
+  W: { pos: [0, 0, 0], rot: Math.PI / 2 },
+};
+for (const [F, wall] of Object.entries(shell.walls)) {
+  const L = wall.width_m;
+  const wallTex = await tex(wall.tex);
+  const reliefs = (wall.reliefs || []).map(r => ({ ...r, a: r.u0 * L, b: r.u1 * L, z0: r.v0 * H, z1: r.v1 * H }));
+  const ops = wall.openings.map(o => ({ ...o, a: o.u0 * L, b: o.u1 * L, t: o.top * H })).sort((p, q) => p.a - q.a);
+  // how far proud of the wall an opening's mouth stands: the relief it is cut through, if any
+  for (const o of ops) o.front = Math.max(0, ...reliefs.filter(r => r.z0 === 0 && r.a <= o.a && r.b >= o.b).map(r => r.depth));
+  // a rectangle [a,b]x[z0,z1] in the wall's frame, notched by every floor-standing opening inside it,
+  // UV'd so it shows the wall painting exactly where it stands
+  const panel = (a, b, z0, z1) => {
+    const s = new THREE.Shape(); s.moveTo(a, z0);
+    if (z0 === 0) for (const o of ops) if (o.a >= a && o.b <= b) { s.lineTo(o.a, 0); s.lineTo(o.a, o.t); s.lineTo(o.b, o.t); s.lineTo(o.b, 0); }
+    s.lineTo(b, z0); s.lineTo(b, z1); s.lineTo(a, z1); s.lineTo(a, z0);
+    const g = new THREE.ShapeGeometry(s);
+    const uv = g.attributes.uv, p = g.attributes.position;
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / L, p.getY(i) / H);
+    return new THREE.Mesh(g, painted(wallTex));
+  };
+  const grp = new THREE.Group();
+  grp.add(panel(0, L, 0, H));
+  const add = (geo, mat, x, y, z, ry = 0, rx = 0) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); grp.add(m); };
+  // reliefs stand proud: the painting on their face, their own paint on their sides and top
+  for (const r of reliefs) {
+    const face = panel(r.a, r.b, r.z0, r.z1); face.position.z = r.depth; grp.add(face);
+    const tp = flat(r.top_rgb), h = r.z1 - r.z0, w = r.b - r.a;
+    // a side is the face's own edge strip of paint, drawn back into the wall and dimmed as a turned face is
+    const side = (x, inward, ry) => {
+      const g = new THREE.PlaneGeometry(r.depth, h), uv = g.attributes.uv;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, (x + inward * 0.04 * uv.getX(i)) / L, (r.z0 + uv.getY(i) * h) / H);
+      const m = new THREE.MeshBasicMaterial({ map: wallTex, color: new THREE.Color(0.55, 0.55, 0.55) });
+      add(g, m, x, r.z0 + h / 2, r.depth / 2, ry);
+    };
+    side(r.a, 1, -Math.PI / 2);
+    side(r.b, -1, Math.PI / 2);
+    add(new THREE.PlaneGeometry(w, r.depth), tp, r.a + w / 2, r.z1, r.depth / 2, 0, -Math.PI / 2);
+    if (r.z0 > 0) add(new THREE.PlaneGeometry(w, r.depth), flat(r.side_rgb.map(v => v * 0.6)), r.a + w / 2, r.z0, r.depth / 2, 0, Math.PI / 2);
+  }
+  if (wall.hearth) {
+    const hw = (wall.hearth.u1 - wall.hearth.u0) * L, hd = wall.hearth.out_m + 0.12;
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(hw, hd), painted(await tex(wall.hearth.tex)));
+    top.rotation.x = -Math.PI / 2; top.position.set(wall.hearth.u0 * L + hw / 2, 0.03, hd / 2); grp.add(top);
+    const lip = new THREE.Mesh(new THREE.PlaneGeometry(hw, 0.03), flat([30, 26, 21]));
+    lip.position.set(wall.hearth.u0 * L + hw / 2, 0.015, hd); grp.add(lip);
+    for (const [x, ry] of [[wall.hearth.u0 * L, -Math.PI / 2], [wall.hearth.u0 * L + hw, Math.PI / 2]]) {
+      const e = new THREE.Mesh(new THREE.PlaneGeometry(hd, 0.03), flat([30, 26, 21])); e.position.set(x, 0.015, hd / 2); e.rotation.y = ry; grp.add(e);
+    }
+  }
+  for (const o of ops) {
+    const wd = o.b - o.a, rv = flat(o.reveal_rgb), dark = flat(o.reveal_rgb.map(v => v * 0.35));
+    const deep = o.kind === "recess" ? o.depth : T + PASSAGE, zf = o.front, zb = zf - deep;
+    const mid = (zf + zb) / 2, len = zf - zb;
+    // jambs and head through the wall (and any relief), in the frame's own colour; beyond a door, a dark passage
+    add(new THREE.PlaneGeometry(len, o.t), o.kind === "recess" ? rv : dark, o.a, o.t / 2, mid, Math.PI / 2);
+    add(new THREE.PlaneGeometry(len, o.t), o.kind === "recess" ? rv : dark, o.b, o.t / 2, mid, -Math.PI / 2);
+    add(new THREE.PlaneGeometry(wd, len), o.kind === "recess" ? rv : dark, o.a + wd / 2, o.t, mid, 0, Math.PI / 2);
+    add(new THREE.PlaneGeometry(wd, len), dark, o.a + wd / 2, 0.001, mid, 0, -Math.PI / 2);
+    if (o.kind !== "recess") {
+      add(new THREE.PlaneGeometry(T, o.t), rv, o.a + 0.001, o.t / 2, -T / 2, Math.PI / 2);
+      add(new THREE.PlaneGeometry(T, o.t), rv, o.b - 0.001, o.t / 2, -T / 2, -Math.PI / 2);
+    }
+    // at the far end, what the painting showed through the opening, enlarged to fill the same angle
+    const k = 1 + deep / 4;
+    add(new THREE.PlaneGeometry(wd * k, o.t * k), painted(await tex(o.beyond)), o.a + wd / 2, o.t * k / 2, zb + 0.002);
+  }
+  grp.position.set(...PLACE[F].pos); grp.rotation.y = PLACE[F].rot;
+  scene.add(grp);
+}
+
+// the same room with zero assets: built from its schematic in code (procedural.js)
+RectAreaLightUniformsLib.init();
+const statusText = document.getElementById("statusText");
+const schem = await (await fetch(base + "schematic.json")).json();
+// v1 is frozen as first graded, schematic and all
+const schemV1 = await (await fetch(base + "schematic-v1.json")).json().catch(() => schem);
+// two code builds live side by side: v1 exactly as first graded (frozen), v2 the rework.
+// Each keeps its own light levels (?sun=&sky=&fill=&bounce= override the one ?code= names).
+const BUILDS = {
+  v1: { build: buildV1, lv: { sun: 2.2, sky: 18, fill: 1.0, bounce: 2 }, label: "zero assets, v1 (as first graded)" },
+  v2: { build: buildV2, lv: null, label: "zero assets, v2 (reworked)" },
+};
+const CODE = Q.get("code") === "v1" ? "v1" : "v2";
+for (const [k, B] of Object.entries(BUILDS)) {
+  B.code = await B.build(THREE, k === "v1" ? schemV1 : schem, (what) => { statusText.textContent = `${k}: ${what}…`; });
+  B.lv = { ...(B.lv || B.code.defaults) };
+  if (k === CODE) for (const key of Object.keys(B.lv)) if (Q.get(key)) B.lv[key] = +Q.get(key);
+  B.composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(innerWidth * renderer.getPixelRatio(), innerHeight * renderer.getPixelRatio(), { type: THREE.HalfFloatType, samples: 4 }));
+  B.composer.addPass(new RenderPass(B.code.scene, camera));
+  const g = new GTAOPass(B.code.scene, camera, innerWidth, innerHeight);
+  g.updateGtaoMaterial(B.code.gtao || { radius: 0.35, distanceExponent: 1.4, thickness: 1.2, scale: 1.2, samples: 16 });
+  g.blendIntensity = B.code.gtaoBlend ?? 1.0;
+  if (!isTouch()) B.composer.addPass(g);                  // phones: no ambient-occlusion pass
+  B.composer.addPass(new OutputPass());
+}
+
+let code, LV, composer;
+const setLights = (lv) => {
+  Object.assign(LV, lv); const L = code.lights;
+  L.sun.intensity = LV.sun; L.hemi.intensity = LV.fill; L.bounce.intensity = LV.bounce;
+  for (const a of L.areas) a.intensity = LV.sky;
+  if (L.apply) L.apply(LV);                        // a build may carry further lights of its own
+  if (code.gi && LV.gi !== undefined) code.gi.setScale(LV.gi);
+};
+const use = (v) => { const B = BUILDS[v]; code = B.code; LV = B.lv; composer = B.composer; setLights({}); };
+for (const v of ["v1", "v2"]) use(v);              // apply each build's levels once
+use(CODE);
+window.__lights = setLights;
+let mode = Q.get("mode") === "code" ? CODE : ["v1", "v2"].includes(Q.get("mode")) ? Q.get("mode") : "painted";
+if (mode !== "painted") use(mode);
+const modeName = document.getElementById("modeName");
+const showMode = () => { modeName.textContent = mode === "painted" ? "the paintings, projected" : BUILDS[mode].label; };
+showMode();
+
+// ---- the world: the desk, the drawer and the key, as truth (world.json) driven by the harness (§8)
+const WK = `holo-emitter/${ROOM}/world`;
+const fx = {};
+for (const n of ["world", "staging", "narration", "viewstate"]) fx[n] = await (await fetch(`${base}world/${n}.json`)).json();
+try { if (!Q.has("fresh")) { const saved = localStorage.getItem(WK); if (saved) fx.world = JSON.parse(saved); } else localStorage.removeItem(WK); } catch (_) {}
+const harness = window.HOLO.harness.create(fx);
+const W2 = BUILDS.v2.code, spot = fx.staging.code_room.desk1;
+const desk = buildDesk(THREE, W2.kit);
+{ // stand the desk against its wall, in that wall's frame (as the walls are placed)
+  const PLACE = { N: [[0, 0, -D], 0], S: [[W, 0, 0], Math.PI], E: [[W, 0, -D], -Math.PI / 2], W: [[0, 0, 0], Math.PI / 2] }[spot.wall];
+  const holder = new THREE.Group(); holder.position.set(...PLACE[0]); holder.rotation.y = PLACE[1];
+  desk.group.position.set(spot.r, 0, 0.04); holder.add(desk.group); W2.scene.add(holder);
+}
+const known = (id) => harness.world.knowledge.player.includes(id);
+const heldByMe = (id) => harness.world.relations.some(r => r[0] === "held_by" && r[1] === id && r[2] === "player");
+const stateOf = (id) => harness.world.entities.find(e => e.id === id).state;
+let key = null, drawerAt = stateOf("desk1") === "open" ? 1 : 0, drawerTo = drawerAt;
+const placeKey = () => { if (key || !known("key1") || heldByMe("key1")) return; key = buildKey(THREE); if (W2.gi) key.traverse(o => { if (o.isMesh) W2.gi.install(o.material); }); key.position.copy(desk.cavity); key.rotation.y = 0.35; desk.drawer.add(key); };
+const heldEl = document.getElementById("held"), lineEl = document.getElementById("line");
+const showHeld = () => { const items = harness.world.relations.filter(r => r[0] === "held_by" && r[2] === "player").map(r => r[1]); heldEl.hidden = !items.length; heldEl.innerHTML = "you carry: " + items.map(i => `<b>${{ key1: "an iron key" }[i] || i}</b>`).join(", "); };
+let lineTimer = null;
+const say = (text) => { if (!text) return; lineEl.textContent = text; lineEl.hidden = false; lineEl.style.opacity = 1; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.style.opacity = 0; setTimeout(() => { lineEl.hidden = true; }, 700); }, 4200); };
+// ---- v2's light: baked from the room itself (gi.js), with the desk in it. The probes see DIRECT light
+// only (sun and window daylight): no fill, no softbox, so the bake holds first and second bounce of the
+// room's real sources and nothing of the rig. The measured fill is applied after the coefficients are
+// frozen, as the eye's adaptation (NOTES "The light bake"). ?gi=0 shows v2 without the bake.
+const useGI = Q.get("gi") === "1" || (Q.get("gi") !== "0" && !isTouch());     // phones skip the bake unless ?gi=1
+if (useGI) {
+  const B2 = BUILDS.v2, L = B2.code.lights;
+  const gi = makeGI({ min: [0.3, 0.25, -D + 0.3], max: [W - 0.3, H - 0.25, -0.3], n: [5, 3, 5] });
+  B2.code.scene.traverse(o => { if (o.isMesh) gi.install(o.material); });
+  const giDefaults = { sun: 2.0, sky: 7, floorB: 0.5, patchB: 0, ceilB: 0.9, northB: 0, southFill: 0.6, fill: 0.3, gi: 0.9 };
+  for (const [k, v] of Object.entries(giDefaults)) B2.lv[k] = Q.has(k) ? +Q.get(k) : v;     // a level in the URL wins
+  if (Q.has("giScale")) B2.lv.gi = +Q.get("giScale");
+  // bake: direct sources on, everything else off
+  L.sun.intensity = B2.lv.sun; for (const a of L.areas) a.intensity = B2.lv.sky;
+  L.hemi.intensity = 0; L.apply({ ...B2.lv, floorB: 0, patchB: 0, ceilB: 0, northB: 0, southFill: 0 });
+  const gs = await gi.bake(renderer, B2.code.scene, { onStep: (w) => { statusText.textContent = w + "…"; }, scale: B2.lv.gi });
+  B2.code.gi = gi; B2.code.giStats = gs; window.__gi = gs;
+  if (code === B2.code) setLights({}); else { L.hemi.intensity = B2.lv.fill; L.apply(B2.lv); }   // the fill, after the freeze
+}
+placeKey(); showHeld();
+// the picture is a projection of the document: after any change, re-derive what is drawn from the world
+function project() {
+  drawerTo = stateOf("desk1") === "open" ? 1 : 0;
+  if (known("key1") && !heldByMe("key1")) placeKey();                      // the key exists for you only now
+  if (heldByMe("key1") && key) { key.parent.remove(key); key = null; }
+  showHeld();
+  try { localStorage.setItem(WK, JSON.stringify(harness.world)); } catch (_) {}
+}
+harness.subscribe(project);
+const dispatch = (intent) => { const env = harness.dispatch(intent); say(env.narration); return env; };
+window.__settled = () => Math.abs(drawerTo - drawerAt) < 0.003;
+window.__keyAt = () => key ? { at: key.getWorldPosition(new THREE.Vector3()).toArray(), parent: key.parent && key.parent.type, children: key.children.length } : null;
+window.__world = () => JSON.parse(JSON.stringify(harness.world));
+window.__dispatch = (intent) => dispatch(intent);
+// what the eye is on: a ray from the eye (the crosshair, or the pointer when dragging), 2.3 m long
+const ray = new THREE.Raycaster(); ray.far = 2.3;
+const pickables = () => [desk.group, ...(key ? [key] : [])];
+function aimAt(ndc) {
+  if (mode !== "v2") return null;
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(pickables(), true)[0];
+  if (!hit) return null;
+  let o = hit.object; while (o && !o.userData.entity) o = o.parent;
+  return o ? o.userData.entity : null;
+}
+const intentFor = (id) => id === "key1" ? { type: "take", entity: "key1" } : id === "desk1" ? { type: "toggle", entity: "desk1" } : null;
+const hintFor = (id) => id === "key1" ? "take the key" : id === "desk1" ? (stateOf("desk1") === "open" ? "close the drawer" : "open the drawer") : "";
+function act(ndc) { const id = aimAt(ndc); const it = intentFor(id); if (it) dispatch(it); return !!it; }
+window.__act = (x = 0, y = 0) => act(new THREE.Vector2(x, y));
+
+// where each painting was painted from, in room metres (from the bake's cameras)
+const cams = shell.cameras;
+function paintingPose(F) {
+  const c = cams[F];
+  const L = F === "N" || F === "S" ? W : D;
+  let X, Y, yaw;
+  if (F === "N") { X = c.rcam; Y = D - c.d; yaw = 0; }
+  if (F === "S") { X = W - c.rcam; Y = c.d; yaw = Math.PI; }
+  if (F === "E") { X = W - c.d; Y = D - c.rcam; yaw = -Math.PI / 2; }
+  if (F === "W") { X = c.d; Y = c.rcam; yaw = Math.PI / 2; }
+  return { X, Y, yaw, e: c.e, vfov: 2 * Math.atan(512 / c.f) * 180 / Math.PI };
+}
+
+// the walker
+let px = W / 2, py = 1.2, yaw = 0, pitch = 0, pose = null;
+// ?x=&y=&yaw=&pitch= (metres, degrees; yaw 0 = north, 90 = west) opens the page placed, for grading links
+if (Q.get("x")) px = +Q.get("x"); if (Q.get("y")) py = +Q.get("y");
+if (Q.get("yaw")) yaw = +Q.get("yaw") * Math.PI / 180; if (Q.get("pitch")) pitch = +Q.get("pitch") * Math.PI / 180;
+window.__place = (x, y, yd, pd = 0) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; pose = null; };
+const keys = {};
+const inside = (x, y) => x > 0.3 && x < W - 0.3 && y > 0.3 && y < D - 0.3;
+const ghost = document.getElementById("ghost");
+addEventListener("keydown", e => {
+  keys[e.code] = true;
+  const F = { Digit1: "N", Digit2: "E", Digit3: "S", Digit4: "W" }[e.code];
+  if (F) { pose = paintingPose(F); pose.F = F; px = pose.X; py = pose.Y; yaw = pose.yaw; pitch = 0;
+    ghost.style.backgroundImage = `url(../../${shell.source}/${F}.png)`; }
+  if (e.code === "KeyG" && pose) ghost.hidden = !ghost.hidden;
+  if (e.code === "KeyP") { mode = { painted: "v1", v1: "v2", v2: "painted" }[mode]; if (mode !== "painted") use(mode); showMode(); }
+});
+addEventListener("keyup", e => { keys[e.code] = false; });
+const gate = document.getElementById("gate");
+const lock = () => { try { const p = renderer.domElement.requestPointerLock(); if (p && p.catch) p.catch(() => {}); } catch (_) {} };
+gate.addEventListener("click", lock);
+document.addEventListener("pointerlockchange", () => { gate.hidden = document.pointerLockElement === renderer.domElement; });
+const look = (mx, my) => { yaw -= mx * 0.0022; pitch -= my * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch)); pose = null; ghost.hidden = true; };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); });
+let drag = null;
+let downAt = null;
+// phones and tablets: left thumb walks, right thumb looks, a tap acts on what is under it (the drawer, the key)
+const TOUCH = isTouch();
+const touch = touchControls(renderer.domElement, { onLook: (dx, dy) => look(dx, dy), onTap: (x, y) => act(new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1)) });
+if (TOUCH) { gate.hidden = true; document.querySelector(".keys").innerHTML = "left thumb walks &nbsp; right thumb looks &nbsp; tap the drawer, or the key"; }
+renderer.domElement.addEventListener("pointerdown", e => {
+  if (e.pointerType === "touch") return;
+  downAt = { x: e.clientX, y: e.clientY };
+  if (document.pointerLockElement === renderer.domElement) { act(new THREE.Vector2(0, 0)); return; }
+  drag = { x: e.clientX, y: e.clientY };
+  if (e.pointerType === "mouse" && !aimAt(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1))) lock();
+});
+renderer.domElement.addEventListener("pointerup", e => {
+  if (e.pointerType === "touch") return;
+  if (downAt && document.pointerLockElement !== renderer.domElement && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 5)
+    act(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
+  downAt = null;
+});
+let hoverNdc = new THREE.Vector2(0, 0);
+renderer.domElement.addEventListener("mousemove", e => { if (document.pointerLockElement !== renderer.domElement) hoverNdc.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
+addEventListener("keydown", e => { if (e.code === "KeyE" || e.code === "Enter") act(document.pointerLockElement === renderer.domElement ? new THREE.Vector2(0, 0) : hoverNdc); });
+renderer.domElement.addEventListener("pointermove", e => { if (drag && document.pointerLockElement !== renderer.domElement) { look((e.clientX - drag.x) * 1.6, (e.clientY - drag.y) * 1.6); drag = { x: e.clientX, y: e.clientY }; } });
+addEventListener("pointerup", () => { drag = null; });
+renderer.domElement.style.touchAction = "none";
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); for (const B of Object.values(BUILDS)) B.composer.setSize(innerWidth, innerHeight); });
+
+document.getElementById("note").hidden = true;
+document.getElementById("note").innerHTML =
+  `Every surface here is the painting: walls are the four facings' back walls cropped square, the floor and ceiling are projected out of them, and the doorways are cut through with the painted passage set behind. <b>No model, no prompt.</b>`;
+
+const EXPOSURE = +(Q.get("exposure") || 0.9);
+let frozen = false;
+
+// ---- the render packet (tools/render-packet.mjs drives this): every pass for one painting's camera,
+// at an exact 3:2 frame, from the zero-asset room. Contract: holo-emitter-codex's, 2026-09-28.
+const b64 = (buf) => { const u = new Uint8Array(buf.buffer || buf); let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+window.__packet = async (F, scale = 1) => {
+  frozen = true;
+  const w = 1536 * scale, h = 1024 * scale, sc = code.scene;
+  renderer.setPixelRatio(1); renderer.setSize(w, h, false); composer.setSize(w, h);
+  const pz = paintingPose(F);
+  camera.aspect = w / h; camera.fov = pz.vfov; camera.near = 0.03; camera.far = 60;
+  camera.position.set(pz.X, pz.e, -pz.Y); camera.rotation.set(0, pz.yaw, 0, "YXZ");
+  camera.updateProjectionMatrix(); camera.updateMatrixWorld();
+  const out = { passes: {} };
+  const shot = () => renderer.domElement.toDataURL("image/png");
+  // beauty_lit: the build as it is, fixed exposure, no UI
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE;
+  composer.render(); out.passes.beauty_lit = shot();
+  // the painted shell from the very same camera, for zone-by-zone comparison (tools/zones.mjs)
+  renderer.toneMapping = THREE.NoToneMapping; renderer.render(scene, camera); out.passes.painted = shot();
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  // beauty_neutral: soft even light, no cast shadows, no AO
+  const keep = { ...LV }, hemi = code.lights.hemi, hc = [hemi.color.clone(), hemi.groundColor.clone()];
+  setLights({ ...Object.fromEntries(Object.keys(LV).map(k => [k, 0])), fill: Math.PI });
+  hemi.color.set(0xffffff); hemi.groundColor.set(0x6e6e6e);   // up-facing brighter than down-facing: form without shadows
+  renderer.toneMapping = THREE.NoToneMapping;
+  renderer.render(sc, camera); out.passes.beauty_neutral = shot();
+  hemi.color.copy(hc[0]); hemi.groundColor.copy(hc[1]); setLights(keep);
+  // flat passes: swap every mesh's material, render, swap back
+  const meshes = []; sc.traverse(o => { if (o.isMesh) meshes.push(o); });
+  const swap = (make) => { const was = meshes.map(m => m.material); meshes.forEach(m => { m.material = make(m); }); return () => meshes.forEach((m, i) => { m.material = was[i]; }); };
+  renderer.toneMapping = THREE.NoToneMapping;
+  let undo = swap(m => new THREE.MeshBasicMaterial({ map: m.material.map || null, vertexColors: !!m.material.vertexColors, color: m.material.isMeshBasicMaterial ? 0xffffff : m.material.color }));
+  renderer.render(sc, camera); out.passes.albedo = shot(); undo();
+  // data passes into a float target: camera distance, camera-space normal, world position
+  const rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.FloatType, format: THREE.RGBAFormat, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+  const bg = sc.background; sc.background = null; renderer.setClearColor(0x000000, 0);
+  const read = () => { const a = new Float32Array(w * h * 4); renderer.readRenderTargetPixels(rt, 0, 0, w, h, a); return a; };
+  const data = (frag) => new THREE.ShaderMaterial({ side: THREE.DoubleSide,
+    vertexShader: `varying vec3 vView; varying vec3 vWorld; varying vec3 vN;
+      void main(){ vec4 wp = modelMatrix * vec4(position,1.0); vWorld = wp.xyz; vec4 vp = viewMatrix * wp; vView = vp.xyz;
+      vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * vp; }`,
+    fragmentShader: `varying vec3 vView; varying vec3 vWorld; varying vec3 vN; void main(){ ${frag} }` });
+  const pass = (frag) => { undo = swap(() => data(frag)); renderer.setRenderTarget(rt); renderer.clear(); renderer.render(sc, camera); renderer.setRenderTarget(null); undo(); return read(); };
+  const dist = pass(`gl_FragColor = vec4(length(vView), 0.0, 0.0, 1.0);`);
+  const nrm = pass(`vec3 n = normalize(vN); if (!gl_FrontFacing) n = -n; gl_FragColor = vec4(n, 1.0);`);
+  const wpos = pass(`gl_FragColor = vec4(vWorld, 1.0);`);
+  const pick = (a, ch) => { const o = new Float32Array(w * h * ch.length); for (let i = 0, j = 0; i < w * h; i++) for (const c of ch) o[j++] = a[i * 4 + c]; return o; };
+  out.depth_f32 = b64(pick(dist, [0])); out.normal_f32 = b64(pick(nrm, [0, 1, 2])); out.world_f32 = b64(pick(wpos, [0, 1, 2])); out.hit_f32 = b64(pick(dist, [3]));
+  // id passes: flat lossless colours, no AA, no tone mapping
+  const inst = [], mats = [];
+  const idOf = (list, key) => { let i = list.indexOf(key); if (i < 0) { list.push(key); i = list.length - 1; } return i + 1; };
+  const rgb = (n) => new THREE.Color().setRGB(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255);
+  const spread = (i) => (i * 2654435761) % 16777213 || 1;          // distinct-looking, still one-to-one for i < 2^24
+  const idTarget = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter });
+  const readU8 = () => { const a = new Uint8Array(w * h * 4); renderer.readRenderTargetPixels(idTarget, 0, 0, w, h, a); return a; };
+  const idPass = (make) => { undo = swap(make); renderer.setRenderTarget(idTarget); renderer.clear(); renderer.render(sc, camera); renderer.setRenderTarget(null); undo(); return readU8(); };
+  const instMap = {}, matMap = {};
+  out.instance_u8 = b64(idPass(m => { const d = m.userData || {}; const k = d.instance || m.uuid; const i = idOf(inst, k); const c = spread(i); instMap[c] = { id: k, material: d.material, owner: d.owner }; return new THREE.MeshBasicMaterial({ color: rgb(c), side: THREE.DoubleSide }); }));
+  out.material_u8 = b64(idPass(m => { const k = (m.userData || {}).material || "other"; const i = idOf(mats, k); const c = spread(i * 7919); matMap[c] = k; return new THREE.MeshBasicMaterial({ color: rgb(c), side: THREE.DoubleSide }); }));
+  sc.background = bg; rt.dispose(); idTarget.dispose();
+  out.ids = { instance: instMap, material: matMap };
+  out.camera = { facing: F, width: w, height: h, position: camera.position.toArray(), quaternion: camera.quaternion.toArray(),
+    fov_v_deg: camera.fov, near: camera.near, far: camera.far,
+    matrixWorld: camera.matrixWorld.toArray(), matrixWorldInverse: camera.matrixWorldInverse.toArray(), projectionMatrix: camera.projectionMatrix.toArray(),
+    exposure: EXPOSURE, lights: { ...LV }, room: shell.room_m };
+  return out;
+};
+window.__thaw = () => { frozen = false; renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight); camera.aspect = innerWidth / innerHeight; };
+window.__mode = (m) => { mode = m === "code" ? CODE : m; if (mode !== "painted") use(mode); showMode(); };
+let last = performance.now();
+function step(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const speed = (keys.ShiftLeft || keys.ShiftRight) ? 2.6 : 1.3;
+  const fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; }
+  if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; }
+  if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  if (touch.active) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; }
+  const n = Math.hypot(dx, dy);
+  if (n > 0) {
+    pose = null; ghost.hidden = true;
+    const amt = Math.min(1, n);
+    dx = dx / n * amt * speed * dt; dy = dy / n * amt * speed * dt;
+    if (inside(px + dx, py)) px += dx;
+    if (inside(px, py + dy)) py += dy;
+  }
+  if (pose) {
+    // exactly the painting's camera: its eye height and its lens, framed as the painting was
+    camera.fov = pose.vfov; camera.aspect = innerWidth / innerHeight;
+    camera.position.set(pose.X, pose.e, -pose.Y);
+  } else {
+    camera.fov = 62;
+    camera.position.set(px, EYE, -py);
+  }
+  camera.updateProjectionMatrix();
+  camera.rotation.set(pitch, yaw, 0, "YXZ");
+  if (frozen) { requestAnimationFrame(step); return; }
+  drawerAt += (drawerTo - drawerAt) * Math.min(1, dt * 7);
+  desk.drawer.position.z = drawerAt * desk.travel;
+  { const locked = document.pointerLockElement === renderer.domElement;
+    document.getElementById("cross").hidden = !(locked && mode === "v2");
+    const h = hintFor(aimAt(locked ? new THREE.Vector2(0, 0) : hoverNdc)), hEl = document.getElementById("hint");
+    hEl.hidden = !h; hEl.textContent = h; }
+  if (mode !== "painted") { renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = EXPOSURE; composer.render(); }
+  else { renderer.toneMapping = THREE.NoToneMapping; renderer.render(scene, camera); }
+  if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; }
+  requestAnimationFrame(step);
+}
+requestAnimationFrame(step);
+</script>
+</body>
+</html>

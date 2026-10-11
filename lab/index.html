@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Holo Emitter Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0c0a; --panel: #18150f; --panel-hi: #211c15; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a;
+    --line: rgba(236, 228, 210, 0.14); --brass: #c9a35c; --new: #8fd3b8;
+  }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) {
+    --bg: #f3eee4; --panel: #fbf8f1; --panel-hi: #fffdf8; --ink: #241e16; --dim: #5e5546; --faint: #8f8574;
+    --line: rgba(36, 30, 22, 0.14); --brass: #8a6a2a; --new: #2f7d63; } }
+  :root[data-theme="light"] { --bg: #f3eee4; --panel: #fbf8f1; --panel-hi: #fffdf8; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36, 30, 22, 0.14); --brass: #8a6a2a; --new: #2f7d63; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 "IBM Plex Mono", ui-monospace, monospace; }
+  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+  header h1 { font: 600 clamp(30px, 6vw, 46px)/1.05 "Cormorant Garamond", Georgia, serif; margin: 0 0 6px; letter-spacing: 0.01em; }
+  header p { color: var(--dim); margin: 0; max-width: 62ch; }
+  h2 { font: 500 12px/1 "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: 0.16em; color: var(--brass); margin: 36px 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  a.card { display: block; text-decoration: none; color: inherit; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px 15px; transition: background 0.15s, border-color 0.15s; }
+  a.card:hover, a.card:focus-visible { background: var(--panel-hi); border-color: var(--brass); outline: none; }
+  .card .t { font: 600 21px/1.15 "Cormorant Garamond", Georgia, serif; margin-bottom: 4px; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .card .tag { font: 500 10px/1 "IBM Plex Mono", monospace; letter-spacing: 0.1em; text-transform: uppercase; color: var(--new); border: 1px solid currentColor; border-radius: 3px; padding: 3px 5px; }
+  .card .what { color: var(--dim); }
+  .card .try { color: var(--faint); margin-top: 8px; font-size: 12.5px; }
+  .card .try b { color: var(--dim); font-weight: 500; }
+  .feature { grid-column: 1 / -1; }
+  .feature .t { font-size: 27px; }
+  footer { margin-top: 44px; color: var(--faint); font-size: 12px; }
+  kbd { font: inherit; border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; color: var(--dim); }
+  .again { margin: 8px 2px 0; font-size: 13px; } .again a { color: inherit; opacity: .75; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Holo Emitter Lab</h1>
+    <p>Everything we're working on, live. The newest is at the top. Each page builds itself in your browser from code, with no images to download.</p>
+  </header>
+
+  <h2>Now · R49, a place from a book</h2>
+  <div class="grid">
+    <a class="card feature" href="manor/?plan=alice-hall">
+      <div class="t">Alice's hall of doors <span class="tag">new</span></div>
+      <div class="what">Chapter I of <i>Alice's Adventures in Wonderland</i>, from the book's text to a hall you play. One AI step read the chapter, quoting it for every fact; after that nothing is AI. The hall is laid out, built, furnished and checked by the same system as the manor. You are the size the story makes you: ten inches after the bottle, more than nine feet after the cake, stooping under the roof. Everything said is Carroll's own sentence.</div>
+      <div class="try"><b>Try:</b> take the golden key from the glass table · find the low curtain at the far end, draw it aside, and unlock the little door · go back to the table · leave the key there and drink · then find your way into the garden. <kbd>E</kbd>/click uses a thing, or puts down what you hold on the table.</div>
+    </a>
+  </div>
+  <h2>Now · M7, one case: a mystery you live</h2>
+  <div class="grid">
+    <a class="card feature" href="manor/?case=case-1660">
+      <div class="t">Death at Michaelmas, 1660 <span class="tag">new</span></div>
+      <div class="what">You are the Justice sent for. The steward lies dead in the muniment room, its one door locked upon him, on the morning the estate's sale is to be sealed. Four of the household stand where you find them, projected as the holodeck shows them. Question them in your own words or by topic; each has a lie that breaks only when you show its own piece of evidence. The clues are things in the house that work: drawers, chests, keys, papers you read. Then name the killer, how, when and why, a few blanks at a time. It plays with no AI at all: the case and its lines are written once, and fair by the project's own check.</div>
+      <div class="try"><b>Try:</b> Dame Anne meets you in the hall · go up to the closet where Daniel keeps the door · open the muniment table's drawer · look at the steward's key · question Mr Haywood about his hand · tap the book to see what you've learned. Aim at a person to talk (a speech bubble). It keeps your place: come back, or lose the tab, and you take up the case where you left it.</div>
+    </a>
+  </div>
+  <p class="again"><a href="manor/?case=case-1660&amp;fresh">Begin the case again, from the start</a></p>
+  <h2>R46, look packages: a London street, c.1660</h2>
+  <div class="grid">
+    <a class="card feature" href="scale/street.html">
+      <div class="t">A London street before the Fire <span class="tag">new</span></div>
+      <div class="what">A street of 1660 made by rules from the period's sources: lots four and a half to six metres wide, timber-framed houses of three to five storeys jettied out over the street, oak weathered silver-grey (never black) with limewashed panels in cream, ochre and pink, clay-tiled gables to the street, shop shutters folded up as pent roofs and down as stall boards, painted signs on iron brackets, posts along the footway, pebbles and a central kennel; inns with arches and yards, lanes and entries, the town's roofs going back into the haze. Every choice from a seed, the same on every device; built in under a second.</div>
+      <div class="try"><b>Try:</b> look up at the jetties stepping out over you · walk through an inn's arch into its yard · go down a lane.</div>
+    </a>
+  </div>
+  <h2>R47, a house built by its purpose</h2>
+  <div class="grid">
+    <a class="card feature" href="manor/">
+      <div class="t">The manor, room by room, and its land <span class="tag">new</span></div>
+      <div class="what">A 1660 gentry seat with 35 rooms on three floors, laid out from what such a household needed, carved from one solid so no wall can crack, every stair railed wherever it drops. Each room is built by its type: flags or boards, panelling, limewash or tapestry, beams or plaster, its hearth, and the furniture that names it, all from period inventories. Every door, curtain, lid and leaf works. Only the rooms you can see through open doorways are drawn.</div>
+      <div class="try"><b>New:</b> walk out through the porch into the forecourt, open the iron gates, and go down the drive into the fields: a stone-slated, gabled house in its hillside of dry-stone walls, hawthorn hedges and ridge and furrow. <kbd>C</kbd> crouches.<br><b>Try:</b> walk from the hall through the screens passage to the kitchen (the spit turns when you wind the jack) · up the great stair to the great chamber, hung with tapestry · draw back the bed curtains in the best bedchamber · raise the gateleg's leaf in the little parlour · climb to the long gallery. <kbd>E</kbd>/click uses a thing.</div>
+    </a>
+    <a class="card" href="manor/?plan=banqueting">
+      <div class="t">The banqueting house</div>
+      <div class="what">A garden banqueting house of c.1660, where the party withdrew for the sweet course: one exact octagonal room, windows in its diagonal sides, a chimneypiece, the draw-table through its middle and chairs ranged round its walls. Rooms of any shape are now carved from one solid, so no wall can crack, and furnished by rules each piece declares.</div>
+      <div class="try"><b>Try:</b> walk in from the lobby · walk at a diagonal wall or the fire (you stop) · open the draw-table's leaves.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=furniture">
+      <div class="t">The manor's furniture <span class="tag">new</span></div>
+      <div class="what">The 22 pieces that name the rooms, each a data recipe from the inventories: the long table and forms, the court cupboard, the standing bed, the hogshead with its tap, the kitchen's jack and spit, the bread oven, and the rest.</div>
+      <div class="try"><b>Try:</b> click whatever looks as if it works · add <b>&amp;k=table/gateleg</b> (or any other piece's name) to see one piece alone.</div>
+    </a>
+  </div>
+
+  <h2>R48, the production system</h2>
+  <div class="grid">
+    <a class="card feature" href="brief/">
+      <div class="t">The strongroom <span class="tag">everything works</span></div>
+      <div class="what">The 1660 muniment room built from its period brief. Every piece of furniture is made from a data recipe, and everything that looks as if it works, works.</div>
+      <div class="try"><b>Try:</b> pull a labelled drawer · open the table drawer and take the key · the key opens the chest's padlocks · close all four shutters, and the room goes dark until you light the candle · the gallery door is locked and its key isn't here. <kbd>E</kbd>/click uses a thing, <kbd>G</kbd> takes it, <kbd>B</kbd> shows the brief.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=testroom&amp;k=cupboard/court">
+      <div class="t">The test room <span class="tag">new</span></div>
+      <div class="what">One piece three ways, as a house will ask of it: back to a wall, in a corner and in a narrow passage, each stood off the wall by what swings behind it. Its lids and doors open and close by themselves. On a phone the camera visits each in turn. Every piece is now checked when it is made: every part closed, faces out, nothing floating, buried, through another or into the wall, at rest and opened.</div>
+      <div class="try"><b>Try:</b> change <b>k=</b> to chest/boarded, tub/powdering, wheel/spinning, cabinet/japanned or any piece's name · ask whether each reads as a real 1660 thing.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=puzzle">
+      <div class="t">Light three candles <span class="tag">new</span></div>
+      <div class="what">Locks and rules: a locked door and its key, and a door that opens when 3 of the 4 candles are lit.</div>
+      <div class="try"><b>Try:</b> take the key (<kbd>G</kbd> or shift-click), then click the left door · light the candles one by one.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=arrival">
+      <div class="t">Play never waits <span class="tag">new</span></div>
+      <div class="what">Alice's DRINK ME bottle, as a kind whose label hasn't been written yet. It stands as holodeck grid at its true size, then turns real when the label arrives three seconds later.</div>
+      <div class="try"><b>Try:</b> watch the grid become the bottle · <kbd>G</kbd> takes it either way.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=kinds">
+      <div class="t">Every kind <span class="tag">new</span></div>
+      <div class="what">Each small object type in the catalogue, side by side on a bench, for approving in a batch.</div>
+      <div class="try"><b>Try:</b> lift the tankard's and the box's lids · turn the globe · light a candle.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=owners">
+      <div class="t">Three keepers' shelves</div>
+      <div class="what">A poor widow, a blacksmith and a great gentleman. The same shelf rules, bent by who owns the shelf.</div>
+      <div class="try"><b>Try:</b> click the things on them: they're objects in their own right.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=bookpress">
+      <div class="t">Pepys's bookpress</div>
+      <div class="what">A glazed bookcase after Samuel Pepys's of 1666, with carved acanthus and books ordered by size.</div>
+      <div class="try"><b>Try:</b> open its four glazed doors.</div>
+    </a>
+    <a class="card" href="brief/object.html?o=library">
+      <div class="t">A library wall</div>
+      <div class="what">Four bays and about 600 books from the same book recipe, built in a fraction of a second.</div>
+      <div class="try"><b>Try:</b> add <b>&amp;means=poor</b> or <b>&amp;purpose=chapel</b> to the address and watch the shelves change.</div>
+    </a>
+  </div>
+
+  <h2>Checks you can run</h2>
+  <div class="grid">
+    <a class="card feature" href="fps/"><div class="t">The fps lab ledger <span class="tag">new</span></div><div class="what">One test scene in three.js (WebGPU and WebGL 2) and in Godot 4.7's web export, changing one thing at a time: objects, triangles, instancing, lights, shadows, materials, post effects, physics. Frames per second and milliseconds for each, with which comparisons are fair.</div><div class="try"><b>Read:</b> how we build matters more than which engine; Godot's web renderer skips several effects; Godot's web engine is a 40 MB download.</div></a>
+    <a class="card" href="scale/forest.html"><div class="t">Forest scale test <span class="tag">new</span></div><div class="what">87,000 trees on a kilometre of hillside, in 11 draw calls, on WebGPU (WebGL 2 where there isn't one). It tests speed, not looks: the trees are crude on purpose.</div><div class="try"><b>Try:</b> walk with WASD (shift runs) · the top-left panel shows fps on your device · add <b>?webgl=1</b> to compare.</div></a>
+    <a class="card" href="bench/"><div class="t">The bench <span class="tag">phone</span></div><div class="what">Rebuilds the strongroom, the shelves, the bookpress, the library and every kind, and checks each layout matches the reference to 0.1 mm. Then it times the builds and frame rates on this device.</div><div class="try"><b>Try:</b> open it on the phone and on the laptop · a minute each · "copy the results" if anything differs.</div></a>
+  </div>
+
+  <h2>Earlier</h2>
+  <div class="grid">
+    <a class="card" href="house/"><div class="t">The manor, from its plan</div><div class="what">R44: every room of the manor built in code from its plan, with each stage timed.</div></a>
+    <a class="card" href="painted/?mode=code"><div class="t">The code room</div><div class="what">R43: the muniment room built entirely in code, with a two-bounce light bake.</div></a>
+    <a class="card" href="painted/"><div class="t">The painted muniment room</div><div class="what">The painted-shell version, graded "Phenomenal" on 2026-09-28.</div></a>
+    <a class="card" href="room3d/"><div class="t">SS Meridian, C Deck</div><div class="what">A 1934 liner deck, from an earlier experiment.</div></a>
+    <a class="card" href="office/"><div class="t">Scranton branch, second floor</div><div class="what">An office floor, from an earlier experiment.</div></a>
+    <a class="card" href="gallery/"><div class="t">Noun sheets</div><div class="what">The object catalogue sheets from the asset-pipeline trials.</div></a>
+    <a class="card" href="../"><div class="t">The first demo</div><div class="what">M0: the painted rooms you turn and walk through, a drawer and a hidden key.</div></a>
+  </div>
+
+  <footer>Updated with each publish · on a phone, everything works by tapping</footer>
+</main>
+</body>
+</html>

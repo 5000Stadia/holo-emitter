@@ -1,0 +1,11 @@
+{
+  "pack": "liner-3",
+  "period": "c.1934 North Atlantic liner, first-class grand saloon",
+  "reference": "backdrops/saloon/S.png",
+  "nouns": [
+    {"id": "telegraph-liner-1934-engine-order", "noun": "ship's engine-order telegraph on a display plinth", "dims_m": {"h": 1.35, "w": 0.45, "d": 0.4}, "level": "base",
+     "materials": "polished brass pedestal and dial housing, black-and-white enamelled dial face, brass handles, a low square macassar ebony plinth",
+     "subject": "A ship's engine-order telegraph as a decorative display piece: a tapered brass pedestal column rising from a low square macassar plinth, topped by a round brass housing holding a large enamelled dial with the order sectors (FULL, HALF, SLOW, STOP, ASTERN) marked in black on white, two brass lever handles standing up from the housing's sides, a small brass bell beneath the dial.",
+     "avoid": "ship's wheel, compass binnacle, clock, lamp, legible modern text,"}
+  ]
+}

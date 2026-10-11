@@ -1,0 +1,175 @@
+{
+ "room_m": {
+  "w": 4.85,
+  "d": 4.87,
+  "h": 3.1
+ },
+ "ppm": 250,
+ "walls": {
+  "N": {
+   "tex": "N.jpg",
+   "width_m": 4.85,
+   "openings": [
+    {
+     "kind": "recess",
+     "u0": 0.350091407678245,
+     "u1": 0.6517367458866545,
+     "top": 0.3333333333333333,
+     "beyond": "N.op0.jpg",
+     "depth": 0.5,
+     "reveal_rgb": [
+      15,
+      6,
+      0
+     ]
+    }
+   ],
+   "reliefs": [
+    {
+     "what": "stone surround",
+     "u0": 0.2742230347349177,
+     "u1": 0.7294332723948812,
+     "v0": 0.0,
+     "v1": 0.43733333333333335,
+     "depth": 0.12,
+     "side_rgb": [
+      77,
+      61,
+      42
+     ],
+     "top_rgb": [
+      55,
+      39,
+      21
+     ]
+    },
+    {
+     "what": "mantel and frieze",
+     "u0": 0.23583180987202926,
+     "u1": 0.7632541133455211,
+     "v0": 0.43733333333333335,
+     "v1": 0.568,
+     "depth": 0.17,
+     "side_rgb": [
+      38,
+      26,
+      18
+     ],
+     "top_rgb": [
+      24,
+      12,
+      4
+     ]
+    }
+   ],
+   "hearth": {
+    "u0": 0.25411334552102377,
+    "u1": 0.7477148080438757,
+    "out_m": 0.4,
+    "tex": "N.hearth.jpg"
+   }
+  },
+  "E": {
+   "tex": "E.jpg",
+   "width_m": 4.87,
+   "openings": [
+    {
+     "kind": "door",
+     "u0": 0.5589447650453421,
+     "u1": 0.7345424567188789,
+     "top": 0.7606382978723404,
+     "beyond": "E.op0.jpg",
+     "depth": null,
+     "reveal_rgb": [
+      44,
+      24,
+      11
+     ]
+    }
+   ],
+   "reliefs": [],
+   "hearth": null
+  },
+  "S": {
+   "tex": "S.jpg",
+   "width_m": 4.85,
+   "openings": [],
+   "reliefs": [],
+   "hearth": null
+  },
+  "W": {
+   "tex": "W.jpg",
+   "width_m": 4.87,
+   "openings": [
+    {
+     "kind": "door",
+     "u0": 0.33756345177664976,
+     "u1": 0.5321489001692047,
+     "top": 0.7357440890125174,
+     "beyond": "W.op0.jpg",
+     "depth": null,
+     "reveal_rgb": [
+      35,
+      19,
+      8
+     ]
+    }
+   ],
+   "reliefs": [],
+   "hearth": null
+  }
+ },
+ "source": "backdrops/muniment_room",
+ "cameras": {
+  "N": {
+   "s": 0.004,
+   "f": 966.2,
+   "d": 4.283,
+   "rcam": 2.581,
+   "e": 1.404,
+   "top": 1.921
+  },
+  "E": {
+   "s": 0.004,
+   "f": 998.8,
+   "d": 4.01,
+   "rcam": 2.632,
+   "e": 1.352,
+   "top": 1.667
+  },
+  "S": {
+   "s": 0.004,
+   "f": 952.4,
+   "d": 3.948,
+   "rcam": 2.634,
+   "e": 1.424,
+   "top": 1.606
+  },
+  "W": {
+   "s": 0.004,
+   "f": 1033.3,
+   "d": 4.257,
+   "rcam": 2.47,
+   "e": 1.378,
+   "top": 1.584
+  }
+ },
+ "floor": {
+  "tex": "floor.jpg",
+  "painted_fraction": 0.62,
+  "from_facings": [
+   "E",
+   "W"
+  ]
+ },
+ "ceiling": {
+  "tex": "ceiling.jpg",
+  "painted_fraction": 0.482,
+  "from_facings": [
+   "N",
+   "E",
+   "S",
+   "W"
+  ]
+ }
+}

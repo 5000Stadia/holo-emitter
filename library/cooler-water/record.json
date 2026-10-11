@@ -1,0 +1,94 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "cooler-water",
+ "noun": "water cooler",
+ "dims_m": {
+  "h": 1.2,
+  "w": 0.35,
+  "d": 0.35
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   0.269,
+   1.2,
+   0.293
+  ],
+  "source_faces": 2184
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/cooler-water/model.glb",
+  "triangles": 2184,
+  "bbox_min": [
+   -0.13460154831409454,
+   0.0,
+   -0.14673727750778198
+  ],
+  "bbox_max": [
+   0.13460154831409454,
+   1.2000000476837158,
+   0.14673727750778198
+  ],
+  "size": [
+   0.2692030966281891,
+   1.2000000476837158,
+   0.29347455501556396
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.231,
+  "images": 5,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/cooler-water/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 108,
+  "size_m": [
+   0.269,
+   1.2,
+   0.293
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "base",
+  "front": null,
+  "wants": {
+   "ground": "base",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 2184
+ },
+ "level": "base",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "4b88c4c4e94c497ca39f831f374e89fc",
+  "name": "Water cooler",
+  "author": "tboiston",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-4b88c4c4e94c497ca39f831f374e89fc",
+  "query": "water cooler",
+  "pick": 0,
+  "candidates": 8,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.0,
+  "map": 1.2,
+  "download": 3.1,
+  "stand": 2.1,
+  "gate": 0.0,
+  "request_to_library": 7.5
+ }
+}

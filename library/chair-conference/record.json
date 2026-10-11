@@ -1,0 +1,91 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-conference",
+ "noun": "office chair",
+ "dims_m": {
+  "h": 0.9,
+  "w": 0.6,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   0.549,
+   0.9,
+   0.578
+  ],
+  "source_faces": 93152
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/chair-conference/model.glb",
+  "triangles": 93152,
+  "bbox_min": [
+   -0.27460750937461853,
+   0.0,
+   -0.2891906499862671
+  ],
+  "bbox_max": [
+   0.27460750937461853,
+   0.8999999761581421,
+   0.2891906499862671
+  ],
+  "size": [
+   0.5492150187492371,
+   0.8999999761581421,
+   0.5783812999725342
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.085,
+  "images": 2,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/chair-conference/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 1810,
+  "size_m": [
+   0.549,
+   0.9,
+   0.578
+  ],
+  "lowest_1pct_spread_m": 0.0041,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": []
+  },
+  "level_corrected_deg": 2.71,
+  "level_surface_vertices": 119,
+  "faces": 93152
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "41973aa1808d4a13b84c24497fc77c63",
+  "name": "Office Chair",
+  "author": "j.a.m",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-41973aa1808d4a13b84c24497fc77c63",
+  "query": "office chair",
+  "must": "chair",
+  "avoid": "table,chairs,set,room",
+  "pick": 1,
+  "candidates": 13,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.1,
+  "map": 1.1,
+  "download": 2.7,
+  "stand": 1.3,
+  "gate": 0.0,
+  "request_to_library": 6.4
+ }
+}

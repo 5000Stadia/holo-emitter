@@ -1,0 +1,17 @@
+{
+  "schema": "holo-emitter-narration/0.1",
+  "lines": {
+    "toggle.*.refused_unknown": "Nothing here answers to that.",
+    "take.*.refused_unknown": "There is nothing of the kind to take.",
+    "go.*.refused_unknown": "No such way is to be found; the walls keep their counsel.",
+    "turn.*.refused": "You cannot turn that way here.",
+    "go.door_booking_hall_platform.arrive": "You pass from the booking hall into the platform.",
+    "go.door_booking_hall_platform.refused_unreachable": "The way from the booking hall to the platform is not before you from here.",
+    "go.door_platform_booking_hall.arrive": "You pass from the platform into the booking hall.",
+    "go.door_platform_booking_hall.refused_unreachable": "The way from the platform to the booking hall is not before you from here.",
+    "go.way_platform_far_platform.arrive": "You walk back along the platform.",
+    "go.way_platform_far_platform.refused_unreachable": "The way back along the platform is not before you from here.",
+    "go.way_platform_platform_far.arrive": "You walk on down the platform.",
+    "go.way_platform_platform_far.refused_unreachable": "The way on down the platform is not before you from here."
+  }
+}

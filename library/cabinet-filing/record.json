@@ -1,0 +1,94 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "cabinet-filing",
+ "noun": "filing cabinet",
+ "dims_m": {
+  "h": 1.3,
+  "w": 0.45,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   2.444,
+   1.3,
+   1.042
+  ],
+  "source_faces": 3641
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/cabinet-filing/model.glb",
+  "triangles": 3641,
+  "bbox_min": [
+   -1.22215735912323,
+   0.0,
+   -0.5210626721382141
+  ],
+  "bbox_max": [
+   1.22215735912323,
+   1.2999999523162842,
+   0.5210626721382141
+  ],
+  "size": [
+   2.44431471824646,
+   1.2999999523162842,
+   1.0421253442764282
+  ],
+  "up_axis": "x",
+  "aspect_err": 0.232,
+  "images": 4,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/cabinet-filing/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 55,
+  "size_m": [
+   2.444,
+   1.3,
+   1.042
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 3641
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "89729ff6718840d6a10e5ea20d6904ce",
+  "name": "Old Filing Cabinet",
+  "author": "Mik Santos",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-89729ff6718840d6a10e5ea20d6904ce",
+  "query": "filing cabinet",
+  "pick": 0,
+  "candidates": 9,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.0,
+  "map": 1.2,
+  "download": 3.6,
+  "stand": 2.8,
+  "gate": 0.0,
+  "request_to_library": 8.6
+ }
+}

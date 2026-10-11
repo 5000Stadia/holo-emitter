@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Material Panels</title>
+<style>
+  html, body { height: 100%; margin: 0; background: #0b0d0a; color: #ece4d2; overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; }
+  #label { position: fixed; left: 12px; top: 12px; background: rgba(16, 18, 14, 0.78); padding: 6px 10px; border: 1px solid rgba(236, 228, 210, 0.2); }
+</style>
+</head>
+<body>
+<div id="label">building the materials…</div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// Material panels (check 25, tools/check-textures.mjs): every procedural texture of the outdoors (the manor's ashlar and
+// slates, the ground's grass and gravel, the hillside's dry-stone rubble, the street's plaster, tiles, brick and pebbles),
+// each on a flat 10 m square (a wall, a roof slope or the ground) seen from 2 m, 10 m and 40 m with the manor page's sun.
+// Hooks: __textures (what the check reads: each texture's canvas, its role, the metres a uv unit covers, its marks'
+// declared direction and course height), __panel(id, distance) draws one panel, __ids lists them.
+import * as THREE from "three/webgpu";
+import { makeRender } from "../../src/make/render.js";
+import { slateMaterial, ashlarMaterial } from "../../src/make/manor.js";
+import { groundTextures, groundMaterial, GROUND_TONE_M } from "../../src/make/terrain-mesh.js";
+import { hillsideMaterials, rubbleTextures } from "../../src/make/hillside.js";
+import { streetKit } from "../../src/make/street.js";
+import { rng, seedOf } from "../../src/make/id.js";
+import { settled } from "../painted/texjobs.js";
+
+const ENG = await makeRender({ outdoor: true }), renderer = ENG.renderer;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xb7c4cf);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 500);
+const sun = new THREE.DirectionalLight(0xffe2b8, 1.8); sun.position.set(14, 22, 30); scene.add(sun, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
+const T = {}, ms = {}; const time = (k, f) => { const t = performance.now(); const v = f(); ms[k] = +(performance.now() - t).toFixed(1); return v; };
+const R = (n) => rng(seedOf(n));
+const slate = time("slate", () => slateMaterial()), ashlar = time("ashlar", () => ashlarMaterial());
+const gt = time("ground", () => groundTextures(THREE, { rng: R })), gm = groundMaterial(THREE, { rng: R });
+const rub = time("rubble", () => rubbleTextures(THREE)), hm = hillsideMaterials(THREE);
+const kit = time("street", () => streetKit(THREE));
+const M = kit.mats;
+const t0 = performance.now(); await settled(); ms.drawn = +(performance.now() - t0).toFixed(1);       // the textures above are drawn in the worker pool (or read from its cache); wait for the last
+// id: what it is; role: what its viewing distance is judged as (wall, roof, ground, timber, glass); uv: metres a uv unit covers where it is used;
+// scale (the material's own multiplier on uv); map/mat; grain: the axis a mark may run the length of (a board's grain); course: courses a texture's height divides into (null: none);
+// macro: slow tone fields' periods in metres (what keeps a small tile's repetition from showing); kind: the panel's plane
+const defs = [
+  { id: "ashlar", role: "wall", uv: 2, map: ashlar.map, mat: ashlar, course: 13, kind: "wall" },
+  { id: "slate", role: "roof", uv: 1, map: slate.map, mat: slate, course: 40, kind: "roof" },
+  { id: "grass", role: "ground", uv: 2, map: gt.grass, mat: gm, splat: 0, macro: GROUND_TONE_M, kind: "ground" },
+  { id: "gravel", role: "ground", uv: 2, scale: 1.6, map: gt.gravel, mat: gm, splat: 1, macro: GROUND_TONE_M, kind: "ground" },
+  { id: "rubble", role: "wall", uv: 2, scale: 0.5, course: 24, map: rub.map, mat: hm.stone, kind: "wall" },
+  { id: "plaster", role: "wall", uv: 2, map: kit.T.plaster, mat: M.plaster, kind: "wall" },
+  { id: "oak", role: "timber", uv: 1, map: kit.T.oak, mat: M.oak, grain: "x", kind: "wall" },
+  { id: "glass", role: "glass", uv: 1, map: kit.T.glass, mat: M.glass, kind: "wall" },
+  { id: "tile", role: "roof", uv: 2, map: kit.T.tile, mat: M.tile, course: 40, kind: "roof" },
+  { id: "brick", role: "wall", uv: 1, map: kit.T.brick, mat: M.brick, course: 56, kind: "wall" },
+  { id: "pebbles", role: "ground", uv: 1.6, macro: [12], map: kit.T.pebbles, mat: M.street, kind: "ground" },
+];
+// (the check reads a canvas: a drawn texture is data in upload order, the rows turned back and put on one)
+const canvasOf = (t) => { const im = t.image; if (!im.data) return im; const c = document.createElement("canvas"); c.width = im.width; c.height = im.height; const w = im.width, h = im.height, d = new Uint8ClampedArray(w * h * 4);
+  for (let y = 0; y < h; y++) d.set(im.data.subarray((h - 1 - y) * w * 4, (h - y) * w * 4), y * w * 4); c.getContext("2d").putImageData(new ImageData(d, w, h), 0, 0); return c; };
+window.__textures = defs.map(d => ({ id: d.id, role: d.role, canvas: canvasOf(d.map), repeat: d.map.repeat.x * (d.scale || 1), uv: d.uv, grain: d.grain || null, course: d.course || null, macro: d.macro || null }));
+window.__buildMs = { ...ms, streetParts: kit.parts }; window.__ids = defs.map(d => d.id);
+let mesh = null;
+window.__panel = async (id, dist) => {
+  const d = defs.find(q => q.id === id); if (!d) throw new Error("no panel " + id);
+  if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+  const g = new THREE.PlaneGeometry(10, 10), n = g.attributes.position.count, uvs = g.attributes.uv;
+  for (let i = 0; i < n; i++) uvs.setXY(i, (g.attributes.position.getX(i) + 5) / d.uv, (g.attributes.position.getY(i) + 5) / d.uv);   // metres over the texture's uv unit
+  g.setAttribute("color", new THREE.Float32BufferAttribute(new Float32Array(n * 3).fill(1), 3)); g.setAttribute("splat", new THREE.Float32BufferAttribute(new Float32Array(n).fill(d.splat || 0), 1));
+  mesh = new THREE.Mesh(g, d.mat); scene.add(mesh);
+  const c = new THREE.Vector3(0, 0, 0), tilt = d.kind === "ground" ? -Math.PI / 2 : d.kind === "roof" ? -0.7 : 0;      // the plane's pitch: a wall upright, a roof at 40 degrees back, the ground flat
+  mesh.rotation.set(tilt, 0, 0); mesh.position.copy(c); mesh.updateMatrixWorld();
+  const nrm = new THREE.Vector3(0, 0, 1).applyEuler(mesh.rotation);
+  // the camera looks at the middle from `dist` along the normal for a wall or a roof; for the ground, from 50 degrees up, a step to the south
+  const dir = d.kind === "ground" ? new THREE.Vector3(0, Math.sin(0.87), Math.cos(0.87)) : nrm;
+  camera.position.copy(c).addScaledVector(dir, dist); camera.lookAt(c); camera.updateProjectionMatrix();
+  document.getElementById("label").textContent = `${id} at ${dist} m`;
+  await renderer.renderAsync(scene, camera);
+};
+document.getElementById("label").textContent = "ready"; window.__ok = true;
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hillside Scale Test</title>
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(16, 18, 14, 0.78); --line: rgba(236, 228, 210, 0.2); }
+  html, body { height: 100%; margin: 0; background: #0b0d0a; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; touch-action: none; }
+  #hud { position: fixed; left: 12px; top: 12px; background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; white-space: pre; line-height: 1.5; color: var(--dim); }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0b0d0a; color: var(--dim); }
+  #status[hidden], #hud[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="status">walling the closes…</div>
+<div id="hud" hidden></div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// The hillside scale test (R46): the manor's site with its fields (src/make/fields.js) and what bounds them
+// (src/make/hillside.js): dry-stone walls, hawthorn hedges, field gates, hedgerow and field trees, in tiles round you,
+// on the manor page's ground, sky, fog and light (the house itself is not built here). WASD walks on the outdoor
+// walker, with the hillside's walls, hedges, gates and trunks in the way; the mouse looks (click first).
+// Test hooks: __eye(x, y, yaw, pitch) stands you there; __cam(x, y, z, yaw, pitch) puts the camera anywhere (plan
+// coordinates, degrees); __settle() builds everything in reach; __stats() reports the frame and the tiles.
+// ?radius=, ?near=, ?nearTile=, ?dpr=, ?webgl=1 change the load; ?bundle=1 draws the far tiles as one render bundle; ?groundbundle=1
+// puts the ground in a render bundle as the manor page does.
+import * as THREE from "three/webgpu";
+import { makeRender } from "../../src/make/render.js";
+import { planHybridE } from "../../src/make/plans/hybrid-e.js";
+import { GENTRY_SEAT_1660 } from "../../src/make/programs/england-1660.js";
+import { makeSite, makeOutdoorWalk } from "../../src/make/terrain.js";
+import { makeGround, groundMaterial } from "../../src/make/terrain-mesh.js";
+import { makeFields } from "../../src/make/fields.js";
+import { makeHillside } from "../../src/make/hillside.js";
+import { rng, seedOf } from "../../src/make/id.js";
+import { settled, warmTextures } from "../painted/texjobs.js";
+import { LIB as OUT } from "../painted/outgen.js";
+
+const Q = new URLSearchParams(location.search), num = (k, d) => Q.has(k) ? +Q.get(k) : d;
+const T0 = performance.now(), mark = {};
+const ENG = await makeRender({ outdoor: true }), renderer = ENG.renderer;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0xb7c4cf); scene.fog = new THREE.Fog(0xb7c4cf, 220, 1500);
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 3000);
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+
+// the site, its fields (ridge and furrow is part of the ground's height), the ground, the hillside
+const plan = planHybridE(GENTRY_SEAT_1660, { hearths: {} }), site = makeSite(plan), fields = makeFields(site); site.relief(fields.furrowZ);
+await warmTextures(3000, [OUT]);      // the texture workers up before the main thread is busy building (a worker starts only when it is free)
+const ground = makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") === "1", material: groundMaterial(THREE, { rng: (n) => rng(seedOf(n)) }) }); scene.add(ground.group);
+mark.site = performance.now() - T0;
+const hill = makeHillside(THREE, site, fields, { renderer, bundle: ENG.backend === "webgpu" && Q.get("bundle") === "1", radius: num("radius", 700), near: num("near", ENG.phone ? 100 : 150), nearTile: num("nearTile", ENG.phone ? 100 : 150) });
+scene.add(hill.group);
+mark.hillside = performance.now() - T0;
+await settled(); mark.textures = performance.now() - T0;     // the ground's and the hillside's textures are drawn in the worker pool meanwhile; the first frame waits for the last
+window.__site = site; window.__fields = fields; window.__hill = hill; window.__ground = ground; window.__THREE = THREE; window.__scene = scene; window.__renderer = renderer;
+
+// light as on the manor page: a sun to the south-south-east, its shadow box going with you; a hemisphere fill
+const sun = new THREE.DirectionalLight(0xffe2b8, 1.8); sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone ? 2048 : 4096);
+sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.05; Object.assign(sun.shadow.camera, { left: -110, right: 110, top: 110, bottom: -110, near: 1, far: 400 });
+scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, 0.55));
+// the sky: a dome that goes with you, pale at the horizon, deeper overhead (the manor page's)
+{ const sg = new THREE.SphereGeometry(2400, 32, 16), col = [], top = new THREE.Color(0x6f8fb4), hor = new THREE.Color(0xc9d4dc), c = new THREE.Color();
+  for (let i = 0; i < sg.attributes.position.count; i++) { const y = sg.attributes.position.getY(i) / 2400; c.copy(hor).lerp(top, Math.max(0, Math.min(1, y * 1.6))); col.push(c.r, c.g, c.b); }
+  sg.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  const sky = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false })); sky.renderOrder = -1; sky.frustumCulled = false;
+  sky.onBeforeRender = () => sky.position.copy(camera.position); scene.add(sky); }
+
+// walking: the outdoor walker (src/make/terrain.js), stopped by the hillside's walls, hedges, gates and trunks
+const walk = makeOutdoorWalk(site, { plan, blocked: hill.blocked });
+let px = num("x", 30), py = num("y", -110), ph = site.z(px, py), yaw = num("yaw", 180) * Math.PI / 180, pitch = 0, free = null;
+const EYE = 1.6, keys = {};
+addEventListener("keydown", e => { keys[e.code] = true; if (e.code === "Backslash") $hud.hidden = !$hud.hidden; });
+addEventListener("keyup", e => { keys[e.code] = false; });
+renderer.domElement.addEventListener("click", () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} });
+addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) { yaw -= e.movementX * 0.0022; pitch = Math.max(-1.35, Math.min(1.35, pitch - e.movementY * 0.0022)); } });
+// yaw: degrees from north toward the west (the manor page's convention: 0 looks north, 90 west, 180 south)
+window.__eye = (x, y, yd = 180, pd = 0) => { free = null; px = x; py = y; ph = site.z(x, y); yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; };
+window.__cam = (x, y, z, yd, pd = 0) => { free = [x, y, z, yd * Math.PI / 180, pd * Math.PI / 180]; };
+const where = () => free ? [free[0], free[1]] : [px, py];
+window.__settle = () => { const t = performance.now(), [x, y] = where(); let n = 0; while ((hill.update(x, y, 2000) | ground.update(x, y, 2000)) && n < 50) n++; return Math.round(performance.now() - t); };
+// a test's walk: from (x0, y0) toward (x1, y1) in 5 cm steps on the walker; where it stopped
+window.__walk = (x0, y0, x1, y1) => { let x = x0, y = y0, h = site.z(x0, y0); const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.05);
+  for (let i = 1; i <= n; i++) { const nx = x0 + (x1 - x0) * i / n, ny = y0 + (y1 - y0) * i / n, g = walk.groundAt(nx, ny, h); if (g == null) return { x: +x.toFixed(2), y: +y.toFixed(2), done: false, steps: i - 1 }; x = nx; y = ny; h = g; }
+  return { x: +x.toFixed(2), y: +y.toFixed(2), done: true, steps: n }; };
+
+const $hud = document.getElementById("hud"); $hud.hidden = false;
+let frames = 0, since = performance.now(), fps = 0, last = performance.now(), info = { calls: 0, tris: 0 };
+window.__stats = () => ({ backend: ENG.backend, fps, calls: info.calls, tris: info.tris, ratio: +renderer.getPixelRatio().toFixed(2), hill: hill.stats(), ground: ground.stats(), marks: Object.fromEntries(Object.entries(mark).map(([k, v]) => [k, Math.round(v)])) });
+renderer.setAnimationLoop(() => {
+  const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const sp = (keys.ShiftLeft ? 2.8 : 1.4) * dt * (keys.ControlLeft ? 6 : 1), fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  const n = Math.hypot(dx, dy);
+  if (n && !free) { dx = dx / n * sp; dy = dy / n * sp; let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; } }
+  if (free) { camera.position.set(free[0], free[2], -free[1]); camera.rotation.set(free[4], free[3], 0, "YXZ"); }
+  else { camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ"); }
+  const [cx, cy] = where(), first = !window.__ok;
+  ground.update(cx, cy, first ? 3000 : ENG.phone ? 2 : 4); hill.update(cx, cy, first ? 3000 : ENG.phone ? 2 : 4);
+  // the sun's shadow box goes with you, in whole texels so its edges never crawl
+  const step = 220 / sun.shadow.mapSize.x, sx = Math.round(camera.position.x / step) * step, sz = Math.round(camera.position.z / step) * step, sy = site.z(cx, cy);
+  sun.target.position.set(sx, sy, sz); sun.position.set(sx + 14 * 6, sy + 22 * 6, sz + 30 * 6);
+  renderer.render(scene, camera);
+  info = { calls: renderer.info.render.drawCalls, tris: renderer.info.render.triangles };
+  frames++; if (now - since > 500) { fps = Math.round(frames * 1000 / (now - since)); frames = 0; since = now;
+    const s = hill.stats(); $hud.textContent = `${ENG.backend} · ${fps} fps · ${info.calls} draws · ${(info.tris / 1e6).toFixed(2)}M tris\ntiles ${s.near} near + ${s.far} far · ${s.msPerTile.near} / ${s.msPerTile.far} ms a tile · ${s.trees} trees (${s.nearTrees} near)\nWASD walk, shift stride, ctrl fast, click to look · \\ hides this`; }
+  if (first) { window.__ok = true; mark.first = performance.now() - T0; document.getElementById("status").hidden = true; }
+});
+</script>
+</body>
+</html>

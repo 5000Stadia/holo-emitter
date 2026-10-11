@@ -1,0 +1,13 @@
+{
+  "schema": "holo-emitter-narration/0.1",
+  "lines": {
+    "toggle.*.refused_unknown": "Nothing here answers to that.",
+    "take.*.refused_unknown": "There is nothing of the kind to take.",
+    "go.*.refused_unknown": "No such way is to be found; the walls keep their counsel.",
+    "turn.*.refused": "You cannot turn that way here.",
+    "go.door_back_office_noodle_bar.arrive": "You pass from the back office into the noodle counter.",
+    "go.door_back_office_noodle_bar.refused_unreachable": "The way to the noodle counter is not before you from here.",
+    "go.door_noodle_bar_back_office.arrive": "You pass from the noodle counter into the back office.",
+    "go.door_noodle_bar_back_office.refused_unreachable": "The way to the back office is not before you from here."
+  }
+}

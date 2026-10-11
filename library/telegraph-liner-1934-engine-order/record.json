@@ -1,0 +1,74 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "telegraph-liner-1934-engine-order",
+ "noun": "ship's engine-order telegraph on a display plinth",
+ "dims_m": {
+  "h": 1.35,
+  "w": 0.45,
+  "d": 0.4
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": false,
+  "glb": "/home/k/Projects/holo-emitter/library/telegraph-liner-1934-engine-order/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.29855507612228394,
+   0.0,
+   -0.3133425712585449
+  ],
+  "bbox_max": [
+   0.29855507612228394,
+   1.350000023841858,
+   0.3133425712585449
+  ],
+  "size": [
+   0.5971101522445679,
+   1.350000023841858,
+   0.6266851425170898
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.493,
+  "images": 0,
+  "materials": 0,
+  "failures": [
+   "shape off: side/height ratios 0.44,0.46 vs declared 0.30,0.33 (err 0.49 > 0.35)"
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/telegraph-liner-1934-engine-order/model.glb",
+  "tilt_corrected_deg": 1.54,
+  "support_vertices": 542,
+  "size_m": [
+   0.597,
+   1.35,
+   0.627
+  ],
+  "lowest_1pct_spread_m": 0.0014,
+  "level_rule": "base",
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 16000
+ },
+ "level": "base",
+ "timings": {
+  "s_triposr": 112.2,
+  "s_stand_gate": 0.9,
+  "s_request_to_library": 113.1,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/telegraph-liner-1934-engine-order/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 113.1
+ }
+}

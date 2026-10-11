@@ -1,0 +1,325 @@
+// The rooms' anchor furniture, c. 1660 (design/house/r47-plan.md §5): the piece that names each room,
+// from the inventories (design/house/program-1660-research.md, cited R §2). Data only, over the shape
+// parts and the joinery parts. Everything that obviously works, works: bed curtains draw back, cupboard and
+// press doors open, lids lift, a gateleg's leaves rise, a draw-table's leaves slide out, a hogshead's tap
+// is turned, the kitchen's spit goes round while the jack runs. Frame: back at z = 0 against a wall, front
+// toward +z, centred on x = 0, standing on y = 0. "=expr" is arithmetic over the settings. How a piece
+// stands in its room (src/make/place.js) is its place rule, or what its trait implies: "free" in the middle,
+// "beside" the free table, "hearth" in the fire's mouth, "wall" hung; otherwise back to a wall.
+const P = Math.PI;
+const LEG = [[0, 0], [0.024, 0], [0.026, 0.06], [0.02, 0.1], [0.028, 0.2], [0.034, 0.3], [0.022, 0.38], [0.018, 0.42], [0.024, 0.48]];   // a turned leg to 0.48 m, scaled by ops
+// four turned legs standing on the floor, ids id0..id3; a tenon is the let-in at their tops, taken up into
+// what they carry (the top says sink: tenon). inset is one number, or { x, z } where the legs of a narrow piece
+// must not crowd (the form's, a fixed 6 cm apart however deep it is)
+const legs = (id, role, hExpr, inset, w, d, tenon = 0) => { const ix = inset.x ?? inset, iz = inset.z ?? inset;
+  return [-1, 1].flatMap((sx, i) => [-1, 1].map((sz, j) => ({ id: `${id}${i * 2 + j}`, part: "lathe", role, segments: 12, profile: LEG, on: "floor", ops: [["s", 1, `=(${hExpr}+${tenon})/0.48`, 1], ["t", `=${sx}*(${w}/2-${ix})`, 0, `=${d}/2+${sz}*(${d}/2-${iz})`]] }))); };
+export default [
+  // ---- the hall: a long table and forms (Worden 1643: a table 8 yards long; forms)
+  { kind: "table/long-hall", v: 1, noun: "the long table", fixed: true, traits: ["free"], why: "R §2: the hall's long table (Worden 1643), joined oak, no drawer",
+    settings: { W: 3.6, D: 0.85, H: 0.78 }, parts: [{ part: "joined_table", drawer: false }] },
+  { kind: "form/joined", v: 1, noun: "the form", fixed: true, traits: ["beside"], why: "R §2: forms by the long table (Middleton parlour 1618: 2 long forms)",
+    size: ["$W", "$H", "$D"], settings: { W: 2.4, H: 0.46, D: 0.3 },
+    // by relations: legs on the floor, 6 cm apart front to back however deep the seat is, the seat on them, the rail let into the back pair of legs
+    parts: [...legs("leg", "wood", "H-0.04", { x: 0.12, z: "(D-0.06)/2" }, "W", "D", 0.004),
+      { id: "seat", part: "box", role: "wood_face", size: ["$W", 0.04, "$D"], at: [0, 0, "=D/2"], on: "leg0", sink: 0.004 },
+      { part: "box", role: "wood", size: ["=W-0.2", 0.03, 0.03], at: [0, 0.08, "=D/2"], spans: { from: "leg0", to: "leg2", axis: "x" }, sink: 0.054 }] },
+  { kind: "table/kitchen", v: 1, noun: "the kitchen table", fixed: true, traits: ["free"], why: "R §2: the kitchen's working table, scrubbed deal or oak",
+    settings: { W: 2.2, D: 0.8, H: 0.8 }, parts: [{ part: "joined_table", drawer: false }] },
+  // ---- the parlours: a court cupboard, Turkey-work chairs, a gateleg table (Bank Hall c.1670; Middleton 1618)
+  { kind: "cupboard/court", v: 1, noun: "the court cupboard", fixed: true, why: "R §2: a court cupboard with its cloth (Bank Hall 1632; Oakwell): a closed lower stage with doors, an open upper stage under a canopy on bulbous posts",
+    settings: { W: 1.2, D: 0.5, H: 1.3 },
+    // by relations (design/production/geometry-method.md §1): each part says what it stands on or hangs from
+    parts: [
+      ...[-1, 1].flatMap(sx => [0.03, "=D-0.03"].map(z => ({ part: "box", role: "wood", size: [0.06, 0.06, 0.06], at: [`=${sx}*(W/2-0.03)`, 0, z], on: "floor" }))),
+      { id: "case", part: "carcass", size: ["$W", 0.62, "$D"], at: [0, 0, "=D/2"], open: "front", on: "#0" },
+      { part: "box", role: "wood_inside", size: [1, 0.018, 1], fit: { to: "case.inside", axes: "xz" }, align: { y: 0.5 } },
+      ...[-0.25, 0.05, 0.3].map(x => ({ part: "lathe", role: "pewter", segments: 14, profile: [[0, 0], [0.05, 0], [0.055, 0.03], [0.045, 0.12], [0.05, 0.16], [0, 0.16]], at: [`=W*${x}`, 0, "=D*0.45"], in: "case.inside" })),
+      { id: "top", part: "box", role: "wood_face", size: ["=W+0.04", 0.04, "=D+0.03"], at: [0, 0, "=D/2"], on: "case" },
+      { id: "cloth", part: "box", role: "linen", size: ["=W+0.02", 0.004, "=D+0.06"], at: [0, 0, "=D/2"], on: "top" },
+      { part: "box", role: "wood", size: ["=W-0.04", 0.3, "=D*0.6"], at: [0, 0, "=D*0.3"], on: "cloth" },
+      ...[-1, 1].map(sx => ({ id: sx < 0 ? "postL" : "postR", part: "lathe", role: "wood_face", segments: 14, profile: [[0, 0], [0.025, 0], [0.025, 0.08], [0.07, 0.24], [0.06, 0.34], [0.025, 0.42], [0.025, 0.56], [0, 0.56]], ops: [["t", `=${sx}*(W/2-0.05)`, 0, "=D-0.05"]], on: "cloth" })),
+      { part: "box", role: "wood_face", size: ["=W+0.06", 0.06, "=D+0.04"], at: [0, 0, "=D/2"], on: "postL", sink: 0.04 },
+      { part: "mover", name: "left", pivot: { at: "doorL", x: "left", z: "back" } }, { part: "mover", name: "right", pivot: { at: "doorR", x: "right", z: "back" } },
+      { id: "doorL", part: "box", role: "wood_face", mover: "left", size: ["=W/2-0.012", 0.5, 0.025], at: ["=-W/4-0.0005", 0.12, 0], hangs: "case" },
+      { id: "doorR", part: "box", role: "wood_face", mover: "right", size: ["=W/2-0.012", 0.5, 0.025], at: ["=W/4+0.0005", 0.12, 0], hangs: "case" }],
+    affordances: {
+      left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.7, verbs: ["open the cupboard door", "close the cupboard door"] },
+      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.7, verbs: ["open the cupboard door", "close the cupboard door"] } } },
+  { kind: "chair/turkey-work", v: 1, noun: "the chair", fixed: false, why: "R §2: Turkey-work chairs (Bank Hall dining room c.1670: 24 Turkey-work chairs and stools)",
+    size: [0.5, 1.05, 0.5], settings: {},
+    parts: [...legs("leg", "wood", "0.44", 0.04, "0.48", "0.46", 0.004),
+      { id: "seat", part: "box", role: "turkey", size: [0.5, 0.07, 0.48], at: [0, 0, 0.24], on: "leg0", sink: 0.004 },
+      { id: "postL", part: "box", role: "wood", size: [0.04, 0.57, 0.04], at: [-0.22, 0, 0.03], on: "seat", sink: 0.04 }, { id: "postR", part: "box", role: "wood", size: [0.04, 0.57, 0.04], at: [0.22, 0, 0.03], on: "seat", sink: 0.04 },
+      { part: "box", role: "turkey", size: [0.4, 0.36, 0.04], at: [0, 0.62, 0.03], spans: { from: "postL", to: "postR", axis: "x" } }] },
+  { kind: "chair/joined", v: 1, noun: "the chair", fixed: false, place: { anchor: "at", of: ["table/joined-with-drawer"] }, why: "a joined oak back stool, the living parlour's chair",
+    size: [0.48, 1.0, 0.46], settings: {},
+    parts: [...legs("leg", "wood", "0.44", 0.04, "0.46", "0.44", 0.004),
+      { id: "seat", part: "box", role: "wood_face", size: [0.48, 0.04, 0.46], at: [0, 0, 0.23], on: "leg0", sink: 0.004 },
+      { id: "postL", part: "box", role: "wood", size: [0.04, 0.54, 0.04], at: [-0.21, 0, 0.03], on: "seat", sink: 0.02 }, { id: "postR", part: "box", role: "wood", size: [0.04, 0.54, 0.04], at: [0.21, 0, 0.03], on: "seat", sink: 0.02 },
+      { part: "box", role: "wood_face", size: [0.38, 0.22, 0.025], at: [0, 0.7, 0.03], spans: { from: "postL", to: "postR", axis: "x" } }] },
+  { kind: "table/gateleg", v: 1, noun: "the gateleg table", fixed: true, why: "a gateleg table against the wall: its leaf hangs down until a gate swings out to hold it up",
+    settings: { W: 1.1, D: 0.4, H: 0.74, leaf: 0.42 },
+    parts: [...legs("leg", "wood", "H-0.03", 0.05, "W", "D", 0.004),
+      { id: "top", part: "box", role: "wood_face", size: ["$W", 0.03, "$D"], at: [0, 0, "=D/2"], on: "leg0", sink: 0.004 },
+      // the gate's hinge post: it had stopped 5 cm short of the top; now it meets it (a real fault, fixed)
+      { id: "gpost", part: "box", role: "wood", size: [0.04, "=H-0.086", 0.04], at: [0, 0.06, "=D-0.05"], under: "top", sink: 0.004 },
+      // the rail from the post back toward the wall, let 2 cm into the post
+      { part: "box", role: "wood", size: [0.034, 0.034, "=D-0.1"], at: [0, 0.063, "=D/2"], meets: { to: "gpost", face: "back" }, sink: 0.02 },
+      { part: "mover", name: "front", pivot: { at: "leaf", x: "mid", y: "top", z: "back" } },
+      { id: "leaf", part: "box", role: "wood_face", mover: "front", size: ["$W", "$leaf", 0.025], at: [0, "=H-0.015-leaf", "=D+0.0125"], hangs: "top" },
+      // the gate: an upright pivoting on the frame, a rail and a stretcher out to a turned leg (each let 2 cm into the post); it folds flat against the frame
+      { part: "mover", name: "gate", pivot: { at: "gpost", x: "mid", y: "bottom", z: "mid" } },
+      { part: "lathe", role: "wood", mover: "gate", segments: 12, profile: LEG, on: "floor", ops: [["s", 1, "=(H-0.04)/0.48", 1], ["t", "=-(leaf-0.08)", 0, "=D-0.05"]] },
+      { part: "box", role: "wood", mover: "gate", size: ["=leaf-0.08", 0.034, 0.03], at: ["=-(leaf-0.08)/2", "=H-0.12", "=D-0.05"], meets: { to: "gpost", face: "left" }, sink: 0.02 },
+      { part: "box", role: "wood", mover: "gate", size: ["=leaf-0.08", 0.03, 0.03], at: ["=-(leaf-0.08)/2", 0.08, "=D-0.05"], meets: { to: "gpost", face: "left" }, sink: 0.02 }],
+    // raising the leaf swings the gate out first; the gate won't fold while the leaf rests on it
+    affordances: {
+      gate: { mover: "gate", motion: "hinge", axis: [0, 1, 0], angle: 1.5708, auto: true, done: "the gate swings out under it", release: { front: "down" }, held: "the leaf rests on it", verbs: ["swing out the gate", "fold the gate"] },
+      front: { mover: "front", motion: "hinge", axis: [1, 0, 0], angle: -1.5708, states: ["down", "up"], requires: { gate: "open" }, refused: "nothing would hold it up", verbs: ["raise the leaf", "let the leaf down"] } } },
+  // ---- the study and the great chamber: a draw-table whose leaves slide out (Rufford dining chamber 1620: a drawing table)
+  { kind: "table/drawing", v: 1, noun: "the draw-table", fixed: true, traits: ["free"], why: "R §2: a drawing table (Rufford dining chamber 1620): leaves under the top draw out at each end",
+    settings: { W: 2.0, D: 0.85, H: 0.78 },
+    // by relations: each leaf lies 6.5 cm below the top's surface, under it
+    parts: [{ id: "table", part: "joined_table", drawer: false },
+      { part: "mover", name: "west", pivot: [0, 0, 0] }, { part: "mover", name: "east", pivot: [0, 0, 0] },
+      { part: "box", role: "wood_face", mover: "west", size: [0.6, 0.028, "=D-0.06"], at: ["=-W/2+0.33", "=H-0.065", "=D/2+0.01"], on: "table", sink: 0.065, within: "stowed under the top, it runs out through the frame's end as a draw-leaf does" },
+      { part: "box", role: "wood_face", mover: "east", size: [0.6, 0.028, "=D-0.06"], at: ["=W/2-0.33", "=H-0.065", "=D/2+0.01"], on: "table", sink: 0.065, within: "stowed under the top, it runs out through the frame's end as a draw-leaf does" }],
+    // each leaf runs out on its bearers and rises the last few centimetres to lie level with the top
+    affordances: {
+      west: { mover: "west", motion: "slide", axis: [-1, 0.062, 0], travel: 0.6, verbs: ["draw out the leaf", "push the leaf home"] },
+      east: { mover: "east", motion: "slide", axis: [1, 0.062, 0], travel: 0.6, verbs: ["draw out the leaf", "push the leaf home"] } } },
+  { kind: "cupboard/press", v: 1, noun: "the press cupboard", fixed: true, why: "R §2: cupboards in the pantry (Hardwick 1601): a tall joined press, two doors, shelves within",
+    settings: { W: 1.3, D: 0.55, H: 1.9 },
+    // by relations: the ends on the floor, the back, bottom and shelves spanning from end to end, the top on the ends, the doors hung on the ends' fronts
+    parts: [{ id: "sideL", part: "box", role: "wood", size: [0.04, "$H", "$D"], at: ["=-W/2+0.02", 0, "=D/2"], on: "floor" }, { id: "sideR", part: "box", role: "wood", size: [0.04, "$H", "$D"], at: ["=W/2-0.02", 0, "=D/2"], on: "floor" },
+      { part: "box", role: "wood", size: ["=W-0.08", "$H", 0.03], at: [0, 0, 0.015], on: "floor", spans: { from: "sideL", to: "sideR", axis: "x" } },
+      { part: "box", role: "wood_face", size: ["=W+0.04", 0.05, "=D+0.03"], at: [0, 0, "=D/2"], on: "sideL" },
+      { part: "box", role: "wood", size: ["=W-0.08", 0.06, "=D-0.03"], at: [0, 0, "=D/2+0.015"], on: "floor", spans: { from: "sideL", to: "sideR", axis: "x" } },
+      { part: "box", role: "wood_inside", size: ["=W-0.08", 0.025, "=D-0.06"], at: [0, "=H*0.65/1.9", "=D/2"], spans: { from: "sideL", to: "sideR", axis: "x" } }, { part: "box", role: "wood_inside", size: ["=W-0.08", 0.025, "=D-0.06"], at: [0, "=H*1.2/1.9", "=D/2"], spans: { from: "sideL", to: "sideR", axis: "x" } },
+      { part: "mover", name: "left", pivot: { at: "doorL", x: "left", z: "back" } }, { part: "mover", name: "right", pivot: { at: "doorR", x: "right", z: "back" } },
+      { id: "doorL", part: "box", role: "wood_face", mover: "left", size: ["=W/2-0.03", "=H-0.1", 0.025], at: ["=-W/4+0.005", 0.07, 0], hangs: "sideL" },
+      { id: "doorR", part: "box", role: "wood_face", mover: "right", size: ["=W/2-0.03", "=H-0.1", 0.025], at: ["=W/4-0.005", 0.07, 0], hangs: "sideL" }],
+    affordances: {
+      left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.7, verbs: ["open the press", "close the press"] },
+      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.7, verbs: ["open the press", "close the press"] } } },
+  // ---- service: a hogshead on its stand with a tap; a powdering tub; the kitchen's jack and spit
+  { kind: "barrel/hogshead-on-stand", v: 1, noun: "the hogshead", fixed: true, why: "R §2: hogsheads on stands with iron hoops (Dunkenhalgh 1679: 'two stands, four iron hoopes with screws for hogsheads')",
+    settings: { L: 0.95, R: 0.36 },
+    // by relations: the stands on the floor, the barrel lying in the first of them (4 cm let into its cradle), the hoops round it a fifth of its length in from each end, the spigot driven 2 cm into its head, the tap's handle on the spigot
+    parts: [{ id: "standA", part: "box", role: "wood", size: [0.8, 0.3, 0.12], at: [0, 0, "=L*0.22+0.05"], on: "floor" }, { id: "standB", part: "box", role: "wood", size: [0.8, 0.3, 0.12], at: [0, 0, "=L*0.78+0.05"], on: "floor" },
+      { id: "barrel", part: "lathe", role: "wood_face", segments: 20, profile: [[0, 0], ["=R*0.85", 0], ["=R", "=L/2"], ["=R*0.85", "$L"], [0, "$L"]], ops: [["t", 0, "=-L/2", 0], ["rx", P / 2], ["t", 0, 0, "=L/2+0.05"]], on: "standA", sink: 0.04 },
+      { part: "torus", role: "iron", r: "=R*0.92", tube: 0.008, radial: 4, tubular: 24, at: [0, "=0.26+R", "=L*0.2+0.05"], meets: { to: "barrel", face: "back" }, sink: "=L*0.2+0.008", align: { x: 0.5, y: 0.5 } },
+      { part: "torus", role: "iron", r: "=R*0.92", tube: 0.008, radial: 4, tubular: 24, at: [0, "=0.26+R", "=L*0.8+0.05"], meets: { to: "barrel", face: "front" }, sink: "=L*0.2+0.008", align: { x: 0.5, y: 0.5 } },
+      { id: "spigot", part: "cylinder", role: "wood", r: 0.014, h: 0.1, segments: 8, ops: [["rx", P / 2], ["t", 0, "=0.26+R*0.45", "=L+0.03"]], meets: { to: "barrel", face: "front" }, sink: 0.02, within: "the spigot, driven into the head" },
+      { part: "mover", name: "tap", pivot: [0, "=0.26+R*0.45", "=L+0.1"] },
+      { part: "box", role: "iron", mover: "tap", size: [0.07, 0.016, 0.014], at: [0, "=0.26+R*0.45+0.012", "=L+0.1"], on: "spigot", sink: 0.002 }],
+    affordances: { tap: { mover: "tap", motion: "lever", axis: [0, 0, 1], angle: 1.5708, verbs: ["turn the tap", "turn the tap off"] } } },
+  { kind: "tub/powdering", v: 1, noun: "the powdering tub", fixed: true, why: "R §2: powdering tubs for salting meat (Dunkenhalgh: 3 large powdering tubs)",
+    settings: { R: 0.32, H: 0.6 },
+    // by relations: the brine in the vessel on its 4 cm floor, the hoops round it at a quarter and four fifths of its height, the lid on its rim
+    parts: [{ id: "vessel", part: "lathe", role: "wood_face", segments: 24, profile: [[0, 0.04], ["=R*0.85-0.025", 0.04], ["=R-0.025", "$H"], ["$R", "$H"], ["=R*0.85", 0], [0, 0]], at: [0, 0, 0.35], on: "floor" },
+      { id: "brine", part: "cylinder", role: "brine", r: "=R*0.85-0.026", r_top: "=R*0.85-0.026+(R*0.15)*(H*0.6-0.04)/(H-0.04)", h: "=H*0.6-0.04+0.004", segments: 24, at: [0, 0.04, 0.35], in: "vessel", sink: -0.04, align: { x: 0.5, z: 0.5 } },
+      { part: "box", role: "bacon", size: [0.2, 0.06, 0.14], ops: [["ry", 0.4], ["t", -0.05, 0, 0.33]], on: "brine", sink: 0.034, within: "meat lying in its brine" }, { part: "box", role: "bacon", size: [0.16, 0.05, 0.12], ops: [["ry", -0.7], ["t", 0.09, 0, 0.42]], on: "brine", sink: 0.029, within: "meat lying in its brine" },
+      { part: "torus", role: "iron", r: "=R*0.9", tube: 0.007, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, "=H*0.25", 0.35]], in: "vessel", sink: "=-(H*0.25-0.007)", align: { x: 0.5, z: 0.5 } },
+      { part: "torus", role: "iron", r: "=R*0.98", tube: 0.007, radial: 4, tubular: 24, ops: [["rx", P / 2], ["t", 0, "=H*0.8", 0.35]], in: "vessel", sink: "=-(H*0.8-0.007)", align: { x: 0.5, z: 0.5 } },
+      { part: "mover", name: "lid", pivot: { at: "lid", x: "mid", y: "bottom", z: "mid" } },
+      { id: "lid", part: "cylinder", role: "wood", mover: "lid", r: "=R+0.01", h: 0.03, segments: 20, at: [0, 0, 0.35], on: "vessel" }],
+    affordances: { lid: { mover: "lid", motion: "slide", axis: [1, 0, 0], travel: 0.4, verbs: ["push the lid aside", "put the lid back"] } } },
+  { kind: "hearth/kitchen-jack", v: 1, noun: "the spit", fixed: true, traits: ["hearth"], why: "R §2: the kitchen's jack with its weight and chains, spits, racks (Dunkenhalgh 1679); a spit turned by a jack",
+    settings: { W: 2.4 },
+    // by relations: the andirons on the floor, the spit resting on the left one (1 mm), the joint skewered on the spit
+    parts: [{ id: "dogL", part: "box", role: "iron", size: [0.06, 0.489, 0.06], at: ["=-W/2+0.2", 0, 0.45], on: "floor" }, { part: "box", role: "iron", size: [0.06, 0.489, 0.06], at: ["=W/2-0.2", 0, 0.45], on: "floor" },
+      { part: "mover", name: "spit", pivot: { at: "rod", x: "mid", y: "mid", z: "mid" } },
+      { id: "rod", part: "cylinder", role: "iron", mover: "spit", r: 0.012, h: "=W-0.2", segments: 8, ops: [["t", 0, "=-(W-0.2)/2", 0], ["rz", P / 2], ["t", 0, 0, 0.45]], on: "dogL", sink: 0.001 },
+      { part: "box", role: "bacon", mover: "spit", size: [0.16, 0.16, 0.16], at: [0, 0, 0.45], on: "rod", sink: 0.092, within: "the joint, skewered on the spit" },
+      { part: "spinner", mover: "spit", axis: [1, 0, 0], rate: 1.6, when: "jack", frame: "it is the spit's turning, not a body: it makes no geometry and has nowhere to stand" }],
+    affordances: { jack: { hit: "body", motion: "state", states: ["still", "turning"], verbs: ["wind the jack", "stop the jack"] } } },
+  // ---- chambers: the standing bed with its curtains (Bank Hall Egle Chamber 1632: 'standing bed … 5 silk curtains with rods'), a close stool, a chest
+  { kind: "bed/standing-curtained", v: 1, noun: "the bed", fixed: true, why: "R §2: a standing bed with valance and curtains on rods (Bank Hall 1632); a truckle bed beneath (Ashmore)",
+    settings: { W: 1.6, L: 2.0, H: 2.3 },
+    // by relations: posts on the floor (their turning scaled to the height), the frame let 5 cm into the posts either side (its height a quarter-metre up them, as written), bedding on it, the tester on the posts, the valance under the tester, the curtains hung under the valance
+    parts: [
+      ...[-1, 1].flatMap((sx, i) => [0, 1].map(sz => ({ id: `post${i * 2 + sz}`, part: "lathe", role: "wood_face", segments: 12, profile: [[0, 0], [0.05, 0], [0.05, 0.5], [0.035, 0.6], [0.05, 0.9], [0.03, 1.2], [0.04, 1.6], [0.03, 2.0], [0.03, 2.3], [0, 2.3]], on: "floor", ops: [["s", 1, "=H/2.3", 1], ["t", `=${sx}*(W/2-0.05)`, 0, `=${sz}*(L-0.1)+0.05`]] }))),
+      { id: "frame", part: "box", role: "wood", size: ["=W-0.1", 0.3, "=L-0.1"], at: [0, 0.25, "=L/2"], spans: { from: "post0", to: "post2", axis: "x" }, sink: 0.05 },
+      { id: "mattress", part: "box", role: "linen", size: ["=W-0.12", 0.22, "=L-0.15"], at: [0, 0, "=L/2+0.02"], on: "frame" },
+      { part: "box", role: "hangings", size: ["=W-0.1", 0.06, "=L-0.25"], at: [0, 0, "=L/2+0.08"], on: "mattress" },
+      { id: "tester", part: "box", role: "wood_face", size: ["=W+0.06", 0.06, "=L+0.06"], at: [0, 0, "=L/2"], on: "post0" },
+      { id: "valance", part: "box", role: "hangings", size: ["=W+0.04", 0.35, "=L+0.04"], at: [0, 0, "=L/2"], under: "tester" },
+      { part: "box", role: "wood_face", size: ["=W-0.1", "=H*1.1/2.3", 0.05], at: [0, 0, 0.05], on: "frame" },
+      { part: "box", role: "hangings", size: [0.03, "=H-0.75", 0.3], at: ["=-W/2+0.05", 0, 0.25], under: "valance", sink: 0.05 }, { part: "box", role: "hangings", size: [0.03, "=H-0.75", 0.3], at: ["=W/2-0.05", 0, 0.25], under: "valance", sink: 0.05 },
+      { part: "mover", name: "left", pivot: ["=-W/2+0.05", 0, "=L-0.02"] }, { part: "mover", name: "right", pivot: ["=W/2-0.05", 0, "=L-0.02"] },
+      { part: "box", role: "hangings", mover: "left", size: ["=W/2-0.02", "=H-0.75", 0.02], at: ["=-W/4", 0, "=L-0.02"], under: "valance", sink: 0.05 },
+      { part: "box", role: "hangings", mover: "right", size: ["=W/2-0.02", "=H-0.75", 0.02], at: ["=W/4", 0, "=L-0.02"], under: "valance", sink: 0.05 },
+      { part: "slot", name: "bed", at: [0, 0.83, "=L/2+0.08"], area: ["=W-0.1", "=L-0.25"],
+        frame: "a point on the middle of the coverlet, where whoever lies in the bed lies (the head toward the bed's head, at -z): the frame's top at 0.55 m, the mattress 0.22 over it, the coverlet 0.06" }],
+    affordances: {
+      // a curtain drawn back folds round its foot post to hang along the bed's side
+      left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: 1.5, initial: "open", verbs: ["draw back the curtain", "draw the curtain"] },
+      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: -1.5, initial: "open", verbs: ["draw back the curtain", "draw the curtain"] } } },
+  { kind: "bed/truckle", v: 1, noun: "the truckle bed", fixed: true, why: "R §2: truckle beds and chaff beds for servants (Ashmore pp.66-67)",
+    settings: { W: 0.9, L: 1.85 },
+    parts: [...[-1, 1].flatMap((sx, i) => [0.05, "=L-0.05"].map((z, j) => ({ id: `foot${i * 2 + j}`, part: "box", role: "wood", size: [0.06, 0.04, 0.06], at: [`=${sx}*(W/2-0.05)`, 0, z], on: "floor" }))),
+      { id: "base", part: "box", role: "wood", size: ["$W", 0.22, "$L"], at: [0, 0, "=L/2"], on: "foot0" }, { part: "box", role: "linen", size: ["=W-0.06", 0.12, "=L-0.06"], at: [0, 0, "=L/2"], on: "base" }] },
+  { kind: "stool/close", v: 1, noun: "the close stool", fixed: false, why: "R §2: close stools with pans, often in the closet (Dunkenhalgh: 4 of 7 in closets)",
+    size: [0.46, 0.5, 0.4], settings: {},
+    // the pan hangs by its rim in the seat's opening: stood on the seat's top, let down its own depth
+    parts: [{ id: "case", part: "carcass", size: [0.46, 0.44, 0.4], at: [0, 0, 0.2], open: "top", role: "wood_face", on: "floor" },
+      { part: "lathe", role: "pewter", segments: 18, profile: [[0, 0.21], [0.1, 0.21], [0.15, 0.41], [0.185, 0.432], [0.185, 0.44], [0.155, 0.44], [0.14, 0.41], [0.09, 0.22], [0, 0.22]], at: [0, 0, 0.2], on: "case", sink: 0.23, align: { x: 0.5, z: 0.5 } },
+      { part: "mover", name: "lid", pivot: { at: "case", x: "mid", y: "top", z: "back" } }, { part: "box", role: "wood_face", mover: "lid", size: [0.48, 0.03, 0.42], at: [0, 0, 0.2], on: "case" }],
+    affordances: { lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.6, verbs: ["lift the lid", "close the lid"] } } },
+  { kind: "chest/boarded", v: 1, noun: "the chest", fixed: true, why: "a boarded oak chest at the bed's foot: linen and clothes",
+    settings: { w: 1.1, d: 0.5, h: 0.6 }, parts: [{ part: "boarded_box" }],
+    affordances: { lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.65, verbs: ["open the chest", "close the chest"] } } },
+  // ---- the closet: a japanned cabinet on its stand (Ham's Green Closet: 2 Japan cabinets)
+  { kind: "cabinet/japanned", v: 1, noun: "the cabinet", fixed: true, why: "R §2: Japan cabinets in the closet (Ham, Green Closet); doors before small drawers",
+    settings: { W: 0.9, D: 0.45 },
+    parts: [...legs("leg", "japan", "0.7", 0.05, "W", "D", 0.004),
+      { id: "top", part: "box", role: "japan", size: ["$W", 0.04, "$D"], at: [0, 0, "=D/2"], on: "leg0", sink: 0.004 },
+      { id: "case", part: "carcass", size: ["=W-0.04", 0.6, "=D-0.04"], at: [0, 0, "=D/2-0.02"], open: "front", role: "japan", inside: "japan", on: "top" },
+      // the small drawers behind the doors, three rows of two, each row on the one below: lacquered fronts, each with a
+      // gilt panel and a gilt knob, each its own drawer that runs out (Kabe, 2026-10-06, on six solid blocks of gilt:
+      // "weird yellow inside"); each a hollow box, plain wood on its floor, that holds what is put in it (its slot,
+      // named as the drawer is, rides out with it)
+      ...[0, 1, 2].flatMap(r => [-1, 1].flatMap(sx => { const id = `dr${r}${sx}`, mv = `d${r}${sx < 0 ? "l" : "r"}`; return [
+        { part: "mover", name: mv, pivot: [0, 0, 0] },
+        // (each row above the first on a divider across the case, as a cabinet's drawers run on: a drawer pulled out
+        // still rests on it)
+        ...(r > 0 && sx < 0 ? [{ id: `dv${r}`, part: "box", role: "japan", size: [1, 0.01, 1], fit: { to: "case.inside", axes: "xz" }, on: `dr${r - 1}-1`, seen: false, within: "a rail between the rows of drawers: only its front edge shows, a centimetre between the fronts" }] : []),
+        { id, part: "drawer_box", role: "japan", floor: "wood_inside", t: 0.01, mover: mv, size: ["=(W-0.12)/2-0.02", 0.17, "=D-0.095"], at: [`=${sx}*(W-0.12)/4`, 0, "=(D-0.055)/2"], ...(r === 0 ? { in: "case.inside" } : { on: `dv${r}` }),
+          ...(r < 2 ? { covered: "the drawer over it, pulled out with it, covers its bottom; pulled out alone, it shows" } : {}) },
+        { part: "slot", name: mv, mover: mv, at: [`=${sx}*(W-0.12)/4`, 0.772 + r * 0.18, "=D-0.155"], area: ["=(W-0.12)/2-0.06", 0.12],
+          frame: "a point on the drawer's floor 7 cm in from its front, so what lies there comes out with it: the stand's top at 0.74 m, the case's floor 0.022 over it, the drawer's bottom board 0.01 more; each row 0.18 m over the last (a drawer 0.17, a divider 0.01)" },
+        // a gilt line round the front, a finger in from its edge, as the japanners drew it, and a gilt knob
+        { part: "box", role: "gilt", mover: mv, size: ["=(W-0.12)/2-0.06", 0.004, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.85 } },
+        { part: "box", role: "gilt", mover: mv, size: ["=(W-0.12)/2-0.06", 0.004, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.15 } },
+        { part: "box", role: "gilt", mover: mv, size: [0.004, 0.115, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.08, y: 0.5 } },
+        { part: "box", role: "gilt", mover: mv, size: [0.004, 0.115, 0.002], at: [0, 0, 0], hangs: id, align: { x: 0.92, y: 0.5 } },
+        { part: "box", role: "gilt", mover: mv, size: [0.02, 0.02, 0.014], at: [0, 0, 0], hangs: id, align: { x: 0.5, y: 0.5 } }]; })),
+      { part: "mover", name: "left", pivot: { at: "case", x: "left", z: "front" } }, { part: "mover", name: "right", pivot: { at: "case", x: "right", z: "front" } },
+      { id: "doorL", part: "box", role: "japan", mover: "left", size: ["=W/2-0.03", 0.58, 0.02], at: ["=-W/4", 0.75, 0], hangs: "case" },
+      { id: "doorR", part: "box", role: "japan", mover: "right", size: ["=W/2-0.03", 0.58, 0.02], at: ["=W/4", 0.75, 0], hangs: "case" },
+      { part: "box", role: "gilt", mover: "left", size: ["=W/2-0.1", 0.46, 0.004], at: ["=-W/4", 0.81, 0], hangs: "doorL" },
+      { part: "box", role: "gilt", mover: "right", size: ["=W/2-0.1", 0.46, 0.004], at: ["=W/4", 0.81, 0], hangs: "doorR" }],
+    affordances: {
+      left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.8, verbs: ["open the cabinet", "close the cabinet"] },
+      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.8, verbs: ["open the cabinet", "close the cabinet"] },
+      ...Object.fromEntries([0, 1, 2].flatMap(r => ["l", "r"].map(x => [`d${r}${x}`, { mover: `d${r}${x}`, motion: "slide", axis: [0, 0, 1], travel: 0.22, verbs: ["open the drawer", "close the drawer"],
+        requires: { [x === "l" ? "left" : "right"]: "open" }, refused: "the cabinet's door is shut" }]))) } },
+  // ---- the nursery and the gallery
+  { kind: "chair/child", v: 1, noun: "the child's chair", fixed: false, why: "R §2: a child's chair (Middleton 1618)",
+    size: [0.34, 0.65, 0.32], settings: {},
+    parts: [...legs("leg", "wood", "0.28", 0.03, "0.32", "0.3", 0.004),
+      { id: "seat", part: "box", role: "wood_face", size: [0.34, 0.03, 0.32], at: [0, 0, 0.16], on: "leg0", sink: 0.004 },
+      { part: "box", role: "wood_face", size: [0.3, 0.3, 0.02], at: [0, 0, 0.02], on: "seat" }] },
+  { kind: "picture/portrait", v: 1, noun: "the portrait", fixed: true, why: "R §2: portraits down the long gallery (Dunkenhalgh: 15 pictures; Rufford: 29)", traits: ["wall"],
+    settings: { W: 0.75, H: 0.95, at_y: 1.25 },
+    parts: [{ id: "frame", part: "box", role: "gilt", size: ["=W+0.12", "=H+0.12", 0.05], at: [0, "=at_y-0.06", 0.025], hangs: "wall" }, { part: "portrait_canvas", W: "$W", H: "$H", y: "$at_y", z: 0.0505, hangs: "frame", sink: -0.001, align: { x: 0.5, y: 0.5 } }] },
+  // ---- the bakehouse: the bread oven with its iron door, the kneading trough with its lid
+  { kind: "oven/bread", v: 1, noun: "the bread oven", fixed: true, why: "R §1.2: the bakehouse's oven (Ashmore): a brick dome with an iron door",
+    settings: { R: 0.8 },
+    // by relations: the sole on the floor, the back wall and the two cheeks on it, the hollow on the sole, the lintel between the cheeks over the hollow, the dome on the cheeks, the loaves in the hollow, the door hung on the sole's front and hinged at its own edge
+    parts: [{ id: "sole", part: "box", role: "brick", size: [1.9, 0.3, 1.8], at: [0, 0, 0.9], on: "floor" }, { part: "box", role: "brick", size: [1.9, 0.6, 0.2], at: [0, 0, 0.1], on: "sole" },
+      { id: "cheekL", part: "box", role: "brick", size: [0.6, 0.6, 1.6], at: [-0.65, 0, 1.0], on: "sole" }, { id: "cheekR", part: "box", role: "brick", size: [0.6, 0.6, 1.6], at: [0.65, 0, 1.0], on: "sole" },
+      { id: "hollow", part: "carcass", size: [0.7, 0.4, 1.58], at: [0, 0, 0.99], open: "front", role: "soot", inside: "soot", t: 0.01, on: "sole" },
+      { part: "box", role: "brick", size: [0.7, 0.2, 1.6], at: [0, 0, 1.0], on: "hollow", spans: { from: "cheekL", to: "cheekR", axis: "x" } },
+      ...[[-0.15, 1.2], [0.15, 1.0], [0, 0.7]].map(([x, z]) => ({ part: "sphere", role: "bread", r: 0.12, w: 12, h: 8, scale: [1, 0.55, 1], at: [x, 0, z], in: "hollow.inside" })),
+      { part: "sphere", role: "brick", r: "$R", w: 20, h: 10, theta_len: P / 2, at: [0, 0, 0.9], on: "cheekL" },
+      { part: "mover", name: "door", pivot: { at: "door", x: "left", z: "back" } },
+      { id: "door", part: "box", role: "iron", mover: "door", size: [0.76, 0.44, 0.03], at: [0, 0.28, 0], hangs: "sole" }],
+    affordances: { door: { mover: "door", motion: "hinge", axis: [0, 1, 0], angle: -1.6, verbs: ["open the oven", "close the oven"] } } },
+  { kind: "trough/kneading", v: 1, noun: "the kneading trough", fixed: true, why: "the bakehouse's kneading trough on legs, its lid a board to work on",
+    settings: { W: 1.4, D: 0.55 },
+    parts: [...legs("leg", "wood", "0.55", 0.06, "W", "D", 0.004),
+      { id: "case", part: "carcass", size: ["$W", 0.3, "$D"], at: [0, 0, "=D/2"], open: "top", t: 0.03, on: "leg0", sink: 0.004 },
+      { part: "box", role: "dough", size: ["=W-0.4", 0.08, "=D-0.12"], at: [-0.1, 0, "=D/2"], in: "case.inside" },
+      { part: "mover", name: "lid", pivot: { at: "case", x: "mid", y: "top", z: "back" } },
+      { id: "lid", part: "box", role: "wood_face", mover: "lid", size: ["=W+0.03", 0.03, "=D+0.03"], at: [0, 0, "=D/2"], on: "case" }],
+    affordances: { lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.6, verbs: ["lift the lid", "close the lid"] } } },
+  // ---- round 2 of the blind review (design/house/r47-blind-review.md): what names a room at a glance
+  { kind: "cradle/hooded", v: 1, noun: "the cradle", fixed: false, why: "R §2: the nursery's cradle (Middleton 1618); a boarded cradle on two rockers that stand out past its sides, a hood at the head, bedding within",
+    size: [0.95, 0.75, 0.66], settings: {},
+    // by relations: the rockers on the floor, a foot on the crown of each, the case on the feet, the bedding on its floor, the hood's sides and end on the case, its roof on the sides
+    parts: [{ part: "mover", name: "body", pivot: [0, 0, 0.33] },
+      // the rockers: broad arcs across the cradle at each end, standing out beyond its sides so they show
+      ...[-0.36, 0.36].map(x => ({ part: "torus", role: "wood_face", mover: "body", r: 0.6, tube: 0.024, radial: 6, tubular: 18, arc: 1.12, ops: [["rz", -P / 2 - 0.56], ["t", 0, 0.6245, 0], ["ry", P / 2], ["t", x, 0, 0.33]], on: "floor" })),
+      // (a foot stands on its rocker's crown, which is 3.5 cm up from the floor there)
+      ...[-0.36, 0.36].map(x => ({ id: x < 0 ? "footL" : "footR", part: "box", role: "wood", mover: "body", size: [0.05, 0.085, 0.05], at: [x, 0.035, 0.33], on: "floor", sink: -0.035 })),
+      { id: "case", part: "carcass", mover: "body", size: [0.9, 0.3, 0.44], at: [0, 0.12, 0.33], open: "top", role: "wood_face", t: 0.02, on: "footL" },
+      { id: "bedding", part: "box", role: "linen", mover: "body", size: [0.6, 0.08, 0.38], at: [0.1, 0.14, 0.33], in: "case.inside" },
+      { part: "box", role: "hangings", mover: "body", size: [0.5, 0.03, 0.39], at: [0.14, 0.22, 0.33], on: "bedding" },
+      // the hood over the head: its sides and roof, open toward the foot
+      { id: "hoodA", part: "box", role: "wood_face", mover: "body", size: [0.28, 0.32, 0.02], at: [-0.31, 0.42, 0.12], on: "case" }, { part: "box", role: "wood_face", mover: "body", size: [0.28, 0.32, 0.02], at: [-0.31, 0.42, 0.54], on: "case" },
+      { part: "box", role: "wood_face", mover: "body", size: [0.02, 0.32, 0.4], at: [-0.44, 0.42, 0.33], on: "case" },
+      { part: "box", role: "wood_face", mover: "body", size: [0.32, 0.025, 0.46], at: [-0.3, 0.74, 0.33], on: "hoodA" }],
+    affordances: { body: { mover: "body", motion: "lever", axis: [1, 0, 0], angle: 0.2, verbs: ["rock the cradle", "rock the cradle"] } } },
+  { kind: "couch/daybed", v: 1, noun: "the daybed", fixed: true, why: "R §2: a couch in the withdrawing chamber (Ham; Dunkenhalgh 'a couch chair'); a long seat with a raked head, Turkey-work squab",
+    settings: { W: 1.8, D: 0.62 },
+    // by relations: legs on the floor, the frame on them, the squab on the frame, the raked head and its roll let into the squab
+    parts: [...legs("leg", "wood", "0.3", 0.05, "W", "D", 0.004),
+      { id: "frame", part: "box", role: "wood_face", size: ["$W", 0.08, "$D"], at: [0, 0, "=D/2"], on: "leg0", sink: 0.004 },
+      { id: "squab", part: "box", role: "turkey", size: ["=W-0.1", 0.1, "=D-0.06"], at: [0, 0, "=D/2"], on: "frame" },
+      { part: "box", role: "turkey", size: [0.08, 0.55, "=D-0.08"], ops: [["rz", -0.45], ["t", "=-W/2+0.12", 0.42, "=D/2"]], on: "squab", sink: 0.077, within: "stuffed work, pressed into the squab" },
+      { part: "box", role: "turkey", size: [0.42, 0.14, "=D-0.1"], ops: [["rz", -0.35], ["t", "=-W/2+0.3", 0.5, "=D/2"]], on: "squab", sink: 0.052, within: "a roll, pressed into the squab and the head" }] },
+  { kind: "table/carpeted", v: 1, noun: "the table", traits: ["free"], fixed: true, why: "R §2: a table with its Turkey carpet (Hardwick; Bank Hall: 'a long table with a carpet'), the cloth hanging to the floor's half",
+    settings: { W: 1.8, D: 0.9, H: 0.76 },
+    // the carpet one cloth over the table's top, hanging to the floor's half, gathered at the corners (Kabe,
+    // 2026-10-06: the five stretched boxes it was "looks lame and cheap")
+    parts: [{ id: "table", part: "joined_table", drawer: false, seen: false },
+      { part: "drape", w: "=W+0.06", d: "=D+0.04", at: [0, "$H", "=D/2+0.01"], drop: "=H*0.45", design: "turkey", frame: "the cloth's own code lays it over the table's top, from the same W, D and H the table is built from, and hangs it to the floor's half" }] },
+  { kind: "wheel/spinning", v: 1, noun: "the spinning wheel", fixed: true, why: "a wool wheel or Saxony wheel in the living parlour: the household's own spinning; its wheel turns while it is worked",
+    settings: {},
+    // by relations: the bench, its legs on the floor, the two uprights let into the bench (its box stands taller than the raked board
+    // under each, so the sink is the box's), the axle between the uprights, the rim centred on the axle, its spokes let into the rim, the
+    // post at the bench's far end and the flyer across its top
+    parts: [{ id: "bench", part: "box", role: "wood", size: [0.8, 0.06, 0.26], ops: [["rz", 0.12], ["t", 0, 0.42, 0.25]] },
+      { part: "cylinder", role: "wood", r: 0.02, h: 0.45, segments: 8, at: [-0.32, 0, 0.14], on: "floor" }, { part: "cylinder", role: "wood", r: 0.02, h: 0.45, segments: 8, at: [-0.32, 0, 0.36], on: "floor" },
+      { part: "cylinder", role: "wood", r: 0.02, h: 0.5, segments: 8, at: [0.32, 0, 0.25], on: "floor" },
+      { id: "upA", part: "box", role: "wood", size: [0.04, 0.42, 0.04], at: [-0.15, 0.42, 0.17], on: "bench", sink: 0.107 }, { id: "upB", part: "box", role: "wood", size: [0.04, 0.42, 0.04], at: [-0.15, 0.42, 0.33], on: "bench", sink: 0.107 },
+      { id: "axle", part: "cylinder", role: "wood", r: 0.03, h: 0.18, segments: 10, ops: [["rx", P / 2], ["t", -0.15, 0.8, 0.16]], spans: { from: "upA", to: "upB", axis: "z" }, sink: 0.03 },
+      { part: "mover", name: "wheel", pivot: [-0.15, 0.8, 0.25] },
+      // (half the axle's 18 cm and half the rim's width: its middle on the axle's)
+      { id: "rim", part: "torus", role: "wood_face", mover: "wheel", r: 0.26, tube: 0.018, radial: 6, tubular: 32, at: [-0.15, 0.8, 0.25], meets: { to: "axle", face: "back" }, sink: "=0.09+0.0156", align: { x: 0.5, y: 0.5 } },
+      ...[...Array(12).keys()].map(k => ({ part: "box", role: "wood", mover: "wheel", size: [0.012, 0.235, 0.012], ops: [["t", 0, 0.02, 0], ["rz", k * P / 6], ["t", -0.15, 0.8, 0.25]], hangs: "rim", sink: "=0.0156+0.006" })),
+      { id: "post", part: "box", role: "wood", size: [0.04, 0.315, 0.04], at: [0.25, 0.47, 0.25], on: "bench", sink: 0.057 }, { part: "lathe", role: "wood_face", segments: 10, profile: [[0, 0], [0.02, 0], [0.025, 0.06], [0.012, 0.16], [0, 0.17]], ops: [["rz", P / 2], ["t", 0.3, 0.8, 0.25]], on: "post", sink: 0.009 },
+      { part: "spinner", mover: "wheel", axis: [0, 0, 1], rate: -3.2, when: "spin", frame: "it is the wheel's turning, not a body: it makes no geometry and has nowhere to stand" }],
+    affordances: { spin: { hit: "body", motion: "state", states: ["still", "turning"], verbs: ["spin", "stop the wheel"] } } },
+  { kind: "arms/pikes", v: 1, noun: "the arms", fixed: true, traits: ["wall"], why: "R §2: arms hung in the hall (Dunkenhalgh 1679 hall: 'a parcel of armour'; the trained-band musters): pikes and a halberd on pegs",
+    size: [3.0, 0.9, 0.1], settings: { at_y: 2.2 },
+    // the pegs on the wall; each pike lies on the pegs' faces (1 mm); the heads on the ends of their shafts, the halberd's blade let 9 cm onto its shaft
+    parts: [{ id: "pegA", part: "box", role: "wood", size: [0.06, 0.8, 0.04], at: [-1.2, "=at_y-0.1", 0.02], hangs: "wall" }, { part: "box", role: "wood", size: [0.06, 0.8, 0.04], at: [1.2, "=at_y-0.1", 0.02], hangs: "wall" },
+      ...[0, 0.24, 0.48].flatMap((dy, k) => [
+        { id: `shaft${k}`, part: "cylinder", role: "wood", r: 0.014, h: 2.8, segments: 6, ops: [["t", 0, -1.4, 0], ["rz", P / 2], ["t", 0, `=at_y+${dy}`, 0.053]], hangs: "pegA", sink: 0.001 },
+        k === 1 ? { part: "box", role: "iron", size: [0.22, 0.16, 0.01], at: [1.42, `=at_y+${dy}-0.08`, 0.053], meets: { to: `shaft${k}`, face: "right" }, sink: 0.09 } : { part: "cone", role: "iron", r: 0.022, h: 0.24, segments: 4, ops: [["rz", -P / 2], ["t", 1.52, `=at_y+${dy}`, 0.053]], meets: { to: `shaft${k}`, face: "right" } }])] },
+  { kind: "rack/flitches", v: 1, noun: "the bacon", fixed: true, traits: ["wall"], why: "R §2: bacon flitches hung in the larder (Lytham); a rail and iron hooks",
+    size: [1.6, 1.0, 0.2], settings: { at_y: 1.25 },
+    // the rail on the wall, the hooks on the rail's face, each flitch hung under its hook
+    parts: [{ id: "rail", part: "box", role: "wood", size: [1.6, 0.08, 0.06], at: [0, "=at_y+0.75", 0.03], hangs: "wall" },
+      ...[-0.5, 0, 0.5].flatMap((x, i) => [{ id: `hook${i}`, part: "box", role: "iron", size: [0.01, 0.14, 0.01], at: [x, "=at_y+0.65", 0.065], hangs: "rail" },
+        { part: "box", role: "bacon", size: [0.34, 0.62, 0.07], at: [x, "=at_y+0.03", 0.1], under: `hook${i}` }])] },
+  { kind: "dresser/pewter", v: 1, noun: "the dresser", fixed: true, why: "R §2: pewter in the pantry and kitchen (Dunkenhalgh: 'pewter dishes'); a dresser with its rack of plates",
+    settings: { W: 1.6 },
+    // by relations: the case on the floor, a shelf across it, the top on it, the back board on the top, the rack shelves on the back board's face, the cornice on its top; the plates grow and shrink with the room between them, the lower row standing on its shelf, the upper hung against the cornice (they lean, so each touches by its lowest or highest edge)
+    parts: [{ id: "case", part: "carcass", size: ["$W", 0.82, 0.48], at: [0, 0, 0.24], open: "front", on: "floor" },
+      { part: "box", role: "wood_inside", size: ["=W-0.04", 0.018, 0.42], at: [0, 0, 0.24], fit: { to: "case.inside", axes: "x" }, align: { y: 0.5 } },
+      { id: "top", part: "box", role: "wood_face", size: ["=W+0.04", 0.04, 0.52], at: [0, 0, 0.26], on: "case" },
+      { id: "back", part: "box", role: "wood", size: ["$W", 1.0, 0.03], at: [0, 0, 0.015], on: "top" },
+      { id: "shelfLow", part: "box", role: "wood_face", size: ["$W", 0.03, 0.16], at: [0, 1.25, 0.11], hangs: "back" }, { part: "box", role: "wood_face", size: ["$W", 0.03, 0.16], at: [0, 1.6, 0.11], hangs: "back" },
+      { id: "cornice", part: "box", role: "wood_face", size: ["=W+0.06", 0.05, 0.22], at: [0, 0, 0.11], on: "back" },
+      ...[0, 1, 2, 3, 4].flatMap(k => [{ part: "cylinder", role: "pewter", r: "=(0.13+((W-0.4)/4-0.3)*0.26)", h: 0.012, segments: 20, ops: [["rx", P / 2 - 0.25], ["t", `=-W/2+0.2+${k}*(W-0.4)/4`, "=1.28+1.077*(0.13+((W-0.4)/4-0.3)*0.26)", "=0.06+0.248*((W-0.4)/4-0.3)*0.26"]], on: "shelfLow" },
+        { part: "cylinder", role: "pewter", r: "=(0.11+((W-0.4)/4-0.3)*0.22)", h: 0.012, segments: 20, ops: [["rx", P / 2 - 0.25], ["t", `=-W/2+0.2+${k}*(W-0.4)/4`, "=1.8565-0.97*(0.11+((W-0.4)/4-0.3)*0.22)", "=0.06+0.248*((W-0.4)/4-0.3)*0.22"]], under: "cornice" }]),
+      { part: "lathe", role: "pewter", segments: 14, profile: [[0, 0], [0.06, 0], [0.065, 0.04], [0.05, 0.16], [0.045, 0.22], [0.05, 0.24], [0, 0.24]], at: ["=-W/3", 0, 0.3], on: "top" },
+      { part: "lathe", role: "pewter", segments: 14, profile: [[0, 0], [0.06, 0], [0.065, 0.04], [0.05, 0.16], [0.045, 0.22], [0.05, 0.24], [0, 0.24]], at: ["=W/3", 0, 0.3], on: "top" },
+      { part: "mover", name: "left", pivot: { at: "doorL", x: "left", z: "back" } }, { part: "mover", name: "right", pivot: { at: "doorR", x: "right", z: "back" } },
+      { id: "doorL", part: "box", role: "wood_face", mover: "left", size: ["=W/2-0.03", 0.66, 0.02], at: ["=-W/4", 0.08, 0], hangs: "case" },
+      { id: "doorR", part: "box", role: "wood_face", mover: "right", size: ["=W/2-0.03", 0.66, 0.02], at: ["=W/4", 0.08, 0], hangs: "case" }],
+    affordances: {
+      left: { mover: "left", motion: "hinge", axis: [0, 1, 0], angle: -1.7, verbs: ["open the dresser", "close the dresser"] },
+      right: { mover: "right", motion: "hinge", axis: [0, 1, 0], angle: 1.7, verbs: ["open the dresser", "close the dresser"] } } },
+  { kind: "rail/pegs", v: 1, noun: "the peg rail", fixed: true, traits: ["wall"], place: { anchor: "hung", must: [{ near: "door", within: 1.5 }] }, why: "a peg rail by the servants' hall door, cloaks and hats hung on it",
+    size: [2.2, 1.3, 0.3], settings: { at_y: 0.55 },
+    // the rail on the wall; the pegs stand out from its face; the cloaks and the hat hang over the pegs, each up to the peg's top edge
+    parts: [{ id: "rail", part: "box", role: "wood", size: [2.2, 0.08, 0.03], at: [0, "=at_y+1.15", 0.015], hangs: "wall" },
+      ...[-0.9, -0.45, 0, 0.45, 0.9].map((x, i) => ({ id: `peg${i}`, part: "cylinder", role: "wood", r: 0.014, h: 0.09, segments: 6, ops: [["rx", P / 2], ["t", x, "=at_y+1.19", 0]], hangs: "rail", ...(x === -0.45 ? { seen: false, within: "the hat hangs on it" } : {}) })),
+      ...[[-0.9, 0], [0, 2], [0.45, 3]].map(([x, peg]) => ({ part: "cone", role: "wool", r: 0.2, h: 1.05, segments: 10, ops: [["t", x, "=at_y+0.68", 0.2]], under: `peg${peg}`, sink: 0.029 })),
+      { part: "cylinder", role: "wool", r: 0.13, r_top: 0.08, h: 0.12, segments: 12, at: [-0.45, "=at_y+1.12", 0.135], under: "peg1", sink: 0.064 }] },
+];

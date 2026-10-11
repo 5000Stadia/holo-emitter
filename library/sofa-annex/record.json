@@ -1,0 +1,91 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "sofa-annex",
+ "noun": "office sofa",
+ "dims_m": {
+  "h": 0.85,
+  "w": 1.8,
+  "d": 0.9
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   0.984,
+   0.85,
+   1.641
+  ],
+  "source_faces": 32496
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/sofa-annex/model.glb",
+  "triangles": 32496,
+  "bbox_min": [
+   -0.4918960630893707,
+   0.0,
+   -0.8203068375587463
+  ],
+  "bbox_max": [
+   0.4918960630893707,
+   0.8500000238418579,
+   0.8203068375587463
+  ],
+  "size": [
+   0.9837921261787415,
+   0.8500000238418579,
+   1.6406136751174927
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.093,
+  "images": 4,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/sofa-annex/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 228,
+  "size_m": [
+   0.984,
+   0.85,
+   1.641
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "level_corrected_deg": 1.32,
+  "level_surface_vertices": 126,
+  "faces": 32496
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "0ed4312fc8314a85a99fae56e5f0dbe5",
+  "name": "Sofa",
+  "author": "Xarpie_Labs",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-0ed4312fc8314a85a99fae56e5f0dbe5",
+  "query": "office sofa",
+  "pick": 0,
+  "candidates": 5,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.2,
+  "map": 1.2,
+  "download": 3.8,
+  "stand": 2.8,
+  "gate": 0.0,
+  "request_to_library": 9.0
+ }
+}

@@ -1,0 +1,94 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "desk-office",
+ "noun": "office desk",
+ "dims_m": {
+  "h": 0.75,
+  "w": 1.5,
+  "d": 0.75
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   1.316,
+   0.75,
+   0.564
+  ],
+  "source_faces": 616
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/desk-office/model.glb",
+  "triangles": 616,
+  "bbox_min": [
+   -0.6578947305679321,
+   0.0,
+   -0.28195491433143616
+  ],
+  "bbox_max": [
+   0.6578947305679321,
+   0.75,
+   0.28195491433143616
+  ],
+  "size": [
+   1.3157894611358643,
+   0.75,
+   0.5639098286628723
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.248,
+  "images": 2,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/desk-office/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 84,
+  "size_m": [
+   1.316,
+   0.75,
+   0.564
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 2,
+  "faces": 616
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "bf2f5c812068489c92188cde9932ef0d",
+  "name": "Office desk",
+  "author": "ms_Butor",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-bf2f5c812068489c92188cde9932ef0d",
+  "query": "office desk",
+  "pick": 0,
+  "candidates": 10,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.1,
+  "map": 1.1,
+  "download": 2.1,
+  "stand": 1.0,
+  "gate": 0.0,
+  "request_to_library": 5.4
+ }
+}

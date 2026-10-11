@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Object Stage</title>
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(22, 19, 16, 0.78); --line: rgba(236, 228, 210, 0.2); }
+  html, body { height: 100%; margin: 0; background: #0c0a08; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; touch-action: none; }
+  #info { position: fixed; left: 12px; bottom: 12px; background: var(--panel); border: 1px solid var(--line); padding: 8px 12px; color: var(--dim); white-space: pre; line-height: 1.5; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #0c0a08; color: var(--dim); }
+  #status[hidden] { display: none; }
+  #hint { position: fixed; background: var(--panel); border: 1px solid var(--line); padding: 3px 8px; pointer-events: none; }
+  #hint[hidden] { display: none; }
+  #line { position: fixed; left: 50%; bottom: 70px; transform: translateX(-50%); max-width: min(60ch, 90vw); text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; color: var(--ink); }
+  #line[hidden] { display: none; }
+</style>
+</head>
+<body>
+<div id="status">building…</div>
+<div id="info"></div>
+<div id="hint" hidden></div>
+<div id="line" hidden></div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// An object on its own, against a limewashed wall on flags, for building and checking it: drag to turn
+// round it, wheel to come closer, click what works. ?o=bookpress|library|owners|shelf|book|kinds|furniture (&k=kind).
+// window.__view(az, el, dist, ty) aims the camera.
+import { coplanar } from "../../src/make/coplanar.js";
+import * as THREE from "three";
+import * as TSL from "three/tsl";
+import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
+import { nodeify } from "../../src/make/nodes.js";
+import { makeKit } from "../painted/procedural.js";
+import { strongroomMaterials } from "./strongroom.js";
+import { buildBook, bookSpec } from "../../src/make/parts/books.js";
+import furniture1660 from "../../src/make/kinds/furniture-1660.js";
+import { auditing } from "../../src/make/build.js";
+import { seen, apart, viewsOf } from "../../src/make/audit.js";
+import { build, makeWorks, kinds, lookC1660, blend, OWNERS, PURPOSES, defineKind, definePart, onPartArrives, kindOf, missingParts } from "../../src/make/index.js";
+
+const Q = new URLSearchParams(location.search), hintEl = document.getElementById("hint");
+// every object is a thing built from its kind, in the context of the influences that reach it
+const built = [];
+const make = (kind, address, over = {}, context = {}) => { const b = build(THREE, K, look, kind, address, over, context); Object.assign(b.node.userData, b.info); built.push(b); return b; };
+const shelfOf = (o, i = 0) => { const O = OWNERS[o], { kind, ...over } = O.traits.shelving;
+  return make(kind, `stage/${o}/shelves:${i}`, over, blend([O, PURPOSES[Q.get("purpose")]])); };
+const OBJECTS = {
+  bookpress: () => make("press/glazed-pepys", `stage/bookpress:${Q.get("seed") || 1666}`, {}, blend([OWNERS[Q.get("owner") || "gentleman"]])).node,
+  library: () => make("shelves/library-bays", `stage/library:${Q.get("seed") || 1668}`, {}, blend([{ who: "a household", weight: 1, traits: { means: Q.get("means") || "gentry" } }, PURPOSES[Q.get("purpose")]])).node,
+  owners: () => { const g = new THREE.Group(); ["widow", "smith", "gentleman"].forEach((o, i) => { const b = shelfOf(o); b.node.position.x = (i - 1) * 1.3; g.add(b.node); g.userData[o] = b.info; }); return g; },
+  shelf: () => { const b = shelfOf(Q.get("owner") || "widow"); b.node.userData = { ...b.node.userData, ...b.info }; return b.node; },
+  book: () => { const b = buildBook(THREE, K, bookSpec(Q.get("size") || "quarto", +(Q.get("seed") || 7))); b.position.set(0, 0.8 + b.scale.y / 2, 0.6); b.rotation.y = -0.5; return b; },
+  // gates and rules (Kabe, 2026-10-05): door A is locked and its key lies on the bench; door B is
+  // locked and has no key: "light 3 of these candles!" opens it; a burning candle can't be carried off
+  puzzle: () => { const g = new THREE.Group();
+    const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(1.7, 0.05, 0.42), 0.1), K.M.oakH); bench.position.set(0, 0.725, 0.75); bench.castShadow = bench.receiveShadow = true; g.add(bench);
+    for (let i = 0; i < 4; i++) { const b = make("candle/stub", `stage/puzzle/bench/candle:${i}`); b.node.position.set(-0.6 + i * 0.3, 0.75, 0.8); g.add(b.node); }
+    const key = make("key/iron", "stage/puzzle/bench/key"); key.node.position.set(0.68, 0.75, 0.68); key.node.rotation.y = 0.4; g.add(key.node);
+    const a = make("door/boarded-iron-bound", "stage/puzzle/door:a", { lock: "locked", key: "key/iron" }); a.node.position.set(-2.25, 0, 0.15); g.add(a.node);
+    const b = make("door/boarded-iron-bound", "stage/puzzle/door:b", { lock: "locked", key: "key/lost" }); b.node.position.set(1.25, 0, 0.15); g.add(b.node);
+    g.userData.rules = [{ id: "three-candles", when: { count: { kind: "candle", within: "stage/puzzle/bench/", state: { light: "lit" } }, at_least: 3 },
+      then: [{ set: { candles_lit: true } }, { do: { thing: "stage/puzzle/door:b", aff: "lock", to: "unlocked" } }, { do: { thing: "stage/puzzle/door:b", aff: "leaf", to: "open" } }],
+      say: "Three flames stand up together. Somewhere a bolt draws back, and the right-hand door swings open." }];
+    g.userData.view = [0, 0.15, 5.4, 1.15]; return g; },
+  // play never waits (plan §5): a kind whose part is not written yet stands as holodeck grid at its true
+  // size, takeable; when the part arrives (here, three seconds later, as if just authored) it turns real
+  arrival: () => { const g = new THREE.Group();
+    const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(0.8, 0.04, 0.4), 0.1), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench);
+    const bottle = make("bottle/drink-me", "story:alice/ch1/hall/table/bottle"); bottle.node.position.set(0, 0.75, 0.6); g.add(bottle.node);
+    g.userData.view = [0.3, 0.25, 1.4, 0.85]; g.userData.arrives = true; return g; },
+  // the rooms' anchor furniture (R47), in rows by their own sizes; ?k=kind shows one
+  furniture: () => { const g = new THREE.Group(), names = Q.get("k") ? [Q.get("k")] : furniture1660.map(k => k.kind), box = new THREE.Box3(), sz = new THREE.Vector3();
+    let x = 0, z = 0, row = [], depth = 0; const W = 9;
+    const flush = () => { const off = -x / 2; for (const n of row) n.position.x += off; z += depth + 0.6; x = 0; row = []; depth = 0; };
+    for (const name of names) { const b = make(name, `stage/furniture/${name}`); box.setFromObject(b.node).getSize(sz);
+      if (x && x + sz.x > W) flush(); b.node.position.set(x + sz.x / 2, 0, -z); row.push(b.node); x += sz.x + 0.5; depth = Math.max(depth, sz.z); g.add(b.node); }
+    if (names.length === 1) { row[0].position.set(0, 0, 0.02); g.userData.view = [0.5, 0.25, 4.2, 0.9]; return g; }
+    flush(); g.position.z = z - 0.6 + 0.1; g.userData.view = names.length > 1 ? [0.3, 0.5, 13, 0.6] : [0.5, 0.25, 4.2, 0.9]; return g; },
+  // the test room (R54 step 4; consultation cc8f89b): one kind three ways, as a room will ask of it: back to a
+  // wall, in a corner, and in a narrow passage, each stood off the wall by what swings behind it; its lids and
+  // doors open and close by themselves; ?o=testroom&k=kind
+  testroom: () => { const g = new THREE.Group(), name = Q.get("k") || "chest/boarded", wallM = S.lime;
+    const wall = (w, h, x, z, ry) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), wallM); m.position.set(x, h / 2, z); m.rotation.y = ry; m.receiveShadow = true; g.add(m); };
+    const probe = make(name, "stage/testroom/probe"); const bb = new THREE.Box3().setFromObject(probe.node), sz = bb.getSize(new THREE.Vector3()); g.remove(probe.node); built.splice(built.indexOf(probe), 1);
+    // what swings behind it: the movers through their travel
+    let back = 0; const k = kindOf(name);
+    for (const a of Object.values(k.affordances || {})) { const mg = a.mover && probe.movers.get(a.mover); if (!mg || !["hinge", "lever"].includes(a.motion)) continue;
+      const ax = new THREE.Vector3(...(a.axis || [0, 1, 0])).normalize(), home = mg.quaternion.clone(), b3 = new THREE.Box3();
+      for (let i = 0; i <= 8; i++) { mg.quaternion.copy(home).multiply(new THREE.Quaternion().setFromAxisAngle(ax, (+a.angle || 0) * i / 8)); probe.node.updateMatrixWorld(true); b3.setFromObject(mg); back = Math.max(back, -b3.min.z); }
+      mg.quaternion.copy(home); }
+    const off = 0.02 + back, W = Math.max(1.4, sz.x + 0.6), gap = 0.9;
+    // the room: a long back wall, a side wall making the corner at the left, a passage on the right
+    const L = W * 2 + gap + sz.x + 1.2; wall(L, 2.6, L / 2 - W, 0, 0); wall(3, 2.6, -W, 1.5, Math.PI / 2);
+    const px = W + 0.6 + sz.x / 2; wall(2.6, 2.6, px + sz.x / 2 + gap + 0.01, 1.3, -Math.PI / 2);
+    const place = (x, label) => { const b = make(name, `stage/testroom/${label}`); b.node.position.set(x, 0, off); g.add(b.node); return b; };
+    const things = [place(-W + sz.x / 2 + 0.02, "corner"), place(0.3 + sz.x / 2, "wall"), place(px, "passage")];
+    g.userData.cycle = things; // on a phone held upright the camera visits each placement in turn, close enough to see it work
+    const xs = things.map(b => b.node.position.x); g.userData.stations = innerWidth < innerHeight ? xs : null;
+    g.userData.view = innerWidth < innerHeight ? [0.35, 0.38, 2.2 + sz.x * 0.8, Math.max(0.35, sz.y * 0.55)] : [0.25, 0.12, Math.max(3.2, L * 0.55), Math.max(0.5, sz.y * 0.7)]; g.userData.testroom = true; return g; },
+  // every kind in the catalogue, small things on a bench, large ones standing, for approval in a batch
+  kinds: () => { const g = new THREE.Group(), all = kinds().filter(k => k.size && !k.kind.startsWith("shelves/")); let x = -((all.length - 1) * 0.3) / 2;
+    for (const k of all) { const b = make(k.kind, `stage/kinds/${k.kind}`); b.node.position.set(x, 0.75, 0.6); g.add(b.node); x += 0.3; }
+    const bench = new THREE.Mesh(K.board(new THREE.BoxGeometry(all.length * 0.3 + 0.2, 0.04, 0.4), 0.1), K.M.oakH); bench.position.set(0, 0.73, 0.6); g.add(bench); return g; },
+};
+const kind = Q.get("o") || "bookpress";
+// three's WebGPU renderer (r186), which falls back to WebGL 2 by itself; ?webgl=1 forces the fallback
+const renderer = new THREE.WebGPURenderer({ antialias: true, forceWebGL: Q.get("webgl") === "1" });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.0;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFShadowMap;
+document.body.prepend(renderer.domElement);
+await renderer.init();
+THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0c0a08);
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.02, 40);
+
+const t0 = performance.now();
+const K = await makeKit(THREE, { floor: [6, 4], defer: true });       // its textures drawn in workers while the object is built
+const S = strongroomMaterials(THREE, K), look = lookC1660(THREE, K, S);
+const tKit = performance.now();
+// the stage: a back wall, a side wall, flags
+const wall = new THREE.Mesh(new THREE.PlaneGeometry(6, 3.2), S.lime); wall.position.set(0, 1.6, 0); wall.receiveShadow = true; scene.add(wall);
+{ const g = new THREE.PlaneGeometry(6, 4); const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 4);
+  const f = new THREE.Mesh(g, S.flags); f.rotation.x = -Math.PI / 2; f.position.set(0, 0, 2); f.receiveShadow = true; scene.add(f); }
+const tB = performance.now();
+const obj = OBJECTS[kind](); scene.add(obj); window.__obj = obj;
+const tObj = performance.now();
+// light: a window's daylight from the left front, a soft fill, a little bounce
+const sun = new THREE.DirectionalLight(0xfff0dc, 2.2); sun.position.set(-2.5, 3.2, 3.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.02;
+Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 3, bottom: -1, near: 0.5, far: 12 }); scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xdcd8d0, 0x4a4036, 0.9));
+const win = new THREE.RectAreaLight(0xe8eef2, 3.5, 1.2, 1.6); win.position.set(-2.4, 1.6, 2); win.lookAt(0, 1.2, 0.4); scene.add(win);
+
+// every material to its node twin (src/make/nodes.js), once, before the first frame
+const twins = nodeify(scene);
+await K.ready(); const tTex = performance.now();         // every texture whole before the first frame
+
+let az = 0.35, el = 0.12, dist = 3.6, ty = 1.15;
+if (obj.userData.view) [az, el, dist, ty] = obj.userData.view;
+let tx = 0;          // the point looked at slides along x (the test room visits each placement in turn)
+const aimCam = () => { camera.position.set(tx + Math.sin(az) * Math.cos(el) * dist, ty + Math.sin(el) * dist, Math.cos(az) * Math.cos(el) * dist); camera.lookAt(tx, ty, 0.2); };
+window.__view = (a, e, d, y = ty) => { az = a; el = e; dist = d; ty = y; aimCam(); };
+const lineEl = document.getElementById("line"); let lineTimer = null;
+const say = (t) => { if (!t) return; lineEl.textContent = t; lineEl.hidden = false; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.hidden = true; }, 5000); };
+const works = makeWorks(THREE, { say }); for (const b of built) works.add(b); window.__works = works;
+if (obj.userData.rules) works.rules(obj.userData.rules);
+// what stood as grid turns real when its part arrives: rebuilt at the same address, in the same place
+onPartArrives(() => { for (const b of [...built]) if (b.placeholder) { const nb = build(THREE, K, look, b.kind.kind, b.address, {}, {}); if (nb.placeholder) continue;
+  nb.node.position.copy(b.node.position); nb.node.rotation.copy(b.node.rotation); nodeify(nb.node); b.node.parent.add(nb.node); b.node.parent.remove(b.node); built.splice(built.indexOf(b), 1, nb); works.add(nb); say(`${nb.kind.noun[0].toUpperCase() + nb.kind.noun.slice(1)} arrives: its last part was written.`); } });
+if (obj.userData.arrives) setTimeout(() => definePart("paper_tag", { build(c, { text, at = [0, 0, 0] }) {
+  // a paper label tied round a neck: a small card with the words, and the string that holds it
+  const cv = document.createElement("canvas"); cv.width = 256; cv.height = 128; const g2 = cv.getContext("2d");
+  g2.fillStyle = "#efe3c4"; g2.fillRect(0, 0, 256, 128); g2.fillStyle = "#2a1c10"; g2.textAlign = "center"; g2.textBaseline = "middle"; g2.font = "bold 46px Georgia, serif"; g2.fillText(text, 128, 66);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; const paper = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, side: THREE.DoubleSide }); paper.userData.cls = "paper";
+  const card = new THREE.PlaneGeometry(0.07, 0.035); card.rotateX(-0.12); card.translate(at[0], at[1] - 0.045, at[2] + 0.04); c.add(card, paper);
+  const loop = new THREE.TorusGeometry(0.0125, 0.0012, 4, 20); loop.rotateX(Math.PI / 2); loop.translate(at[0], at[1] + 0.025, at[2]); c.add(loop, "tape");
+} }), 3000);
+const use = (t) => { if (!t) return; const r = works.act(t); if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); };
+const takeIt = (t) => { if (!t) return; const r = works.take(t); say(r.refused ? r.refused : `You take ${r.took}.`); };
+let pointer = null;
+addEventListener("keydown", e => { if (e.code === "KeyG" && pointer) takeIt(aim(pointer)); });
+const ray = new THREE.Raycaster();
+const aim = (e) => { ray.setFromCamera(new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1), camera); return works.find(ray.intersectObjects(works.meshes(), true)[0]); };
+let drag = null, downAt = null;
+renderer.domElement.addEventListener("pointerdown", e => { drag = [e.clientX, e.clientY]; downAt = [e.clientX, e.clientY]; });
+addEventListener("pointerup", e => { drag = null; if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) < 5) (e.shiftKey ? takeIt : use)(aim(e)); downAt = null; });
+renderer.domElement.addEventListener("mousemove", e => { pointer = e; if (!drag) { const t = aim(e); hintEl.hidden = !t; if (t) { hintEl.textContent = works.hint(t); hintEl.style.left = e.clientX + 14 + "px"; hintEl.style.top = e.clientY + 14 + "px"; } } });
+addEventListener("pointermove", e => { if (!drag) return; az -= (e.clientX - drag[0]) * 0.006; el = Math.max(-0.3, Math.min(1.2, el + (e.clientY - drag[1]) * 0.004)); drag = [e.clientX, e.clientY]; aimCam(); });
+addEventListener("wheel", e => { dist = Math.max(0.4, Math.min(8, dist * (1 + e.deltaY * 0.001))); aimCam(); });
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+aimCam();
+let tris = 0, meshes = 0, bytes = 0; obj.traverse(o => { if (!o.isMesh) return; meshes++;
+  const t = (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; tris += o.isInstancedMesh ? t * o.count : t;
+  for (const a of Object.values(o.geometry.attributes)) bytes += a.array.byteLength; if (o.isInstancedMesh) bytes += o.instanceMatrix.array.byteLength + (o.instanceColor ? o.instanceColor.array.byteLength : 0); });
+window.__receipt = () => ({ object: kind, build_ms: Math.round(tObj - tB), kit_ms: Math.round(tKit - t0), textures_ms: Math.round(tTex - t0), meshes, tris: Math.round(tris), geometry_bytes: bytes, ...obj.userData });
+document.getElementById("info").textContent = `${kind}: built in ${Math.round(tObj - tB)} ms · ${meshes} meshes · ${(tris / 1000).toFixed(0)}k tris${obj.userData.books ? ` · ${obj.userData.books} books` : ""}\ndrag to turn round it · wheel to come closer · click what works · G (or shift-click) to take`;
+// ---- checking a built thing (Kabe, 2026-10-06: "a smart way to check on a built object at multiple angles
+// and in its different toggle states"). Two ways, both at authoring, never in play:
+// 1. __opensOnto([kinds]): no picture. Open everything that opens, then look straight in through each lid,
+//    door or leaf's opening, a grid of rays from outside its closed face, and measure how far you see past
+//    where it stood. A few centimetres means it opens onto solid (a tub turned solid, a cupboard with no
+//    inside). Milliseconds a kind.
+window.__opensOnto = (names = furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)), min = 0.03) => {
+  const out = [], rc = new THREE.Raycaster(), seen = new Set();
+  for (const name of names) { if (seen.has(name)) continue; seen.add(name);
+    const k = kindOf(name); if (!k?.affordances) continue;
+    let b; try { b = build(THREE, K, look, name, `check/${name}`); } catch (e) { out.push({ kind: name, error: String(e) }); continue; }
+    b.node.updateMatrixWorld(true);
+    const all = []; b.node.traverse(o => { if (o.isMesh) all.push(o); });
+    const box = new THREE.Box3().setFromObject(b.node), mid = box.getCenter(new THREE.Vector3());
+    // what opens onto an inside: a hinged door or lid ("open…", "lift…"); not a gate, a padlock, a leaf or a drawer
+    const affs = Object.entries(k.affordances).filter(([, a]) => a.mover && a.motion === "hinge" && /^(open|lift)/.test(a.verbs?.[0] || ""));
+    // where each leaf stood, shut
+    const shut = affs.map(([aff, a]) => { const ms = all.filter(m => m.userData.make?.mover === a.mover); if (!ms.length) return null; const bb = new THREE.Box3(); for (const m of ms) bb.expandByObject(m); return { aff, a, bb, ms }; }).filter(Boolean);
+    const w = makeWorks(THREE, {}); w.add(b); for (const [aff] of Object.entries(k.affordances)) { try { if (!k.affordances[aff].requires) w.act({ b, aff }); } catch (_) {} } w.finish?.(); b.node.updateMatrixWorld(true);
+    for (const { aff, a, bb, ms } of shut) {
+      const size = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3()), ax = size.x <= size.y && size.x <= size.z ? "x" : size.y <= size.z ? "y" : "z";
+      const sgn = Math.sign(c[ax] - mid[ax]) || 1, dir = new THREE.Vector3(); dir[ax] = -sgn;                    // from outside the face, inward
+      const others = all.filter(m => !ms.includes(m)), depths = [];
+      const [u, v] = ["x", "y", "z"].filter(q => q !== ax);
+      for (const fu of [0.25, 0.5, 0.75]) for (const fv of [0.25, 0.5, 0.75]) {
+        const o = c.clone(); o[u] = bb.min[u] + size[u] * fu; o[v] = bb.min[v] + size[v] * fv; o[ax] = (sgn > 0 ? bb.max[ax] : bb.min[ax]) + sgn * 0.5;
+        rc.set(o, dir); const hit = rc.intersectObjects(others, false)[0];
+        depths.push(hit ? hit.distance - 0.5 - size[ax] : 9); }
+      depths.sort((p, q) => p - q); const median = depths[4];
+      if (median < min) out.push({ kind: name, aff, sees: +median.toFixed(3), what: `opening ${aff} shows solid ${(Math.max(0, median) * 100).toFixed(0)} cm in` });
+    }
+  }
+  return out;
+};
+// 3. __partsCheck([kinds]): checks 13 and 14 (src/make/audit.js): every part the recipe names shows from
+//    some side, at rest or moved, and none sits inside another. Each recipe entry's triangles kept apart
+//    as the thing is built, then arithmetic; no picture.
+import { meshRules } from "../../src/make/mesh-rules.js";
+let MANIFOLD = null;      // loaded the first time a kind is checked, never in play
+window.__partsCheck = async (names = [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))], { minSeen = 0.1, mutate = null, over = {} } = {}) => {
+  if (!MANIFOLD) { const { default: Module } = await import("https://cdn.jsdelivr.net/npm/manifold-3d@3.5.4/manifold.js"); MANIFOLD = await Module(); MANIFOLD.setup(); }
+  const out = [], times = [], ruleMs = [];
+  for (const name of names) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+    // rule 2 of the room-and-object design (design/production/geometry-method.md §5): every part after the first
+    // hangs on one already placed, by a relation (on, hangs, under, in, meets, spans, fit), never by a typed position,
+    // unless it says its own code places it in the kind's frame (frame: "why"): a typed position is where a part floats
+    // or sinks, and nothing then catches it (the lifted-2-cm fault was caught 29% of the time)
+    k.parts.filter(q => q.part !== "mover").forEach((q, i) => { if (i && !["on", "hangs", "under", "in", "meets", "spans", "fit"].some(r => q[r] != null) && !q.frame)
+      out.push({ kind: name, check: "relation", part: `${q.id ? q.id + " " : ""}${q.part}`, what: "placed by a typed position, not by a relation to a part already placed" }); });
+    const t = performance.now();
+    let b, rec; try { ({ out: b, rec } = auditing(() => build(THREE, K, look, name, `check/${name}`, over))); } catch (e) { out.push({ kind: name, error: String(e) }); continue; }
+    if (mutate) rec = mutate(k, rec, THREE);                    // a planted fault (tools/plant-faults.mjs)
+    // each recipe entry's triangles, in the thing's frame, at rest and with everything moved
+    const triOf = (g, m) => { const q = g.index ? g.toNonIndexed() : g, pos = q.attributes.position, v = new THREE.Vector3(), a = new Float32Array(pos.count * 3);
+      for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i); if (m) v.applyMatrix4(m); a[i * 3] = v.x; a[i * 3 + 1] = v.y; a[i * 3 + 2] = v.z; } return a; };
+    const partsAt = (moved) => { const by = new Map();
+      for (const r of rec) { let m = null;
+        if (moved && r.mover) { const g = b.movers.get(r.mover); g.updateMatrix(); m = g.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(-g.userData.home.position.x, -g.userData.home.position.y, -g.userData.home.position.z)); }
+        const tr = triOf(r.g, m); (by.get(r.index) || by.set(r.index, []).get(r.index)).push({ tr, sheet: r.sheet }); }
+      const cat = (arrs) => { const n = arrs.reduce((s, x) => s + x.length, 0), out = new Float32Array(n); let o = 0; for (const x of arrs) { out.set(x, o); o += x.length; } return out; };
+      // a part's solid leaves out what it adds as a sheet on purpose (a pane, a canvas, a label)
+      return [...by].map(([i, arrs]) => ({ key: i, tris: cat(arrs.map(a => a.tr)), solid: cat(arrs.filter(a => !a.sheet).map(a => a.tr)) })); };
+    const rest = partsAt(false);
+    // everything moved, locks and all: the checker holds every key, and what waits on another (a lid on its
+    // padlocks) is tried again once that has moved
+    const w = makeWorks(THREE, { ask: () => true }); w.add(b); let todo = Object.keys(k.affordances || {});
+    for (let round = 0; round < 3 && todo.length; round++) todo = todo.filter(aff => { try { return w.act({ b, aff })?.did === false; } catch (_) { return false; } });
+    w.finish?.(); for (let i = 0; i < 400; i++) w.tick(0.05);
+    const states = k.affordances ? [rest, partsAt(true)] : [rest];
+    const label = (i) => { const p = k.parts[i]; return p ? `#${i} ${p.part}${p.role ? " " + p.role : ""}${p.name ? " " + p.name : ""}` : `#${i} (planted)`; };
+    let vis = seen(states, viewsOf({ wall: (k.traits || []).includes("wall") }));
+    // a part only a few pixels across (a gilt line, a knob) is looked at again three times as finely before it is
+    // called hidden: at 200 px a 4 mm line falls between the samples (2026-10-06, the japanned cabinet's gilt)
+    if ([...vis].some(([i, v]) => v.px && v.px < 40 && v.share < minSeen && k.parts[i]?.seen !== false)) vis = seen(states, viewsOf({ wall: (k.traits || []).includes("wall") }), { N: 600 });
+    for (const [i, v] of vis) if (v.px && v.share < minSeen && k.parts[i]?.seen !== false) out.push({ kind: name, check: 13, part: label(i), what: `shows ${(v.share * 100).toFixed(0)}% at best (${v.px} px alone at most)` });
+    for (const x of apart(rest)) if (!k.parts[x.a]?.within) out.push({ kind: name, check: 14, part: label(x.a), what: `${(x.share * 100).toFixed(0)}% of it inside ${label(x.b)}` });
+    // the mesh rules (src/make/mesh-rules.js): closed, outward, inside by volume, shimmer, whole
+    const tr = performance.now();
+    const support = k.rests ? [k.rests] : (k.traits || []).includes("wall") ? ["wall"] : ["floor"];
+    for (const f of meshRules(MANIFOLD, rest, { declared: (i) => k.parts[i] || {}, support }))
+      out.push({ kind: name, check: f.rule, part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
+    // and piece by piece within a part that builds several (a door leaf's stiles, rails and panels; a press's
+    // boards): each piece shows from some side and joins the rest (2026-10-06: the door's back panels stood
+    // 10 cm behind its leaf, its front ones inside it, and the part as a whole passed)
+    const many = new Set([...new Set(rec.map(r => r.index))].filter(i => { const n = rec.filter(r => r.index === i && !r.sheet).length; return n > 1 && n <= 80; }));
+    if (many.size) {
+      const piecesAt = (moved) => rec.map((r, n) => ({ r, n })).filter(({ r }) => !r.sheet).map(({ r, n }) => { let m = null;
+        if (moved && r.mover) { const g = b.movers.get(r.mover); g.updateMatrix(); m = g.matrix.clone().multiply(new THREE.Matrix4().makeTranslation(-g.userData.home.position.x, -g.userData.home.position.y, -g.userData.home.position.z)); }
+        const t = triOf(r.g, m); return { key: `${r.index}.${n}`, tris: t, solid: t, part: r.index }; });
+      const pieces = piecesAt(false), plabel = (key) => `${label(+key.split(".")[0])} piece ${key.split(".")[1]}`;
+      const pv = seen(states.length > 1 ? [pieces, piecesAt(true)] : [pieces], viewsOf({ wall: (k.traits || []).includes("wall") }));
+      for (const [key, v] of pv) { const i = +key.split(".")[0]; if (many.has(i) && v.px && v.share < 0.01 && k.parts[i]?.seen !== false && rec[+key.split(".")[1]].seen !== false) out.push({ kind: name, check: "13 (piece)", part: plabel(key), what: `shows ${(v.share * 100).toFixed(0)}% at best (${v.px} px alone at most)` }); }      // a piece needs only to show at all
+      if (k.rests !== "held") for (const f of meshRules(MANIFOLD, pieces, { declared: (key) => k.parts[+String(key).split(".")[0]] || {}, support, only: ["whole"] }))
+        if (many.has(+String(f.a).split(".")[0])) out.push({ kind: name, check: "whole (piece)", part: plabel(f.a), what: f.what });
+    }
+    // and with everything moved: an opened lid still rests on something, and swings into nothing
+    if (states.length > 1) for (const f of meshRules(MANIFOLD, states[1], { declared: (i) => k.parts[i] || {}, support }))
+      if (f.rule === "whole" || f.rule === "inside") out.push({ kind: name, check: f.rule + " (moved)", part: label(f.a), what: f.b != null ? `${f.what} ${label(f.b)}` : f.what });
+    ruleMs.push(performance.now() - tr);
+    times.push(performance.now() - t);
+  }
+  const ms = times.reduce((s, x) => s + x, 0);
+  return { findings: out, kinds: times.length, ms: Math.round(ms), perKind: +(ms / Math.max(1, times.length)).toFixed(1), rulesMs: Math.round(ruleMs.reduce((s, x) => s + x, 0)) };
+};
+// faces that fight inside each kind (src/make/coplanar.js), at rest and with everything that moves moved: every mesh
+// it builds in world space, instances expanded. Authoring only.
+window.__fightKinds = async (names) => { const out = {}, v = new THREE.Vector3(), M4 = new THREE.Matrix4(), W4 = new THREE.Matrix4(), W = makeWorks(THREE, {});
+  for (const name of names || [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+    const b = build(THREE, K, look, name, `fight/${name}`); W.add(b); const res = [];
+    for (const state of ["rest", "moved"]) { if (state === "moved") { for (const a of Object.keys(k.affordances || {})) { try { W.act({ b, aff: a, force: true }); } catch (_) {} } W.finish?.(); }
+      b.node.updateMatrixWorld(true); const list = [];
+      b.node.traverse(o => { if (!o.isMesh || o.material?.transparent) return; const g = o.geometry, P = g.attributes.position, I = g.index, n = I ? I.count : P.count, inst = o.isInstancedMesh ? o.count : 1;
+        for (let q = 0; q < inst; q++) { if (o.isInstancedMesh) { o.getMatrixAt(q, M4); W4.multiplyMatrices(o.matrixWorld, M4); } else W4.copy(o.matrixWorld);
+          const tris = new Float32Array(n * 3); for (let j = 0; j < n; j++) { v.fromBufferAttribute(P, I ? I.getX(j) : j).applyMatrix4(W4); tris.set([v.x, v.y, v.z], j * 3); }
+          list.push({ key: `${o.userData?.instance?.split("/").slice(1).join("/") || o.material?.userData?.cls || "mesh"}${inst > 1 ? "#" + q : ""}`, tris, side: o.material?.side === THREE.BackSide ? -1 : o.material?.side === THREE.DoubleSide ? 0 : 1 }); } });
+      for (const p of coplanar(list)) res.push({ state, a: p.a, b: p.b, area: p.area, at: p.at.map(x => +x.toFixed(3)), ta: p.ta.map(x => +x.toFixed(4)), tb: p.tb.map(x => +x.toFixed(4)) }); }
+    if (res.length) { const by = new Map(); for (const r of res) { const key = `${r.state}: ${r.a} ~ ${r.b}`, e = by.get(key) || { pair: key, area: 0, n: 0, at: r.at, ta: r.ta, tb: r.tb }; e.area += r.area; e.n++; by.set(key, e); }
+      out[name] = [...by.values()].map(e => ({ ...e, area: +(e.area * 1e4).toFixed(1) })).sort((a, c) => c.area - a.area); } }
+  return out; };
+window.__buildTimes = () => { const out = []; for (const name of [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) { const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue;
+  const t = performance.now(), b = build(THREE, K, look, name, `time/${name}`); let tris = 0; b.node.traverse(o => { if (o.isMesh) tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+  out.push({ name, ms: +(performance.now() - t).toFixed(1), settle: +(b.info.settle_ms || 0).toFixed(1), tris }); } return out.sort((a, b) => b.settle - a.settle); };
+// each part's box at rest, kind by kind (tools/part-boxes.mjs: converting coordinates to relations moves nothing)
+window.__boxes = (names) => { const out = {}, T = THREE; for (const name of names || [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) {
+  const k = kindOf(name); if (!k?.parts || missingParts(k).length) continue; const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+  out[name] = rec.map(r => { r.g.computeBoundingBox(); const bb = r.g.boundingBox; return { lo: bb.min.toArray().map(v => Math.round(v * 10000) / 10000), hi: bb.max.toArray().map(v => Math.round(v * 10000) / 10000) }; }); }
+  return out; };
+// where a kind meets the floor and its wall: each part's lowest point and nearest the back (for finding a fault)
+window.__pieces = (name, index) => { const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+  return rec.map((r, n) => ({ n, r })).filter(({ r }) => r.index === index).map(({ r, n }) => { const bb = new THREE.Box3().setFromBufferAttribute(r.g.attributes.position);
+    return { n, mover: r.mover, min: bb.min.toArray().map(v => +v.toFixed(3)), max: bb.max.toArray().map(v => +v.toFixed(3)) }; }); };
+window.__lowest = (name) => { const k = kindOf(name), { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`)), by = {};
+  for (const r of rec) { const bb = new THREE.Box3().setFromBufferAttribute(r.g.attributes.position), q = by[r.index] || (by[r.index] = { y: Infinity, z: Infinity, top: -Infinity });
+    q.y = Math.min(q.y, +bb.min.y.toFixed(3)); q.z = Math.min(q.z, +bb.min.z.toFixed(3)); q.top = Math.max(q.top, +bb.max.y.toFixed(3));
+    q.box = q.box ? q.box.union(bb) : bb.clone(); }
+  for (const q of Object.values(by)) { q.min = q.box.min.toArray().map(v => +v.toFixed(3)); q.max = q.box.max.toArray().map(v => +v.toFixed(3)); delete q.box; }
+  return { traits: k.traits || [], parts: Object.fromEntries(Object.entries(by).map(([i, v]) => [`#${i} ${k.parts[i].part}${k.parts[i].role ? " " + k.parts[i].role : ""}`, v])) }; };
+// 4. __plantFaults([kinds]): test the checks themselves (design/production/geometry-method.md §3). In good
+//    kinds, plant one known fault at a time in one part and see which checks catch it; a fault nothing
+//    catches is a class no check covers yet.
+const flip = (g) => { g = g.index ? g.toNonIndexed() : g.clone(); for (const at of Object.values(g.attributes)) { const a = at.array, n = at.itemSize;
+  for (let i = 0; i < at.count; i += 3) for (let k = 0; k < n; k++) { const p = (i + 1) * n + k, q = (i + 2) * n + k, t = a[p]; a[p] = a[q]; a[q] = t; } } return g; };
+const boxOf = (recs) => { const b = new THREE.Box3(); for (const r of recs) b.union(new THREE.Box3().setFromBufferAttribute(r.g.attributes.position)); return b; };
+const PLANTS = {
+  "inside out": (rec, t) => rec.map(r => r.index === t ? { ...r, g: flip(r.g) } : r),
+  "a hole": (rec, t) => { let done = false; return rec.map(r => { if (r.index !== t || done) return r; done = true; const g = r.g.index ? r.g.toNonIndexed() : r.g.clone(), P = g.attributes.position;
+    // the largest triangle, gone
+    let best = 0, at = 0; for (let i = 0; i < P.count; i += 3) { const a = new THREE.Vector3().fromBufferAttribute(P, i), b = new THREE.Vector3().fromBufferAttribute(P, i + 1), c = new THREE.Vector3().fromBufferAttribute(P, i + 2);
+      const s = b.sub(a).cross(c.sub(a)).length(); if (s > best) { best = s; at = i; } }
+    const q = new THREE.BufferGeometry(); for (const [n, A] of Object.entries(g.attributes)) { const k = A.itemSize, arr = A.array; q.setAttribute(n, new THREE.BufferAttribute(new arr.constructor([...arr.slice(0, at * k), ...arr.slice((at + 3) * k)]), k)); }
+    return { ...r, g: q }; }); },
+  "sunk halfway": (rec, t) => { const h = boxOf(rec.filter(r => r.index === t)).getSize(new THREE.Vector3()).y; return rec.map(r => r.index === t ? { ...r, g: r.g.clone().translate(0, -h / 2, 0) } : r); },
+  "lifted 2 cm": (rec, t) => rec.map(r => r.index === t ? { ...r, g: r.g.clone().translate(0, 0.02, 0) } : r),
+  "buried whole": (rec, t, big) => { const c = boxOf(rec.filter(r => r.index === big)).getCenter(new THREE.Vector3()), m = boxOf(rec.filter(r => r.index === t)).getCenter(new THREE.Vector3()).sub(c);
+    return rec.map(r => r.index === t ? { ...r, g: r.g.clone().translate(-m.x, -m.y, -m.z) } : r); },
+  "a doubled face": (rec, t) => [...rec, ...rec.filter(r => r.index === t).map(r => ({ ...r, index: 1000 + t, g: r.g.clone().translate(0.005, 0, 0) }))],
+};
+window.__plantFaults = async (names) => {
+  const rows = [];
+  for (const name of names) {
+    const base = await window.__partsCheck([name]); if (base.findings.length) { rows.push({ kind: name, skipped: "not clean to begin with" }); continue; }
+    // the parts to plant in: two of middling size, never a sheet or the largest
+    const k = kindOf(name), { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+    const sizes = [...new Set(rec.filter(r => !r.sheet).map(r => r.index))].map(i => { const s = boxOf(rec.filter(r => r.index === i)).getSize(new THREE.Vector3()); return [i, s.x * s.y * s.z]; }).sort((a, b) => b[1] - a[1]);
+    if (sizes.length < 2) continue;
+    const big = sizes[0][0], targets = [sizes[Math.floor(sizes.length / 2)][0], sizes[sizes.length - 1][0]].filter((v, i, a) => a.indexOf(v) === i && v !== big);
+    for (const t of targets) for (const [fault, plant] of Object.entries(PLANTS)) {
+      const r = await window.__partsCheck([name], { mutate: (kk, rr) => plant(rr, t, big) });
+      rows.push({ kind: name, part: t, fault, caught: [...new Set(r.findings.map(f => String(f.check ?? "error")))] });
+    }
+  }
+  return rows;
+};
+// 5. __sweepCheck([kinds]): each kind built with every number setting at four-fifths and six-fifths of itself
+//    (a cupboard narrower and wider, a table lower and higher), every check run: a recipe placed by hand
+//    breaks there; one placed by relations holds (consultation cc8f89b: test each part across its range)
+window.__sweepCheck = async (names = [...new Set(furniture1660.map(k => k.kind).concat(kinds().map(k => k.kind)))]) => {
+  const rows = [];
+  for (const name of names) { const k = kindOf(name); if (!k?.parts) continue;
+    // a range [a, b] at its ends; a count (a whole number) one either side; any other number ±20%
+    const tries = []; for (const [key, v] of Object.entries(k.settings || {})) {
+      if (Array.isArray(v) && v.length === 2 && v.every(x => typeof x === "number")) tries.push([key, v[0]], [key, v[1]]);
+      else if (Number.isInteger(v) && v > 1 && !/^(w|d|h|l|r|width|height|depth|length|at_.*)$/i.test(key)) tries.push([key, v - 1], [key, v + 1]);
+      else if (typeof v === "number" && v > 0) tries.push([key, +(v * 0.8).toFixed(4)], [key, +(v * 1.2).toFixed(4)]); }
+    for (const [key, x] of tries) {
+      const r = await window.__partsCheck([name], { over: { [key]: x } });
+      if (r.findings.length) rows.push({ kind: name, setting: `${key} → ${x}`, findings: r.findings.map(f => f.error ? `refused: ${f.error}` : `${f.check} ${f.part}: ${f.what}`) }); } }
+  return rows;
+};
+// which pieces of a part are open: each c.add of one recipe entry tested on its own (for finding a fault)
+window.__openPieces = async (name, index) => { await window.__partsCheck([]); const { rec } = auditing(() => build(THREE, K, look, name, `check/${name}`));
+  const M = MANIFOLD, out = [];
+  for (const r of rec.filter(r => r.index === index)) { const q = r.g.index ? r.g.toNonIndexed() : r.g, t = q.attributes.position.array;
+    const f = meshRules(M, [{ key: 0, tris: t }], {}); if (f.length) { const bb = new THREE.Box3().setFromBufferAttribute(q.attributes.position); out.push({ type: r.g.type, tris: t.length / 9, sheet: r.sheet, size: bb.getSize(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)), at: bb.min.toArray().map(v => +v.toFixed(3)), what: f[0].what }); } }
+  return out; };
+// 2. ?panel=1 (with o=furniture&k=…): the thing from the front, its right, back, left and above, at rest and
+//    with everything that moves moved: one build, ten draws on one page, a few seconds a kind.
+// one page, the textures made once, then any number of kinds in turn: __panelOf(kind) -> ms
+const panelLabels = [];
+function panelOf(target, things, w) {
+  const box = new THREE.Box3().setFromObject(target), c = box.getCenter(new THREE.Vector3()), R = box.getSize(new THREE.Vector3()).length() * 0.62 + 0.15;
+  const views = [["front", 0, 0.15], ["right", Math.PI / 2, 0.15], ["back", Math.PI, 0.15], ["left", -Math.PI / 2, 0.15], ["above", 0.5, 1.05]];
+  for (const l of panelLabels.splice(0)) l.remove();
+  const draw = (row) => { const W = innerWidth / 5, H = innerHeight / 2;
+    views.forEach(([n, a, e], i) => { const cam = new THREE.PerspectiveCamera(40, W / H, 0.02, 40), d = R / Math.tan(20 * Math.PI / 180);
+      cam.position.set(c.x + Math.sin(a) * Math.cos(e) * d, c.y + Math.sin(e) * d, c.z + Math.cos(a) * Math.cos(e) * d); cam.lookAt(c);
+      const y = row * H; renderer.setViewport(i * W, y, W, H); renderer.setScissor(i * W, y, W, H); renderer.setScissorTest(true); renderer.render(scene, cam);
+      const lab = Object.assign(document.createElement("div"), { textContent: `${n} · ${row ? "moved" : "at rest"}` }); lab.style.cssText = `position:fixed;left:${i * W + 6}px;top:${row * H + 4}px;color:#e8d8a8;font:12px monospace;z-index:9`; document.body.append(lab); panelLabels.push(lab); }); };
+  const tp = performance.now();
+  draw(0);
+  for (const b of things) for (const aff of Object.keys(b.kind.affordances || {})) { try { if (!b.kind.affordances[aff].requires) w.act({ b, aff }); } catch (_) {} }
+  w.finish?.(); for (let i = 0; i < 400; i++) w.tick(0.05);
+  draw(1); return Math.round(performance.now() - tp);
+}
+if (Q.get("panel")) {
+  // light from behind and the sides too, so a back is lit and not mistaken for a fault (it hid the door's)
+  for (const [x, z] of [[2.5, -3.5], [-3, -2], [3.5, 1]]) { const l = new THREE.DirectionalLight(0xfff4e8, 1.1); l.position.set(x, 2.8, z); scene.add(l); }
+  wall.visible = false; scene.background = new THREE.Color(0x5a5a5e); document.getElementById("info").hidden = true; document.getElementById("status").hidden = true;   // a grey ground, so black lacquer shows
+  renderer.setAnimationLoop(null);
+  window.__panelMs = panelOf(obj, built, works); window.__panel = true; window.__ok = true;
+  let current = obj;
+  window.__panelOf = (name) => { scene.remove(current); const b = build(THREE, K, look, name, `stage/furniture/${name}`); b.node.position.set(0, 0, 0.02); nodeify(b.node); scene.add(b.node); current = b.node;
+    const w = makeWorks(THREE, {}); w.add(b); return panelOf(b.node, [b], w); };
+  // the diagnostic panel (R54 step 4): each recipe part its own flat colour under even light, faces wound
+  // inside out magenta, parts a check flags red; so a fault is a colour, not a shadow to puzzle over
+  window.__diagPanelOf = async (name) => { scene.remove(current);
+    const r = await window.__partsCheck([name]), flagged = new Set(r.findings.map(f => +(/^#(\d+)/.exec(f.part || "")?.[1] ?? -1)));
+    const { out: b, rec } = auditing(() => build(THREE, K, look, name, `stage/furniture/${name}`)); b.node.position.set(0, 0, 0.02);
+    b.node.traverse(o => { if (o.isMesh || o.isLine) o.visible = false; });
+    const mats = new Map(), matOf = (i) => { if (!mats.has(i)) { const c = flagged.has(i) ? new THREE.Color(0xd02020) : new THREE.Color().setHSL((i * 0.618) % 1, 0.55, 0.55);
+        const m = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide }), shade = TSL.normalWorld.dot(TSL.vec3(0.35, 0.8, 0.48).normalize()).mul(0.35).add(0.65);
+        m.colorNode = TSL.select(TSL.frontFacing, TSL.vec3(c.r, c.g, c.b).mul(shade), TSL.vec3(1, 0, 1)); mats.set(i, m); } return mats.get(i); };
+    for (const q of rec) { const g = q.g.clone(), parent = q.mover ? b.movers.get(q.mover) : b.node;
+      if (q.mover) { const h = parent.userData.home.position; g.translate(-h.x, -h.y, -h.z); }
+      parent.add(new THREE.Mesh(g, matOf(q.index))); }
+    scene.add(b.node); current = b.node;
+    const w = makeWorks(THREE, { ask: () => true }); w.add(b); const ms = panelOf(b.node, [b], w);
+    return { ms, flagged: [...flagged].filter(i => i >= 0), findings: r.findings.length }; };
+}
+let last = performance.now(), cycleAt = 0;
+function loop() { const now = performance.now(); works.tick(Math.min(0.05, (now - last) / 1000)); last = now;
+  if (obj.userData.cycle && now - cycleAt > 3000) { cycleAt = now; for (const b of obj.userData.cycle) for (const aff of Object.keys(b.kind.affordances || {})) { try { works.act({ b, aff }); } catch (_) {} } }
+  if (obj.userData.testroom && !drag) { az = 0.25 + Math.sin(now / 9000) * 0.45;
+    const st = obj.userData.stations; if (st) { const want = st[Math.floor(now / 7000) % st.length]; tx += (want - tx) * 0.04; } aimCam(); } renderer.render(scene, camera); if (!window.__ok) { window.__ok = true; document.getElementById("status").hidden = true; } }
+if (!Q.get("panel")) renderer.setAnimationLoop(loop);
+</script>
+</body>
+</html>

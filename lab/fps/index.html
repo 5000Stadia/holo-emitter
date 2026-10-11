@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FPS Lab Ledger</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0e0c0a; --panel: #18150f; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a; --line: rgba(236,228,210,0.14); --brass: #c9a35c; --good: #8fd3b8; --bad: #e88a6a; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36,30,22,0.14); --brass: #8a6a2a; --good: #2f7d63; --bad: #b04a2a; } }
+  :root[data-theme="light"] { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36,30,22,0.14); --brass: #8a6a2a; --good: #2f7d63; --bad: #b04a2a; }
+  * { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.5 "IBM Plex Mono", ui-monospace, monospace; }
+  main { max-width: 1100px; margin: 0 auto; padding: 28px 16px 56px; }
+  h1 { font: 600 36px/1.1 "Cormorant Garamond", Georgia, serif; margin: 0 0 6px; } h2 { font: 500 12px/1 inherit; text-transform: uppercase; letter-spacing: .14em; color: var(--brass); margin: 30px 0 10px; }
+  p, li { color: var(--dim); max-width: 78ch; } b { color: var(--ink); font-weight: 500; }
+  .wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; min-width: 820px; } th, td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  th { color: var(--faint); font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; } td:first-child, th:first-child, td.l { text-align: left; }
+  td.best { color: var(--good); } .ms { color: var(--faint); font-size: 11px; } .warn { color: var(--bad); font-size: 11px; white-space: normal; max-width: 34ch; text-align: left; }
+  .pic { color: var(--dim); font-size: 11px; white-space: normal; max-width: 40ch; text-align: left; } td.gain { color: var(--good); } td.cost { color: var(--bad); }
+  tr.sub td { color: var(--brass); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; text-align: left; padding-top: 14px; }
+  figure { margin: 14px 0 22px; } figure img { width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; display: block; } figcaption { color: var(--dim); font-size: 12px; margin-top: 6px; max-width: 100ch; }
+  @media (max-width: 700px) { h1 { font-size: 28px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>The fps lab ledger</h1>
+  <p>The same scene, built from one spec and one layout (same objects, same polygons, same camera path), changing one thing at a time. Measured on this machine's GPU in headless Chrome. Each cell is frames per second; under it, the milliseconds that change adds to the base frame (negative means it saves time). <b>Green</b> marks the fastest engine for a fair case. Cases marked in red were not drawn the same in both engines, so their number is not a comparison.</p>
+  <div id="machine" class="ms"></div>
+  <div class="wrap"><table><thead><tr><th>case</th><th>three.js · WebGPU</th><th>three.js · WebGL 2</th><th>Godot 4.7 · web</th><th>what changed</th></tr></thead><tbody id="rows"></tbody></table></div>
+  <h2>What it says so far</h2>
+  <ul id="findings">
+    <li><b>How we build beats which engine.</b> In every engine, one batch is about 10× faster than many meshes.</li>
+    <li><b>Godot's lead per object is gone with render bundles.</b> Recording the draws once (WebGPU only): 1,000 separate meshes went from 148 to 1,337 fps, and 10,000 from 12 to 247. The busy street (5,000 objects, 50 meshes) went from 23 to 330; Godot draws it at 35.</li>
+    <li><b>The busy street, batched per mesh type</b> (about 51 draws): three.js 1,342 fps, Godot 658. With shadows: three.js 559, Godot 525.</li>
+    <li><b>Shadows:</b> the sun's shadow map drawn once took three.js from 86 to 136 fps (Godot 170); only big things casting, 86 to 106. Small things can do without casting.</li>
+    <li><b>A shared material</b> took three.js from 148 to 401 fps (Godot 217 to 313). Frozen matrices made no difference.</li>
+    <li><b>Pixels:</b> capping pixel density at 1× made a pixel-heavy scene 3.2× faster (227 to 721 fps). Drawing at half resolution and upscaling with FSR1 was slower (174) on this GPU.</li>
+    <li><b>Candles:</b> 64 point lights cost about 25% with three.js's default lighting; clustered lighting (WebGPU only) gets nearly all of it back (147 against 117 fps). Batched dynamic lighting is no faster per frame, but lighting or snuffing a candle recompiles nothing.</li>
+    <li><b>Far away</b>, ordinary depth loses detail at 4 km; logarithmic depth holds it at no measurable cost in this draw-bound scene. <b>Since measured (2026-10-08, below):</b> where fill counts, log depth costs 37–55% of the GPU frame, and reversed depth holds the same 4 km view, pixel for pixel, at no cost.</li>
+    <li><b>three.js is faster on raw geometry</b> (23M triangles at 66 fps against 44) <b>and on physics</b> (Rapier 3.1 ms a step against 4.7 for 500 boxes).</li>
+    <li><b>Godot's web export uses its Compatibility renderer:</b> no ambient occlusion, no visible point lights, no clearcoat. Its web engine is a 39.5 MB download; three.js's WebGPU build is 0.8 MB.</li>
+  </ul>
+
+  <h2 id="phones">Phones, 2026-10-08: the manor's phone measures, one at a time</h2>
+  <p>The night's optimisations on the real manor, each brought back to the lab's own scene and changed one at a time from a reference, <b>m-ref</b>, the manor's desktop set. That is 1,000 instanced spheres in the kit's textures (1024² colour, normal and roughness), a board floor at 360 px/m (2880²) and 8 window lights (RectAreaLight). It also has 4× MSAA, ACES tone mapping, a half-float intermediate target, ordinary depth, and the far town out to 5 km.</p>
+  <p>Each case was run 5 times, round-robin, on this machine's GPU in headless Chrome. The numbers swing here, so each cell is the <b>median</b>, with the <b>spread</b> (lowest to highest of the 5) after it.</p>
+  <p>The first number is <b>GPU ms a frame</b> (WebGPU timestamps), the number fill and shading move. Under it come fps (frame gaps with vsync off, CPU and GPU together, the noisier one) and the change against m-ref. <b>Green</b> is a saving that holds beyond the spread; <b>red</b> is a cost that does.</p>
+  <p><b>Desktop</b> is 1280×720 at 1×. <b>Phone</b> is 390×844 at DPR 3, so 1170×2532 pixels are drawn, 3.2× the desktop's. GPU ms are timed apart from the fps run: 40 frames along the same orbit, each drawn alone and its timestamps awaited. WebGL 2's timer query answered on the desktop runs but seldom at the phone's size, so there WebGL 2 is judged by its frame time. Other sessions' headless browsers shared this GPU tonight, which is why the fps spreads are wide; the serial GPU ms held within about 2%. Godot's web build (Compatibility renderer) has no depth, output-target or pipeline switches, and those cells are empty.</p>
+  <div class="wrap"><table><thead><tr><th>case</th><th>WebGPU · desktop</th><th>WebGL 2 · desktop</th><th>Godot · desktop</th><th>WebGPU · phone</th><th>WebGL 2 · phone</th><th>Godot · phone</th><th>what changed · what it does to the picture</th></tr></thead><tbody id="phone-rows"></tbody></table></div>
+
+  <h2>What each does to the picture</h2>
+  <div id="pictures"></div>
+
+  <h2 id="choose">What we choose, and why</h2>
+  <div id="choose-body"></div>
+</main>
+<script type="module">
+const [res, notes, spec] = await Promise.all(["results.json", "notes.json", "spec.json"].map(f => fetch(f).then(r => r.json())));
+const E = ["three-webgpu", "three-webgl2", "godot-web"], run = (e, c) => res.runs[`${e}|${c}`];
+document.getElementById("machine").textContent = `machine: ${res.machine} · ${res.spec.viewport.join("×")} · ${res.spec.seconds} s per case`;
+const rows = document.getElementById("rows");
+for (const c of spec.cases.filter(c => c.group !== "phone")) {
+  const fair = notes.fair.includes(c.id), fps = E.map(e => run(e, c.id)?.fps ?? null), best = fair ? Math.max(...fps.filter(x => x != null)) : null;
+  const cells = E.map((e, i) => { const r = run(e, c.id), b = run(e, "base"); if (!r || r.failed) return `<td class="ms">${r?.failed ? "failed" : "—"}</td>`;
+    const d = c.id === "base" ? "" : `<div class="ms">${(1000 / r.fps - 1000 / b.fps >= 0 ? "+" : "")}${(1000 / r.fps - 1000 / b.fps).toFixed(2)} ms</div>`;
+    return `<td class="${fps[i] === best ? "best" : ""}">${r.fps}${d}${r.physics_ms != null ? `<div class="ms">step ${r.physics_ms} ms</div>` : ""}</td>`; }).join("");
+  rows.insertAdjacentHTML("beforeend", `<tr><td>${c.id}</td>${cells}<td class="l">${c.change}${notes.notes[c.id] && !fair ? `<div class="warn">${notes.notes[c.id]}</div>` : ""}</td></tr>`);
+}
+
+// tonight's phone measures: medians of 5 with their spread, GPU ms first, each against m-ref in the same engine and viewport
+const P = notes.phone || {}, fx = (x, d = 1) => x == null ? "–" : (+x).toFixed(d), rng = (r, f, d = 1) => r[`${f}_min`] != null ? ` <span class="ms">(${fx(r[`${f}_min`], d)}–${fx(r[`${f}_max`], d)})</span>` : "";
+const PE = [["three-webgpu", ""], ["three-webgl2", ""], ["godot-web", ""], ["three-webgpu", "|phone"], ["three-webgl2", "|phone"], ["godot-web", "|phone"]];
+const prow = document.getElementById("phone-rows");
+for (const [title, ids] of P.groups || []) {
+  prow.insertAdjacentHTML("beforeend", `<tr class="sub"><td colspan="8">${title}</td></tr>`);
+  for (const id of ids) {
+    const c = spec.cases.find(x => x.id === id); if (!c) continue;
+    const cells = PE.map(([e, v]) => {
+      const r = res.runs[`${e}|${id}${v}`]; if (!r) return `<td class="ms">—</td>`; if (r.failed && !r.fps) return `<td class="ms">failed</td>`;
+      const ref = res.runs[`${e}|${r.still ? "still-every" : "m-ref"}${v}`];
+      if (r.still) {   // standing still: frames drawn a second and the busy ms a second
+        const d = ref && id !== "still-every" ? r.busy_ms_per_s - ref.busy_ms_per_s : null;
+        return `<td class="${d != null && d < 0 ? "gain" : ""}">${fx(r.drawn_per_s)} drawn/s${rng(r, "drawn_per_s")}<div class="ms">${r.gpu_ms != null ? `GPU ${fx(r.gpu_ms, 2)} ms each · ` : ""}busy ${r.busy_ms_per_s != null ? fx(r.busy_ms_per_s, 0) + " ms/s" : "–"}</div></td>`;
+      }
+      // a saving or cost counts when the spreads don't overlap
+      const g = r.gpu_ms, gref = ref?.gpu_ms, useGpu = g != null && gref != null;
+      const lo = useGpu ? r.gpu_ms_max < ref.gpu_ms_min : r.fps_min > ref?.fps_max, hi = useGpu ? r.gpu_ms_min > ref.gpu_ms_max : r.fps_max < ref?.fps_min;
+      const dms = useGpu ? g - gref : ref ? 1000 / r.fps - 1000 / ref.fps : null;
+      const head = g != null ? `<b>${fx(g, 2)}</b> ms GPU${rng(r, "gpu_ms", 2)}<div class="ms">${fx(r.fps)} fps${rng(r, "fps")}</div>` : `${fx(r.fps)} fps${rng(r, "fps")}<div class="ms">${fx(1000 / r.fps, 2)} ms a frame</div>`;
+      const delta = id !== "m-ref" && dms != null ? `<div class="ms">${dms >= 0 ? "+" : ""}${fx(dms, 2)} ms ${useGpu ? "GPU" : "a frame"} vs m-ref</div>` : "";
+      const mem = r.tex_gpu_mb != null && /tex|phone|ref/.test(id) ? `<div class="ms">textures ${fx(r.tex_gpu_mb, 0)} MB GPU · heap ${fx(r.heap_mb, 0)} MB</div>` : "";
+      return `<td class="${id === "m-ref" ? "" : lo ? "gain" : hi ? "cost" : ""}">${head}${delta}${mem}</td>`;
+    }).join("");
+    prow.insertAdjacentHTML("beforeend", `<tr><td>${id}</td>${cells}<td class="pic">${c.change}${P.picture?.[id] ? `<div class="ms" style="margin-top:4px">${P.picture[id]}</div>` : ""}</td></tr>`);
+  }
+}
+document.getElementById("pictures").innerHTML = (P.figures || []).map(([img, cap]) => `<figure><img src="shots/${img}" alt="${cap.replace(/"/g, "&quot;")}" loading="lazy"><figcaption>${cap}</figcaption></figure>`).join("");
+document.getElementById("choose-body").innerHTML = (P.choose || []).map(x => `<p>${x}</p>`).join("");
+</script>
+</body>
+</html>

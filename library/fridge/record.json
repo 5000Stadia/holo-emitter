@@ -1,0 +1,94 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "fridge",
+ "noun": "refrigerator",
+ "dims_m": {
+  "h": 1.7,
+  "w": 0.7,
+  "d": 0.7
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   1.086,
+   1.7,
+   0.555
+  ],
+  "source_faces": 46370
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/fridge/model.glb",
+  "triangles": 46370,
+  "bbox_min": [
+   -0.5429125428199768,
+   0.0,
+   -0.27752184867858887
+  ],
+  "bbox_max": [
+   0.5429125428199768,
+   1.7000000476837158,
+   0.27752184867858887
+  ],
+  "size": [
+   1.0858250856399536,
+   1.7000000476837158,
+   0.5550436973571777
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.551,
+  "images": 3,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/fridge/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 168,
+  "size_m": [
+   1.086,
+   1.7,
+   0.555
+  ],
+  "lowest_1pct_spread_m": 0.0156,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 46370
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "a6cc78ad3aa24b2580f212fca0c7abd5",
+  "name": "Merchandiser Refrigerator",
+  "author": "Sapwood Studio",
+  "license": "CC Attribution-ShareAlike",
+  "url": "https://sketchfab.com/3d-models/none-a6cc78ad3aa24b2580f212fca0c7abd5",
+  "query": "refrigerator",
+  "pick": 0,
+  "candidates": 13,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 0.8,
+  "map": 1.2,
+  "download": 7.6,
+  "stand": 1.4,
+  "gate": 0.0,
+  "request_to_library": 11.0
+ }
+}

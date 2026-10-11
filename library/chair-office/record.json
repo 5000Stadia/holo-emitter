@@ -1,0 +1,92 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-office",
+ "noun": "office chair swivel",
+ "dims_m": {
+  "h": 1.0,
+  "w": 0.6,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   0.584,
+   1.0,
+   0.609
+  ],
+  "source_faces": 40102
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/chair-office/model.glb",
+  "triangles": 40102,
+  "bbox_min": [
+   -0.292126327753067,
+   0.0,
+   -0.3045545518398285
+  ],
+  "bbox_max": [
+   0.292126327753067,
+   1.0,
+   0.3045545518398285
+  ],
+  "size": [
+   0.584252655506134,
+   1.0,
+   0.609109103679657
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.026,
+  "images": 1,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/chair-office/model.glb",
+  "tilt_corrected_deg": 2.71,
+  "support_vertices": 795,
+  "size_m": [
+   0.584,
+   1.0,
+   0.609
+  ],
+  "lowest_1pct_spread_m": 0.0205,
+  "level_rule": "seat:0.47",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": 2.99,
+  "level_surface_vertices": 2164,
+  "faces": 40102
+ },
+ "level": "seat:0.47",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "181e274c519f4ca8805127ac547a2b89",
+  "name": "Swivel chair",
+  "author": "gbaox",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-181e274c519f4ca8805127ac547a2b89",
+  "query": "office chair swivel",
+  "pick": 0,
+  "candidates": 3,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 1.2,
+  "map": 1.1,
+  "download": 5.5,
+  "stand": 1.8,
+  "gate": 0.0,
+  "request_to_library": 9.6
+ }
+}

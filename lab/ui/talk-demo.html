@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=f71a75dc"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Questioning (panel demo)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(18, 15, 12, 0.72); --line: rgba(236, 228, 210, 0.18); --brass: #c9a35c; }
+  html, body { height: 100%; margin: 0; background: #070605; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  #world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #hud { position: fixed; left: 10px; top: calc(10px + env(safe-area-inset-top)); right: 10px; display: flex; gap: 6px; flex-wrap: wrap; z-index: 2; }
+  #hud button { min-height: 44px; padding: 0 12px; background: var(--panel); border: 1px solid var(--line); color: var(--ink); font: inherit; border-radius: 6px; cursor: pointer; touch-action: manipulation; }
+  #hud button:hover { border-color: var(--brass); }
+  #where { position: fixed; left: 12px; bottom: 10px; color: var(--dim); max-width: 36ch; z-index: 1; font-size: 11px; }
+  #where b { font: 600 18px "Cormorant Garamond", Georgia, serif; color: var(--brass); display: block; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<canvas id="world" aria-hidden="true"></canvas>
+<div id="hud">
+  <button data-go="hale">Hale, the steward</button>
+  <button data-go="verney">Mistress Verney</button>
+  <button id="nb">Notebook</button>
+  <button id="key">Take the key from the drawer</button>
+  <button data-read="engrossment">Read the engrossment</button>
+  <button data-read="draft_steward">The steward's draft</button>
+  <button data-read="papers_cressy">Mr Cressy's papers</button>
+</div>
+<div id="where"><b>The Long Gallery</b>A demo of the questioning panel; no 3D here. Everything said is from src/make/talk.js over a small stub case.</div>
+<script type="module">
+import { topicsFor, answer } from "../../src/make/talk.js";
+import { makeTalkPanel } from "./talk-panel.js";
+
+// ---- a stub case: two suspects, a few clues, a lie, a lock ----------------------------------------------------------------
+const K = {
+  id: "stub", topics: [
+    { id: "the_master", label: "Sir Edmund" }, { id: "last_evening", label: "Last evening" },
+    { id: "muniment_room", label: "The muniment room" }, { id: "land_sale", label: "The land sale" }],
+  cast: [
+    { id: "hale", name: "Master Hale", role: "steward of the house", deflect: "That is not a matter I care to be questioned upon, sir.", dontknow: "Of that I can tell you nothing, sir.",
+      claims: [
+        { id: "hale_alibi", topic: "last_evening", false: true, broken_by: ["c_cellar_book"], line: "I was below in the cellar until ten, counting the casks. The boy will tell you the same.",
+          yield: "...Very well. The cellar book will say what it says. I was not below. I went up to the muniment room, and I found him there already cold, and I locked the door on it, and God forgive me I said nothing." },
+        { id: "hale_master", topic: "the_master", false: false, line: "A hard master, but a just one. I served him eleven years." }],
+      clues: [
+        { id: "c_key", label: "Hale keeps the second muniment key", topic: "muniment_room", gate: { topic: "muniment_room", stance: "press" }, fact: "Hale keeps the only other key to the muniment room.",
+          hook: "...The Master kept one key, and I the other. It hangs at my belt; it has not left it.", deflect: "The muniment room was the Master's, and he kept it. I have no business there." },
+        { id: "c_ledger", label: "The rents are short in the ledger", topic: "land_sale", gate: { topic: "land_sale", requires: { learned: ["c_dismissal"] } }, fact: "The ledger is short of four hundred pounds.",
+          hook: "The rents are short, sir. I will not say more until I have the ledger before me.", deflect: "The land sale is the Master's affair, sir, and none of mine." }] },
+    { id: "verney", name: "Mistress Verney", role: "Sir Edmund's cousin", deflect: "I would sooner not speak ill of a man's housekeeping.", dontknow: "I never go near it, sir; it is the steward's and my cousin's.",
+      claims: [{ id: "v_evening", topic: "last_evening", false: false, line: "I sat at my needle in the parlour until eleven, with Lady Ashby's maid beside me. Ask her." }],
+      clues: [
+        { id: "c_dismissal", label: "Sir Edmund meant to dismiss Hale", topic: "the_master", fact: "Sir Edmund meant to turn Hale out after the land sale.",
+          hook: "He was not himself these weeks, sir. He told me only that Hale would be turned out when the land was sold, and that he had cause." },
+        { id: "c_cellar_book", label: "No entry in the cellar book last night", topic: "the_cellar", gate: { topic: "the_cellar", requires: { learned: ["c_dismissal"] } }, fact: "The cellar book has no entry for last night.",
+          hook: "I looked in the cellar book myself, this morning. Nothing is entered for last night; not a cask.", deflect: "I would sooner not speak ill of a man's housekeeping." }] }],
+  things: [{ id: "t_key", label: "A key marked with a cross" }],
+};
+K.topics.push({ id: "the_cellar", label: "The cellar" });
+const clueById = Object.fromEntries(K.cast.flatMap(c => c.clues.map(q => [q.id, { ...q, from: c }])));
+const PEOPLE = Object.fromEntries(K.cast.map(c => [c.id, c]));
+const frame = { learned: new Set(), holding: new Set(), said: [] };
+const met = new Set(), caught = [];
+let who = null; const guards = {};
+
+// ---- the panel -----------------------------------------------------------------------------------------------------------
+const panel = makeTalkPanel({
+  onAsk: (topic, stance) => ask(topic, stance),
+  onSay: (text) => read(text),
+  onShow: (id, lastTopic) => show(id, lastTopic),
+  onAccuse: (choice) => judge(choice),
+  onClose: () => { who = null; document.getElementById("hud").style.display = ""; draw(); },
+  onOpenAccusation: () => panel.openAccusation(ACCUSATION),
+  onOpenNotebook: () => panel.openNotebook(notebook()),
+  onOpenPaper: (id) => panel.openReader(PAPERS[id]),
+});
+
+// ---- the reader: the real case's papers (its `papers`, lab/case/case-1660.json); the first reading notes its clues ---------------
+const CASE = await fetch("../case/case-1660.json").then((r) => r.json()), PAPERS = CASE.papers;
+const CLUE = Object.fromEntries(CASE.clues.map((c) => [c.id, c])), papersRead = new Set();
+function readPaper(id) {
+  const doc = PAPERS[id], first = !papersRead.has(id); papersRead.add(id);
+  document.getElementById("hud").style.display = "none";
+  panel.openReader({ ...doc, noted: first ? (doc.clues || []).map((c) => ({ id: c, label: CLUE[c]?.label || c })) : [], onClose: () => { if (!panel.isOpen()) document.getElementById("hud").style.display = ""; } });
+}
+
+const evidence = () => [...[...frame.learned].map(id => ({ id, label: clueById[id].label, kind: "clue" })), ...[...frame.holding].map(id => ({ id, label: K.things.find(t => t.id === id).label, kind: "thing" }))];
+const notebook = () => ({
+  persons: [...met].map(id => ({ id, name: PEOPLE[id].name, note: PEOPLE[id].role })),
+  clues: [...frame.learned].map(id => ({ id, label: clueById[id].label, from: "from " + clueById[id].from.name })),
+  contradictions: caught,
+  papers: [...papersRead].map(id => ({ id, title: PAPERS[id].title })),
+});
+function open(id) {
+  who = id; met.add(id); document.getElementById("hud").style.display = "none";
+  const p = PEOPLE[id];
+  panel.open({ who: id, name: p.name, role: p.role, portrait: PORTRAITS[id], topics: topicsFor(K, id, frame), evidence: evidence(),
+    intro: id === "hale" ? "Master Hale stands with his hands folded at his belt, and does not meet your eye." : "Mistress Verney sets down her needlework and waits." });
+  panel.guarded(guards[id] > 0);
+  draw();
+}
+
+function respond(r) {
+  // a suspect shown the wrong thing closes up for a few turns: nothing new is told, and the phrasing says so
+  if (guards[who] > 0) { guards[who]--; if (r.act === "tell" && r.learned.length) r = { act: "deflect", facts: [], line: "I think I have said all I will on that matter, sir, for the present.", learned: [] }; panel.guarded(guards[who] > 0); }
+  panel.busy(true);
+  setTimeout(() => {
+    panel.busy(false);
+    for (const id of r.learned) frame.learned.add(id);
+    panel.say({ who: "them", text: r.line || "Sir?", act: r.act, noted: r.learned.map(id => ({ id, label: clueById[id].label })) });
+    panel.setTopics(topicsFor(K, who, frame)); panel.setEvidence(evidence());
+  }, 650);
+}
+function ask(topic, stance, shownId) {
+  const r = answer(K, who, { topic, stance }, frame);
+  // talk.js lets a lie stand until a clue that debunks it is shown; the claim then yields. It keeps no memory of the yield,
+  // so this host does: the claim becomes the admission.
+  if (r.act === "refuse") {
+    const c = PEOPLE[who].claims.find(c => c.topic === topic); c.false = false; c.line = c.yield;
+    caught.push({ id: c.id, text: `${PEOPLE[who].name} said he was in the cellar; the cellar book has no entry for that night.` });
+  }
+  respond(r);
+}
+function show(id, lastTopic) {
+  const p = PEOPLE[who], claim = p.claims.find(c => c.topic === lastTopic);
+  if (!lastTopic || !claim) { panel.say({ who: "aside", text: `You hold it out. ${p.name} looks, and says nothing.` }); return; }
+  // only the clue that debunks the claim breaks it; another is looked at and set aside
+  if (claim.false && !(claim.broken_by || []).includes(id)) { guards[who] = 3; panel.guarded(true); panel.say({ who: "aside", text: `${p.name} glances at it, and draws himself up.` }); panel.say({ who: "them", text: "That is nothing to the purpose, sir. I begin to think you mean to trap me." }); return; }
+  ask(lastTopic, "show");
+}
+// a stand-in for the model that would read your own words: keywords to a topic and a stance
+function read(text) {
+  const t = text.toLowerCase(), stance = /\b(lie|lying|liar|really|truth|admit|honest)\b/.test(t) ? "press" : "ask";
+  const hit = topicsFor(K, who, frame).find(tp => tp.label.toLowerCase().split(/\s+/).some(w => w.length > 3 && t.includes(w))) ||
+    (/evening|night|where were/.test(t) && { id: "last_evening" }) || (/key|room/.test(t) && { id: "muniment_room" }) || (/sell|sale|land|rent/.test(t) && { id: "land_sale" }) || (/edmund|master/.test(t) && { id: "the_master" });
+  if (hit) { if (stance === "press" && !/where|evening/.test(t)) { /* press the last matter */ } ask(hit.id, stance); }
+  else { panel.busy(true); setTimeout(() => { panel.busy(false); panel.say({ who: "them", text: "You will forgive me, sir; I do not follow." }); }, 500); }
+}
+
+// ---- the accusation ------------------------------------------------------------------------------------------------------
+const ACCUSATION = {
+  suspects: [{ id: "hale", name: "Master Hale" }, { id: "verney", name: "Mistress Verney" }],
+  groups: [{ id: "g1", label: "who, whom and how", keys: ["suspect", "victim", "means"] }, { id: "g2", label: "why and the lock", keys: ["motive", "lock"] }],
+  pillars: [
+    { id: "victim", label: "whom", options: [{ id: "edmund", label: "Sir Edmund Ware" }, { id: "ashby", label: "Lady Ashby" }, { id: "groom", label: "the groom" }] },
+    { id: "means", label: "by what means", options: [{ id: "claret", label: "a poisoned cup of claret" }, { id: "candle", label: "a blow from the candlestick" }, { id: "fall", label: "a push upon the stair" }] },
+    { id: "motive", label: "why", options: [{ id: "rents", label: "to hide the stolen rents" }, { id: "legacy", label: "to come into the legacy" }, { id: "slight", label: "for an old slight" }] },
+    { id: "lock", label: "who locked it", options: [{ id: "hale", label: "Master Hale, with the second key" }, { id: "verney", label: "Mistress Verney" }, { id: "edmund", label: "Sir Edmund himself" }] },
+  ],
+};
+const TRUTH = { suspect: "hale", victim: "edmund", means: "claret", motive: "rents", lock: "hale" };
+const confirmed = new Set();
+function judge({ group, picks }) {
+  const g = ACCUSATION.groups.find(x => x.id === group), ok = g.keys.every(k => picks[k] === TRUTH[k]);
+  setTimeout(() => {
+    if (!ok) { panel.accusationResult({ group, ok: false }); return; }
+    confirmed.add(group);
+    if (confirmed.size < ACCUSATION.groups.length) { panel.accusationResult({ group, ok: true, text: "That much holds." }); return; }
+    panel.accusationResult({ group, ok: true }); 
+    panel.verdict({ title: "It is Hale.", text: "He does not deny it. The steward's shoulders drop; the key falls from his belt and rings upon the boards." });
+  }, 500);
+}
+
+// ---- the stage: a dim projection, the holodeck floor, a bust where the suspect stands ---------------------------------------
+function portrait(kind) {
+  const c = document.createElement("canvas"); c.width = 240; c.height = 300; const g = c.getContext("2d");
+  const bg = g.createLinearGradient(0, 0, 0, 300); bg.addColorStop(0, "#1b1712"); bg.addColorStop(1, "#0d0b09"); g.fillStyle = bg; g.fillRect(0, 0, 240, 300);
+  const sk = "#d1ad8b", w = kind === "verney";
+  g.fillStyle = w ? "#2c2420" : "#1e1a17"; g.beginPath(); g.ellipse(120, 120, w ? 64 : 56, w ? 78 : 66, 0, 0, 7); g.fill();            // hair
+  g.fillStyle = w ? "#3a2c3d" : "#2a2a2f"; g.beginPath(); g.moveTo(10, 300); g.quadraticCurveTo(30, 205, 120, 198); g.quadraticCurveTo(210, 205, 230, 300); g.fill();   // dress / coat
+  g.fillStyle = sk; g.beginPath(); g.ellipse(120, 125, 44, 56, 0, 0, 7); g.fill(); g.fillRect(104, 170, 32, 36);                              // face, neck
+  g.fillStyle = "#e9e1cf"; g.beginPath(); g.moveTo(66, 212); g.quadraticCurveTo(120, 262, 174, 212); g.quadraticCurveTo(120, 238, 66, 212); g.fill();   // falling band
+  g.fillStyle = w ? "#2c2420" : "#1e1a17"; g.beginPath(); g.ellipse(120, 82, 50, 24, 0, Math.PI, 0); g.fill();                                  // fringe
+  if (w) { g.fillStyle = "#e9e1cf"; g.beginPath(); g.ellipse(120, 62, 42, 14, 0, Math.PI, 0); g.fill(); }                                         // cap
+  g.fillStyle = "#3a2a22"; for (const x of [105, 135]) { g.beginPath(); g.ellipse(x, 124, 4, 2.4, 0, 0, 7); g.fill(); }                          // eyes
+  g.strokeStyle = "#8b5d4c"; g.lineWidth = 2; g.beginPath(); g.moveTo(108, 152); g.quadraticCurveTo(120, 158, 132, 152); g.stroke();             // mouth
+  if (!w) { g.strokeStyle = "#1e1a17"; g.lineWidth = 3; g.beginPath(); g.moveTo(104, 146); g.quadraticCurveTo(120, 140, 136, 146); g.stroke(); }  // moustache
+  return c;
+}
+const PORTRAITS = { hale: portrait("hale"), verney: portrait("verney") };
+const cv = document.getElementById("world"), cx = cv.getContext("2d");
+function draw() {
+  const dpr = devicePixelRatio || 1, W = innerWidth, H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const sky = cx.createLinearGradient(0, 0, 0, H); sky.addColorStop(0, "#14100c"); sky.addColorStop(0.5, "#1d1812"); sky.addColorStop(1, "#0a0807"); cx.fillStyle = sky; cx.fillRect(0, 0, W, H);
+  // oak panelling, dimly
+  cx.strokeStyle = "rgba(201,163,92,0.07)"; cx.lineWidth = 1; for (let x = 0; x < W; x += 74) { cx.strokeRect(x + 8, 20, 58, H * 0.42); }
+  // the holodeck floor
+  const hz = H * 0.46; cx.strokeStyle = "rgba(140,200,255,0.16)";
+  for (let i = -14; i <= 14; i++) { cx.beginPath(); cx.moveTo(W / 2 + i * 40, hz); cx.lineTo(W / 2 + i * 150, H); cx.stroke(); }
+  for (let k = 1; k < 9; k++) { const y = hz + (H - hz) * (k / 9) ** 2; cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke(); }
+  if (who) {
+    const wide = W >= 700, bh = Math.min(wide ? H * 0.62 : H * 0.34, 360), bw = bh * 0.8, bx = wide ? W * 0.3 : W / 2, by = wide ? H * 0.5 : H * 0.2;
+    const f = cx.createRadialGradient(bx, hz + 30, 6, bx, hz + 30, bw * 0.8); f.addColorStop(0, "rgba(120,190,255,0.35)"); f.addColorStop(1, "rgba(120,190,255,0)");
+    cx.fillStyle = f; cx.beginPath(); cx.ellipse(bx, hz + 30, bw * 0.8, bw * 0.16, 0, 0, 7); cx.fill();
+    cx.save(); cx.globalAlpha = 0.9; cx.beginPath(); cx.ellipse(bx, by, bw * 0.46, bh * 0.52, 0, 0, 7); cx.clip();
+    cx.drawImage(PORTRAITS[who], bx - bw / 2, by - bh / 2, bw, bh); cx.restore();
+    cx.fillStyle = "rgba(150,210,255,0.07)"; for (let y = by - bh / 2; y < by + bh / 2; y += 6) cx.fillRect(bx - bw / 2, y, bw, 1.5);
+  }
+}
+addEventListener("resize", draw); draw();
+for (const b of document.querySelectorAll("[data-go]")) b.addEventListener("click", () => open(b.dataset.go));
+for (const b of document.querySelectorAll("[data-read]")) b.addEventListener("click", () => readPaper(b.dataset.read));
+document.getElementById("nb").addEventListener("click", () => panel.openNotebook(notebook()));
+document.getElementById("key").addEventListener("click", () => { frame.holding.add("t_key"); panel.setEvidence(evidence()); document.getElementById("key").textContent = "You hold the key"; });
+window.__demo = { panel, frame, K, PAPERS, readPaper };
+window.__ok = true;
+</script>
+</body>
+</html>

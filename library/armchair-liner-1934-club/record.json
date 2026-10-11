@@ -1,0 +1,72 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "armchair-liner-1934-club",
+ "noun": "club armchair",
+ "dims_m": {
+  "h": 0.8,
+  "w": 0.8,
+  "d": 0.85
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "-x",
+  "colors": "vertex",
+  "faces": 16000
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/armchair-liner-1934-club/model.glb",
+  "triangles": 16000,
+  "bbox_min": [
+   -0.398908406496048,
+   0.0,
+   -0.3979242444038391
+  ],
+  "bbox_max": [
+   0.398908406496048,
+   0.800000011920929,
+   0.3979242444038391
+  ],
+  "size": [
+   0.797816812992096,
+   0.800000011920929,
+   0.7958484888076782
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.054,
+  "images": 0,
+  "materials": 0,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/armchair-liner-1934-club/model.glb",
+  "tilt_corrected_deg": 31.47,
+  "support_vertices": 50,
+  "size_m": [
+   0.798,
+   0.8,
+   0.796
+  ],
+  "lowest_1pct_spread_m": 0.01,
+  "level_rule": "seat:0.42",
+  "level_corrected_deg": null,
+  "level_surface_vertices": 4,
+  "faces": 16000
+ },
+ "level": "seat:0.42",
+ "timings": {
+  "s_triposr": 117.1,
+  "s_stand_gate": 1.0,
+  "s_request_to_library": 118.1,
+  "note": "the painting's minutes at the seat are in lab/catalogue/order.txt's timestamp vs source.png's mtime"
+ },
+ "provenance": {
+  "source": "library-src/armchair-liner-1934-club/source.png",
+  "prompt": "template (tools/catalogue.py)",
+  "generator": "TripoSR on CPU, mc-resolution 256",
+  "seconds": 118.1
+ }
+}
