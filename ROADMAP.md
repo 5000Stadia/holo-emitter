@@ -109,7 +109,7 @@ From the fresh-eyes audit of 2026-10-10 (`design/audit/fresh-eyes-2026-10-10.md`
 - [ ] R66 Rooms that are lived in: a kitchen with its hearth, pots and work, every room's small things (dishes, tools, papers, linen) by its purpose and its owner's influences, where today 34 rooms hold about 6 things each
 - [ ] R67 Windows seen from outside: glass that shows the sky and a glimpse of the room, not black holes (Teleoperator's techniques banked for it: `design/references/teleoperator/`)
 - [ ] R68 Light that bounces: the probe-grid module in `src/make/light.js` used by the manor, so panelling and stairs read dim, not black, on a phone too (Teleoperator's techniques banked for it: `design/references/teleoperator/`)
-- [ ] R69 Ground that grows: grass, tufts, weeds and worn edges at walking height, and fires and sky that read as fire and sky (Teleoperator's techniques banked for it: `design/references/teleoperator/`)
+- [ ] R69 Ground that grows: grass, tufts, weeds and worn edges at walking height, and fires and sky that read as fire and sky (Teleoperator's techniques banked for it: `design/references/teleoperator/`) (grass designed from Grassworks' demo and docs and the open prior art: `design/references/grassworks/`)
 
 ## Later
 
