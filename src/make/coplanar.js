@@ -5,7 +5,7 @@
 // offset to half a millimetre), pairs in a bucket tested for shared area in the plane. Pure.
 // coplanar(meshes: [{ key, tris: Float32Array (9 per triangle, world space), order? }]) ->
 //   [{ a, b, ia, ib, area, at: [x, y, z], n }]: ia, ib the triangles' indices within a and b
-export function coplanar(meshes, { minArea = 2e-5 } = {}) {
+export function coplanar(meshes, { minArea = 2e-5, detail = true } = {}) {
   // first only each triangle's plane, as a number (normal to 1/50, offset to half a millimetre), in typed arrays;
   // a triangle is looked at closely only if another lies on its plane
   const buckets = new Map(), out = [], refs = [];   // refs: [mesh, start, sign] per entry
@@ -44,8 +44,9 @@ export function coplanar(meshes, { minArea = 2e-5 } = {}) {
       const wu = Math.min(A.hi[sw], B.hi[sw]) - Math.max(A.lo[sw], B.lo[sw]), wv = Math.min(A.hi[ot], B.hi[ot]) - Math.max(A.lo[ot], B.lo[ot]);
       if (wu <= 0 || wv <= 0 || wu * wv < minArea * Math.abs(A.n[ax])) continue;
       const area = overlap(A, B); if (area < minArea) continue;
-      out.push({ a: meshes[A.mi].key, b: meshes[B.mi].key, ma: A.mi, mb: B.mi, ia: A.i / 9, ib: B.i / 9, area, n: A.n,
-        at: [0, 1, 2].map(k => (A.lo[k] + A.hi[k] + B.lo[k] + B.hi[k]) / 4), ta: [...A.t.slice(A.i, A.i + 9)], tb: [...B.t.slice(B.i, B.i + 9)] });
+      const p = { a: meshes[A.mi].key, b: meshes[B.mi].key, ma: A.mi, mb: B.mi, ia: A.i / 9, ib: B.i / 9, area, n: A.n };
+      if (detail) { p.at = [0, 1, 2].map(k => (A.lo[k] + A.hi[k] + B.lo[k] + B.hi[k]) / 4); p.ta = [...A.t.slice(A.i, A.i + 9)]; p.tb = [...B.t.slice(B.i, B.i + 9)]; }
+      out.push(p);
     }
   }
   return out;
@@ -100,16 +101,17 @@ export function settleFaces(geos, lift = 0.001, sides = []) {
     return Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2; };
   // one pass: each face lifted once for every larger face it lies on, so a stack of three or more ends at as many
   // different heights and nothing lifted meets anything again
-  const pairs = coplanar(meshes, { minArea: 1e-6 }), steps = new Map(), normal = new Map(), seen = new Set();
+  // (a face's key is a number, mesh × T + triangle, T past the most triangles any mesh has)
+  const pairs = coplanar(meshes, { minArea: 1e-6, detail: false }), steps = new Map(), normal = new Map(), seen = new Set();
+  let T = 1; for (const m of meshes) T = Math.max(T, m.tris.length / 9 + 1);
   for (const p of pairs) {
     const ta = meshes[p.ma].tris, tb = meshes[p.mb].tris, aa = area(ta, p.ia * 9), ab = area(tb, p.ib * 9);
-    const [m, i] = aa < ab || (aa === ab && (p.ma < p.mb || (p.ma === p.mb && p.ia < p.ib))) ? [p.ma, p.ia] : [p.mb, p.ib], key = `${m}/${i}`;
+    const key = aa < ab || (aa === ab && (p.ma < p.mb || (p.ma === p.mb && p.ia < p.ib))) ? p.ma * T + p.ia : p.mb * T + p.ib;
     const pk = `${p.ma}/${p.ia}|${p.mb}/${p.ib}`; if (seen.has(pk)) continue; seen.add(pk);
     steps.set(key, (steps.get(key) || 0) + 1); normal.set(key, p.n);
   }
-  const lifted = new Set(steps.keys());
-  for (const [key, k] of steps) { const [m, i] = key.split("/").map(Number), n = normal.get(key), t = meshes[m].tris;
+  for (const [key, k] of steps) { const m = Math.floor(key / T), i = key - m * T, n = normal.get(key), t = meshes[m].tris;
     for (let c = 0; c < 3; c++) for (let x = 0; x < 3; x++) t[i * 9 + c * 3 + x] += n[x] * lift * k;
     geos[m].attributes.position.needsUpdate = true; }
-  return lifted.size;
+  return steps.size;
 }
