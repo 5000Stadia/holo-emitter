@@ -224,7 +224,7 @@ scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, STORY ?
 const RECT = Q.get("rect") ? Math.max(1, +Q.get("rect")) : ENG.phone ? 3 : 8; ENG.flags.rect = RECT;
 const rig = Array.from({ length: RECT }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
 const fires = Array.from({ length: STORY ? 4 : 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
-const winItems = manor.daylights.map((w, i) => ({ key: i, room: w.room, at: w.c, size: w.glazed, base: 9 * w.share, w }));   // a run of windows on a wall is one light (src/make/manor.js)
+const winItems = manor.daylights.map((w, i) => ({ key: i, room: w.room, at: w.c, lands: w.c.clone().lerp(w.into, 0.3), reach: 3 + 2 * Math.sqrt(w.glazed), size: w.glazed, base: 9 * w.share, w }));   // a run of windows on a wall is one light (src/make/manor.js)
 let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
 // lights a room's own builder made (the muniment room's barred windows and door reveal, a candle in it) join the pools too:
 // out of the scene, so the count of lights never changes (seeing that room had taken the scene from 13 lights to 16 and
@@ -246,7 +246,15 @@ let inView = new Set(), lightsDirty = true, snapLights = true;
 // (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at
 // zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern)
 const alight = (it) => it.base !== 0 && (!it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out");
-function lightView(at) { winPool.update(winItems.filter(it => inView.has(it.room)), at); firePool.update(fireItems.filter(it => inView.has(it.room) && alight(it)), at); }
+// a light counts only while it, or where its light falls (a sphere `reach` round `lands`), is in frame, or in a margin
+// round the frame wide enough that one turned towards comes on before it shows (src/make/lightpool.js)
+const frame = new THREE.Frustum(), margin = new THREE.Frustum(), guard = new THREE.PerspectiveCamera(), M4 = new THREE.Matrix4(), ball = new THREE.Sphere();
+const seen = (it) => { ball.center.copy(it.lands || it.at); ball.radius = it.reach || 6; return frame.intersectsSphere(ball) ? 2 : margin.intersectsSphere(ball) ? 1 : 0; };
+function lightView(at) {
+  camera.updateMatrixWorld(); frame.setFromProjectionMatrix(M4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  guard.position.copy(camera.position); guard.quaternion.copy(camera.quaternion); guard.fov = Math.min(150, camera.fov + 40); guard.aspect = camera.aspect; guard.near = camera.near; guard.far = camera.far;
+  guard.updateProjectionMatrix(); guard.updateMatrixWorld(); margin.setFromProjectionMatrix(M4.multiplyMatrices(guard.projectionMatrix, guard.matrixWorldInverse));
+  winPool.update(winItems.filter(it => inView.has(it.room)), at, seen); firePool.update(fireItems.filter(it => inView.has(it.room) && alight(it)), at, seen); }
 // the fires flicker, and the flames with them, while any is in view (a still flame's light, a lantern's or a sconce's, is steady)
 function flicker(now) {
   const t = now / 1000; let any = false;
