@@ -5,6 +5,7 @@ Read-only pass, 2026-10-11, for R69 ("Ground that grows").
 - Ideas are free to use; code is taken only under a licence.
 - **Adopt** = take the idea, or MIT/BSD code with credit. **Adapt** = reshape it for our engine.
 - Costs are the source's own; mine are marked as estimates.
+- **Revised 2026-10-11 from the colony's Grassworks report** (`/home/k/Projects/colony/projects/Grassworks report/reports/grassworks-quality-performance-report.md`), which, at Kabe's direction, dissected and measured Grassworks itself. Its `[§n]` references are to that report. We build from the report and the open prior art only, never from that project's `notes/` or `demo/` (they carry Grassworks' proprietary constants).
 
 ## Sources
 
@@ -150,9 +151,13 @@ Read-only pass, 2026-10-11, for R69 ("Ground that grows").
   - Wear thins and shortens grass toward paths.
   - Wall feet favour weeds.
 - **The blade test:** blades come from a fixed blue-noise tile, 4 m wide with about 600 points, each with a rank threshold, seeded once. A blade exists if `density × tierScale > threshold`.
+  - **The tile must not show its 4 m period** (Grassworks' own tiles repeat at about 5 m). Each world tile takes one of 8 rotations or mirrors of the point set from an integer hash of its tile coordinates; Wang tiles (Kopf et al. 2006) stay the fallback if that still reads as a pattern. The ranks, and so phone ⊂ desktop, survive either way. [§4.2]
+  - **Hashes are integer** (PCG-style u32), never sin-fract, so blades are the same on every GPU and far from the origin.
   - **Deterministic and locally stable:** editing a mask never reshuffles the neighbours.
   - **Phones** get a strict subset of the desktop blades.
 - **No per-blade storage:** blade attributes are hashes of the world point. Storing them would mean about 9M blades at lawn density.
+- **The ground map is made on the CPU from the plan,** with height in float (Grassworks captures height in 8 bits and reads it back mirrored under WebGL2). Nothing is read back from the GPU, so both renderers see the same field. [§4.5, 5.31]
+- **The holodeck reveal comes free:** sweeping the rank threshold from 0 to its full value grows grass in blade by blade as ground becomes established. [§8.1]
 - **Generation check:** the map reads zero inside every footprint. This is millisecond arithmetic, beside the soundness checks.
 
 **2. Blades and LOD bands.**
@@ -164,16 +169,20 @@ Read-only pass, 2026-10-11, for R69 ("Ground that grows").
   | Band | Range | Geometry | Blades kept |
   |---|---|---|---|
   | Near | 0–8 m / 0–5 m | 11 vertices | all |
-  | Mid | 8–20 m / 5–12 m | 5 vertices | 1 in 4, widened ×1.8 |
+  | Mid | 8–20 m / 5–12 m | 5 vertices | 1 in 4, survivors ×2 wide and ×2 tall (×4 area) |
   | Far | 20–40 m / 12–25 m | 1 triangle | meadow and weeds only |
 
   Lawn goes sub-pixel at about 12 m, so the ground shader takes it from there.
 - **The handover:** over the last 20% of each band, dropped blades shrink to nothing and kept blades morph onto the coarser band's shape. The silhouette is identical at the handover.
+- **Keeping coverage** (Cook et al. 2007, "Stochastic Simplification of Aggregate Detail"): keeping a fraction f of blades needs each survivor ×1/f in area, so 1 in 4 is ×4 area, not the ×1.8 first written here. If ×2 by ×2 reads too coarse, thin 1 in 2 (×2 area) or let the matched ground colour carry the rest; measure. [§4.3]
+- **One ladder, one distance:** the band thresholds are uniforms derived from the band densities (threshold_k = density_k+1 / density_max), the far fade keeps the same low ranks the bands keep, and the CPU's chunk band and the shader's thinning use the same horizontal distance. Grassworks gets all three wrong, so up to 44% of a tile's blades pop at once and its farthest band never shows a blade. [§4.3]
+- **Ring vertices are shared:** 11 = 2n+1 for n = 5 rings. [§8.4]
 - **Thickening:** edge-on blades widen in view space, as in source 4.
 
 **3. Culling.**
 - **The baseline, on both backends:**
   - The grounds split into 8 m chunks. The CPU frustum-tests about 100 of them (under 0.05 ms) and picks each one's band.
+  - **Per-frame CPU work scales with the chunks seen, never the pool:** chunk meshes are created once, with `matrixAutoUpdate` off. Grassworks pays about 6.8 µs a frame for every pooled tile, drawn or not (2.5–12.6 ms). [§3, §4.1]
   - Each visible chunk is one instanced draw (about 30–60 in all). The chunk's origin reaches the shader by `uniform().onObjectUpdate`.
   - Per blade, the vertex shader maps `instanceIndex` to its dither point and tests density, the distance fade and orientation (source 10).
   - A failing blade collapses to a degenerate triangle, so it costs only vertex work.
@@ -189,12 +198,16 @@ Read-only pass, 2026-10-11, for R69 ("Ground that grows").
 - It depends on position and time only, so shadows and colour agree with the motion.
 
 **5. Interaction trail.**
-- **The texture:** an RG8 `DataTexture`, 128² cells at 0.25 m, covering 32 m around the player. It is addressed toroidally, so it is never recopied.
-- **The CPU's part:** it stamps each footstep's direction and strength, and decays the field linearly to zero over about 6 s. That is a 32 KB upload and behaves identically on both backends.
+- **The texture:** a `DataTexture`, 256² cells at 0.125 m, covering 32 m around the player (Grassworks' texel is about 0.15 m; 0.25 m was too coarse for a footprint). It is addressed toroidally, so a move clears only the newly exposed strip.
+- **The CPU's part:** it stamps each footstep's push direction, strength and stamp time, and nothing else. **Decay happens in the vertex shader** from a time uniform (about 6 s, in seconds, not frames), so no pass ever runs over every texel: that pass is Grassworks' flat 1.6 ms a frame. Only the stamped rows are uploaded. [§4.8]
+- **Contacts:** a foot stamps where the ground under a texel lies inside the foot's sphere, so a raised foot bends nothing. Near people carry foot probes on the rig; GPU-animated crowds stamp from their gait phase on the CPU. In first person, the trails that show are the NPCs'. [§4.15]
 - **The vertex shader's part:** it samples the field at the root, then pushes the tip down and away and darkens the blade slightly.
-- **Lasting wear** lives in the ground map, not here.
+- **Lasting wear** (a path worn by the household's errands) lives in the world document and the ground map's wear channel, not here: the trail map holds only the seconds-long spring-back.
 
-**6. Shading.** Per vertex on phones; per pixel on the near band on desktop.
+**6. Shading.** Per vertex on phones; per pixel on the near band on desktop. **This is where grass GPU time goes:** a flat-colour swap removed 58–84% of Grassworks' blade cost, which is full PBR with image-based lighting per blade pixel. So grass gets its own small lighting function, never `MeshStandardNodeMaterial`'s. [§4.9]
+- **Ambient** from the same hemisphere or R68 probe the ground uses, not an environment map, so lawns match lit courtyards.
+- **Diffuse wrap:** (N·L + w)/(1 + w).
+- **The normal is in world space** (Grassworks writes it in view space, so its grass relights as the camera turns).
 - **Colour:** a ramp from `uv().y`, a clump tint, and a small hue jitter. Keep the palette narrow.
 - **Normals:**
   - rounding at ±0.3π, with only the sideways term mirrored on back faces;
@@ -226,6 +239,7 @@ Read-only pass, 2026-10-11, for R69 ("Ground that grows").
 - **On desktop, pixels matter too:** grass fills about 1M pixels, and its thin triangles shade each pixel 2–3 times.
 - **CPU:** under 0.1 ms per frame.
 - **Load:** the ground-map raster takes tens of ms, and nothing is downloaded.
+- **Grassworks measured** (the colony's Grassworks report, §3): its blades cost 1.25 ms at 720p and 2.17 ms at 1080p on an entry-level desktop GPU in a close view of tall grass; cost tracks grass pixels. So the desktop line above is a guess until R50's lab measures our own coverage at walking height, with that report's method (GPU time per pass, one system's draws removed, a resolution sweep; its `tools/capture.mjs` is ours to reuse).
 - **Benchmarks:**
   - Ghost of Tsushima: about 2.5 ms for 83k blades on PS4.
   - Source 13: 10M instances at 30 fps on an Adreno 506.

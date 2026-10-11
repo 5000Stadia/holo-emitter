@@ -49,22 +49,27 @@
    - The generator paints a ground map at 0.25 m: density, kind, height and wear.
    - Paths, walls, furniture and shade are drawn into it as soft masks.
    - A blade grows where a fixed blue-noise point's threshold falls under density × tier (Horizon Zero Dawn's method). So the phone's blades are a subset of the desktop's, and editing one mask disturbs nothing nearby.
+   - Each 4 m tile of points is turned or mirrored by its world position, so the pattern never repeats every 4 m.
+   - The same rank grows grass in blade by blade where the holodeck grid gives way to established ground.
    - Nothing is stored per blade: each blade's attributes are hashed from its position.
 2. **A check, cheap and coherent (standing approval):** the map is zero inside every footprint, so no grass grows through a floor, a wall or a table.
 3. **Blades:** a curved (Bézier) blade, with lean, facing and colour shared across clumps (Ghost of Tsushima). Lawn 5–15 cm, meadow 25–60 cm, and a second shape for weeds.
-4. **Distance bands, desktop / phone:** 11 vertices out to 8 / 5 m; 5 vertices out to 20 / 12 m with 1 blade in 4 kept and widened; one triangle out to 40 / 25 m, meadow and weeds only. Blades shrink at each band's edge so nothing pops, and edge-on blades are thickened.
-5. **Culling:** the CPU tests 8 m chunks against the view, one instanced draw each, about 30–60 in all; rejected blades collapse in the vertex shader. A compute pass with indirect draws, on WebGPU only, gets added only if it measures faster. (The WebGL2 fallback in r186 has neither indirect draws nor compute atomics.)
+4. **Distance bands, desktop / phone:** 11 vertices out to 8 / 5 m; 5 vertices out to 20 / 12 m with 1 blade in 4 kept, each survivor 4× the area so the field doesn't thin; one triangle out to 40 / 25 m, meadow and weeds only. Blades shrink at each band's edge so nothing pops, the band thresholds follow the band densities, and edge-on blades are thickened.
+5. **Culling:** the CPU tests 8 m chunks against the view, one instanced draw each, about 30–60 in all; rejected blades collapse in the vertex shader. Per-frame CPU work follows the chunks seen, never all the chunks kept. A compute pass with indirect draws, on WebGPU only, gets added only if it measures faster. (The WebGL2 fallback in r186 has neither indirect draws nor compute atomics.)
 6. **Wind:** one shared function of position and time, also used by trees and hedges (Teleoperator bank §look 7): three rotated octaves plus gusts, with clumps swaying together.
-7. **The trail:** 128² over 32 m around the player, stamped by the CPU, fading over about 6 s; the same on both renderers.
-8. **Shading:**
+7. **The trail:** 256² over 32 m around the player. The CPU stamps only where feet are; the fade over about 6 s is worked out in the shader, so no pass runs over the whole map (Grassworks' costs 1.6 ms a frame). Lasting wear lives in the world document.
+8. **Shading** (where most of grass's GPU time goes: a flat colour removed 58–84% of Grassworks' blade cost), with grass's own small lighting function, not the standard material:
    - the root-to-tip ramp with a clump tint;
    - normals rounded across the blade, and bent toward the ground's with distance;
-   - backlight translucency;
+   - ambient from the same sky or probe as the ground;
+   - backlight translucency from the real sun;
    - specular fading out by about 15 m, since with no TAA it would sparkle;
    - darker roots, and the static shadow sampled at the root;
    - lighting per vertex on phones.
 9. **Far field:** the ground shader paints tufts, dry patches and mowing stripes with the blades' own colour function, so the hand-over doesn't show.
-10. **Budget to verify:** about 0.6–1.0 ms on a desktop GPU, 1.5–2.5 ms of a phone's 33 ms frame. Nothing downloaded.
+10. **Budget to verify:** about 0.6–1.0 ms on a desktop GPU, 1.5–2.5 ms of a phone's 33 ms frame. Nothing downloaded. Grassworks' blades measured 1.25–2.17 ms on an entry-level desktop GPU, and the cost follows grass pixels, so our figure waits on R50's measurement at walking height.
+
+**Revised 2026-10-11** from the colony's Grassworks report, which dissected and measured Grassworks at Kabe's direction (tile repeat, survivor widening, the trail's decay, the band ladder, shading cost). Details and section references are in [prior-art.md](prior-art.md). We build from that report and open sources only.
 
 **Open code we may borrow from, with credit (each passes a safety pass first):**
 - Bruno Simon's folio-2025 (MIT): one triangle per blade, coloured by the terrain's own function.

@@ -50,6 +50,14 @@ Movement made in code (gait from age, build, load: pace, stride, stoop) rather t
 the Quaternius and Mixamo traps. Rejected: Quaternius and Mixamo files in the repo, SMPL/STAR, MB-Lab, VRoid, Ready
 Player Me; buying anything.
 
+**From the colony's Grassworks report (2026-10-11, §4.15; `/home/k/Projects/colony/projects/Grassworks report/reports/grassworks-quality-performance-report.md`)**, to weigh when M8 starts:
+- Rigid kit (hats, armour, tools) parented to bones on the wardrobe's rigid slots costs a matrix, not a skinning pass; fitted clothing stays skinned.
+- Named probes (feet, hands, hips) on the shared rig, for the full-rig tier only, so near people trample grass and touch triggers; GPU-animated tiers compute foot contacts on the CPU from the gait phase that drives the shader.
+- Per-person CPU work (gait, matrices, probes) scales with people seen, falling with distance, never with people who exist; a per-person rank, apart from social rank, decides which background people exist on a device tier.
+- Middle and far tiers: one instanced mesh per body type and detail level, dyes as per-instance values; merge a wardrobe into one atlas only when a person comes near.
+- The pattern to avoid: one deep clone and one animation mixer per character (the demo's birds).
+- Measure R60 like the report's §3: GPU time per pass, one system's draws removed, CPU by owner.
+
 ## Kabe's bar on sense (2026-10-10)
 
 "consideration that they aren't multiple random princess babies walking London streets and such so the system has to be
