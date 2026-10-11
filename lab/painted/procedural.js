@@ -263,28 +263,34 @@ function grime(THREE, mat, soot = null, walls = true) {
   return mat;
 }
 // the carved vine and leaves as a height, X metres along the band, Y 0..1 up it
+const CARVE_K = [0.25, 0.75];
 function carveHeight(X, Y, rep = 0.11) {
+  if (Y < 0.08 || Y > 0.92) return 1;                                  // the band's flat borders
   // a hand-cut vine: each repeat swings a little differently, and its leaves come and go
   const cell = Math.floor(X / rep), amp = 0.17 + 0.1 * hash(cell, 3, 71), ph = (X / rep) * Math.PI * 2 + 0.6 * (hash(cell, 5, 73) - 0.5);
   const vine = 0.5 + amp * Math.sin(ph) + 0.03 * Math.sin(X * 37);
   // curls off the stem at each crest, and small leaves between: the density of acanthus, not a line
+  // (outside a curl's reach, or a leaf's, its term is exactly 0, so neither is worked out there)
   let curl = 0;
-  for (const k of [0.25, 0.75]) {
+  for (const k of CARVE_K) {
     const ccx = (cell + k) * rep, ccy = k < 0.5 ? 0.7 : 0.3, dx = (X - ccx) / rep, dy = (Y - ccy) / 0.5;
-    const rr = Math.hypot(dx, dy), th = Math.atan2(dy, dx) + (k < 0.5 ? 1 : -1) * rr * 14;
-    curl = Math.max(curl, Math.exp(-Math.pow((rr - 0.12) / 0.04, 2)) * (0.6 + 0.4 * Math.cos(th * 3)) * (rr < 0.2 ? 1 : 0));
+    const rr = Math.hypot(dx, dy);
+    if (!(rr < 0.2)) continue;
+    const th = Math.atan2(dy, dx) + (k < 0.5 ? 1 : -1) * rr * 14;
+    curl = Math.max(curl, Math.exp(-Math.pow((rr - 0.12) / 0.04, 2)) * (0.6 + 0.4 * Math.cos(th * 3)));
   }
   let hgt = Math.max(curl, Math.exp(-Math.pow(Math.abs(Y - vine) / (0.05 + 0.02 * hash(cell, 7, 79)), 2)));
-  for (const k of [0.25, 0.75]) {
+  for (const k of CARVE_K) {
     if (hash(cell, k * 8, 83) < 0.18) continue;                       // a leaf the carver left out
     const cx = (cell + k + 0.08 * (hash(cell, k * 4, 89) - 0.5)) * rep, cy = k < 0.5 ? 0.78 : 0.22;
     const sz = 0.8 + 0.4 * hash(cell, k * 6, 97);
-    const ex = (X - cx) / (rep * 0.2 * sz), ey = (Y - cy) / (0.14 * sz);
-    hgt = Math.max(hgt, (1 - Math.min(1, ex * ex + ey * ey)) * (0.75 + 0.25 * Math.cos(ex * 6 + hash(cell, 9, 101) * 3)));
+    const ex = (X - cx) / (rep * 0.2 * sz), ey = (Y - cy) / (0.14 * sz), e2 = ex * ex + ey * ey;
+    if (!(e2 < 1)) continue;
+    hgt = Math.max(hgt, (1 - e2) * (0.75 + 0.25 * Math.cos(ex * 6 + hash(cell, 9, 101) * 3)));
   }
   // the tool's own texture: veins and nicks in every leaf, so the band reads as carving, not a line
   const cut = hgt > 0.2 ? 0.22 * (vnoise(X * 90, Y * 14, 100000, 100000, 111) - 0.5) : 0;
-  return (Y < 0.08 || Y > 0.92) ? 1 : Math.max(0, hgt + cut);
+  return Math.max(0, hgt + cut);
 }
 // keep the part of a polygon between x = xa and x = xb (Sutherland-Hodgman, two half-planes)
 function clipX(poly, xa, xb) {
@@ -623,9 +629,9 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         { // the carving itself: a grid displaced by the vine's height, so it catches real light and shadow
           const dens = K.carveDensity || 320, nx = Math.round(len * dens), ny = Math.round(ch * dens);
           const cg = new THREE.PlaneGeometry(len, ch, nx, ny), pa = cg.attributes.position;
-          for (let i = 0; i < pa.count; i++) {
-            const X = pa.getX(i) + len / 2, Y = pa.getY(i) / ch + 0.5;
-            pa.setZ(i, carveHeight(X, Y) * 0.011);
+          for (let i = 0, A = pa.array; i < pa.count; i++) {
+            const X = A[3 * i] + len / 2, Y = A[3 * i + 1] / ch + 0.5;
+            A[3 * i + 2] = carveHeight(X, Y) * 0.011;
           }
           cg.computeVertexNormals(); cg.translate((m.r0 + m.r1) / 2, cy, fz + 0.002);
           const carv = carvedTextures(THREE, null, len, ch);

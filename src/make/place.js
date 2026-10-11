@@ -44,17 +44,19 @@ export function placeRoom({ room, spec, plan, H, tiers, sizeOf, sweptOf = () => 
   const t0 = performance.now(), frames = spec.frames, poly = floorOf(room), { x0, y0 } = room.rect;
   const W = room.rect.x1 - x0, D = room.rect.y1 - y0, n = Math.ceil(W / CELL), m = Math.ceil(D / CELL);
   let rs = seed >>> 0; const rand = () => { rs = Math.imul(rs ^ (rs >>> 15), 2246822507) + 0x9e3779b9 >>> 0; rs ^= rs >>> 13; return (rs >>> 0) / 4294967296; };
-  const inPoly = (P, u, v) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const [au, av] = P[i], [bu, bv] = P[j]; if ((av > v) !== (bv > v) && u < (bu - au) * (v - av) / (bv - av) + au) c = !c; } return c; };
+  const inPoly = (P, u, v) => { let c = false; for (let i = 0, j = P.length - 1; i < P.length; j = i++) { const a = P[i], b = P[j], au = a[0], av = a[1], bu = b[0], bv = b[1]; if ((av > v) !== (bv > v) && u < (bu - au) * (v - av) / (bv - av) + au) c = !c; } return c; };
+  // the bounds of a footprint, as Math.min/max over its corners would give them, without making arrays
+  const boundsOf = (P) => { let u0 = P[0][0], u1 = u0, v0 = P[0][1], v1 = v0; for (let k = 1; k < P.length; k++) { const p = P[k]; u0 = Math.min(u0, p[0]); u1 = Math.max(u1, p[0]); v0 = Math.min(v0, p[1]); v1 = Math.max(v1, p[1]); } return [u0, u1, v0, v1]; };
   // the room's grid: 3 outside its floor, 2 something a body can't pass, 1 reserved, 0 free
-  let version = 0; const grid = new Uint8Array(n * m), cells = (P, f) => { const us = P.map(p => p[0]), vs = P.map(p => p[1]);
-    const i0 = Math.max(0, Math.floor(Math.min(...us) / CELL)), i1 = Math.min(n - 1, Math.floor(Math.max(...us) / CELL)), j0 = Math.max(0, Math.floor(Math.min(...vs) / CELL)), j1 = Math.min(m - 1, Math.floor(Math.max(...vs) / CELL));
+  let version = 0; const grid = new Uint8Array(n * m), cells = (P, f) => { const [u0, u1, v0, v1] = boundsOf(P);
+    const i0 = Math.max(0, Math.floor(u0 / CELL)), i1 = Math.min(n - 1, Math.floor(u1 / CELL)), j0 = Math.max(0, Math.floor(v0 / CELL)), j1 = Math.min(m - 1, Math.floor(v1 / CELL));
     for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) if (inPoly(P, (i + 0.5) * CELL, (j + 0.5) * CELL)) if (f(i * m + j) === false) return false; return true; };
   for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) if (!inPoly(poly, (i + 0.5) * CELL, (j + 0.5) * CELL)) grid[i * m + j] = 3;
   // a footprint square to the grid (most are: a rectangular room's walls) is answered from running sums in one
   // lookup, rebuilt only when something new is claimed; one at an angle cell by cell
   const rectOf = (P) => { if (P.length !== 4) return null; for (let k = 0; k < 4; k++) { const a = P[k], b = P[(k + 1) % 4]; if (Math.abs(a[0] - b[0]) > 1e-9 && Math.abs(a[1] - b[1]) > 1e-9) return null; }
-    const us = P.map(p => p[0]), vs = P.map(p => p[1]);
-    return { i0: Math.max(0, Math.ceil(Math.min(...us) / CELL - 0.5)), i1: Math.min(n - 1, Math.floor(Math.max(...us) / CELL - 0.5 - 1e-9)), j0: Math.max(0, Math.ceil(Math.min(...vs) / CELL - 0.5)), j1: Math.min(m - 1, Math.floor(Math.max(...vs) / CELL - 0.5 - 1e-9)) }; };
+    const [u0, u1, v0, v1] = boundsOf(P);
+    return { i0: Math.max(0, Math.ceil(u0 / CELL - 0.5)), i1: Math.min(n - 1, Math.floor(u1 / CELL - 0.5 - 1e-9)), j0: Math.max(0, Math.ceil(v0 / CELL - 0.5)), j1: Math.min(m - 1, Math.floor(v1 / CELL - 0.5 - 1e-9)) }; };
   const sums = new Map();
   const sumOf = (key, test) => { const c = sums.get(key); if (c && c.v === version) return c.S; const S = new Uint32Array((n + 1) * (m + 1));
     for (let i = 0; i < n; i++) for (let j = 0; j < m; j++) S[(i + 1) * (m + 1) + j + 1] = (test(i * m + j) ? 1 : 0) + S[i * (m + 1) + j + 1] + S[(i + 1) * (m + 1) + j] - S[i * (m + 1) + j];

@@ -11,7 +11,7 @@ const EXT = 0.75;
 const smooth = (a, b, t) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
 // distance from a point to a rect (0 inside)
 const dRect = (R, x, y) => Math.hypot(Math.max(R.x0 - x, 0, x - R.x1), Math.max(R.y0 - y, 0, y - R.y1));
-export const inPoly = (poly, x, y) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [ax, ay] = poly[i], [bx, by] = poly[j]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
+export const inPoly = (poly, x, y) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j], ax = a[0], ay = a[1], bx = b[0], by = b[1]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
 
 export function makeSite(plan, { seed = 1660, blend = 34, relief = 26 } = {}) {
   const built = plan.rooms.filter(r => r.type !== "open"), open = plan.rooms.filter(r => r.type === "open" && r.room_type !== "unestablished");
@@ -19,7 +19,8 @@ export function makeSite(plan, { seed = 1660, blend = 34, relief = 26 } = {}) {
   const outline = plan.outline || null;
   const extra = built.filter(r => !outline || !inPoly(outline, (r.rect.x0 + r.rect.x1) / 2, (r.rect.y0 + r.rect.y1) / 2)).map(r => ({ x0: r.rect.x0 - EXT, x1: r.rect.x1 + EXT, y0: r.rect.y0 - EXT, y1: r.rect.y1 + EXT }));
   const box = outline ? { x0: Math.min(...outline.map(p => p[0])), x1: Math.max(...outline.map(p => p[0])), y0: Math.min(...outline.map(p => p[1])), y1: Math.max(...outline.map(p => p[1])) } : null;
-  const inHouse = (x, y) => (outline ? inPoly(outline, x, y) : built.some(r => dRect({ x0: r.rect.x0 - EXT, x1: r.rect.x1 + EXT, y0: r.rect.y0 - EXT, y1: r.rect.y1 + EXT }, x, y) === 0)) || extra.some(R => dRect(R, x, y) === 0);
+  const grown = built.map(r => ({ x0: r.rect.x0 - EXT, x1: r.rect.x1 + EXT, y0: r.rect.y0 - EXT, y1: r.rect.y1 + EXT }));
+  const inHouse = (x, y) => (outline ? inPoly(outline, x, y) : grown.some(R => dRect(R, x, y) === 0)) || extra.some(R => dRect(R, x, y) === 0);
   // the pads: the house's bounds and its open courts, levelled at the ground floor (z = 0)
   const pads = [...(box ? [box] : built.map(r => r.rect)), ...extra, ...open.map(r => r.rect)];
   const padD = (x, y) => Math.min(...pads.map(R => dRect(R, x, y)));
