@@ -96,9 +96,11 @@ export function placeRoom({ room, spec, plan, H, tiers, sizeOf, sweptOf = () => 
     const block = base.slice(); if (extra) cells(extra, (c) => { grow(block, Math.floor(c / m), c % m); });
     const at = ([u, v]) => Math.min(n - 1, Math.max(0, Math.floor(u / CELL))) * m + Math.min(m - 1, Math.max(0, Math.floor(v / CELL)));
     const pts = [...exits, ...uses.filter(u => u !== skip)].map(p => at(p.at)); if (pts.length < 2) return true;
-    const seen = new Uint8Array(n * m), q = [pts[0]]; seen[pts[0]] = 1; for (const p of pts) block[p] = 0;
-    while (q.length) { const c = q.pop(), i = Math.floor(c / m), j = c % m;
-      for (const [a, b] of [[i + 1, j], [i - 1, j], [i, j + 1], [i, j - 1]]) { if (a < 0 || b < 0 || a >= n || b >= m) continue; const k = a * m + b; if (!seen[k] && !block[k]) { seen[k] = 1; q.push(k); } } }
+    // (the four neighbours tested in place: a pair of arrays made for each cell had been a fifth of the room's placing)
+    const seen = new Uint8Array(n * m), q = new Int32Array(n * m); let top = 0; q[top++] = pts[0]; seen[pts[0]] = 1; for (const p of pts) block[p] = 0;
+    const visit = (k) => { if (!seen[k] && !block[k]) { seen[k] = 1; q[top++] = k; } };
+    while (top) { const c = q[--top], i = (c / m) | 0, j = c - i * m;
+      if (i + 1 < n) visit(c + m); if (i > 0) visit(c - m); if (j + 1 < m) visit(c + 1); if (j > 0) visit(c - 1); }
     return pts.every(p => seen[p]);
   }
   // where a named thing is: its point in the room
