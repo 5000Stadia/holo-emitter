@@ -224,7 +224,7 @@ scene.add(sun, sun.target, new THREE.HemisphereLight(0xc8d0d8, 0x3a2c1e, STORY ?
 const RECT = Q.get("rect") ? Math.max(1, +Q.get("rect")) : ENG.phone ? 3 : 8; ENG.flags.rect = RECT;
 const rig = Array.from({ length: RECT }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
 const fires = Array.from({ length: STORY ? 4 : 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
-const winItems = manor.windows.map((w, i) => ({ key: i, room: w.room, at: w.c, size: w.w * w.h, base: 9, w }));
+const winItems = manor.daylights.map((w, i) => ({ key: i, room: w.room, at: w.c, size: w.glazed, base: 9 * w.share, w }));   // a run of windows on a wall is one light (src/make/manor.js)
 let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
 // lights a room's own builder made (the muniment room's barred windows and door reveal, a candle in it) join the pools too:
 // out of the scene, so the count of lights never changes (seeing that room had taken the scene from 13 lights to 16 and
@@ -240,7 +240,7 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
 { manor.scene.updateMatrixWorld(true);
   for (const [id, r] of manor.rooms) { const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); });
     for (const l of own) poolOwn(l, id); } }
-const winPool = makePool(rig, { share: RECT < 8 ? 1.6 : 0, place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
+const winPool = makePool(rig, { share: 1.6, place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
 // (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at

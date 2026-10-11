@@ -162,7 +162,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     plaster: M.plaster, limewash: M.limewash,
     carve: Object.assign(new THREE.MeshStandardMaterial({ color: 0x5a5048, roughness: 1 }), { userData: { cls: "carve" } }),
   };
-  const placements = new Map(), scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], blocks = [], hearths = [], flames = [];
+  const placements = new Map(), scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], daylights = [], blocks = [], hearths = [], flames = [];
   // a kind's size in its own frame (from its data, or measured once from a build)
   const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3();
   const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
@@ -259,6 +259,15 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       const frame = new THREE.Object3D(); frame.position.set(x0 + P[F].pos[0], Y + P[F].pos[1], -y0 + P[F].pos[2]); frame.rotation.y = P[F].rot; frame.updateMatrixWorld(true);
       for (const e of spec.walls[F]) if (e.kind === "window") windows.push({ room: room.id, w: e.r1 - e.r0 - 0.2, h: e.top - e.sill - 0.1,
         c: frame.localToWorld(new THREE.Vector3((e.r0 + e.r1) / 2, (e.sill + e.top) / 2, -(e.T || 0.6) + 0.06)), into: frame.localToWorld(new THREE.Vector3((e.r0 + e.r1) / 2, (e.sill + e.top) / 2, 5)) });
+      // and as the light rig takes it: up to three windows side by side on one wall (piers under 2.5 m, heads and sills
+      // alike) are one light the length of the run (so a long wall keeps its rhythm of light and pier), as strong in all as its windows (Kabe, 2026-10-11: "lights in front of windows dont
+      // kick in until I approach them": the long gallery's 22 windows had wanted 22 of the rig's 8 lights)
+      { const ws = spec.walls[F].filter(e => e.kind === "window").sort((a, b) => a.r0 - b.r0), runs = [];
+        for (const e of ws) { const r = runs.at(-1);
+          if (r && r.n < 3 && e.r0 - r.r1 < 2.5 && Math.abs(e.sill - r.sill) < 0.15 && Math.abs(e.top - r.top) < 0.15 && (e.T || 0.6) === r.T) { r.r1 = Math.max(r.r1, e.r1); r.n++; r.glazed += (e.r1 - e.r0 - 0.2) * (e.top - e.sill - 0.1); }
+          else runs.push({ n: 1, r0: e.r0, r1: e.r1, sill: e.sill, top: e.top, T: e.T || 0.6, glazed: (e.r1 - e.r0 - 0.2) * (e.top - e.sill - 0.1) }); }
+        for (const r of runs) { const w = r.r1 - r.r0 - 0.2, h = r.top - r.sill - 0.1, m = (r.r0 + r.r1) / 2, y = (r.sill + r.top) / 2;
+          daylights.push({ room: room.id, w, h, glazed: r.glazed, share: r.glazed / (w * h), c: frame.localToWorld(new THREE.Vector3(m, y, -r.T + 0.06)), into: frame.localToWorld(new THREE.Vector3(m, y, 5)) }); } }
       // each hearth's fire, where it burns in the world (the firebox stands in the breast), if the room keeps one lit
       for (const e of spec.walls[F]) if (e.kind === "chimneypiece") { const fb = e.firebox, B = e.breast || 0;
         hearths.push({ room: room.id, lit: (T.light || []).includes("fire"), big: !!e.open, w: fb.r1 - fb.r0,
@@ -532,7 +541,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;
