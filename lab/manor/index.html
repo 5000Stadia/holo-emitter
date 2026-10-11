@@ -710,9 +710,9 @@ window.__walkPath = (pts, floor) => { let [x, y] = pts[0], h = manor.levelOf(flo
 // the house's outside as triangles in plan metres (x, y, height), for soundness rule 7
 const outsideTris = () => { const out = [], v = new THREE.Vector3(); manor.exterior?.updateMatrixWorld(true); manor.exterior?.traverse(o => { if (!o.isMesh) return; const P = o.geometry.attributes.position, I = o.geometry.index, n = I ? I.count : P.count;
   for (let k = 0; k < n; k++) { v.fromBufferAttribute(P, I ? I.getX(k) : k).applyMatrix4(o.matrixWorld); out.push(v.x, -v.z, v.y); } }); return out; };
-// (rules 6 headroom and 7 the outside stays outside, R59, are proposed: run with __sound({ proposed: true }) until Kabe
-// vets them for check 11)
-window.__sound = ({ proposed = false } = {}) => soundness({ plan, compileRoom, blocks: manor.blocks, levelOf: manor.levelOf, ...(proposed ? { cuts: manor.cuts, outside: outsideTris() } : {}) });
+// (rules 6 headroom and 7 the outside stays outside, R59, in check 11 on Kabe's standing word, 2026-10-11: "All checks
+// that likely support coherence without taxing cost is fine by me")
+window.__sound = () => soundness({ plan, compileRoom, blocks: manor.blocks, levelOf: manor.levelOf, cuts: manor.cuts, outside: outsideTris() });
 // the seal check (Kabe, 2026-10-06: "this crack is there", a slit beside the hall's fireplace to the hillside):
 // from points in every room, rays out in every direction; one that leaves the room other than through a
 // window or a doorway (or a stair's well) is a crack, named with where it got out. Authoring only.

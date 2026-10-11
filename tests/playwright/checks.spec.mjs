@@ -625,7 +625,7 @@ test("check 3: with everything that opens open, nothing strikes a wall or anothe
   expect(errs).toEqual([]);
 });
 
-test("check 11: the furnished manor is sound to walk into (walls, doorways, walking, stairs, with furniture)", async ({ browser }) => {
+test("check 11: the furnished manor is sound to walk into (walls, doorways, walking, stairs, with furniture; headroom and the outside kept outside, R59)", async ({ browser }) => {
   test.setTimeout(LOAD + 120_000);
   const { page, errs } = await manor(browser);
   const r = await page.evaluate(() => { const s = window.__sound(); return { ok: s.ok, findings: s.findings.map((f) => `${f.rule} ${f.where}: ${f.what}`) }; });
