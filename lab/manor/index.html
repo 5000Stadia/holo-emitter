@@ -11,6 +11,17 @@
   canvas { display: block; touch-action: none; }
   #status { position: fixed; inset: 0; display: grid; place-items: center; background: #070605; color: var(--dim); z-index: 5; }
   #status[hidden] { display: none; }
+  /* the first screen (R65; Teleoperator's title, design/references/teleoperator/): a still of the very view you will
+     start in, rendered from the page itself (tools/title-stills.mjs). A tiny copy inlined below paints at once, the full one
+     sharpens over it, and a slow drift run by the compositor keeps it alive while the house is raised; at walkable it
+     fades into the live frame */
+  #still { position: fixed; inset: 0; z-index: 4; overflow: hidden; background: #070605 center / cover no-repeat; transition: opacity .7s ease; pointer-events: none; }
+  #still img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #still.drift img, #still.drift { animation: drift 40s ease-out forwards; }
+  #still.gone { opacity: 0; }
+  @keyframes drift { from { transform: scale(1); } to { transform: scale(1.06); } }
+  @media (prefers-reduced-motion: reduce) { #still.drift, #still.drift img { animation: none; } }
+  #status.over { background: linear-gradient(to bottom, transparent 62%, rgba(7, 6, 5, .78)); place-items: end center; padding-bottom: calc(9vh + env(safe-area-inset-bottom)); box-sizing: border-box; color: var(--ink); text-shadow: 0 1px 3px #000; }
   #where { position: fixed; left: 14px; top: 12px; padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); }
   #where .n { font: 600 20px "Cormorant Garamond", Georgia, serif; color: var(--brass); letter-spacing: .04em; }
   #where .f { color: var(--dim); }
@@ -35,6 +46,28 @@
 </head>
 <body>
 <div id="status">raising the house…</div>
+<div id="still" hidden></div>
+<!-- stills:begin (written by tools/title-stills.mjs) -->
+<script>window.__stillsMade = {"manor":{"thumb":"data:image/webp;base64,UklGRv4BAABXRUJQVlA4IPIBAAAwDACdASpQAC0APq1Gm0mmI6KhMzcdUMAViWkA0BwN30XbEeO8SvhY3/6XWN3SyYUUKniQ1/Dhb0izskdmIPsPREpxpc69KI3xgT60shYc6Q5Da3B70vjjTr3uWwjyUcxSN+wGU7I4QMv4AP77ob7HrPAHFeu+4RXX3IXyROFsj0TWJ14ujRrHPFKLauz01ttwtJD/91Lsvzwxwa+jCobBvrqo341cZiwfKxBpUcYQ5sl57sm0iZYJ+WZvsKlOfMwOsWTkiNHWQ823sub+N/Fm1y3gYnqTNoQeM0bOuUd0Ujx8snjX/mqYXh2mmcIZhKN2l5n9mN4fzzCtkkFdN1RtGO+4jdu1zrSdKrB8rxHGXCHAAls74+UV/9Ez7eA3IljQexlBvbBx647Xj5ohsRjmFdadO6Yqrv6nU0N2ur9UziyNFnO8fH+tAQQuTCs3HNqUI+F8VyzHzXfYG4RVPwCt10ip+1br1474XgH6tQP5gxkFLlE6Gh9Sh5YoSK45JCZWqStif8f4VMgORgOLVzSaq23s6StFuqHEMsIZ6IJM71VmsWWMpIrCBoq7qh51RAT0XI0/O6A+yCVOYtxYr1y2o+n5gBoRg5XBZGP0K1RF2Xr1jIzKQWyWXhKgyYQ5qgOIus9R3ovQsKSWgcEZKCceAAA=","v":"60f4aaw1","world":"1mszx1y1vww5xb/0r8ev760f4aaw1","thumbTall":"data:image/webp;base64,UklGRhABAABXRUJQVlA4IAQBAAAQCQCdASokAE4APrVOoksnJCMhqrZsAOAWiWkA0FROX/7tqXxgj5XHGF8wjAzerFBvS6l8Sb0EK8QpYfvyibqS7FK/2P0pVAj/cRDY6kZJw4AA/vluPWvmRZ3T1T9+r21NweiXkRPMP9ptoZF7vEKc5M14KwvVCj/dJzcd/rEkC5P89BU0LyJ6dpjVq1qMNQb45HMEnT0GXHX36BCYGQREg4AYriqoaRJpC5qqw6ZRxPPb1Q5os3MUMhiTZQzy2V0n4MMxAl1oxrjv4e7CjVNG9OZpFdULFWzHF0HE3FwsoYFxenz4zWF2QrC1EKlrK8jOouKVFB4aloAFE2+ghCkRlBAAAA=="},"case-1660":{"thumb":"data:image/webp;base64,UklGRnACAABXRUJQVlA4IGQCAACwDQCdASpQAC0APrVInUsnJCKhrvbcAOAWiWMAzWlaWFnUUXvYBYRVWQLCHxcWPNKm77grzafqd4ktvspJ+e8mU2gWggO4tFL31rh3904cZxxEbq87zJVy2UwxtCQ4OdrCdYAyP4uAJd6Mjf4KXjUa06kTEXgAAP78XUZWcwSgaJpHTHa3rmj0Opj77xnVsPrcMq0mu49ytCQ1zO6FKFgzGskVaZ+kbCX0lbuy5z57LnHk2LEGX5A7fsCkLHSGjlAavku/L/qVFkNQOdqVJlcMbhHFRq0Gp8bp9WbLeAm8c8Nid96j7cyGVuGyfMv0alWEOWYhIcpfCM5HqzxnMErbPDmbYk26HsHV4bxxbI/fJRJvj0m7iBb7e+F1x4uizyinIeSoDwi8oodidIOfZRzmkIMrBSM8Ydhz1U3N3eHDGdBKonR8TFJPj7kuV51pv2pX8MwyM5LSBk9FJOzjU+BdRXdBM52Q4HfUEpOqX6lYyp4H6oD5lQOLUiwfv/EdrjUEisp+1TlX/dOnPFSth3tXTb8AsIVM8g0DKOFd7AG63ElvUpQTm2lRWIlQ0JA5QIZXhOibuOnC9q17jq6XP5oAHbBMBXvo5L8xLewaxCjP0AVe86isz/msBseAU6V5dNeZ6JsU9Y4GdmQ/jV6NjllEjDmL8sqfp5yqHRRtV7V+SPDRDU3QECL/eB9zl94yqDdnBmNf18muV6QPlAM7xO1evbfZ/oqWg8x527TeLJmVQB9NOqtJ6G77nT6XmlOCNN9WdcHQTZP5tx44fI1p1Z9bbBqVsH7be83FRMCy3hhYdicAAAA=","v":"l11lpmpe","world":"1mszx1y1vww5xb/08fxecl11lpmpe","thumbTall":"data:image/webp;base64,UklGRlIBAABXRUJQVlA4IEYBAACQCACdASokAE4APrVQn0qnJSKhqrmcyOAWiWcA0QhT2y6dPWxgCUXUfYyr5DJ6gAStqnUBiD9S3m4kaF5sO2aAZYPxvj1f1MvoZ4QsAAD++lain2LK/iq81f6tRfspICPO/rMAKgdY1NdDW3n7RZAAV3L3YVTGeh3nQmTQ8Nod2uwf9zNs4sBTRHZ8mUK3Pfe341wDNu0tnY2BpkFLJLBJ40pWmSBbthm5MBge0qFr5uCR7lyA8+PcTY8oDpmV4luAfSiEkiPOkccW4+QFFXt+hEcYpG8GTB0MpFY/8rZSCqC9JEoUuBIBRw/zM9E6ItJRhGIuxLhgZXX5PnK9TwUhkcIT5L1RVADstMVbNSTDd7elg7WdED9FXdl0Pe5HUG7J8auP/z6JOQGuWYgGCml+xFRmEhc+rWqaHZ5xDVLVd4uKRcPAAA=="},"banqueting":{"thumb":"data:image/webp;base64,UklGRpoDAABXRUJQVlA4II4DAABwDwCdASpQAC0APrVOokunJCMhqrZrMOAWiWMAwFxjB25/3HKsQNFarh1o5HV2t8jqhghDwqV4wCvXcNcf997jqFOP7v05ZkWKyHsT3NoQIsHtjMkR2dSkVNiu38mxQHd82mW+S/ZhuN8cvyp2NlRPPOZ0nbpwarjTQ38GDoZA9DIysoAA/dX+nrzXc6Xf0FTKf7eTZvdf/Al2ka5DTiDs/OZvAOdfKuQViTK0WNcSu4EUNdKSm7s6qGIAuQ3mCvWjLVJD/pcGqwpzg8APrs4l7S9J6wTElpOGNn30xrsD636ZDM7EFX14dJp+tSvevPFHynGpcqDciL0UACpU3nKlTE3bt7j6tJwcmN5RKxy7pvalDCXpwDY7yyXajdq1RAC2BmiAcMmFHD5TOEoQB/9MY6klPc1YPIIb9znB5xMtuqWE2Mc6T06bpKPOLUqFKvT9+tcpc920ANV/Bua2HpRWClYAIFvgcn6JACMC/Njf+Tcqd3WqCqQYqlWGJdjWISeSKX+DPp7viwvzB/YwEwZVo8lsk7bIx7ylwnJi1hdsfsYGAkCGa20WoVH1pYcvNTDu7/9VTjqoYh+F+wuZblxYQSFifItzAzNQ08sto7/pXib27Pgtv6DjMxZWfy47q+v06g5KuDnC6OB6ri+fyKpE+rCvtwVxn5ZuO4/UcJizfBknEQY3re+SudVP/X3+zj8i7pHKjpkE5dVUTEpjn2wmWoI9xOqPRKumLfqAxfwYlANxq2D4grucHq+6GGCdPX5Qz1NYKqpn9duQRPs6R8u5YSjv9S3ppEZUBfC0EQmJUMC3xKlOn8s/l64vhA2kgZT2g58bYHarUTXgNkiQdGGed0CoUYwpGQ6aWxLfP18ojmGWmxotXKp8+PMY8sDaRG+LuCzZogvDXUyLmEge0nSx+2nD34J0+mAknnrHTnBV9Z3UzfbnW2W8Jqx7Rk3uTgsb8XX670vYK/tQUiAFx7968G9W23jYKrw4FDeyVz1y1zdc5Hb+WRP5sf/qzypPHHJ2a+SJHigkxj3beG76XsndtgPU8jg6d2e/GxAvHhgbBB/bZGkeW//9DHqjocgpqilM3hGEMGpnBQAA8NI06LHMhVQGZSYckSIq3FZHVYaZeg6L3nW05408ij3lz6P3DNBgAB0BshNkMfKiVi9ZXf4gTcKXsbhYny0r2RNXD2zhu0Lruwg/2J3v2kAjLIAA","v":"b0u2rimi","world":"1mszx1y1vww5xb/0tizhsb0u2rimi","thumbTall":"data:image/webp;base64,UklGRigCAABXRUJQVlA4IBwCAADwDACdASokAE4APrVInUsnI6KhrvSc+OAWiWUAxrCBiA7ou5PJp557tihv2ZitU+gyls8tnv2O06mGeVfGAG7qG7sfAV4u8GRzJxt+hDrxUw/bGbD4EMmfxFzMi2bVdEMM5WcXEDKUmb2CAjYWv+mAAPpWmXiGMD81X1mqWIwdGkNbIKujnhmakd9vBoQLupPb3SQIUCa4IcB+s3Urw2FawZXYHQkhYGAZS5XdJTON6ZlDoytW2Loo/rjibnw0UQXzBumF8XiTrwYPe6F9yU0k7ryfmUXO654lMgPUd+1wi22EBngdbWFDDXMa+zwxfH0jt4ux+sWNmbVtCSIj3pW7AqcT4LDuMur/il14X655NZArNOd7oTuBc1QzcWPe8yeO+6qYkCwnX3R3wiywr012rD/NCsj9Vkgg1j6TseOLZgzfMUwkCk7T2ThOTx/QzMxXwkc2Qt6Uk5PlYPpP4Wfa+vY7zHNujKKXmfX0RFsevkJr3Z7aiYjl7Kafy6hoRINu8prbS6g81xakTUeyQ7egcG7OucP+cVjrh5a2/mxJKjZh4JOFr7C3SqOH1ogJIgGyPcz6HvG0gAGM7oL80lQ1AZqLTAckGu57bvaDxtkaNLPex4i9kC1SdeOQmDdb+tFI0S50bkK9brUTMMGIY7VNjUtECOgtm19PhMARSpdYcIqsSP6ZKjE1K5WmOJr9Gs9gp2JFzCQuknYAAAA="},"alice-hall":{"thumb":"data:image/webp;base64,UklGRnABAABXRUJQVlA4IGQBAADQCQCdASpQAC0APq1EmkmmI6IhNVs4AMAViUAUaXXRJJa9U+5Tncb+rzxzFsEdgmlVuLOyu7pE3MkhzaAPAYNHT0E6I3oQotQV4NITWy37hUm6V7u+gAAA/vfpy49kESxcr6264Cn9dDryAyH5bOsMbwTGXplhcE47ndaqJ1HQE6iZFLPfxRAlVtRU5x2OAiXw9W6qGWuD1FVlgDu/HMCDpl9vuctgd/SYn/CC+ltUl0YtZd0iczBHIn5f57doX1NGyEd7HdlAfZBfKKP6otCHXGXrAdsVD9LYZJ4bMAxe7C0JXUvxRl+1HgLxpPoloH19x7P/O7rdbG+OVAKkvWycgfeRX6Ba/k3KutddYE6jthHpDNbdLaCdNPVLFMqfA4dggFS434WOU9pyk+bHG+eo72ujwGHCOsgJvwp15E4jnaMHE+Z9hhg2kcJgM9mU/CSgaK9lgk8F+01S7ohI5EFF81agAA==","v":"21bx7jkt","world":"1mszx1y1vww5xb/1hx92j21bx7jkt","thumbTall":"data:image/webp;base64,UklGRsQBAABXRUJQVlA4ILgBAAAwCwCdASokAE4APrVKnksnJCKhrvScAOAWiWMAskxWDbChbzW2qAQS8L1zQ4Ke6VydySFk1iq83TQxr+zLoINiuR3jmdYxBleHwDkx+TEkfqfcYYBFhFpmRNMxQTvqhBOFAAD+9FkALyCEHb03p+UfBxC/Nt0nWE+LwzYtR/biy24yya/GtkknCPfBAR3b3Hrrr3D0Of9wohHXNnT4r6QuwK7xFyialPKs0dvCq4IRPJkx09GwHBzSbhFQqNIvczQv0PBjGqEYKMQZJmxRWyZiPKN6tgPNG4X/Uq7Qv577ktQXTp/d1avT1d5SruS5hNRKq1K05a4B0v159DlVlx9dBccfeYFwP0LHLghDBnLOEHinD0pcn7015wFuvy34jLzHpdFiQ0+lmCMp6XqBnQrUA8m2hE58KC+Y0f3X6t2O12WIFRAXvMdPgdLDARYH5/G9wpANxmahHzwQEXXxpL89f3laGSZOo2kzasJf/gsETbmlxzBIBMeScq19SbcS8O2PYIZeYSW38Ba/xZLE0Q0n/8rSvZUKK6+LPZZB1Vo9oN1lE+SOy/+f3Wf+j9KjNo29Z981xrjIAA=="}};</script>
+<!-- stills:end -->
+<script>
+// which still, if any: only the four addresses the site links (the manor, the case, the banqueting house, Alice's hall),
+// and only when nothing in the address moves where you start or what is built; a test sees none unless it asks (?still=1)
+(() => { const Q = new URLSearchParams(location.search), OK = new Set(["case", "plan", "fresh", "still", "perf", "webgl", "webgpu"]);
+  const key = Q.get("plan") === "alice-hall" || Q.get("plan") === "banqueting" ? (Q.get("case") ? null : Q.get("plan"))
+    : Q.get("case") === "case-1660" ? "case-1660" : Q.get("plan") || Q.get("case") ? null : "manor";
+  const S = window.__stillsMade[key], want = Q.get("still") ?? (navigator.webdriver ? "0" : "1");
+  if (!S || want === "0" || [...Q.keys()].some(k => !OK.has(k))) return;
+  // a phone held upright sees the room wider (the page's fov opens to 88° as the aspect narrows): its own still, made so
+  const tall = innerHeight > innerWidth * 1.2, el = document.getElementById("still"), img = new Image();
+  el.style.backgroundImage = `url(${tall ? S.thumbTall : S.thumb})`; el.hidden = false; el.dataset.key = key;
+  img.decoding = "async"; img.fetchPriority = "high"; img.alt = ""; img.src = `stills/${key}${tall ? "-tall" : ""}.webp?${S.v}`; el.append(img);
+  // the house is raised in one long block that paints nothing: the page waits (at most 0.4 s) for the full still to be
+  // on screen before it starts, so what you look at meanwhile is the sharp one
+  window.__stillShown = new Promise(res => { img.decode().then(() => requestAnimationFrame(() => requestAnimationFrame(res)), res); setTimeout(res, 400); });
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) el.classList.add("drift");
+  document.getElementById("status").classList.add("over"); window.__still = { key, at: performance.now() }; })();
+</script>
 <div id="where"><div class="n">—</div><div class="f"></div></div>
 <div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take · <kbd>C</kbd> crouch · double-click go there</div>
 <div id="gate">click to walk</div>
@@ -130,7 +163,7 @@ const CASE = Q.get("case") ? await (await fetch(`../case/${Q.get("case")}.json`)
 if (CASE) fresh.required = [...(fresh.required || []), ...caseRequired(CASE, fresh, new Set(kinds().map(k => k.kind)))];
 // while the generator is still being written, a world starts afresh when its output changes; at release
 // the plan's hash leaves this key, and a world keeps the plan it was sealed with for good
-const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`;
+const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`; window.__wkey = WKEY;
 let doc = null; try { if (Q.has("fresh")) localStorage.removeItem(WKEY); else doc = JSON.parse(localStorage.getItem(WKEY) || "null"); } catch (_) {}
 const world = makeWorld(doc), keep = () => { try { localStorage.setItem(WKEY, JSON.stringify(world.doc)); } catch (_) {} };
 // a case's own progress kept beside the world (src/make/case-play.js snapshot); ?fresh clears it, and then leaves the
@@ -146,6 +179,7 @@ const brief = await (await fetch("../brief/manor-1660.json")).json();
 // a place with an outside (the manor, the banqueting house) is drawn with log depth, near and far (fps lab: a 5 km view holds
 // at no measurable cost); a story's hall underground is not
 const OUTDOOR = !STORY && Q.get("outdoor") !== "0";
+await window.__stillShown;   // (the title still on screen first: it is only waited for when shown, and never past 0.4 s)
 const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG; ENG.flags.tex = TEX_HALF ? "half" : "full";
 THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
 await step("growing oak, laying flags, slaking lime");
@@ -828,7 +862,11 @@ renderer.setAnimationLoop((now) => {
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
   const burning = flicker(now) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
-  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start(); }
+  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
+    // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
+    const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);
+      const made = window.__stillsMade[st.dataset.key]; window.__still.world = made.world === WKEY.split("/manor/world/")[1];
+      if (!window.__still.world) console.warn("title still made from another house:", made.world, "now", WKEY); } }
 });
 window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
 </script>
