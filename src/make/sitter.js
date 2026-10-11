@@ -65,6 +65,9 @@ const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t
 const mix = (a, b, t) => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
 const css = (c, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 
+// a canvas here or in a worker (src/make/sitter-worker.js paints the case's people off the main thread while the house
+// is raised): the same 2D drawing either way
+const newCanvas = () => typeof document !== "undefined" ? document.createElement("canvas") : new OffscreenCanvas(1, 1);
 function rng(seed) { let a = (seed >>> 0) || 1; return () => { a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
 function hashStr(s) { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
 
@@ -139,7 +142,7 @@ function fillPath(g, pts, style, closed = true) { g.fillStyle = style; g.beginPa
 const grounds = new Map();
 function groundFor(w, h, S, ox, oy, ground) {
   const key = `${w}x${h}`; if (grounds.has(key)) return grounds.get(key);
-  const c = document.createElement("canvas"); c.width = w; c.height = h; const out = c.getContext("2d"), rg = rng(1660);
+  const c = newCanvas(); c.width = w; c.height = h; const out = c.getContext("2d"), rg = rng(1660);
   out.fillStyle = css(ground); out.fillRect(0, 0, w, h);
   out.save(); out.translate(ox, oy); out.scale(S, S);
   { const gr = out.createLinearGradient(0, 0, 512, 640); gr.addColorStop(0, css(mix(ground, [8, 6, 4], 0.5))); gr.addColorStop(1, css(mix(ground, [10, 8, 6], 0.3))); out.fillStyle = gr; out.fillRect(-20, -20, 552, 680); }
@@ -247,10 +250,10 @@ function brushwork(ctx, W, H, { S = 1, seed = 1, keep = [], amount = 1, hatch = 
 export function paintSitter(look, { w = 512, h = 640, seed, canvas, ground: withGround = true } = {}) {
   const L = normaliseLook(look);
   const sd = (seed ?? hashStr(JSON.stringify(look || {}))) >>> 0, r = rng(sd);
-  const cv = canvas || document.createElement("canvas"); cv.width = w; cv.height = h;
+  const cv = canvas || newCanvas(); cv.width = w; cv.height = h;
   const out = cv.getContext("2d");
   // the figure is painted on a layer of its own, then laid on the ground (or, with ground: false, on nothing)
-  const layer = document.createElement("canvas"); layer.width = w; layer.height = h; let g = layer.getContext("2d");
+  const layer = newCanvas(); layer.width = w; layer.height = h; let g = layer.getContext("2d");
   const female = L.sex === "female", age = L.age, old = smooth(30, 60, age), young = 1 - smooth(20, 34, age);
   const thin = { thin: 1, spare: 0.7, slight: 0.6, average: 0, stout: -0.8, heavy: -1 }[L.build] ?? 0;
 
@@ -516,7 +519,7 @@ export function paintSitter(look, { w = 512, h = 640, seed, canvas, ground: with
     // a light blur over the cells (3 x 3, among cells that are flesh), so the turn of the form at the jaw does not step
     const soften = (im) => { const D = im.data, C = D.slice(); for (let j = 1; j < gh - 1; j++) for (let i = 1; i < gw - 1; i++) { const o = (j * gw + i) * 4; if (!C[o + 3]) continue; let r0 = 0, g0 = 0, b0 = 0, n = 0; for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { const q = o + (dj * gw + di) * 4; if (C[q + 3]) { const wq = di || dj ? 1 : 2; r0 += C[q] * wq; g0 += C[q + 1] * wq; b0 += C[q + 2] * wq; n += wq; } } D[o] = r0 / n; D[o + 1] = g0 / n; D[o + 2] = b0 / n; } };
     soften(headImg); soften(neckImg);
-    const toCanvas = (im) => { const c = document.createElement("canvas"); c.width = gw; c.height = gh; c.getContext("2d").putImageData(im, 0, 0); return c; };
+    const toCanvas = (im) => { const c = newCanvas(); c.width = gw; c.height = gh; c.getContext("2d").putImageData(im, 0, 0); return c; };
     return { head: toCanvas(headImg), neck: toCanvas(neckImg), x0, y0, w: (gw - 1) * step + step, h: (gh - 1) * step + step, step };
   };
   let skin = null;
@@ -711,7 +714,7 @@ export function paintSitter(look, { w = 512, h = 640, seed, canvas, ground: with
     const m0 = main0(), bx0 = Math.min(...xs) - 30, by0 = Math.min(...ys) - 20, bx1 = Math.max(...xs) + 30, by1 = Math.max(...ys) + 30;
     const p0 = m0.transformPoint(new DOMPoint(bx0, by0)), p1 = m0.transformPoint(new DOMPoint(bx1, by1));
     const sx0 = Math.floor(Math.min(p0.x, p1.x)) - 20, sy0 = Math.floor(Math.min(p0.y, p1.y)) - 20;
-    const main = g, sheet = document.createElement("canvas"); sheet.width = Math.ceil(Math.abs(p1.x - p0.x)) + 40; sheet.height = Math.ceil(Math.abs(p1.y - p0.y)) + 40; g = sheet.getContext("2d");
+    const main = g, sheet = newCanvas(); sheet.width = Math.ceil(Math.abs(p1.x - p0.x)) + 40; sheet.height = Math.ceil(Math.abs(p1.y - p0.y)) + 40; g = sheet.getContext("2d");
     g.setTransform(new DOMMatrix([1, 0, 0, 1, -sx0, -sy0]).multiply(m0));
     g.save();
     // the mass, lit from the left; on long hair it thins out below, so the ends are the locks' own tips
@@ -1032,7 +1035,7 @@ export function paintSitter(look, { w = 512, h = 640, seed, canvas, ground: with
   // ---- the finish: edges softened as a brush leaves them, a warm varnish, the canvas's grain ----
   g.restore();
   // (a blur by shrinking and enlarging: filter blurs cost ~20 ms here, this under 1)
-  const shrink = (k) => { const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(w / k)); c.height = Math.max(1, Math.round(h / k)); const cg = c.getContext("2d"); cg.imageSmoothingQuality = "low"; cg.drawImage(layer, 0, 0, c.width, c.height); return c; };
+  const shrink = (k) => { const c = newCanvas(); c.width = Math.max(1, Math.round(w / k)); c.height = Math.max(1, Math.round(h / k)); const cg = c.getContext("2d"); cg.imageSmoothingQuality = "low"; cg.drawImage(layer, 0, 0, c.width, c.height); return c; };
   // the brush over all of it, small and light over the eyes and mouth; with nothing behind, the silhouette's own edge
   // feathered and the bust fading out below, in the same pass over the pixels. A small painting (the face for the
   // talk panel's round, seen at 48 px) is only softened: brushwork there is finer than a pixel of what is seen.

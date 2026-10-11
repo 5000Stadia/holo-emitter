@@ -160,6 +160,15 @@ if (Q.get("require")) fresh.required = Q.get("require").split(",").map(t => { co
   return { kind, room, ...(inside ? { in: { kind: ik, slot: slot || "drawer" } } : {}) }; });
 // ?case=case-1660: a mystery in the house (M7): its things placed first, by story id, with what holds them
 const CASE = Q.get("case") ? await (await fetch(`../case/${Q.get("case")}.json`)).json() : null;
+// the case's people painted in a worker while the house is raised (src/make/sitter-worker.js: 0.47 s of the main
+// thread's start, R65); portrait() takes what has come back, and paints on the main thread what hasn't
+const sittersPainted = new Map();
+if (CASE?.cast?.length && typeof Worker === "function" && typeof OffscreenCanvas === "function" && Q.get("sitterworker") !== "0") try {
+  const sw = new Worker(new URL("../../src/make/sitter-worker.js", import.meta.url), { type: "module" }); let left = 0;
+  sw.onmessage = ({ data }) => { if (!data.error) sittersPainted.set(data.id, data); if (--left <= 0) sw.terminate(); };
+  sw.onerror = () => sw.terminate();
+  for (const c of CASE.cast) if (c.look) { left++; sw.postMessage({ id: c.id, look: c.look, opts: { seed: seedOf(`sitter/${c.id}`), ground: false } }); }
+} catch (_) {}
 if (CASE) fresh.required = [...(fresh.required || []), ...caseRequired(CASE, fresh, new Set(kinds().map(k => k.kind)))];
 // while the generator is still being written, a world starts afresh when its output changes; at release
 // the plan's hash leaves this key, and a world keeps the plan it was sealed with for good
@@ -359,7 +368,9 @@ if (CASE) {
   // the people: each where the case puts them at the start, as the holodeck shows them, a portrait painted in code
   // painted in code from each person's look in the case (src/make/sitter.js): for the projection the figure alone, on
   // nothing (a dark ground had shown as a smudge round them); for the panel's small circle the face, cropped close
-  const portrait = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (look) return paintSitter(look, { seed: seedOf(`sitter/${id}`), ground: false });
+  const portrait = (id) => { const look = CASE.cast.find(c => c.id === id)?.look, done = sittersPainted.get(id);
+    if (look && done) { const cv = Object.assign(document.createElement("canvas"), { width: done.bitmap.width, height: done.bitmap.height }); cv.getContext("2d").drawImage(done.bitmap, 0, 0); done.bitmap.close(); sittersPainted.delete(id); cv.face = done.face; return cv; }
+    if (look) return paintSitter(look, { seed: seedOf(`sitter/${id}`), ground: false });
     const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
   const faceOf = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (!look) return null; const src = paintSitter(look, { seed: seedOf(`sitter/${id}`), w: 256, h: 320 }), f = src.face, r = f ? f.r * 1.3 : 60;
     const cv = Object.assign(document.createElement("canvas"), { width: 128, height: 128 }); cv.getContext("2d").drawImage(src, (f?.x ?? 128) - r, (f?.y ?? 130) - r * 0.95, r * 2, r * 2, 0, 0, 128, 128); return cv; };
