@@ -187,6 +187,18 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const tileUV = (g, k) => { const uv = g.attributes.uv, p = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / k, p.getY(i) / k); return g; };
 
   const specs = houseSpecs(plan, { types, brief, gap });
+  // a floor or ceiling with its well: a rectangle with one hole is laid as the strips round it. A hole at its edge is no
+  // hole to the triangulator (a well run on to the wall at a landing's end, R59: it laid reversed slivers over the floor,
+  // faces that fought); anything else as a shape with its holes, as before
+  const cutSlab = (outline, holes) => {
+    const xs = outline.map(p => p[0]), ys = outline.map(p => p[1]), X0 = Math.min(...xs), X1 = Math.max(...xs), Y0 = Math.min(...ys), Y1 = Math.max(...ys);
+    const box = outline.length === 4 && outline.every(([x, y]) => (x === X0 || x === X1) && (y === Y0 || y === Y1));
+    if (!box || holes.length !== 1) return slab(THREE, outline, holes);
+    const hx = holes[0].map(p => p[0]), hy = holes[0].map(p => p[1]), a0 = Math.max(X0, Math.min(...hx)), a1 = Math.min(X1, Math.max(...hx)), b0 = Math.max(Y0, Math.min(...hy)), b1 = Math.min(Y1, Math.max(...hy));
+    const strips = [[X0, X1, Y0, b0], [X0, X1, b1, Y1], [X0, a0, b0, b1], [a1, X1, b0, b1]].filter(([p, q, r, t]) => q - p > 1e-4 && t - r > 1e-4);
+    return strips.length ? mergeGeometries(strips.map(([p, q, r, t]) => slab(THREE, rect(p, q, r, t)).toNonIndexed()), false) : slab(THREE, outline, holes); };
+  // each room's floor and ceiling as built, and the wells cut through them (src/make/sound.js rule 6 reads them)
+  const cuts = new Map();
   for (const room of plan.rooms) {
     if (room.type === "open") continue;
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
@@ -211,12 +223,16 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const wellsHere = (plan.wells || []).filter(w => w.hole.x0 < x1 && w.hole.x1 > x0 && w.hole.y0 < y1 && w.hole.y1 > y0);
     const holeOf = (w) => rect(Math.max(0, w.hole.x0 - x0), Math.min(W, w.hole.x1 - x0), Math.max(0, w.hole.y0 - y0), Math.min(D, w.hole.y1 - y0));
     const up = wellsHere.filter(w => w.to === room.floor).map(holeOf);
-    const topFloor = floors[Math.min(floors.length - 1, floors.findIndex(f => f.id === room.floor) + (room.rises || 1) - 1)].id;
+    // the floor under its ceiling: the last whose level lies within its height as built (a stair hall rising through the
+    // house stops at its first landing since 2026-10-06; read off its rises, its ceiling had been cut for the garret's
+    // well, so not at all, and stood whole across the well at 3.6 m: "like an unopened roof", Kabe, R59)
+    const topFloor = (floors.filter(f => levelOf(f.id) >= Y - 0.01 && levelOf(f.id) < Y + H - 0.01).at(-1) || floors.find(f => f.id === room.floor)).id;
     const down = wellsHere.filter(w => w.from === topFloor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
+    cuts.set(room.id, { id: room.id, rect: room.rect, outline: room.outline || null, floor: Y, floorHoles: wellsHere.filter(w => w.to === room.floor).map(w => w.hole), ceiling: Y + H, ceilingHoles: wellsHere.filter(w => w.from === topFloor).map(w => w.hole) });
     const floorMat = T.floor === "flags" ? M.flags : T.floor === "gypsum" ? mats.gypsum : T.floor === "matting" ? mats.matting : M.floor;
-    const fg = tileUV(slab(THREE, floorOf(room), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
+    const fg = tileUV(cutSlab(floorOf(room), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
     grp.add(Object.assign(new THREE.Mesh(fg, floorMat), { receiveShadow: true }));
-    const cg = tileUV(slab(THREE, floorOf(room).map(([u, v]) => [u, D - v]).reverse(), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
+    const cg = tileUV(cutSlab(floorOf(room).map(([u, v]) => [u, D - v]).reverse(), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
     grp.add(Object.assign(new THREE.Mesh(cg, T.walls === "limewash" || T.walls === "stone" ? M.limewash : M.plaster), { castShadow: true, receiveShadow: true }));
     // the ceiling's make: exposed joists across the short span, or moulded ribs in compartments
     if (T.ceiling === "beams" || T.ceiling === "compartments") {
@@ -464,8 +480,16 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [F, [a, b, gapToWall]] of Object.entries(edges)) if (F !== footLo && gapToWall > 0.2) rail(out, [...a, H], [...b, H]);
     // the floor's edge round the well, cased in oak boards down through the floor's thickness (the carve stands behind)
     // (inside the hole, so its top is a trim round it, never lying on the floor beside it)
-    for (const g of [cube(Rh.x0, Rh.x1, Rh.y1 - 0.035, Rh.y1, H - gap - 0.03, H), cube(Rh.x0, Rh.x1, Rh.y0, Rh.y0 + 0.035, H - gap - 0.03, H),
-      cube(Rh.x0, Rh.x0 + 0.035, Rh.y0 + 0.035, Rh.y1 - 0.035, H - gap - 0.03, H), cube(Rh.x1 - 0.035, Rh.x1, Rh.y0 + 0.035, Rh.y1 - 0.035, H - gap - 0.03, H)]) out.push(g);
+    // (not where the hole runs to the room's wall, as since R59 it does at a landing's end: there the wall's own lining
+    // goes down past it, and a board on its face fought it)
+    const off = (F) => edges[F][2] > 0.01, n0 = off("S") ? 0.035 : 0.001, n1 = off("N") ? 0.035 : 0.001;   // (to the hole as cut: a millimetre short of the wall)
+    for (const g of [off("N") && cube(Rh.x0, Rh.x1, Rh.y1 - 0.035, Rh.y1, H - gap - 0.03, H), off("S") && cube(Rh.x0, Rh.x1, Rh.y0, Rh.y0 + 0.035, H - gap - 0.03, H),
+      off("W") && cube(Rh.x0, Rh.x0 + 0.035, Rh.y0 + n0, Rh.y1 - n1, H - gap - 0.03, H), off("E") && cube(Rh.x1 - 0.035, Rh.x1, Rh.y0 + n0, Rh.y1 - n1, H - gap - 0.03, H)]) if (g) out.push(g);
+    // where it does run to the wall, an oak trimmer along the wall through the floor's thickness, 15 cm deep, under the
+    // room's skirting and its corner posts (which had hung over the well, their undersides showing and fighting)
+    const lx0 = Math.max(Q.x0, Rh.x0 - 0.06), lx1 = Math.min(Q.x1, Rh.x1 + 0.06), ly0 = Math.max(Q.y0, Rh.y0 - 0.06), ly1 = Math.min(Q.y1, Rh.y1 + 0.06), lo = H - gap - 0.026, hi = H - 0.005, d = 0.15;   // (its foot 4 mm over the casing's, which it meets)
+    for (const g of [!off("N") && cube(lx0, lx1, Q.y1 - d, Q.y1, lo, hi), !off("S") && cube(lx0, lx1, Q.y0, Q.y0 + d, lo, hi),
+      !off("W") && cube(Q.x0, Q.x0 + d, ly0, ly1, lo, hi), !off("E") && cube(Q.x1 - d, Q.x1, ly0, ly1, lo, hi)]) if (g) out.push(g);
   }
   // the stairs settled as one, whatever room each piece is drawn with (one flight's newel meets the next one's)
   { const lists = [...stairParts.values()]; for (const ps of lists) for (let k = 0; k < ps.length; k++) if (ps[k].index) ps[k] = ps[k].toNonIndexed();
@@ -508,7 +532,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { exterior, rails, carved, specs, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;

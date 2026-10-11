@@ -61,10 +61,17 @@ export function shellOf(plan, { gap = 0.35, ext = 0.75 } = {}) {
     const B = baseOf(s), over = built.filter(r => r.rect.x0 < B.x1 - 0.01 && r.rect.x1 > B.x0 + 0.01 && r.rect.y0 < B.y1 - 0.01 && r.rect.y1 > B.y0 + 0.01).map(r => levelOf(r.floor) + heightOf(r) + 0.02);
     s.z0 = Math.max((home.length ? Math.max(...home.map(R => R.top)) : roof) - 0.6, ...over); s.z1 = Math.max(roof + 1.2, ridge + 1.4); }
   // the footprint the plinth runs round: the plan's outline, and each room standing outside it (the porch) with its walls
+  // a polygon pushed out by d along each edge's outward normal, its corners mitred
+  const grow = (o, d) => { const sg = o.reduce((a, p, i) => { const q = o[(i + 1) % o.length]; return a + (p[0] * q[1] - q[0] * p[1]); }, 0) > 0 ? 1 : -1, n = o.length;
+    const line = (i) => { const [ax, ay] = o[i], [bx, by] = o[(i + 1) % n], L = Math.hypot(bx - ax, by - ay), nx = (by - ay) / L * sg, ny = -(bx - ax) / L * sg; return [ax + nx * d, ay + ny * d, bx - ax, by - ay]; };
+    return o.map((_, i) => { const [px, py, dx, dy] = line((i + n - 1) % n), [qx, qy, ex, ey] = line(i), den = dx * ey - dy * ex;
+      if (Math.abs(den) < 1e-9) return [qx, qy]; const t = ((qx - px) * ey - (qy - py) * ex) / den; return [px + dx * t, py + dy * t]; }); };
   const inOutline = (x, y) => { const o = plan.outline; if (!o) return false; let c = false; for (let i = 0, j = o.length - 1; i < o.length; j = i++) { const [ax, ay] = o[i], [bx, by] = o[j]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
   const footprints = [...(plan.outline ? [plan.outline] : []), ...built.filter(r => !r.outline && !inOutline((r.rect.x0 + r.rect.x1) / 2, (r.rect.y0 + r.rect.y1) / 2))
     .map(r => [[r.rect.x0 - ext, r.rect.y0 - ext], [r.rect.x1 + ext, r.rect.y0 - ext], [r.rect.x1 + ext, r.rect.y1 + ext], [r.rect.x0 - ext, r.rect.y1 + ext]]),
-    ...built.filter(r => r.outline).map(r => r.outline)];
+    // (a room's own outline is its inside: pushed out by its walls, as a rectangle's is; the banqueting octagon's plinth
+    // had run inside its walls, hidden, the octagon bare of one, and the lobby's had stood in its corners: rule 7)
+    ...built.filter(r => r.outline).map(r => grow(r.outline, ext))];
   return { roofs, pyramids, stacks, roofZ, footprints };
 }
 const inside = (R, r) => r.x0 >= R.x0 - 0.01 && r.x1 <= R.x1 + 0.01 && r.y0 >= R.y0 - 0.01 && r.y1 <= R.y1 + 0.01;
@@ -96,8 +103,16 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
     for (const [e, sg] of [[s0 - EAVE, 1], [s1 + EAVE, -1]]) {
       const a = P(e, ta, eaveZ), b = P(e, tb, eaveZ), c = P(sm, tb, ridge), d = P(sm, ta, ridge), L = tb - ta;
       if ((sg > 0) === X) quad(slates, a, b, c, d, [[0, 0], [L, 0], [L, slope], [0, slope]]); else quad(slates, b, a, d, c, [[L, 0], [0, 0], [0, slope], [L, slope]]);
-      const a2 = P(e, ta, eaveZ - 0.14), b2 = P(e, tb, eaveZ - 0.14), w0 = P(sm - sg * (R.span / 2), ta, R.top), w1 = P(sm - sg * (R.span / 2), tb, R.top);
-      if ((sg > 0) === X) { quad(stones, a2, b2, b, a); quad(stones, w0, w1, b2, a2); } else { quad(stones, b2, a2, a, b); quad(stones, w1, w0, a2, b2); }
+      // the eave's fascia and soffit, only where no other range stands (a range running on to the ridge of the one it
+      // dies into had carried them 3.5 m into the wings' garrets, a stone board 15 cm under their ceilings: rule 7)
+      const sw = sm - sg * (R.span / 2), smid = (e + sw) / 2, cuts = [ta, tb];
+      for (const O of shell.roofs) if (O !== R) { const [lo, hi] = X ? [O.x0, O.x1] : [O.y0, O.y1], [slo, shi] = X ? [O.y0, O.y1] : [O.x0, O.x1];
+        if (smid > slo && smid < shi) for (const c of [lo, hi]) if (c > ta && c < tb) cuts.push(c); }
+      cuts.sort((p, q) => p - q);
+      for (let k = 0; k + 1 < cuts.length; k++) { const t0 = cuts[k], t1 = cuts[k + 1], tm = (t0 + t1) / 2; if (t1 - t0 < 0.005) continue;
+        if (shell.roofs.some(O => O !== R && (X ? tm > O.x0 && tm < O.x1 && smid > O.y0 && smid < O.y1 : smid > O.x0 && smid < O.x1 && tm > O.y0 && tm < O.y1))) continue;
+        const a1 = P(e, t0, eaveZ), b1 = P(e, t1, eaveZ), a2 = P(e, t0, eaveZ - 0.14), b2 = P(e, t1, eaveZ - 0.14), w0 = P(sw, t0, R.top), w1 = P(sw, t1, R.top);
+        if ((sg > 0) === X) { quad(stones, a2, b2, b1, a1); quad(stones, w0, w1, b2, a2); } else { quad(stones, b2, a2, a1, b1); quad(stones, w1, w0, a2, b2); } }
     }
     // the ends: a coped gable of stone, standing a little above the slates, with a ball finial; or (where the
     // range dies into another) a closed end, hidden in the other roof
@@ -145,13 +160,28 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
   // the plinth: a base course round the footprint, 4 cm proud of the wall, from well below ground to 0.4 m, its top
   // weathered back to the wall (the ground under the house goes down out of the floors' way, and where its coarser tiles
   // spread that dip past the wall's foot, daylight showed under the wall: 2026-10-07, "cutting an open hole")
-  for (const poly of shell.footprints || []) { const ccw = poly.reduce((a, p, i) => { const q = poly[(i + 1) % poly.length]; return a + (p[0] * q[1] - q[0] * p[1]); }, 0) > 0, n = poly.length;
+  // It runs round the footprints together, as one outline: where one footprint's edge lies inside another (the house's
+  // front behind the porch, the porch's back inside the house's wall) it is no outside face, and its course had stood
+  // across the front door's foot inside the porch and along the screens passage's skirting ("outer blocks stuck inside",
+  // Kabe, R59). Each edge keeps the stretches whose middle lies outside every other footprint.
+  const feet = shell.footprints || [];
+  const within = (poly, x, y) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [ax, ay] = poly[i], [bx, by] = poly[j]; if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
+  const cross = (ax, ay, bx, by, cx, cy, dx, dy) => { const den = (bx - ax) * (dy - cy) - (by - ay) * (dx - cx); if (Math.abs(den) < 1e-12) return null;
+    const t = ((cx - ax) * (dy - cy) - (cy - ay) * (dx - cx)) / den, u = ((cx - ax) * (by - ay) - (cy - ay) * (bx - ax)) / den; return t > 1e-6 && t < 1 - 1e-6 && u >= -1e-6 && u <= 1 + 1e-6 ? t : null; };
+  for (const [pi, poly] of feet.entries()) { const ccw = poly.reduce((a, p, i) => { const q = poly[(i + 1) % poly.length]; return a + (p[0] * q[1] - q[0] * p[1]); }, 0) > 0, n = poly.length, others = feet.filter((_, k) => k !== pi);
     for (let i = 0; i < n; i++) { const [ax, ay] = poly[i], [bx, by] = poly[(i + 1) % n], L = Math.hypot(bx - ax, by - ay); if (L < 0.01) continue;
-      const ox = (by - ay) / L * (ccw ? 1 : -1), oy = -(bx - ax) / L * (ccw ? 1 : -1), o = 0.04, ext = 0.04;   // outward normal; the corners run on by the plinth's own projection
-      const dx = (bx - ax) / L * ext, dy = (by - ay) / L * ext;
-      const A = [ax - dx + ox * o, ay - dy + oy * o], B = [bx + dx + ox * o, by + dy + oy * o];
-      quad(stones, V(A[0], A[1], -1.6), V(B[0], B[1], -1.6), V(B[0], B[1], 0.36), V(A[0], A[1], 0.36), [[0, -1.6], [L, -1.6], [L, 0.36], [0, 0.36]]);
-      quad(stones, V(A[0], A[1], 0.36), V(B[0], B[1], 0.36), V(bx + dx, by + dy, 0.42), V(ax - dx, ay - dy, 0.42)); } }
+      const ox = (by - ay) / L * (ccw ? 1 : -1), oy = -(bx - ax) / L * (ccw ? 1 : -1), o = 0.04;   // outward normal
+      const ts = [0, 1]; for (const q of others) for (let k = 0; k < q.length; k++) { const t = cross(ax, ay, bx, by, ...q[k], ...q[(k + 1) % q.length]); if (t != null) ts.push(t); }
+      ts.sort((p, q) => p - q);
+      for (let k = 0; k + 1 < ts.length; k++) { const t0 = ts[k], t1 = ts[k + 1]; if ((t1 - t0) * L < 0.01) continue;
+        const mx = ax + (bx - ax) * (t0 + t1) / 2 + ox * 0.01, my = ay + (by - ay) * (t0 + t1) / 2 + oy * 0.01; if (others.some(q => within(q, mx, my))) continue;
+        // the corners run on by the plinth's own projection (only at the edge's own ends: a stretch cut by another
+        // footprint stops at its wall)
+        const ea = t0 === 0 ? 0.04 : 0, eb = t1 === 1 ? 0.04 : 0, ux = (bx - ax) / L, uy = (by - ay) / L;
+        const a0 = [ax + (bx - ax) * t0, ay + (by - ay) * t0], b0 = [ax + (bx - ax) * t1, ay + (by - ay) * t1], l = (t1 - t0) * L;
+        const A = [a0[0] - ux * ea + ox * o, a0[1] - uy * ea + oy * o], B = [b0[0] + ux * eb + ox * o, b0[1] + uy * eb + oy * o];
+        quad(stones, V(A[0], A[1], -1.6), V(B[0], B[1], -1.6), V(B[0], B[1], 0.36), V(A[0], A[1], 0.36), [[0, -1.6], [l, -1.6], [l, 0.36], [0, 0.36]]);
+        quad(stones, V(A[0], A[1], 0.36), V(B[0], B[1], 0.36), V(b0[0] + ux * eb, b0[1] + uy * eb, 0.42), V(a0[0] - ux * ea, a0[1] - uy * ea, 0.42)); } } }
   add(slates, slate); add(stones, stone); add(bars, mullion); add(panes, glass, false);
   return G;
 }

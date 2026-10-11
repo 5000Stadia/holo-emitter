@@ -123,8 +123,12 @@ export function planHybridE(program, { seed = 1660, dims = DIMS, hearths = {} } 
     // a half-landing that stops short of its hall's wall runs on to it (Kabe: "assets snap to edge … to close small
     // gaps"): a slot of a hand or two between landing and wall shows the floor below and asks for a rail; past 0.6 m
     // it is the plan's choice, and railed
+    // and the hole over it runs on with it: left where it was, a strip of the floor above (its ceiling, below) had hung
+    // over the landing's last 0.16-0.44 m at 1.6-1.8 m, under a head (R59; src/make/sound.js rule 6 found them)
     for (const q of got.stairs.filter(t => t.kind === "landing")) for (const [k, edge] of [["x0", well.rect.x0], ["x1", well.rect.x1], ["y0", well.rect.y0], ["y1", well.rect.y1]])
-      if (Math.abs(q.rect[k] - edge) > 0.001 && Math.abs(q.rect[k] - edge) < 0.6) q.rect[k] = edge;
+      if (Math.abs(q.rect[k] - edge) > 0.001 && Math.abs(q.rect[k] - edge) < 0.6) {
+        for (const w of got.wells.filter(w => w.id === q.well)) for (const R of [w.hole, w.rect]) if (Math.abs(R[k] - q.rect[k]) < 0.001) R[k] = edge;
+        q.rect[k] = edge; }
     plan.stairs.push(...got.stairs); plan.wells.push(...got.wells);
   }
   // stairs carry you between the rooms that share their well on each floor

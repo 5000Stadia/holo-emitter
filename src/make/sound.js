@@ -23,7 +23,7 @@ import { wallToRoom } from "./walls.js";
 export const levelsOf = (plan, gap = 0.35) => { const fl = [...plan.floors].sort((a, b) => a.level - b.level), at = {}; let y = 0;
   for (const f of fl) { at[f.id] = y; y += f.storey_height_m + gap; } return (id) => at[id]; };
 
-export function soundness({ plan, compileRoom, blocks = [], levelOf = levelsOf(plan), step = 0.2 }) {
+export function soundness({ plan, compileRoom, blocks = [], levelOf = levelsOf(plan), step = 0.2, cuts = null, outside = null }) {
   const findings = [], add = (rule, where, what) => findings.push({ rule, where, what });
   const rooms = plan.rooms.filter(r => r.type !== "open");
   // 1. walls
@@ -80,6 +80,51 @@ export function soundness({ plan, compileRoom, blocks = [], levelOf = levelsOf(p
   }
   for (const w of plan.wells || []) if (!plan.stairs.some(s => s.well === w.id && s.kind === "landing")) add("stairs", w.id, "it turns with no landing");
   for (const s of plan.stairs.filter(s => !s.kind)) add("stairs", s.id, "a flight from floor to floor with no landing");
+  // 6. headroom (Kabe, R59: "stairs had a horizontal plane upper floor crossing into the stairwell like an unopened
+  //    roof"): over every tread and landing, no floor or ceiling as built (src/make/manor.js cuts: each room's floor and
+  //    ceiling heights and the wells cut through them) within a head's height (src/make/walk.js BODY.head) unless it is
+  //    cut there. Arithmetic on the plan, a few hundred points; run when the builder's cuts are given
+  if (cuts) {
+    const HEAD = 1.95, recs = [...(cuts.values ? cuts.values() : cuts)], inR = (r, x, y, m = 0.01) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
+    for (const s of plan.stairs) {
+      const lf = levelOf(s.from), lt = levelOf(s.to), R = s.rect, n = s.kind === "flight" ? s.treads : 1, seen = new Set();
+      // a point every quarter metre or less over it, 10 cm in from its edges; on a flight, the tread's top under it
+      const along = s.up === "E" || s.up === "W" ? R.x1 - R.x0 : R.y1 - R.y0, across = s.up === "E" || s.up === "W" ? R.y1 - R.y0 : R.x1 - R.x0;
+      const ka = Math.max(1, Math.ceil((along - 0.2) / 0.25)), kc = Math.max(1, Math.ceil((across - 0.2) / 0.25));
+      for (let i = 0; i <= ka; i++) for (let j = 0; j <= kc; j++) {
+        const g = (0.1 + (along - 0.2) * i / ka) / along, c = (0.1 + (across - 0.2) * j / kc) / across;
+        const h = lf + (lt - lf) * (s.z0 + (s.z1 - s.z0) * (s.kind === "flight" ? Math.floor(g * n) / n : 0));
+        const [x, y] = { N: [R.x0 + (R.x1 - R.x0) * c, R.y0 + (R.y1 - R.y0) * g], S: [R.x0 + (R.x1 - R.x0) * c, R.y1 - (R.y1 - R.y0) * g], E: [R.x0 + (R.x1 - R.x0) * g, R.y0 + (R.y1 - R.y0) * c], W: [R.x1 - (R.x1 - R.x0) * g, R.y0 + (R.y1 - R.y0) * c] }[s.up || "N"];
+        for (const r of recs) { if (!inR(r.rect, x, y)) continue;
+          for (const [what, z, holes] of [["floor", r.floor, r.floorHoles], ["ceiling", r.ceiling, r.ceilingHoles]]) {
+            if (z <= h + 0.05 || z >= h + HEAD || holes.some(q => inR(q, x, y, -0.01))) continue;
+            const k = `${what}@${z.toFixed(2)}`; if (seen.has(k)) continue; seen.add(k);
+            add("headroom", s.id, `a ${what} at ${z.toFixed(2)} m stands ${(z - h).toFixed(2)} m over the ${s.kind || "flight"} (${x.toFixed(2)}, ${y.toFixed(2)}), uncut`); } } }
+    }
+  }
+  // 7. the outside stays outside (Kabe, R59: "front door had some outer blocks stuck inside": the plinth had run across
+  //    the porch's inner doorway): no triangle of the house's outside (roofs, gables, stacks, plinth, its windows as seen
+  //    from without; outside: a flat array of triangles in plan metres, [x, y, z] per corner) has its middle inside a
+  //    room as built, 2 cm in from its walls, floor and ceiling. Arithmetic, one pass over the triangles
+  if (outside && cuts) {
+    const recs = [...(cuts.values ? cuts.values() : cuts)], seen = new Map();
+    // in a room's own outline where it has one (the banqueting house's octagon), 2 cm clear of every edge
+    const inOutline = (o, x, y) => { let c = false; for (let i = 0, j = o.length - 1; i < o.length; j = i++) { const [ax, ay] = o[i], [bx, by] = o[j];
+        const L2 = (bx - ax) ** 2 + (by - ay) ** 2, u = L2 ? Math.max(0, Math.min(1, ((x - ax) * (bx - ax) + (y - ay) * (by - ay)) / L2)) : 0; if (Math.hypot(x - ax - u * (bx - ax), y - ay - u * (by - ay)) < 0.02) return false;
+        if ((ay > y) !== (by > y) && x < (bx - ax) * (y - ay) / (by - ay) + ax) c = !c; } return c; };
+    // (points over each triangle a quarter metre apart or closer: the plinth is laid in faces 40 m long, half underground,
+    // and a porch 2.5 m wide stands against a stretch of one)
+    const inside = (x, y, z) => recs.find(r => { const R = r.rect; return z > r.floor + 0.02 && z < r.ceiling - 0.02 && (r.outline ? inOutline(r.outline, x, y) : x > R.x0 + 0.02 && x < R.x1 - 0.02 && y > R.y0 + 0.02 && y < R.y1 - 0.02); });
+    const o = outside, lo = recs.reduce((m, r) => Math.min(m, r.floor), Infinity), hi = recs.reduce((m, r) => Math.max(m, r.ceiling), -Infinity);
+    for (let t = 0; t + 8 < o.length; t += 9) {
+      if (Math.max(o[t + 2], o[t + 5], o[t + 8]) < lo || Math.min(o[t + 2], o[t + 5], o[t + 8]) > hi) continue;
+      const e = Math.max(Math.hypot(o[t] - o[t + 3], o[t + 1] - o[t + 4], o[t + 2] - o[t + 5]), Math.hypot(o[t] - o[t + 6], o[t + 1] - o[t + 7], o[t + 2] - o[t + 8]), Math.hypot(o[t + 3] - o[t + 6], o[t + 4] - o[t + 7], o[t + 5] - o[t + 8]));
+      const n = Math.min(400, Math.max(1, Math.ceil(e / 0.25))); let hit = null;
+      for (let i = 0; i < n && !hit; i++) for (let j = 0; i + j < n && !hit; j++) { const u = (i + 1 / 3) / n, v = (j + 1 / 3) / n, w = 1 - u - v;
+        hit = inside(o[t] * w + o[t + 3] * u + o[t + 6] * v, o[t + 1] * w + o[t + 4] * u + o[t + 7] * v, o[t + 2] * w + o[t + 5] * u + o[t + 8] * v); }
+      if (hit) seen.set(hit.id, (seen.get(hit.id) || 0) + 1); }
+    for (const [id, n] of seen) add("outside", id, `${n} triangle${n === 1 ? "" : "s"} of the house's outside stand inside it`);
+  }
   // 5. passage, room by room, furniture and all
   let passMs = 0;
   for (const r of rooms) {
