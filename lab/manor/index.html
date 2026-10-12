@@ -125,6 +125,7 @@ import { makeBridge } from "../../src/make/bridge.js";
 import { makeHillside, hillsideTextures } from "../../src/make/hillside.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { rng as rngOf, seedOf } from "../../src/make/id.js";
+import { signOf, kept, keep as keepTable } from "../../src/make/keep.js";
 import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
@@ -184,6 +185,10 @@ const CKEY = CASE ? `${WKEY}/case/${CASE.id}` : null; let caseSaved = null;
 try { if (CKEY && Q.has("fresh")) localStorage.removeItem(CKEY); else if (CKEY) caseSaved = JSON.parse(localStorage.getItem(CKEY) || "null"); } catch (_) {}
 if (Q.has("fresh")) { const u = new URL(location.href); u.searchParams.delete("fresh"); history.replaceState(null, "", u); }
 const plan = world.seal("manor", { plan: fresh, kinds: KINDS, generator: GENERATOR }).plan;
+// the kinds' sizes and swings, measured once (src/make/keep.js): shipped for our places, kept from an earlier visit for
+// any other, signed by the code that measures them and the kinds' data; looked up while the kit is made (?keep=0: measure)
+const SIZES = Q.get("keep") === "0" ? Promise.resolve({ sig: null, data: null })
+  : signOf(["src/make/build.js", "src/make/looks.js"], { kinds: hashOf(KINDS), look: "1660" }).then(async ({ sig }) => ({ sig, data: await kept("sizes", sig, { shipped: "lab/manor/kept/sizes.json" }) })).catch(() => ({ sig: null, data: null }));
 keep();
 const brief = await (await fetch("../brief/manor-1660.json")).json();
 
@@ -202,7 +207,8 @@ const K = await makeKit(THREE, { floor: [8, 8], defer: true }), S = strongroomMa
 await step("raising the house, room by room, each by its purpose");
 // ?order=reverse|shuffle: the rooms built in another order (the house must come out the same; engine principle 2)
 const ORDER = { reverse: (rs) => [...rs].reverse(), shuffle: (rs) => { const r = rngOf(seedOf("order")), o = [...rs]; for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; } }[Q.get("order")] || null;
-const manor = buildManor({ order: ORDER, outside: !STORY && Q.get("outdoor") !== "0", settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+const sizesWait = performance.now(), sizesKept = await SIZES, sizesWaited = Math.round(performance.now() - sizesWait);
+const manor = buildManor({ known: sizesKept.data, order: ORDER, outside: !STORY && Q.get("outdoor") !== "0", settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
@@ -297,6 +303,10 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   ask: (need, want) => need === "holding" && false });
 for (const b of manor.things) works.add(b);
 window.__works = works; window.__manor = manor; window.__plan = plan;
+// what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js)
+if (sizesKept.sig) { const m = manor.measured, k = sizesKept.data || { sizes: {}, sweeps: {} };
+  if (Object.keys(m.sizes).some(x => !(x in k.sizes)) || Object.keys(m.sweeps).some(x => !(x in k.sweeps))) keepTable("sizes", sizesKept.sig, { sizes: { ...k.sizes, ...m.sizes }, sweeps: { ...k.sweeps, ...m.sweeps } }); }
+window.__sizesKept = { sig: sizesKept.sig, from: sizesKept.data ? "table" : "measured", probes: manor.probes, waited: sizesWaited };
 // the story in play (R49): sizes, reach, deeds, what the text brings in later, the story's magic, the goal
 const SP = STORY ? playStory({ THREE, scene: STORY.scene, story: STORY.story, text: STORY.text, plan, manor, works, build, K, look: look1660, say,
   setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); } }) : null;

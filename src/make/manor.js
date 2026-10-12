@@ -152,7 +152,7 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null }) {   // outside: the place has a real outside (no painted pane behind its windows)
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null, known = null }) {   // outside: the place has a real outside (no painted pane behind its windows)
   const t0 = performance.now(), { M } = K;
   const { floors, levelOf, heightOf, gap } = storeys(plan);
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
@@ -164,16 +164,19 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   };
   const placements = new Map(), scene = new THREE.Group(), rooms = new Map(), things = [], windows = [], daylights = [], blocks = [], hearths = [], flames = [];
   // a kind's size in its own frame (from its data, or measured once from a build)
-  const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3();
-  const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
-      if (k && !s) { const b = build(THREE, K, look, kind, `probe/${kind}`, over, { measure: true }); box.setFromObject(b.node).getSize(v3); s = [v3.x, v3.y, box.max.z]; }
+  const sizes = new Map(), box = new THREE.Box3(), v3 = new THREE.Vector3(), probes = { sizes: 0, sweeps: 0, ms: 0 };
+  // (known: what an earlier load or authoring measured, src/make/keep.js: a kind's size and swing are the same each time)
+  const sizeOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sizes.has(key) && known?.sizes && key in known.sizes) sizes.set(key, known.sizes[key]);
+    if (!sizes.has(key)) { const k = kindOf(kind); let s = k ? kindSize(k, 0, over) : null;
+      if (k && !s) { const t = performance.now(), b = build(THREE, K, look, kind, `probe/${kind}`, over, { measure: true }); box.setFromObject(b.node).getSize(v3); s = [v3.x, v3.y, box.max.z]; probes.sizes++; probes.ms += performance.now() - t; }
       sizes.set(key, s); } return sizes.get(key); };
   // the space a kind's moving parts sweep (R54: a lid swung back, a door swung out), in its own frame: each
   // mover turned or slid through its travel in 8 steps, its box at each step joined; measured once a kind
   const sweeps = new Map(), q0 = new THREE.Quaternion();
-  const sweptOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (sweeps.has(key)) return sweeps.get(key);
+  const sweptOf = (kind, over = {}) => { const key = kind + JSON.stringify(over); if (!sweeps.has(key) && known?.sweeps && key in known.sweeps) sweeps.set(key, known.sweeps[key]); if (sweeps.has(key)) return sweeps.get(key);
     const k = kindOf(kind); let S = null;
-    if (k?.affordances) { const b = build(THREE, K, look, kind, `probe/${kind}`, over, { measure: true }), all = new THREE.Box3(), bb = new THREE.Box3();
+    const t = performance.now();
+    if (k?.affordances) { const b = build(THREE, K, look, kind, `probe/${kind}`, over, { measure: true }), all = new THREE.Box3(), bb = new THREE.Box3(); probes.sweeps++;
       for (const a of Object.values(k.affordances)) { const g = a.mover && b.movers.get(a.mover); if (!g || !["hinge", "lever", "slide"].includes(a.motion)) continue;
         const ax = new THREE.Vector3(...(a.axis || [0, 1, 0])).normalize(), ang = value(a.angle ?? 0, b.settings), tr = value(a.travel ?? 0.3, b.settings), home = g.userData.home;
         for (let i = 0; i <= 8; i++) { const t = i / 8; g.position.copy(home.position); g.quaternion.copy(home.quaternion);
@@ -181,7 +184,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
           g.updateMatrixWorld(true); bb.setFromObject(g); all.union(bb); }
         g.position.copy(home.position); g.quaternion.copy(home.quaternion); }
       if (!all.isEmpty()) S = { lo: all.min.toArray(), hi: all.max.toArray() }; }
-    sweeps.set(key, S); return S; };
+    probes.ms += performance.now() - t; sweeps.set(key, S); return S; };
   const settingsOf = (kind) => kindOf(kind)?.settings || {};
   const traitsOf = (kind) => kindOf(kind)?.traits || [];
   const tileUV = (g, k) => { const uv = g.attributes.uv, p = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / k, p.getY(i) / k); return g; };
@@ -544,7 +547,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, ms: Math.round(performance.now() - t0) };
+  return { exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, measured: { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;
