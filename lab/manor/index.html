@@ -678,7 +678,11 @@ function goTo(ndc) {
   // the floor there: the hit's own height if a floor, else the floor under the point (try where you are, the storeys, the ground)
   // (a wall: your own storey first, then the storeys at or below the point you touched, highest first; from the hit's own
   // height a tall wall seen through the great chamber's doorway had found the garret's floor above it)
-  const below = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= th + 0.3).sort((a, b) => b - a);
+  // (a half-landing there is a level too: aimed at the wall beyond the great stair's landing from halfway up the flight,
+  // you had been set on the ground floor under it, in the dark)
+  const landings = (plan.stairs || []).filter(s => s.kind === "landing" && s.rect && tx > s.rect.x0 && tx < s.rect.x1 && ty > s.rect.y0 && ty < s.rect.y1)
+    .map(s => manor.levelOf(s.from) + (manor.levelOf(s.to) - manor.levelOf(s.from)) * (s.z0 ?? 0.5));
+  const below = [...plan.floors.map(f => manor.levelOf(f.id)), ...landings].filter(h => h <= th + 0.3).sort((a, b) => b - a);
   const tries = floorish ? [th, ph, ...plan.floors.map(f => manor.levelOf(f.id)), site ? site.z(tx, ty) : 0] : [ph, ...below, site ? site.z(tx, ty) : 0];
   const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, floorish ? h : h); if (g != null && (!floorish || Math.abs(g - th) < 0.6)) return g; } return null; };
   let g = stand(tx, ty), fx = tx, fy = ty;
