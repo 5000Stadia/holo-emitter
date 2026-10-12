@@ -95,6 +95,7 @@ import { makeWarm } from "../../src/make/warm.js";
 import { makeGeoDrop, geodropWanted } from "../../src/make/geodrop.js";
 import { buildManor } from "../../src/make/manor.js";
 import { makeWalk, BODY } from "../../src/make/walk.js";
+import { SOLID } from "../../src/make/claims.js";
 import { withBodies } from "../../src/people/bodies.js";
 import { regions } from "../../src/people/route.js";
 import { checkPeople } from "../../src/people/checks.js";
@@ -260,7 +261,22 @@ scene.add(sun, sun.target, new THREE.HemisphereLight(HEMI.sky, HEMI.ground, HEMI
 if (DARK) { sun.intensity = 0; sun.castShadow = false; scene.background.setHex(0x000000); }
 // the light you carry: the eye's own faint pool by default, ?carry=candle|flashlight|none, L to change (src/make/carry.js); a
 // phone holds the flashlight's cone only when it starts with one (every lit pixel pays for every light)
-const carry = makeCarry(THREE, { spot: (!ENG.phone && !Q.has("nospot")) || Q.get("carry") === "flashlight", mode: Q.get("carry") || "eye", eye: DARK || NIGHT ? 1 : STORY ? 0.8 : 0.35 }); if (Q.get("carry") !== "off") scene.add(...carry.lights);   // (?carry=off: none in the scene, their cost unpaid, to measure it)
+const carry = makeCarry(THREE, { spot: (!ENG.phone && !Q.has("nospot")) || Q.get("carry") === "flashlight", mode: Q.get("carry") || "eye", eye: DARK || NIGHT ? 1 : STORY ? 0.8 : 0.35, ...(Q.get("eyecap") ? { cap: +Q.get("eyecap") } : {}) });   // (?eyecap=m: nearer than that, lit no more than there)
+if (Q.get("carry") !== "off") scene.add(...carry.lights);   // (?carry=off: none in the scene, their cost unpaid, to measure it)
+// how far off what you look at is, for the eye's pool (src/make/carry.js cap): along your gaze to the first wall (the house's
+// grid), the first thing in your room (its box, kept once: a ray against a few dozen boxes, no mesh raycast) or the floor
+// you look down to (the grid alone had taken a chair's seat under your gaze for what you looked at, and dimmed the desk)
+let focusDist = null; const focusBox = new WeakMap(), FR = new THREE.Ray(), FV = new THREE.Vector3(), FD = new THREE.Vector3();
+function focusAhead(max = 1.6) {
+  const f = floorOf(ph), cp = Math.cos(pitch), sp = Math.sin(pitch), ux = -Math.sin(yaw), uy = Math.cos(yaw), eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
+  let best = sp < -0.05 ? Math.min(max, eye / -sp) : max; const claims = walk.claims;
+  for (let r = BODY.half + 0.08; r < best; r += 0.05) { if (claims && claims.at(f, "stand", px + ux * r * cp, py + uy * r * cp) >= SOLID) { best = r; break; } }
+  FR.origin.set(px, ph + eye, -py); FR.direction.set(ux * cp, sp, -uy * cp);
+  for (const b of manor.things) { const n = b.node; if (n.userData.room !== here || !n.visible) continue;
+    let box = focusBox.get(b); if (!box) { n.updateWorldMatrix(true, true); box = new THREE.Box3().setFromObject(n); focusBox.set(b, box); }
+    if (box.distanceToPoint(FR.origin) > best) continue; const hit = FR.intersectBox(box, FV); if (hit) { const d = FD.subVectors(hit, FR.origin).length(); if (d < best) best = Math.max(0.05, d); } }
+  return best;
+}
 let carryDirty = false; window.__carry = (m) => { if (m !== undefined) { carry.set(m); carryDirty = true; } return carry.mode; };
 // the light that follows what you see (Kabe, 2026-10-06: "all of the lighting elements should be deployed as
 // long as they are within the visual space"; "kitchen passage to kitchen jumps in the lighting again"): a fixed
@@ -1094,7 +1110,8 @@ renderer.setAnimationLoop((now) => {
   const cue = cueOf(aimAt.v); showCue(cue, locked); actBtn?.(cue?.mode ?? null);
   // (a fire's flicker alone redraws at most 20 times a second: a hall with its fire in view had drawn every frame standing
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
-  const held = carry.update(camera, now), burning = (flicker(now) || held) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
+  if (moved || focusDist == null) focusDist = focusAhead();
+  const held = carry.update(camera, now, focusDist), burning = (flicker(now) || held) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
   ENG.frame(scene, camera, { changed: moved || burning || carryDirty || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !window.__ok });
   carryDirty = false;
   // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
