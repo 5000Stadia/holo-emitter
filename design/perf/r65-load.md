@@ -68,3 +68,51 @@ The rest of the outside reviews' order (consult cbc0003, gate g3b7af2):
 - **Point 3:** build and draw the start view first, then the rest by what can be seen and reached. The first frame would compile only what the start view shows.
 
 Both set R65's architecture, and both need point 1, which is ready.
+
+## The Inspector and the smaller-vertex trial (2026-10-12; the monitor: "measure only, nothing merged; bring matched stills and timings")
+
+**The Inspector:**
+- It comes with three itself (`three/addons/inspector/Inspector.js`); no package needed.
+- `?inspector` attaches it, with no errors. `?backendlog` times every call into the renderer's backend, as its Timeline wraps them, but with durations.
+
+**What it showed about the first frame,** the 1.5–1.6 s from "ready" to the first frame (a second visit):
+
+| Where the main thread goes | Time |
+|---|---|
+| Our ground and hillside tiles, filled before the first frame (a 500 ms budget, though the start view is indoors) | 0.59 s |
+| three building shader code in JavaScript (its node builder, for the 51 programs) | 0.41 s |
+| Other three work (bindings, attribute and texture uploads; all backend calls together about 0.25 s) | 0.33 s |
+| Other code of ours | 0.22 s |
+| Waiting on the GPU | 0.035 s |
+
+- **So it is not the GPU compiling.** I said so before; that was wrong. The GPU's own pipeline creation is 4 ms on the main thread.
+- **The cheapest next lever:** a smaller tile budget before the first frame when you start indoors. The outside is seen only through windows, and the tiles fill in during the next frames anyway.
+
+**The smaller-vertex trial** (`?vfmt=small`, room shells: 4.0 M of 5.2 M vertices). Normals become 8-bit signed (4 B, not 12). Colours become half floats (8 B, not 12), since tones run past 1 and 8-bit would clip them.
+
+**The look:** within run-to-run noise in six rooms.
+
+| Room | Mean | Max (of 255) | Pixels over 8 |
+|---|---|---|---|
+| Great hall | 0.05 | 4 | 0% |
+| Great parlour | 0.22 | 4 | 0% |
+| Great stair | 0.01 | 2 | 0% |
+| Long gallery | 0.02 | 6 | 0% |
+| Study | 0.01 | 1 | 0% |
+| Kitchen | 1.17 | 17 | 0.06% |
+
+- The kitchen's own run-to-run control is 0.69 mean, max 10: its fire flickers.
+- Stills, today left and small right: `design/perf/vfmt/today-vs-small.jpg`.
+
+**Size:** vertex data uploaded 181 → 148 MB (−18%).
+
+**Time** (three alternating pairs, second visits):
+- build 2.68 → 2.79 s, from the conversion;
+- walkable 4.70 → 4.92 s.
+
+**On the way:** three's own `Float16BufferAttribute` came out as a `Uint32Array` of half floats after a later copy in the build and was read wrongly, and everything turned magenta. The browser's own `Float16Array` works. Phones without it (Safari before 18.2) would keep float colours.
+
+**Verdict:**
+- Not a load-time gain on desktop: less upload doesn't shorten a load that hardly waits on the GPU.
+- What it buys is 33 MB less GPU memory. That's worth measuring on a phone, where memory, not upload, is the limit.
+- Welding each quad's corners (indexing) would cost several times this conversion at load, so on desktop it would lose more. Not tried.

@@ -58,6 +58,15 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   renderer.shadowMap.enabled = Q.get("shadows") !== "0"; renderer.shadowMap.type = THREE.PCFShadowMap;
   parent.prepend(renderer.domElement);
   await renderer.init();
+  // R65 trial (measure only): ?inspector attaches three's own Inspector (three/addons, no package); ?backendlog times
+  // every call into the backend and its pipeline, texture and attribute helpers (as the Inspector's Timeline wraps
+  // them, with durations), kept in window.__backendlog
+  if (Q.has("inspector")) { const { Inspector } = await import("three/addons/inspector/Inspector.js"); renderer.inspector = new Inspector(); window.__inspector = renderer.inspector; }
+  if (Q.has("backendlog")) { const log = window.__backendlog = [], B = renderer.backend;
+    const wrap = (obj, label) => { if (!obj) return; const proto = Object.getPrototypeOf(obj); for (const k of Object.getOwnPropertyNames(proto)) { if (k === "constructor") continue;
+      const d = Object.getOwnPropertyDescriptor(proto, k); if (!d || d.get || d.set || typeof obj[k] !== "function") continue; const f = obj[k];
+      obj[k] = function (...a) { const t = performance.now(); try { return f.apply(this, a); } finally { const ms = performance.now() - t; if (ms > 0.05) log.push({ fn: `${label}.${k}`, ms, at: t }); } }; } };
+    wrap(B, "backend"); wrap(B.pipelineUtils, "pipeline"); wrap(B.textureUtils, "texture"); wrap(B.attributeUtils, "attribute"); wrap(B.bindingUtils, "binding"); }
   const backend = renderer.backend.isWebGPUBackend ? "webgpu" : "webgl";
   renderer.backend.device?.lost?.then((info) => { if (info.reason !== "destroyed") location.reload(); });
   mark("renderer");

@@ -152,7 +152,8 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null, known = null }) {   // outside: the place has a real outside (no painted pane behind its windows)
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null, known = null, vfmt = null }) {
+  VFMT = vfmt;   // outside: the place has a real outside (no painted pane behind its windows)
   const t0 = performance.now(), { M } = K;
   const { floors, levelOf, heightOf, gap } = storeys(plan);
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
@@ -580,6 +581,20 @@ function mergeFast(list, mat, inv) {
     views.push({ index: null, attributes: { position: { array: P.subarray(at * 3, (at + n) * 3), needsUpdate: false } } }); at += n; });
   return { P, N, U, C, views };
 }
+// R65 trial (measure only, ?vfmt=small): a room's merged normals as 8-bit signed (snorm8x4, 4 B for 12) and its colours
+// as half floats (float16x4, 8 B for 12; tones run past 1, so not 8-bit); positions and uvs as they are
+let VFMT = null;
+function smallFormats(geo, which = "nc") {
+  const N = geo.attributes.normal.array, n = N.length / 3, q = new Int8Array(n * 4);
+  if (which.includes("n")) {
+  for (let i = 0; i < n; i++) { q[i * 4] = Math.round(N[i * 3] * 127); q[i * 4 + 1] = Math.round(N[i * 3 + 1] * 127); q[i * 4 + 2] = Math.round(N[i * 3 + 2] * 127); }
+  geo.setAttribute("normal", new THREE.BufferAttribute(q, 4, true)); }
+  // (the browser's own Float16Array where it has one: a later copy of three's Float16BufferAttribute made it a Uint32Array of
+  // half floats, read wrongly: everything went magenta)
+  const C = geo.attributes.color?.array; if (C && which.includes("c") && typeof Float16Array !== "undefined") { const h = new Float16Array(n * 4);
+    for (let i = 0; i < n; i++) { h[i * 4] = C[i * 3]; h[i * 4 + 1] = C[i * 3 + 1]; h[i * 4 + 2] = C[i * 3 + 2]; h[i * 4 + 3] = 1; }
+    geo.setAttribute("color", new THREE.BufferAttribute(h, 4)); }
+}
 function merge(grp, bundle = false, settle = true) {
   grp.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(grp.matrixWorld).invert(), byMat = new Map();
@@ -601,7 +616,7 @@ function merge(grp, bundle = false, settle = true) {
   for (const [mat, list] of byMat) {
     let merged; const F = fast.get(mat);
     if (F) { merged = new THREE.BufferGeometry(); merged.setAttribute("position", new THREE.BufferAttribute(F.P, 3)); merged.setAttribute("normal", new THREE.BufferAttribute(F.N, 3));
-      merged.setAttribute("uv", new THREE.BufferAttribute(F.U, 2)); if (F.C) merged.setAttribute("color", new THREE.BufferAttribute(F.C, 3)); }
+      merged.setAttribute("uv", new THREE.BufferAttribute(F.U, 2)); if (F.C) merged.setAttribute("color", new THREE.BufferAttribute(F.C, 3)); if (VFMT) smallFormats(merged, VFMT === "small" ? "nc" : VFMT); }
     else { merged = mergeGeometries(ready.get(mat), false); if (!merged) { keep.push(...list); continue; } }
     const m = new THREE.Mesh(merged, mat); m.castShadow = !mat.transparent && !mat.isMeshBasicMaterial; m.receiveShadow = true; m.frustumCulled = false; keep.push(m);
   }
