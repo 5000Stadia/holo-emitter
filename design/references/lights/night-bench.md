@@ -82,3 +82,11 @@
   - phone numbers;
   - cheap glow for distant lanterns (fog scattering in the halo);
   - finer grid cells near house fronts, to close the 10-of-255 gap.
+
+## Far away, and the hour (2026-10-11)
+
+The far-view test and the time of day are in [tiers.md](tiers.md):
+- the town from 2 km in, with each handover measured;
+- far points, the grid from 1.5 km, and real lights within 10 m;
+- why the points-to-glass handover can't fully meet the mark;
+- the sun and moon by the hour.
