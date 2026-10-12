@@ -662,6 +662,56 @@ function goNear(P, off, then) {
   let dyaw = yaw1 - yaw; while (dyaw > Math.PI) dyaw -= 2 * Math.PI; while (dyaw < -Math.PI) dyaw += 2 * Math.PI;
   glide = { from: [px, py, ph, yaw, pitch], to: [tx, ty, g, yaw + dyaw, pitch1], t0: performance.now(), ms: Math.min(450, 180 + 60 * Math.hypot(tx - px, ty - py)), then, cancel: false };
 }
+// ---- stations (Kabe, 2026-10-12: "make teleport locations that it can induce"; a tester, a model or you, is set down at what
+// is to be tried, not steered there by words: finding the way from a description is no test of the house, and route-finding
+// is checked by the house's own checks). ?go=<station> at walkable; ?stations, a "Go to…" list on the page; __go(id), __stations()
+//   room:<id> its middle · person:<id> before them, facing them · thing:<id> a case thing, before it · stair:<flight>:foot|head
+const W3 = new THREE.Vector3(), B3 = new THREE.Box3();
+function stations() {
+  const out = [], mid = (r) => [(r.rect.x0 + r.rect.x1) / 2, (r.rect.y0 + r.rect.y1) / 2];
+  // (what is before you is approached from the room's door, as you would come in: from its middle, a small closet's clerk had
+  // been stood 0.6 m off, too near to see)
+  const door = (r) => { const o = r && plan.openings.find(o => o.rect && o.joins.includes(r.id)); return o ? [(o.rect.x0 + o.rect.x1) / 2, (o.rect.y0 + o.rect.y1) / 2] : r ? mid(r) : null; };
+  for (const r of plan.rooms) { if (r.type === "open" && !site) continue; const [x, y] = mid(r); out.push({ id: `room:${r.id}`, group: "Rooms", label: `${r.name || r.id}${r.floor && r.floor !== "ground" ? ` (${r.floor})` : ""}`, room: r.id, at: () => ({ x, y, h: manor.levelOf(r.floor || "ground"), look: null }) }); }
+  for (const [id, q] of presences) { const c = CASE?.cast.find(p => p.id === id); out.push({ id: `person:${id}`, group: "People", label: c?.name || id, room: q.room, at: () => { const g = q.p.group.position, r = plan.rooms.find(o => o.id === q.room), [cx, cy] = door(r) || [g.x, -g.z];
+      return { x: g.x, y: -g.z, h: g.y, look: [g.x, -g.z, g.y + 1.0], off: 1.8, from: [cx, cy] }; } }); }
+  // (every case thing, built or not: one in a room not built yet has its rooms built when you go to it)
+  for (const t of CASE?.things || []) out.push({ id: `thing:${t.id}`, group: "Things", label: t.label || t.id.replace(/_/g, " "), room: null, at: () => {
+      let b = manor.things.find(q => q.story === t.id); if (!b && manor.pending().length) { arrive(manor.buildRest({})); b = manor.things.find(q => q.story === t.id); } if (!b) return null;
+      B3.setFromObject(b.node); B3.getCenter(W3); const r = roomAt(W3.x, -W3.z, W3.y - 0.3), [cx, cy] = door(r) || [W3.x, -W3.z];
+      return { x: W3.x, y: -W3.z, h: B3.min.y, look: [W3.x, -W3.z, W3.y], off: 1.0, from: [cx, cy] }; } });
+  for (const s of plan.stairs || []) { if (s.kind !== "flight" || !s.rect) continue; const R = s.rect, a = manor.levelOf(s.from), b = manor.levelOf(s.to), lo = a + (b - a) * s.z0, hi = a + (b - a) * s.z1;
+    const d = { N: [0, 1], S: [0, -1], E: [1, 0], W: [-1, 0] }[s.up] || [0, 1], cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, hx = (R.x1 - R.x0) / 2, hy = (R.y1 - R.y0) / 2;
+    const end = (k) => [cx + d[0] * (hx * Math.abs(d[0]) + 0.45) * k, cy + d[1] * (hy * Math.abs(d[1]) + 0.45) * k];
+    out.push({ id: `stair:${s.id}:foot`, group: "Stairs", label: `${s.id.replace(/_/g, " ")}, foot`, room: s.joins?.[0], at: () => { const [x, y] = end(-1); return { x, y, h: lo, look: [cx, cy, (lo + hi) / 2 + 1.2], stand: true }; } });
+    out.push({ id: `stair:${s.id}:head`, group: "Stairs", label: `${s.id.replace(/_/g, " ")}, head`, room: s.joins?.[1], at: () => { const [x, y] = end(1); return { x, y, h: hi, look: [cx, cy, (lo + hi) / 2 + 0.6], stand: true }; } }); }
+  return out;
+}
+// set down at a station: the nearest floor your body can stand on at its height, short of what it is (`off`) on the line from
+// its room's middle, clear of people and not under a stair, facing it; its room built first if it isn't yet
+window.__stations = () => stations().map(s => ({ id: s.id, group: s.group, label: s.label }));
+window.__go = (id) => {
+  let st = stations().find(s => s.id === id);
+  if (!st && manor.pending().length) { arrive(manor.buildRest({})); st = stations().find(s => s.id === id); }   // (a thing in a room not built yet)
+  if (!st) return false;
+  if (st.room && manor.rooms.get(st.room)?.built === false) arrive(manor.buildNow(st.room));
+  const t = st.at(); if (!t) return false; const [fx, fy] = t.from || [t.x, t.y], d = Math.hypot(t.x - fx, t.y - fy), k = t.off ? Math.max(0, d - t.off) / (d || 1) : 1;
+  let tx = fx + (t.x - fx) * k, ty = fy + (t.y - fy) * k;
+  const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= t.h + 0.3).sort((a, b) => b - a)[0], h0 = t.stand ? t.h : lv ?? t.h;
+  const near = (t.off || 0) * 0.75, stand = (x, y) => { if (near && Math.hypot(x - t.x, y - t.y) < near) return null; const g = walk.groundAt(x, y, h0); return g != null && Math.abs(g - h0) < 0.6 && clearOfPeople(x, y, g) ? g : null; };
+  let g = stand(tx, ty);
+  for (let j = 1; g == null && j < 600; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
+  if (g == null) return false;
+  const L = t.look || [tx, ty + 1, g + EYE], eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
+  glide = null; px = tx; py = ty; ph = g; yaw = Math.atan2(-(L[0] - tx), L[1] - ty); pitch = Math.max(-0.9, Math.min(0.6, Math.atan2(L[2] - (g + eye), Math.hypot(L[0] - tx, L[1] - ty) || 1)));
+  snapLights = true; return true;
+};
+if (Q.has("stations")) { const sel = document.createElement("select"); sel.id = "stations"; sel.setAttribute("aria-label", "Go to");
+  sel.style.cssText = "position:fixed;left:calc(14px + env(safe-area-inset-left));top:calc(76px + env(safe-area-inset-top));z-index:8;max-width:70vw;min-height:44px;padding:8px 10px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.2 system-ui";
+  const fill = () => { sel.innerHTML = '<option value="">Go to…</option>'; const by = new Map(); for (const s of stations()) { if (!by.has(s.group)) by.set(s.group, []); by.get(s.group).push(s); }
+    for (const [g, list] of by) { const og = document.createElement("optgroup"); og.label = g; for (const s of list) og.appendChild(new Option(s.label, s.id)); sel.appendChild(og); } };
+  sel.addEventListener("focus", fill); sel.addEventListener("change", () => { if (sel.value) window.__go(sel.value); sel.value = ""; sel.blur(); });
+  fill(); document.body.appendChild(sel); }
 const fingerAt = TOUCH ? fingerCue() : null;
 // (looking slows to 0.6 while the dot holds something and the drag is slow: fine aim, unnoticed on a turn (Mandryk &
 // Gutwin's sticky targets; Halo's friction))
@@ -1048,6 +1098,7 @@ renderer.setAnimationLoop((now) => {
     d.style.cssText = "position:fixed;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);z-index:9;padding:8px 14px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.4 'IBM Plex Mono',monospace;text-align:center";
     d.textContent = `walkable in ${t.toFixed(1)} s · ${drawn ? `first visit (${drawn} textures drawn)` : "return visit (textures kept)"}`; document.body.appendChild(d); }
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
+    if (Q.get("go")) setTimeout(() => window.__go(Q.get("go")), 0);   // (a station: set down there once you can walk)
     // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
     const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);
       const made = window.__stillsMade[st.dataset.key]; window.__still.world = made.world === WKEY.split("/manor/world/")[1];
