@@ -41,10 +41,10 @@ definePart("press_carcass", {
 // A few stand a little open, as the last hand left them (their rest). The bank slides drawer i by t.
 definePart("drawer_bank", {
   build(c, p) {
-    const { THREE, K } = c, G = pressGrid(p), { cw, rh, x0, y0, Dp } = G, n = p.cols * p.rows, r = c.r("drawers");
+    const { THREE, K } = c, G = pressGrid(p), { cw, rh, x0, y0, Dp } = G, n = p.cols * p.rows, r = c.r("drawers"), grain = c.r("grain:drawer_bank");
     const fw = cw - 0.018, fh = rh - 0.018, dd = Dp - 0.06, yIn = -fh / 2 + 0.015, labels = p.labels || [];
     const atlas = labelAtlas(THREE, labels, n), box = (w, h, d, x, y, z) => plainBox(THREE, w, h, d, x, y, z);
-    const prep = (g, role, spread) => { const mat = c.mat(role); if (mat.vertexColors) { if (spread) K.board(g, spread); if (!g.attributes.color) g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3)); } return [g, mat]; };
+    const prep = (g, role, spread) => { const mat = c.mat(role); if (mat.vertexColors) { if (spread) K.board(g, spread, grain); if (!g.attributes.color) g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3)); } return [g, mat]; };
     const parts = {
       box: prep(mergeGeometries([box(fw, fh, 0.018, 0, 0, -0.009), box(0.01, fh - 0.03, dd, -(fw / 2 - 0.015), -0.006, -0.018 - dd / 2), box(0.01, fh - 0.03, dd, fw / 2 - 0.015, -0.006, -0.018 - dd / 2), box(fw - 0.04, fh - 0.03, 0.01, 0, -0.006, -0.018 - dd + 0.005)]), "wood", 0.06),
       bottom: prep(box(fw - 0.03, 0.006, dd, 0, yIn - 0.003, -0.018 - dd / 2), "wood_inside", 0.1),

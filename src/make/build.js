@@ -25,7 +25,7 @@ export function build(...a) { const part = PART; DEPTH++; try { return buildThin
 function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) {
   const kind = kindOf(kindName);
   if (!kind) throw new Error(`no kind called ${kindName}`);
-  const seed = seedOf(address), id = idOf(address), s = settle(kind, seed, over);
+  const seed = seedOf(address), id = idOf(address), s = settle(kind, seed, over), grain = streamOf(seed, "grain");
   const body = new Map(), movers = new Map(), banks = new Map(), extras = [], animate = [], slots = new Map(), children = [];
   const node = new THREE.Group();
   const into = (map, g, mat) => { if (!map.has(mat)) map.set(mat, []); map.get(mat).push(g); };
@@ -39,7 +39,7 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     // member's tone and grain may differ (wood is cut board by board)
     add(g, role, { mover = null, spread = 0.14, sheet = false, seen = true } = {}) {
       const mat = typeof role === "string" ? material(look, role) : role;     // a role, or a material the part made itself
-      if (mat.vertexColors && !g.attributes.color) K.board(g, spread);
+      if (mat.vertexColors && !g.attributes.color) K.board(g, spread, grain);
       if (mover) { if (!movers.has(mover)) throw new Error(`${kindName}: no mover ${mover} declared before its geometry`); into(movers.get(mover).parts, g, mat); }
       else into(body, g, mat);
       if (AUDIT && DEPTH === 1) AUDIT.push({ index: PART, mover, sheet, seen, g: g.clone() });

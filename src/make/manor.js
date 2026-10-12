@@ -152,7 +152,7 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false }) {   // outside: the place has a real outside (no painted pane behind its windows)
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null }) {   // outside: the place has a real outside (no painted pane behind its windows)
   const t0 = performance.now(), { M } = K;
   const { floors, levelOf, heightOf, gap } = storeys(plan);
   const stairFrom = (s) => s.from || floors[0].id, stairTo = (s) => s.to || floors[1].id;
@@ -199,7 +199,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     return strips.length ? mergeGeometries(strips.map(([p, q, r, t]) => slab(THREE, rect(p, q, r, t)).toNonIndexed()), false) : slab(THREE, outline, holes); };
   // each room's floor and ceiling as built, and the wells cut through them (src/make/sound.js rule 6 reads them)
   const cuts = new Map();
-  for (const room of plan.rooms) {
+  // (order: the rooms built in another order, the check that nothing drawn depends on it; engine principle 2)
+  for (const room of order ? order(plan.rooms) : plan.rooms) {
     if (room.type === "open") continue;
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
     const grp = new THREE.Group(); grp.position.set(x0, Y, -y0); grp.userData.room = room.id;
@@ -237,9 +238,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     // the ceiling's make: exposed joists across the short span, or moulded ribs in compartments
     if (T.ceiling === "beams" || T.ceiling === "compartments") {
       const along = W >= D, span = along ? D : W, len = along ? W : D, beam = T.ceiling === "beams";
-      const step = beam ? 0.55 : 1.4, bw = beam ? 0.14 : 0.07, bd = beam ? 0.18 : 0.06, mat = beam ? M.oak : M.plaster;
+      const step = beam ? 0.55 : 1.4, bw = beam ? 0.14 : 0.07, bd = beam ? 0.18 : 0.06, mat = beam ? M.oak : M.plaster, grain = rng(seedOf(`grain/${room.id}/ceiling`));
       for (let s = step / 2; s < len; s += step) {
-        const g = metric(new THREE.BoxGeometry(along ? bw : span, bd, along ? span : bw)); g.translate(along ? s : W / 2, H - bd / 2, along ? -D / 2 : -s); if (mat.vertexColors) K.board(g, 0.2);
+        const g = metric(new THREE.BoxGeometry(along ? bw : span, bd, along ? span : bw)); g.translate(along ? s : W / 2, H - bd / 2, along ? -D / 2 : -s); if (mat.vertexColors) K.board(g, 0.2, grain);
         grp.add(Object.assign(new THREE.Mesh(g, mat), { castShadow: true }));
       }
       // (the ribs the other way a little shallower: of one depth, where they cross their faces lay one on the other)
@@ -250,7 +251,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const P = placeOf(spec.frames), style = WALL_STYLE[T.walls] || "panelled";
     for (const F of Object.keys(spec.walls)) {
       const L = spec.frames[F].L;
-      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F), backdrop: !outside });
+      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F), backdrop: !outside, grain: rng(seedOf(`grain/${room.id}/${F}`)) });
       w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
       if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
       for (const l of w.lights) l.parent.remove(l);
@@ -283,7 +284,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         // and its threshold: the oak sill through the wall, the doorway's own floor
         { const w = e.r1 - e.r0, h = e.top, T = e.T || 0.3, t = 0.025, parts = [new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(t, h, T), new THREE.BoxGeometry(w, t, T), new THREE.BoxGeometry(w + 0.02, 0.012, T + 0.02)];
           parts[0].translate(t / 2 + 0.004, h / 2, -T / 2); parts[1].translate(w - t / 2 - 0.004, h / 2, -T / 2); parts[2].translate(w / 2, h - t / 2 - 0.004, -T / 2); parts[3].translate(w / 2, 0.006, -T / 2);
-          const g = mergeGeometries(parts.map(q => q.toNonIndexed()), false); if (M.oak.vertexColors) K.board(g, 0.15);
+          const g = mergeGeometries(parts.map(q => q.toNonIndexed()), false); if (M.oak.vertexColors) K.board(g, 0.15, rng(seedOf(`grain/${room.id}/${e.id}/lining`)));
           const lining = new THREE.Mesh(g, M.oak); lining.receiveShadow = true; b.node.add(lining);
           // settled with the door's own frame, which it meets on the wall's face
           { const ms = b.node.children.filter(o => o.isMesh), gs = ms.map(o => o.geometry); settleFaces(gs, 0.001); ms.forEach((o, k) => { o.geometry = gs[k]; }); } }
@@ -504,9 +505,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   { const lists = [...stairParts.values()]; for (const ps of lists) for (let k = 0; k < ps.length; k++) if (ps[k].index) ps[k] = ps[k].toNonIndexed();
     const flat = lists.flat(); settleFaces(flat, 0.001); let k = 0; for (const ps of lists) for (let j = 0; j < ps.length; j++) ps[j] = flat[k++]; }
   for (const [id, parts] of stairParts) {
-    const owner = rooms.get(id), geo = mergeGeometries(parts.map(g => { g = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(k)) g.deleteAttribute(k);
+    const owner = rooms.get(id), grain = rng(seedOf(`grain/stairs/${id}`)), geo = mergeGeometries(parts.map(g => { g = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv"].includes(k)) g.deleteAttribute(k);
       if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); if (!g.attributes.normal) g.computeVertexNormals();
-      if (M.oakH.vertexColors) K.board(g, 0.2); return g; }), false);
+      if (M.oakH.vertexColors) K.board(g, 0.2, grain); return g; }), false);
     const m = new THREE.Mesh(geo, M.oakH); m.castShadow = m.receiveShadow = true;
     if (owner) { m.position.set(-owner.grp.position.x, -owner.grp.position.y, -owner.grp.position.z); owner.grp.add(m); } else scene.add(m);
   }
@@ -515,6 +516,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const carved = carve({ plan, specs, levelOf, gap });
   const solid = new THREE.Mesh(carveMesh(THREE, carved), [M.stone || mats.carve, M.plaster, mats.carve, ashlarMaterial()]); solid.userData = { carve: true }; solid.castShadow = solid.receiveShadow = true; scene.add(solid);
   // the house's outside (src/make/exterior.js): its roofs, coped gables, stacks, and its windows seen from without
+  // (its windows in plan order, by their rooms, however the rooms were built: the merged outside comes out the same)
+  { const at = new Map(plan.rooms.map((r, i) => [r.id, i])); windows.sort((a, b) => at.get(a.room) - at.get(b.room)); }
   let exterior = null;
   if (plan.ranges || plan.rooms.some(r => r.outline)) { const t1 = performance.now(), shell = shellOf(plan, { gap });
     const stoneOut = ashlarMaterial().clone(); stoneOut.side = THREE.DoubleSide;

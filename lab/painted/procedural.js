@@ -362,9 +362,11 @@ export async function makeKit(THREE, { floor = null, onStep = () => {}, defer = 
 
   const CLASS = new Map();       // material object -> class name, filled once M exists
   const cast = (m) => { m.castShadow = true; m.receiveShadow = true; return m; };
-  const vr = rng(1660);
-  // give a geometry its own cut of the timber (a UV shift) and its own tone (vertex colour)
-  const board = (g, spread = 0.22) => {
+  const shared = rng(1660);
+  // give a geometry its own cut of the timber (a UV shift) and its own tone (vertex colour); vr: the stream it is drawn
+  // from, the caller's own keyed by where the piece is (engine principle 2: a manor built in any order draws the same
+  // grain), else one shared stream in build order (the lab's single rooms)
+  const board = (g, spread = 0.22, vr = shared) => {
     const uv = g.attributes.uv, du = vr() * 5, dv = vr() * 5;
     // each member its own cut: grain phase, grain scale across and along, and a slight slope of the grain
     const su = 0.75 + vr() * 0.55, sv = 0.8 + vr() * 0.5, slope = (vr() - 0.5) * 0.08;
@@ -395,8 +397,8 @@ export async function makeKit(THREE, { floor = null, onStep = () => {}, defer = 
 // up is up, +z toward the room. elems: doors, open edges, windows, a chimney-piece (schematic.json's
 // shapes; T, lining and passage on an opening override the single-room defaults). style: "panelled"
 // or "limewashed". Returns the group, and the window lights it made.
-export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0, mitre = [1, 1], backdrop = true } = {}) {
-  const { M, CLASS, cast, board } = K;
+export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth = 0, mitre = [1, 1], backdrop = true, grain } = {}) {
+  const { M, CLASS, cast } = K, board = (g, spread) => K.board(g, spread, grain);
   const grp = new THREE.Group(), lights = [];
   const plain = style === "limewashed";
     let ctx = "panelling"; const count = {};
@@ -570,7 +572,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
           for (const [a, b] of [[e.r0, fb.r0], [fb.r1, e.r1]]) for (let y = 0, k = 0; y < bt - 0.01; y += 0.34, k++)
             add(block(THREE, rect(a + (k % 2 ? 0.02 : 0), b - (k % 2 ? 0 : 0.02), y + 0.003, Math.min(bt, y + 0.34) - 0.003), SD, 0.1), stoneJ, 0.2);
           const beam = metric(new THREE.BoxGeometry(e.r1 - e.r0 + 0.2, bh, SD + 0.08)); beam.translate((e.r0 + e.r1) / 2, bt + bh / 2, (SD + 0.08) / 2);
-          if (M.oakH.vertexColors) K.board(beam, 0.25); add(beam, M.oakH, 0.1);
+          if (M.oakH.vertexColors) board(beam, 0.25); add(beam, M.oakH, 0.1);
           // a soot-dark bressummer's underside and the plaster of the breast above it
           add(quad(THREE, [fb.r1, bt - 0.001, 0], [fb.r0, bt - 0.001, 0], [fb.r0, bt - 0.001, SD], [fb.r1, bt - 0.001, SD]), M.dark);
         } else {
