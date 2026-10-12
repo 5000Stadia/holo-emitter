@@ -150,7 +150,7 @@ Notes:
     resolves the leaf's own pixels to `toggle` and the gap beside them to `go`.
   - The fixture validator refuses a declaration that does not resolve
     (`[row42:entity.aperture_declaration]`, `[row42:entity.fills_unheld]`).
-- Static-demo caveat: the full document ships to the client, so "hidden" is honesty-by-convention here. In integrated mode (later), knowledge filtering happens host-side before emission; the client never receives unknown entities. Nothing in the renderer may depend on reading unknown entities — treat them as absent.
+- Static-demo caveat: the full document ships to the client, so "hidden" is honesty-by-convention here. In integrated mode (later), knowledge filtering happens host-side before emission. The client may hold drawables of unknown things (the offline mirror's present layer) but never their meaning, and treats them as unknown until perceived [Kabe, 2026-10-12, gate gde97f3 point 5: "unopened contents can sit on the device, without their meaning"; pattern-buffer's VIEW-EXPORT-V1 §7]. Nothing in the renderer may depend on reading unknown entities — treat them as absent.
 
 ## 4. Staging — `staging.json`
 
