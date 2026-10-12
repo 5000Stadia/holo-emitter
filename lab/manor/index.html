@@ -53,7 +53,7 @@
 <script>
 // which still, if any: only the four addresses the site links (the manor, the case, the banqueting house, Alice's hall),
 // and only when nothing in the address moves where you start or what is built; a test sees none unless it asks (?still=1)
-(() => { const Q = new URLSearchParams(location.search), OK = new Set(["case", "plan", "fresh", "still", "perf", "webgl", "webgpu"]);
+(() => { const Q = new URLSearchParams(location.search), OK = new Set(["case", "plan", "fresh", "still", "perf", "webgl", "webgpu", "stopwatch"]);
   const key = Q.get("plan") === "alice-hall" || Q.get("plan") === "banqueting" ? (Q.get("case") ? null : Q.get("plan"))
     : Q.get("case") === "case-1660" ? "case-1660" : Q.get("plan") || Q.get("case") ? null : "manor";
   const S = window.__stillsMade[key], want = Q.get("still") ?? (navigator.webdriver ? "0" : "1");
@@ -555,6 +555,9 @@ if (POP && Q.get("crowd")) { const n = +Q.get("crowd"), f = start.floor, h0 = ma
 if (CP?.resumed) { const [x, y, h, a] = caseSaved.at || []; if (x != null && standable(x, y, h)) { px = x; py = y; ph = h; yaw = a; }
   say(`You take up the case again, ${CP.resumed.minutes} minutes in, with ${CP.resumed.clues} ${CP.resumed.clues === 1 ? "clue" : "clues"} in your book.`); }
 window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
+// ?at=x,y,yaw[,pitch] (plan metres, degrees; with ?room= for the floor and the start view): start just there, a link
+// to a view for your eye (the lab's "waiting for your eye")
+{ const a = (Q.get("at") || "").split(",").map(Number); if (a.length >= 3 && a.every(Number.isFinite)) window.__place(a[0], a[1], a[2], a[3] || 0); }
 const keys = {};
 // crouching (Kabe, 2026-10-07: "We should have a crouch option"): C or Ctrl, or the thumb's crouch button; the eye
 // at 55% of its height, half the pace
@@ -1016,6 +1019,10 @@ renderer.setAnimationLoop((now) => {
   // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
   // stutter when you walk; one you walk into is built at once (refreshView). Building in workers removes the wait (point 2)
   if (window.__ok && !window.__whole && now - lastMoved > 300) arrive(manor.buildRest({ budgetMs: 1, next: nearestRoom }));
+  if (!window.__ok && Q.has("stopwatch")) {   // ?stopwatch: the seconds from opening the page to walking, on screen (R65 on your own phone)
+    const t = performance.now() / 1000, tx = textureLog(), drawn = tx.filter(x => x.from && x.from !== "cache").length, d = document.createElement("div");
+    d.style.cssText = "position:fixed;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);z-index:9;padding:8px 14px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.4 'IBM Plex Mono',monospace;text-align:center";
+    d.textContent = `walkable in ${t.toFixed(1)} s · ${drawn ? `first visit (${drawn} textures drawn)` : "return visit (textures kept)"}`; document.body.appendChild(d); }
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
     // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
     const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);
