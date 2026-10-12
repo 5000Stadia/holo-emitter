@@ -478,6 +478,20 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const g = new THREE.BoxGeometry(0.08, 0.07, 1); const dir = new THREE.Vector3(bx - ax, hb - ha, -(by - ay)), len = dir.length(); g.scale(1, 1, len); g.lookAt(dir); g.translate((ax + bx) / 2, (ha + hb) / 2 + 0.9, -(ay + by) / 2); out.push(g);
     if (newels) for (const [x, y, h] of [[ax, ay, ha], [bx, by, hb]]) out.push(cube(x - 0.07, x + 0.07, y - 0.07, y + 0.07, h - 0.3, h + 1.05), cube(x - 0.09, x + 0.09, y - 0.09, y + 0.09, h + 1.05, h + 1.12));
   };
+  // a run of panelling along a line (ax "y": t is x, the line at y = w; ax "x": t is y, at x = w), from the floor (z0) to
+  // top(t): boards 3 cm thick, stiles about every 0.55 m, a rail at the foot and one under the top, all oak; gaps (a
+  // door's) left open
+  const panelRun = (out, P, a, b, z0, top, ax, stiles = true) => {
+    const T = 0.03, seg = Math.max(1, Math.ceil((b - a) / 0.25)), box = (t0, t1, h0, h1, d = T) => { const [x0, y0] = P(t0), [x1, y1] = P(t1);
+      return cube(Math.min(x0, x1) - (ax === "x" ? d / 2 : 0), Math.max(x0, x1) + (ax === "x" ? d / 2 : 0), Math.min(y0, y1) - (ax === "y" ? d / 2 : 0), Math.max(y0, y1) + (ax === "y" ? d / 2 : 0), h0, h1); };
+    // the boards, in 25 cm strips stepping with the underside (a strip's top the lower of its ends)
+    for (let k = 0; k < seg; k++) { const t0 = a + (b - a) * k / seg, t1 = a + (b - a) * (k + 1) / seg; out.push(box(t0, t1, z0, Math.min(top(t0), top(t1)))); }
+    // stiles and rails, 2 cm proud of the boards on the outer face (doubled: both faces)
+    const n = Math.max(1, Math.round((b - a) / 0.55));
+    if (stiles) for (let k = 0; k <= n; k++) { const t = a + (b - a) * k / n, h = top(Math.min(b, Math.max(a, t))); out.push(box(Math.max(a, t - 0.035), Math.min(b, t + 0.035), z0, h, T + 0.04)); }
+    if (stiles) for (let k = 0; k < seg; k++) { const t0 = a + (b - a) * k / seg, t1 = a + (b - a) * (k + 1) / seg, h = Math.min(top(t0), top(t1));
+      out.push(box(t0, t1, z0, z0 + 0.14, T + 0.04)); out.push(box(t0, t1, h - 0.08, h, T + 0.04)); }
+  };
   const along = (s) => s.up === "N" || s.up === "S";
   // the stair's hall on the floor it rises from, and whether a line in it (x = at, or y = at) stands against its wall
   const hallOf = (s) => { const R = s.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2; return plan.rooms.find(q => q.type !== "open" && q.floor === stairFrom(s) && cx > q.rect.x0 && cx < q.rect.x1 && cy > q.rect.y0 && cy < q.rect.y1); };
@@ -522,6 +536,66 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       let x = lo; const runs = []; for (const [a, b] of joined) { if (a > x + 0.05) runs.push([x, a]); x = Math.max(x, b); } if (hi > x + 0.05) runs.push([x, hi]);
       const inset = (v, sgn) => v + sgn * 0.05, side = at === R.x0 || at === R.y0 ? 1 : -1;
       for (const [a, b] of runs) rail(out, ax === "y" ? [a, inset(at, side), h] : [inset(at, side), a, h], ax === "y" ? [b, inset(at, side), h] : [inset(at, side), b, h]);
+    }
+  }
+  // under each half-landing and the flight that rises from it: a panelled cupboard of the period, its door in the
+  // landing's longest open face (the monitor for Kabe, nd49954: the stick had walked you into the dark under the great
+  // stair). Partitions of oak boards with stiles and rails, from the floor to the underside, on every side that stands
+  // off a wall; through the landing's posts (7 cm in), so the posts frame it; the space solid to a body
+  for (const s of plan.stairs.filter(q => q.kind === "landing" && q.z0 > 0)) {
+    const base = levelOf(stairFrom(s)), rise = levelOf(stairTo(s)) - base, hL = base + rise * s.z0 - 0.22, room = hallOf(s), out = partOf(s), L = s.rect, IN = 0.07;
+    const F = plan.stairs.find(q => q.kind === "flight" && q.well === s.well && Math.abs(q.z0 - s.z0) < 1e-6);
+    const pieces = [{ R: L, top: () => hL - 0.01 }];
+    if (F) { const R = F.rect, ln = along(F) ? R.y1 - R.y0 : R.x1 - R.x0, u = (x, y) => F.up === "N" ? y - R.y0 : F.up === "S" ? R.y1 - y : F.up === "E" ? x - R.x0 : R.x1 - x;
+      pieces.push({ R, top: (x, y) => base + rise * (F.z0 + (F.z1 - F.z0) * Math.max(0, Math.min(1, u(x, y) / ln))) - 0.24 - 0.03 }); }
+    const near = (a, b) => Math.abs(a - b) < 0.02;
+    // only over floor: under a storey's half-landing above the ground there is the well of the stair below, not a floor
+    // (built there, it had hung in the well and stopped you arriving at the top of the flight beneath)
+    const overWell = (R) => (plan.wells || []).some(w => w.to === stairFrom(s) && w.hole.x0 < R.x1 - 0.01 && w.hole.x1 > R.x0 + 0.01 && w.hole.y0 < R.y1 - 0.01 && w.hole.y1 > R.y0 + 0.01);
+    if (pieces.some(q => overWell(q.R))) continue;
+    // the open runs of each piece's edges (not against a wall, not shared with the other piece)
+    const runs = [];
+    for (const [i, { R, top }] of pieces.entries()) {
+      blocks.push({ floor: stairFrom(s), room: room?.id, kind: "cupboard", x0: R.x0, x1: R.x1, y0: R.y0, y1: R.y1 });
+      const others = pieces.filter((_, j) => j !== i).map(q => q.R);
+      for (const [ax, at, lo, hi] of [["y", R.y0, R.x0, R.x1], ["y", R.y1, R.x0, R.x1], ["x", R.x0, R.y0, R.y1], ["x", R.x1, R.y0, R.y1]]) {
+        if (room && againstWall(room, ax, at)) continue;
+        const shared = others.filter(o => ax === "y" ? (near(o.y0, at) || near(o.y1, at)) : (near(o.x0, at) || near(o.x1, at))).map(o => ax === "y" ? [o.x0, o.x1] : [o.y0, o.y1]).sort((p, q) => p[0] - q[0]);
+        let c = lo; for (const [a, b] of shared) { if (a > c + 0.05) runs.push({ i, ax, a: c, b: a, at, top }); c = Math.max(c, b); }
+        if (hi > c + 0.05) runs.push({ i, ax, a: c, b: hi, at, top });
+      }
+    }
+    for (const r of runs) { r.sgn = r.at === pieces[r.i].R.x0 || r.at === pieces[r.i].R.y0 ? 1 : -1; r.w = r.at + r.sgn * IN; r.P = (t) => r.ax === "y" ? [t, r.w] : [r.w, t]; }
+    // a run that goes on another on the same line is one run (two, each with its end stile, had met face to face); and
+    // each run stops 7.5 cm short of its ends, inside the landing's posts, not flush with their faces
+    runs.sort((p, q) => p.ax.localeCompare(q.ax) || p.w - q.w || p.a - q.a);
+    for (let k = runs.length - 1; k > 0; k--) { const r0 = runs[k - 1], r1 = runs[k];
+      if (r0.ax !== r1.ax || Math.abs(r0.w - r1.w) > 0.01 || Math.abs(r0.b - r1.a) > 0.02) continue;
+      const split = r0.b, t0 = r0.top, t1 = r1.top, P = r0.P; runs.splice(k, 1);
+      Object.assign(r0, { b: r1.b, i: Math.min(r0.i, r1.i), top: (x, y) => ((r0.ax === "y" ? x : y) <= split ? t0 : t1)(x, y), P }); }
+    for (const r of runs) { r.a += 0.075; r.b -= 0.075; }
+    // the door: on the longest run with open floor before it (not under the other flight, nor another stair: on the
+    // landing's face under the first flight it had opened where no one can stand), centred, 0.7 m, as high as the
+    // underside over it allows
+    const dw = 0.7, clearBefore = (r) => { const c = (r.a + r.b) / 2, [x, y] = r.P(c), fx = r.ax === "x" ? x - r.sgn * 0.7 : x, fy = r.ax === "y" ? y - r.sgn * 0.7 : y;
+      return (!room || (fx > room.rect.x0 && fx < room.rect.x1 && fy > room.rect.y0 && fy < room.rect.y1)) && !plan.stairs.some(q => q.rect && fx > q.rect.x0 - 0.1 && fx < q.rect.x1 + 0.1 && fy > q.rect.y0 - 0.1 && fy < q.rect.y1 + 0.1); };
+    const door = runs.filter(r => r.b - r.a > dw + 0.3 && clearBefore(r)).sort((p, q) => (q.b - q.a) - (p.b - p.a))[0];
+    const dh = door ? Math.round(Math.min(1.8, Math.min(door.top(...door.P((door.a + door.b) / 2 - dw / 2)), door.top(...door.P((door.a + door.b) / 2 + dw / 2))) - base - 0.12) * 100) / 100 : 0;
+    for (const r of runs) {
+      const T = (t) => r.top(...r.P(t));
+      if (r !== door) { panelRun(out, r.P, r.a, r.b, base, T, r.ax); continue; }
+      const c = (r.a + r.b) / 2, g0 = c - dw / 2, g1 = c + dw / 2;
+      panelRun(out, r.P, r.a, g0, base, T, r.ax); panelRun(out, r.P, g1, r.b, base, T, r.ax);
+      panelRun(out, r.P, g0, g1, base + dh + 0.02, T, r.ax, false);                 // over the door, to the underside
+      const b = build(THREE, K, look, "door/panelled", `manor/${room?.id || "stair"}/cupboard:${s.id}`, { w: dw, h: dh, set: -0.015 });
+      // its frame: the hinge end of the gap on the run, the leaf's +z out of the cupboard
+      const holder = new THREE.Group(), out1 = r.sgn < 0;                            // (out of the cupboard is +t's normal side when sgn < 0)
+      const [ox, oy] = r.P(out1 ? g0 : g1);
+      holder.position.set(ox, base, -oy);
+      holder.rotation.y = r.ax === "y" ? (out1 ? 0 : Math.PI) : (out1 ? Math.PI / 2 : -Math.PI / 2);
+      holder.add(b.node); b.node.userData.room = room?.id; things.push(b);
+      const owner = room && rooms.get(room.id), host = owner?.movers || owner?.grp;
+      if (host) { holder.position.sub(host.position); host.add(holder); } else scene.add(holder);
     }
   }
   // round each floor's well: the open long side and the landing's end, where they stand off a wall
