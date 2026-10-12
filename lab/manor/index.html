@@ -678,7 +678,7 @@ function stations() {
   // (every case thing, built or not: one in a room not built yet has its rooms built when you go to it)
   for (const t of CASE?.things || []) out.push({ id: `thing:${t.id}`, group: "Things", label: t.label || t.id.replace(/_/g, " "), room: null, at: () => {
       let b = manor.things.find(q => q.story === t.id); if (!b && manor.pending().length) { arrive(manor.buildRest({})); b = manor.things.find(q => q.story === t.id); } if (!b) return null;
-      B3.setFromObject(b.node); B3.getCenter(W3); const r = roomAt(W3.x, -W3.z, W3.y - 0.3), [cx, cy] = door(r) || [W3.x, -W3.z];
+      b.node.updateWorldMatrix(true, true); B3.setFromObject(b.node); B3.getCenter(W3); const r = roomAt(W3.x, -W3.z, W3.y - 0.3), [cx, cy] = door(r) || [W3.x, -W3.z];   // (a room just built: its place in the house not yet worked through to its things, which had measured where its builder made them)
       return { x: W3.x, y: -W3.z, h: B3.min.y, look: [W3.x, -W3.z, W3.y], off: 1.0, from: [cx, cy] }; } });
   for (const s of plan.stairs || []) { if (s.kind !== "flight" || !s.rect) continue; const R = s.rect, a = manor.levelOf(s.from), b = manor.levelOf(s.to), lo = a + (b - a) * s.z0, hi = a + (b - a) * s.z1;
     const d = { N: [0, 1], S: [0, -1], E: [1, 0], W: [-1, 0] }[s.up] || [0, 1], cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, hx = (R.x1 - R.x0) / 2, hy = (R.y1 - R.y0) / 2;
@@ -704,7 +704,7 @@ window.__go = (id) => {
   if (g == null) return false;
   const L = t.look || [tx, ty + 1, g + EYE], eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
   glide = null; px = tx; py = ty; ph = g; yaw = Math.atan2(-(L[0] - tx), L[1] - ty); pitch = Math.max(-0.9, Math.min(0.6, Math.atan2(L[2] - (g + eye), Math.hypot(L[0] - tx, L[1] - ty) || 1)));
-  snapLights = true; return true;
+  snapLights = true; return { x: tx, y: ty, h: g };   // (where it set you: the camera follows on the next frame)
 };
 if (Q.has("stations")) { const sel = document.createElement("select"); sel.id = "stations"; sel.setAttribute("aria-label", "Go to");
   sel.style.cssText = "position:fixed;left:calc(14px + env(safe-area-inset-left));top:calc(76px + env(safe-area-inset-top));z-index:8;max-width:70vw;min-height:44px;padding:8px 10px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.2 system-ui";

@@ -17,7 +17,13 @@ test("every station of the case sets you down where you can stand, facing what i
   const r = await page.evaluate(() => {
     const list = window.__stations(), bad = [], c = window.__camera, groups = {};
     for (const s of list) { groups[s.group] = (groups[s.group] || 0) + 1;
-      if (!window.__go(s.id)) { bad.push(`${s.id}: no stand`); continue; } }
+      const to = window.__go(s.id); if (!to) { bad.push(`${s.id}: no stand`); continue; }
+      // a person or a thing: within reach of it (codex, b585fead: a thing in a room not built yet had set you down in another)
+      if (s.group === "People" || s.group === "Things") { let at = null; const id = s.id.split(":")[1];
+        if (s.group === "People") window.__scene.traverse(o => { if (o.userData?.presence === id) { at = new window.__THREE.Vector3(); o.getWorldPosition(at); } });
+        else { const b = window.__manor.things.find(q => q.story === id); if (b) { b.node.updateWorldMatrix(true, true); at = new window.__THREE.Box3().setFromObject(b.node).getCenter(new window.__THREE.Vector3()); } }
+        const d = at && Math.hypot(at.x - to.x, -at.z - to.y);
+        if (!(d < 3.2)) bad.push(`${s.id}: ${d == null ? "not found" : `${d.toFixed(1)} m off`}`); } }
     return { n: list.length, groups, bad, select: !!document.getElementById("stations") };
   });
   expect(r.select, "?stations shows the Go to list").toBe(true);
