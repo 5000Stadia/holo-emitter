@@ -145,9 +145,20 @@ Each kit is a small set of mechanics that a world carries **when that shape is i
 - **Indoors:** rain on the glass, a draught that moves the candle, the sound of it (sound again).
 - **The Grassworks pattern to avoid:** particles run on the processor (its leaves cost 2.4 ms a frame).
 
-**Three open questions from the pattern-buffer reader, for construct and pattern-buffer to settle with us:**
-- **(a)** Should the case world keep time in story minutes, or in turns with the clock as data?
-- **(b)** Should construct's fixed fractions of the day give way to real sunrise and sunset when a place has latitude and longitude? Otherwise "dusk" in prose and dusk on screen drift apart.
+**pattern-buffer's own answer (mail macfc8d, 2026-10-11): "yes, it fits"**, with no new primitive and no engine change. Its five refinements:
+1. **One clock per world, never two.**
+   - If the world's time axis is story minutes (as its 1660 trial was, which takes the 21:00–01:00 timeline natively), that axis *is* the clock, and a stored minutes counter would drift from it.
+   - If it stays turns, as construct does, the dated minute advances are the clock, and construct's clock reader must take "as of".
+   - The choice is construct's. pattern-buffer leans to story minutes for an authored case and turns for open play.
+2. **Weather hangs over its region by its own relation** (`weather:x · over · place:y`), not "in" it. Containment is the tree of things, and weather would show up as an object in the room. We find a room's weather by walking up to the first region that has some.
+3. **Unknown weather is invented once and kept,** marked `generated`. What beats write is marked `stated`, so invented skies show as invented.
+4. **Conditions a clue rests on are stated facts.** pattern-buffer has no sky arithmetic, so the check that a stated "no moon that night" agrees with the computed one belongs to construct or to us.
+5. **Keep the prose rule that drops atmosphere.** It stops "the gloom pressed in" becoming invented state rows. If you later want weather read from prose ("it was raining hard when we reached the vault"), the safe form is narrow and opt-in: only into weather attributes declared in advance. That would come to you as a proposal.
+- **On (b): yes.** With latitude and longitude, construct should take dusk from the sun.
+
+**Open questions, as they now stand:**
+- **(a)** Story minutes or turns: construct's call. pattern-buffer leans to story minutes for an authored case.
+- **(b)** Settled by pattern-buffer's yes, pending construct: real sunrise and sunset where a place has latitude and longitude.
 - **(c)** Who hosts the link for phones? That's already your call.
 
 ## 6. How the story engine would pick mechanics, without "all mechanics in one"
