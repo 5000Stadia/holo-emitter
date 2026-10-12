@@ -29,4 +29,4 @@
   | Arrivals | 214 | 165 |
   | 900 frames stepped (desktop) | 10.0 s | 21.5 s |
 
-- **Why the new findings:** a sidestep doesn't ask the house whether its spot can be stood on. I offered `ctx.walk.stand(pos, floor, half)` (m-sent to Photonic).
+- **Why the new findings:** a sidestep doesn't ask the house whether its spot can be stood on. I offered `ctx.walk.stand(pos, floor, half)` (m5c95e0).

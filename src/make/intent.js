@@ -37,7 +37,7 @@ const CHAT = { u: "you", ur: "your", r: "are", y: "why", wat: "what", wot: "what
   nite: "night", tonite: "tonight", lst: "last", abt: "about", bout: "about", b4: "before", cuz: "because", coz: "because", thru: "through", teh: "the",
   pls: "please", plz: "please", ppl: "people", hes: "he is", shes: "she is", whos: "who is", wheres: "where is", thats: "that is", dont: "do not",
   didnt: "did not", wasnt: "was not", werent: "were not", youre: "you are", im: "i am", ive: "i have", idk: "i do not know", yr: "your", whn: "when",
-  wast: "were", wert: "were", didst: "did", dost: "do", doth: "does", hast: "have", hath: "has", art: "are", shalt: "shall", canst: "can", knowest: "know", sawest: "saw" };
+  kee: "key", kees: "keys", clark: "clerk", clarks: "clerks", buttry: "buttery", wast: "were", wert: "were", didst: "did", dost: "do", doth: "does", hast: "have", hath: "has", art: "are", shalt: "shall", canst: "can", knowest: "know", sawest: "saw" };
 // synonym groups: a word of a group brings the whole group (general English and the period's; the case's own words
 // belong in its topics)
 const GROUPS = [
@@ -139,10 +139,12 @@ const TEMPLATES = [
   [/\bwho (found|opened|discovered|went in)\b|\bthis morning\b/i, ["morning", "found"]],
   // (when the door was opened: the key where it lay then is the morning's, not the keys'; it outweighs the word "key")
   [/\bwhen (you|u|ye|thou|they|he|she|we) (went|came|got|broke|first went) in\b|\bwhen (you|u) (opened|found|entered|broke)\b|\bwhen the door was (opened|broken|forced)\b/i, ["morning", "found"], 1.5],
+  // going to a place, or being in one ("did you go up to the muniment room?", "were you in the buttery?"): where they were
+  [/\b(did|didst) (you|u|thou|ye) (go|goest|come|step|walk|creep|slip) (up |down |back |out |in )?(to|into|in|through|by) the\b|\b(were|was|wast|wert) (you|u|thou|ye) (in|at|by|near|inside) the\b/i, WHERE_HINT, 1, "unnamed"],
   // what they saw or heard abroad in the night ("did you see anyone on the stairs?")
   [/\b(did|didst) (you|u|thou) (see|hear|meet|pass) (any|anyone|anybody|someone|somebody|any one|a soul|aught)\b|\b(see|saw|seen|hear|heard)\b.*\b(stairs?|staircase|passage|gallery|landing)\b/i, WHERE_HINT, 1, "unnamed"],
   // what brings the stranger here: his business is the sale
-  [/\b(what|which) (business|errand|affair|purpose)\b|\b(bring|brings|brought) (you|thee|ye|an? \w+( \w+)?) (here|hither)\b|\bhither\b/i, ["sale"]],
+  [/\bwhy (are|art|be|is) (you|u|thou|ye) (here|hither|come|at \w+)\b|\b(what|which) (business|errand|affair|purpose)\b|\b(bring|brings|brought) (you|thee|ye|an? \w+( \w+)?) (here|hither)\b|\bhither\b/i, ["sale"]],
   // money handed to someone ("did you give money to Wragg?") is a payment: the matter of money paid, not the one paid
   [/\b(give|gave|given|giving|pay|paid|slip|slipped|hand|handed|lend|lent)\s+(\w+\s+)?(money|coin|coins|gold|pounds|guineas|shillings)\b|\b(money|gold|coin|coins) to\b/i, ["gold", "bribe", "pay"]],
   // the threat at supper: "he'd not live to see it sealed" is of the steward
