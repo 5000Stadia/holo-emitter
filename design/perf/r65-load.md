@@ -192,3 +192,15 @@ Both set R65's architecture, and both need point 1, which is ready.
 - **What's left on a first visit:** the house's own build now shares the CPU with four drawing workers (built at 2.3 s, not 1.3 s). The floor's bands still start only after the oak field, at 1.5–1.9 s.
 
 **Found on the way: the browser kept sizes only from the start view.** Since the start view came first, a page kept what it measured before the later rooms were built. The authoring tool's table then lacked seven of the case's things (`keep-tables.mjs` regenerated it without them). The page now keeps sizes again once every room is in, and `manor.measured` is read when asked. The regenerated tables hold the same data as before, re-signed.
+
+## The case, start view first: timed (2026-10-12)
+
+The case's returning visit, three alternating pairs (desktop, headless Chromium, WebGPU; the machine busy, load average about 16):
+
+| | Built whole (`?whole=1`) | Start view first |
+|---|---|---|
+| Walkable | 5.47, 5.05, 5.99 s | **3.04, 3.92, 3.31 s** |
+| House built before the first frame | 3.3, 3.1, 3.8 s | 1.2, 1.7, 1.3 s |
+
+- 24 of the case's rooms arrive after walkable.
+- The first frame itself (ready to drawn) is 1.5–1.8 s either way.
