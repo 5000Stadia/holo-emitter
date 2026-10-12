@@ -139,3 +139,10 @@ Both set R65's architecture, and both need point 1, which is ready.
 **Time:** not measured cleanly yet. Another project held the machine at load average 52, and runs went from 4.5 s to 82 s. The change caps 0.5 s of tile work before the first frame at 0.12 s, where the profile measured 0.59 s. The timing is to be redone when the machine is quiet.
 
 **The smaller vertices** are parked, off by default (`?vfmt=small` only), as a phone-memory option for when there are phone numbers.
+
+## Shader building, looked into (2026-10-12)
+
+- **What the start view compiles:** 20 vertex and 21 fragment programs, all genuinely different. None differs from another only by a constant.
+- **Materials against programs:** the start view has 59 material objects, and the node builder ran 61 times for those 41 programs. 26 of the materials are unnamed `MeshBasicNodeMaterial`s, likely one per window's leaded glass.
+- **The possible saving:** sharing one glass material, with the window's texture chosen per object, would save about 20 node builds, roughly 0.1 s.
+- **Not built:** it is small, and it needs a per-object texture switch. Noted for when the glass is next touched.
