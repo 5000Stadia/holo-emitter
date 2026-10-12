@@ -546,6 +546,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
           const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });
+          m.userData.daylit = true;   // (its light is the day painted into it: a night puts it out, lab/manor ?dark)
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });
