@@ -78,7 +78,7 @@
 
 **Ideas only** (no licence, or proprietary talks): al-ro's GitHub copy, Nitash Biswas, grass-webgpu, Ghost of Tsushima, Horizon Zero Dawn, Grassworks.
 
-## Decisions waiting on Kabe
+## Decided (Kabe, 2026-10-11, relayed by the monitor)
 
-- **g640c2a:** buy Grassworks, or build our own? Default: build our own; nothing bought.
-- **gdb4075:** grass straight after M7's checkpoint, ahead of M8's people? Default: yes; M7 finishes first.
+- **g640c2a:** build our own from open sources; nothing bought.
+- **gdb4075:** grass goes first after M7's checkpoint, ahead of M8's people; M7 is finished first.
