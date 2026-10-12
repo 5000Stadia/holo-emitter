@@ -21,9 +21,11 @@ test("every station of the case sets you down where you can stand, facing what i
       // a person or a thing: within reach of it (codex, b585fead: a thing in a room not built yet had set you down in another)
       if (s.group === "People" || s.group === "Things") { let at = null; const id = s.id.split(":")[1];
         if (s.group === "People") window.__scene.traverse(o => { if (o.userData?.presence === id) { at = new window.__THREE.Vector3(); o.getWorldPosition(at); } });
-        else { const b = window.__manor.things.find(q => q.story === id); if (b) { b.node.updateWorldMatrix(true, true); at = new window.__THREE.Box3().setFromObject(b.node).getCenter(new window.__THREE.Vector3()); } }
-        const d = at && Math.hypot(at.x - to.x, -at.z - to.y);
-        if (!(d < 3.2)) bad.push(`${s.id}: ${d == null ? "not found" : `${d.toFixed(1)} m off`}`); } }
+        let box = null; if (s.group === "Things") { const b = window.__manor.things.find(q => q.story === id); if (b) { b.node.updateWorldMatrix(true, true); box = new window.__THREE.Box3().setFromObject(b.node); at = box.getCenter(new window.__THREE.Vector3()); } }
+        // near enough to reach, and (codex, bd64e68c: pressed into a bed's hangings) clear of it, so it is seen whole
+        const d = at && Math.hypot(at.x - to.x, -at.z - to.y), gap = box ? Math.hypot(Math.max(box.min.x - to.x, 0, to.x - box.max.x), Math.max(box.min.z + to.y, 0, -to.y - box.max.z)) : d;
+        if (!(d < 4)) bad.push(`${s.id}: ${d == null ? "not found" : `${d.toFixed(1)} m off`}`);
+        else if (!(gap > 0.6)) bad.push(`${s.id}: ${gap.toFixed(2)} m from it`); } }
     return { n: list.length, groups, bad, select: !!document.getElementById("stations") };
   });
   expect(r.select, "?stations shows the Go to list").toBe(true);

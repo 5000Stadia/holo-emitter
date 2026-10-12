@@ -679,7 +679,10 @@ function stations() {
   for (const t of CASE?.things || []) out.push({ id: `thing:${t.id}`, group: "Things", label: t.label || t.id.replace(/_/g, " "), room: null, at: () => {
       let b = manor.things.find(q => q.story === t.id); if (!b && manor.pending().length) { arrive(manor.buildRest({})); b = manor.things.find(q => q.story === t.id); } if (!b) return null;
       b.node.updateWorldMatrix(true, true); B3.setFromObject(b.node); B3.getCenter(W3); const r = roomAt(W3.x, -W3.z, W3.y - 0.3), [cx, cy] = door(r) || [W3.x, -W3.z];   // (a room just built: its place in the house not yet worked through to its things, which had measured where its builder made them)
-      return { x: W3.x, y: -W3.z, h: B3.min.y, look: [W3.x, -W3.z, W3.y], off: 1.0, from: [cx, cy] }; } });
+      // (a metre off its edge, not its middle: a curtained bed's station had pressed you into its hangings)
+      // and far enough that it fits the screen across (a phone held upright sees ~40 degrees: a curtained bed at a metre was all hangings)
+      const reach = Math.hypot(B3.max.x - B3.min.x, B3.max.z - B3.min.z) / 2, half = Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect);
+      return { x: W3.x, y: -W3.z, h: B3.min.y, look: [W3.x, -W3.z, Math.min(W3.y, B3.min.y + 1.2)], off: Math.min(4, Math.max(reach + 1.0, reach * 1.1 / Math.tan(half))), edge: reach + 0.6, from: [cx, cy] }; } });
   for (const s of plan.stairs || []) { if (s.kind !== "flight" || !s.rect) continue; const R = s.rect, a = manor.levelOf(s.from), b = manor.levelOf(s.to), lo = a + (b - a) * s.z0, hi = a + (b - a) * s.z1;
     const d = { N: [0, 1], S: [0, -1], E: [1, 0], W: [-1, 0] }[s.up] || [0, 1], cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, hx = (R.x1 - R.x0) / 2, hy = (R.y1 - R.y0) / 2;
     const end = (k) => [cx + d[0] * (hx * Math.abs(d[0]) + 0.45) * k, cy + d[1] * (hy * Math.abs(d[1]) + 0.45) * k];
@@ -698,7 +701,7 @@ window.__go = (id) => {
   const t = st.at(); if (!t) return false; const [fx, fy] = t.from || [t.x, t.y], d = Math.hypot(t.x - fx, t.y - fy), k = t.off ? Math.max(0, d - t.off) / (d || 1) : 1;
   let tx = fx + (t.x - fx) * k, ty = fy + (t.y - fy) * k;
   const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= t.h + 0.3).sort((a, b) => b - a)[0], h0 = t.stand ? t.h : lv ?? t.h;
-  const near = (t.off || 0) * 0.75, stand = (x, y) => { if (near && Math.hypot(x - t.x, y - t.y) < near) return null; const g = walk.groundAt(x, y, h0); return g != null && Math.abs(g - h0) < 0.6 && clearOfPeople(x, y, g) ? g : null; };
+  const near = Math.min((t.off || 0) * 0.75, t.edge ?? Infinity), stand = (x, y) => { if (near && Math.hypot(x - t.x, y - t.y) < near) return null; const g = walk.groundAt(x, y, h0); return g != null && Math.abs(g - h0) < 0.6 && clearOfPeople(x, y, g) ? g : null; };
   let g = stand(tx, ty);
   for (let j = 1; g == null && j < 600; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
   if (g == null) return false;
