@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night Street Lights</title>
+<style>
+  :root { --bg: #05070b; --ink: #cfd6e0; --panel: rgba(0, 0, 0, 0.55); }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  #hud { position: fixed; left: 8px; top: 8px; color: var(--ink); font: 12px/1.45 ui-monospace, monospace; white-space: pre; background: var(--panel); padding: 6px 8px; border-radius: 4px; }
+  [hidden] { display: none !important; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; color: var(--ink); font: 14px ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div id="hud" hidden></div>
+<div id="status">raising the street…</div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// The light bench (R50, the fps lab; Kabe, 2026-10-11: "London street at night, extra long each window having an internal
+// light source and street lamps going down is a good test. Have MANY light sources, lock in high fidelity for all, consider
+// cheapest approximation render for all, compare quality overall against each other, then where the quality cutoff in
+// distance isnt too noticeable cut over to cheap. Then play with that radius to optimize fps without drastic quality loss").
+// The London street (src/make/street.js) at night, 400 m by default, every front window lit from within and a lantern at
+// every door. Each source shows itself the same way in every mode (the glass glows, a lantern's flame and halo), so the
+// modes differ only in the light each casts:
+//   ?mode=full    every source a real point light (three r186's ClusteredLighting: Forward+, WebGPU only)
+//   ?mode=grid    every source's light summed at generation into a probe grid (three's LightProbeGrid, its spherical
+//                 harmonics filled from the lights by arithmetic, no bake): one lookup a pixel, however many lights
+//   ?mode=hybrid  real lights within ?r= metres of you, the grid for the rest (the grid made again when you have gone r/4)
+//   ?mode=none    the moon and the sky alone
+// ?length= (m), ?gs= the grid's spacing (m), ?exposure=, ?dpr=. Test hooks: __eye(s, t, yaw, pitch), __spin, __gpu(),
+// __stats(), __depth(on) (each pixel's distance from the eye as grey, 1 = 256 m, for measuring by distance), __hybrid(r).
+import * as THREE from "three/webgpu";
+import { positionView, vec3, float } from "three/tsl";
+import { ClusteredLighting } from "three/addons/lighting/ClusteredLighting.js";
+import { LightProbeGrid } from "three/addons/lighting/LightProbeGrid.js";
+import { LightProbeGridNode, ATLAS_PADDING } from "three/addons/tsl/lighting/LightProbeGridNode.js";
+import { makeStreet, STREET_1660, frameXf } from "../../src/make/street.js";
+import { warmTextures } from "../painted/texjobs.js";
+import { LIB as OUT } from "../painted/outgen.js";
+
+const Q = new URLSearchParams(location.search), num = (k, d) => Q.has(k) ? +Q.get(k) : d, T0 = performance.now(), mark = {};
+const MODE = Q.get("mode") || "hybrid", LEN = num("length", 400), GS = num("gs", 1);
+let R = num("r", 20);
+
+// the renderer, made here (as lab/fps/three.html) so its GPU time can be read
+const renderer = new THREE.WebGPURenderer({ antialias: Q.get("msaa") !== "0", reversedDepthBuffer: true, outputBufferType: THREE.HalfFloatType,
+  forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance", trackTimestamp: Q.get("gpu") !== "0" });
+renderer.setPixelRatio(Q.has("dpr") ? +Q.get("dpr") : Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = num("exposure", 1.2);
+document.body.prepend(renderer.domElement);
+if (MODE === "full" || MODE === "hybrid") renderer.lighting = new ClusteredLighting(4096, 32, 24, 128);
+await renderer.init();
+renderer.library.addLight(LightProbeGridNode, LightProbeGrid);
+const BACKEND = renderer.backend.isWebGPUBackend ? "webgpu" : "webgl";
+
+// the street: nearly straight (the grid is a box), a lantern at every door
+const spine = []; { let x = 0, y = 0; for (let s = 0; s <= LEN + 1e-6; s += 2) { const a = 0.03 * Math.sin(s / 60); spine.push([Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]); x += Math.sin(a) * 2; y += Math.cos(a) * 2; } }
+// (it runs north, three's −z: the grid's long axis is then its texture's depth, so a change uploads only the slices it touches)
+await warmTextures(3000, [OUT]);
+const street = makeStreet(THREE, { spine, width: 10, seed: num("seed", 1660), ground: () => 0, rules: { ...STREET_1660, lantern: 1 }, backland: Q.get("backland") !== "0" });
+await street.ready; mark.street = Math.round(performance.now() - T0);
+const scene = new THREE.Scene(); scene.add(street.group);
+const NIGHT = new THREE.Color(0x070a12); scene.background = NIGHT; scene.fog = new THREE.Fog(NIGHT, 35, 240);
+const moon = new THREE.DirectionalLight(0x8ea4d4, 0.14); moon.position.set(-60, 120, 80); scene.add(moon, moon.target, new THREE.HemisphereLight(0x33415e, 0x0b0907, 0.16));
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 1200);
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+
+// ---- the sources. Windows: every glass quad of the street's fronts facing out of its wall, a light 0.4 m behind the
+// glass (in the room, so it never lights the outside of its own wall, which a lamp within can't), as strong as the glass
+// is big. Lanterns: the street's own, one by each door.
+const WARM_W = new THREE.Color(0xffad5c), WARM_L = new THREE.Color(0xffa04a), sources = [];
+street.group.traverse(o => { if (!o.isMesh || !o.name.endsWith("/glass")) return;
+  const P = o.geometry.attributes.position, N = o.geometry.attributes.normal, I = o.geometry.index.array, a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), d = new THREE.Vector3();
+  for (let i = 0; i + 5 < I.length; i += 6) { a.fromBufferAttribute(P, I[i]); b.fromBufferAttribute(P, I[i + 1]); c.fromBufferAttribute(P, I[i + 2]); d.fromBufferAttribute(P, I[i + 5]);
+    const n = new THREE.Vector3().fromBufferAttribute(N, I[i]); if (Math.abs(n.y) > 0.3) continue;
+    const area = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3().subVectors(c, a)).length();
+    if (area < 0.12) continue;
+    const at = a.clone().add(b).add(c).add(d).multiplyScalar(0.25).addScaledVector(n, -num("inset", 0.4)), pr = street.plan.spine.project(at.x, -at.z);
+    if (!pr || Math.abs(pr.t) > 9) continue;           // the street's own fronts (the yards behind keep their glow, not a light)
+    sources.push({ kind: "window", at, n, color: WARM_W, I: num("wi", 0.9) * area, range: 9 }); } });
+for (const lot of street.lots) { if (!lot.lantern || !lot.ground?.door) continue; const X = frameXf(lot), [a, b] = lot.ground.door, W = lot.width, u = (a + b) / 2 < W / 2 ? b + 0.32 : a - 0.32;
+  const p = X.p(u, -0.39, 2.5); sources.push({ kind: "lantern", at: new THREE.Vector3(...p), n: null, color: WARM_L, I: num("li", 5), range: 12 }); }
+const lanterns = sources.filter(s => s.kind === "lantern"), windows = sources.filter(s => s.kind === "window");
+
+// how each shows itself, the same in every mode: the glass glowing from within; a lantern's horn panes and a soft halo
+street.materials.glass.emissive = new THREE.Color(0xff9a48); street.materials.glass.emissiveIntensity = num("glow", 0.7);
+{ const flame = new THREE.InstancedMesh(new THREE.SphereGeometry(0.09, 10, 8), new THREE.MeshBasicNodeMaterial({ colorNode: vec3(3.2, 2.0, 0.9) }), lanterns.length);
+  const halo = new THREE.InstancedMesh(new THREE.SphereGeometry(0.42, 16, 12), new THREE.MeshBasicNodeMaterial({ colorNode: vec3(1.0, 0.55, 0.22), transparent: true, opacity: 0.06, depthWrite: false, blending: THREE.AdditiveBlending }), lanterns.length);
+  const m = new THREE.Matrix4(); lanterns.forEach((s, i) => { m.makeTranslation(s.at.x, s.at.y, s.at.z); flame.setMatrixAt(i, m); halo.setMatrixAt(i, m); });
+  flame.frustumCulled = halo.frustumCulled = false; scene.add(flame, halo); }
+
+// ---- the real lights: a fixed pool handed between sources (a light added to or taken from the scene changes the lights'
+// list, and every shader with it: a 1.6 s stall measured walking). A free slot: nothing, nowhere. None cast shadows
+// (ClusteredLighting takes only those). full: one per source, set once.
+const POOL = MODE === "full" ? sources.length : MODE === "hybrid" ? num("pool", 192) : 0;
+const pool = Array.from({ length: POOL }, () => { const l = new THREE.PointLight(0xffffff, 0, 0.001, 2); l.position.set(0, -1000, 0); scene.add(l); return l; });
+const slotOf = new Int32Array(sources.length).fill(-1), free = [...Array(POOL).keys()].reverse();
+function setReal(i, share) { let k = slotOf[i];
+  if (!(share > 1e-3)) { if (k >= 0) { const l = pool[k]; l.intensity = 0; l.distance = 0.001; l.position.set(0, -1000, 0); free.push(k); slotOf[i] = -1; } return true; }
+  if (k < 0) { if (!free.length) return false; k = slotOf[i] = free.pop(); const l = pool[k], so = sources[i]; l.position.copy(so.at); l.color.copy(so.color); l.distance = so.range; }
+  pool[k].intensity = sources[i].I * share; return true; }
+// ---- the grid: every source's light summed into L2 spherical harmonics at each probe, as three's own bake packs them
+// (src/make: none yet; this is the bench's). A point light's radiance is a spike in its direction, so its coefficients
+// are its irradiance at a facing surface times the basis there: L_lm = E · Y_lm(l). E as three attenuates a point light:
+// I / max(d², 0.01) · (1 − (d/range)⁴)²
+const box = new THREE.Box3(); for (const s of sources) box.expandByPoint(s.at); box.expandByScalar(4); box.min.y = -0.5; box.max.y = Math.max(box.max.y, 12);
+// spacing GS across and up; along the street (z) as fine as the atlas allows: seven padded sub-volumes along z must fit the
+// device's largest 3D texture (2048 here), so 2 m along a 400 m street (a grid over the limit is never made, and fails silently)
+const size = box.getSize(new THREE.Vector3()), MAX3D = renderer.backend.device?.limits?.maxTextureDimension3D || 2048;
+const GSZ = Math.max(num("gsz", 2), size.z / (Math.floor(MAX3D / 7) - 2 * ATLAS_PADDING - 1));
+const res = new THREE.Vector3(Math.round(size.x / GS) + 1, Math.round(size.y / GS) + 1, Math.round(size.z / GSZ) + 1);
+const grid = new LightProbeGrid(size.x, size.y, size.z, res.x, res.y, res.z); grid.position.copy(box.getCenter(new THREE.Vector3())); grid.updateBoundingBox();
+const PAD = ATLAS_PADDING, slices = res.z + 2 * PAD, gridData = new Float32Array(res.x * res.y * slices * 7 * 4);
+grid.texture = new THREE.Data3DTexture(gridData, res.x, res.y, slices * 7);
+Object.assign(grid.texture, { format: THREE.RGBAFormat, type: THREE.FloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, generateMipmaps: false, unpackAlignment: 1 });
+// what each source holds in the grid now; a change adds only the difference, over the probes its range reaches, straight
+// into the atlas three samples (32-bit floats, filtered where the GPU can: every desktop here; a phone would want halves
+// and a packing step), and uploads only the slices along the street it touched (the layer list three's upload reads).
+// The atlas (LightProbeGridNode's): the 27 numbers of a probe's L2 harmonics, 4 to a texel, in seven sub-volumes along z,
+// each padded a slice at both ends with a copy of its edge.
+const held = new Float32Array(sources.length), step = size.clone().divide(res.clone().subScalar(1)), Yb = new Float32Array(9);
+grid.texture.layerUpdates = new Set(); grid.texture.clearLayerUpdates = function () { this.layerUpdates.clear(); };
+let touchLo = Infinity, touchHi = -1;      // the padded slices (within a sub-volume) touched since the last upload
+const plane = res.x * res.y * 4, atOf = new Int32Array(27);         // a coefficient's offset in its texel's slice, by sub-volume
+for (let j = 0; j < 27; j++) atOf[j] = Math.floor(j / 4) * slices * plane + (j % 4);
+let gridMade = false;
+function addToGrid(i, w) {         // source i's share of the grid to w
+  const so = sources[i], dw = w - held[i]; held[i] = w; if (Math.abs(dw) < 1e-6) return;
+  const x0 = box.min.x, y0 = box.min.y, z0 = box.min.z, r = so.range, rr = r * r, cl = (v, n) => Math.min(n - 1, Math.max(0, v)), C = [so.color.r, so.color.g, so.color.b];
+  const xa = cl(Math.ceil((so.at.x - r - x0) / step.x), res.x), xb = cl(Math.floor((so.at.x + r - x0) / step.x), res.x), ya = cl(Math.ceil((so.at.y - r - y0) / step.y), res.y), yb = cl(Math.floor((so.at.y + r - y0) / step.y), res.y);
+  const za = cl(Math.ceil((so.at.z - r - z0) / step.z), res.z), zb = cl(Math.floor((so.at.z + r - z0) / step.z), res.z);
+  for (let iz = za; iz <= zb; iz++) { const dz = so.at.z - (z0 + iz * step.z), sls = [PAD + iz]; if (iz === 0) sls.push(0); if (iz === res.z - 1) sls.push(slices - 1);
+    for (const sl of sls) { touchLo = Math.min(touchLo, sl); touchHi = Math.max(touchHi, sl); }
+    for (let iy = ya; iy <= yb; iy++) { const dy = so.at.y - (y0 + iy * step.y);
+      for (let ix = xa; ix <= xb; ix++) { const dx = so.at.x - (x0 + ix * step.x), d2 = dx * dx + dy * dy + dz * dz; if (d2 >= rr) continue;
+        const f = 1 - (d2 * d2) / (rr * rr), E = dw * so.I / Math.max(d2, 0.01) * f * f, d = Math.sqrt(d2) || 1, x = dx / d, y = dy / d, z = dz / d;
+        Yb[0] = 0.282095; Yb[1] = 0.488603 * y; Yb[2] = 0.488603 * z; Yb[3] = 0.488603 * x; Yb[4] = 1.092548 * x * y; Yb[5] = 1.092548 * y * z; Yb[6] = 0.315392 * (3 * z * z - 1); Yb[7] = 1.092548 * x * z; Yb[8] = 0.546274 * (x * x - y * y);
+        const cell = (iy * res.x + ix) * 4;
+        for (const sl of sls) { const o = sl * plane + cell;
+          for (let c = 0; c < 9; c++) { const e = E * Yb[c]; for (let ch = 0; ch < 3; ch++) gridData[o + atOf[c * 3 + ch]] += e * C[ch]; } } } } }
+}
+function fillGrid(use) {           // every source at once (at load): use(i) -> its grid share
+  const t = performance.now(); for (let i = 0; i < sources.length; i++) addToGrid(i, use(i)); grid.texture.needsUpdate = true; gridMade = true; touchLo = Infinity; touchHi = -1; grid.texture.layerUpdates.clear(); return { ms: Math.round(performance.now() - t) };
+}
+
+// the eye
+let px = 0, py = 0, ph = 0, yaw = 0, pitch = 0.02, dirty = true; const EYE = 1.6, keys = {};
+window.__eye = (s, t = -0.8, yd, pd = 1) => { const f = street.frame(s, t); px = f.x; py = f.y; ph = street.heightAt(px, py); yaw = (yd ?? f.yaw) * Math.PI / 180; pitch = pd * Math.PI / 180; dirty = true; };
+__eye(num("s", 12), num("t", -0.8), Q.has("yaw") ? +Q.get("yaw") : undefined);
+addEventListener("keydown", e => { keys[e.code] = true; }); addEventListener("keyup", e => { keys[e.code] = false; });
+renderer.domElement.addEventListener("click", () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} });
+addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) { yaw -= e.movementX * 0.0022; pitch = Math.max(-1.3, Math.min(1.3, pitch - e.movementY * 0.0022)); dirty = true; } });
+
+// ---- the modes. hybrid: a source within R of you is a real light; beyond R + BAND, all in the grid; between, both. Its
+// real share is always 1 − its grid share, so a source is never lit twice or lost, whatever has been brought up to date.
+// Each frame the sources furthest from their share move first, nearest first among equals, within BUDGET ms; a source
+// that wants a real light when the pool is full stays in the grid till a slot frees.
+const BAND = 4, BUDGET = num("budget", 3), moves = []; let gridMs = 0;
+const wOf = (so, at) => { const d = so.at.distanceTo(at); return d <= R ? 1 : d >= R + BAND ? 0 : Math.round(4 * (1 - (d - R) / BAND)) / 4; };   // (in quarters: a share moves about once a metre, not every frame)
+if (MODE === "full") sources.forEach((_, i) => setReal(i, 1));
+if (MODE === "grid") gridMs = fillGrid(() => 1).ms;
+if (MODE === "hybrid") { const at = new THREE.Vector3(); { const f = street.frame(num("s", 12), num("t", -0.8)); at.set(f.x, street.heightAt(f.x, f.y) + 1.6, -f.y); }
+  gridMade = false; sources.forEach((so, i) => { if (!setReal(i, wOf(so, at))) addToGrid(i, 1); else addToGrid(i, 1 - wOf(so, at)); }); grid.texture.needsUpdate = true; gridMade = true; touchLo = Infinity; touchHi = -1; grid.texture.layerUpdates.clear(); }
+function setMode(at) {
+  if (MODE !== "hybrid") return;
+  const t0 = performance.now(), todo = [];
+  for (let i = 0; i < sources.length; i++) { const g = 1 - wOf(sources[i], at), d = Math.abs(g - held[i]); if (d > 0.01) todo.push([d, i]); }
+  if (!todo.length) return;
+  todo.sort((a, b) => b[0] - a[0]);
+  let n = 0;
+  for (const [, i] of todo) { if (performance.now() - t0 > BUDGET && n) break; const g = 1 - wOf(sources[i], at);
+    if (!setReal(i, 1 - g)) continue;     // no slot free: it stays as it is
+    addToGrid(i, g); n++; }
+  // only the slices touched go up (three's upload of a 3D texture's layers; walking, 1 frame in 100 at 19-20 ms, 18 with no grid)
+  if (n) { for (let sl = touchLo; sl <= touchHi; sl++) for (let t7 = 0; t7 < 7; t7++) grid.texture.layerUpdates.add(t7 * slices + sl); touchLo = Infinity; touchHi = -1; grid.texture.needsUpdate = true; }
+  moves.push({ ms: +(performance.now() - t0).toFixed(1), add: +(performance.now() - t0).toFixed(1), n, left: todo.length - n }); if (moves.length > 2000) moves.shift(); dirty = true;
+}
+window.__hybrid = (r) => { R = r; dirty = true; };
+window.__moves = () => moves;
+if (MODE === "grid" || MODE === "hybrid") scene.add(grid);
+
+// distance as grey (1 = 256 m), straight to the canvas: for measuring the modes' differences by distance
+const depthMat = new THREE.MeshBasicNodeMaterial({ colorNode: vec3(positionView.length().div(256)), fog: false });
+let depthOn = false; window.__depth = (on) => { depthOn = on; dirty = true; };
+
+const $hud = document.getElementById("hud"), gpuMs = []; let gpuBusy = false, frames = 0, since = performance.now(), fps = 0;
+window.__spin = false;
+window.__gpu = () => { const a = [...gpuMs].sort((p, q) => p - q); return a.length ? +a[Math.floor(a.length / 2)].toFixed(2) : null; };
+window.__gpuReset = () => { gpuMs.length = 0; };
+window.__stats = () => ({ backend: BACKEND, mode: MODE, r: R, fps, gpu: __gpu(), sources: sources.length, windows: windows.length, lanterns: lanterns.length,
+  realOn: pool.filter(l => l.intensity > 0).length, pool: POOL, grid: [res.x, res.y, res.z], gridMB: +(gridData.byteLength / 1048576).toFixed(1), gridMs, spacing: [GS, GS, +GSZ.toFixed(2)], marks: mark, calls: renderer.info.render.drawCalls });
+let last = performance.now();
+renderer.setAnimationLoop(() => {
+  const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const sp = (keys.ShiftLeft ? 6 : 2) * dt, fx = -Math.sin(yaw), fy = Math.cos(yaw);
+  if (keys.KeyW) { px += fx * sp; py += fy * sp; dirty = true; } if (keys.KeyS) { px -= fx * sp; py -= fy * sp; dirty = true; }
+  camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  setMode(camera.position);
+  if (!dirty && !window.__spin) return;
+  dirty = false;
+  if (depthOn) { scene.overrideMaterial = depthMat; scene.fog = null; renderer.toneMapping = THREE.NoToneMapping; renderer.outputColorSpace = THREE.LinearSRGBColorSpace; }
+  renderer.render(scene, camera);
+  if (depthOn) { scene.overrideMaterial = null; scene.fog = new THREE.Fog(NIGHT, 35, 240); renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace; }
+  if (renderer.backend.trackTimestamp && !gpuBusy) { gpuBusy = true; renderer.resolveTimestampsAsync("render").then(v => { if (v > 0) { gpuMs.push(v); if (gpuMs.length > 240) gpuMs.shift(); } }).catch(() => {}).finally(() => { gpuBusy = false; }); }
+  frames++; if (now - since > 500) { fps = Math.round(frames * 1000 / (now - since)); frames = 0; since = now;
+    $hud.textContent = `${BACKEND} · ${MODE}${MODE === "hybrid" ? ` r ${R} m` : ""} · ${fps} fps · GPU ${__gpu() ?? "–"} ms\n${windows.length} windows · ${lanterns.length} lanterns · ${pool.filter(l => l.intensity > 0).length} of ${POOL} real lights on\ngrid ${res.x}×${res.y}×${res.z} (${(gridData.byteLength / 1048576).toFixed(1)} MB) filled in ${gridMs} ms`; }
+  if (!window.__ok) { window.__ok = true; mark.first = Math.round(performance.now() - T0); document.getElementById("status").hidden = true; document.getElementById("hud").hidden = false; }
+});
+</script>
+</body>
+</html>

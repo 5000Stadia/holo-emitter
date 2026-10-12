@@ -145,7 +145,7 @@ export function streetPlan({ spine, width = 10, seed = 1660, ground = () => 0, e
     lot.eaveZ = r3(lot.floor + zG + 0.17); lot.apexZ = r3(lot.floor + lot.gable.apex);
     if (!back && n > 1 && (inn || h(55) < R.sign)) { const e = Math.floor(h(56) * EMBLEMS.length);
       lot.sign = { emblem: e, name: EMBLEMS[e], edge: h(57) < 0.5 ? "a" : "b", reach: r3(inn ? 1.55 : 1.12 + 0.35 * h(58)), board: inn ? [0.95, 1.15] : [r3(0.68 + 0.14 * h(59)), r3(0.8 + 0.12 * h(59))] }; }
-    lot.lantern = !back && h(60) < 0.32;
+    lot.lantern = !back && h(60) < (R.lantern ?? 0.32);   // (a night's light bench asks a lantern at every door: lab/fps/night.html)
     return lot;
   }
   // what stands behind an entry or an inn's arch, or closes a lane's end: a yard, and a small house across it
@@ -295,7 +295,7 @@ function sideHoles(acc, X, u, d0, d1, z0, z1, holes, col, side, tex = 2) {
 // and the grime of where it stands
 const KITS = new WeakMap();
 const stream = (name) => { let s = 0x811c9dc5; for (let i = 0; i < name.length; i++) s = Math.imul(s ^ name.charCodeAt(i), 0x01000193) >>> 0; let i = 0; return () => unit(hashN(s, i++)); };
-export { streetKit };   // for tools/check-textures.mjs (lab/scale/materials.html)
+export { streetKit, frameXf };   // for tools/check-textures.mjs (lab/scale/materials.html)
 // The street's textures are drawn in the kit's worker pool and kept in its IndexedDB cache (lab/painted/outgen.js: the
 // generators; texjobs.js: the pool). textures: "async" (the default) hands back the textures at once, empty, and they fill
 // when their pixels arrive (kit.ready: a promise for all of them; a page that must not draw an unfinished street awaits it);
