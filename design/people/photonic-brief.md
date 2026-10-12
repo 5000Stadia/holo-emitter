@@ -66,7 +66,7 @@
   - MakeHuman's CC0 base is the agreed start;
   - Mixamo and Quaternius files are out (licence traps).
 - **Budgets,** from R60:
-  - **300 people walking on a phone,** frame time measured. Measure by `lab/fps/`'s method and `tools/capture.mjs` (Grassworks report §3: GPU time per pass, one system removed, CPU by owner).
+  - **300 people walking on a phone,** frame time measured. Measure on the harness (`lab/people/`: the manor, 300 walking) with the perf card on (`&perf`, `src/make/perfcard.js`): drawn frames' p50/p95, CPU in render, GPU ms from timestamps; on a phone, a screenshot of the card is the measurement. Compare against the same view with no people (one system removed, the Grassworks report §3's method). (This said `tools/capture.mjs` until 2026-10-12; there is no such tool here.)
   - The manor holds 30 fps on a phone today: your people share that frame.
 - Code first, minimal AI: people must work with no model call. A model may only voice, never decide.
 
