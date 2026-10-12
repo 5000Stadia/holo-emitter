@@ -33,6 +33,18 @@ test("every station of the case sets you down where you can stand, facing what i
   expect(r.groups.Things, "a station for each of the case's things").toBeGreaterThanOrEqual(20);
   expect(r.groups.Rooms, "a station for every room").toBeGreaterThanOrEqual(30);
   expect(r.bad, "every station sets you down").toEqual([]);
+  // no one else between you and a person (codex, bd64e68c: late in the case Daniel stood between the hall's door and Dame Anne):
+  // Daniel set down in the hall a metre before her, on the door's line, and her station still faces her with nobody between
+  const sight = await page.evaluate(() => { const P = (id) => { let g = null; window.__scene.traverse(o => { if (o.userData?.presence === id) g = o; }); return g; };
+    const anne = P("anne"), dan = P("daniel"), a = new window.__THREE.Vector3(); anne.getWorldPosition(a);
+    const o = window.__plan.openings.find(o => o.rect && o.joins.includes("great_hall")), dx = (o.rect.x0 + o.rect.x1) / 2 - a.x, dy = (o.rect.y0 + o.rect.y1) / 2 + a.z, L = Math.hypot(dx, dy);
+    const host = dan.parent; let root = dan; while (root.parent && root.parent !== window.__scene) root = root.parent;
+    root.position.set(a.x + dx / L * 1.0, a.y, a.z - dy / L * 1.0); root.updateMatrixWorld(true);
+    const to = window.__go("person:anne"), dw = new window.__THREE.Vector3(); dan.getWorldPosition(dw);
+    const sx = a.x - to.x, sy = -a.z - to.y, L2 = sx * sx + sy * sy, u = Math.max(0, Math.min(1, ((dw.x - to.x) * sx + (-dw.z - to.y) * sy) / L2));
+    return { to: !!to, miss: Math.hypot(to.x + sx * u - dw.x, to.y + sy * u + dw.z) }; });
+  expect(sight.to, "Dame Anne's station with Daniel before her").toBe(true);
+  expect(sight.miss, "and Daniel is not between you and her").toBeGreaterThan(0.6);
   // ?go= at walkable: Daniel's, in his closet, at least a metre off
   await page.goto(`${BASE}/lab/manor/index.html?webgl=1&still=0&case=case-1660&fresh&voice=0&go=person:daniel`, { timeout: LOAD });
   await page.waitForFunction(() => window.__ok, null, { timeout: LOAD }); await page.waitForTimeout(500);

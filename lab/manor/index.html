@@ -674,7 +674,7 @@ function stations() {
   const door = (r) => { const o = r && plan.openings.find(o => o.rect && o.joins.includes(r.id)); return o ? [(o.rect.x0 + o.rect.x1) / 2, (o.rect.y0 + o.rect.y1) / 2] : r ? mid(r) : null; };
   for (const r of plan.rooms) { if (r.type === "open" && !site) continue; const [x, y] = mid(r); out.push({ id: `room:${r.id}`, group: "Rooms", label: `${r.name || r.id}${r.floor && r.floor !== "ground" ? ` (${r.floor})` : ""}`, room: r.id, at: () => ({ x, y, h: manor.levelOf(r.floor || "ground"), look: null }) }); }
   for (const [id, q] of presences) { const c = CASE?.cast.find(p => p.id === id); out.push({ id: `person:${id}`, group: "People", label: c?.name || id, room: q.room, at: () => { const g = q.p.group.position, r = plan.rooms.find(o => o.id === q.room), [cx, cy] = door(r) || [g.x, -g.z];
-      return { x: g.x, y: -g.z, h: g.y, look: [g.x, -g.z, g.y + 1.0], off: 1.8, from: [cx, cy] }; } }); }
+      return { x: g.x, y: -g.z, h: g.y, look: [g.x, -g.z, g.y + 1.0], off: 1.8, from: [cx, cy], self: id }; } }); }
   // (every case thing, built or not: one in a room not built yet has its rooms built when you go to it)
   for (const t of CASE?.things || []) out.push({ id: `thing:${t.id}`, group: "Things", label: t.label || t.id.replace(/_/g, " "), room: null, at: () => {
       let b = manor.things.find(q => q.story === t.id); if (!b && manor.pending().length) { arrive(manor.buildRest({})); b = manor.things.find(q => q.story === t.id); } if (!b) return null;
@@ -701,9 +701,14 @@ window.__go = (id) => {
   const t = st.at(); if (!t) return false; const [fx, fy] = t.from || [t.x, t.y], d = Math.hypot(t.x - fx, t.y - fy), k = t.off ? Math.max(0, d - t.off) / (d || 1) : 1;
   let tx = fx + (t.x - fx) * k, ty = fy + (t.y - fy) * k;
   const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= t.h + 0.3).sort((a, b) => b - a)[0], h0 = t.stand ? t.h : lv ?? t.h;
-  const near = Math.min((t.off || 0) * 0.75, t.edge ?? Infinity), stand = (x, y) => { if (near && Math.hypot(x - t.x, y - t.y) < near) return null; const g = walk.groundAt(x, y, h0); return g != null && Math.abs(g - h0) < 0.6 && clearOfPeople(x, y, g) ? g : null; };
+  // (and no one else between you and it: late in the case Daniel stood in the hall between its door and Dame Anne, and her
+  // station had set you before him, his the one Talk on the screen)
+  const others = t.look ? [...presences].filter(([k]) => k !== t.self).map(([, q]) => q.p.group.position).filter(g => Math.abs(g.y - t.h) < 1) : [];
+  const inSight = (x, y) => others.every(g => { const ox = g.x, oy = -g.z, dx = t.x - x, dy = t.y - y, L2 = dx * dx + dy * dy || 1, u = Math.max(0, Math.min(1, ((ox - x) * dx + (oy - y) * dy) / L2));
+    return Math.hypot(x + dx * u - ox, y + dy * u - oy) > 0.6; });
+  const near = Math.min((t.off || 0) * 0.75, t.edge ?? Infinity), stand = (x, y) => { if (near && Math.hypot(x - t.x, y - t.y) < near) return null; if (!inSight(x, y)) return null; const g = walk.groundAt(x, y, h0); return g != null && Math.abs(g - h0) < 0.6 && clearOfPeople(x, y, g) ? g : null; };
   let g = stand(tx, ty);
-  for (let j = 1; g == null && j < 600; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
+  for (let j = 1; g == null && j < 2000; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
   if (g == null) return false;
   const L = t.look || [tx, ty + 1, g + EYE], eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
   glide = null; px = tx; py = ty; ph = g; yaw = Math.atan2(-(L[0] - tx), L[1] - ty); pitch = Math.max(-0.9, Math.min(0.6, Math.atan2(L[2] - (g + eye), Math.hypot(L[0] - tx, L[1] - ty) || 1)));
