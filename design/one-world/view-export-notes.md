@@ -17,3 +17,7 @@
 - observed events that accept handles.
 
 **r3 change (pbr):** recording a handle answers only `{status: recorded}` or `{status: refused}`, never a receipt (a receipt would name the id the handle hides). The id reaches us through the next feed's `reveal`. So the page keeps an offline-perceived thing under its handle until that reveal arrives.
+
+**Merged** (pattern-buffer main 188e310, pbr green): the vectors are `tests/vectors/view-feed-v1.json`, made by `tests/make_view_vectors.py`.
+- **Since r3:** a canon kind `person` also counts as a person (a hidden NPC without a `person:` id or frame).
+- **`refused`:** every record failure answers a bare `refused`, including a host that didn't keep up. So `refused` means try again later or drop the report, never a verdict on the thing.
