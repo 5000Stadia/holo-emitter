@@ -612,6 +612,13 @@ function farTap(ndc) {
     const d = camera.position.distanceTo(P); if (d > ray.far + 0.3) { say(`${(t.b.name || t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here.`); return; }
     actOn({ b: t.b, aff: t.aff, i: t.i, point: P }); });
 }
+// not into a case's people: a stand a body's width and a hand clear of each (a double tap on the floor beyond Dame Anne had
+// set you 0.1 m from her, inside her figure)
+const clearOfPeople = (x, y, h) => { for (const q of presences.values()) { const g = q.p.group.position; if (Math.abs(g.y - h) < 1 && Math.hypot(g.x - x, -g.z - y) < 0.6) return false; } return openAbove(x, y, h); };
+// nor under a stair: no flight or landing overhead (travel had set you at the foot of the great stair's upper flight, under
+// it, in the dark; it is there to be walked into, not to be dropped in by a tap)
+const openAbove = (x, y, h) => !(plan.stairs || []).some(s => { const R = s.rect; if (!R || x <= R.x0 || x >= R.x1 || y <= R.y0 || y >= R.y1) return false;
+  const a = manor.levelOf(s.from), b = manor.levelOf(s.to), low = a + (b - a) * Math.min(s.z0 ?? 0, s.z1 ?? 1); return low > h + 0.3 && low < h + 2.6; });   // (a flight a storey up stands over every stair: not under it)
 // to a stand a little short of P on the straight line to it (the nearest floor you can stand on there), facing it, in a
 // short glide (a third of a second: you see that you moved, and a tap on the way can stop the use), then then()
 function goNear(P, off, then) {
@@ -621,7 +628,7 @@ function goNear(P, off, then) {
   // stand (every storey tried at each point had found the study under the closet floor, and dropped you into it)
   const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= P.y + 0.3).sort((a, b) => b - a)[0];
   const h0 = lv == null ? ph : Math.abs(lv - ph) < 0.6 ? ph : lv, tries = site && !site.inHouse(tx, ty) ? [site.z(tx, ty)] : [h0];
-  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, h); if (g != null && Math.abs(g - h) < 0.6) return g; } return null; };
+  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, h); if (g != null && Math.abs(g - h) < 0.6 && clearOfPeople(x, y, g)) return g; } return null; };
   let g = stand(tx, ty);
   for (let j = 1; g == null && j < 300; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
   if (g == null) { then(); return; }
@@ -684,7 +691,7 @@ function goTo(ndc) {
     .map(s => manor.levelOf(s.from) + (manor.levelOf(s.to) - manor.levelOf(s.from)) * (s.z0 ?? 0.5));
   const below = [...plan.floors.map(f => manor.levelOf(f.id)), ...landings].filter(h => h <= th + 0.3).sort((a, b) => b - a);
   const tries = floorish ? [th, ph, ...plan.floors.map(f => manor.levelOf(f.id)), site ? site.z(tx, ty) : 0] : [ph, ...below, site ? site.z(tx, ty) : 0];
-  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, floorish ? h : h); if (g != null && (!floorish || Math.abs(g - th) < 0.6)) return g; } return null; };
+  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, floorish ? h : h); if (g != null && (!floorish || Math.abs(g - th) < 0.6) && clearOfPeople(x, y, g)) return g; } return null; };
   let g = stand(tx, ty), fx = tx, fy = ty;
   for (let k = 1; g == null && k < 300; k++) { const a = k * 2.4, r = 0.05 * Math.sqrt(k), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; fx = x; fy = y; } }
   if (g == null) { say("You can't stand there."); return false; }
