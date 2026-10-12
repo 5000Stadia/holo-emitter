@@ -1,4 +1,4 @@
-# How a sibling project's module comes into holo-emitter (joint draft with Photonic, 2026-10-12)
+# How a sibling project's module comes into holo-emitter (joint draft, confirmed by Photonic m62d9bb, 2026-10-12)
 
 **Kabe, 2026-10-12**, on whether Photonic's people code may go into our public repo (R60):
 
@@ -43,6 +43,7 @@ Kabe, the same day, to Photonic: copying Photonic's code into holo-emitter's pub
 4. **Contract tests both ways.**
    - holo-emitter publishes a recorded `ctx` fixture: the manor's ground (`walk.stand`), routes and `place.roomAt`, serialised. Our host checks (nothing floats, no wall passing, body fits door, faces never fight) then run in node in the module's CI before every pin, with no renderer.
    - The module's conformance suite runs against our real `ctx` the other way. For Photonic that is: the same document gives the same person, the golden 200 digest, and state round-trips.
+   - Cross-engine: the golden digest must also pass under WebKit, as Photonic's phone page already checks in Safari. A pin to a module that fails on Safari is refused.
    - A failure names whose side broke.
 5. **Capabilities, not internals.**
    - The host offers named capabilities, and a module declares which it needs, so a test host can stand in.
@@ -52,14 +53,42 @@ Kabe, the same day, to Photonic: copying Photonic's code into holo-emitter's pub
    - Each module keeps its private working repo, plus a public runtime line built from it by a script. The runtime line holds only what runs, with licences.
    - holo-emitter's public site serves only pinned runtime lines.
    - Making any line public is Kabe's call, per module.
-7. **Lifecycle.** A module offers `dispose()` and `state()`/`add(state)`, so a dev reload or a pin bump inside a running world swaps it without losing anyone.
+7. **Lifecycle.** A module offers `dispose()`, `snapshot()` and `restore(snapshot)`. The snapshot holds every person's doc and state, and the module's clock. A dev reload or a pin bump inside a running world then swaps the module without losing anyone. For Photonic this rests on R4's per-person round trip, gait phase included.
 8. **Budget in, cost out.** `ctx.budget` tells a module its milliseconds. The module reports `stats()` (what it drew per tier, its CPU ms a frame) and adapts to stay inside. Whether "the cost justifies the delivery" can then be checked live.
-9. **Events out, not callbacks in.** A module never calls into the host mid-frame. The host polls `events()` (arrived, no_way, bumped, said_end, …), so neither side re-enters the other.
+9. **Events out, not callbacks in.** A module never calls into the host mid-frame. The host polls `events()`, so neither side re-enters the other. The contract file names every event, so a host can check it knows them all. Photonic's today: `arrived`, `no_way`, `cannot_walk` (babies are carried), `bumped`, `said_start` and `said_end`.
 10. **The same pattern beyond JavaScript.** pattern-buffer is Python behind a JSON-lines child. It keeps the same contract with semver, conformance both ways and declared capabilities. Only the transport differs, so construct and pattern-buffer fit later.
+
+## After the outside opinions (consult c14cbae, two families), agreed with Photonic (m4345e7)
+
+**Adopted between us:**
+- **C. Test against the place builder, not one fixture.** Photonic's pre-pin check fetches holo-emitter's place builder at the pinned commit and runs it in node, over many plans and seeds, under our host checks. This replaces the recorded `ctx` fixture in rule 4, which would go stale.
+- **D. Failure isolation.**
+  - Every module has a manifest: kind, capabilities, compatibility range, budget.
+  - Its lifecycle runs load, validate, activate, suspend, dispose.
+  - Health is `stats()` plus an error count.
+  - The host owns the fallback; for people, that is standing still.
+  - A budget is cooperative bounded work, since same-thread JavaScript can't be interrupted. Photonic already slices route planning by `planBudget`.
+
+**With Kabe as gate g1eeae0:**
+- **A. The world document is the one truth; modules propose.**
+  - Anything a player could notice on coming back is a fact in the document, on the world's clock: where someone stands at rest, their destination and departure time, posture, activity, what they hold.
+  - Modules change facts only by proposing effects from the closed list. The world applies them, synchronously and in-page, or refuses them.
+  - Photonic's conditions:
+    - Motion stays projection: no 60 Hz facts. A walker is rebuilt at their route position for that world time, and gait phase is derived from distance walked.
+    - Proposals go out at low frequency: on arrival, on crossing a room, and on a final no_way.
+    - Services (pattern-buffer, construct) reconcile in seconds through a second lane.
+  - The test: throw the module's state away, rebuild from the document, and every fact matches, with mid-walk positions within a body width.
+  - This replaces rule 7's snapshot (now a dev convenience) and rule 10. There are two lanes, in-page projections and services, sharing one world protocol.
+  - One people doc that construct and Photonic both read. Photonic's R3 trait schema is its appearance part.
+- **B. The phone path without publishing.** One private https origin serves holo-emitter plus the module's working tree: Tailscale serve (recommended) or an mkcert CA on the iPhone. It needs a secure context for WebGPU and for Photonic's crypto.subtle check. This replaces rule 3's per-try jsDelivr pins, which would publish every try. The public runtime line becomes a release step for whenever Kabe chooses.
 
 ## What it asks of Kabe, once settled
 
-One decision: a public runtime line for Photonic, either as `/lib` beside `/lab` in 5000Stadia/photonic-phone-test or as a new repo. holo-emitter's site would pin it. Our own repo still never holds a copy, so his "Not yet" stands as he said it. This goes to him after the outside opinions.
+One decision: a public runtime line for Photonic.
+- **Recommended:** a new repo, 5000Stadia/photonic. It holds only the runtime line (src/people, src/traits, the data packs, licences), built by a script from Photonic's private repo. Photonic's Lab pins it like any host, so Photonic finds breaks first. It never holds vendor-private material or research. Licences: CC0 (MakeHuman, gait data) and MIT (hair shader, and ICT faces when they come).
+- **Alternative:** `/lib` beside `/lab` in 5000Stadia/photonic-phone-test. One pin would then mix demo and runtime.
+
+ Either way, holo-emitter's site pins it. Our own repo still never holds a copy, so his "Not yet" stands as he said it. This goes to him after the outside opinions.
 
 ## Until settled
 
