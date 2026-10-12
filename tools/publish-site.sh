@@ -89,6 +89,8 @@ cp index.html "$S"/
 sed -i -E "s#(<script src=\"[^\"?]+\.js)\"#\1?v=$HEAD_SHA\"#g; s#(fixture\.js)\"><#\1?v=$HEAD_SHA\"><#g" "$S"/index.html
 touch "$S"/.nojekyll
 cp -r src "$S"/src
+# (Photonic's people code, if trialled here, stays off the site until Kabe answers Photonic's gate g57063d: monitor n3fb468)
+rm -rf "$S"/src/people/photonic "$S"/src/people/photonic.js
 cp -r fixtures "$S"/fixtures
 # [Row 45] THE PAINTINGS SHIP AS FILES, one per wall, and the page fetches the
 # one it is looking at. Until this row the tree carried `backdrops/baked.js`
