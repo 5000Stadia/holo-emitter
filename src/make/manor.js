@@ -297,6 +297,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // a room built in steps (R65: the study's 0.6 s in one frame, after walkable): a pause after its walls and after each
   // thing placed; at load, and for a room you walk into, run straight through (buildRoom)
   function buildRoom(room) { for (const _ of buildRoomSteps(room)); }
+  // where a room's things go as it is built: the house's list, or, for a room built in steps, its own until it is whole (a
+  // case adopting things between two steps had found a half-built room's chest without the box the placer was still to put
+  // in it, and made the box a second time)
+  let into = things;
   function* buildRoomSteps(room) {
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
     const spec = specs.get(room.id).spec, entry = rooms.get(room.id);
@@ -307,7 +311,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       // built, and the grid had stood inside the closet before the cabinet, filling the muniment door from either side)
       const gone = []; sr.group.traverse(o => { if (o.isMesh && o.userData?.material === "grid" && /\/beyond$/.test(o.userData.instance || "")) gone.push(o); });
       for (const o of gone) { o.removeFromParent(); o.geometry.dispose(); }
-      entry.grp.removeFromParent(); sr.group.position.set(x0, Y, -y0); scene.add(sr.group); things.push(...sr.things);
+      entry.grp.removeFromParent(); sr.group.position.set(x0, Y, -y0); scene.add(sr.group); into.push(...sr.things);
       for (const l of sr.lights) l.userData.room = room.id;
       rooms.set(room.id, { room, grp: sr.group, movers: null, H, Y, lights: sr.lights, colliders: sr.colliders, strongroom: sr, built: true });
       return;
@@ -365,7 +369,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       else if (p.wall) { const holder = new THREE.Group(); holder.position.set(...P[p.wall].pos); holder.rotation.y = P[p.wall].rot; movers.add(holder); n.position.set(p.r, 0, p.d); holder.add(n); }
       else { // free standing: its back (the origin) half its depth behind its middle, facing the way it is turned
         const [u, v] = p.at, f = [Math.sin(p.rot), -Math.cos(p.rot)]; n.rotation.y = p.rot; n.position.set(u - f[0] * d / 2, 0, -(v - f[1] * d / 2)); movers.add(n); }
-      n.userData.room = room.id; if (p.story) { b.story = p.story; n.userData.story = p.story; } things.push(b);   // a story's thing knows which it is (a case's clue)
+      n.userData.room = room.id; if (p.story) { b.story = p.story; n.userData.story = p.story; } into.push(b);   // a story's thing knows which it is (a case's clue)
       yield;
     }
     // the lights the room's type names (T.light), each a thing that gives it, where such a light was kept: a lantern
@@ -375,7 +379,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const ownLights = [], RW = x1 - x0, RD = y1 - y0, lightNotes = [], made = new Map();
     const light = (kind, over, place) => { const k = (made.get(kind) || 0) + 1; made.set(kind, k);
       const b = build(THREE, K, look, kind, `manor/${room.id}/${kind}:light${k > 1 ? k : ""}`, over); place(b.node, b);
-      b.node.userData.room = room.id; things.push(b); b.node.traverse(o => { if (o.isPointLight) ownLights.push(o); }); return b; };
+      b.node.userData.room = room.id; into.push(b); b.node.traverse(o => { if (o.isPointLight) ownLights.push(o); }); return b; };
     // (on a tapestried wall a sconce stands on the hanging's face, 5.5 cm out, not behind it)
     const onWall = (F, r, y, z, node) => { const holder = new THREE.Group(); holder.position.set(...P[F].pos); holder.rotation.y = P[F].rot; movers.add(holder); node.position.set(r, y, z + (T.walls === "tapestry" && z >= 0 ? 0.055 : 0)); holder.add(node); };
     // a stretch of wall clear for a sconce at r: inside the wall, nothing in the wall there, nothing hung there, nothing tall before it
@@ -677,14 +681,14 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // after walkable, a room at a time in steps within the budget (a room hidden while it is built); one asked for now, at
   // once (the room in steps first finished, so rooms never interleave and each one's things are its own)
   let cur = null;
-  const finishCur = () => { const e = rooms.get(cur.room.id); e.building = false; const made = things.slice(cur.n0);
+  const finishCur = () => { const e = rooms.get(cur.room.id); e.building = false; const made = cur.made; things.push(...made);
     for (const b of made) if (b.node.userData.opening) doorOf.set(b.node.userData.opening, b);
     const r = { id: cur.room.id, things: made, ms: Math.round(cur.ms) }; cur = null; return r; };
-  const step = () => { const t = performance.now(), r = cur.it.next(); cur.ms += performance.now() - t; return r.done ? finishCur() : null; };
+  const step = () => { const t = performance.now(); let r; into = cur.made; try { r = cur.it.next(); } finally { into = things; } cur.ms += performance.now() - t; return r.done ? finishCur() : null; };
   const buildRest = ({ budgetMs = Infinity, next = null } = {}) => { const t0 = performance.now(), out = [];
     while ((cur || later.length) && performance.now() - t0 < budgetMs) {
       if (!cur) { const room = later.splice(next ? next(later) : 0, 1)[0], e = rooms.get(room.id); e.building = true; e.grp.visible = false; if (e.movers) e.movers.visible = false;
-        cur = { room, n0: things.length, ms: 0, it: buildRoomSteps(room) }; }
+        cur = { room, made: [], ms: 0, it: buildRoomSteps(room) }; }
       const r = step(); if (r) out.push(r); }
     return out; };
   // (every room it built: the one in steps, finished first, and the one asked for)
