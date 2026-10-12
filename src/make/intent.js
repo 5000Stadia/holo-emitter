@@ -196,8 +196,15 @@ function nearOf(ix, w) {
   ix.near.set(w, hits); return hits;
 }
 
+// initials with their stops ("a note signed A.C.", "A. C."): the one person whose first name and surname begin so,
+// read as their name (two letters without stops are too often words of their own)
+function byInitials(src, people, why) {
+  return src.replace(/(^|[^A-Za-z.])([A-Za-z])\.\s?([A-Za-z])\.?(?![A-Za-z])/g, (m, pre, a, b) => {
+    const hit = people.filter(p => { const w = String(p.name || "").split(/\s+/).filter(x => x && !TITLES.has(x.toLowerCase())); return w.length >= 2 && w[0][0].toLowerCase() === a.toLowerCase() && w.at(-1)[0].toLowerCase() === b.toLowerCase(); });
+    if (hit.length !== 1) return m; why.push(`${a}.${b}. → ${hit[0].name}`); return `${pre}${hit[0].name.split(/\s+/).filter(x => !TITLES.has(x.toLowerCase())).join(" ")} `; });
+}
 export function readIntent(text, { topics = [], people = [], evidence = [], own = null, last = null } = {}) {
-  const why = [], src = String(text || "").slice(0, 400), norm = rawWords(src).join(" ");
+  const why = [], src = byInitials(String(text || "").slice(0, 400), people, why), norm = rawWords(src).join(" ");
   const test = (re) => re.test(src) || re.test(norm);
   let stance = "ask"; for (const [s, re] of CUES) if (test(re)) { stance = s; why.push(`stance:${s}`); break; }
   const soft = stance === "ask" && test(SOFT_SHOW); if (soft) stance = "show";
