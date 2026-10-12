@@ -1106,7 +1106,11 @@ renderer.setAnimationLoop((now) => {
     d.style.cssText = "position:fixed;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);z-index:9;padding:8px 14px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.4 'IBM Plex Mono',monospace;text-align:center";
     d.textContent = `walkable in ${t.toFixed(1)} s · ${drawn ? `first visit (${drawn} textures drawn)` : "return visit (textures kept)"}`; document.body.appendChild(d); }
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
-    if (Q.get("go")) setTimeout(() => window.__go(Q.get("go")), 0);   // (a station: set down there once you can walk)
+    if (Q.get("go")) setTimeout(() => { const id = Q.get("go"); window.__go(id);   // (a station: set down there once you can walk)
+      // a person the story moves as the case takes up again (Francis, late in the case, from the parlour to the hall just after
+      // his station had chosen the parlour, codex): followed for the first few seconds, set down before them again if they go
+      const who = id.startsWith("person:") ? id.slice(7) : null, was = who && presences.get(who)?.room;
+      if (who) { const t = setInterval(() => { const now = presences.get(who)?.room; if (now && now !== was) { clearInterval(t); window.__go(id); } }, 250); setTimeout(() => clearInterval(t), 4000); } }, 0);
     // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
     const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);
       const made = window.__stillsMade[st.dataset.key]; window.__still.world = made.world === WKEY.split("/manor/world/")[1];
