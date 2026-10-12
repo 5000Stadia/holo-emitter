@@ -15,3 +15,18 @@
 5. **26.6 MB of walk data,** even for 6 people.
 
 **Not measured yet:** a phone.
+
+## After Photonic's fixes (6b4d2fc, the same night)
+
+- **Fixed:** the empty route, "no way", routes found in slices within a frame's budget, and memory (20 people 2.3 MB, 300 people 7.2 MB).
+- **Stepping aside:** people now step aside through our moving-bodies layer. Manor, 300 for 30 s:
+
+  | | Before | After |
+  |---|---|---|
+  | People overlapping someone | 110 | 71 |
+  | Inside the house's solids | 0 | 9 |
+  | Sinking under the floor | 0 | 4 |
+  | Arrivals | 214 | 165 |
+  | 900 frames stepped (desktop) | 10.0 s | 21.5 s |
+
+- **Why the new findings:** a sidestep doesn't ask the house whether its spot can be stood on. I offered `ctx.walk.stand(pos, floor, half)` (m-sent to Photonic).
