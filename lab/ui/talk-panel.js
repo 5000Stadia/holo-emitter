@@ -156,6 +156,9 @@ const CSS = `
 .tp-claims li small{display:block;font:11px/1.35 var(--mono);color:var(--brass);letter-spacing:.01em}
 .tp-entry p.fresh{color:var(--ink);opacity:.8}
 .tp-acc{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:6px 20px 14px}
+/* more of the sentence below: the sheet's foot fades into it (the lock's blank had sat under the confirm buttons on a phone, unseen) */
+.tp-acc.more{-webkit-mask-image:linear-gradient(#000 calc(100% - 40px),transparent);mask-image:linear-gradient(#000 calc(100% - 40px),transparent)}
+@media (max-height:760px){.tp-sentence{line-height:1.85}.tp-lede{margin-bottom:6px}}
 .tp-lede{color:var(--dim);font-size:12px;margin:2px 0 12px}
 .tp-sentence{font:500 25px/2.15 var(--serif);margin:0}
 .tp-sentence .w{margin:0 4px 0 0;white-space:nowrap}
@@ -566,12 +569,20 @@ export function makeTalkPanel(options = {}) {
       A.note ? h("p", { class: "tp-note", role: "status", text: A.note }) : null].filter(Boolean));
     accFoot.replaceChildren();
     if (done) { accFoot.append(h("button", { class: "tp-btn", type: "button", text: "Close", onclick: back })); return; }
+    requestAnimationFrame(() => { nextInView(); moreBelow(); });
     for (const g of A.groups) {
       const locked = A.locked.has(g.id), ready = g.keys.every((k) => A.picks[k] != null);
       accFoot.append(h("button", { class: "tp-btn" + (locked ? " quiet" : ""), type: "button", "data-group": g.id, disabled: locked || !ready || A.waiting || null,
         text: locked ? "Confirmed: " + g.label : "Confirm " + g.label, onclick: () => confirmGroup(g) }));
     }
   }
+  // the next blank still to fill brought into view, and a fade at the foot while more lies below (codex on a 390x664 phone:
+  // the lock's blank, last in the sentence, sat under the confirm buttons with 3 px showing and no sign there was more)
+  function nextInView() { const b = accBody.querySelector(".tp-blank:not(.set):not(.right)"); if (!b) return;
+    const top = b.offsetTop - accBody.offsetTop, bottom = top + b.offsetHeight, room = accBody.clientHeight;
+    if (bottom > accBody.scrollTop + room - 8 || top < accBody.scrollTop) accBody.scrollTo({ top: Math.max(0, bottom - room + 24), behavior: "smooth" }); }
+  const moreBelow = () => accBody.classList.toggle("more", accBody.scrollTop + accBody.clientHeight < accBody.scrollHeight - 24);   // (its bottom padding alone is not more)
+  accBody.addEventListener("scroll", moreBelow, { passive: true });
   // what the room answers, brought into view under the sentence (it had been drawn below the fold)
   function noteInView() {
     requestAnimationFrame(() => { const n = accBody.querySelector(".tp-note:last-of-type"); if (!n) return;
