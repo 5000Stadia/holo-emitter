@@ -63,7 +63,9 @@ export function makeClaims({ x0, y0, x1, y1, floors, cell = 0.1, initial = FREE 
   const canStand = (floor, x, y, half, isOpen = () => true) => { const i = I(x), j = J(y); if (i < 0 || j < 0 || i >= n || j >= m) return false; const c = i * m + j;
     if (exact.get(floor)[c]) return false; const d = doors.get(floor)[c]; if (d && !isOpen(doorIds[d])) return false; return !!standable(floor, half)[c]; };
   const changed = () => reach.clear();
-  return { claim, open, doorway, worst, at, whoAt, canStand, changed, cell, n, m, x0, y0 };
+  // the doorway a point stands in, if any (its opening's id): a body that walks asks whether it fits it
+  const doorAt = (floor, x, y) => { const i = I(x), j = J(y); if (i < 0 || j < 0 || i >= n || j >= m) return null; return doorIds[doors.get(floor)[i * m + j]] || null; };
+  return { claim, open, doorway, worst, at, whoAt, canStand, doorAt, changed, cell, n, m, x0, y0 };
 }
 
 // A house's claims from its plan and what was built in it (blocks: furniture and hearths, as the builder lists them):

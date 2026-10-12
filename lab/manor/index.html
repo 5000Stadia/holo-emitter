@@ -94,7 +94,10 @@ import { nodeify } from "../../src/make/nodes.js";
 import { makeWarm } from "../../src/make/warm.js";
 import { makeGeoDrop, geodropWanted } from "../../src/make/geodrop.js";
 import { buildManor } from "../../src/make/manor.js";
-import { makeWalk } from "../../src/make/walk.js";
+import { makeWalk, BODY } from "../../src/make/walk.js";
+import { withBodies } from "../../src/people/bodies.js";
+import { regions } from "../../src/people/route.js";
+import { checkPeople } from "../../src/people/checks.js";
 import { planBanqueting } from "../../src/make/plans/banqueting.js";
 import { framesOf } from "../../src/make/walls.js";
 import { coplanar } from "../../src/make/coplanar.js";
@@ -339,6 +342,20 @@ let walk = walkFor(SP ? SP.size() : null);
 const outdoorWalk = site ? makeOutdoorWalk(site, { plan, blocked: (x, y, half) => !!FC?.blocked(x, y, half) || !!hill?.blocked(x, y, half) }) : null;
 const joined = (w) => !outdoorWalk ? w : { ...w, groundAt: (x, y, h) => site.inHouse(x, y) ? w.groundAt(x, y, h) : outdoorWalk.groundAt(x, y, h) };
 walk = joined(walk);
+// ---- people (M8, R60; ?people=reference, or a module's path): a population behind the person interface agreed with
+// Photonic (design/people/photonic-brief.md §3), in our rooms, walking by our rules, holding their place in the moving
+// bodies' layer, which your own walk reads too (nobody walks through anybody); ?crowd=N wanderers on the floor you
+// start on, for the phone budget (lab/people/ lists the harness's set-ups)
+let POP = null, CROWD = null, peopleCtx = null; const peopleLog = []; window.__peopleLog = peopleLog; const bodies = Q.get("people") ? withBodies(walk0.claims) : null;
+if (bodies) { const src = Q.get("people"), { makePeople } = await import(src.includes("/") ? src : `../../src/people/${src}.js`), pw = new Map();
+  const walkOf = (half) => { const k = Math.round(half * 100); if (!pw.has(k)) pw.set(k, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { ...BODY, half: k / 100 } })); return pw.get(k); };
+  peopleCtx = { walk: { floorOf: walk0.floorOf, walkFor: walkOf }, claims: bodies, place: { roomAt: walk0.roomAt }, works, device: { share: +(Q.get("share") ?? 1) }, budgetMs: +(Q.get("routems") ?? 3) };   // ?routems: the frame's milliseconds for finding ways
+  POP = makePeople(THREE, { ctx: peopleCtx });
+  scene.add(POP.group); window.__people = POP; window.__bodies = bodies; window.__peopleWalk = walkOf;
+  // the checks on every person (src/people/checks.js): doors as built, their width and head
+  const doorDims = new Map(); for (const { spec } of manor.specs.values()) for (const e of Object.values(spec.walls).flat()) if (e.kind === "door" && e.id) doorDims.set(e.id, { w: e.r1 - e.r0, top: e.top });
+  window.__peopleCheck = () => checkPeople({ people: POP, walkOf, claims: bodies, doors: doorDims });
+  const base = walk; walk = { ...base, groundAt: (x, y, h) => bodies.bodyAt(base.floorOf(h), x, y, BODY.half, "player") != null ? null : base.groundAt(x, y, h) }; }
 const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 // ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
@@ -457,6 +474,39 @@ const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.star
 let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
 // not inside the furniture: the nearest clear floor to the room's middle
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
+// a frame of the people: what happened handed to the crowd, then the population's tick (the page's loop, and
+// __peopleStep(n, dt) for the suite: n frames of dt seconds at once, the same work, the same outcome every run)
+let peopleClock = 0;
+function peopleFrame(t, dt) { const evs = POP.events(); if (evs.length) { peopleLog.push(...evs); if (peopleLog.length > 400) peopleLog.splice(0, peopleLog.length - 400); }
+  CROWD?.tick(t, evs); return POP.tick(t, dt, camera); }
+// (every way found within its frame while stepping: a budget in milliseconds would end searches at different frames each run)
+window.__peopleStep = (n, dt = 1 / 30) => { const t0 = performance.now(), b = peopleCtx.budgetMs; peopleCtx.budgetMs = Infinity;
+  try { for (let k = 0; k < n; k++) { peopleClock += dt; peopleFrame(1e4 + peopleClock, dt); } } finally { peopleCtx.budgetMs = b; } return Math.round(performance.now() - t0); };
+// ?crowd=N (with ?people): N people wandering the rooms of the floor you start on, each from its own address
+// (crowd/i, its errands crowd/i/k), clear of furniture and of each other; on arriving, stuck or finding no way, a pause
+// and a new errand
+if (POP && Q.get("crowd")) { const n = +Q.get("crowd"), f = start.floor, h0 = manor.levelOf(f), rooms = plan.rooms.filter(r => r.type !== "open" && r.floor === f && r.rect);
+  // the doors all open (?doors=shut keeps them as they are): a crowd of the whole floor, not of a hall
+  if (Q.get("doors") !== "shut") { for (const b of works.things.values()) if (b.node.userData.opening && works.stateOf(b, "leaf") !== "open") works.act({ b, aff: "leaf" }); works.finish?.(); }
+  // where one can get to from where (src/people/route.js regions, as the doors stand now): errands only within reach
+  const box = { x0: Math.min(...rooms.map(r => r.rect.x0)), y0: Math.min(...rooms.map(r => r.rect.y0)), x1: Math.max(...rooms.map(r => r.rect.x1)), y1: Math.max(...rooms.map(r => r.rect.y1)) };
+  const reach = regions(walk0, box, h0), all = rooms.flatMap(r => { const ids = new Set(); for (let x = r.rect.x0 + 0.2; x < r.rect.x1; x += 0.4) for (let y = r.rect.y0 + 0.2; y < r.rect.y1; y += 0.4) { const g = reach.of(x, y); if (g) ids.add(g); } return [...ids]; });
+  const big = [...new Set(all)].sort((a, b) => reach.cells(b).length - reach.cells(a).length)[0];
+  // a free spot in a region that this body fits (a broad person refused where the regions' 0.22 m body stood)
+  const pick = (key, region = big, who = null, half = BODY.half) => { const r0 = rngOf(seedOf(key)), cells = reach.cells(region), w = window.__peopleWalk(half);
+    for (let k = 0; k < 30 && cells.length; k++) { const [x, y] = cells[Math.floor(r0() * cells.length)], g = w.groundAt(x, y, h0);
+      if (g != null && bodies.bodyAt(f, x, y, half + 0.08, who) == null) return [x, y, g]; } return null; };
+  const trips = new Map(), rest = new Map();
+  bodies.hold("player", f, px, py, BODY.half);         // (you, before anyone is set down: one had been put where you stand)
+  for (let i = 0; i < n; i++) { const id = `crowd/${i}`; let at = pick(`${id}/0`); if (!at) continue; const doc = { id, recipe: {}, seed: 0, at: { pos: [at[0], at[2], -at[1]], floor: f } }, half = POP.add(doc).bounds().half;
+    if (half > BODY.half) { POP.remove(id); at = pick(`${id}/0`, big, null, half); if (!at) continue; POP.add({ ...doc, at: { pos: [at[0], at[2], -at[1]], floor: f } }); }
+    trips.set(id, 0); rest.set(id, 0); }
+  // (nowhere free to go: asked again in a second, never in the same pass, which had looped for ever)
+  const errand = (id, t) => { const k = trips.get(id) + 1, w = POP.get(id).where(), to = pick(`${id}/${k}`, reach.of(w.pos[0], -w.pos[2]) || big, id, POP.get(id).bounds().half); trips.set(id, k);
+    if (to) POP.get(id).goTo({ pos: [to[0], to[2], -to[1]], floor: f }, { pace: k % 3 ? "walk" : "stroll" }); else rest.set(id, t + 1); };
+  CROWD = { tick(t, evs) { for (const e of evs) if (trips.has(e.id) && (e.type === "arrived" || e.type === "stuck" || e.type === "no_way")) rest.set(e.id, t + 1 + trips.get(e.id) % 4);
+    for (const [id, at] of [...rest]) if (t >= at) { rest.delete(id); errand(id, t); } } };
+}
 // a case brings you in facing whoever meets you there (you had arrived facing the panelling, Dame Anne behind you)
 // and from a side where no hearth stands behind them (seen against the fire, she had looked to stand in it): of twelve
 // spots a few strides off, the one whose line of sight past them runs farthest from any hearth
@@ -635,6 +685,9 @@ function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectOb
     // Daniel kneeling at his chest every tap on the chest)
     const wanted = t?.b?.story && (CP?.wouldLook(t.b.story, t.i) || CP?.reachIn(t.b.story) || (CASE?.things.find(q => q.id === t.b.story)?.clue && !CASE.things.find(q => q.id === t.b.story).keep));
     if (ph && (!h || ph.distance < h.distance) && !(wanted && h.distance - ph.distance < 1.2)) return { presence: ph.object.userData.presence, point: ph.point }; }
+  // a person of the population (M8): across a room as a presence is, and answering to their id
+  if (POP) { const far0 = ray.far; ray.far = 7; const ph = POP.hit(ray); ray.far = far0;
+    if (ph && (!h || ph.distance < h.distance)) return { presence: ph.id, point: ray.ray.at(ph.distance, new THREE.Vector3()) }; }
   return t; }
 window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff, story: t.b?.story }) : null; };
 const _b = new THREE.Box3(), _c = new THREE.Vector3();
@@ -678,7 +731,7 @@ window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
 function whereFloor(r) { $("where").querySelector(".f").textContent = `${r.floor} floor${CP?.searched(r.id) ? " · nothing more to find here" : ""}`; }
 function actOn(t) {
   touch.stop?.();                                      // a locked stride ends at anything you do
-  if (t?.presence) { CP?.talkTo(t.presence); return true; }
+  if (t?.presence) { if (!CP && POP?.get(t.presence)) { POP.get(t.presence).face({ pos: [px, ph, -py], floor: floorOf(ph) }); return true; } CP?.talkTo(t.presence); return true; }
   // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
   const refloor = () => { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); return true; };
   if (t?.look) { CP?.look(t.look); return refloor(); }
@@ -714,7 +767,7 @@ function refreshView(force = false) {
   const r = roomAt(px, py, ph) || (site && !site.inHouse(px, py) ? (plan.rooms.find(q => q.type === "open" && px > q.rect.x0 && px < q.rect.x1 && py > q.rect.y0 && py < q.rect.y1) || { id: plan.entrance, name: "OUTSIDE", floor: "ground" }) : null);
   if (!r || (!force && r.id === here)) return;
   if (CP && r.id !== here) CP.enter(r.id);
-  here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); inView = seen; lightsDirty = true;
+  here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); POP?.show(seen); inView = seen; lightsDirty = true;
   $("where").querySelector(".n").textContent = r.name; whereFloor(r);
   ENG.invalidate();
 }
@@ -874,6 +927,8 @@ renderer.setAnimationLoop((now) => {
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false;
+  if (bodies) bodies.hold("player", floorOf(ph), px, py, BODY.half);
+  const peopling = POP ? peopleFrame(now / 1000, dt) : false;
   for (const q of presences.values()) { q.p.group.visible = manor.rooms.get(q.room)?.grp.visible !== false; if (q.p.group.visible) q.p.tick(now / 1000, camera); }
   const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, !window.__ok ? 500 : ENG.phone ? 2 : 4) : false;
   const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, !window.__ok ? 500 : ENG.phone ? 2 : 4) : false;   // the nearest before the first frame (half a second); the rest a few ms a frame, under the haze
@@ -887,7 +942,7 @@ renderer.setAnimationLoop((now) => {
   // (a fire's flicker alone redraws at most 20 times a second: a hall with its fire in view had drawn every frame standing
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
   const burning = flicker(now) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
-  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || groundBusy || hillBusy || works.busy() || !window.__ok });
+  ENG.frame(scene, camera, { changed: moved || burning || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !window.__ok });
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
     // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
     const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);
