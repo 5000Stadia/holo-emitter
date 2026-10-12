@@ -18,6 +18,9 @@ export function seek(walk, from, to, { cell = 0.2, limit = 40000 } = {}) {
   const pop = () => { const top = open[0], last = open.pop(); if (open.length) { open[0] = last; let k = 0; for (;;) { const l = 2 * k + 1, r = l + 1; let m = k;
     if (l < open.length && open[l].f < open[m].f) m = l; if (r < open.length && open[r].f < open[m].f) m = r; if (m === k) break; [open[m], open[k]] = [open[k], open[m]]; k = m; } } return top; };
   const start = { i: 0, j: 0, x: fx, y: fy, h: h0, g: 0, f: H(fx, fy, h0), prev: null, id: idOf(0, 0, h0) }; nodes.set(start.id, start); push(start);
+  // (the ground at a cell, for the height it is asked from, asked once a search: an expansion asks up to sixteen, and
+  // its neighbours ask most of the same again)
+  const memo = new Map(), G = (i, j, h) => { const k = `${i},${j},${Math.round(h * 1000)}`; let v = memo.get(k); if (v === undefined) { v = walk.groundAt(ox + i * cell, oy + j * cell, h); memo.set(k, v); } return v; };
   let seen = 0, done = false, out;
   function finish(end) { done = true; if (!end) return out = null;
     const pts = []; for (let n = end; n; n = n.prev) pts.unshift([n.x, n.y, n.h]);
@@ -30,9 +33,9 @@ export function seek(walk, from, to, { cell = 0.2, limit = 40000 } = {}) {
       const n = pop(); if (n.done) continue; n.done = true;
       if (near(n.x, n.y, n.h)) return finish(n);
       for (let di = -1; di <= 1; di++) for (let dj = -1; dj <= 1; dj++) { if (!di && !dj) continue;
-        const i = n.i + di, j = n.j + dj, x = ox + i * cell, y = oy + j * cell, h = walk.groundAt(x, y, n.h); if (h == null) continue;
+        const i = n.i + di, j = n.j + dj, x = ox + i * cell, y = oy + j * cell, h = G(i, j, n.h); if (h == null) continue;
         // (a diagonal only where both its sides can be stood on: no cutting a jamb's corner)
-        if (di && dj && (walk.groundAt(ox + n.i * cell + di * cell, oy + n.j * cell, n.h) == null || walk.groundAt(ox + n.i * cell, oy + n.j * cell + dj * cell, n.h) == null)) continue;
+        if (di && dj && (G(n.i + di, n.j, n.h) == null || G(n.i, n.j + dj, n.h) == null)) continue;
         const id = idOf(i, j, h), g = n.g + Math.hypot(di * cell, dj * cell, h - n.h), was = nodes.get(id);
         if (was && (was.done || was.g <= g)) continue;
         const m = { i, j, x, y, h, g, f: g + H(x, y, h), prev: n, id }; nodes.set(id, m); push(m);
