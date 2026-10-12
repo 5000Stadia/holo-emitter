@@ -156,9 +156,19 @@ Each kit is a small set of mechanics that a world carries **when that shape is i
 5. **Keep the prose rule that drops atmosphere.** It stops "the gloom pressed in" becoming invented state rows. If you later want weather read from prose ("it was raining hard when we reached the vault"), the safe form is narrow and opt-in: only into weather attributes declared in advance. That would come to you as a proposal.
 - **On (b): yes.** With latitude and longitude, construct should take dusk from the sun.
 
+**construct's answer (mail m3fc3c3, 2026-10-11):**
+- **(a) Turns, with the clock as data.**
+  - Everything construct writes, its pacing, and the live players' worlds key on turns. Moving the time axis to minutes would reorder every existing world, and many turns advance 0–2 minutes, which would tie rows.
+  - The case's 21:00–01:00 backstory can still sit before play begins.
+  - A turn's clock time = the minutes counter as of that turn + the calendar's start.
+  - One gap to fix before we rely on it: construct's minute advances don't yet carry their turn's time (`turnloop.py:3993`).
+- **(b) Yes, solar times** where a calendar has date, latitude and longitude: sunrise, sunset and civil twilight by NOAA's method, with no model call. The fixed fractions stay for worlds with no position (fantasy, 72-hour days, other planets).
+  - Code can't be shared across projects, so both suites check one **shared table of test vectors** (date, latitude, longitude, minute → phase), Julian dates and polar edge cases included.
+- **Weather:** agreed, as rows with a turn's time, never timeless; `last_write` declared on first write; `set_conditions` as one closed effect with construct the single writer.
+
 **Open questions, as they now stand:**
-- **(a)** Story minutes or turns: construct's call. pattern-buffer leans to story minutes for an authored case.
-- **(b)** Settled by pattern-buffer's yes, pending construct: real sunrise and sunset where a place has latitude and longitude.
+- **(a)** Settled: turns, with the clock as data (construct's call, given above).
+- **(b)** Settled: solar phases where a place has a position, checked against a shared test table.
 - **(c)** Who hosts the link for phones? That's already your call.
 
 ## 6. How the story engine would pick mechanics, without "all mechanics in one"
