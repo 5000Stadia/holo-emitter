@@ -21,3 +21,7 @@
 **Merged** (pattern-buffer main 188e310, pbr green): the vectors are `tests/vectors/view-feed-v1.json`, made by `tests/make_view_vectors.py`.
 - **Since r3:** a canon kind `person` also counts as a person (a hidden NPC without a `person:` id or frame).
 - **`refused`:** every record failure answers a bare `refused`, including a host that didn't keep up. So `refused` means try again later or drop the report, never a verdict on the thing.
+
+**WORN-OBJECTS-V1 (E3), merged** (pattern-buffer d04d236):
+- Minted contents may carry declared look aspects, so the present layer has looks to draw for invented items. Our vocabulary mapping has to cover them.
+- A garment `worn_by` a person is an object, and is never exported into the present layer: persons and what they carry stay out.
