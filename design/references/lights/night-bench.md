@@ -52,6 +52,24 @@
   - **Texture size:** a grid laid along the 3D texture's depth went past WebGPU's 2,048 limit and silently failed to exist. It is guarded now.
   - **Window lights:** a light in front of the glass lit its own wall, which a lamp in a room can't do, and made the grid look 20% dark. The lights now sit inside the room.
 
+## The swap, on a phone's budget (2026-10-11, the monitor for Kabe: "if a newly close light matters more than the least-needed real one, swap them (with a fade). Check it on the phone budget (~4 real lights)")
+
+- **The rule:** when the real lights are all in use and a waiting light needs one more than the least-needed holder does, the holder fades into the grid over 0.5 s and the slot passes on. "Needs more" means a higher real share, or the same share and over a metre nearer.
+  - Waiting lights take freed slots nearest first.
+  - There are never more lights fading out than are waiting.
+  - The holder's real and grid shares still sum to the source throughout.
+- **Measured:** 4 real lights, 10 m radius, after walking 40 m. The pool size is a phone's, but this desktop's GPU ran it, so these are not phone timings.
+
+| | Swap | No swap (wait for a free slot) |
+|---|---|---|
+| The 4 real lights' distances | 4.3, 4.8, 5.3, 6.4 m | 4.3, 9.7, 9.9, 10.7 m |
+| The 4 nearest | 4.3, 4.8, 5.3, 5.7 m | the same |
+| Difference from all real, 0–5 m / 5–10 m (of 255) | 0.6 / 3.3 | 7.5 / 15.0 |
+| Walking, 1 frame in 100 | 19.3 ms | 18.7 ms |
+| Swaps over 40 m | 23 | 0 |
+
+- **First try, which failed:** it churned. Freed slots went to whichever waiting light came first in the list, so it was soon evicted again; once, all four were fading out at the same moment. Hence the nearest-first order and the cap.
+
 ## Recommendation
 
 - **Desktop with WebGPU:** real within 10 m, cheap beyond. That is about 40% less GPU than all real, and exact wherever you look closely.

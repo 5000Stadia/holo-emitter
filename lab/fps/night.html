@@ -161,30 +161,47 @@ addEventListener("mousemove", e => { if (document.pointerLockElement === rendere
 
 // ---- the modes. hybrid: a source within R of you is a real light; beyond R + BAND, all in the grid; between, both. Its
 // real share is always 1 − its grid share, so a source is never lit twice or lost, whatever has been brought up to date.
-// Each frame the sources furthest from their share move first, nearest first among equals, within BUDGET ms; a source
-// that wants a real light when the pool is full stays in the grid till a slot frees.
-const BAND = 4, BUDGET = num("budget", 3), moves = []; let gridMs = 0;
+// Each frame the sources furthest from their share move first, within BUDGET ms. A source that wants a real light when the
+// pool is full takes the slot of the least needed one holding a light, if it needs it more (a higher real share, or the
+// same and over a metre nearer): that one fades into the grid over FADE seconds, real and grid still summing to the
+// source, and the slot passes on when it is out (the monitor for Kabe, 2026-10-11: "if a newly close light matters more
+// than the least-needed real one, swap them (with a fade)"; ?swap=0 waits for a free slot instead, as before).
+const BAND = 4, BUDGET = num("budget", 3), FADE = num("fade", 0.5), SWAP = Q.get("swap") !== "0", moves = [], leaving = new Set(); let gridMs = 0, swaps = 0, lastT = performance.now();
 const wOf = (so, at) => { const d = so.at.distanceTo(at); return d <= R ? 1 : d >= R + BAND ? 0 : Math.round(4 * (1 - (d - R) / BAND)) / 4; };   // (in quarters: a share moves about once a metre, not every frame)
 if (MODE === "full") sources.forEach((_, i) => setReal(i, 1));
 if (MODE === "grid") gridMs = fillGrid(() => 1).ms;
 if (MODE === "hybrid") { const at = new THREE.Vector3(); { const f = street.frame(num("s", 12), num("t", -0.8)); at.set(f.x, street.heightAt(f.x, f.y) + 1.6, -f.y); }
-  gridMade = false; sources.forEach((so, i) => { if (!setReal(i, wOf(so, at))) addToGrid(i, 1); else addToGrid(i, 1 - wOf(so, at)); }); grid.texture.needsUpdate = true; gridMade = true; touchLo = Infinity; touchHi = -1; grid.texture.layerUpdates.clear(); }
+  gridMade = false; [...sources.keys()].sort((a, b) => sources[a].at.distanceTo(at) - sources[b].at.distanceTo(at)).forEach(i => { const so = sources[i]; if (!setReal(i, wOf(so, at))) addToGrid(i, 1); else addToGrid(i, 1 - wOf(so, at)); });   /* nearest first */ grid.texture.needsUpdate = true; gridMade = true; touchLo = Infinity; touchHi = -1; grid.texture.layerUpdates.clear(); }
 function setMode(at) {
   if (MODE !== "hybrid") return;
-  const t0 = performance.now(), todo = [];
-  for (let i = 0; i < sources.length; i++) { const g = 1 - wOf(sources[i], at), d = Math.abs(g - held[i]); if (d > 0.01) todo.push([d, i]); }
-  if (!todo.length) return;
-  todo.sort((a, b) => b[0] - a[0]);
-  let n = 0;
-  for (const [, i] of todo) { if (performance.now() - t0 > BUDGET && n) break; const g = 1 - wOf(sources[i], at);
-    if (!setReal(i, 1 - g)) continue;     // no slot free: it stays as it is
-    addToGrid(i, g); n++; }
+  const t0 = performance.now(), dt = Math.min(0.1, (t0 - lastT) / 1000), todo = []; lastT = t0; let n = 0;
+  // those giving up their light: a step of the fade, the grid taking what the light lets go
+  for (const j of leaving) { const r = Math.max(0, (1 - held[j]) - dt / FADE); setReal(j, r); addToGrid(j, 1 - r); n++; if (r <= 0) leaving.delete(j); }
+  // lights waiting for a slot, most needed first (a freed slot goes to the nearest of them, never round again); the rest by
+  // how far each is from its share
+  const dist = (i) => sources[i].at.distanceTo(at), more = (a, b) => { const wa = wOf(sources[a], at), wb = wOf(sources[b], at); return wa > wb || (wa === wb && dist(a) < dist(b) - 1); };
+  const want = [];
+  for (let i = 0; i < sources.length; i++) { if (leaving.has(i)) continue; const g = 1 - wOf(sources[i], at), d = Math.abs(g - held[i]); if (d <= 0.01) continue;
+    if (g < 1 && slotOf[i] < 0) want.push(i); else todo.push([d, i]); }
+  if (!todo.length && !want.length && !n) return;
+  want.sort((a, b) => wOf(sources[b], at) - wOf(sources[a], at) || dist(a) - dist(b)); todo.sort((a, b) => b[0] - a[0]);
+  let waiting = 0;
+  for (const i of want) { if (performance.now() - t0 > BUDGET && n) break; const g = 1 - wOf(sources[i], at);
+    if (setReal(i, 1 - g)) { addToGrid(i, g); n++; continue; }
+    // no slot free: the least needed holder gives way, if this needs it more; never more fading out than are waiting
+    waiting++; if (!SWAP || leaving.size >= waiting) continue;
+    let least = -1; for (let k = 0; k < sources.length; k++) if (slotOf[k] >= 0 && !leaving.has(k) && (least < 0 || more(least, k))) least = k;
+    if (least >= 0 && more(i, least)) { leaving.add(least); swaps++; } }
+  for (const [, i] of todo) { if (performance.now() - t0 > BUDGET && n) break; const g = 1 - wOf(sources[i], at); if (setReal(i, 1 - g)) { addToGrid(i, g); n++; } }
   // only the slices touched go up (three's upload of a 3D texture's layers; walking, 1 frame in 100 at 19-20 ms, 18 with no grid)
   if (n) { for (let sl = touchLo; sl <= touchHi; sl++) for (let t7 = 0; t7 < 7; t7++) grid.texture.layerUpdates.add(t7 * slices + sl); touchLo = Infinity; touchHi = -1; grid.texture.needsUpdate = true; }
   moves.push({ ms: +(performance.now() - t0).toFixed(1), add: +(performance.now() - t0).toFixed(1), n, left: todo.length - n }); if (moves.length > 2000) moves.shift(); dirty = true;
 }
 window.__hybrid = (r) => { R = r; dirty = true; };
 window.__moves = () => moves;
+// which sources hold a real light, and how far they are, against the nearest as many (the swap's test)
+window.__held = () => { const at = camera.position, d = (i) => +sources[i].at.distanceTo(at).toFixed(1), real = [...sources.keys()].filter(i => slotOf[i] >= 0 && !leaving.has(i)).map(d).sort((a, b) => a - b);
+  const nearest = [...sources.keys()].map(d).sort((a, b) => a - b).slice(0, real.length); return { real, nearest, swaps }; };
 if (MODE === "grid" || MODE === "hybrid") scene.add(grid);
 
 // distance as grey (1 = 256 m), straight to the canvas: for measuring the modes' differences by distance
@@ -196,7 +213,7 @@ window.__spin = false;
 window.__gpu = () => { const a = [...gpuMs].sort((p, q) => p - q); return a.length ? +a[Math.floor(a.length / 2)].toFixed(2) : null; };
 window.__gpuReset = () => { gpuMs.length = 0; };
 window.__stats = () => ({ backend: BACKEND, mode: MODE, r: R, fps, gpu: __gpu(), sources: sources.length, windows: windows.length, lanterns: lanterns.length,
-  realOn: pool.filter(l => l.intensity > 0).length, pool: POOL, grid: [res.x, res.y, res.z], gridMB: +(gridData.byteLength / 1048576).toFixed(1), gridMs, spacing: [GS, GS, +GSZ.toFixed(2)], marks: mark, calls: renderer.info.render.drawCalls });
+  realOn: pool.filter(l => l.intensity > 0).length, pool: POOL, swaps, grid: [res.x, res.y, res.z], gridMB: +(gridData.byteLength / 1048576).toFixed(1), gridMs, spacing: [GS, GS, +GSZ.toFixed(2)], marks: mark, calls: renderer.info.render.drawCalls });
 let last = performance.now();
 renderer.setAnimationLoop(() => {
   const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
