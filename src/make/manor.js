@@ -14,7 +14,7 @@ import { floorOf } from "./walls.js";
 import { carve, carveMesh } from "./carve.js";
 import { shellOf, buildShell } from "./exterior.js";
 import { settleFaces } from "./coplanar.js";
-import { buildWall, slab, rect, metric } from "../../lab/painted/procedural.js";
+import { buildWall, slab, rect, metric, outsideTexture } from "../../lab/painted/procedural.js";
 import { buildStrongroom } from "../../lab/brief/strongroom.js";
 import { build } from "./build.js";
 import { kindOf, sizeOf as kindSize, value } from "./catalogue.js";
@@ -191,6 +191,9 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const tileUV = (g, k) => { const uv = g.attributes.uv, p = g.attributes.position; for (let i = 0; i < uv.count; i++) uv.setXY(i, p.getX(i) / k, p.getY(i) / k); return g; };
 
   const specs = houseSpecs(plan, { types, brief, gap });
+  // the strongroom's barred windows show a painted outside (lab/brief/strongroom.js): asked of the texture workers now, so a
+  // strongroom built after the first frame finds it drawn, not drawn on the spot (173 ms on the main thread, R65)
+  if ([...specs.values()].some(s => s.spec.strong)) outsideTexture(THREE, "async");
   // a floor or ceiling with its well: a rectangle with one hole is laid as the strips round it. A hole at its edge is no
   // hole to the triangulator (a well run on to the wall at a landing's end, R59: it laid reversed slivers over the floor,
   // faces that fought); anything else as a shape with its holes, as before

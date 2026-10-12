@@ -204,3 +204,22 @@ The case's returning visit, three alternating pairs (desktop, headless Chromium,
 
 - 24 of the case's rooms arrive after walkable.
 - The first frame itself (ready to drawn) is 1.5–1.8 s either way.
+
+## The rooms built after walkable (2026-10-12)
+
+In a load from the great hall, 25 rooms arrive after walkable, 2.0–2.4 s of building in all, one room a frame while the view is still. The slowest:
+
+| Room | Before | Now |
+|---|---|---|
+| Study | 570–630 ms | the same |
+| Muniment room (the strongroom) | 280–320 ms | **123–137 ms** |
+| The rest | under 160 ms each (the case's best bedchamber up to 390) | |
+
+**What changed: the strongroom's outside pane.** Its barred windows show a painted outside 2.5 m beyond. That texture was first asked for when the strongroom was built, and after walkable that meant drawing it on the main thread: 173 ms. It's now asked of the texture workers at load whenever the plan has a strongroom. The look is the same: if the workers haven't finished, it's drawn on the spot as before.
+
+**The study, profiled** (built alone, 626 ms):
+- its things, 496 ms: the bookcases 229 ms (their books 143 ms), and the anti-flicker pass on them 211 ms;
+- its walls, the rest.
+- Whether to build it over a few frames or in workers waits on gate g235968.
+
+**Noticed, not changed:** every other window in the manor shows the real outside (`backdrop: false` when there is one). The strongroom always hangs its painted pane, so its windows show a painting where the others show the grounds. Whether that's wanted is for Kabe's eye.
