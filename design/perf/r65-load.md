@@ -146,3 +146,26 @@ Both set R65's architecture, and both need point 1, which is ready.
 - **Materials against programs:** the start view has 59 material objects, and the node builder ran 61 times for those 41 programs. 26 of the materials are unnamed `MeshBasicNodeMaterial`s, likely one per window's leaded glass.
 - **The possible saving:** sharing one glass material, with the window's texture chosen per object, would save about 20 node builds, roughly 0.1 s.
 - **Not built:** it is small, and it needs a per-object texture switch. Noted for when the glass is next touched.
+
+## The start view first, landed (2026-10-12)
+
+- **Returning visit:** walkable 4.5 → 2.7 s. The build before the first frame went from 2.7 to 1.0 s: 10 of 34 rooms from the great hall, the rest after.
+- **The same house:** identical in all four places. The first frame matches (mean 0.08 of 255).
+- **The one long frame left:** the study, 0.6 s, built while the view is still. Building rooms in workers (point 2) removes it.
+
+## Next lead: a first visit waits on the floor texture (measured 2026-10-12)
+
+**On a first visit** (no texture cache):
+- the house is built at 1.25-1.35 s, but the kit's textures settle only at 4.1-4.3 s, and the page waits for them (`K.ready`);
+- the last job is the 2880² floor, in four bands.
+
+**The workers' timeline:**
+
+| Worker | What it did |
+|---|---|
+| 1, 3, 4 | Drew the plaster, stone, brick and flags from 0.56 s. Their floor bands started at 1.35-1.38 s, after 0.79-0.81 s spent getting the oak field. The two oak textures then showed 1.5-1.6 s of oak time of their own. |
+| 2 | Started its first job, floor rows 0-720, only at 3.18 s (asked at 0.55 s), and finished at 3.94 s. |
+
+**The suspect:** how the shared oak field is handed between workers (texjobs.js `oakKeeper`, texworker.js `oakFor`). Worker 2 waits about 2.6 s, longer than the field takes to draw, and the field may be drawn more than once.
+
+**The bound:** with the field drawn once and handed on, the floor's four bands would finish about 0.8 s after it, around 2.2-2.5 s. That would bring a first visit's textures under the build.
