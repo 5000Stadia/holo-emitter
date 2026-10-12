@@ -546,12 +546,40 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
 
 const r2 = (x) => Math.round(x * 100) / 100;
 // a room's still meshes merged by material: a few draws a room, which its bundle then replays
+// (R65: a material whose meshes all carry plain float position, normal, uv and colour is merged straight into one array
+// each, every vertex moved by three's own arithmetic (Vector3.applyMatrix4; the normal by the normal matrix and
+// normalised as Vector3.normalize does), so the result is what toNonIndexed, applyMatrix4 and mergeGeometries gave, value
+// for value, without a copy a mesh and a copy again; the anti-flicker pass then lifts faces in that array itself. Any other
+// material goes the old way.)
+const plainF = (a, n) => a && !a.isInterleavedBufferAttribute && a.array instanceof Float32Array && a.itemSize === n && !a.normalized;
+function mergeFast(list, mat, inv) {
+  if (Array.isArray(mat)) return null;
+  for (const o of list) { const g = o.geometry, A = g.attributes;
+    if (Object.keys(g.morphAttributes).some(k => g.morphAttributes[k].length) || !plainF(A.position, 3) || !plainF(A.normal, 3) || (A.uv && !plainF(A.uv, 2)) || (mat.vertexColors && A.color && !plainF(A.color, 3))) return null; }
+  let total = 0; const counts = list.map(o => { const g = o.geometry, c = g.index ? g.index.count : g.attributes.position.count; total += c; return c; });
+  const P = new Float32Array(total * 3), N = new Float32Array(total * 3), U = new Float32Array(total * 2), C = mat.vertexColors ? new Float32Array(total * 3) : null;
+  const m = new THREE.Matrix4(), nm = new THREE.Matrix3(), views = []; let at = 0;
+  list.forEach((o, k) => { const g = o.geometry, I = g.index ? g.index.array : null, p = g.attributes.position.array, q = g.attributes.normal.array, uv = g.attributes.uv?.array, col = g.attributes.color?.array, n = counts[k];
+    m.multiplyMatrices(inv, o.matrixWorld); nm.getNormalMatrix(m); const e = m.elements, f = nm.elements;
+    for (let i = 0; i < n; i++) { const s = I ? I[i] : i, d = at + i;
+      let x = p[s * 3], y = p[s * 3 + 1], z = p[s * 3 + 2]; const w = 1 / (e[3] * x + e[7] * y + e[11] * z + e[15]);
+      P[d * 3] = (e[0] * x + e[4] * y + e[8] * z + e[12]) * w; P[d * 3 + 1] = (e[1] * x + e[5] * y + e[9] * z + e[13]) * w; P[d * 3 + 2] = (e[2] * x + e[6] * y + e[10] * z + e[14]) * w;
+      x = q[s * 3]; y = q[s * 3 + 1]; z = q[s * 3 + 2];
+      let nx = f[0] * x + f[3] * y + f[6] * z, ny = f[1] * x + f[4] * y + f[7] * z, nz = f[2] * x + f[5] * y + f[8] * z; const r = 1 / (Math.sqrt(nx * nx + ny * ny + nz * nz) || 1);
+      N[d * 3] = nx * r; N[d * 3 + 1] = ny * r; N[d * 3 + 2] = nz * r;
+      if (uv) { U[d * 2] = uv[s * 2]; U[d * 2 + 1] = uv[s * 2 + 1]; }
+      if (C) { if (col) { C[d * 3] = col[s * 3]; C[d * 3 + 1] = col[s * 3 + 1]; C[d * 3 + 2] = col[s * 3 + 2]; } else { C[d * 3] = C[d * 3 + 1] = C[d * 3 + 2] = 1; } } }
+    // (a mesh's own stretch of the arrays, as a geometry the anti-flicker pass can read and lift)
+    views.push({ index: null, attributes: { position: { array: P.subarray(at * 3, (at + n) * 3), needsUpdate: false } } }); at += n; });
+  return { P, N, U, C, views };
+}
 function merge(grp, bundle = false, settle = true) {
   grp.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(grp.matrixWorld).invert(), byMat = new Map();
   grp.traverse(o => { if (o.isMesh && !o.isInstancedMesh) (byMat.get(o.material) || byMat.set(o.material, []).get(o.material)).push(o); });
-  const keep = [], ready = new Map();
+  const keep = [], ready = new Map(), fast = new Map();
   for (const [mat, list] of byMat) {
+    const F = mergeFast(list, mat, inv); if (F) { fast.set(mat, F); ready.set(mat, F.views); continue; }
     ready.set(mat, list.map(o => { let g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); g.applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, o.matrixWorld));
       for (const k of Object.keys(g.attributes)) if (!["position", "normal", "uv", "color"].includes(k)) g.deleteAttribute(k);
       if (mat.vertexColors && !g.attributes.color) g.setAttribute("color", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 3).fill(1), 3));
@@ -564,8 +592,10 @@ function merge(grp, bundle = false, settle = true) {
   { const mats = [...ready.keys()], flat = mats.flatMap(m => ready.get(m)), sides = mats.flatMap(m => ready.get(m).map(() => m.side === THREE.BackSide ? -1 : m.side === THREE.DoubleSide ? 0 : 1));
     if (settle && flat.length > 1) settleFaces(flat, 0.001, sides); let k = 0; for (const m of mats) { const gs = ready.get(m); for (let j = 0; j < gs.length; j++) gs[j] = flat[k++]; } }
   for (const [mat, list] of byMat) {
-    const geos = ready.get(mat);
-    const merged = mergeGeometries(geos, false); if (!merged) { keep.push(...list); continue; }
+    let merged; const F = fast.get(mat);
+    if (F) { merged = new THREE.BufferGeometry(); merged.setAttribute("position", new THREE.BufferAttribute(F.P, 3)); merged.setAttribute("normal", new THREE.BufferAttribute(F.N, 3));
+      merged.setAttribute("uv", new THREE.BufferAttribute(F.U, 2)); if (F.C) merged.setAttribute("color", new THREE.BufferAttribute(F.C, 3)); }
+    else { merged = mergeGeometries(ready.get(mat), false); if (!merged) { keep.push(...list); continue; } }
     const m = new THREE.Mesh(merged, mat); m.castShadow = !mat.transparent && !mat.isMeshBasicMaterial; m.receiveShadow = true; m.frustumCulled = false; keep.push(m);
   }
   const others = []; grp.traverse(o => { if ((o.isInstancedMesh || o.isLight) && o.parent) others.push(o); });
