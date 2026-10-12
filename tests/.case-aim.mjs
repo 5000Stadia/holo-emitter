@@ -5,7 +5,7 @@
 import { chromium } from "playwright";
 const b = await chromium.launch({ args: ["--use-angle=vulkan", "--enable-features=Vulkan", "--enable-unsafe-webgpu", "--ignore-gpu-blocklist"] });
 const p = await b.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }); const errs = []; p.on("pageerror", e => errs.push(e.message));
-await p.goto(`${process.env.BASE || "http://localhost:8794"}/lab/manor/index.html?case=case-1660&fresh&webgpu=1&voice=0`, { timeout: 300000 }); await p.waitForFunction(() => window.__ok, null, { timeout: 300000 });
+await p.goto(`${process.env.BASE || "http://localhost:8794"}/lab/manor/index.html?case=case-1660&fresh&webgpu=1&voice=0&whole=1`, { timeout: 300000 }); await p.waitForFunction(() => window.__ok, null, { timeout: 300000 });
 let bad = 0; const ok = (c, what) => { if (!c) bad++; console.log(`${c ? "ok  " : "FAIL"} ${what}`); };
 // stand ~d m from a story thing, toward its room's middle, looking at it; return where it falls on screen
 const stand = (id, d = 1.3, pitch = -35) => p.evaluate(([id, d, pitch]) => { const C = window.__manor.things.find(b => b.story === id); const v = new (window.__camera.position.constructor)(); C.node.getWorldPosition(v);

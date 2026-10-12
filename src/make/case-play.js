@@ -35,7 +35,6 @@ export function caseRequired(k, plan, known = null) {   // known: the catalogue'
 
 export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {}, saved = null, persist = null, onTurn = null }) {
   const clues = new Map(cluesOf(k).map(c => [c.id, c])), cast = new Map(arr(k.cast).map(c => [c.id, c]));
-  const thingOf = new Map(manor.things.filter(b => b.story).map(b => [b.story, b]));
   const frame = { learned: new Set(), holding: new Set(), said: [], yielded: new Set(), guarded: new Map() };
   const notebook = { clues: [], persons: new Map(), caught: [], heard: [] };
   let talking = null, lastTopic = null, turn = 0; const threadN = {};
@@ -170,7 +169,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
       if (e.type === "spawn_person") presenceOf(e.id, e.at);
       else if (e.type === "move_person") presenceOf(e.id, e.to);
       else if (e.type === "set_var") setVar(e.name, e.value);
-      else if (e.type === "reveal_thing") { const b = thingOf.get(e.id); if (b) b.node.traverse(o => o.layers.set(0)); setVar(`revealed.${e.id}`, true); }
+      else if (e.type === "reveal_thing") { const b = manor.things.find(q => q.story === e.id); /* (looked up now: a room built after the start adopts its things late) */ if (b) b.node.traverse(o => o.layers.set(0)); setVar(`revealed.${e.id}`, true); }
     }
   }
   function step(extra = []) { if (heldMoves.length && !panel.isOpen?.()) { const m = heldMoves; heldMoves = []; run(m); } narrate(extra); stepOpen(); save(); }

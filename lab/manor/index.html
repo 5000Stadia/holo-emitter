@@ -215,10 +215,10 @@ await step("raising the house, room by room, each by its purpose");
 const ORDER = { reverse: (rs) => [...rs].reverse(), shuffle: (rs) => { const r = rngOf(seedOf("order")), o = [...rs]; for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; } }[Q.get("order")] || null;
 const sizesWait = performance.now(), sizesKept = await SIZES, placesKept = await PLACES, sizesWaited = Math.round(performance.now() - sizesWait);
 // R65, the start view first: the room you start in and every room within two openings or a stair of it (all it can show,
-// whatever its doors' state) before the first frame; the rest after it, nearest first (?whole=1: all at once; a case or
-// a story's place builds whole: its things are adopted from the whole house)
+// whatever its doors' state) before the first frame; the rest after it, nearest first (?whole=1: all at once; a story's
+// place builds whole; a case adopts its things room by room as they arrive, adoptCase)
 const START_ID = (plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open"))?.id;
-const FIRST = Q.has("whole") || STORY || CASE ? null : (() => { const near = new Map(), link = (a, b) => (near.get(a) || near.set(a, new Set()).get(a)).add(b);
+const FIRST = Q.has("whole") || STORY ? null : (() => { const near = new Map(), link = (a, b) => (near.get(a) || near.set(a, new Set()).get(a)).add(b);
   for (const o of plan.openings || []) if (o.joins?.length === 2) { link(o.joins[0], o.joins[1]); link(o.joins[1], o.joins[0]); }
   for (const st of plan.stairs || []) for (const a of st.joins || []) for (const b of st.joins || []) if (a !== b) link(a, b);
   const got = new Set([START_ID]); let edge = [START_ID];
@@ -387,9 +387,14 @@ const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 // ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
 // narrator in code (the live narrative is construct's, over the contract: design/case/boundary-with-construct.md)
-let CP = null; const presences = new Map(), lookMeshes = [];
+let CP = null, adoptCase = () => {}; const presences = new Map(), lookMeshes = [];
 if (CASE) {
-  const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values());
+  const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values()), knownKinds = new Set(kinds().map(k => k.kind)), looked = new Set();
+  // (adoptCase: run at load and again as each room arrives after the start view, R65: it takes only what isn't taken yet)
+  adoptCase = () => {
+  // (what the placer built for the case, a required thing carrying its story, taken as it arrives, before any is adopted
+  // by kind: a late room's required chest had been passed over for another chest of its kind)
+  for (const b of manor.things) if (b.story && !byStory.has(b.story)) { byStory.set(b.story, b); used.add(b); }
   // what the house's own builders made (the muniment room is built from its brief, not by the placer): adopted by kind
   for (const t of CASE.things || []) { if (byStory.has(t.id) || !plan.rooms.some(r => r.id === t.at)) continue;
     const c = manor.things.filter(b => !used.has(b) && b.kind.kind === t.kind && (b.address || "").includes(`/${t.at}/`));
@@ -398,7 +403,6 @@ if (CASE) {
       // the case's settings for it (its keys, how it starts), applied to what its own builder made
       const cs = caseSettings(t); if (Object.keys(cs).length) { pick.settings = { ...pick.settings, ...cs }; works.add(pick); } } }
   // and what those hold, built and seated in their slots
-  const knownKinds = new Set(kinds().map(k => k.kind));
   for (let pass = 0; pass < 4; pass++) for (const t of CASE.things || []) { if (byStory.has(t.id) || !knownKinds.has(t.kind)) continue; const host = byStory.get(t.at); if (!host) continue;
     const b = build(THREE, K, look1660, t.kind, `case/${t.id}`, caseSettings(t)); b.story = t.id; b.node.userData.story = t.id;
     const want = t.slot || kindOf(t.kind)?.place?.slot || "top", name = host.slots?.has(want) ? want : host.slots?.has("top") ? "top" : "inside", sl = host.slots?.get(name);
@@ -415,7 +419,9 @@ if (CASE) {
   // each called as the case labels it ("take Mr Hollins's key", "take the steward's padlock key"): both keys had read "take the key"
   for (const [id, b] of byStory) { const l = CASE.things.find(q => q.id === id)?.label; if (l) b.name = l; }
   // what is only looked at (the body laid out: nothing to work, nothing to carry), aimed at by its own meshes
-  for (const b of byStory.values()) if (!Object.keys(b.kind.affordances || {}).length && (CASE.things.find(t => t.id === b.story)?.clue)) b.node.traverse(o => { if (o.isMesh) { o.userData.look = b.story; lookMeshes.push(o); } });
+  for (const b of byStory.values()) if (!looked.has(b.story) && !Object.keys(b.kind.affordances || {}).length && (CASE.things.find(t => t.id === b.story)?.clue)) { looked.add(b.story); b.node.traverse(o => { if (o.isMesh) { o.userData.look = b.story; lookMeshes.push(o); } }); }
+  if (window.__case) Object.assign(window.__case, { placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) }); };
+  adoptCase();
   // fair by the project's own check, at load (ms)
   const fp = fairPlay(CASE, { plan }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)) });
   window.__case = { check: cc, fair: fp, placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) };
@@ -795,6 +801,7 @@ function arrive(built) {
   for (const b of built) (window.__arrived ||= []).push({ id: b.id, ms: b.ms, at: Math.round(performance.now()) });
   for (const { id, things: made } of built) { const r = manor.rooms.get(id); nodeify(r.grp); if (r.movers) nodeify(r.movers);
     for (const b of made) { works.add(b); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }   // (a late room's own door, the strongroom's, stops you shut)
+    adoptCase();                                                                    // (a case's things in that room)
     r.grp.updateMatrixWorld(true); const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); }); for (const l of own) poolOwn(l, id);
     const q = r.room.rect; warm?.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); }
   manor.show(inView); lightsDirty = true; ENG.invalidate();
