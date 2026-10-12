@@ -14,6 +14,9 @@ process.env.HOLO_TIMINGS = process.env.HOLO_TIMINGS || "off";
 export default defineConfig({
   testDir: ".",
   fullyParallel: true,
+  /* Two workers, not one per core (8 here): each browser holds 400-700 MB, and beside the colony's consoles a full run
+     ran the machine out of memory twice on 2026-10-12, killing Kabe's own Chrome. PW_WORKERS overrides. */
+  workers: +(process.env.PW_WORKERS || 2),
   /* Several §12.8 cases render the full 1536×1024 canvas a dozen times over
      and read every pixel back. On a loaded machine those run 30–40 s, and
      the 30 s default turned "the suite is green" into "the suite is green

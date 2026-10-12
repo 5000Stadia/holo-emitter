@@ -7,11 +7,15 @@ const BASE = process.env.BASE || "http://localhost:8794";
 const LOAD = 300_000;
 test.use({ launchOptions: { args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
-async function load(browser, qs) {
+async function load(browser, qs, waitTiles = false) {
   const page = await browser.newPage({ viewport: { width: 480, height: 320 } }), errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
   await page.goto(`${BASE}/lab/manor/index.html?webgl=1&still=0&plan=banqueting&${qs}`, { timeout: LOAD });
   await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  // (every ground tile built: an indoor start fills the rest after walkable, and a digest taken before would count fewer)
+  // (Chromium only: headless Firefox's page grew past 4 GB in the seconds after walkable, with the old tile budget too, and
+  // was killed for memory on 2026-10-12; Firefox keeps the placement comparison below)
+  if (waitTiles) await page.waitForFunction(() => window.__eng?.marks?.["tiles-all"] != null, null, { timeout: 60_000 }).catch(() => {});
   const r = await page.evaluate(() => { window.requestAnimationFrame = () => 0; const F = (h, v) => Math.imul(h ^ v, 16777619) >>> 0, per = [];
     window.__scene.traverse(o => { const g = o.isMesh && o.geometry; if (!g?.attributes?.position || o.material?.name === "flame" || o.material?.userData?.cls === "flame") return; /* (flames move) */ let h = 2166136261;
       for (const k of ["position", "normal", "uv", "color"]) { const a = g.attributes[k]; if (!a) { h = F(h, 7); continue; } for (let i = 0; i < a.array.length; i++) h = F(h, Math.round(a.array[i] * 1e5) | 0); } per.push(h); });
@@ -22,7 +26,7 @@ async function load(browser, qs) {
 
 test("keep: the shipped tables are this code's, are used, and build the house measuring and placing builds", async ({ browser, browserName }) => {
   test.setTimeout(2 * LOAD);
-  const t = await load(browser, ""), m = await load(browser, "keep=0");
+  const t = await load(browser, "", browserName === "chromium"), m = await load(browser, "keep=0", browserName === "chromium");
   expect(t.kept.from, "the shipped table is stale: run node tools/keep-tables.mjs").toBe("table");
   expect(t.kept.probes.sizes + t.kept.probes.sweeps, "nothing measured from a current table").toBe(0);
   expect(t.kept.places, "the shipped placement is stale: run node tools/keep-tables.mjs").toBe("table");

@@ -68,9 +68,12 @@ function carvedTextures(THREE, oak, len, ht, ppm = 400) {
 }
 // leaded lights: diamond quarries in lead cames, a shield of arms in the upper lights
 const LEADED = new Map();
-function leadedTexture(THREE, wM, hM, shield, seed) {
+// (kept by size and shield, so drawn from a seed of those too: whichever window of that size is built first, the glass
+// is the same; it had taken the running part count, which made it depend on build order)
+function leadedTexture(THREE, wM, hM, shield) {
   const key = `${wM.toFixed(2)}x${hM.toFixed(2)}/${shield}`;
   if (LEADED.has(key)) return LEADED.get(key);
+  let seed = 2166136261; for (let i = 0; i < key.length; i++) seed = Math.imul(seed ^ key.charCodeAt(i), 16777619) >>> 0;
   const t = leadedTextureNew(THREE, wM, hM, shield, seed); LEADED.set(key, t); return t;
 }
 function leadedTextureNew(THREE, wM, hM, shield, seed) {
@@ -542,7 +545,7 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         const lightsIn = [[gx0, mx - mw, ty + mw, gy1, arms[0]], [mx + mw, gx1, ty + mw, gy1, arms[1]], [gx0, mx - mw, gy0, ty - mw, 0], [mx + mw, gx1, gy0, ty - mw, 0]];
         lightsIn.forEach(([a, b, y0, y1, sh], k) => {
           const g = new THREE.PlaneGeometry(b - a, y1 - y0); g.translate((a + b) / 2, (y0 + y1) / 2, G - 0.005);
-          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh, 100 + k + K.parts), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });
+          const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, b - a, y1 - y0, sh), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });
           const glass = new THREE.Mesh(g, m); grp.add(glass);
           glass.userData = { instance: `${F}/${e.id}/glass${k + 1}`, material: "glass", owner: F };
         });

@@ -8,6 +8,7 @@ import { buildBook, bookSpec } from "../../src/make/parts/books.js";
 import { build, lookC1660, shutterOpen } from "../../src/make/index.js";
 import { rect, slab, quad, run, loft, metric, metricAny, block, leadedTexture, outsideTexture, stoneTexture, grime, canvasTex } from "../painted/procedural.js";
 import { kitTexture } from "../painted/texjobs.js";
+import { rng as rngOf, seedOf } from "../../src/make/id.js";
 import { LIB as SR_TEX } from "./strongroom-tex.js";
 
 const r2 = (x) => Math.round(x * 1000) / 1000;
@@ -20,11 +21,11 @@ function vaultArc(c, spring, crown) {
 }
 
 // a merge-as-you-go bucket per material: thousands of drawer parts become a few draw calls
-function buckets(THREE, K) {
+function buckets(THREE, K, grain) {
   const map = new Map();
   return {
     add(g, mat, spread = 0.18, xf = null) {
-      if (mat.vertexColors && !g.attributes.color) K.board(g, spread);
+      if (mat.vertexColors && !g.attributes.color) K.board(g, spread, grain);
       if (!g.attributes.color) { const n = g.attributes.position.count, c = new Float32Array(n * 3).fill(1); g.setAttribute("color", new THREE.BufferAttribute(c, 3)); }
       if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
       if (g.index) g = g.toNonIndexed();
@@ -81,8 +82,9 @@ export function strongroomMaterials(THREE, K) {
 
 // ---------------------------------------------------------------- a stone wall
 // N and S spring the vault: they stop at the springing. The end walls rise to the vault's curve.
-function stoneWall(THREE, K, S, F, L, elems, top, vaultTop) {
-  const grp = new THREE.Group(), lights = [], B = buckets(THREE, K);
+// (addr: the room's own address, so its timber's grain is drawn from a stream keyed by where it is, not by build order)
+function stoneWall(THREE, K, S, F, L, elems, top, vaultTop, addr = "strongroom") {
+  const grp = new THREE.Group(), lights = [], B = buckets(THREE, K, rngOf(seedOf(`grain/${addr}/${F}`)));
   const holes = [], notches = [];
   for (const e of elems) {
     if (e.kind === "window") holes.push(rect(e.r0, e.r1, e.sill, e.top));
@@ -160,7 +162,7 @@ function barredWindow(THREE, K, S, B, grp, F, e, T) {
   const gx0 = i[0][0] + 0.04, gx1 = i[1][0] - 0.04, gy0 = i[0][1] + 0.04, gy1 = i[2][1] - 0.04, gw = gx1 - gx0, gh = gy1 - gy0;
   // leaded quarries, plain
   { const g = new THREE.PlaneGeometry(gw, gh); g.translate((gx0 + gx1) / 2, (gy0 + gy1) / 2, G - 0.006);
-    const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, gw, gh, 0, 300 + K.parts), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });
+    const m = new THREE.MeshBasicMaterial({ map: leadedTexture(THREE, gw, gh, 0), color: new THREE.Color(1.0, 0.99, 0.94), transparent: true, depthWrite: false });
     const glass = new THREE.Mesh(g, m); glass.userData = { instance: `${F}/${e.id}/glass`, material: "glass", owner: F }; grp.add(glass); }
   // the world outside, 2.5 m beyond
   K.outside = K.outside || new THREE.MeshBasicMaterial({ map: outsideTexture(THREE), color: new THREE.Color(1.06, 1.06, 1.06) });
@@ -219,7 +221,7 @@ export function buildStrongroom(THREE, K, spec) {
   for (const F of ["N", "E", "S", "W"]) {
     const L = F === "N" || F === "S" ? W : D, elems = spec.walls[F] || [];
     const spring = v.springWalls.includes(F);
-    const w = stoneWall(THREE, K, S, F, L, elems.filter(e => e.kind === "door" || e.kind === "window"), v.spring, spring ? null : (r) => arc.y(F === "E" || F === "S" ? r : r));
+    const w = stoneWall(THREE, K, S, F, L, elems.filter(e => e.kind === "door" || e.kind === "window"), v.spring, spring ? null : (r) => arc.y(F === "E" || F === "S" ? r : r), spec.room.id);
     w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot; grp.add(w.grp); lights.push(...w.lights);
     for (const e of elems) {
       // the door from the lord's rooms (a solar, or his closet in the manor) stands unlocked; any other is locked, and its key is not here:
