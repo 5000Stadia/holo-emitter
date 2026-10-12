@@ -116,3 +116,26 @@ Both set R65's architecture, and both need point 1, which is ready.
 - Not a load-time gain on desktop: less upload doesn't shorten a load that hardly waits on the GPU.
 - What it buys is 33 MB less GPU memory. That's worth measuring on a phone, where memory, not upload, is the limit.
 - Welding each quad's corners (indexing) would cost several times this conversion at load, so on desktop it would lose more. Not tried.
+
+## Indoor starts: fewer ground tiles before the first frame (2026-10-12; the monitor: "check the first second through windows for visible pop-in and include those stills")
+
+**What changed:**
+- Started indoors, the outside's tiles get 120 ms before the first frame, not 500. The nearest are built first, and those are what the windows show.
+- Then a catch-up budget runs every frame until all the tiles are built: 12 ms on desktop, 6 on a phone.
+- Then the usual 4 ms (2 on a phone).
+- A start outdoors keeps 500 ms. `?tilefirst=` and `?tilecatch=` override, and a mark `tiles-all` says when they're all done.
+
+**Through the windows** (`design/perf/tiles/window-first-seconds.jpg`):
+- Two views, one out of a north window and one out of a south window of the great hall.
+- Each moment (the first frame, +0.25, 0.5, 1, 2 s) is compared with the settled picture at +4 s. Old budget in the first and third rows, new in the second and fourth.
+
+| | At the first frame | Afterwards |
+|---|---|---|
+| New budget | mean difference 0.37 (north) and 0.18 (south), 0.04–0.14% of pixels off by over 16 | ≤ 0.21 |
+| Old budget | 0.07–0.08 | up to 0.42 at +0.25 s |
+
+- That is no visible pop-in. Every tile was built within 0.4 s of walkable.
+
+**Time:** not measured cleanly yet. Another project held the machine at load average 52, and runs went from 4.5 s to 82 s. The change caps 0.5 s of tile work before the first frame at 0.12 s, where the profile measured 0.59 s. The timing is to be redone when the machine is quiet.
+
+**The smaller vertices** are parked, off by default (`?vfmt=small` only), as a phone-memory option for when there are phone numbers.
