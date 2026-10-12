@@ -129,7 +129,93 @@ makePerson(THREE, { recipe, seed, tier })          // recipe: what the person is
   - bodies are "bonus points";
   - sense matters: "they aren't multiple random princess babies walking London streets".
 
-## 6. How we work together
+## 6. What we built for people so far, why it isn't enough, and the marks to hit
+
+**Kabe, 2026-10-11:** "describe references to what weve done in this area and why its not satisfactory and the marks it has to hit to properly serve pattern buffer construct and holoemitter in union."
+
+### What exists (all in holo-emitter unless said)
+
+| Piece | Where | What it does |
+|---|---|---|
+| **Painted busts** (R57, passed 2026-10-09) | `src/make/sitter.js` (the portrait painted in code from a "look"), `src/make/presence.js` (a life-size bust that turns to face you, a scan shimmer, a holodeck disc on the floor), `src/make/sitter-worker.js` (painted off the main thread since today) | the four suspects stand where the case puts them. Sheets: `design/daily/img/2026-10-09-suspects-stand.jpg`, `…-panel.jpg` |
+| **Questioning** | `src/make/talk.js`, `src/make/intent.js`, `lab/ui/talk-panel.js`, `src/make/voice.js` | topics and stances, or your own words read with no model; a lie broken only by its own evidence; an optional model voice whose every line is checked against what the speaker knows |
+| **Knowledge per person** | `design/case/case-1660.json`: `knows`, `claims`, `facts` (95, each with an id) | static per person; nobody learns anything during play |
+| **Where people were** | the same file, `timeline.intervals` (58), `timeline.doors` (11), sightlines through doors; `design/case/schema-1660.md` | a who-was-where timeline from 21:00 to 01:00, half-open intervals, checked (check 26) |
+| **pattern-buffer's reading of it** | pattern-buffer's branches `research/case-1660-probe(-r2, -r3)`; `design/case/schema-1660.md` | 31 of 36 questions passed with no hand-written rows on the third probe; learned-at dates agree 79 of 79 |
+| **The story moving people** | `src/make/narrator.js` `EFFECTS`; construct's unmerged `holo-bridge` branch (`construct/holo/deck.py`, `vocab.py`) | `spawn_person` and `move_person`: a person **appears** in a room, and never walks there |
+| **The playtest** | `tests/.naive-play.mjs`; `design/case/naive-play2-2026-10-08.md` | six seeds all solved with no model, in 26.5–41.1 estimated minutes; the A/B with construct's deck found that room-keyed stall beats go unheard, so they are now keyed to whom you're talking to |
+| **People from place** (planned, not built) | `design/people/prior-art.md`; ROADMAP R60–R64 | the research and the plan; no code |
+
+### Why it isn't enough
+
+- **They don't look like people.** Kabe's words:
+  - the busts are "kinda 2d weird right now and the faces are pretty jank" (2026-10-10);
+  - after playing the case, the characters "come off as cinchy, and not great looking" (2026-10-11).
+
+  Our own fresh-eyes grade was C+: "distinct, but more clay bust than Lely". A flat picture can't turn, sit, walk or meet your eye.
+- **They have no bodies,** so they can't do what stories need:
+  - no walking (they teleport);
+  - no sitting, carrying, opening a door or following;
+  - no nearness or gaze;
+  - so no Bond, Gambit, Farce or horror (`design/audit/fiction-range/README.md` §3–4).
+- **They don't perceive.**
+  - Nobody sees or hears the player, or each other.
+  - Nothing a person witnesses in play becomes something they know.
+  - Their knowledge is fixed at authoring.
+- **They are one case's people,** hand-written. Nobody is generated from a place, an era or a household. Nothing crosses settings: the same builder can't make a 1660 child and a far-future old soldier.
+- **Nothing measures them as a crowd.** The street is empty, and R60's 300 walking on a phone is untested.
+
+### The marks: what photonic's people must hit, for each project and for all three together
+
+**For holo-emitter (the world you can walk in):**
+1. **Looks:** read as a person of the period, both across a room and face to face. Kabe's yes on R60's side-by-side (a 3D Daniel beside his bust) is the bar; a fresh outside grade of at least B on the way.
+2. **Body in the world:**
+   - stands and walks on our floor grid (`claims.js`, `walk.js`), and climbs our stairs;
+   - fits the doors it uses, and opens them through `works.js` as the player does;
+   - sits on what can be sat on;
+   - passes our geometry checks: nothing floats, nothing passes through, no faces fighting.
+3. **Cost:**
+   - 300 walking on a phone at the manor's 30 fps;
+   - the case's five named people adding no more than about 0.3 s to the time until you can walk (the manor is at 3.4 s);
+   - per-frame work only for those seen.
+4. **Same every time:** a seed and a recipe give the same person on every device; a person never depends on build order. Their state saves as data and comes back after a reload or a crash, as the case does.
+5. **No model needed:** a model may only give voice.
+
+**For construct (the story):**
+1. **Its four people verbs** (`spawn_person`, `move_person`, and through `set_var` and `reveal_thing` what people do) **are carried out with a body.** A move is a walk by a real route where one exists, timed by construct's clock.
+2. **Presence tiers map to the world:**
+   - `at_scene`: in the room, visible;
+   - `nearby`: next door, can be heard;
+   - `offscene`: not drawn.
+3. **The off-screen world tick** (`moved met_with sent_word finished_task closed_up`) shows when seen and is found when not: a door now shut, a note left.
+4. **The beats work:**
+   - act beats land at once;
+   - stall beats fire on the person you're talking to;
+   - the commitment check sees who is physically present (an accusation needs an audience, in a place).
+5. **The Bond kit** for construct's Bond shape (romance, social drama):
+   - nearness and gaze;
+   - gifts given and kept;
+   - privacy (who else is in the room);
+   - their memory of what you did.
+6. **Events go out to construct** for it to commit: what a person saw or heard, what you gave them, where they went.
+
+**For pattern-buffer (the memory):**
+1. **Each person's knowledge and claims live as rows** (`knows:`, `says:`), each tied to a fact id as the 1660 case's are, so a lie is caught against the truth.
+2. **Their timeline is the truth of where they were:** half-open intervals, doors and sightlines, asked "as of" any moment. What the body does in play matches what is written.
+3. **Knowledge changes only through committed rows.** What a person perceives in the world becomes knowledge only when construct writes it (one writer, one log); the world never invents a memory.
+4. **Ids:** one person, one id across all three projects.
+
+**For all three together (the test of the union):**
+- **One person agrees across all three.** Say the record has Dame Anne standing in the nursery doorway at 00:58:
+  - pattern-buffer has it;
+  - construct's narrator speaks of it;
+  - the world shows her there at that moment of a replay;
+  - a witness who could see the door at that moment knows it, and one who couldn't doesn't.
+- **The investigation playtest still passes with walking people.** The naive bot solves the 1660 case at the same rate (6 of 6, 30–60 minutes, no model) with bodies in place of busts.
+- **A Bond probe resolves:** one room in the manor, one person, a short story that ends with no clue trail (construct's own falsifier for its Bond shape).
+- **The crowd holds:** 300 people of the London street at an hour, sensible by place and era ("they aren't multiple random princess babies walking London streets"), holding a phone's frame.
+
+## 7. How we work together
 
 - **Talk at hand-offs** (`colony send holo-emitter`):
   - first, to agree the interface in §3;
