@@ -13,8 +13,8 @@ test.describe.configure({ mode: "serial" });
 async function harness(browser, qs) {
   const page = await browser.newPage({ viewport: { width: 640, height: 400 } }), errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
-  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&still=0&${qs}`, { timeout: LOAD });
-  await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&whole=1&still=0&${qs}`, { timeout: LOAD });
+  await page.waitForFunction(() => window.__ok && window.__whole !== false, null, { timeout: LOAD });
   await page.evaluate(() => { window.requestAnimationFrame = () => 0; });      // the people are stepped by the test, not drawn
   return { page, errs };
 }

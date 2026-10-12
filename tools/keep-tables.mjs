@@ -18,7 +18,7 @@ const dir = mkdtempSync(join(tmpdir(), "keep-")), ctx = await chromium.launchPer
 try {
   let sig = null, table = null;
   for (const q of PLACES) { const p = await ctx.newPage();
-    await p.goto(`http://127.0.0.1:${PORT}/lab/manor/?${q}&still=0&fresh&keep=fresh`, { timeout: 300000 }); await p.waitForFunction(() => window.__ok, null, { timeout: 300000 });
+    await p.goto(`http://127.0.0.1:${PORT}/lab/manor/?${q}&still=0&fresh&keep=fresh`, { timeout: 300000 }); await p.waitForFunction(() => window.__ok && window.__whole !== false, null, { timeout: 300000 });
     const r = await p.evaluate(() => { const k = window.__sizesKept; return { sig: k.sig, t: JSON.parse(localStorage.getItem("holo/keep/sizes") || "null"), plan: k.plan, placeSig: k.placeSig, place: JSON.parse(localStorage.getItem(`holo/keep/place/${k.plan}`) || "null") }; });
     if (r.place?.sig === r.placeSig) { writeFileSync(join(ROOT, `lab/manor/kept/place-${r.plan}.json`), JSON.stringify({ sig: r.placeSig, made: new Date().toISOString().slice(0, 10), place: q || "manor", data: r.place.data }) + "\n"); console.log(`  wrote lab/manor/kept/place-${r.plan}.json`); }
     if (sig && r.sig !== sig) throw new Error(`places disagree on the signature: ${sig} vs ${r.sig} (${q})`);

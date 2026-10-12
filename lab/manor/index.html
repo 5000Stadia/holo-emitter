@@ -214,7 +214,17 @@ await step("raising the house, room by room, each by its purpose");
 // ?order=reverse|shuffle: the rooms built in another order (the house must come out the same; engine principle 2)
 const ORDER = { reverse: (rs) => [...rs].reverse(), shuffle: (rs) => { const r = rngOf(seedOf("order")), o = [...rs]; for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; } }[Q.get("order")] || null;
 const sizesWait = performance.now(), sizesKept = await SIZES, placesKept = await PLACES, sizesWaited = Math.round(performance.now() - sizesWait);
-const manor = buildManor({ vfmt: Q.get("vfmt"), known: { ...(sizesKept.data || {}), places: placesKept.data }, order: ORDER, outside: !STORY && Q.get("outdoor") !== "0", settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+// R65, the start view first: the room you start in and every room within two openings or a stair of it (all it can show,
+// whatever its doors' state) before the first frame; the rest after it, nearest first (?whole=1: all at once; a case or
+// a story's place builds whole: its things are adopted from the whole house)
+const START_ID = (plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open"))?.id;
+const FIRST = Q.has("whole") || STORY || CASE ? null : (() => { const near = new Map(), link = (a, b) => (near.get(a) || near.set(a, new Set()).get(a)).add(b);
+  for (const o of plan.openings || []) if (o.joins?.length === 2) { link(o.joins[0], o.joins[1]); link(o.joins[1], o.joins[0]); }
+  for (const st of plan.stairs || []) for (const a of st.joins || []) for (const b of st.joins || []) if (a !== b) link(a, b);
+  const got = new Set([START_ID]); let edge = [START_ID];
+  for (let d = 0; d < 2; d++) { const next = []; for (const a of edge) for (const b of near.get(a) || []) if (!got.has(b)) { got.add(b); next.push(b); } edge = next; }
+  return got; })();
+const manor = buildManor({ first: FIRST, vfmt: Q.get("vfmt"), known: { ...(sizesKept.data || {}), places: placesKept.data }, order: ORDER, outside: !STORY && Q.get("outdoor") !== "0", settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
 window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
 const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
 nodeify(scene);
@@ -308,7 +318,7 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; },      // a door moved: what can be seen may have changed
   ask: (need, want) => need === "holding" && false });
 for (const b of manor.things) works.add(b);
-window.__works = works; window.__manor = manor; window.__plan = plan;
+window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
 // what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js)
 if (sizesKept.sig) { const m = manor.measured, k = sizesKept.data || { sizes: {}, sweeps: {} };
   if (Object.keys(m.sizes).some(x => !(x in k.sizes)) || Object.keys(m.sweeps).some(x => !(x in k.sweeps))) keepTable("sizes", sizesKept.sig, { sizes: { ...k.sizes, ...m.sizes }, sweeps: { ...k.sweeps, ...m.sweeps } }); }
@@ -779,12 +789,29 @@ function cueOf(t) { return t ? (t.presence ? { mode: "talk", label: `talk to ${C
 
 // ---- what to draw: the room you stand in and what its open doorways show (refreshed on moving rooms, or a door)
 let here = null;
+// a room built after the first frame (manor.buildRest, buildNow): taken in as every room is at load: its materials as
+// nodes, its things into the works, its own lights into the pools, warmed, shown or hidden with the view
+function arrive(built) {
+  for (const b of built) (window.__arrived ||= []).push({ id: b.id, ms: b.ms, at: Math.round(performance.now()) });
+  for (const { id, things: made } of built) { const r = manor.rooms.get(id); nodeify(r.grp); if (r.movers) nodeify(r.movers);
+    for (const b of made) { works.add(b); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }   // (a late room's own door, the strongroom's, stops you shut)
+    r.grp.updateMatrixWorld(true); const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); }); for (const l of own) poolOwn(l, id);
+    const q = r.room.rect; warm?.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); }
+  manor.show(inView); lightsDirty = true; ENG.invalidate();
+  // (the sun's shadow, drawn once, drawn again with every room in it)
+  if (!window.__whole && !manor.pending().length) { window.__whole = true; ENG.mark("whole"); sun.shadow.needsUpdate = true; }
+}
+// the room nearest you waiting to be built (on your floor before another)
+const nearestRoom = (rs) => { let bi = 0, bd = Infinity; rs.forEach((r, i) => { const d = Math.hypot((r.rect.x0 + r.rect.x1) / 2 - px, (r.rect.y0 + r.rect.y1) / 2 - py) + Math.abs(manor.levelOf(r.floor) - ph) * 4; if (d < bd) { bd = d; bi = i; } }); return bi; };
 function refreshView(force = false) {
   // outside: the open court you stand in (the forecourt), seen from as a room is; beyond any, the outdoors
   const r = roomAt(px, py, ph) || (site && !site.inHouse(px, py) ? (plan.rooms.find(q => q.type === "open" && px > q.rect.x0 && px < q.rect.x1 && py > q.rect.y0 && py < q.rect.y1) || { id: plan.entrance, name: "OUTSIDE", floor: "ground" }) : null);
   if (!r || (!force && r.id === here)) return;
   if (CP && r.id !== here) CP.enter(r.id);
-  here = r.id; const seen = manor.visibleFrom(here, isOpen); manor.show(seen); POP?.show(seen); inView = seen; lightsDirty = true;
+  here = r.id; const seen = manor.visibleFrom(here, isOpen);
+  // (anything now in view not built yet is built at once: you walked faster than the slices)
+  { const late = [...seen].filter(id => manor.rooms.get(id)?.built === false).map(id => manor.buildNow(id)).filter(Boolean); if (late.length) arrive(late); }
+  manor.show(seen); POP?.show(seen); inView = seen; lightsDirty = true;
   $("where").querySelector(".n").textContent = r.name; whereFloor(r);
   ENG.invalidate();
 }
@@ -965,6 +992,10 @@ renderer.setAnimationLoop((now) => {
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
   const burning = flicker(now) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
   ENG.frame(scene, camera, { changed: moved || burning || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !window.__ok });
+  // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
+  // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
+  // stutter when you walk; one you walk into is built at once (refreshView). Building in workers removes the wait (point 2)
+  if (window.__ok && !window.__whole && now - lastMoved > 300) arrive(manor.buildRest({ budgetMs: 1, next: nearestRoom }));
   if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
     // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
     const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);

@@ -10,8 +10,8 @@ test.use({ launchOptions: { args: ["--use-gl=angle", "--use-angle=swiftshader", 
 async function load(browser, qs, waitTiles = false) {
   const page = await browser.newPage({ viewport: { width: 480, height: 320 } }), errs = [];
   page.on("pageerror", (e) => errs.push(e.message));
-  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&still=0&plan=banqueting&${qs}`, { timeout: LOAD });
-  await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&whole=1&still=0&plan=banqueting&${qs}`, { timeout: LOAD });
+  await page.waitForFunction(() => window.__ok && window.__whole !== false, null, { timeout: LOAD });
   // (every ground tile built: an indoor start fills the rest after walkable, and a digest taken before would count fewer)
   // (Chromium only: headless Firefox's page grew past 4 GB in the seconds after walkable, with the old tile budget too, and
   // was killed for memory on 2026-10-12; Firefox keeps the placement comparison below)

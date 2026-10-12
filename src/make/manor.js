@@ -588,7 +588,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   }
   // the rooms not built yet (first): built when asked, the nearest first as the page says (next picks from those waiting),
   // within a budget; or one at once (you walked into it). Each returns what it built: its id and the things it made
-  const buildOne = (room) => { const n0 = things.length; buildRoom(room); return { id: room.id, things: things.slice(n0) }; };
+  // (a door a late room hangs, the strongroom's iron door, joins the doors sight reads)
+  const buildOne = (room) => { const n0 = things.length, t = performance.now(); buildRoom(room); const made = things.slice(n0);
+    for (const b of made) if (b.node.userData.opening) doorOf.set(b.node.userData.opening, b);
+    return { id: room.id, things: made, ms: Math.round(performance.now() - t) }; };
   const buildRest = ({ budgetMs = Infinity, next = null } = {}) => { const t0 = performance.now(), out = [];
     while (later.length && performance.now() - t0 < budgetMs) { const i = next ? next(later) : 0; out.push(buildOne(later.splice(i, 1)[0])); }
     return out; };

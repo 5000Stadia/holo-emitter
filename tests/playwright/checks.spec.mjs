@@ -75,6 +75,8 @@ const LOAD = 300_000;   // a page that builds the house under swiftshader
 test.use({ launchOptions: { args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 test.describe.configure({ mode: "serial" });
 
+// (a manor page is ready when walkable and every room is built: the start view first builds the rest after walkable,
+// R65, and window.__whole says when all are in)
 // ---- pages shared by the tests below (opened on first use, closed after the last)
 const pages = new Map();
 async function open(browser, name, url, ready, viewport = { width: 1280, height: 900 }) {
@@ -90,7 +92,7 @@ async function open(browser, name, url, ready, viewport = { width: 1280, height:
   await page.evaluate(() => { window.requestAnimationFrame = () => 0; });
   return entry;
 }
-const manor = (browser, qs = "") => open(browser, "manor" + qs, `/lab/manor/index.html?webgl=1${qs}`, () => window.__ok);
+const manor = (browser, qs = "") => open(browser, "manor" + qs, `/lab/manor/index.html?webgl=1&whole=1${qs}`, () => window.__ok && window.__whole !== false);
 const objects = (browser) => open(browser, "objects", "/lab/brief/object.html?webgl=1&o=furniture&k=table/gateleg&panel=1",
   () => window.__partsCheck && window.__fightKinds, { width: 400, height: 300 });
 // one __partsCheck over every kind, shared by checks 13, 14, 15 and 21 (about a minute under swiftshader)
@@ -563,7 +565,7 @@ test("check 9: every thing in the manor, the banqueting house and Alice's hall r
   test.setTimeout(3 * LOAD);
   // the other two houses first: a manor page left open keeps drawing and starves a page loading beside it
   for (const [name, qs] of [["banq", "&plan=banqueting"], ["alice", "&plan=alice-hall"]]) {
-    const e = await open(browser, name, `/lab/manor/index.html?webgl=1${qs}`, () => window.__ok), r = await e.page.evaluate(RESTS);
+    const e = await open(browser, name, `/lab/manor/index.html?webgl=1&whole=1${qs}`, () => window.__ok && window.__whole !== false), r = await e.page.evaluate(RESTS);
     expect(r.things, `things in ${name}`).toBeGreaterThan(5);
     expect(r.floating, `floating things in ${name}`).toEqual([]);
     expect(e.errs).toEqual([]);
@@ -686,7 +688,7 @@ test("check 20: stairs climb, well and under-flight refuse, hearths stop you sho
 
   // the octagon (unfurnished: see the header): the door stops you shut and passes you open, the four diagonal
   // walls and the east and west walls stop you a body's width short, and the hearth stops you short of its block
-  const oct = await open(browser, "oct", "/lab/manor/index.html?webgl=1&plan=banqueting&nofurn=1", () => window.__ok);
+  const oct = await open(browser, "oct", "/lab/manor/index.html?webgl=1&whole=1&plan=banqueting&nofurn=1", () => window.__ok && window.__whole !== false);
   const o = await oct.page.evaluate(() => { const W = window.__works, d = [...W.things.values()].find((b) => b.node.userData.opening === "d1"), out = {},
       set = (open) => { if ((W.stateOf(d, "leaf") === "open") !== open) W.act({ b: d, aff: "leaf" }); W.finish?.(); }, walk = window.__walk;
     set(false); out.shutStops = walk(10, 4.5, 10, 9, "ground").done === false;
@@ -718,7 +720,7 @@ test("check 22: nothing required or naming a room is refused, and the required k
   expect(errs).toEqual([]);
   // the story's key in the study, and in the nursery (which has no desk: the desk comes with it)
   for (const [room, req] of [["study", "key/iron@study:table/joined-with-drawer.drawer"], ["nursery", "key/iron@nursery:table/joined-with-drawer.drawer"]]) {
-    const e = await open(browser, "req-" + room, `/lab/manor/index.html?webgl=1&fresh=1&require=${encodeURIComponent(req)}`, () => window.__ok);
+    const e = await open(browser, "req-" + room, `/lab/manor/index.html?webgl=1&whole=1&fresh=1&require=${encodeURIComponent(req)}`, () => window.__ok && window.__whole !== false);
     const g = await e.page.evaluate((room) => { const g = window.__manor.placements.get(room), M = window.__manor;
       const key = M.things.find((b) => b.kind.kind === "key/iron" && b.node.parent && b.node.userData.room === room), desk = M.things.find((b) => b.kind.kind === "table/joined-with-drawer" && b.node.userData.room === room);
       const inDrawer = !!(key && desk && desk.movers.get("drawer") && (() => { let o = key.node.parent; while (o) { if (o === desk.movers.get("drawer")) return true; o = o.parent; } return false; })());
