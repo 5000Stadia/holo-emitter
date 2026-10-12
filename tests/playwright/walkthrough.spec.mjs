@@ -918,10 +918,13 @@ test.describe("the page under ordinary clumsiness", () => {
   /* Builds a scratch tree carrying demo-study's own fixture (chair1/desk1/
    * stick1/shelf1 already present and overlapping, so the validator's
    * hardcoded named-overlap-pair check passes without extra scaffolding)
-   * plus a third room, "gallery," chained off the hall on the SAME facing
+   * plus a third room, "annex," chained off the hall on the SAME facing
    * (E) the study exit uses — the geometry that puts a second, different
    * doorway under a double-click's second click. door1 is forced open so
-   * the very first click of a double-click is `go`, not a toggle. */
+   * the very first click of a double-click is `go`, not a toggle. The room is
+   * named so no painting answers to it: as "gallery" it met the liner's measured
+   * gallery paintings in backdrops/, the bake refused their metres against this
+   * room's plan, and both tests below had failed so, unseen, since September. */
   function buildCorridorFixture(root) {
     const fdir = join(root, "fixtures", "demo-study");
     const world = JSON.parse(readFileSync(join(fdir, "world.json"), "utf8"));
@@ -929,10 +932,10 @@ test.describe("the page under ordinary clumsiness", () => {
     const narration = JSON.parse(readFileSync(join(fdir, "narration.json"), "utf8"));
 
     const hall = world.locations.find((l) => l.id === "hall");
-    hall.exits.push({ id: "door_hall_gallery", from: "hall", facing: "E",
-      to: "gallery", arrive_facing: "E", via: "door2" });
-    world.locations.push({ id: "gallery", facings: ["N", "E", "S", "W"],
-      exits: [{ id: "door_gallery_hall", from: "gallery", facing: "W",
+    hall.exits.push({ id: "door_hall_annex", from: "hall", facing: "E",
+      to: "annex", arrive_facing: "E", via: "door2" });
+    world.locations.push({ id: "annex", facings: ["N", "E", "S", "W"],
+      exits: [{ id: "door_annex_hall", from: "annex", facing: "W",
         to: "hall", arrive_facing: "W", via: "door2" }] });
     world.entities.push({ id: "door2", sprite: "door-plank", location: "hall",
       states: ["closed", "open"], state: "open", transition: true });
@@ -940,7 +943,7 @@ test.describe("the page under ordinary clumsiness", () => {
     world.entities.find((e) => e.id === "door1").state = "open";
 
     /* ALIGNED, deliberately, which is the whole point of the fixture: the
-       gallery door has to sit under the same screen x as the study door, so
+       annex door has to sit under the same screen x as the study door, so
        that the second click of a double-click resolves to a DIFFERENT
        doorway.
 
@@ -957,7 +960,7 @@ test.describe("the page under ordinary clumsiness", () => {
        southernmost 1.00 m both rooms' walls share — and re-derives both of
        door1's `u` values from the plan through the shipped projection, which
        is what keeps the bake's staging-equals-projection check satisfied. The
-       gallery door is then placed at the study door's own aperture centre. All
+       annex door is then placed at the study door's own aperture centre. All
        of it computed, none of it typed: a literal here would be a fact about
        one camera, which is exactly what row 20 is removing from this project. */
     const plan = JSON.parse(readFileSync(join(fdir, "plan.json"), "utf8"));
@@ -973,14 +976,14 @@ test.describe("the page under ordinary clumsiness", () => {
     ];
 
     /* Where the study's doorway centre lands in pixels, and the `u` on the
-       arrival facing that puts the gallery's doorway centre at the same x. */
+       arrival facing that puts the annex's doorway centre at the same x. */
     const mStudyE = deriveMeta(plan, "study", "E");
     const mHallE = deriveMeta(plan, "hall", "E");
     const doorX = 1536 / 2 + (uStudy - 0.5) * mStudyE.wall_width_m * mStudyE.px_per_m_at_wall;
     const u2 = 0.5 + (doorX - 1536 / 2) / (mHallE.wall_width_m * mHallE.px_per_m_at_wall);
     staging.placements.door2 = [
       { facing: "hall/E", attachment: "wall_mounted", u: u2, v: 0.0 },
-      { facing: "gallery/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
+      { facing: "annex/W", attachment: "wall_mounted", u: 0.5, v: 0.0 }
     ];
 
     Object.assign(narration.lines, {
@@ -988,12 +991,12 @@ test.describe("the page under ordinary clumsiness", () => {
       "toggle.door2.closed": "The second door falls shut.",
       "toggle.door2.refused_unreachable": "The second door will not answer from here.",
       "take.door2.refused_fixed": "The second door hangs on its hinges, and there it stays.",
-      "go.door_hall_gallery.arrive": "You cross into the gallery beyond.",
-      "go.door_hall_gallery.refused_closed": "The gallery door is shut against you.",
-      "go.door_hall_gallery.refused_unreachable": "The way to the gallery does not open from here.",
-      "go.door_gallery_hall.arrive": "You come back into the hall.",
-      "go.door_gallery_hall.refused_closed": "The way back to the hall is shut.",
-      "go.door_gallery_hall.refused_unreachable": "The way to the hall is not before you."
+      "go.door_hall_annex.arrive": "You cross into the annex beyond.",
+      "go.door_hall_annex.refused_closed": "The annex door is shut against you.",
+      "go.door_hall_annex.refused_unreachable": "The way to the annex does not open from here.",
+      "go.door_annex_hall.arrive": "You come back into the hall.",
+      "go.door_annex_hall.refused_closed": "The way back to the hall is shut.",
+      "go.door_annex_hall.refused_unreachable": "The way to the hall is not before you."
     });
 
     writeFileSync(join(fdir, "world.json"), JSON.stringify(world, null, 2) + "\n");
@@ -1021,7 +1024,7 @@ test.describe("the page under ordinary clumsiness", () => {
       const y = box.y + ((a.y + a.h / 2) * box.height) / 1024;
 
       // The real gesture: one double-click at one screen point. Without the
-      // guard, this walks study -> hall -> gallery in a single click pair,
+      // guard, this walks study -> hall -> annex in a single click pair,
       // the hall never seen, behind a veil never lifted on it.
       /* The point must be a doorway in BOTH rooms, or the test would pass on
          a click that means nothing rather than on the guard. */
@@ -1041,13 +1044,13 @@ test.describe("the page under ordinary clumsiness", () => {
         .toEqual({ location: "hall", facing: "E" });
 
       // Past the window, the SAME screen point now genuinely means "the
-      // gallery's own door" (door2, aligned by the corridor's own geometry),
+      // annex's own door" (door2, aligned by the corridor's own geometry),
       // and a fresh click there must be honoured, not eaten forever.
       await page.waitForTimeout(500);
       await page.mouse.click(x, y);
       s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
       expect(s, "a deliberate later click on the next door is not swallowed")
-        .toEqual({ location: "gallery", facing: "E" });
+        .toEqual({ location: "annex", facing: "E" });
     } finally {
       removeTree(root);
     }
@@ -1087,7 +1090,7 @@ test.describe("the page under ordinary clumsiness", () => {
       await page.mouse.click(box.x + 20, box.y + 20);
       await page.waitForTimeout(120);
 
-      // The gallery's own door sits on THIS facing too (the corridor's
+      // The annex's own door sits on THIS facing too (the corridor's
       // aligned geometry) — a deliberate, separate click on it, ~120ms
       // after the first `go`, well inside the window if nothing cleared it.
       const a2 = await page.evaluate(() => {
@@ -1101,7 +1104,7 @@ test.describe("the page under ordinary clumsiness", () => {
         box.y + ((a2.y + a2.h / 2) * box.height) / 1024);
       s = await page.evaluate(() => window.HOLO_APP.harness.viewstate);
       expect(s, "the bare-space click cleared the window: this doorway click is real, not an echo")
-        .toEqual({ location: "gallery", facing: "E" });
+        .toEqual({ location: "annex", facing: "E" });
     } finally {
       removeTree(root);
     }
