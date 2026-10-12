@@ -294,7 +294,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     scene.add(grp, movers);
     rooms.set(room.id, { room, grp, movers, H, Y, lights: [], lightNotes: [], built: false });
   }
-  function buildRoom(room) {
+  // a room built in steps (R65: the study's 0.6 s in one frame, after walkable): a pause after its walls and after each
+  // thing placed; at load, and for a room you walk into, run straight through (buildRoom)
+  function buildRoom(room) { for (const _ of buildRoomSteps(room)); }
+  function* buildRoomSteps(room) {
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
     const spec = specs.get(room.id).spec, entry = rooms.get(room.id);
     // the muniment room: its own builder, from its period brief
@@ -349,7 +352,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     }
     const got = placements.get(room.id);
     const builtHere = [];
-    got.placed.forEach((p, i) => {
+    yield;
+    for (const [i, p] of got.placed.entries()) {
       const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, { ...(p.over || {}), ...(p.settings || {}) }), n = b.node, d = p.dd ?? (sizeOf(p.kind, p.over || {})?.[2] || 0);
       builtHere.push(b);
       // in a slot: turned as its kind says (a body lies square on its bed), several in one slot laid side by side within
@@ -362,7 +366,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       else { // free standing: its back (the origin) half its depth behind its middle, facing the way it is turned
         const [u, v] = p.at, f = [Math.sin(p.rot), -Math.cos(p.rot)]; n.rotation.y = p.rot; n.position.set(u - f[0] * d / 2, 0, -(v - f[1] * d / 2)); movers.add(n); }
       n.userData.room = room.id; if (p.story) { b.story = p.story; n.userData.story = p.story; } things.push(b);   // a story's thing knows which it is (a case's clue)
-    });
+      yield;
+    }
     // the lights the room's type names (T.light), each a thing that gives it, where such a light was kept: a lantern
     // hung over the stairhead, a sconce beside the main door, a rushlight on a sill near the stair. Their lights are
     // the room's own (rooms' lights), for the page to take into its pool: never a light in the scene, never a light
@@ -660,8 +665,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // a door's leaf shows while either room it joins is seen
   const doorRooms = new Map(plan.openings.map(o => [o.id, o.joins]));
   function show(set) {
-    for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
-    for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
+    for (const [id, r] of rooms) { r.grp.visible = set.has(id) && !r.building; if (r.movers) r.movers.visible = !r.building; }   // (a room being built in steps: hidden till it is whole)
+    for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room) && !rooms.get(b.node.userData.room)?.building; }
   }
   // the rooms not built yet (first): built when asked, the nearest first as the page says (next picks from those waiting),
   // within a budget; or one at once (you walked into it). Each returns what it built: its id and the things it made
@@ -669,11 +674,23 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const buildOne = (room) => { const n0 = things.length, t = performance.now(); buildRoom(room); const made = things.slice(n0);
     for (const b of made) if (b.node.userData.opening) doorOf.set(b.node.userData.opening, b);
     return { id: room.id, things: made, ms: Math.round(performance.now() - t) }; };
+  // after walkable, a room at a time in steps within the budget (a room hidden while it is built); one asked for now, at
+  // once (the room in steps first finished, so rooms never interleave and each one's things are its own)
+  let cur = null;
+  const finishCur = () => { const e = rooms.get(cur.room.id); e.building = false; const made = things.slice(cur.n0);
+    for (const b of made) if (b.node.userData.opening) doorOf.set(b.node.userData.opening, b);
+    const r = { id: cur.room.id, things: made, ms: Math.round(cur.ms) }; cur = null; return r; };
+  const step = () => { const t = performance.now(), r = cur.it.next(); cur.ms += performance.now() - t; return r.done ? finishCur() : null; };
   const buildRest = ({ budgetMs = Infinity, next = null } = {}) => { const t0 = performance.now(), out = [];
-    while (later.length && performance.now() - t0 < budgetMs) { const i = next ? next(later) : 0; out.push(buildOne(later.splice(i, 1)[0])); }
+    while ((cur || later.length) && performance.now() - t0 < budgetMs) {
+      if (!cur) { const room = later.splice(next ? next(later) : 0, 1)[0], e = rooms.get(room.id); e.building = true; e.grp.visible = false; if (e.movers) e.movers.visible = false;
+        cur = { room, n0: things.length, ms: 0, it: buildRoomSteps(room) }; }
+      const r = step(); if (r) out.push(r); }
     return out; };
-  const buildNow = (id) => { const i = later.findIndex(r => r.id === id); return i < 0 ? null : buildOne(later.splice(i, 1)[0]); };
-  return { pending: () => later.map(r => r.id), buildRest, buildNow, exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, get measured() { return { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }; },   // (read when asked: rooms built after the start view measure too)
+  // (every room it built: the one in steps, finished first, and the one asked for)
+  const buildNow = (id) => { const out = []; if (cur) { let r; while (!(r = step())); out.push(r); }
+    const i = later.findIndex(r => r.id === id); if (i >= 0) out.push(buildOne(later.splice(i, 1)[0])); return out; };
+  return { pending: () => [...(cur ? [cur.room.id] : []), ...later.map(r => r.id)], buildRest, buildNow, exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, get measured() { return { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }; },   // (read when asked: rooms built after the start view measure too)
      ms: Math.round(performance.now() - t0) };
 }
 

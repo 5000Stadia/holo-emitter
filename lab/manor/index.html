@@ -833,7 +833,7 @@ function refreshView(force = false) {
   if (CP && r.id !== here) CP.enter(r.id);
   here = r.id; const seen = manor.visibleFrom(here, isOpen);
   // (anything now in view not built yet is built at once: you walked faster than the slices)
-  { const late = [...seen].filter(id => manor.rooms.get(id)?.built === false).map(id => manor.buildNow(id)).filter(Boolean); if (late.length) arrive(late); }
+  { const late = [...seen].filter(id => manor.rooms.get(id)?.built === false).flatMap(id => manor.buildNow(id)); if (late.length) arrive(late); }
   manor.show(seen); POP?.show(seen); inView = seen; lightsDirty = true;
   $("where").querySelector(".n").textContent = r.name; whereFloor(r);
   ENG.invalidate();
@@ -1018,7 +1018,7 @@ renderer.setAnimationLoop((now) => {
   // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
   // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
   // stutter when you walk; one you walk into is built at once (refreshView). Building in workers removes the wait (point 2)
-  if (window.__ok && !window.__whole && now - lastMoved > 300) arrive(manor.buildRest({ budgetMs: 1, next: nearestRoom }));
+  if (window.__ok && !window.__whole && now - lastMoved > 300) arrive(manor.buildRest({ budgetMs: 8, next: nearestRoom }));   // (8 ms: light steps share a frame; the worst frame is the heaviest one thing)
   if (!window.__ok && Q.has("stopwatch")) {   // ?stopwatch: the seconds from opening the page to walking, on screen (R65 on your own phone)
     const t = performance.now() / 1000, tx = textureLog(), drawn = tx.filter(x => x.from && x.from !== "cache").length, d = document.createElement("div");
     d.style.cssText = "position:fixed;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);z-index:9;padding:8px 14px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.4 'IBM Plex Mono',monospace;text-align:center";
