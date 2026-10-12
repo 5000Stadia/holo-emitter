@@ -18,6 +18,14 @@ export function makeWalk({ plan, levelOf, blocks = [], isOpen = () => true, body
   // the grid as fine as the plan asks (a ten-inch body needs cells finer than a hand)
   const claims = given || houseClaims({ plan, blocks, half: body.half, cell: plan.claim_cell || 0.1 });
   const floorHere = (f, x, y) => claims.canStand(f, x, y, body.half, isOpen);
+  // on a flight or a landing, a body's half-width off whatever its edge stands over that isn't the same going: a wall, the
+  // well beside it, the flight below (codex's playtest, 2026-10-12: the eye had gone up to the half-landing's wall at 2 cm
+  // and filled the screen with dark panelling, and climbed hugging the balustrade at 1 cm). Each side's edge must be on a
+  // flight or landing within a step of where you stand, or on open floor at that height
+  const sameGoing = (x, y, at) => plan.stairs.some(s => { const z = surfaceZ(s, x, y, true); if (z == null) return false; const b = levelOf(s.from); return Math.abs(b + (levelOf(s.to) - b) * z - at) <= body.step; })
+    || (Math.abs(levelOf(floorOf(at)) - at) <= body.step && claims.canStand(floorOf(at), x, y, 0, isOpen));
+  // (and a hand more: a landing lifts the eye to the storey below's cornice, 15 cm proud of its wall)
+  const fits = (x, y, at) => { const d = body.half + 0.1; return sameGoing(x + d, y, at) && sameGoing(x - d, y, at) && sameGoing(x, y + d, at) && sameGoing(x, y - d, at); };
   function groundAt(x, y, h) {
     let best = null;
     for (const s of plan.stairs) {
@@ -26,7 +34,7 @@ export function makeWalk({ plan, levelOf, blocks = [], isOpen = () => true, body
       if (Math.abs(top - h) <= body.step) { if (best == null || Math.abs(top - h) < Math.abs(best - h)) best = top; }
       else if (top > h + body.step && top - body.soffit < h + body.head) return null;                // a flight in the way, or no headroom under it
     }
-    if (best != null) return best;
+    if (best != null) return fits(x, y, best) ? best : null;
     const f = floorOf(h), L = levelOf(f);
     return Math.abs(L - h) <= body.step && floorHere(f, x, y) ? L : null;
   }
