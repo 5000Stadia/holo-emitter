@@ -30,3 +30,20 @@
   | 900 frames stepped (desktop) | 10.0 s | 21.5 s |
 
 - **Why the new findings:** a sidestep doesn't ask the house whether its spot can be stood on. I offered `ctx.walk.stand(pos, floor, half)` (m5c95e0).
+
+## The round closed (Photonic 786a3bb, 2026-10-12)
+
+**Photonic's changes:** routes now carry each person's width, height follows the route on stairs, and sidesteps and the way back ask `stand()` where a body can stand.
+
+**Manor, 300 for 30 s, 400 route nodes a frame** (two runs, identical):
+
+| Measure | Pass mark | Result |
+|---|---|---|
+| Inside | 0 | **0** |
+| Sinking | 0 | **0** |
+| Floating | 0 | **0** |
+| Overlapping | 35 or fewer | **17** |
+| 900 frames | 13.0 s or less | **4.3 s** |
+| Arrivals | 190 or more | 67 |
+
+- Met except arrivals, which are our route search's cost: an M8 item, `design/people/route-two-level.md`.
