@@ -223,3 +223,34 @@ In a load from the great hall, 25 rooms arrive after walkable, 2.0–2.4 s of bu
 - Whether to build it over a few frames or in workers waits on gate g235968.
 
 **Noticed, not changed:** every other window in the manor shows the real outside (`backdrop: false` when there is one). The strongroom always hangs its painted pane, so its windows show a painting where the others show the grounds. Whether that's wanted is for Kabe's eye.
+
+## A first visit on a phone-like machine (2026-10-12, for gate g235968)
+
+**Set-up:**
+- Headless Chromium as a Pixel 7: the page takes its phone settings, WebGPU.
+- CPU slowed 4× and 6× (DevTools throttling: the main thread only; the texture workers and the GPU aren't slowed, so a real phone is somewhat worse).
+- Lighthouse's mobile network: 150 ms round trip, 1.6 Mbps down.
+- First visits only (a fresh profile), the browser cache on.
+
+**The published site** (compressed by GitHub Pages and jsDelivr: 1.0–1.1 MB transferred), 4× CPU, two runs each:
+
+| | Total to walkable | Download and module load | Build | Textures (near and far) | First frame |
+|---|---|---|---|---|---|
+| Manor | 15.2, 16.2 s | about 6.5 s | 4.3–4.7 s | about 1.6 s | about 3 s |
+| Case | 16.6, 16.7 s | about 7 s | 4.4–4.5 s | about 1.7 s | about 3.4 s |
+
+**Served here without compression** (2.0–2.3 MB):
+
+| CPU | Manor | Case | In-page to walkable |
+|---|---|---|---|
+| 4× | 20.0, 21.2 s | 22.5, 22.2 s | 9.1–10.2 s |
+| 6× | 24.3, 25.1 s | 26.9, 26.4 s | 13.2–14.1 s |
+
+- The in-page part scales with the CPU, as building does.
+
+**What it says:**
+- A phone's first visit is well over 10 s: about 16 s at 4×.
+- Point 2 (rooms built in workers) takes on the build, about 4.5 s of it. Spread over a phone's cores, it might come to 1.5–2 s.
+- The first frame's 3 s is three building shader code, which point 2 doesn't touch.
+- The 6.5 s of loading is the module chain on a slow network. Preloading it showed no gain on desktop's simulated 4G; worth trying again on this profile.
+- So point 2 would bring a phone's first visit to perhaps 13 s, not 10. The download and the first frame are levers of their own.
