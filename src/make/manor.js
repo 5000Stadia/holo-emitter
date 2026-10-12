@@ -152,7 +152,7 @@ function hangings(F, L, H, elems) {
     g.computeVertexNormals(); g.translate(a + w / 2, (top + bottom) / 2, 0); return g; });
 }
 
-export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null, known = null, vfmt = null }) {
+export function buildManor({ plan, types, K, S, look, brief, bundles = true, furnished = true, settleRooms = false, outside = false, order = null, known = null, vfmt = null, first = null }) {
   VFMT = vfmt;   // outside: the place has a real outside (no painted pane behind its windows)
   const t0 = performance.now(), { M } = K;
   const { floors, levelOf, heightOf, gap } = storeys(plan);
@@ -204,25 +204,19 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // each room's floor and ceiling as built, and the wells cut through them (src/make/sound.js rule 6 reads them)
   const cuts = new Map();
   // (order: the rooms built in another order, the check that nothing drawn depends on it; engine principle 2)
-  for (const room of order ? order(plan.rooms) : plan.rooms) {
-    if (room.type === "open") continue;
+  // (R65, the start view first: each room in two parts. planRoom, for every room up front and cheap: its cuts, its
+  // windows', daylights' and hearths' places, the doors it hangs, what stands in it (placed, not yet built) and what
+  // stops a body there; then buildRoom, its floor, ceiling, walls, furniture, lights and fire, now or later
+  // (buildRest). Every board, glass and placement is keyed by its address, so a room built later is the room built now.)
+  const planned = [];
+  function planRoom(room) {
+    if (room.type === "open") return;
     const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
     const grp = new THREE.Group(); grp.position.set(x0, Y, -y0); grp.userData.room = room.id;
     const movers = new THREE.Group(); movers.position.copy(grp.position);
     // its walls and what stands in them, every height decided once (src/make/house-spec.js): the carve reads the same
     const spec = specs.get(room.id).spec;
-    // the muniment room: its own builder, from its period brief
-    if (spec.strong) {
-      const sr = buildStrongroom(THREE, K, spec);
-      // (its builder hangs the holodeck grid beyond its door until the next room is built; in the house the next room is
-      // built, and the grid had stood inside the closet before the cabinet, filling the muniment door from either side)
-      const gone = []; sr.group.traverse(o => { if (o.isMesh && o.userData?.material === "grid" && /\/beyond$/.test(o.userData.instance || "")) gone.push(o); });
-      for (const o of gone) { o.removeFromParent(); o.geometry.dispose(); }
-      sr.group.position.set(x0, Y, -y0); scene.add(sr.group); things.push(...sr.things);
-      for (const l of sr.lights) l.userData.room = room.id;
-      rooms.set(room.id, { room, grp: sr.group, movers: null, H, Y, lights: sr.lights, colliders: sr.colliders, strongroom: sr });
-      continue;
-    }
+    if (spec.strong) { const ph = new THREE.Group(); ph.userData.room = room.id; rooms.set(room.id, { room, grp: ph, movers: null, H, Y, lights: [], built: false }); return; }
     // the floor (with a hole where a stair comes up through it) and the ceiling (with one where it goes up)
     // each storey's stair well is cut from the floor it reaches (src/make/plans/stairs.js)
     const wellsHere = (plan.wells || []).filter(w => w.hole.x0 < x1 && w.hole.x1 > x0 && w.hole.y0 < y1 && w.hole.y1 > y0);
@@ -234,32 +228,11 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     const topFloor = (floors.filter(f => levelOf(f.id) >= Y - 0.01 && levelOf(f.id) < Y + H - 0.01).at(-1) || floors.find(f => f.id === room.floor)).id;
     const down = wellsHere.filter(w => w.from === topFloor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
     cuts.set(room.id, { id: room.id, rect: room.rect, outline: room.outline || null, floor: Y, floorHoles: wellsHere.filter(w => w.to === room.floor).map(w => w.hole), ceiling: Y + H, ceilingHoles: wellsHere.filter(w => w.from === topFloor).map(w => w.hole) });
-    const floorMat = T.floor === "flags" ? M.flags : T.floor === "gypsum" ? mats.gypsum : T.floor === "matting" ? mats.matting : M.floor;
-    const fg = tileUV(cutSlab(floorOf(room), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
-    grp.add(Object.assign(new THREE.Mesh(fg, floorMat), { receiveShadow: true }));
-    const cg = tileUV(cutSlab(floorOf(room).map(([u, v]) => [u, D - v]).reverse(), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
-    grp.add(Object.assign(new THREE.Mesh(cg, T.walls === "limewash" || T.walls === "stone" ? M.limewash : M.plaster), { castShadow: true, receiveShadow: true }));
-    // the ceiling's make: exposed joists across the short span, or moulded ribs in compartments
-    if (T.ceiling === "beams" || T.ceiling === "compartments") {
-      const along = W >= D, span = along ? D : W, len = along ? W : D, beam = T.ceiling === "beams";
-      const step = beam ? 0.55 : 1.4, bw = beam ? 0.14 : 0.07, bd = beam ? 0.18 : 0.06, mat = beam ? M.oak : M.plaster, grain = rng(seedOf(`grain/${room.id}/ceiling`));
-      for (let s = step / 2; s < len; s += step) {
-        const g = metric(new THREE.BoxGeometry(along ? bw : span, bd, along ? span : bw)); g.translate(along ? s : W / 2, H - bd / 2, along ? -D / 2 : -s); if (mat.vertexColors) K.board(g, 0.2, grain);
-        grp.add(Object.assign(new THREE.Mesh(g, mat), { castShadow: true }));
-      }
-      // (the ribs the other way a little shallower: of one depth, where they cross their faces lay one on the other)
-      if (!beam) for (let s = step / 2; s < span; s += step) { const dd = bd * 0.8, g = metric(new THREE.BoxGeometry(along ? len : bw, dd, along ? bw : len)); g.translate(along ? W / 2 : s, H - dd / 2, along ? -s : -D / 2); grp.add(new THREE.Mesh(g, mat)); }
-    }
     // the walls, by the type's finish
     // each wall where its frame says (src/make/walls.js): a rectangle's four, or an outline's every edge
     const P = placeOf(spec.frames), style = WALL_STYLE[T.walls] || "panelled";
     for (const F of Object.keys(spec.walls)) {
       const L = spec.frames[F].L;
-      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F), backdrop: !outside, grain: rng(seedOf(`grain/${room.id}/${F}`)) });
-      w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
-      if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
-      for (const l of w.lights) l.parent.remove(l);
-      grp.add(w.grp);
       // each window's daylight, where it is in the world, for the light rig that follows you
       const frame = new THREE.Object3D(); frame.position.set(x0 + P[F].pos[0], Y + P[F].pos[1], -y0 + P[F].pos[2]); frame.rotation.y = P[F].rot; frame.updateMatrixWorld(true);
       for (const e of spec.walls[F]) if (e.kind === "window") windows.push({ room: room.id, w: e.r1 - e.r0 - 0.2, h: e.top - e.sill - 0.1,
@@ -303,6 +276,75 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       tiers: { required: req, anchor: T.anchor || [], also: T.also || [] }, fullness: (T.fullness ?? 0) * (HISTORY[room.history || plan.history || "lived"] ?? 1),
       stairFloors: (s) => [stairFrom(s), stairTo(s)] });
     placements.set(room.id, got);
+    for (const p of got.placed) {
+      if (p.poly && !p.inside && (kindOf(p.kind)?.place?.layer || "stand") === "stand") { const xs = p.poly.map(q => q[0]), ys = p.poly.map(q => q[1]);
+        blocks.push({ floor: room.floor, room: room.id, kind: p.kind, poly: p.poly, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) }); }
+    }
+    // each chimneypiece is solid to a body: its breast and the fire's mouth within it (Kabe, 2026-10-06: "the
+    // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
+    { const RW = room.rect.x1 - room.rect.x0, RD = room.rect.y1 - room.rect.y0;
+      for (const F of Object.keys(spec.walls)) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
+        // the breast, and in front of it the surround, the mantel and its shelf (some 0.3 m proud, wider than the
+        // fire by its ends): a body keeps out of all of it, so an eye can't stand inside the mantel
+        const deep = (e.breast || 0) + 0.32, m = e.mantel || e, [a, b] = [wallToRoom(spec.frames[F], RW, RD, Math.min(e.r0, m.r0) - 0.05, 0), wallToRoom(spec.frames[F], RW, RD, Math.max(e.r1, m.r1) + 0.05, deep)];
+        blocks.push({ floor: room.floor, room: room.id, kind: "hearth", x0: x0 + Math.min(a[0], b[0]), x1: x0 + Math.max(a[0], b[0]), y0: y0 + Math.min(a[1], b[1]), y1: y0 + Math.max(a[1], b[1]) }); } }
+    scene.add(grp, movers);
+    rooms.set(room.id, { room, grp, movers, H, Y, lights: [], lightNotes: [], built: false });
+  }
+  function buildRoom(room) {
+    const T = types[room.room_type] || {}, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = levelOf(room.floor), H = heightOf(room);
+    const spec = specs.get(room.id).spec, entry = rooms.get(room.id);
+    // the muniment room: its own builder, from its period brief
+    if (spec.strong) {
+      const sr = buildStrongroom(THREE, K, spec);
+      // (its builder hangs the holodeck grid beyond its door until the next room is built; in the house the next room is
+      // built, and the grid had stood inside the closet before the cabinet, filling the muniment door from either side)
+      const gone = []; sr.group.traverse(o => { if (o.isMesh && o.userData?.material === "grid" && /\/beyond$/.test(o.userData.instance || "")) gone.push(o); });
+      for (const o of gone) { o.removeFromParent(); o.geometry.dispose(); }
+      entry.grp.removeFromParent(); sr.group.position.set(x0, Y, -y0); scene.add(sr.group); things.push(...sr.things);
+      for (const l of sr.lights) l.userData.room = room.id;
+      rooms.set(room.id, { room, grp: sr.group, movers: null, H, Y, lights: sr.lights, colliders: sr.colliders, strongroom: sr, built: true });
+      return;
+    }
+    const { grp, movers } = entry;
+    // the floor (with a hole where a stair comes up through it) and the ceiling (with one where it goes up)
+    // each storey's stair well is cut from the floor it reaches (src/make/plans/stairs.js)
+    const wellsHere = (plan.wells || []).filter(w => w.hole.x0 < x1 && w.hole.x1 > x0 && w.hole.y0 < y1 && w.hole.y1 > y0);
+    const holeOf = (w) => rect(Math.max(0, w.hole.x0 - x0), Math.min(W, w.hole.x1 - x0), Math.max(0, w.hole.y0 - y0), Math.min(D, w.hole.y1 - y0));
+    const up = wellsHere.filter(w => w.to === room.floor).map(holeOf);
+    // the floor under its ceiling: the last whose level lies within its height as built (a stair hall rising through the
+    // house stops at its first landing since 2026-10-06; read off its rises, its ceiling had been cut for the garret's
+    // well, so not at all, and stood whole across the well at 3.6 m: "like an unopened roof", Kabe, R59)
+    const topFloor = (floors.filter(f => levelOf(f.id) >= Y - 0.01 && levelOf(f.id) < Y + H - 0.01).at(-1) || floors.find(f => f.id === room.floor)).id;
+    const down = wellsHere.filter(w => w.from === topFloor).map(holeOf).map(h => h.map(([x, y]) => [x, D - y]).reverse());
+    const floorMat = T.floor === "flags" ? M.flags : T.floor === "gypsum" ? mats.gypsum : T.floor === "matting" ? mats.matting : M.floor;
+    const fg = tileUV(cutSlab(floorOf(room), up), T.floor === "flags" ? 2 : 4); fg.rotateX(-Math.PI / 2);
+    grp.add(Object.assign(new THREE.Mesh(fg, floorMat), { receiveShadow: true }));
+    const cg = tileUV(cutSlab(floorOf(room).map(([u, v]) => [u, D - v]).reverse(), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
+    grp.add(Object.assign(new THREE.Mesh(cg, T.walls === "limewash" || T.walls === "stone" ? M.limewash : M.plaster), { castShadow: true, receiveShadow: true }));
+    // the ceiling's make: exposed joists across the short span, or moulded ribs in compartments
+    if (T.ceiling === "beams" || T.ceiling === "compartments") {
+      const along = W >= D, span = along ? D : W, len = along ? W : D, beam = T.ceiling === "beams";
+      const step = beam ? 0.55 : 1.4, bw = beam ? 0.14 : 0.07, bd = beam ? 0.18 : 0.06, mat = beam ? M.oak : M.plaster, grain = rng(seedOf(`grain/${room.id}/ceiling`));
+      for (let s = step / 2; s < len; s += step) {
+        const g = metric(new THREE.BoxGeometry(along ? bw : span, bd, along ? span : bw)); g.translate(along ? s : W / 2, H - bd / 2, along ? -D / 2 : -s); if (mat.vertexColors) K.board(g, 0.2, grain);
+        grp.add(Object.assign(new THREE.Mesh(g, mat), { castShadow: true }));
+      }
+      // (the ribs the other way a little shallower: of one depth, where they cross their faces lay one on the other)
+      if (!beam) for (let s = step / 2; s < span; s += step) { const dd = bd * 0.8, g = metric(new THREE.BoxGeometry(along ? len : bw, dd, along ? bw : len)); g.translate(along ? W / 2 : s, H - dd / 2, along ? -s : -D / 2); grp.add(new THREE.Mesh(g, mat)); }
+    }
+    // the walls, by the type's finish
+    // each wall where its frame says (src/make/walls.js): a rectangle's four, or an outline's every edge
+    const P = placeOf(spec.frames), style = WALL_STYLE[T.walls] || "panelled";
+    for (const F of Object.keys(spec.walls)) {
+      const L = spec.frames[F].L;
+      const w = buildWall(THREE, K, F, L, H, spec.walls[F], { style, depth: (seedOf(`outside/${room.id}`) % 40) * 0.004, mitre: mitresOf(spec.frames, F), backdrop: !outside, grain: rng(seedOf(`grain/${room.id}/${F}`)) });
+      w.grp.position.set(...P[F].pos); w.grp.rotation.y = P[F].rot;
+      if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
+      for (const l of w.lights) l.parent.remove(l);
+      grp.add(w.grp);
+    }
+    const got = placements.get(room.id);
     const builtHere = [];
     got.placed.forEach((p, i) => {
       const b = build(THREE, K, look, p.kind, `manor/${room.id}/${p.kind}:${i}`, { ...(p.over || {}), ...(p.settings || {}) }), n = b.node, d = p.dd ?? (sizeOf(p.kind, p.over || {})?.[2] || 0);
@@ -317,8 +359,6 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       else { // free standing: its back (the origin) half its depth behind its middle, facing the way it is turned
         const [u, v] = p.at, f = [Math.sin(p.rot), -Math.cos(p.rot)]; n.rotation.y = p.rot; n.position.set(u - f[0] * d / 2, 0, -(v - f[1] * d / 2)); movers.add(n); }
       n.userData.room = room.id; if (p.story) { b.story = p.story; n.userData.story = p.story; } things.push(b);   // a story's thing knows which it is (a case's clue)
-      if (p.poly && !p.inside && (kindOf(p.kind)?.place?.layer || "stand") === "stand") { const xs = p.poly.map(q => q[0]), ys = p.poly.map(q => q[1]);
-        blocks.push({ floor: room.floor, room: room.id, kind: p.kind, poly: p.poly, x0: Math.min(...xs), x1: Math.max(...xs), y0: Math.min(...ys), y1: Math.max(...ys) }); }
     });
     // the lights the room's type names (T.light), each a thing that gives it, where such a light was kept: a lantern
     // hung over the stairhead, a sconce beside the main door, a rushlight on a sill near the stair. Their lights are
@@ -400,14 +440,6 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         light("rushlight/nip", {}, (n) => { const k = (s.count = (s.count || 0) + 1) - 1; n.position.set(s.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * 0.25 : 0), s.at[1], s.at[2]); s.node.add(n); });
       }
     }
-    // each chimneypiece is solid to a body: its breast and the fire's mouth within it (Kabe, 2026-10-06: "the
-    // hearth doesn't collide with the player and I can walk inside"); an open kitchen hearth's mouth too
-    { const RW = room.rect.x1 - room.rect.x0, RD = room.rect.y1 - room.rect.y0;
-      for (const F of Object.keys(spec.walls)) for (const e of spec.walls[F]) if (e.kind === "chimneypiece") {
-        // the breast, and in front of it the surround, the mantel and its shelf (some 0.3 m proud, wider than the
-        // fire by its ends): a body keeps out of all of it, so an eye can't stand inside the mantel
-        const deep = (e.breast || 0) + 0.32, m = e.mantel || e, [a, b] = [wallToRoom(spec.frames[F], RW, RD, Math.min(e.r0, m.r0) - 0.05, 0), wallToRoom(spec.frames[F], RW, RD, Math.max(e.r1, m.r1) + 0.05, deep)];
-        blocks.push({ floor: room.floor, room: room.id, kind: "hearth", x0: x0 + Math.min(a[0], b[0]), x1: x0 + Math.max(a[0], b[0]), y0: y0 + Math.min(a[1], b[1]), y1: y0 + Math.max(a[1], b[1]) }); } }
     merge(grp, bundles, settleRooms);
     // the fire in each lit hearth: logs, embers and flames (drawn with the room; they flicker while seen)
     for (const h of hearths.filter(q => q.room === room.id && q.lit)) {
@@ -421,9 +453,12 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         cone.position.set((k / (n - 1 || 1) - 0.5) * span * 0.8, 0.08, (k % 2) * 0.05); cone.userData.phase = k * 1.7 + (mat === FIRE.core ? 0.6 : 0); f.add(cone); flames.push(cone); }
       f.userData.fire = true; grp.add(f);
     }
-    scene.add(grp, movers);
-    rooms.set(room.id, { room, grp, movers, H, Y, lights: ownLights, lightNotes });
+    Object.assign(rooms.get(room.id), { lights: ownLights, lightNotes, built: true });
   }
+  for (const room of order ? order(plan.rooms) : plan.rooms) if (room.type !== "open") { planRoom(room); planned.push(room); }
+  // (first: the rooms to build before the first frame; the rest wait for buildRest. None given: all now, as before)
+  const later = [];
+  for (const room of planned) { if (!first || first.has(room.id)) buildRoom(room); else later.push(room); }
   // the stairs: each flight its treads and risers on a sloping soffit, open beneath; each half-landing a
   // slab on newel posts; a balustrade (rail, turned balusters, newels) wherever a flight or a landing or a
   // floor's well has an open side
@@ -514,6 +549,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       if (!g.attributes.uv) g.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2)); if (!g.attributes.normal) g.computeVertexNormals();
       if (M.oakH.vertexColors) K.board(g, 0.2, grain); return g; }), false);
     const m = new THREE.Mesh(geo, M.oakH); m.castShadow = m.receiveShadow = true;
+    // (apart: not the room's own, so a room built later merges round it, not into it)
+    m.userData.apart = true;
     if (owner) { m.position.set(-owner.grp.position.x, -owner.grp.position.y, -owner.grp.position.z); owner.grp.add(m); } else scene.add(m);
   }
   // the house's solid, every room and opening carved out of it (src/make/carve.js): behind every lining, so a lining
@@ -549,7 +586,14 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     for (const [id, r] of rooms) { r.grp.visible = set.has(id); if (r.movers) r.movers.visible = true; }
     for (const b of things) { const j = doorRooms.get(b.node.userData.opening); if (j) b.node.visible = j.some(id => set.has(id)); else if (b.node.userData.room) b.node.visible = set.has(b.node.userData.room); }
   }
-  return { exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, measured: { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }, ms: Math.round(performance.now() - t0) };
+  // the rooms not built yet (first): built when asked, the nearest first as the page says (next picks from those waiting),
+  // within a budget; or one at once (you walked into it). Each returns what it built: its id and the things it made
+  const buildOne = (room) => { const n0 = things.length; buildRoom(room); return { id: room.id, things: things.slice(n0) }; };
+  const buildRest = ({ budgetMs = Infinity, next = null } = {}) => { const t0 = performance.now(), out = [];
+    while (later.length && performance.now() - t0 < budgetMs) { const i = next ? next(later) : 0; out.push(buildOne(later.splice(i, 1)[0])); }
+    return out; };
+  const buildNow = (id) => { const i = later.findIndex(r => r.id === id); return i < 0 ? null : buildOne(later.splice(i, 1)[0]); };
+  return { pending: () => later.map(r => r.id), buildRest, buildNow, exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, measured: { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }, ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;
@@ -598,7 +642,7 @@ function smallFormats(geo, which = "nc") {
 function merge(grp, bundle = false, settle = true) {
   grp.updateMatrixWorld(true);
   const inv = new THREE.Matrix4().copy(grp.matrixWorld).invert(), byMat = new Map();
-  grp.traverse(o => { if (o.isMesh && !o.isInstancedMesh) (byMat.get(o.material) || byMat.set(o.material, []).get(o.material)).push(o); });
+  grp.traverse(o => { if (o.isMesh && !o.isInstancedMesh && !o.userData.apart) (byMat.get(o.material) || byMat.set(o.material, []).get(o.material)).push(o); });
   const keep = [], ready = new Map(), fast = new Map();
   for (const [mat, list] of byMat) {
     const F = mergeFast(list, mat, inv); if (F) { fast.set(mat, F); ready.set(mat, F.views); continue; }
@@ -620,7 +664,8 @@ function merge(grp, bundle = false, settle = true) {
     else { merged = mergeGeometries(ready.get(mat), false); if (!merged) { keep.push(...list); continue; } }
     const m = new THREE.Mesh(merged, mat); m.castShadow = !mat.transparent && !mat.isMeshBasicMaterial; m.receiveShadow = true; m.frustumCulled = false; keep.push(m);
   }
-  const others = []; grp.traverse(o => { if ((o.isInstancedMesh || o.isLight) && o.parent) others.push(o); });
+  // (and a piece added before a late room's merge that isn't the room's own, a stair, passes through: userData.apart)
+  const others = []; grp.traverse(o => { if ((o.isInstancedMesh || o.isLight || o.userData.apart) && o.parent && !others.some(q => q !== o && o.parent === q)) others.push(o); });
   while (grp.children.length) grp.remove(grp.children[0]);
   // the opaque merged meshes go into a render bundle (WebGPU replays it without re-encoding); glass and
   // anything instanced stay outside it, drawn the ordinary way
