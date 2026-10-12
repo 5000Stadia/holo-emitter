@@ -40,8 +40,17 @@ function db() {
   }), 3000, null);
   return dbp;
 }
+// the keys the cache holds, read once as it opens, before this visit writes anything: a band not among them is not
+// asked for. On a first visit every read misses, and a read waits behind every write queued before it (the other
+// workers storing what they have drawn): reads issued a second in waited 2-3 s, and so did the drawing behind them (R65)
+let keysp = null;
+const held = () => keysp ||= db().then((d) => d && within(new Promise((res) => {
+  try { const q = d.transaction("bands", "readonly").objectStore("bands").getAllKeys(); q.onsuccess = () => res(new Set(q.result)); q.onerror = () => res(null); }
+  catch (_) { res(null); }
+}), 3000, null));
 async function load(key) {
   const d = await db(); if (!d) return null;
+  const ks = await held(); if (ks && !ks.has(key)) return null;
   return within(new Promise((res) => {
     try { const q = d.transaction("bands", "readonly").objectStore("bands").get(key); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }
     catch (_) { res(null); }
@@ -58,19 +67,21 @@ function store(d, key, value) {
 // a worker that needs it first asks the keeper, and if no answer comes, draws it itself
 let me = 0;
 const peers = new Map(), sent = new Set(), waiting = new Map();
+// (each step of the hand-over, on the page's clock, for the page's oakLog: what a first visit waits on, R65)
+const ev = (what, N, k = 0) => postMessage({ oakEv: what, N, k, t: performance.timeOrigin + performance.now() });
 function listen(k, port) {
   peers.set(k, port);
   port.onmessage = ({ data }) => {
-    if (data.want) give(k, data.want);
-    else if (data.oak) { if (!ctx.has(data.oak)) ctx.put(data.oak, data.field); waiting.get(data.oak)?.done(); }
+    if (data.want) { ev("asked", data.want, k); give(k, data.want); }
+    else if (data.oak) { ev("got", data.oak, k); if (!ctx.has(data.oak)) ctx.put(data.oak, data.field); waiting.get(data.oak)?.done(); }
   };
 }
-function keep(N) { if (ctx.has(N)) return; ctx.oak(N); for (const k of peers.keys()) give(k, N); }
-function give(k, N) { keep(N); if (sent.has(`${k}/${N}`)) return; sent.add(`${k}/${N}`); peers.get(k).postMessage({ oak: N, field: ctx.oak(N) }); }
+function keep(N) { if (ctx.has(N)) return; ev("draw", N); ctx.oak(N); ev("drawn", N); for (const k of peers.keys()) give(k, N); }
+function give(k, N) { keep(N); if (sent.has(`${k}/${N}`)) return; sent.add(`${k}/${N}`); peers.get(k).postMessage({ oak: N, field: ctx.oak(N) }); ev("gave", N, k); }
 async function oakFor(N, from) {
   if (ctx.has(N)) return;
   if (!from || from === me || !peers.has(from)) return keep(N);
-  if (!waiting.has(N)) { let done; const p = new Promise(r => { done = r; }); waiting.set(N, { p, done }); peers.get(from).postMessage({ want: N }); }
+  if (!waiting.has(N)) { let done; const p = new Promise(r => { done = r; }); waiting.set(N, { p, done }); peers.get(from).postMessage({ want: N }); ev("want", N, from); }
   await within(waiting.get(N).p, 8000, null);
   if (!ctx.has(N)) ctx.oak(N);            // the keeper gone or too slow: drawn here
 }
@@ -78,6 +89,7 @@ async function oakFor(N, from) {
 // running: the page may now block its main thread (a worker can't be started while it is blocked; once
 // started it needs nothing from it)
 postMessage({ hello: true });
+held();                                     // (the cache's keys, read now, before any band is stored)
 
 onmessage = async ({ data: job }) => {
   if (job.me) { me = job.me; return; }

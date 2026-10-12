@@ -87,7 +87,7 @@
 import * as THREE from "three/webgpu";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { makeKit } from "../painted/procedural.js";
-import { textureLog, TEX_HALF } from "../painted/texjobs.js";
+import { textureLog, oakLog, TEX_HALF } from "../painted/texjobs.js";
 import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
@@ -231,7 +231,7 @@ nodeify(scene);
 ENG.mark("built");
 // every texture whole before the first frame (lab/painted/texjobs.js); what each cost: __textures()
 await step("finishing the textures"); await K.ready(); ENG.mark("textures");
-window.__textures = textureLog;
+window.__textures = textureLog; window.__oakLog = oakLog;
 
 // ---- light: one sun, its shadow map drawn once (the house is still); a soft fill; four window lights
 // that follow you room to room, so the count of lights never changes and nothing recompiles
@@ -319,9 +319,11 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   ask: (need, want) => need === "holding" && false });
 for (const b of manor.things) works.add(b);
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
-// what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js)
-if (sizesKept.sig) { const m = manor.measured, k = sizesKept.data || { sizes: {}, sweeps: {} };
-  if (Object.keys(m.sizes).some(x => !(x in k.sizes)) || Object.keys(m.sweeps).some(x => !(x in k.sweeps))) keepTable("sizes", sizesKept.sig, { sizes: { ...k.sizes, ...m.sizes }, sweeps: { ...k.sweeps, ...m.sweeps } }); }
+// what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
+// every room is in (the rooms built after the start view measure kinds of their own)
+const keepSizes = () => { if (!sizesKept.sig) return; const m = manor.measured, k = sizesKept.data || { sizes: {}, sweeps: {} };
+  if (Object.keys(m.sizes).some(x => !(x in k.sizes)) || Object.keys(m.sweeps).some(x => !(x in k.sweeps))) keepTable("sizes", sizesKept.sig, { sizes: { ...k.sizes, ...m.sizes }, sweeps: { ...k.sweeps, ...m.sweeps } }); };
+keepSizes();
 if (placesKept.sig && !placesKept.data) keepTable(`place/${PKEY}`, placesKept.sig, Object.fromEntries([...manor.placements].map(([id, g]) => [id, { placed: g.placed, refused: g.refused }])));
 window.__sizesKept = { sig: sizesKept.sig, from: sizesKept.data ? "table" : "measured", probes: manor.probes, waited: sizesWaited, places: placesKept.data ? "table" : "placed", plan: PKEY, placeSig: placesKept.sig };
 // the story in play (R49): sizes, reach, deeds, what the text brings in later, the story's magic, the goal
@@ -806,7 +808,7 @@ function arrive(built) {
     const q = r.room.rect; warm?.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); }
   manor.show(inView); lightsDirty = true; ENG.invalidate();
   // (the sun's shadow, drawn once, drawn again with every room in it)
-  if (!window.__whole && !manor.pending().length) { window.__whole = true; ENG.mark("whole"); sun.shadow.needsUpdate = true; }
+  if (!window.__whole && !manor.pending().length) { window.__whole = true; ENG.mark("whole"); sun.shadow.needsUpdate = true; keepSizes(); }
 }
 // the room nearest you waiting to be built (on your floor before another)
 const nearestRoom = (rs) => { let bi = 0, bd = Infinity; rs.forEach((r, i) => { const d = Math.hypot((r.rect.x0 + r.rect.x1) / 2 - px, (r.rect.y0 + r.rect.y1) / 2 - py) + Math.abs(manor.levelOf(r.floor) - ph) * 4; if (d < bd) { bd = d; bi = i; } }); return bi; };

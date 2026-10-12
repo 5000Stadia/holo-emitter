@@ -596,7 +596,8 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     while (later.length && performance.now() - t0 < budgetMs) { const i = next ? next(later) : 0; out.push(buildOne(later.splice(i, 1)[0])); }
     return out; };
   const buildNow = (id) => { const i = later.findIndex(r => r.id === id); return i < 0 ? null : buildOne(later.splice(i, 1)[0]); };
-  return { pending: () => later.map(r => r.id), buildRest, buildNow, exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, measured: { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }, ms: Math.round(performance.now() - t0) };
+  return { pending: () => later.map(r => r.id), buildRest, buildNow, exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, get measured() { return { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }; },   // (read when asked: rooms built after the start view measure too)
+     ms: Math.round(performance.now() - t0) };
 }
 
 const r2 = (x) => Math.round(x * 100) / 100;

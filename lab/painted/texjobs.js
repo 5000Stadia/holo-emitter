@@ -39,7 +39,7 @@ const DROP = Q.get("texdrop") ? Q.get("texdrop") === "1" : TEX_HALF;
 const CACHE = Q.get("texcache") !== "0";  // ?texcache=0: draw everything, keep nothing (for measuring a first visit)
 
 let slots = null, seq = 0, deferring = false;
-const mainCtx = makeCtx(), known = new Map(), logs = [], pending = new Set(), drawnOf = new WeakMap();
+const mainCtx = makeCtx(), known = new Map(), logs = [], pending = new Set(), drawnOf = new WeakMap(), oakEvents = [];
 
 // ---------------------------------------------------------------- the pool
 function pool() {
@@ -50,7 +50,7 @@ function pool() {
     let w; try { w = new Worker(new URL("./texworker.js", import.meta.url), { type: "module", name: `kit textures ${i + 1}` }); } catch (_) { break; }
     const s = { w, i, load: 0, alive: true, jobs: new Map(), warming: new Map() };
     s.started = new Promise((res) => { s.hello = res; });
-    w.onmessage = ({ data }) => { if (data.hello) return s.hello(true); if (data.warmed) return s.warming.get(data.warmed)?.();
+    w.onmessage = ({ data }) => { if (data.hello) return s.hello(true); if (data.oakEv) return void oakEvents.push({ worker: s.i + 1, what: data.oakEv, N: data.N, peer: data.k, at: Math.round(data.t - performance.timeOrigin) }); if (data.warmed) return s.warming.get(data.warmed)?.();
       const j = s.jobs.get(data.id); if (!j) return; s.jobs.delete(data.id); s.load -= j.cost;
       if (data.ok) { data.worker = s.i + 1; j.resolve(data); } else { console.warn("kit textures: a worker failed, drawing here instead:", data.error); j.resolve(onMain(j)); } };
     // a worker that can't start (no module workers) or dies: its jobs, and the pool's from now on, are drawn here
@@ -199,5 +199,6 @@ export const drawn = (tex) => drawnOf.get(tex) || Promise.resolve();
 export function deferTextures(on) { deferring = !!on; }
 export async function settled() { while (pending.size) await Promise.all([...pending]); }
 export const textureLog = () => logs.map(l => ({ ...l }));   // (every recipe drawn, those let go too)
+export const oakLog = () => oakEvents.map(e => ({ ...e }));   // (the oak field's hand-over between workers: draw, drawn, want, asked, gave, got; page clock ms)
 // the oak field on the main thread (procedural.js's K.oak), drawn on first use and shared with the textures drawn here
 export const mainOak = (N = 1024) => mainCtx.oak(N);

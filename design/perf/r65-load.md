@@ -169,3 +169,26 @@ Both set R65's architecture, and both need point 1, which is ready.
 **The suspect:** how the shared oak field is handed between workers (texjobs.js `oakKeeper`, texworker.js `oakFor`). Worker 2 waits about 2.6 s, longer than the field takes to draw, and the field may be drawn more than once.
 
 **The bound:** with the field drawn once and handed on, the floor's four bands would finish about 0.8 s after it, around 2.2-2.5 s. That would bring a first visit's textures under the build.
+
+## The first-visit lead, found: the cache's reads wait behind its writes (2026-10-12)
+
+**What the timestamps inside the workers showed** (`__oakLog()`: each step of the oak field's hand-over; one first visit):
+- The hand-over works. Worker 2 keeps the field: drawn 0.62–1.38 s, handed to the other three by 1.46 s, drawn once.
+- Worker 2 then sat idle until 3.1 s anyway. Timing each stage of its jobs put the wait in one call: the cache read (`load`, IndexedDB).
+- Its reads were issued at 1.46 s and answered at 3.7–4.7 s. Other workers' later reads waited 1.8–2.2 s.
+- **Why:** a read waits behind every write queued before it, and by then the other workers were storing each band they had drawn. On a first visit every one of those reads misses, so the whole wait was for nothing.
+
+**The change** (`lab/painted/texworker.js`): each worker reads the cache's keys once as it starts, before anything is stored. It skips the read for a band that isn't there. A band that is there is read and checked as before.
+
+**First visit, three alternating pairs** (desktop, headless Chromium, WebGPU; the machine busy, load average about 12):
+
+| | Before | After |
+|---|---|---|
+| Textures ready | 3.38, 3.39, 4.50 s | 2.59, 2.64, 3.22 s |
+| Walkable | 5.30, 5.13, 6.54 s | 4.27, 4.52, 5.07 s |
+
+- **Returning visits:** unchanged. All 24 textures come from the cache, walkable 2.9–3.6 s either way on this busy machine.
+- **The look:** the same by construction. Only reads that would have missed are skipped.
+- **What's left on a first visit:** the house's own build now shares the CPU with four drawing workers (built at 2.3 s, not 1.3 s). The floor's bands still start only after the oak field, at 1.5–1.9 s.
+
+**Found on the way: the browser kept sizes only from the start view.** Since the start view came first, a page kept what it measured before the later rooms were built. The authoring tool's table then lacked seven of the case's things (`keep-tables.mjs` regenerated it without them). The page now keeps sizes again once every room is in, and `manor.measured` is read when asked. The regenerated tables hold the same data as before, re-signed.
