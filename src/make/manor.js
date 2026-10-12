@@ -297,9 +297,10 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     // then what names the room, then its ordinary things to the fullness its context gives it; things that work,
     // drawn with their room, in a room of any shape
     const req = (plan.required || []).filter(q => q.room === room.id);
-    const got = furnished ? placeRoom({ room, spec, plan, H, sizeOf, sweptOf, kindOf, seed: seedOf(`manor/${room.id}/place`),
+    // (known.places: this room's placement as an earlier load or authoring made it, src/make/keep.js)
+    const got = !furnished ? { placed: [], refused: [] } : known?.places?.[room.id] ? known.places[room.id] : placeRoom({ room, spec, plan, H, sizeOf, sweptOf, kindOf, seed: seedOf(`manor/${room.id}/place`),
       tiers: { required: req, anchor: T.anchor || [], also: T.also || [] }, fullness: (T.fullness ?? 0) * (HISTORY[room.history || plan.history || "lived"] ?? 1),
-      stairFloors: (s) => [stairFrom(s), stairTo(s)] }) : { placed: [], refused: [] };
+      stairFloors: (s) => [stairFrom(s), stairTo(s)] });
     placements.set(room.id, got);
     const builtHere = [];
     got.placed.forEach((p, i) => {

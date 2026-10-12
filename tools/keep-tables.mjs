@@ -1,6 +1,6 @@
 // The tables a load need not work out (src/make/keep.js), worked out at authoring for our own places and shipped beside
 // the page: the kinds' sizes and swings (lab/manor/kept/sizes.json), measured by loading each place in one browser and
-// taking the union it kept. Run after changing a kind, a part or the builder; the suite says when a table is stale
+// taking the union it kept, and each place's placement (lab/manor/kept/place-<plan>.json). Run after changing a kind, a part or the builder; the suite says when a table is stale
 // (tests/playwright/keep.spec.mjs), and a stale one only costs the old load time.
 //   node tools/keep-tables.mjs [port]
 import { chromium } from "playwright";
@@ -18,10 +18,13 @@ const dir = mkdtempSync(join(tmpdir(), "keep-")), ctx = await chromium.launchPer
 try {
   let sig = null, table = null;
   for (const q of PLACES) { const p = await ctx.newPage();
-    await p.goto(`http://127.0.0.1:${PORT}/lab/manor/?${q}&still=0&fresh`, { timeout: 300000 }); await p.waitForFunction(() => window.__ok, null, { timeout: 300000 });
-    const r = await p.evaluate(() => ({ sig: window.__sizesKept.sig, t: JSON.parse(localStorage.getItem("holo/keep/sizes") || "null") }));
+    await p.goto(`http://127.0.0.1:${PORT}/lab/manor/?${q}&still=0&fresh&keep=fresh`, { timeout: 300000 }); await p.waitForFunction(() => window.__ok, null, { timeout: 300000 });
+    const r = await p.evaluate(() => { const k = window.__sizesKept; return { sig: k.sig, t: JSON.parse(localStorage.getItem("holo/keep/sizes") || "null"), plan: k.plan, placeSig: k.placeSig, place: JSON.parse(localStorage.getItem(`holo/keep/place/${k.plan}`) || "null") }; });
+    if (r.place?.sig === r.placeSig) { writeFileSync(join(ROOT, `lab/manor/kept/place-${r.plan}.json`), JSON.stringify({ sig: r.placeSig, made: new Date().toISOString().slice(0, 10), place: q || "manor", data: r.place.data }) + "\n"); console.log(`  wrote lab/manor/kept/place-${r.plan}.json`); }
     if (sig && r.sig !== sig) throw new Error(`places disagree on the signature: ${sig} vs ${r.sig} (${q})`);
-    sig = r.sig; table = r.t?.data || table; console.log(`${q || "manor"}: ${Object.keys(table?.sizes || {}).length} sizes, ${Object.keys(table?.sweeps || {}).length} swings`); await p.close(); }
+    // (each place measured afresh keeps only its own: the union is taken here)
+    sig = r.sig; table = { sizes: { ...table?.sizes, ...r.t?.data?.sizes }, sweeps: { ...table?.sweeps, ...r.t?.data?.sweeps } };
+    console.log(`${q || "manor"}: ${Object.keys(table.sizes).length} sizes, ${Object.keys(table.sweeps).length} swings so far`); await p.close(); }
   writeFileSync(join(ROOT, "lab/manor/kept/sizes.json"), JSON.stringify({ sig, made: new Date().toISOString().slice(0, 10), data: table }) + "\n");
   console.log(`wrote lab/manor/kept/sizes.json (${sig})`);
 } finally { await ctx.close(); srv.kill(); rmSync(dir, { recursive: true, force: true }); }
