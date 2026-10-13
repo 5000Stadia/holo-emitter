@@ -51,3 +51,20 @@ Asked pattern-buffer (2026-10-13); P4 waits on its answer.
 
 **construct's view (m02e31c, 2026-10-13):** it agrees with the split, and its existing condition grammar (`construct/arc/conditions.py`) is the seed. Its hard constraint is concealment: beat availability must never reach a player's frame or the phone export, because a lookup table would give away how the story is built. The export carries mechanism answers ("this keypad opens this door"), not beats.
 **My reading:** this resolves the phone tension above. The phone only needs the mechanisms, which are in plain sight in the place anyway. R79's links are what goes to the phone. Beats stay with pattern-buffer and the narrator.
+
+**pattern-buffer's view (m16212a, 2026-10-13):** it fits its grain, and it's logged as pattern-buffer R53 under Later, waiting for Kabe to place it.
+- A beat is an ordinary entity. Its conditions and effects are declared facts, written through the ingest gate.
+- "Available, or what's missing" is a derived read, like traversability.
+- "Happened" is the event row the host writes. The engine never fires an effect: construct writes the effect rows.
+- Clocks are deadline facts.
+- The condition language stays small: exists, equals and not over (entity, attribute, value), with and/or. It is never host code.
+- **The phone:** a per-state trigger table in the export ("trigger fact -> expected effect ops"). The device applies the effect at once as a pending overlay and queues the trigger. The feed confirms it, and canon wins.
+- **The solvability proof** is construct's, an authoring-time search. pattern-buffer serves the graph as a read, and it moves into the engine only if a second host needs it.
+
+**Where the two views disagree, and my reading:**
+- construct wants nothing beat-shaped on the phone. pattern-buffer's trigger table is per state and per player act.
+- Both views still leak a secret: an entry like "4471 on this keypad opens the vault" gives the code away to anyone who reads the export.
+- Proposed merge:
+  - the table carries mechanism triggers only, as the act and its world effect (the door unlocks), with no beat ids and no narrative effects;
+  - secret trigger values are hashed, so the device hashes what is typed and compares;
+  - narrative consequences arrive afterwards through the feed.
