@@ -74,3 +74,11 @@ Both reviewers found the direction sound. Every finding holds up against the cod
    - A held link opens its target only for something that stays there. For one player that means a weight they can leave, never themselves.
    - Checks: a plate-held doorway is unreachable alone; a latching lever on the same doorway is reachable.
 7. **Which codes R79 proves:** codes found in the place (a note in a drawer, digits on a portrait) are items with a room and are proved here. Codes a person knows are beats, and construct proves those.
+
+## Closure criteria (codex's independent review, 2026-10-13: `~/.config/colony/agents/holo-emitter-codex/r79-review-2026-10-13.md`)
+
+No reset; four points to meet before S2 and S5 are called landed. Codex re-checks each once it lands.
+1. **Parts declare their own implications.** `gives-light` still names candlestick, flame and bulb in its own table, and `definePart` carries no characteristic contract, so a new emitting part could slip past. Move the implication onto the part (item 2 above).
+2. **Typed ports, run in ordinary place planning.** The link predicates accept any affordance (a lever or plate drives anything; a switch is any non-light), and `checkLinks`/`linkKeys` are called only from the object page and tests. Land the port contract and the planner's call together.
+3. **A held plate proved with a real weight:** a named, movable, reachable weight passes, and a missing, unreachable or player-only weight is refused (today any truthy `weight` passes).
+4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.

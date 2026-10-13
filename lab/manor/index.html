@@ -276,7 +276,7 @@ if (Q.get("carry") !== "off") scene.add(...carry.lights);   // (?carry=off: none
 // you look down to (the grid alone had taken a chair's seat under your gaze for what you looked at, and dimmed the desk)
 let focusDist = null; const focusBox = new WeakMap(), FR = new THREE.Ray(), FV = new THREE.Vector3(), FD = new THREE.Vector3();
 function focusAhead(max = 1.6) {
-  const f = floorOf(ph), cp = Math.cos(pitch), sp = Math.sin(pitch), ux = -Math.sin(yaw), uy = Math.cos(yaw), eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
+  const f = floorOf(ph), cp = Math.cos(pitch), sp = Math.sin(pitch), ux = -Math.sin(yaw), uy = Math.cos(yaw), eye = eyeNow;
   let best = sp < -0.05 ? Math.min(max, eye / -sp) : max; const claims = walk.claims;
   for (let r = BODY.half + 0.08; r < best; r += 0.05) { if (claims && claims.at(f, "stand", px + ux * r * cp, py + uy * r * cp) >= SOLID) { best = r; break; } }
   FR.origin.set(px, ph + eye, -py); FR.direction.set(ux * cp, sp, -uy * cp);
@@ -384,12 +384,14 @@ if (ground) { scene.add(ground.group);
 
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
 const store = world.store();
+let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
+for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
 let viewDirty = true;
 const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keep(); }, say,
   // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
   // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you
   // stood lit nothing, Kabe 2026-10-13)
-  onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; },
+  onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; if (aff === "sit") seatFollow(b); },
   ask: (need, want) => need === "holding" && false });
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
 const darkStart = (b) => { if (DARK && b.kind.affordances?.light?.lights) b.settings = { ...b.settings, start: { ...b.settings?.start, light: "out" } }; return b; };
@@ -630,7 +632,7 @@ if (POP && Q.get("crowd")) { const n = +Q.get("crowd"), f = start.floor, h0 = ma
 // taken up again: where you stood, and a line to say so
 if (CP?.resumed) { const [x, y, h, a] = caseSaved.at || []; if (x != null && standable(x, y, h)) { px = x; py = y; ph = h; yaw = a; }
   say(`You take up the case again, ${CP.resumed.minutes} minutes in, with ${CP.resumed.clues} ${CP.resumed.clues === 1 ? "clue" : "clues"} in your book.`); }
-window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
+window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { if (seated) standUp(false); px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
 // ?at=x,y,yaw[,pitch] (plan metres, degrees; with ?room= for the floor and the start view): start just there, a link
 // to a view for your eye (the lab's "waiting for your eye")
 { const a = (Q.get("at") || "").split(",").map(Number); if (a.length >= 3 && a.every(Number.isFinite)) window.__place(a[0], a[1], a[2], a[3] || 0); }
@@ -638,10 +640,37 @@ const keys = {};
 // crouching (Kabe, 2026-10-07: "We should have a crouch option"): C or Ctrl, or the thumb's crouch button; the eye
 // at 55% of its height, half the pace
 let crouch = false; const crouchTouch = isTouch() ? crouchButton((d) => { crouch = d; }) : null;
-addEventListener("keydown", e => { if (e.code === "KeyC" || e.code === "ControlLeft") { crouch = !crouch; crouchTouch?.(crouch); }
+addEventListener("keydown", e => { if (e.code === "KeyC" || e.code === "ControlLeft") { if (seated) { standUp(); crouchTouch?.(false); } else { crouch = !crouch; crouchTouch?.(crouch); } }
   if (e.code === "KeyL" && !e.repeat) { const ring = ["eye", "candle", "flashlight", "none"]; window.__carry(ring[(ring.indexOf(carry.mode) + 1) % ring.length]); }
   keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
 addEventListener("keyup", e => { keys[e.code] = false; });
+// sitting (R80; Kabe, 2026-10-13: "clicking the chair should anchor me IN the chair at head height to see desk better. Drawer
+// sliding open simply goes under my view and I can look down"): a seat's `sit` is a fact of the world (src/make/characteristics.js),
+// and the page follows it: your eye eases down to a sitter's over the back of its seat (its build's `seat`), facing its front,
+// a little down, still free to look round. A step, a glide, crouching or the seat clicked again stands you where you stood.
+// Where the eye goes is the seat's own (its build's seat.eye; a form's or a daybed's along its length, nearest where you clicked).
+let sitPoint = null;   // where the click that sat you landed (world), for a long seat
+function sitIn(b) {
+  if (!b.seat || seated?.b === b) return; if (seated) standUp(false);
+  b.node.updateWorldMatrix(true, false);
+  const e = b.seat.eye, along = sitPoint && b.seat.half ? Math.max(-b.seat.half, Math.min(b.seat.half, b.node.worldToLocal(sitPoint.clone()).x - e[0])) : 0; sitPoint = null;
+  const at = new THREE.Vector3(e[0] + along, e[1], e[2]).applyMatrix4(b.node.matrixWorld), f = new THREE.Vector3(0, 0, 1).transformDirection(b.node.matrixWorld);
+  const yaw1 = Math.atan2(-f.x, -f.z); let dyaw = yaw1 - yaw; while (dyaw > Math.PI) dyaw -= 2 * Math.PI; while (dyaw < -Math.PI) dyaw += 2 * Math.PI;
+  seated = { b, back: [px, py, ph], eye: at.y - ph }; crouch = false; crouchTouch?.(false);
+  eyeEase = { from: eyeNow, t0: performance.now() };
+  glide = { from: [px, py, ph, yaw, pitch], to: [at.x, -at.z, ph, yaw + dyaw, -0.3], t0: performance.now(), ms: 420, then: () => {}, cancel: false, sit: true };
+}
+// stand: back where you stood before you sat (restore), or where you are (a glide or a jump is taking you elsewhere); the
+// seat is empty again in the world
+function standUp(restore = true) {
+  const s = seated; if (!s) return; seated = null; eyeEase = { from: eyeNow, t0: performance.now() };
+  if (works.stateOf(s.b, "sit") === "sat") works.set(s.b, "sit", null, "empty");
+  if (restore) glide = { from: [px, py, ph, yaw, pitch], to: [s.back[0], s.back[1], s.back[2], yaw, Math.max(pitch, -0.3)], t0: performance.now(), ms: 320, then: () => {}, cancel: false };
+}
+// the world says who sits where: the page follows (its works' onMove, every frame the state eases)
+function seatFollow(b) { const sat = works.stateOf(b, "sit") === "sat"; if (sat && seated?.b !== b) sitIn(b); else if (!sat && seated?.b === b) standUp(); }
+window.__seated = () => seated ? { thing: seated.b.id, kind: seated.b.kind.kind, eye: +(ph + seated.eye).toFixed(3), back: seated.back, at: [px, py], yaw: yaw * 180 / Math.PI, pitch: pitch * 180 / Math.PI } : null;
+window.__look = (yd, pd) => { if (yd != null) yaw = yd * Math.PI / 180; if (pd != null) pitch = pd * Math.PI / 180; };   // a test's look round, where you are (seated or not)
 const lock = () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} };
 $("gate").addEventListener("click", lock);
 document.addEventListener("pointerlockchange", () => { $("gate").hidden = document.pointerLockElement === renderer.domElement; });
@@ -765,7 +794,7 @@ window.__go = (id) => {
   for (let j = 1; g == null && j < 2000; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
   if (g == null) return false;
   const L = t.look || [tx, ty + 1, g + EYE], eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
-  glide = null; px = tx; py = ty; ph = g; yaw = Math.atan2(-(L[0] - tx), L[1] - ty); pitch = Math.max(-0.9, Math.min(0.6, Math.atan2(L[2] - (g + eye), Math.hypot(L[0] - tx, L[1] - ty) || 1)));
+  if (seated) standUp(false); glide = null; px = tx; py = ty; ph = g; yaw = Math.atan2(-(L[0] - tx), L[1] - ty); pitch = Math.max(-0.9, Math.min(0.6, Math.atan2(L[2] - (g + eye), Math.hypot(L[0] - tx, L[1] - ty) || 1)));
   snapLights = true; return { x: tx, y: ty, h: g };   // (where it set you: the camera follows on the next frame)
 };
 if (Q.has("stations")) { const sel = document.createElement("select"); sel.id = "stations"; sel.setAttribute("aria-label", "Go to");
@@ -927,6 +956,7 @@ function actOn(t) {
   // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
   if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
   if (SP?.beforeAct(t)) return true;
+  if (t.aff === "sit" && t.point) sitPoint = t.point.clone ? t.point.clone() : new THREE.Vector3(t.point.x, t.point.y, t.point.z);
   let r = works.act(t);
   // what you hold, put down on a surface you act on (the golden key back on the glass table)
   if (r.refused && works.held().length && t.b.slots?.get("top")) { const b = works.held().at(-1), s = t.b.slots.get("top"); r = works.put(b);
@@ -1118,9 +1148,11 @@ renderer.setAnimationLoop((now) => {
   // walking roughly at a doorway bends onto its middle (doorAssist); a tap's glide to something carries you
   if (touch.active && !glide) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; if (assist) [dx, dy] = assist.steer(px, py, ph, dx, dy); }
   const n = Math.hypot(dx, dy), tsp = touch.active ? 1 + touch.stride : 1;
+  if (seated && glide && !glide.sit) standUp(false);                  // going somewhere: up as you go
+  else if (seated && n && !glide) { standUp(); dx = dy = 0; }         // a step: up, back where you stood, then on
   if (glide) { const g = glide, k = Math.min(1, (now - g.t0) / g.ms), e = k * k * (3 - 2 * k), L = (i) => g.from[i] + (g.to[i] - g.from[i]) * e;
     px = L(0); py = L(1); ph = L(2); yaw = L(3); pitch = L(4); if (k >= 1) { glide = null; if (!g.cancel) g.then(); } }
-  else if (n) { const a = Math.min(1, n); dx = dx / n * a * sp * tsp * dt; dy = dy / n * a * sp * tsp * dt;
+  else if (n && !seated && (dx || dy)) { const a = Math.min(1, n); dx = dx / n * a * sp * tsp * dt; dy = dy / n * a * sp * tsp * dt;
     const ox = px, oy = py, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
     let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; }
     // stopped at a jamb a little off a doorway's middle (the playtest stuck there, 0.36 m off): slide across, at walking
@@ -1130,10 +1162,14 @@ renderer.setAnimationLoop((now) => {
         if (walk.groundAt(lx, ly, ph) != null && walk.groundAt(lx + ux * 0.35, ly + uy * 0.35, ph) != null) { side = sg; break; } }
       if (side) { const nx = ox - uy * L * side, ny = oy + ux * L * side, h2 = walk.groundAt(nx, ny, ph); if (h2 != null) { px = nx; py = ny; ph = h2; } } }
     if (touch.active) thumbWalk(dt, ux, uy, (px - ox) * ux + (py - oy) * uy < 0.3 * L); }
-  { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }
-  const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + (B ? B.eye : EYE) * (crouch ? 0.55 : 1) || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
+  if (!seated && !glide?.sit) { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }   // (a seat stands on claimed floor: its height is the seat's)
+  // the eye: a sitter's while seated, easing between that and standing (crouched: 55%)
+  const eyeTo = seated ? seated.eye : (B ? B.eye : EYE) * (crouch ? 0.55 : 1);
+  let eye = eyeTo; if (eyeEase) { const k = Math.min(1, (now - eyeEase.t0) / 420), e = k * k * (3 - 2 * k); eye = eyeEase.from + (eyeTo - eyeEase.from) * e; if (k >= 1) eyeEase = null; }
+  eyeNow = eye;
+  const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + eye || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   if (moved) lastMoved = now;
-  const eye = (B ? B.eye : EYE) * (crouch ? 0.55 : 1); camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
   works.tick(dt);
   refreshView(viewDirty); viewDirty = false;

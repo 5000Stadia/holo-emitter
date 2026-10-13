@@ -22,6 +22,9 @@ export function auditing(f) { const rec = []; AUDIT = rec; try { return { out: f
 
 export function build(...a) { const part = PART; DEPTH++; try { return buildThing(...a); } finally { DEPTH--; PART = part; } }
 
+// a sitter's eye over the seat (0.72 m: Pheasant's seated eye height over the seat for a grown body, 0.71-0.79), a little
+// towards its back
+const SEATED_EYE = 0.72, SEAT_BACK = 0.08;
 function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) {
   const kind = kindOf(kindName);
   if (!kind) throw new Error(`no kind called ${kindName}`);
@@ -119,7 +122,13 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
   for (const [o, mv] of extras) { if (mv) { const g = moverNodes.get(mv); o.position.sub(g.position); g.add(o); } else node.add(o); }
   // slots as points in their mover's frame, so whatever is put there moves with it
   const slotsOut = new Map([...slots].map(([n, { at, mover }]) => [n, { node: mover ? moverNodes.get(mover) : node, at: mover ? at.map((v, i) => v - movers.get(mover).pivot[i]) : at }]));
-  return { id, address, kind, settings: s, node, movers: moverNodes, banks, footprint, animate, slots: slotsOut, children, info: c.info };
+  // a seat (src/make/characteristics.js; Kabe, 2026-10-13: "Chairs/benches should have seated eye locations"): in the thing's
+  // frame, it facing +z, the middle of its seat part's top (at), a sitter's eye over it (eye: SEATED_EYE up, SEAT_BACK
+  // towards its back, where a sitter's head is), and how far along its length (x) a sitter may sit either side of the
+  // middle (half: a form or a daybed seats you where you chose; a chair, 0)
+  const sb = kind.seat && placed.get(kind.seat), seat = sb ? { at: [(sb.lo[0] + sb.hi[0]) / 2, sb.hi[1], (sb.lo[2] + sb.hi[2]) / 2],
+    eye: [(sb.lo[0] + sb.hi[0]) / 2, sb.hi[1] + SEATED_EYE, Math.max(sb.lo[2] + 0.12, (sb.lo[2] + sb.hi[2]) / 2 - SEAT_BACK)], half: Math.max(0, (sb.hi[0] - sb.lo[0]) / 2 - 0.25) } : null;
+  return { id, address, kind, settings: s, node, movers: moverNodes, banks, footprint, animate, slots: slotsOut, children, info: c.info, seat };
 }
 
 // ---- relations (design/production/geometry-method.md §1): a part says how it meets one already placed, and

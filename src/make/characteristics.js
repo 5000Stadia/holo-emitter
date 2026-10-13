@@ -14,7 +14,7 @@ const CHARS = new Map();
 export function defineCharacteristic(c) {
   if (CHARS.has(c.name)) throw new Error(`characteristic ${c.name} defined twice`);
   if (!Number.isInteger(c.v)) throw new Error(`characteristic ${c.name}: v, its version, is an integer`);
-  CHARS.set(c.name, { parts: {}, implies: [], resolve: () => ({}), ...c });
+  CHARS.set(c.name, { parts: {}, families: [], implies: [], resolve: () => ({}), ...c });
   return c;
 }
 export const characteristics = () => [...CHARS.values()];
@@ -27,6 +27,8 @@ export function resolveCharacteristics(k) {
     if (has.has(name)) return; has.set(name, from); for (const n of c.implies) add(n, `${name}`); };
   for (const name of k.is || []) add(name, "its own word");
   for (const c of CHARS.values()) for (const p of k.parts || []) if (c.parts[p.part]) add(c.name, `its part ${p.part}`);
+  // a family brings its characteristics (every chair is a seat): what a kind is called says what it is
+  const fam = (k.kind || "").split("/")[0]; for (const c of CHARS.values()) if (c.families.includes(fam)) add(c.name, `its family ${fam}`);
   let kind = { ...k };
   for (const [name] of has) { const c = CHARS.get(name);
     for (const other of c.conflicts || []) if (has.has(other)) bad(`it can't be both ${name} and ${other}`);
@@ -57,3 +59,22 @@ defineCharacteristic({
     return filled.length ? { kind: { ...k, affordances: affs }, filled } : {};
   },
 });
+
+// a seat (R80; Kabe, 2026-10-13: "clicking the chair should anchor me IN the chair at head height to see desk better"): every
+// chair, stool, form, settle, bench and couch is one, by its family. It needs the part you sit on (`seat`: a part's id; a
+// part called "seat" is taken as it, and said), and it faces its front (+z, as every kind is made); it gets an affordance
+// `sit` (empty, sat): sitting in it is a fact of the world, which the page follows by putting your eye where a sitter's is
+defineCharacteristic({
+  name: "seat", v: 1,
+  families: ["chair", "stool", "form", "settle", "bench", "couch"],
+  resolve(k, { bad }) {
+    const filled = []; let kind = k;
+    if (!k.seat) { if (!(k.parts || []).some(p => p.id === "seat")) bad("it is a seat, but no part says where you sit (seat: a part's id)");
+      kind = { ...kind, seat: "seat" }; filled.push({ what: "seat", why: "its part called seat is where you sit" }); }
+    else if (!(k.parts || []).some(p => p.id === k.seat)) bad(`it is sat on its part ${k.seat}, which it hasn't`);
+    if (!kind.affordances?.sit) { kind = { ...kind, affordances: { ...(kind.affordances || {}), sit: { motion: "state", states: ["empty", "sat"], hit: "body", verbs: [`sit in ${k.noun || "it"}`, "get up"] } } };
+      filled.push({ what: "affordance sit", why: "a seat can be sat in" }); }
+    return { kind, filled };
+  },
+});
+

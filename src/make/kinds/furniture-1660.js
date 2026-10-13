@@ -160,7 +160,7 @@ export default [
     settings: { W: 0.9, L: 1.85 },
     parts: [...[-1, 1].flatMap((sx, i) => [0.05, "=L-0.05"].map((z, j) => ({ id: `foot${i * 2 + j}`, part: "box", role: "wood", size: [0.06, 0.04, 0.06], at: [`=${sx}*(W/2-0.05)`, 0, z], on: "floor" }))),
       { id: "base", part: "box", role: "wood", size: ["$W", 0.22, "$L"], at: [0, 0, "=L/2"], on: "foot0" }, { part: "box", role: "linen", size: ["=W-0.06", 0.12, "=L-0.06"], at: [0, 0, "=L/2"], on: "base" }] },
-  { kind: "stool/close", v: 1, noun: "the close stool", fixed: false, why: "R §2: close stools with pans, often in the closet (Dunkenhalgh: 4 of 7 in closets)",
+  { kind: "stool/close", v: 1, noun: "the close stool", fixed: false, seat: "case", why: "R §2: close stools with pans, often in the closet (Dunkenhalgh: 4 of 7 in closets)",
     size: [0.46, 0.5, 0.4], settings: {},
     // the pan hangs by its rim in the seat's opening: stood on the seat's top, let down its own depth
     parts: [{ id: "case", part: "carcass", size: [0.46, 0.44, 0.4], at: [0, 0, 0.2], open: "top", role: "wood_face", on: "floor" },
@@ -252,7 +252,7 @@ export default [
       { part: "box", role: "wood_face", mover: "body", size: [0.02, 0.32, 0.4], at: [-0.44, 0.42, 0.33], on: "case" },
       { part: "box", role: "wood_face", mover: "body", size: [0.32, 0.025, 0.46], at: [-0.3, 0.74, 0.33], on: "hoodA" }],
     affordances: { body: { mover: "body", motion: "lever", axis: [1, 0, 0], angle: 0.2, verbs: ["rock the cradle", "rock the cradle"] } } },
-  { kind: "couch/daybed", v: 1, noun: "the daybed", fixed: true, why: "R §2: a couch in the withdrawing chamber (Ham; Dunkenhalgh 'a couch chair'); a long seat with a raked head, Turkey-work squab",
+  { kind: "couch/daybed", v: 1, noun: "the daybed", fixed: true, seat: "squab", why: "R §2: a couch in the withdrawing chamber (Ham; Dunkenhalgh 'a couch chair'); a long seat with a raked head, Turkey-work squab",
     settings: { W: 1.8, D: 0.62 },
     // by relations: legs on the floor, the frame on them, the squab on the frame, the raked head and its roll let into the squab
     parts: [...legs("leg", "wood", "0.3", 0.05, "W", "D", 0.004),

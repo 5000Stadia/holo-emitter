@@ -327,6 +327,31 @@ console.log(JSON.stringify({
   expect(r.leverSameWay, "a latching lever on the same doorway lets them through").toEqual({ unreachable: [], softlocks: [] });
 });
 
+test("check 36: every seat has a seated eye, over its seat, facing its front; a seat with nowhere to sit is refused (R80)", async ({ browser }) => {
+  test.setTimeout(LOAD + 120_000);
+  const { page, errs } = await objects(browser);
+  await page.evaluate(makeCtx);
+  const r = await page.evaluate(() => { const { THREE, K, M, look } = window.__chk, out = { seats: [], faults: [] };
+    for (const k of M.kinds()) { if (!k.has?.some(h => h.name === "seat") || M.missingParts(k).length) continue;
+      const b = M.build(THREE, K, look, k.kind, `check/${k.kind}`); if (b.placeholder) continue;
+      const s = b.seat; if (!s) { out.faults.push(`${k.kind}: a seat with no seated eye`); continue; }
+      out.seats.push(k.kind);
+      if (!k.affordances?.sit) out.faults.push(`${k.kind}: no sit`);
+      const up = s.eye[1] - s.at[1]; if (up < 0.65 || up > 0.8) out.faults.push(`${k.kind}: the eye ${up.toFixed(2)} m over the seat`);
+      if (s.eye[1] < 0.9 || s.eye[1] > 1.4) out.faults.push(`${k.kind}: the eye ${s.eye[1].toFixed(2)} m off the floor`);
+      const box = new THREE.Box3().setFromObject(b.node); if (s.eye[0] - s.half < box.min.x || s.eye[0] + s.half > box.max.x || s.eye[2] < box.min.z || s.eye[2] > box.max.z) out.faults.push(`${k.kind}: the eye is not over the seat`);
+      if (s.eye[2] > s.at[2]) out.faults.push(`${k.kind}: the eye is in front of the seat's middle, not over its back half`); }
+    // refused: a chair with no part to sit on; a seat named that it hasn't
+    for (const raw of [{ kind: "chair/nowhere", v: 1, noun: "a chair", parts: [{ id: "frame", part: "box", size: [0.4, 0.4, 0.4], at: [0, 0, 0], on: "floor" }] },
+      { kind: "bench/wrong", v: 1, noun: "a bench", seat: "board", parts: [{ id: "frame", part: "box", size: [0.4, 0.4, 0.4], at: [0, 0, 0], on: "floor" }] }]) {
+      try { M.resolveCharacteristics(raw); out.faults.push(`${raw.kind}: made`); } catch (e) { out.seats.push(`refused ${raw.kind}: ${e.message}`); } }
+    return out; });
+  expect(r.faults).toEqual([]);
+  expect(r.seats.filter(s => !s.startsWith("refused")).length, "the chairs, stools, forms and the daybed").toBeGreaterThanOrEqual(6);
+  expect(r.seats.filter(s => s.startsWith("refused")).length).toBe(2);
+  expect(errs).toEqual([]);
+});
+
 test("check 4: ids, seeds and streams from fixed addresses equal the stored values (node, Chromium, Firefox when installed)", async ({ browser }) => {
   test.setTimeout(LOAD + 120_000);
   const inNode = JSON.parse(node(`const f = ${ID_PROBE}; console.log(JSON.stringify(await f(${JSON.stringify(ROOT_URL + "src/make/id.js")}, ${JSON.stringify(ROOT_URL + "src/make/catalogue.js")}, ${JSON.stringify(ROOT_URL + "src/make/kinds/furniture-1660.js")})));`));

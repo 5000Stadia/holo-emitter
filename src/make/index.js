@@ -24,6 +24,7 @@ for (const k of [...strongroom1660, ...household1660, ...house1660, ...furniture
 export { build } from "./build.js";
 export { makeWorks } from "./works.js";
 export { kindOf, kinds, settle, defineKind, definePart, onPartArrives, missingParts } from "./catalogue.js";
+export { resolveCharacteristics, characteristics } from "./characteristics.js";
 export { idOf, seedOf, at, hashOf } from "./id.js";
 export { makeWorld, GENERATOR } from "./world.js";
 export { layoutOf } from "./layout.js";
