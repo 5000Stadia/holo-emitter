@@ -30,3 +30,21 @@ A pressed keypad, a scene and a whole story are all beats. LucasArts' puzzle dep
 - **Where puzzle composition lives** is gate gae5acb. This reading moves my recommendation: composing locked chains belongs with the narrator's beats, not in a puzzle-only sibling project. holo-emitter keeps the links and their proofs.
 
 **What this asks of R79 now:** links are facts in the world, with a reachability proof (point 4 of gate g39da38). With that, a beat's conditions and effects can name things in the place ("the keypad by the vault door is unlocked"), and the narrator's proofs can lean on ours.
+
+## Should pattern-buffer ingest and track beats? (Kabe, 2026-10-13)
+
+**Kabe, on gate g39da38:** "Agree on one and two although mechanistically, it makes sense that the system of ingesting the plot/story beat/puzzle chains or whatever you want to call them is assimilated and ingested functionally at the same time that pattern buffer ingest its objects and it may be efficient to consider where those two mechanisms overlap, and if this should actually exist as a tracking mechanism in pattern buffer itself"
+
+P1 and P2 accepted. P3 not addressed. P4 (links as world facts) reframed by this question. The gate stays open until every point is answered (colony requires it).
+
+**My reading:**
+- **The overlap is real.** A beat's conditions and effects name the same things pattern-buffer ingests: the keypad, the vault door, the date. If beats come in during the same pass, they share one identity resolution and one log. A beat that names a door that doesn't exist fails at ingest, which is R79's "sound at creation" applied to stories.
+- **pattern-buffer already does this for doors.** Traversability (RFC-003, shipped in its R6) derives "can I pass A to B, and if not, why" from ordinary facts (the door is shut, a guard is present) plus a policy the host declares. "Can this beat happen now, and if not, which fact is missing" is the same shape: declared conditions read over facts. Tracking what is available is not deciding what happens, so it keeps pattern-buffer's rule ("never decides what happens next").
+- **The split this suggests:**
+  - pattern-buffer ingests beats with the world and tracks them: which are declared, which have happened, which are available and why not, and the clocks.
+  - construct still writes beats and chooses which one happens.
+  - holo-emitter supplies the mechanisms in the place (switch, lock, keypad) and plays them.
+- **Open tension (for pattern-buffer):** on the phone, pressing enter on a keypad must open the door at once, but the browser only applies pattern-buffer's answers and never computes them. Possible answers: availability precomputed into the export as a lookup table; or the device runs the mechanism, records the fact, and pattern-buffer confirms.
+- **Where the solvability proof runs** (nothing can lock you out, every clue before its lock) follows from where the beat graph lives.
+
+Asked pattern-buffer (2026-10-13); P4 waits on its answer.
