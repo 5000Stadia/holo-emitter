@@ -11,7 +11,10 @@
 //   at `cap` (Kabe, 2026-10-12: "when I go up to objects having them be so notably bright when I am close to them … seems
 //   a bit unrealistic … the maximum brightness not … higher than what I would expect moonlight to be"; the radius and every
 //   level further off as they were; 2026-10-13: "the full closeup brightness could still come down a little": 0.7 -> 0.9 m,
-//   the peak 40% lower). Its strength follows (focus / cap)^2 under cap, eased like an eye adapting, not stepped
+//   the peak 40% lower; then, on his phone face-on to the dark study's wall, "can we just get a dim at best and not as bright
+//   as attached if character isn't carrying a candle": 0.9 -> 1.6 m, what the focus looks as far as, so the eye's pool is never
+//   brighter on anything than on a wall 1.6 m off: face-on at 0.3 m the centre 64 -> 26 of 255, headless). Its strength
+//   follows (focus / cap)^2 under cap, eased like an eye adapting, not stepped
 //   eye: the eye's pool as a share of its full strength, by how lit the place already is (a daylit house 0.35, where it is
 //   a slight lift at arm's length; the dark 1, where it is all there is): the eye adapts, a candle or a torch does not
 //   spot: false keeps the flashlight's cone out of the scene (its cost unpaid); set("flashlight") then carries the candle
@@ -22,7 +25,7 @@ export const CARRY = {
   flashlight: { kind: "spot", color: 0xfff4e4, intensity: 40, distance: 0, decay: 2, angle: 0.36, penumbra: 0.55, at: [0.12, -0.18, 0] },
 };
 
-export function makeCarry(THREE, { spot = true, mode = "eye", eye = 1, cap = 0.9 } = {}) {
+export function makeCarry(THREE, { spot = true, mode = "eye", eye = 1, cap = 1.6 } = {}) {
   const point = new THREE.PointLight(0xffffff, 0, 1, 2), cone = spot ? new THREE.SpotLight(0xffffff, 0, 1, 0.4, 0.5, 2) : null;
   const lights = cone ? [point, cone, cone.target] : [point];
   const P = new THREE.Vector3(), F = new THREE.Vector3();
