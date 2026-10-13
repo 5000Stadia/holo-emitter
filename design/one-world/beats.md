@@ -68,3 +68,8 @@ Asked pattern-buffer (2026-10-13); P4 waits on its answer.
   - the table carries mechanism triggers only, as the act and its world effect (the door unlocks), with no beat ids and no narrative effects;
   - secret trigger values are hashed, so the device hashes what is typed and compares;
   - narrative consequences arrive afterwards through the feed.
+
+**Converged (pattern-buffer m43a84d, 2026-10-13):** pattern-buffer adopted construct's concealment rule.
+- Beats live in an author-side frame that the mirror never reads.
+- The phone gets mechanism answers only, applied as a pending overlay that the feed confirms.
+- Still open from my reply m8c5b1f: a mechanism answer like "this keypad, this code" still carries the code in plain text. The code should be hashed.
