@@ -59,3 +59,17 @@ export function checkLinks(links, things, { reached = null } = {}) {
     faults.push(`${b.kind.kind} at ${b.address || b.id}: its ${aff} works nothing`);
   return { ok: !faults.length, faults };
 }
+
+// links that open ways, for reach.js's reachability: a latching link whose far end is a door's lock (a lever that draws a
+// bolt two rooms off) opens that door once the player has reached the lever's room, which is what a key lying there does,
+// so it goes in as one: { doors, keys } to merge into reachability's. A held link (a plate) opens it only with its weight
+// on the plate: a key in the plate's room if the weight can be got to it, which the caller's first pass says (heldOk); never
+// for the player alone. doorOf(thing) -> the plan opening a door thing stands in, or null.
+export function linkKeys(links, things, { doorOf, heldOk = () => false } = {}) {
+  const by = (ref) => things.find(b => b.address === ref || b.id === ref), doors = {}, keys = [];
+  links.forEach((l, n) => { const T = LINK_TYPES[l.type], f = by(l.from.thing), t = by(l.to.thing), o = t && doorOf(t);
+    if (!T || !f || !o) return;
+    if (T.lasts === "held" && !heldOk(l)) { doors[o] = { locked: true, key: `link${n}` }; return; }
+    doors[o] = { locked: true, key: `link${n}` }; keys.push({ name: `link${n}`, room: f.room }); });
+  return { doors, keys };
+}

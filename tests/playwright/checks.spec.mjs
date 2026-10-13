@@ -308,6 +308,25 @@ test("check 34: a switch across the room works its light through a link; the lig
   expect(r.unreached.join(" "), "a switch the player can't get to").toMatch(/in cellar, which the player can't get to/);
 });
 
+test("check 35: links in the reachability proof: a lever opens a door from another room; a lever behind its own door is a softlock; a plate can't hold a way open for the one who must step off it (R79, P4)", () => {
+  const r = JSON.parse(node(`
+const L = await import(${JSON.stringify(ROOT_URL + "src/make/links.js")}), { reachability } = await import(${JSON.stringify(ROOT_URL + "src/make/reach.js")});
+const plan = { entrance: "hall", rooms: [{ id: "hall" }, { id: "cellar" }, { id: "vault" }, { id: "study" }],
+  openings: [["c", "hall", "cellar"], ["v", "hall", "vault"], ["s", "hall", "study"]].map(([id, a, b]) => ({ id, joins: [a, b], rect: { x0: 0, x1: 0.9, y0: 0, y1: 0 } })), stairs: [] };
+const kind = (aff, motion) => ({ kind: "x/y", affordances: { [aff]: { motion } } });
+const T = [{ id: "lever_study", room: "study", kind: kind("lever", "lever") }, { id: "lever_vault", room: "vault", kind: kind("lever", "lever") }, { id: "lever_hall", room: "hall", kind: kind("lever", "lever") },
+  { id: "plate_hall", room: "hall", kind: kind("plate", "state") }, ...["c", "v", "s"].map(o => ({ id: "door_" + o, room: "hall", kind: kind("lock", "state") }))];
+const doorOf = (t) => t.id.startsWith("door_") ? t.id.slice(5) : null, link = (type, from, aff, to) => ({ type, from: { thing: from, aff }, to: { thing: "door_" + to, aff: "lock" } });
+const run = (links) => { const r = reachability(plan, L.linkKeys(links, T, { doorOf })); return { unreachable: r.unreachable.map(u => u.room), softlocks: r.softlocks.map(s => s.lies_in) }; };
+console.log(JSON.stringify({
+  levers: run([link("lever", "lever_hall", "lever", "s"), link("lever", "lever_study", "lever", "c"), link("lever", "lever_vault", "lever", "v")]),
+  plate: run([link("plate", "plate_hall", "plate", "s")]),
+  leverSameWay: run([link("lever", "lever_hall", "lever", "s")]) }));`));
+  expect(r.levers, "the hall's lever opens the study, the study's opens the cellar; the vault's lever is behind its own door").toEqual({ unreachable: ["vault"], softlocks: ["vault"] });
+  expect(r.plate.unreachable, "a plate held by the player alone opens nothing they can pass").toEqual(["study"]);
+  expect(r.leverSameWay, "a latching lever on the same doorway lets them through").toEqual({ unreachable: [], softlocks: [] });
+});
+
 test("check 4: ids, seeds and streams from fixed addresses equal the stored values (node, Chromium, Firefox when installed)", async ({ browser }) => {
   test.setTimeout(LOAD + 120_000);
   const inNode = JSON.parse(node(`const f = ${ID_PROBE}; console.log(JSON.stringify(await f(${JSON.stringify(ROOT_URL + "src/make/id.js")}, ${JSON.stringify(ROOT_URL + "src/make/catalogue.js")}, ${JSON.stringify(ROOT_URL + "src/make/kinds/furniture-1660.js")})));`));
