@@ -48,3 +48,6 @@ P1 and P2 accepted. P3 not addressed. P4 (links as world facts) reframed by this
 - **Where the solvability proof runs** (nothing can lock you out, every clue before its lock) follows from where the beat graph lives.
 
 Asked pattern-buffer (2026-10-13); P4 waits on its answer.
+
+**construct's view (m02e31c, 2026-10-13):** it agrees with the split, and its existing condition grammar (`construct/arc/conditions.py`) is the seed. Its hard constraint is concealment: beat availability must never reach a player's frame or the phone export, because a lookup table would give away how the story is built. The export carries mechanism answers ("this keypad opens this door"), not beats.
+**My reading:** this resolves the phone tension above. The phone only needs the mechanisms, which are in plain sight in the place anyway. R79's links are what goes to the phone. Beats stay with pattern-buffer and the narrator.
