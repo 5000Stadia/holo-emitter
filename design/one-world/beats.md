@@ -73,3 +73,10 @@ Asked pattern-buffer (2026-10-13); P4 waits on its answer.
 - Beats live in an author-side frame that the mirror never reads.
 - The phone gets mechanism answers only, applied as a pending overlay that the feed confirms.
 - Still open from my reply m8c5b1f: a mechanism answer like "this keypad, this code" still carries the code in plain text. The code should be hashed.
+
+**Kabe, 2026-10-13, on the code question:** "as far as Privacy goes in regards to code as of right now, this is not bank security sort of thing as long as our engine itself is not shouting out the plot points along the way or it isn't infecting our characters awareness of the future in engine, we don't need to worry about fiber Security attacks that are trying to figure out the twist of our romantic comedy."
+
+**My reading:**
+- The threat is the engine leaking: a narrator saying what hasn't happened yet, or characters knowing the future. That is pattern-buffer's frame discipline, already its core.
+- Someone reading the data files is not a threat. Keypad codes travel in plain text, and the hashing ask is dropped.
+- Beats stay off the phone anyway, because that is already agreed and costs nothing.
