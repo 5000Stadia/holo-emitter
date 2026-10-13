@@ -15,6 +15,9 @@ for (const [w, hgt] of [[390, 664], [375, 560]]) {
     page.on("pageerror", (e) => errs.push(e.message));
     await page.goto(`${BASE}/lab/manor/index.html?webgl=1&still=0&case=case-1660&fresh&voice=0&go=person:anne`, { timeout: LOAD });
     await page.waitForFunction(() => window.__ok, null, { timeout: LOAD }); await page.waitForTimeout(800);
+    // (a phone draws through the direct pipeline: tone mapped in each material into the canvas's own MSAA; Photonic's third
+    // run on Kabe's iPhone, 2026-10-13)
+    expect(await page.evaluate(() => window.__eng.flags.direct), "the phone on the direct pipeline").toBe(1);
     await page.touchscreen.tap(w / 2, hgt / 2); await page.waitForTimeout(600);
     await page.locator("button.tp-st.acc").first().tap(); await page.waitForTimeout(600);
     const r = await page.evaluate(() => { const body = document.querySelector(".tp-acc");
