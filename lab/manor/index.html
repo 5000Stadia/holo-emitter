@@ -304,7 +304,7 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
   return (l, id) => { l.updateWorldMatrix(true, false); l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
       if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
         const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
-      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
+      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, switched: !!l.userData.lightGroup, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
         Object.defineProperty(it, "base", { get: () => l.intensity }); fireItems.push(it); }
       else return;
       l.userData.pooled = true; l.removeFromParent(); }; })();
@@ -315,8 +315,11 @@ const winPool = makePool(rig, { share: 1.6, place: (l, { w }) => { l.width = w.w
 const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
 // (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at
-// zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern)
-const alight = (it) => !DARK && it.base !== 0 && (!it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out");
+// zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern;
+// ?dark puts out the hearths and the room's fixed lights, while a candle or lantern follows its switch: out when the dark
+// begins, and lit by you it lights (Kabe, 2026-10-13: "let candles don't do anything as far as lighting goes": a candle you
+// lit in the dark study showed its flame and lit nothing)
+const alight = (it) => (!DARK || it.switched || !!it.thing) && it.base !== 0 && (!it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out");
 // a light counts only while it, or where its light falls (a sphere `reach` round `lands`), is in frame, or in a margin
 // round the frame wide enough that one turned towards comes on before it shows (src/make/lightpool.js)
 const frame = new THREE.Frustum(), margin = new THREE.Frustum(), guard = new THREE.PerspectiveCamera(), M4 = new THREE.Matrix4(), ball = new THREE.Sphere();
@@ -350,7 +353,8 @@ function flicker(now) {
   return any;
 }
 window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), gives: +s.l.intensity.toFixed(2) }),
-  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }), inView: [...inView], lit: [...lightRooms()] });
+  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }), inView: [...inView], lit: [...lightRooms()],
+  candidates: (room) => fireItems.filter(it => it.room === room).map(it => ({ key: it.key, base: +(+it.base).toFixed(2), alight: alight(it), seen: seen(it) })) });
 
 // ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
 // terrain-mesh.js), a sky and the haze of distance
@@ -377,9 +381,14 @@ if (ground) { scene.add(ground.group);
 const store = world.store();
 let viewDirty = true;
 const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keep(); }, say,
-  onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; },      // a door moved: what can be seen may have changed
+  // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
+  // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you
+  // stood lit nothing, Kabe 2026-10-13)
+  onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; },
   ask: (need, want) => need === "holding" && false });
-for (const b of manor.things) works.add(b);
+// ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
+const darkStart = (b) => { if (DARK && b.kind.affordances?.light?.lights) b.settings = { ...b.settings, start: { ...b.settings?.start, light: "out" } }; return b; };
+for (const b of manor.things) works.add(darkStart(b));
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
 // what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
 // every room is in (the rooms built after the start view measure kinds of their own)
@@ -937,7 +946,7 @@ let here = null;
 function arrive(built) {
   for (const b of built) (window.__arrived ||= []).push({ id: b.id, ms: b.ms, at: Math.round(performance.now()) });
   for (const { id, things: made } of built) { const r = manor.rooms.get(id); nodeify(r.grp); if (r.movers) nodeify(r.movers); nightGlass(r.grp);
-    for (const b of made) { works.add(b); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }   // (a late room's own door, the strongroom's, stops you shut)
+    for (const b of made) { works.add(darkStart(b)); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }   // (a late room's own door, the strongroom's, stops you shut)
     adoptCase();                                                                    // (a case's things in that room)
     r.grp.updateMatrixWorld(true); const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); }); for (const l of own) poolOwn(l, id);
     const q = r.room.rect; warm?.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); }

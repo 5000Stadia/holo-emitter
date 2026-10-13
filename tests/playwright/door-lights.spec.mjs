@@ -23,7 +23,9 @@ test("a room behind a door in reach is lit before the door opens, and gives no l
       const o = P.openings.find(q => q.id === id), d = door.get(id), [A, B] = o.joins, ra = P.rooms.find(q => q.id === A).rect;
       const ew = o.axis === "EW", cx = (o.rect.x0 + o.rect.x1) / 2, cy = (o.rect.y0 + o.rect.y1) / 2;
       const s = ew ? Math.sign((ra.x0 + ra.x1) / 2 - cx) : Math.sign((ra.y0 + ra.y1) / 2 - cy), x = ew ? cx + s * 1.4 : cx, y = ew ? cy : cy + s * 1.4;
-      window.__place(x, y, Math.atan2(-(cx - x), cy - y) * 180 / Math.PI, 0, o.floor); await wait(2000);
+      window.__place(x, y, Math.atan2(-(cx - x), cy - y) * 180 / Math.PI, 0, o.floor);
+      // settled where you stand, however slow the frames (a fixed 2 s had read the hall still in view on a loaded machine)
+      for (let t = 0; t < 40 && window.__lights().inView.includes(B); t++) await wait(250); await wait(1500);
       const of = () => window.__lights().windows.filter(w => w && w.room === B);
       const shut = of(); window.__actOn(d, "leaf"); await wait(250); const open = of();
       out.push({ id, B, opened: W.stateOf(d, "leaf"), shut, open });
