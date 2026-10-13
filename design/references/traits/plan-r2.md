@@ -52,3 +52,25 @@ Kabe accepted all four first-round points (gate g39da38). He also placed beats w
 - Beats and their solvability: construct and pattern-buffer.
 - Encryption or hashing.
 - Vendoring pattern-buffer's js module: links stay in the place document until the manor's state comes from pattern-buffer, so they are written in the shape pattern-buffer will take.
+
+## After round two (consult ca953d5): what changes
+
+Both reviewers found the direction sound. Every finding holds up against the code, so each one is taken.
+
+1. **Defaults and the pin.**
+   - defineKind fills only structure (which characteristics, ports and states) and pins the resolved manifest, not the author's raw input. Change a characteristic's default and every kind using it gets a new pin, so saved worlds can't load different candles under an old key.
+   - Colour and strength come from the look when the place is built, the way material roles already work, because kinds belong to no period.
+   - The candlestick part stops setting its own light strength and colour. The look does that, so there is one source.
+   - Checks: change a default and the pins change; one candle built under two looks gives two manifests.
+2. **The registry is closed by parts.** A part declares the characteristics it implies (a flame implies `emits`). A kind made of a candlestick with no `emits` is filled and flagged, never passed quietly.
+   - Check: register a candlestick kind without `emits`.
+3. **The proofs move to authoring time.** The per-kind state proof runs where `audit.js` runs (at authoring, in the kept tables and tests), never on page load: catalogue.js stays pure, and a kind may arrive before its parts. defineKind only resolves.
+4. **The browser contract is generated:** every emitting manifest, on each renderer path, and the 40-emitter phone tier, each measured against its declared tier promise (in a pool slot, or a glow plus a share). With the dirty-update fix reverted, they must fail.
+5. **The phone budget is counted, not timed:** lights in the pool, no new `renderer.info.programs`, and the draw-call count. Milliseconds on a test machine say nothing about a phone.
+6. **Links: what breaks the fixpoint is a held state, not reversibility.**
+   - A breaker may feed other rooms ("power back on downstairs opens a door upstairs").
+   - Each link declares whether its effect latches (a lever, a breaker: it stays until changed) or is held (a plate: only while something presses it).
+   - Latching links join the monotone fixpoint as one-way facts within one search over the breaker's states, bounded per place.
+   - A held link opens its target only for something that stays there. For one player that means a weight they can leave, never themselves.
+   - Checks: a plate-held doorway is unreachable alone; a latching lever on the same doorway is reachable.
+7. **Which codes R79 proves:** codes found in the place (a note in a drawer, digits on a portrait) are items with a room and are proved here. Codes a person knows are beats, and construct proves those.
