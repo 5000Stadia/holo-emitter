@@ -42,3 +42,6 @@ pattern-buffer is Python and the game runs in Safari.
 | Date | From → to | What | Whose fix | Rule learnt |
 |---|---|---|---|---|
 | 2026-10-13 | Photonic → holo-emitter | three's WebGPURenderer on iOS 18.7: the half-float MSAA target cost ~14 ms a frame at DPR 2 whatever was drawn | holo-emitter (`src/make/render.js`): direct pipeline the phone default | A shared frame has one renderer: its fixed costs are measured on the person's phone and settled for every module at once |
+
+## Vendoring
+- **pattern-buffer's browser module** (`js/patternbuffer/`, VIEW-JS-V1 with our three review points: storage persistence and reseeding, the cross-tab lock, apply never per frame) is in at pattern-buffer main 586dff6 (m7bc36c). We vendor it from that commit when the manor's state comes from pattern-buffer; with people off, its documents are byte-identical to `view-feed-v1.json`.
