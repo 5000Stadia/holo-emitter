@@ -22,7 +22,9 @@ test("in the dark study the candle starts out, and lit where you stand it takes 
     window.__place(x, y, Math.atan2(-(cx - x), cy - y) * 180 / Math.PI, -15, "ground"); await wait(1500);
     const study = () => window.__lights().fires.filter(f => f && f.room === "study");
     const before = { state: W.stateOf(t, "light"), fires: study() };
-    window.__actOn(t, "light"); await wait(2000);
+    window.__actOn(t, "light");
+    // the fade is counted in frames, so a loaded machine takes longer: wait for it (up to 8 s), not a fixed time
+    for (let i = 0; i < 32 && !(study().length && study().every(f => f.level > 0.95)); i++) await wait(250);
     return { before, after: { state: W.stateOf(t, "light"), fires: study() } }; });
   expect(r.before.state, "the dark begins with the candle out").toBe("out");
   expect(r.before.fires.length, "an unlit candle holds no light").toBe(0);

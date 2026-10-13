@@ -35,6 +35,11 @@
 // the table. A thing holding things under a lid is aimed at by its whole body, so an open chest is reached into from
 // wherever it is seen, not only past its swung lid.
 //
+// A light a switch turns (an affordance's "lights": its light group) says whose it is: each such light is marked with
+// the thing and affordance that own it (userData.emits), so whether it shines is read from the world's state (lit(light)),
+// never from its strength in the picture, which an animation is still easing up or a flicker is moving (R79, P1: the
+// world decides, the picture follows; a lit candle lit nothing while its flame's strength was still 0).
+//
 // An affordance with one verb is a deed that can be done again but never undone (reading a letter: read it
 // twice, it stays read); it says it is one-way, as a drunk bottle does, by a release gate no one opens.
 import { value, takeable } from "./catalogue.js";
@@ -198,6 +203,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     things.set(b.id, b); targets = null;
     for (const ch of b.children || []) add(ch);
     if (held().includes(b.id)) b.node.visible = false;
+    for (const [aff, a] of Object.entries(b.kind.affordances || {})) if (a.lights) b.node.traverse(o => { if (o.userData.lightGroup !== a.lights) return;
+      if (o.isLight) o.userData.emits = { b, aff }; if (o.userData.light) o.userData.light.userData.emits = { b, aff }; });
     for (const [aff, a] of Object.entries(b.kind.affordances || {})) {
       const bank = b.banks.get(a.mover);
       if (bank) for (let i = 0; i < bank.count; i++) apply(b, aff, i, standsAt(b, aff, i));
@@ -308,6 +315,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   function set(b, aff, i, state) { if (stateOf(b, aff, i) !== state) { turn(b, aff, i, state); settle(); } }
   return {
     add, meshes, find, hint, cue, act, take, put, set, tick, stateOf, level, things, shutIn,
+    // a switched light: lit by the world's state (true/false); null for a light no switch turns
+    lit: (l) => { const e = l.userData.emits; return e ? moved(e.b, e.aff) : null; },
     rules: (list) => { rules = list; settle(); },
     vars: () => Object.fromEntries(Object.entries(store).filter(([k]) => k[0] === "$").map(([k, v]) => [k.slice(1), v])),
     held: () => held().map(id => things.get(id)).filter(Boolean),

@@ -5,6 +5,7 @@
 // its own data, so a world can say exactly which version of a thing it was made with.
 // Pure: no THREE, so node can check kinds.
 import { hashOf, streamOf } from "./id.js";
+import { resolveCharacteristics } from "./characteristics.js";
 
 const PARTS = new Map(), KINDS = new Map();
 
@@ -24,11 +25,13 @@ export const partOf = (name) => PARTS.get(name) || null;
 // what moves a mover: slide along an axis, turn on a hinge, a lever that springs back, a switch,
 // or nothing visible (a state only). Each affordance has two states, rest and moved.
 export const MOTIONS = ["slide", "hinge", "lever", "switch", "state"];
-const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held", "place"]);
+const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held", "place", "is"]);
 const AFF_KEYS = new Set(["mover", "motion", "axis", "travel", "angle", "states", "initial", "verbs", "requires", "refused", "starts", "lights", "hit", "speed", "sets", "auto", "done", "release", "held"]);
 const PROC_KEYS = new Set(["initial", "phases", "drives"]);
 
-export function defineKind(k) {
+export function defineKind(raw) {
+  // what it is first (src/make/characteristics.js): what its characteristics need and it lacks is filled, and said
+  const { kind: k, has, filled } = resolveCharacteristics(raw);
   const bad = (why) => { throw new Error(`kind ${k.kind || "?"}: ${why}`); };
   if (typeof k.kind !== "string" || !/^[a-z0-9_]+\/[a-z0-9_-]+$/.test(k.kind)) bad("its name is family/name, lower case");
   if (!Number.isInteger(k.v)) bad("v, its version, is an integer");
@@ -52,7 +55,9 @@ export function defineKind(k) {
   }
   for (const [name, v] of Object.entries(k.settings || {})) if (!(typeof v === "number" || typeof v === "string" || typeof v === "boolean" || (Array.isArray(v) && v.length === 2 && v.every(n => typeof n === "number")) || (v && Array.isArray(v.one_of)) || (v && typeof v === "object" && "is" in v)))
     bad(`setting ${name} is a number, a [min, max] range, { one_of: [...] }, or { is: anything }`);
-  const kind = { ...k, pin: hashOf(k) };
+  // pinned as resolved, with each characteristic's version: a changed default is a new pin. A kind with no characteristic
+  // keeps the pin of its own data
+  const kind = { ...k, has, filled, pin: has.length ? hashOf({ ...k, has, filled }) : hashOf(k) };
   KINDS.set(k.kind, kind);
   return kind;
 }

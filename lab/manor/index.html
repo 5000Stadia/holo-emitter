@@ -305,7 +305,10 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
       if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
         const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
       else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, switched: !!l.userData.lightGroup, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
-        Object.defineProperty(it, "base", { get: () => l.intensity }); fireItems.push(it); }
+        // a light a switch turns shines by the world's state (works.lit), its flicker the picture's: lit, its strength as
+        // the flame now draws it, or its full strength while the flame is still coming up; out, nothing (R79, P1)
+        it.l = l; Object.defineProperty(it, "base", { get: () => { const lit = l.userData.emits ? works.lit(l) : null;
+          return lit === null ? l.intensity : !lit ? 0 : l.intensity > 0 ? l.intensity : (l.userData.on ?? 0); } }); fireItems.push(it); }
       else return;
       l.userData.pooled = true; l.removeFromParent(); }; })();
 { manor.scene.updateMatrixWorld(true);
@@ -319,7 +322,9 @@ let inView = new Set(), lightsDirty = true, snapLights = true;
 // ?dark puts out the hearths and the room's fixed lights, while a candle or lantern follows its switch: out when the dark
 // begins, and lit by you it lights (Kabe, 2026-10-13: "let candles don't do anything as far as lighting goes": a candle you
 // lit in the dark study showed its flame and lit nothing)
-const alight = (it) => (!DARK || it.switched || !!it.thing) && it.base !== 0 && (!it.thing || !it.thing.kind.affordances?.light || works.stateOf(it.thing, "light") !== "out");
+// whether a light a thing owns shines is the world's to say (its switch's state), never its strength in the picture
+const alight = (it) => { const lit = it.l?.userData.emits ? works.lit(it.l) : it.thing?.kind.affordances?.light ? works.stateOf(it.thing, "light") !== "out" : null;
+  return lit !== null ? lit : (!DARK || it.switched) && it.base !== 0; };
 // a light counts only while it, or where its light falls (a sphere `reach` round `lands`), is in frame, or in a margin
 // round the frame wide enough that one turned towards comes on before it shows (src/make/lightpool.js)
 const frame = new THREE.Frustum(), margin = new THREE.Frustum(), guard = new THREE.PerspectiveCamera(), M4 = new THREE.Matrix4(), ball = new THREE.Sphere();

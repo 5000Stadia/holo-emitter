@@ -140,17 +140,31 @@ const cases = {
   "an unknown field on an affordance": { ...good, kind: "test/afield", affordances: { lid: { motion: "slide", speeed: 3 } } },
   "a start of a process it doesn't have": { ...good, kind: "test/starts", affordances: { go: { motion: "switch", starts: "burn" } } },
   "a setting that is neither number, range, choice nor value": { ...good, kind: "test/setting", settings: { w: { nope: 1 } } },
+  // R79: what it is (src/make/characteristics.js): a candle that gives no light can't be made
+  "said to give light, with nothing that makes one": { ...good, kind: "test/nolight", is: ["gives-light"] },
+  "a switch for a light no part makes": { kind: "test/wrongswitch", v: 1, parts: [{ part: "candlestick" }], affordances: { light: { motion: "switch", lights: "lamp" } } },
+  "a characteristic that doesn't exist": { ...good, kind: "test/nochar", is: ["gives-warmth-and-joy"] },
 };
 const out = { refused: {}, registered: [] };
 for (const [name, k] of Object.entries(cases)) { try { defineKind(k); out.refused[name] = null; } catch (e) { out.refused[name] = String(e.message); } if (kindOf(k.kind)) out.registered.push(k.kind); }
 defineKind(good); out.good = !!kindOf("test/good");
+// a candlestick made with no switch for its flame: given one, lit from the start, and it says so; pinned with what it is
+definePart("candlestick", { build() {} });
+const bare = defineKind({ kind: "test/bare-candle", v: 1, parts: [{ part: "candlestick" }] });
+out.filled = { has: bare.has, filled: bare.filled, light: bare.affordances?.light, pinOwn: bare.pin !== (await import(${JSON.stringify(ROOT_URL + "src/make/id.js")})).hashOf({ ...bare, has: undefined, filled: undefined, pin: undefined }) };
 console.log(JSON.stringify(out));`));
   const want = { "a bad name": /family\/name/, "an unknown field": /unknown field colour/, "a missing part": /no part called nothing_by_this_name/, "an unknown motion": /motion is one of/,
     "a need on an affordance it doesn't have": /requires lock, which it doesn't have/, "a version that is not an integer": /integer/, "no parts at all": /at least one part/,
-    "an unknown field on an affordance": /unknown field speeed/, "a start of a process it doesn't have": /isn't a process/, "a setting that is neither number, range, choice nor value": /setting w is/ };
+    "an unknown field on an affordance": /unknown field speeed/, "a start of a process it doesn't have": /isn't a process/, "a setting that is neither number, range, choice nor value": /setting w is/,
+    "said to give light, with nothing that makes one": /gives light, but no part makes a light/, "a switch for a light no part makes": /lights "lamp", which no part makes/,
+    "a characteristic that doesn't exist": /no characteristic called gives-warmth-and-joy/ };
   for (const [name, re] of Object.entries(want)) { expect(r.refused[name], `${name}: refused`).not.toBeNull(); expect(r.refused[name], `${name}: the reason`).toMatch(re); }
   expect(r.registered, "a refused kind is never registered").toEqual([]);
   expect(r.good, "a good kind is accepted").toBe(true);
+  expect(r.filled.has, "a candlestick gives light").toEqual([{ name: "gives-light", v: 1, from: "its part candlestick" }]);
+  expect(r.filled.light, "its missing switch is filled").toEqual({ motion: "switch", lights: "flame", initial: "lit", hit: "body" });
+  expect(r.filled.filled.map(f => f.by + ": " + f.what), "and it says what was filled, by what").toEqual(["gives-light: affordance light"]);
+  expect(r.filled.pinOwn, "pinned as resolved, not as written").toBe(true);
 });
 
 // ---- check 2: every movable works: each affordance drives its mover and brings it home exactly; each process reaches its phase targets
@@ -225,6 +239,34 @@ const ID_GOLDEN = {
   settle: [["chest/boarded", 820676021, "1q8s7kb0e1j4vk"], ["table/gateleg", 1985294728, "0tkybkj1kfpguu"], ["cupboard/court", 2904813438, "1x4j2oo00i5zcz"]],
   stable: '{"a":"x","b":[1,{"a":2,"z":1}]}',
 };
+test("check 33: every light a switch turns is owned by its thing, and shines by the world's state, not by its strength in the picture (R79, P1)", async ({ browser }) => {
+  test.setTimeout(LOAD + 120_000);
+  const { page, errs } = await objects(browser);
+  await page.evaluate(makeCtx);
+  const r = await page.evaluate(() => { const { THREE, K, M, look } = window.__chk, out = { kinds: 0, lights: 0, faults: [] };
+    for (const k of M.kinds()) {
+      const sw = Object.entries(k.affordances || {}).filter(([, a]) => a.lights); if (!sw.length || M.missingParts(k).length) continue;
+      const b = M.build(THREE, K, look, k.kind, `check/${k.kind}`); if (b.placeholder) continue;
+      out.kinds++;
+      // a light the page has pooled out of the scene is reached through its flame (userData.light): take one out first
+      let pooled = null; b.node.traverse(o => { if (!pooled && o.isLight && o.userData.lightGroup && o.parent) pooled = o; }); pooled?.removeFromParent();
+      const w = M.makeWorks(THREE, { ask: () => true }); w.add(b);
+      for (const [aff, a] of sw) {
+        const ls = new Set(); b.node.traverse(o => { if (o.userData.lightGroup !== a.lights) return; if (o.isLight) ls.add(o); if (o.userData.light) ls.add(o.userData.light); });
+        if (pooled?.userData.lightGroup === a.lights) ls.add(pooled);
+        if (!ls.size) out.faults.push(`${k.kind} ${aff}: lights "${a.lights}" but no light is in that group`);
+        const states = a.states || ["out", "lit"];
+        for (const st of [states[1], states[0], states[1]]) { w.set(b, aff, null, st); for (let i = 0; i < 60; i++) w.tick(0.05);
+          for (const l of ls) { out.lights++; const was = l.intensity; l.intensity = st === states[1] ? 0 : 5;     // the picture says the opposite
+            if (w.lit(l) !== (st === states[1])) out.faults.push(`${k.kind} ${aff} ${st}: lit() says ${w.lit(l)}`); l.intensity = was; } }
+      }
+    }
+    return out; });
+  expect(errs, "no page errors").toEqual([]);
+  expect(r.kinds, "kinds with a switched light").toBeGreaterThan(0); expect(r.lights, "lights proved").toBeGreaterThan(r.kinds); console.log(`check 33: ${r.kinds} kinds, ${r.lights} light-states`);
+  expect(r.faults).toEqual([]);
+});
+
 test("check 4: ids, seeds and streams from fixed addresses equal the stored values (node, Chromium, Firefox when installed)", async ({ browser }) => {
   test.setTimeout(LOAD + 120_000);
   const inNode = JSON.parse(node(`const f = ${ID_PROBE}; console.log(JSON.stringify(await f(${JSON.stringify(ROOT_URL + "src/make/id.js")}, ${JSON.stringify(ROOT_URL + "src/make/catalogue.js")}, ${JSON.stringify(ROOT_URL + "src/make/kinds/furniture-1660.js")})));`));
