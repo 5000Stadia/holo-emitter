@@ -44,7 +44,7 @@ export function resolveCharacteristics(k) {
 // can't be made.
 defineCharacteristic({
   name: "gives-light", v: 1,
-  parts: { candlestick: () => ["flame"], flame: (p) => [p.group || "flame"] },
+  parts: { candlestick: () => ["flame"], flame: (p) => [p.group || "flame"], bulb: (p) => [p.group || "bulb"] },
   resolve(k, { bad, parts }) {
     const groups = [...new Set(parts.flatMap(x => x.groups))];
     if (!groups.length) bad("it gives light, but no part makes a light (a flame, a candlestick)");

@@ -70,6 +70,15 @@ const OBJECTS = {
       then: [{ set: { candles_lit: true } }, { do: { thing: "stage/puzzle/door:b", aff: "lock", to: "unlocked" } }, { do: { thing: "stage/puzzle/door:b", aff: "leaf", to: "open" } }],
       say: "Three flames stand up together. Somewhere a bolt draws back, and the right-hand door swings open." }];
     g.userData.view = [0, 0.15, 5.4, 1.15]; return g; },
+  // a switch across the room from its light (R79's first link; Kabe, 2026-10-13: "a light switch that is in a different part of
+  // the room that the light it turns on"): the switch by the doorway, the bulb hanging 3 m off; the link is the place's
+  // (src/make/links.js), compiled to rules; the bulb can't be worked by hand
+  switch: () => { const g = new THREE.Group();
+    const jamb = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.1, 0.14), K.M.oakH); jamb.position.set(-2.0, 1.05, 0.02); g.add(jamb);
+    const sw = make("switch/tumbler", "stage/switch/room/switch"); sw.node.position.set(-1.75, 0, 0); g.add(sw.node);
+    const lamp = make("lamp/pendant-bulb", "stage/switch/room/lamp", { drop: 0.7 }); lamp.node.position.set(1.2, 2.8 - new THREE.Box3().setFromObject(lamp.node).max.y, 1.4); g.add(lamp.node);
+    g.userData.links = [{ type: "switch", from: { thing: sw.address, aff: "switch" }, to: { thing: lamp.address, aff: "light" } }];
+    g.userData.view = [0.25, 0.1, 5.2, 1.4]; g.userData.dusk = true; return g; },
   // play never waits (plan §5): a kind whose part is not written yet stands as holodeck grid at its true
   // size, takeable; when the part arrives (here, three seconds later, as if just authored) it turns real
   arrival: () => { const g = new THREE.Group();
@@ -136,8 +145,10 @@ const tObj = performance.now();
 // light: a window's daylight from the left front, a soft fill, a little bounce
 const sun = new THREE.DirectionalLight(0xfff0dc, 2.2); sun.position.set(-2.5, 3.2, 3.5); sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0003; sun.shadow.normalBias = 0.02;
 Object.assign(sun.shadow.camera, { left: -2, right: 2, top: 3, bottom: -1, near: 0.5, far: 12 }); scene.add(sun);
-scene.add(new THREE.HemisphereLight(0xdcd8d0, 0x4a4036, 0.9));
+const hemi = new THREE.HemisphereLight(0xdcd8d0, 0x4a4036, 0.9); scene.add(hemi);
 const win = new THREE.RectAreaLight(0xe8eef2, 3.5, 1.2, 1.6); win.position.set(-2.4, 1.6, 2); win.lookAt(0, 1.2, 0.4); scene.add(win);
+// a stage about a light of its own is shown at dusk, so the light it gives can be seen
+if (obj.userData.dusk) { sun.intensity = 0.12; hemi.intensity = 0.12; win.intensity = 0.3; }
 
 // every material to its node twin (src/make/nodes.js), once, before the first frame
 const twins = nodeify(scene);
@@ -152,6 +163,7 @@ const lineEl = document.getElementById("line"); let lineTimer = null;
 const say = (t) => { if (!t) return; lineEl.textContent = t; lineEl.hidden = false; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.hidden = true; }, 5000); };
 const works = makeWorks(THREE, { say }); for (const b of built) works.add(b); window.__works = works;
 if (obj.userData.rules) works.rules(obj.userData.rules);
+if (obj.userData.links) { const { linkRules } = await import("../../src/make/links.js"); works.rules(linkRules(obj.userData.links, (a) => built.find(b => b.address === a))); }
 // what stood as grid turns real when its part arrives: rebuilt at the same address, in the same place
 onPartArrives(() => { for (const b of [...built]) if (b.placeholder) { const nb = build(THREE, K, look, b.kind.kind, b.address, {}, {}); if (nb.placeholder) continue;
   nb.node.position.copy(b.node.position); nb.node.rotation.copy(b.node.rotation); nodeify(nb.node); b.node.parent.add(nb.node); b.node.parent.remove(b.node); built.splice(built.indexOf(b), 1, nb); works.add(nb); say(`${nb.kind.noun[0].toUpperCase() + nb.kind.noun.slice(1)} arrives: its last part was written.`); } });

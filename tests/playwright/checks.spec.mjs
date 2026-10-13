@@ -267,6 +267,47 @@ test("check 33: every light a switch turns is owned by its thing, and shines by 
   expect(r.faults).toEqual([]);
 });
 
+test("check 34: a switch across the room works its light through a link; the light can't be worked by hand; a link that can't work is a fault (R79, P4)", async ({ browser }) => {
+  test.setTimeout(LOAD + 60_000);
+  const { page, errs } = await objects(browser);
+  await page.evaluate(makeCtx);
+  const r = await page.evaluate(async () => { const { THREE, K, M, look } = window.__chk, L = await import("/src/make/links.js"), { reachability } = await import("/src/make/reach.js");
+    const sw = M.build(THREE, K, look, "switch/tumbler", "check/room/switch"), lamp = M.build(THREE, K, look, "lamp/pendant-bulb", "check/room/lamp");
+    sw.room = "hall"; lamp.room = "hall";
+    const links = [{ type: "switch", from: { thing: sw.address, aff: "switch" }, to: { thing: lamp.address, aff: "light" } }];
+    const w = M.makeWorks(THREE, { ask: () => false }); w.add(sw); w.add(lamp); w.rules(L.linkRules(links, (a) => [sw, lamp].find(b => b.address === a)));
+    let bulb = null; lamp.node.traverse(o => { if (o.userData.light) bulb = o.userData.light; });
+    const out = { start: [w.stateOf(sw, "switch"), w.stateOf(lamp, "light"), w.lit(bulb)] };
+    w.act({ b: sw, aff: "switch", i: null }); for (let i = 0; i < 40; i++) w.tick(0.05);
+    out.on = [w.stateOf(sw, "switch"), w.stateOf(lamp, "light"), w.lit(bulb), bulb.intensity > 0];
+    out.byHand = w.act({ b: lamp, aff: "light", i: null });
+    w.act({ b: sw, aff: "switch", i: null }); for (let i = 0; i < 40; i++) w.tick(0.05);
+    out.off = [w.stateOf(sw, "switch"), w.stateOf(lamp, "light"), w.lit(bulb)];
+    const things = [sw, lamp];
+    out.ok = L.checkLinks(links, things);
+    out.none = L.checkLinks([], things).faults;
+    out.wrongEnd = L.checkLinks([{ type: "switch", from: { thing: sw.address, aff: "switch" }, to: { thing: sw.address, aff: "switch" } }], things).faults;
+    out.plate = L.checkLinks([...links, { type: "plate", from: { thing: sw.address, aff: "switch" }, to: { thing: lamp.address, aff: "light" } }], things).faults;
+    out.noThing = L.checkLinks([{ type: "switch", from: { thing: "nowhere", aff: "switch" }, to: { thing: lamp.address, aff: "light" } }], things).faults;
+    // the switch where the player can't get: a cellar behind a door whose key lies in the cellar
+    const plan = { entrance: "hall", rooms: [{ id: "hall" }, { id: "cellar" }], openings: [{ id: "d", joins: ["hall", "cellar"], rect: { x0: 0, x1: 0.9, y0: 0, y1: 0 } }], stairs: [] };
+    const reach = reachability(plan, { doors: { d: { locked: true, key: "cellar_key" } }, keys: [{ name: "cellar_key", room: "cellar" }] });
+    sw.room = "cellar"; out.unreached = L.checkLinks(links, things, { reached: reach.reached }).faults;
+    return out; });
+  expect(errs, "no page errors").toEqual([]);
+  expect(r.start, "the switch starts off, the light out").toEqual(["off", "out", false]);
+  expect(r.on, "switched on across the room, the light is lit and shines").toEqual(["on", "lit", true, true]);
+  expect(r.byHand.did, "the light can't be worked by hand").toBe(false);
+  expect(r.byHand.refused).toMatch(/worked from its switch/);
+  expect(r.off, "switched off, it goes out").toEqual(["off", "out", false]);
+  expect(r.ok).toEqual({ ok: true, faults: [] });
+  expect(r.none.join(" "), "a switch linked to nothing").toMatch(/its switch works nothing/);
+  expect(r.wrongEnd.join(" "), "a switch can only work a light").toMatch(/has no switch a switch can work/);
+  expect(r.plate.join(" "), "a plate with nothing to stay on it, and two links to one light").toMatch(/nothing is named to stay on it.*worked by 2 links|worked by 2 links.*nothing is named/);
+  expect(r.noThing.join(" ")).toMatch(/no thing nowhere/);
+  expect(r.unreached.join(" "), "a switch the player can't get to").toMatch(/in cellar, which the player can't get to/);
+});
+
 test("check 4: ids, seeds and streams from fixed addresses equal the stored values (node, Chromium, Firefox when installed)", async ({ browser }) => {
   test.setTimeout(LOAD + 120_000);
   const inNode = JSON.parse(node(`const f = ${ID_PROBE}; console.log(JSON.stringify(await f(${JSON.stringify(ROOT_URL + "src/make/id.js")}, ${JSON.stringify(ROOT_URL + "src/make/catalogue.js")}, ${JSON.stringify(ROOT_URL + "src/make/kinds/furniture-1660.js")})));`));

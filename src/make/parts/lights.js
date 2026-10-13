@@ -44,3 +44,18 @@ definePart("chain", {
     c.add(mergeGeometries(links, false), role);
   },
 });
+
+// an electric bulb (R79's first link, Kabe 2026-10-13: "a light switch that is in a different part of the room that the
+// light it turns on"): a clear glass pear with a glowing filament in it, its light at the filament; the filament and the light
+// are the light group `group` ("bulb"), shown and lit only while its affordance is on. It never flickers (still): mains
+// light is steady. at: the bulb's centre; r: the glass's radius; light: its light's strength
+definePart("bulb", {
+  build(c, { at = [0, 0, 0], r = 0.03, light = 3, reach = 6, group = "bulb" }) {
+    const { THREE } = c;
+    const glass = new THREE.SphereGeometry(r, 18, 12); glass.scale(1, 1.25, 1); glass.translate(...at); c.add(glass, "glass_clear");
+    const glowMat = new THREE.MeshBasicMaterial({ color: 0xfff0c8 });
+    const fil = new THREE.Mesh(new THREE.TorusGeometry(r * 0.28, r * 0.05, 6, 16), glowMat); fil.position.set(...at); fil.userData.lightGroup = group;
+    const lamp = new THREE.PointLight(0xffe2b0, light, reach, 2); lamp.position.set(...at); lamp.userData.lightGroup = group; lamp.userData.still = true;
+    fil.userData.light = lamp; c.extra(fil); c.extra(lamp);
+  },
+});
