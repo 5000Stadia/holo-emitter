@@ -1,7 +1,7 @@
 // The engine's renderer, one place for the performance plan's rules (design/perf/plan.md):
 //   - the backend chosen per device by measurement: WebGPU on a first visit, WebGL 2 on the next,
 //     then whichever drew its frames faster, remembered per device and build (?webgl=1 / ?webgpu=1
-//     override); a lost GPU device reloads the page;
+//     override); a lost GPU device reloads the page, and a page that died comes back on WebGL 2;
 //   - a tier from the device: phones draw at 1x density with smaller shadow maps, laptops at up to 1.5x;
 //   - a resolution controller on frame time: it steps the pixel ratio down after 12 frames over budget,
 //     back up only after 30 under and a 12 s cooldown (after the game Kabe sent, design/perf/links-review.md);
@@ -29,7 +29,20 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   // show WebGL doing better (both gaps read the refresh), and the trial cost a returning player 2-8 s of first frame
   // (fresh-eyes audit, 2026-10-10)
   const budget = PHONE ? 1000 / 30 : 1000 / 60;
-  const want = Q.get("webgl") === "1" ? "webgl" : Q.get("webgpu") === "1" ? "webgpu"
+  // a page that died last time comes back safer (after Imjin 1592's loader, design/references/imjin): a marker is set while
+  // the page lives and taken off when it is left; found on load (within 30 min, in this tab), the last visit was killed (iOS
+  // drops a tab that runs out of memory; a lost GPU device reloads without taking it off). This device then draws on WebGL 2
+  // for this build (kept in its backend memory), and after a second death in a row also at the lowest density
+  const live = (() => { try { return sessionStorage; } catch (_) { return null; } })(), LIVE = "holo/loading", DIED = "holo/died";
+  let died = 0;
+  try { const was = JSON.parse(live?.getItem(LIVE) || "null"); died = was && Date.now() - was.t < 1800e3 ? (+live.getItem(DIED) || 0) + 1 : 0;
+    live?.setItem(DIED, String(died)); } catch (_) {}
+  if (died) { memory.choice = "webgl"; memory.died = (memory.died || 0) + 1; try { localStorage.setItem(memoryKey, JSON.stringify(memory)); } catch (_) {} }
+  let dying = false;
+  const alive = () => { try { live?.setItem(LIVE, JSON.stringify({ t: Date.now() })); } catch (_) {} };
+  alive(); addEventListener("pageshow", alive);
+  addEventListener("pagehide", () => { if (!dying) try { live?.removeItem(LIVE); } catch (_) {} });
+  const want = Q.get("webgl") === "1" ? "webgl" : Q.get("webgpu") === "1" ? "webgpu" : died ? "webgl"
     : memory.choice || (memory.webgpu == null || memory.webgpu <= budget * 1.15 ? "webgpu"
       : memory.webgl == null ? "webgl" : (memory.webgpu <= memory.webgl ? "webgpu" : "webgl"));
   // depth (?depth=reversed|log|std): log depth outdoors writes depth from every fragment shader, which turns off early-Z and
@@ -50,7 +63,7 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
     trackTimestamp: CARD && Q.get("gpu") !== "0" });   // the card's GPU ms (WebGPU timestamps; WebGL's timer query where there is one)
   let renderer = make(depthWant), depth = depthWant;
   if (depth === "reversed") { await renderer.init(); if (!renderer.reversedDepthBuffer) { renderer.dispose(); depth = outdoor ? "log" : "std"; renderer = make(depth); } }
-  let step = 0;
+  let step = died >= 2 ? STEPS.length - 1 : 0;
   const ratio = () => Math.min(devicePixelRatio, STEPS[step]);
   renderer.setPixelRatio(Q.get("dpr") ? +Q.get("dpr") : ratio());
   renderer.setSize(innerWidth, innerHeight);
@@ -68,7 +81,7 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
       obj[k] = function (...a) { const t = performance.now(); try { return f.apply(this, a); } finally { const ms = performance.now() - t; if (ms > 0.05) log.push({ fn: `${label}.${k}`, ms, at: t }); } }; } };
     wrap(B, "backend"); wrap(B.pipelineUtils, "pipeline"); wrap(B.textureUtils, "texture"); wrap(B.attributeUtils, "attribute"); wrap(B.bindingUtils, "binding"); }
   const backend = renderer.backend.isWebGPUBackend ? "webgpu" : "webgl";
-  renderer.backend.device?.lost?.then((info) => { if (info.reason !== "destroyed") location.reload(); });
+  renderer.backend.device?.lost?.then((info) => { if (info.reason !== "destroyed") { dying = true; location.reload(); } });
   mark("renderer");
   addEventListener("resize", () => { renderer.setSize(innerWidth, innerHeight); });
 
@@ -84,13 +97,13 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
     last = now;
     // after ten seconds of play, remember how this backend did on this device
     if (!sampled && now - T0 > 10000 && gaps.length >= 60) { sampled = 1; const s = [...gaps].sort((a, b) => a - b), p50 = s[s.length >> 1];
-      memory[backend] = Math.round(p50 * 100) / 100; if (memory.webgpu != null && memory.webgl != null) memory.choice = memory.webgpu <= memory.webgl * 1.05 ? "webgpu" : "webgl";
+      memory[backend] = Math.round(p50 * 100) / 100; if (memory.webgpu != null && memory.webgl != null && !memory.died) memory.choice = memory.webgpu <= memory.webgl * 1.05 ? "webgpu" : "webgl";
       try { localStorage.setItem(memoryKey, JSON.stringify(memory)); } catch (_) {} }
   }
 
   // render on change: the page says when the view or the world moved; otherwise the frame is skipped
   let dirty = true, frames = 0, drawn = 0, ticked = false;
-  const flags = { msaa: msaa ? 4 : 0, depth, out: Q.get("out") === "8" ? 8 : 16 };
+  const flags = { msaa: msaa ? 4 : 0, depth, out: Q.get("out") === "8" ? 8 : 16, died };
   // the direct pipeline: what the warm-up compiles ahead (src/make/warm.js) is compiled as the pipeline draws, tone mapping inside
   // (phones by default since 2026-10-13: on Kabe's iPhone, iOS 18.7, the half-float MSAA target cost a fixed ~14 ms a frame at
   // DPR 2 whatever was drawn; tone mapped in each material into the canvas's own MSAA, edges cost what none did: Photonic's
