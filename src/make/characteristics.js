@@ -1,7 +1,8 @@
 // What things are, made sound at creation (R79; Kabe, 2026-10-13: "object type characteristics, such as produces light that
 // are categorical applied elements to certain types of objects automatically upon their creation … so that things like a
 // candle that produces no light won't be created"). A characteristic is one record: what makes a kind have it (its own
-// word, `is: [...]`, or a part that implies it: a flame means it gives light), what it needs the kind to carry, and how
+// word, `is: [...]`, a property its parts declare (src/make/parts/contracts.js: a part that emits light means it gives light),
+// or its family: every chair is a seat), what it needs the kind to carry, and how
 // what is missing is filled. defineKind resolves a kind's characteristics once, before its checks: a need with a default is
 // filled and the kind says so (`filled`: what, by which characteristic, why), so nobody has to guess where a value came
 // from; a need nothing can fill, or a contradiction, refuses the kind with the reason. The resolved kind is what is pinned,
@@ -9,12 +10,13 @@
 // Structure only: colour and strength are the look's, at build (design/references/traits/plan-r2.md, round two).
 // Whether the promise holds in play is proved at authoring for every kind that has it (checks.spec.mjs check 33), never
 // at page load. Pure: no THREE.
+import { contractOf } from "./parts/contracts.js";
 const CHARS = new Map();
 
 export function defineCharacteristic(c) {
   if (CHARS.has(c.name)) throw new Error(`characteristic ${c.name} defined twice`);
   if (!Number.isInteger(c.v)) throw new Error(`characteristic ${c.name}: v, its version, is an integer`);
-  CHARS.set(c.name, { parts: {}, families: [], implies: [], resolve: () => ({}), ...c });
+  CHARS.set(c.name, { fromPart: null, families: [], implies: [], resolve: () => ({}), ...c });
   return c;
 }
 export const characteristics = () => [...CHARS.values()];
@@ -26,27 +28,29 @@ export function resolveCharacteristics(k) {
   const add = (name, from) => { const c = CHARS.get(name); if (!c) bad(`no characteristic called ${name}`);
     if (has.has(name)) return; has.set(name, from); for (const n of c.implies) add(n, `${name}`); };
   for (const name of k.is || []) add(name, "its own word");
-  for (const c of CHARS.values()) for (const p of k.parts || []) if (c.parts[p.part]) add(c.name, `its part ${p.part}`);
+  // a part that says it is so (its contract's property: emits) brings the characteristic that reads it
+  const said = (c, p) => !!(c.fromPart && contractOf(p.part)?.[c.fromPart]);
+  for (const c of CHARS.values()) for (const p of k.parts || []) if (said(c, p)) add(c.name, `its part ${p.part}`);
   // a family brings its characteristics (every chair is a seat): what a kind is called says what it is
   const fam = (k.kind || "").split("/")[0]; for (const c of CHARS.values()) if (c.families.includes(fam)) add(c.name, `its family ${fam}`);
   let kind = { ...k };
   for (const [name] of has) { const c = CHARS.get(name);
     for (const other of c.conflicts || []) if (has.has(other)) bad(`it can't be both ${name} and ${other}`);
-    const r = c.resolve(kind, { bad, parts: (kind.parts || []).filter(p => c.parts[p.part]).map(p => ({ p, groups: c.parts[p.part](p) })) });
+    const r = c.resolve(kind, { bad, parts: (kind.parts || []).filter(p => said(c, p)).map(p => ({ p, groups: contractOf(p.part)[c.fromPart](p) })) });
     if (r.kind) kind = r.kind; for (const f of r.filled || []) filled.push({ ...f, by: name }); }
   return { kind, has: [...has].map(([name, from]) => ({ name, v: CHARS.get(name).v, from })), filled };
 }
 
 // ---- the characteristics
 
-// gives light: a part that makes a light group (a candlestick's flame; a flame part's `group`) means the kind gives light.
+// gives light: a part that emits a light group (its contract: a candlestick's flame; a flame part's `group`) means the kind gives light.
 // It needs a switch for each group it makes (an affordance whose `lights` names it): one missing is filled, lit from the
 // start (a light set out is lit; a story or a place may start it out). A switch naming a group no part makes switches
 // nothing, and is refused; so is a kind that says it gives light with no part that makes one: a candle that gives no light
 // can't be made.
 defineCharacteristic({
   name: "gives-light", v: 1,
-  parts: { candlestick: () => ["flame"], flame: (p) => [p.group || "flame"], bulb: (p) => [p.group || "bulb"] },
+  fromPart: "emits",
   resolve(k, { bad, parts }) {
     const groups = [...new Set(parts.flatMap(x => x.groups))];
     if (!groups.length) bad("it gives light, but no part makes a light (a flame, a candlestick)");

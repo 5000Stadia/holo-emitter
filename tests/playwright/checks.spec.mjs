@@ -239,7 +239,7 @@ const ID_GOLDEN = {
   settle: [["chest/boarded", 820676021, "1q8s7kb0e1j4vk"], ["table/gateleg", 1985294728, "0tkybkj1kfpguu"], ["cupboard/court", 2904813438, "1x4j2oo00i5zcz"]],
   stable: '{"a":"x","b":[1,{"a":2,"z":1}]}',
 };
-test("check 33: every light a switch turns is owned by its thing, and shines by the world's state, not by its strength in the picture (R79, P1)", async ({ browser }) => {
+test("check 33: every light a switch turns is owned by its thing, and shines by the world's state, not by its strength in the picture (R79, P1); every part's lights are the ones its contract says (S2)", async ({ browser }) => {
   test.setTimeout(LOAD + 120_000);
   const { page, errs } = await objects(browser);
   await page.evaluate(makeCtx);
@@ -265,6 +265,18 @@ test("check 33: every light a switch turns is owned by its thing, and shines by 
   expect(errs, "no page errors").toEqual([]);
   expect(r.kinds, "kinds with a switched light").toBeGreaterThan(0); expect(r.lights, "lights proved").toBeGreaterThan(r.kinds); console.log(`check 33: ${r.kinds} kinds, ${r.lights} light-states`);
   expect(r.faults).toEqual([]);
+  // the parts are held to their word (src/make/parts/contracts.js): built, every kind makes exactly the light groups its
+  // parts' contracts say they emit; a part that makes a light and says nothing (or says and makes none) is a fault here
+  const w = await page.evaluate(async () => { const { THREE, K, M, look } = window.__chk, { contractOf } = await import("/src/make/parts/contracts.js"), out = { kinds: 0, faults: [] };
+    for (const k of M.kinds()) { if (!k.parts || M.missingParts(k).length) continue;
+      const b = M.build(THREE, K, look, k.kind, `check/${k.kind}`); if (b.placeholder) continue; out.kinds++;
+      const made = new Set(); b.node.traverse(o => { const g = o.userData.lightGroup; if (g && (o.isLight || o.userData.light)) made.add(g); });
+      const said = new Set(k.parts.flatMap(p => contractOf(p.part)?.emits?.(p) || []));
+      for (const g of made) if (!said.has(g)) out.faults.push(`${k.kind}: makes a light in "${g}", which none of its parts' contracts emits`);
+      for (const g of said) if (!made.has(g)) out.faults.push(`${k.kind}: its parts say they emit "${g}", and no light is made there`); }
+    return out; });
+  console.log(`check 33: ${w.kinds} kinds held to their parts' contracts`);
+  expect(w.faults).toEqual([]);
 });
 
 test("check 34: a switch across the room works its light through a link; the light can't be worked by hand; a link that can't work is a fault (R79, P4)", async ({ browser }) => {
