@@ -85,6 +85,7 @@
 // built by its type, the muniment room from its brief, doors that work, only what you can see drawn.
 // ?fresh starts a new world; ?room=<id> starts you there; ?plan=banqueting the octagonal banqueting house; ?perf=1 shows the engine's numbers.
 import * as THREE from "three/webgpu";
+import { mix, smoothstep, distance, float, positionWorld, cameraPosition } from "three/tsl";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { makeKit } from "../painted/procedural.js";
 import { textureLog, oakLog, TEX_HALF } from "../painted/texjobs.js";
@@ -242,6 +243,13 @@ nodeify(scene);
 const GLASS = DARK ? 0.03 : NIGHT ? NIGHT.glass : null;
 function nightGlass(g) { if (GLASS != null) g.traverse(o => { if (o.isMesh && o.material?.userData?.daylit) o.material.color.setScalar(GLASS); }); }
 nightGlass(scene);
+// windows both ways (R67; Kabe, 2026-10-13: "I should be able to see inside from the outside windows. If it helps fps to
+// not see inside until I'm close to the window fine but windows should go both ways"): outside, a room whose window faces
+// you within SEE_IN m is drawn (throughWindows, in the view), and the outside glass, dark and catching the sky from afar,
+// clears as you come near it, a little of its reflection kept; it is clear only nearer than the rooms behind it are drawn
+const SEE_IN = +(Q.get("seein") || (ENG.phone ? 10 : 14)), CLEAR = float(0.42);
+scene.traverse(o => { const m = o.isMesh && o.material; if (!m?.userData?.outsideGlass) return;
+  m.opacityNode = mix(CLEAR, float(1), smoothstep(float(SEE_IN - 7), float(SEE_IN - 4), distance(positionWorld, cameraPosition))); m.needsUpdate = true; });
 ENG.mark("built");
 // every texture whole before the first frame (lab/painted/texjobs.js); what each cost: __textures()
 await step("finishing the textures"); await K.ready(); ENG.mark("textures");
@@ -317,7 +325,23 @@ function lightView(at) {
   camera.updateMatrixWorld(); frame.setFromProjectionMatrix(M4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
   guard.position.copy(camera.position); guard.quaternion.copy(camera.quaternion); guard.fov = Math.min(150, camera.fov + 40); guard.aspect = camera.aspect; guard.near = camera.near; guard.far = camera.far;
   guard.updateProjectionMatrix(); guard.updateMatrixWorld(); margin.setFromProjectionMatrix(M4.multiplyMatrices(guard.projectionMatrix, guard.matrixWorldInverse));
-  winPool.update(DARK ? [] : winItems.filter(it => inView.has(it.room)), at, seen); firePool.update(fireItems.filter(it => inView.has(it.room) && alight(it)), at, seen); }
+  const lit = lightRooms(), behind = (it) => inView.has(it.room) ? it : Object.create(it, { base: { value: 0 } });
+  winPool.update(DARK ? [] : winItems.filter(it => lit.has(it.room)).map(behind), at, seen); firePool.update(fireItems.filter(it => lit.has(it.room) && alight(it)).map(behind), at, seen); }
+// a shut door within reach counts as open for the lights (Kabe, 2026-10-13: "the lights in a room should trigger on immediately
+// before I see them so they don't 'turn on' in front of my eyes … when the door is within range to open before I open it"):
+// the rooms behind it take their lights while still hidden and come up there, giving nothing (these lights cast no shadow,
+// and the kitchen's fire had lit the passage through its wall: 5 -> 12 mean), so the door opens on a room already lit
+const DOOR_NEAR = 3;   // a hand's reach (2.6 m from the eye) and a little: in reach before you can touch it
+let nearKey = "", nearLit = null;
+function lightRooms() {
+  if (!here) return inView;
+  const f = floorOf(ph), near = [];
+  for (const o of plan.openings) { if (!o.rect || o.floor !== f) continue; const d = doorThing.get(o.id); if (!d || isOpen(d)) continue;
+    const dx = Math.max(o.rect.x0 - px, 0, px - o.rect.x1), dy = Math.max(o.rect.y0 - py, 0, py - o.rect.y1); if (dx * dx + dy * dy < DOOR_NEAR * DOOR_NEAR) near.push(d); }
+  if (!near.length) { nearKey = ""; return inView; }
+  const key = `${here}|${[...inView].join()}|${near.map(d => d.node.userData.opening).join()}`;
+  if (key !== nearKey) { nearKey = key; nearLit = manor.visibleFrom(here, (d) => isOpen(d) || near.includes(d)); }
+  return nearLit; }
 // the fires flicker, and the flames with them, while any is in view (a still flame's light, a lantern's or a sconce's, is steady)
 function flicker(now) {
   const t = now / 1000; let any = false;
@@ -325,8 +349,8 @@ function flicker(now) {
   for (const f of manor.flames) { if (DARK) { f.visible = false; continue; } if (!f.parent.parent.visible) continue; any = true; const p = f.userData.phase; f.scale.set(1, 0.8 + 0.25 * Math.sin(t * 9 + p) + 0.1 * Math.sin(t * 17 + p * 2), 1); }
   return any;
 }
-window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2) }),
-  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }) });
+window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), gives: +s.l.intensity.toFixed(2) }),
+  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }), inView: [...inView], lit: [...lightRooms()] });
 
 // ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
 // terrain-mesh.js), a sky and the haze of distance
@@ -921,6 +945,13 @@ function arrive(built) {
   // (the sun's shadow, drawn once, drawn again with every room in it)
   if (!window.__whole && !manor.pending().length) { window.__whole = true; ENG.mark("whole"); sun.shadow.needsUpdate = true; keepSizes(); }
 }
+// outside, the rooms whose windows face you within SEE_IN m (nearer than that their glass clears)
+const throughWindows = () => { const out = new Set(), e = camera.position;
+  for (const w of manor.windows) { const dx = e.x - w.c.x, dy = e.y - w.c.y, dz = e.z - w.c.z; if (dx * dx + dy * dy + dz * dz > SEE_IN * SEE_IN) continue;
+    if ((w.c.x - w.into.x) * dx + (w.c.z - w.into.z) * dz > 0) out.add(w.room); }
+  return out; };
+let windowKey = "";
+const outdoors = () => { const r = roomAt(px, py, ph); return !r || r.type === "open"; };   // (the forecourt, an open court, is outside too)
 // the room nearest you waiting to be built (on your floor before another)
 const nearestRoom = (rs) => { let bi = 0, bd = Infinity; rs.forEach((r, i) => { const d = Math.hypot((r.rect.x0 + r.rect.x1) / 2 - px, (r.rect.y0 + r.rect.y1) / 2 - py) + Math.abs(manor.levelOf(r.floor) - ph) * 4; if (d < bd) { bd = d; bi = i; } }); return bi; };
 function refreshView(force = false) {
@@ -929,6 +960,7 @@ function refreshView(force = false) {
   if (!r || (!force && r.id === here)) return;
   if (CP && r.id !== here) CP.enter(r.id);
   here = r.id; const seen = manor.visibleFrom(here, isOpen);
+  if (outdoors()) for (const id of throughWindows()) seen.add(id);
   // (anything now in view not built yet is built at once: you walked faster than the slices)
   { const late = [...seen].filter(id => manor.rooms.get(id)?.built === false).flatMap(id => manor.buildNow(id)); if (late.length) arrive(late); }
   manor.show(seen); POP?.show(seen); inView = seen; lightsDirty = true;
@@ -1101,6 +1133,8 @@ renderer.setAnimationLoop((now) => {
   const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, tileBudget) : false;
   const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, tileBudget) : false;   // the nearest before the first frame; the rest a few ms a frame, under the haze
   if (window.__ok && !tilesCaught && !hillBusy && !groundBusy) { tilesCaught = true; ENG.mark("tiles-all"); }
+  // (outside, a window coming within reach of sight draws its room: R67)
+  if (moved) { const out = outdoors(), k = out ? [...throughWindows()].sort().join() : ""; if (k !== windowKey) { windowKey = k; if (out) refreshView(true); } }
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
   if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
   const fading = winPool.step(dt) | firePool.step(dt);

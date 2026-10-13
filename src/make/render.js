@@ -36,8 +36,8 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   // hidden-surface removal for every draw; reversed depth (a float buffer, near at 1) holds the same 0.05 m to 3 km without
   // it (phones by default: headless, GPU 7.4 -> 4.1 ms a frame at 1x, 68 -> 25 ms at DPR 3; near and far views alike).
   // WebGL 2 without EXT_clip_control falls back to ordinary depth, so there the renderer is made again with log depth.
-  // flags only, measured no gain on the desktop GPU here (a phone's tiled GPU may differ; Kabe's card will say):
-  // ?direct=1: DirectRenderPipeline, tone mapping in each material and straight to the canvas (no half-float MSAA target,
+  // measured no gain on the desktop GPU here; a phone's tiled GPU differed (below):
+  // ?direct=1 (phones' default): DirectRenderPipeline, tone mapping in each material and straight to the canvas (no half-float MSAA target,
   // no output pass; the leaded glass blends after tone mapping, the view through it a little deeper in colour);
   // ?out=8: the intermediate target at 8 bits a channel instead of half floats (bands in the candle-dark vaults);
   // ?msaa=0 (above): GPU -10% here, and the edges Kabe asked for gone
@@ -92,7 +92,10 @@ export async function makeRender({ outdoor = false, parent = document.body, msaa
   let dirty = true, frames = 0, drawn = 0, ticked = false;
   const flags = { msaa: msaa ? 4 : 0, depth, out: Q.get("out") === "8" ? 8 : 16 };
   // the direct pipeline: what the warm-up compiles ahead (src/make/warm.js) is compiled as the pipeline draws, tone mapping inside
-  const pipe = Q.get("direct") === "1" ? new THREE.DirectRenderPipeline(renderer) : null;
+  // (phones by default since 2026-10-13: on Kabe's iPhone, iOS 18.7, the half-float MSAA target cost a fixed ~14 ms a frame at
+  // DPR 2 whatever was drawn; tone mapped in each material into the canvas's own MSAA, edges cost what none did: Photonic's
+  // third phone run, spikes/crowd/RESULTS.md 'R9'; ?direct=0 for the old path)
+  const pipe = (Q.get("direct") ?? (PHONE ? "1" : "0")) === "1" ? new THREE.DirectRenderPipeline(renderer) : null;
   if (pipe) { flags.direct = 1; const compile = renderer.compileAsync.bind(renderer);
     renderer.compileAsync = (...a) => { pipe._update(); const was = [renderer.contextNode, renderer.toneMapping, renderer.outputColorSpace];
       renderer.contextNode = pipe._contextNode; renderer.toneMapping = THREE.NoToneMapping; renderer.outputColorSpace = THREE.ColorManagement.workingColorSpace;

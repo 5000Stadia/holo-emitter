@@ -114,7 +114,9 @@ function outsideGlass() {
   g.fillStyle = "#1c2624"; g.fillRect(0, 0, N, N); g.strokeStyle = "#0b0f0e"; g.lineWidth = 3;
   for (let k = -N; k < 2 * N; k += 32) { g.beginPath(); g.moveTo(k, 0); g.lineTo(k + N, N); g.stroke(); g.beginPath(); g.moveTo(k, N); g.lineTo(k + N, 0); g.stroke(); }
   const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(4, 4);
-  return (outGlass = new THREE.MeshStandardMaterial({ map: t, roughness: 0.12, metalness: 0.35 }));
+  // (glass from the start, so it draws after the rooms behind it: the page clears it as you come near, R67)
+  outGlass = new THREE.MeshStandardMaterial({ map: t, roughness: 0.12, metalness: 0.35, transparent: true, depthWrite: false }); outGlass.userData.outsideGlass = true;
+  return outGlass;
 }
 
 // verdure tapestry (R §2: the great chamber hung with tapestry, Hardwick), drawn in code: a ground of

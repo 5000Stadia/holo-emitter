@@ -148,13 +148,22 @@ export function buildShell(THREE, shell, { slate, stone, glass, mullion = stone,
       if (along) { box(stones, a, a + sw, mid - sw / 2, mid + sw / 2, baseTop - 0.05, s.z1 + 0.04); box(stones, a - 0.05, a + sw + 0.05, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, s.z1, s.z1 + 0.12); }
       else { box(stones, mid - sw / 2, mid + sw / 2, a, a + sw, baseTop - 0.05, s.z1 + 0.04); box(stones, mid - sw / 2 - 0.05, mid + sw / 2 + 0.05, a - 0.05, a + sw + 0.05, s.z1, s.z1 + 0.12); } } }
   // the windows from outside: glass a little in from the wall's face, facing out (so it never shows from within), a
-  // stone mullion and transom across it
-  for (const w of windows) { const out = w.c.clone().sub(w.into).normalize(), at = w.c.clone().addScaledVector(out, 0.035);
-    const g = new THREE.PlaneGeometry(w.w + 0.16, w.h + 0.06), m = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); m.setPosition(at);
+  // stone mullion and transom across it; the pane half a centimetre in from the face and 2 cm into the jambs, head and sill
+  // all round (2.5 cm in and 2 cm short, the room's lit plaster reveal had shown round every window as a white rim once
+  // rooms were drawn from outside, R67)
+  for (const w of windows) { const out = w.c.clone().sub(w.into).normalize(), at = w.c.clone().addScaledVector(out, 0.035), atPane = w.c.clone().addScaledVector(out, 0.055);
+    const g = new THREE.PlaneGeometry(w.w + 0.24, w.h + 0.14), m = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); m.setPosition(atPane);
     g.applyMatrix4(new THREE.Matrix4().makeRotationY(Math.PI)); g.applyMatrix4(m); panes.push(g.toNonIndexed());
     // (the transom a centimetre shallower than the mullion: crossing on one plane, their faces flickered)
     for (const bx of [new THREE.BoxGeometry(0.1, w.h + 0.06, 0.12), new THREE.BoxGeometry(w.w + 0.16, 0.09, 0.11)]) { const p = at.clone().addScaledVector(out, 0.03);
-      bx.translate(0, bx === undefined ? 0 : (bx.parameters.height < 0.1 ? (w.h + 0.06) * 0.12 : 0), 0); const mm = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); mm.setPosition(p); bx.applyMatrix4(mm); bars.push(bx.toNonIndexed()); } }
+      bx.translate(0, bx === undefined ? 0 : (bx.parameters.height < 0.1 ? (w.h + 0.06) * 0.12 : 0), 0); const mm = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); mm.setPosition(p); bx.applyMatrix4(mm); bars.push(bx.toNonIndexed()); }
+    // a stone frame round the opening's edge, 5 cm into it and a centimetre onto the wall, a little shallower than the mullion
+    // (once rooms were drawn from outside, the room's lit reveal showed round the glass as a white rim, R67; a hairline
+    // stays close up at a slant, where the carve leaves no jamb between the face and the room's lining: a frame 35 cm deep
+    // closed it but stood in the room's own reveal, seen from inside)
+    { const fx = w.w / 2 + 0.08, fy = w.h / 2 + 0.03, p = at.clone().addScaledVector(out, 0.03), mm = new THREE.Matrix4().lookAt(new THREE.Vector3(), out, new THREE.Vector3(0, 1, 0)); mm.setPosition(p);
+      for (const [sx, sy, wd, ht] of [[fx, 0, 0.06, w.h + 0.2], [-fx, 0, 0.06, w.h + 0.2], [0, fy, w.w + 0.22, 0.06], [0, -fy, w.w + 0.22, 0.06]]) {
+        const bx = new THREE.BoxGeometry(wd, ht, 0.1); bx.translate(sx, sy, 0); bx.applyMatrix4(mm); bars.push(bx.toNonIndexed()); } } }
   const add = (list, mat, cast = true) => { if (!list.length) return; const g = mergeGeometries(list.map(q => { q.deleteAttribute?.("normal"); if (!q.attributes.uv) q.setAttribute("uv", new THREE.Float32BufferAttribute(new Float32Array(q.attributes.position.count * 2), 2)); return q; }), false); g.computeVertexNormals();
     const m = new THREE.Mesh(g, mat); m.castShadow = cast; m.receiveShadow = true; G.add(m); return m; };
   // the plinth: a base course round the footprint, 4 cm proud of the wall, from well below ground to 0.4 m, its top
