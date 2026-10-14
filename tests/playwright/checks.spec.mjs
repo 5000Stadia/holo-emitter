@@ -265,18 +265,38 @@ test("check 33: every light a switch turns is owned by its thing, and shines by 
   expect(errs, "no page errors").toEqual([]);
   expect(r.kinds, "kinds with a switched light").toBeGreaterThan(0); expect(r.lights, "lights proved").toBeGreaterThan(r.kinds); console.log(`check 33: ${r.kinds} kinds, ${r.lights} light-states`);
   expect(r.faults).toEqual([]);
-  // the parts are held to their word (src/make/parts/contracts.js): built, every kind makes exactly the light groups its
-  // parts' contracts say they emit; a part that makes a light and says nothing (or says and makes none) is a fault here
-  const w = await page.evaluate(async () => { const { THREE, K, M, look } = window.__chk, { contractOf } = await import("/src/make/parts/contracts.js"), out = { kinds: 0, faults: [] };
+  // the parts are held to their word (src/make/parts/contracts.js), each light to the part that made it (build marks it,
+  // madeBy): a light no part made, a light in no group, or one in a group its own part doesn't emit, is a fault, whatever
+  // another part of the kind says (codex's S2 recheck, F1: a whole-kind comparison let a second, undeclared emitter hide
+  // behind a candlestick's flame, and a light with no group pass unseen); and every group a part says it emits it makes
+  const w = await page.evaluate(async () => { const { THREE, K, M, look } = window.__chk, { contractOf } = await import("/src/make/parts/contracts.js"), out = { kinds: 0, lights: 0, faults: [] };
+    window.__lightFaults = (b) => { const f = [], made = new Map(), lit = new Set();
+      // what a part makes in a group (a drawn flame, or a light), so a part that says it emits makes something there
+      b.node.traverse(o => { const by = o.userData.madeBy, g = o.userData.lightGroup; if (by && g) made.set(`${by.kind}#${by.part}`, (made.get(`${by.kind}#${by.part}`) || new Set()).add(g)); });
+      b.node.traverse(o => { if (!o.isLight && !o.userData.light) return; const by = o.userData.madeBy, g = o.userData.lightGroup, k = by && M.kindOf(by.kind), p = k?.parts?.[by.part];
+        const at = `${b.kind.kind}: a ${o.isLight ? o.type : "glow"}${p ? ` made by its part ${p.part} (#${by.part})` : ""}`; out.lights++;
+        if (!p) { f.push(`${at} that no part made`); return; }
+        if (!g) { f.push(`${at} in no light group`); return; }
+        if (!(contractOf(p.part)?.emits?.(p) || []).includes(g)) { f.push(`${at} in "${g}", which ${p.part}'s contract doesn't emit`); return; }
+        if (o.isLight) lit.add(g); });
+      // each part makes something in each group it says it emits; and each group the kind emits gives a light somewhere (a
+      // branched candlestick's outer flames are drawn, its light one: a candle that gives no light is still caught)
+      const said = new Set();
+      for (const [i, p] of (b.kind.parts || []).entries()) for (const g of contractOf(p.part)?.emits?.(p) || []) { said.add(g); if (!made.get(`${b.kind.kind}#${i}`)?.has(g)) f.push(`${b.kind.kind}: its part ${p.part} (#${i}) says it emits "${g}", and makes nothing there`); }
+      for (const g of said) if (!lit.has(g)) f.push(`${b.kind.kind}: its parts emit "${g}", and no light is made there`);
+      return f; };
     for (const k of M.kinds()) { if (!k.parts || M.missingParts(k).length) continue;
-      const b = M.build(THREE, K, look, k.kind, `check/${k.kind}`); if (b.placeholder) continue; out.kinds++;
-      const made = new Set(); b.node.traverse(o => { const g = o.userData.lightGroup; if (g && (o.isLight || o.userData.light)) made.add(g); });
-      const said = new Set(k.parts.flatMap(p => contractOf(p.part)?.emits?.(p) || []));
-      for (const g of made) if (!said.has(g)) out.faults.push(`${k.kind}: makes a light in "${g}", which none of its parts' contracts emits`);
-      for (const g of said) if (!made.has(g)) out.faults.push(`${k.kind}: its parts say they emit "${g}", and no light is made there`); }
+      const b = M.build(THREE, K, look, k.kind, `check/${k.kind}`); if (b.placeholder) continue; out.kinds++; out.faults.push(...window.__lightFaults(b)); }
+    // codex's two planted faults: a second, undeclared light in the flame's group beside a candlestick, and a light with no group
+    const plant = (kind, extra) => { const b = M.build(THREE, K, look, kind, "check/plant"), l = new THREE.PointLight(0xffffff, 1); Object.assign(l.userData, extra); b.node.add(l); return window.__lightFaults(b); };
+    out.planted = [plant("candle/stub", { lightGroup: "flame" }), plant("lamp/pendant-bulb", { lightGroup: "bulb", madeBy: { kind: "lamp/pendant-bulb", part: 1 } }),
+      plant("candle/stub", { madeBy: { kind: "candle/stub", part: 0 } })].map(f => f.join(" | "));
     return out; });
-  console.log(`check 33: ${w.kinds} kinds held to their parts' contracts`);
+  console.log(`check 33: ${w.kinds} kinds, ${w.lights} lights held to their own parts' contracts`);
   expect(w.faults).toEqual([]);
+  expect(w.planted[0], "a light beside a candlestick that no part made").toMatch(/that no part made/);
+  expect(w.planted[1], "a light in the bulb's group made by its brass holder, which emits nothing").toMatch(/made by its part cylinder \(#1\) in "bulb", which cylinder's contract doesn't emit/);
+  expect(w.planted[2], "a light in no group").toMatch(/in no light group/);
 });
 
 test("check 34: a switch across the room works its light through a link; the light can't be worked by hand; a link that can't work is a fault (R79, P4)", async ({ browser }) => {

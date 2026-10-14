@@ -53,7 +53,8 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     // many movers drawn as instances: the part owns its meshes and says how to set one
     bank(name, b) { banks.set(name, b); },
     // anything else the part makes whole (a light, a pane that is not merged), on the body or a mover
-    extra(o, mover = null) { extras.push([o, mover]); },
+    // (marked with the part that made it, so a light is held to its own part's contract: src/make/parts/contracts.js)
+    extra(o, mover = null) { o.userData.madeBy = { kind: kind.kind, part: PART }; extras.push([o, mover]); },
     // an animation that runs each frame from the clock, the affordances' states and the processes'
     // levels (a flame that flickers while lit): f(seconds, isMoved(aff), levelOf(process))
     animate(f) { animate.push(f); },
