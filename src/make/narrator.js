@@ -43,13 +43,59 @@ const ID = /^[\w./-]+$/;
 //         turns>=N  quiet>=N  learned>=N  genuine>=N  covered>=N  beats>=N      (also > <= < ==)
 const ARG_ATOMS = new Set(["learned", "holding", "opened", "said", "at", "here", "talking", "var", "genuine", "misled", "covered", "fired", "done", "revealed", "phase"]);
 const NUM_ATOMS = new Set(["turns", "quiet", "learned", "genuine", "covered", "beats"]);
-const CMP = { ">=": (a, b) => a >= b, "<=": (a, b) => a <= b, ">": (a, b) => a > b, "<": (a, b) => a < b, "==": (a, b) => a === b };
+const CMP = { ">=": (a, b) => a >= b, "<=": (a, b) => a <= b, ">": (a, b) => a > b, "<": (a, b) => a < b, "==": (a, b) => a === b, "!=": (a, b) => a !== b };
+
+// ---- pattern-buffer's beat conditions (patternbuffer.condition/1: construct's arc/io.py JSON, pinned by pattern-buffer's
+// BEATS-V1 as schemas/patternbuffer.condition-1.json), read verbatim into this language: an object with `op`, or a string
+// holding one (a beat stores its condition as a JSON literal). Ids in pattern-buffer's grammar (person:holmes, beat:x,
+// clock:dawn, place:study) name this house's bare ids (holmes, x, dawn, study); the player is person:player. What this
+// house can't evaluate is refused with the reason, never read as false: another person's frame (the narrator reads only
+// the player's), a plot frame other than plot:main (one arc here), a clock counted past its first firing, an event kind
+// the page doesn't observe. state_is, quantity and a thing's located read the world through the host (makeNarrator's
+// world: (entity, attribute) -> value, in the outbox's words, src/make/facts-out.js)
+export const EVENT_KINDS = ["learn", "take", "put", "open", "say", "enter", "talk", "accuse", "var"];
+const PLAYER = "person:player", PLAYER_FRAME = "knows:person:player";
+const bare = (id) => String(id).replace(/^[a-z][a-z0-9_]*:/, "");
+const FIELDS = { state_is: ["entity", "attribute", "value"], located: ["entity", "place"], in_frame: ["frame", "entity", "attribute", "value"], occurred: ["kind", "participants", "since", "until", "min_count"],
+  beat_achieved: ["beat_id", "plot_frame"], clock_fired: ["clock_id", "n", "plot_frame"], turns_elapsed: ["at_least"], turns_quiet: ["at_least"], quantity: ["entity", "attribute", "cmp", "value", "frame"],
+  not: ["operand"], all_of: ["operands"], any_of: ["operands"], at_least: ["k", "operands"] };
+const NEED = { state_is: ["entity", "attribute", "value"], located: ["entity", "place"], in_frame: ["frame", "entity", "attribute", "value"], occurred: ["kind"], beat_achieved: ["beat_id"], clock_fired: ["clock_id"],
+  turns_elapsed: ["at_least"], turns_quiet: ["at_least"], quantity: ["entity", "attribute", "cmp", "value"], not: ["operand"], all_of: ["operands"], any_of: ["operands"], at_least: ["k", "operands"] };
+export function fromCondition(c) {
+  const no = (why) => { throw new Error(`condition/1 ${c?.op ?? "?"}: ${why}`); };
+  if (!c || typeof c !== "object" || Array.isArray(c)) no("not an object with op");
+  if (!FIELDS[c.op]) no(`op is one of ${Object.keys(FIELDS).join(" ")}`);
+  for (const k of Object.keys(c)) if (k !== "op" && !FIELDS[c.op].includes(k)) no(`unknown field ${k}`);
+  for (const k of NEED[c.op]) if (c[k] === undefined) no(`needs ${k}`);
+  const plot = (f) => { if ((f ?? "plot:main") !== "plot:main") no(`plot frame ${f}: this house plays one arc, plot:main`); };
+  switch (c.op) {
+    case "not": return { not: fromCondition(c.operand) };
+    case "all_of": return { all: arr(c.operands).map(fromCondition) };
+    case "any_of": return { any: arr(c.operands).map(fromCondition) };
+    case "at_least": if (!Number.isInteger(c.k) || c.k < 0) no("k is a whole number"); return { atLeast: c.k, of: arr(c.operands).map(fromCondition) };
+    case "turns_elapsed": return { atom: "turns", cmp: ">=", n: c.at_least };
+    case "turns_quiet": return { atom: "quiet", cmp: ">=", n: c.at_least };
+    case "beat_achieved": plot(c.plot_frame); return { atom: "done", arg: bare(c.beat_id) };
+    case "clock_fired": plot(c.plot_frame); if ((c.n ?? 1) !== 1) no(`n ${c.n}: a clock here is known to have fired, not how often`); return { atom: "fired", arg: bare(c.clock_id) };
+    case "located": return c.entity === PLAYER ? { atom: "at", arg: bare(c.place) } : { atom: "where", who: c.entity, arg: bare(c.place) };
+    case "in_frame": if (c.frame === "canon") return { atom: "state", entity: c.entity, attribute: c.attribute, value: c.value };
+      if (c.frame !== PLAYER_FRAME) no(`frame ${c.frame}: the narrator reads only the player's frame (${PLAYER_FRAME}) and canon`);
+      return { atom: "knows", entity: c.entity, attribute: c.attribute, value: c.value };
+    case "state_is": return { atom: "state", entity: c.entity, attribute: c.attribute, value: c.value };
+    case "quantity": if ((c.frame ?? "canon") !== "canon") no(`frame ${c.frame}: a quantity is read from canon here`); if (!CMP[c.cmp]) no(`cmp ${c.cmp}`); if (typeof c.value !== "number") no("value is a number");
+      return { atom: "quantity", entity: c.entity, attribute: c.attribute, cmp: c.cmp, n: c.value };
+    case "occurred": if (!EVENT_KINDS.includes(c.kind)) no(`kind ${c.kind}: the page observes ${EVENT_KINDS.join(" ")}`);
+      return { atom: "occurred", kind: c.kind, who: arr(c.participants).map(bare), since: c.since ?? null, until: c.until ?? null, min: c.min_count ?? 1 };
+  }
+}
 
 function tokens(s) { const out = []; for (const m of String(s).matchAll(/\(|\)|[^\s()]+/g)) out.push(m[0]); return out; }
 export function parseExpr(e) {
   if (e == null || e === "") return { all: [] };
+  if (typeof e === "string" && e.trim()[0] === "{") { let o; try { o = JSON.parse(e); } catch (x) { throw new Error(`a condition in JSON that doesn't parse: ${x.message}`); } return parseExpr(o); }
   if (typeof e === "object") {
     if (Array.isArray(e)) return { all: e.map(parseExpr) };
+    if ("op" in e) return fromCondition(e);
     const keys = Object.keys(e), k = keys[0];
     if (keys.length !== 1 || !["all", "any", "not"].includes(k)) throw new Error(`expression object must be one of all / any / not, got {${keys.join(",")}}`);
     return k === "not" ? { not: parseExpr(e.not) } : { [k]: arr(e[k]).map(parseExpr) };
@@ -78,15 +124,25 @@ export function parseExpr(e) {
   return x;
 }
 export function atomsOf(ast, out = []) {
-  if (ast.all || ast.any) arr(ast.all || ast.any).forEach(a => atomsOf(a, out)); else if (ast.not) atomsOf(ast.not, out); else out.push(ast);
+  if (ast.all || ast.any || ast.of) arr(ast.all || ast.any || ast.of).forEach(a => atomsOf(a, out)); else if (ast.not) atomsOf(ast.not, out); else out.push(ast);
   return out;
 }
 // frame: { learned, held, opened, said (Sets), vars, at, people {id: room|null}, turns, quiet, phase, cov {pillar: status},
-//          fired, done, revealed (Sets) }
+//          fired, done, revealed (Sets), events [{ turn, type, ids }], world (entity, attribute) -> value, knows (entity,
+//          attribute, value) -> bool: the host's reads, for pattern-buffer's conditions }
 export function evalExpr(ast, f) {
   if (ast.all) return ast.all.every(a => evalExpr(a, f));
   if (ast.any) return ast.any.some(a => evalExpr(a, f));
   if (ast.not) return !evalExpr(ast.not, f);
+  if (ast.of) return ast.of.filter(a => evalExpr(a, f)).length >= ast.atLeast;
+  switch (ast.atom) {
+    // (the world as the host reads it, in the outbox's words; no read, nothing known: false)
+    case "state": return f.world ? f.world(ast.entity, ast.attribute) === ast.value : false;
+    case "quantity": { const v = f.world?.(ast.entity, ast.attribute); return typeof v === "number" && CMP[ast.cmp](v, ast.n); }
+    case "knows": return f.knows ? !!f.knows(ast.entity, ast.attribute, ast.value) : false;
+    case "where": { const id = bare(ast.who); if (id in (f.people || {})) return f.people[id] === ast.arg; const v = f.world?.(ast.who, "in"); return v != null && bare(v) === ast.arg; }
+    case "occurred": return arr(f.events).filter(e => e.type === ast.kind && (ast.since == null || e.turn >= ast.since) && (ast.until == null || e.turn <= ast.until) && ast.who.every(w => e.ids.includes(w))).length >= ast.min;
+  }
   const cov = Object.values(f.cov);
   if (ast.cmp) {
     const v = { turns: f.turns, quiet: f.quiet, learned: f.learned.size, genuine: cov.filter(c => c === "genuine").length, covered: cov.filter(c => c !== "unfilled").length, beats: f.done.size }[ast.atom];
@@ -156,6 +212,7 @@ export function checkNarrator(k, { rooms = null } = {}) {
       else if (a.atom === "done") m(a, "beat", beatIds);
       else if (a.atom === "said") { const t = a.arg.includes("/") ? a.arg.split("/")[1] : a.arg; if (!topics.has(t)) say(at, `said:${a.arg} — no such topic`); }
       else if (a.atom === "at" && roomSet && !roomSet.has(a.arg)) say(at, `at:${a.arg} — not a room`);
+      else if (a.atom === "where" && people.has(bare(a.who)) && roomSet && !roomSet.has(a.arg)) say(at, `located ${a.who} in ${a.arg} — not a room`);
     }
     return ast;
   };
@@ -188,7 +245,7 @@ export function checkNarrator(k, { rooms = null } = {}) {
 const hash01 = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13; return (h >>> 0) / 4294967296; };
 const rankOf = (r) => RUNGS.indexOf(r);
 
-export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
+export function makeNarrator(k, { seed = 1, rooms = null, from = null, world = null, knows = null } = {}) {
   const check = checkNarrator(k, { rooms }); if (!check.ok) throw new Error(`narrator: the case's story parts are not sound: ${check.findings.slice(0, 4).map(x => `${x.at}: ${x.what}`).join("; ")}`);
   const clues = cluesOf(k), clueBy = new Map(clues.map(c => [c.id, c])), pillars = arr(k.pillars), required = pillars.filter(p => p.required !== false).map(p => p.id);
   const thingIds = new Set(arr(k.things).map(t => t.id)), peopleIds = new Set(arr(k.cast).map(c => c.id)), roomSet = rooms ? new Set(rooms) : null;
@@ -202,15 +259,16 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
   // everything the narrator knows is plain data, so it can be saved with the world and restored
   const S = {
     turns: 0, quiet: 0, lastBeatTurn: -99, phase: "setup", at: null, accused: null,
-    learned: [], held: [], opened: [], said: [], vars: {}, fired: {}, done: [], revealed: [], log: [],
+    learned: [], held: [], opened: [], said: [], vars: {}, fired: {}, done: [], revealed: [], log: [], events: [],
     people: Object.fromEntries(arr(k.cast).map(c => [c.id, c.arrives || c.presence === "offscene" ? null : (c.home ?? null)])),
   };
   if (from) Object.assign(S, JSON.parse(JSON.stringify(from)));
+  S.events ||= [];   // (a narrator saved before pattern-buffer's conditions: no events kept yet)
   const add = (key, v) => { if (v != null && !S[key].includes(v)) S[key].push(v); };
 
   const frame = () => {
     const f = { learned: new Set(S.learned), held: new Set(S.held), opened: new Set(S.opened), said: new Set(S.said), vars: S.vars, at: S.at, people: S.people, talking: S.talking || null,
-      turns: S.turns, quiet: S.quiet, phase: S.phase, cov: {}, fired: new Set(Object.keys(S.fired)), done: new Set(S.done), revealed: new Set(S.revealed) };
+      turns: S.turns, quiet: S.quiet, phase: S.phase, cov: {}, fired: new Set(Object.keys(S.fired)), done: new Set(S.done), revealed: new Set(S.revealed), events: S.events, world, knows };
     f.cov = coverageOf(f); return f;
   };
   // pillar coverage from the player's frame: a genuine clue learned -> genuine (it wins a tie); a false clue learned and
@@ -280,6 +338,8 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null } = {}) {
 
   const TOUCH = new Set(["learn", "take", "put", "open", "say", "accuse"]);
   function one(ev) {
+    // (what happened, kept for pattern-buffer's occurred: its type, the turn, every id it names; the last 1000)
+    if (EVENT_KINDS.includes(ev.type)) { S.events.push({ turn: S.turns, type: ev.type, ids: [ev.who, ev.thing, ev.clue, ev.id, ev.room, ev.topic].filter(x => x != null).map(String) }); if (S.events.length > 1000) S.events.splice(0, S.events.length - 1000); }
     switch (ev.type) {
       case "learn": add("learned", ev.clue); break;
       case "take": add("held", ev.thing); break;

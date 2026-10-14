@@ -110,7 +110,7 @@ import { checkScene } from "../../src/make/scene.js";
 import { matchKinds } from "../../src/make/match.js";
 import { planStoryHall } from "../../src/make/plans/story-hall.js";
 import { planRecipe } from "../../src/make/recipe.js";
-import { placementFacts, eventFacts } from "../../src/make/facts-out.js";
+import { placementFacts, eventFacts, entityOf } from "../../src/make/facts-out.js";
 import { playRecipe } from "../../src/make/recipe-play.js";
 import { compileStory, bodyAt } from "../../src/make/story.js";
 import { playStory } from "../../src/make/story-play.js";
@@ -609,8 +609,14 @@ if (CASE) {
     let face = was?.faceMade ? was.face : undefined;
     const rec = { p: pr, picture, room: to, get faceMade() { return face !== undefined; }, get face() { if (face === undefined) face = faceOf(id); return face; } }; presences.set(id, rec); return rec; };
   for (const p of CASE.cast) presenceOf(p.id);
-  let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null }); }
-  catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id) }); }
+  // what pattern-buffer's beat conditions read (BEATS-V1; src/make/narrator.js fromCondition): the house as its facts say it
+  // now, in the outbox's words (a thing's state, locked, in: src/make/facts-out.js), and the player's own frame (a code known)
+  const factsNow = (e) => { for (const b of works.things.values()) if (entityOf(b) === e) { if (works.held().includes(b)) return [{ attribute: "held_by", value: "person:player" }];
+      return placementFacts([{ b, room: roomOfThing(b), host: b.host?.b || null }], { stateOf: (x, aff) => works.stateOf(x, aff) }); } return []; };
+  const N = { world: (e, a) => factsNow(e).find(f => f.attribute === a)?.value, knows: (e, a) => known.has(`${e}.${a}`) };
+  window.__narratorReads = N;
+  let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null, ...N }); }
+  catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), ...N }); }
   // a deck written ahead (construct's, over the contract: ?deck=<url>), merged beside the case's own beats, each part
   // checked as they are; what was refused is said in the console and in window.__deck
   if (Q.get("deck")) { try { const deck = await (await fetch(Q.get("deck"))).json(); const m = narrator.merge(deck); window.__deck = { from: Q.get("deck"), ...m };
