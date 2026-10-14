@@ -420,6 +420,7 @@ console.log(JSON.stringify({
   oversize: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.boxParam, { settings: { w: 2 } }), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
   fitted: proof({ ...base, things: [th("lever", "hall", K.fittedLever, { carry: false }), th("key", "hall", K.key, { key: "study_key" }), letter("study")], links: [link("lever", "lever", "lever", "a")] }),
   rangeFree: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.rangeBox), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
+  rangeContained: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("host", "hall", K.lever, { carry: false }), th("weight", "host", K.rangeBox), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
   rangePinned: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.rangeBox, { settings: { u: 0 } }), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
   placedAndHeld: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.box), th("lever", "study", K.weightLever, { carry: false }), letter("vault")],
     links: [link("plate", "plate", "plate", "a", "weight"), link("lever", "lever", "lever", "b")] }),
@@ -436,7 +437,8 @@ console.log(JSON.stringify({
   expect(r.aliases.join(" "), "F6: an id and an address are one input").toMatch(/place\/lamp.input: worked by 2 links/);
   expect(r.held, "a strongbox on the hall's plate holds the study open").toEqual({ checked: [], fair: true });
   expect(r.oversize.checked.join(" "), "F3: a box the case makes 2 m wide is no weight").toMatch(/box\/param can't be carried/); expect(r.oversize.fair).toBe(false);
-  expect(r.rangeFree.checked.join(" "), "F3: a weight sized by a setting the case leaves to its placing is not certified").toMatch(/sized by u, which the case leaves to where it is placed: pin it/); expect(r.rangeFree.fair).toBe(false);
+  expect(r.rangeFree.checked.join(" "), "F3: a weight sized by a setting the case leaves to its placing is not certified").toMatch(/sized by u, which the case leaves to its birth: pin it/); expect(r.rangeFree.fair).toBe(false);
+  expect(r.rangeContained.checked.join(" "), "F3: nor one kept in another case thing (the placer may build it at its own address)").toMatch(/sized by u, which the case leaves to its birth/); expect(r.rangeContained.fair).toBe(false);
   expect(r.rangePinned, "and pinned, it is").toEqual({ checked: [], fair: true });
   expect(r.fitted, "F4: a key cut for the study (key: study_key) works the lever that asks for it").toEqual({ checked: [], fair: true });
   expect(r.placedAndHeld.checked.join(" "), "F5: the box on the plate is also wanted for the study's lever").toMatch(/must lie on the plate, and is also wanted in hand/); expect(r.placedAndHeld.fair).toBe(false);

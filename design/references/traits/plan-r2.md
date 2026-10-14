@@ -108,4 +108,5 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
      - **The fix:** when a size reads a setting the case leaves to the seed, only the actual birth can answer.
      - A thing kept inside another case thing is born at `case/<id>`, so its birth is known and is used.
      - A thing placed in a room is born where the placer puts it, which the proof can't know, so it is not certified. checkCase says which setting to pin.
+     - **Codex's fourth recheck:** being kept inside another case thing doesn't fix a thing's birth either. The placer builds what a case requires at its own address, and the `case/<id>` fallback comes only after that. So any size that reads an unpinned setting is not certified, wherever the thing is, until the case pins the setting.
 4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.
