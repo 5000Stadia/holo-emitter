@@ -47,6 +47,6 @@ test("the manor: a thing taken is in the player's hands; put down on a table, it
     return { took, afterTake: [afterTake.entity, afterTake.attribute, afterTake.value, afterTake.source.event], afterPut: [afterPut.entity, afterPut.attribute, afterPut.value, afterPut.source.event], candle: candle.address, table: table.address }; });
   expect(errs).toEqual([]);
   expect(r.missing, "a thing you can carry and a table in the house").toBeUndefined();
-  expect(r.afterTake, "taken: in the player's hands (in · person:player, construct's spelling)").toEqual([`obj:${r.candle}`, "in", "person:player", "take"]);
+  expect(r.afterTake, "taken: in the player's hands (held_by · person:player, as pattern-buffer's library writes it)").toEqual([`obj:${r.candle}`, "held_by", "person:player", "take"]);
   expect(r.afterPut, "put down on the table").toEqual([`obj:${r.candle}`, "in", `obj:${r.table}`, "put"]);
 });

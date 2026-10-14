@@ -5,7 +5,8 @@
 //     view): each thing `in` its room or what keeps it; a thing built into the room (a door in its doorway, a switch or a
 //     keypad on its wall) first marked `fixture · true`, so its place is permanent and it can never be carried off;
 //   play events, as they happen: for the view module's queue to `record` (canon and the player's frame, observed): taken
-//     `in · person:player` (the one spelling, construct's), put down `in · place:<room>` or `in · obj:<what it is on>`, and
+//     `held_by · person:player` (pattern-buffer, m342c1a: what its library writes from text, classed as state with no model
+//     call; its grader folds the containment family, so construct's `in · person:player` still matches), put down `in · place:<room>` or `in · obj:<what it is on>`, and
 //     each affordance's state under its own name (`obj:door · leaf · open`, `obj:light · light · lit`).
 // Until pattern-buffer's module comes in, the page keeps these in an outbox (window.__outbox) the queue will take over.
 // Pure: things in, facts out.
@@ -30,7 +31,7 @@ export function placementFacts(things, { at = 0, stateOf = null } = {}) {
 // a play event (works' onChange, and where a thing was put): -> facts
 export function eventFacts(ev, { at, room = null, on = null, state = null } = {}) {
   const e = entityOf(ev.b);
-  if (ev.type === "take") return [fact(e, "in", "person:player", "entity", at, { lane: "record", event: "take" })];
+  if (ev.type === "take") return [fact(e, "held_by", "person:player", "entity", at, { lane: "record", event: "take" })];
   if (ev.type === "put") return [fact(e, "in", on ? entityOf(on) : `place:${id(room)}`, "entity", at, { lane: "record", event: "put" })];
   if (ev.type === "state") return [fact(e, ev.i == null ? ev.aff : `${ev.aff}#${ev.i}`, ev.state, "literal", at, { lane: "record", event: "state", was: ev.was })];
   return [];

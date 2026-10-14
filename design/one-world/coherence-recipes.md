@@ -150,7 +150,7 @@ end to end:        story text in → walk in, see nothing → flip the switch �
   - reshape.
 - **Recipes it proposes:** the told secret leaks nowhere; chapter 2 opens where chapter 1 ended; a lie told to a character stays a belief; a place grown in play survives a reload.
 - **Its lane in the demo:** a pytest per recipe that loads the golden facts, authors the beats, runs the R35 proof, checks concealment and plays a scripted 3 to 5 turn walkthrough on stubs (seconds, no model, on every change). A live narrator runs on demand.
-- **Held, one spelling:** construct writes `in · person:player`; pattern-buffer proposed `held_by`; pattern-buffer folds both as one key. Decided for the golden: `in · person:player` (construct already writes it, and one word fewer). Asked of both.
+- **Held, one spelling:** construct writes `in · person:player`; pattern-buffer proposed `held_by`; pattern-buffer folds both as one key. Settled (pattern-buffer, m342c1a): the golden uses `held_by`, which its library writes from text and classes as state with no model call. Its grader compares the folded location, so construct's `in · person:player` rows match unchanged.
 
 **pattern-buffer, later:** CONTAINMENT-DURABILITY-V1 has landed (42d0c23), so take-and-drop's pattern-buffer stage is built. Fixtures are written by a host (author session or build manifest), never by prose extraction, and a model's guess below 0.95 never makes containment permanent.
 
