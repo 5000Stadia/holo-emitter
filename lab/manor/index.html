@@ -113,6 +113,7 @@ import { matchKinds } from "../../src/make/match.js";
 import { planStoryHall } from "../../src/make/plans/story-hall.js";
 import { planRecipe } from "../../src/make/recipe.js";
 import { placementFacts, eventFacts, entityOf } from "../../src/make/facts-out.js";
+import { openFactsQueue } from "../../src/make/patternbuffer.js";
 import { playRecipe } from "../../src/make/recipe-play.js";
 import { compileStory, bodyAt } from "../../src/make/story.js";
 import { playStory } from "../../src/make/story-play.js";
@@ -423,9 +424,14 @@ const known = new Set((Q.get("knows") || "").split(",").filter(Boolean)); let pa
 // the facts this page has to send pattern-buffer (R75): play events as they happen; placements (the author lane) worked out
 // when asked, from every thing as built (window.__outbox({ placements: true }))
 const outbox = []; let placementsOut = null;
+const PB = await openFactsQueue({ worldId: WKEY, pb: Q.get("pb"), hostname: location.hostname });
+window.__pbQueue = () => PB.snapshot();
+window.addEventListener("online", () => { void PB.flush(); });
+const recordFacts = (facts) => { outbox.push(...facts); PB.record(facts); };
 // (a thing's room: its own, its keeper's, or for a door the first room its doorway joins, which hangs it; its states as made)
 const roomOfThing = (b) => b.node.userData.room || b.host?.b?.node.userData.room || plan.openings.find(o => o.id === b.node.userData.opening)?.joins?.[0] || null;
-window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff), people: RP?.placements || [] });
+// Author role is offered by the module: the existing lazy placement snapshot goes to its own canon queue, never the recorder.
+window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) { placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff), people: RP?.placements || [] }); PB.author(placementsOut); }
   return { placements: placements ? placementsOut : undefined, events: outbox.slice() }; };
 let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
 for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
@@ -434,9 +440,8 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
   // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you
   // stood lit nothing, Kabe 2026-10-13)
-  // what changes in play, as facts for pattern-buffer (R75; src/make/facts-out.js): kept in the outbox till its queue takes
-  // them (a put is written where the page puts it down, below, which knows on what)
-  onChange: (ev) => { if (ev.type !== "put") outbox.push(...eventFacts(ev, { at: Math.round(Date.now() / 1000) })); },
+  // Facts stay in the outbox and enqueue locally as they happen (a put is written below, which knows on what).
+  onChange: (ev) => { if (ev.type !== "put") recordFacts(eventFacts(ev, { at: Math.round(Date.now() / 1000) })); },
   onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; if (aff === "sit") seatFollow(b); },
   ask: (need, want) => need === "knows" ? [].concat(want).every(n => known.has(n)) : false });   // (a kind's @knows: a code you know, K3)
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
@@ -1076,7 +1081,7 @@ function actOn(t) {
     if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] };
       // where it was put, kept in the world (on: the thing, its slot, where in it): a reload finds it there (seatAgain)
       b.host = { b: t.b, slot: "top" }; b.node.userData.room = t.b.node.userData.room; world.move(b.id, "on", { to: t.b.id, slot: "top", at: b.node.position.toArray().map(v => +v.toFixed(4)), turn: 0.35 }); keep();
-      outbox.push(...eventFacts({ type: "put", b }, { at: Math.round(Date.now() / 1000), on: t.b })); } }
+      recordFacts(eventFacts({ type: "put", b }, { at: Math.round(Date.now() / 1000), on: t.b })); } }
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
   CP?.afterAct(t, r);                                  // a case's clue in what you opened or took

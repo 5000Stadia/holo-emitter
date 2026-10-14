@@ -12,7 +12,8 @@
 // (a door's or a lid's leaf open or shut, a light or a switch on or off), a lock is `locked` (true or false), a drawer of a
 // bank its own part (`obj:<thing>#drawer3`); a seat is the sitter's `sits_on`, a keypad's accepted code its door's
 // `locked`; any other setting keeps its own name and its own words.
-// Until pattern-buffer's module comes in, the page keeps these in an outbox (window.__outbox) the queue will take over.
+// The page keeps these in window.__outbox and enqueues them through src/make/patternbuffer.js: play as record calls,
+// placements only through the author queue when their snapshot is requested.
 // Pure: things in, facts out.
 // ids in pattern-buffer's grammar, [a-z][a-z0-9_]*:[a-z0-9_:]+ (m7d24d9): a story id that already names its class (obj:switch,
 // person:dog) as it is; anything else, a story id or a build address (manor/room/obj_door), an obj: with every other mark an _
