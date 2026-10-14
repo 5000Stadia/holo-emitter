@@ -5,7 +5,7 @@
 // hangs from its edges to hide the crack where a finer tile meets a coarser one. Tiles are built nearest first, a few
 // a frame (budget in ms), and kept in a cache by key, so walking back costs nothing.
 //   makeGround(THREE, site, { root, maxDepth, material }) -> { group, update(x, y, budgetMs) -> busy, stats() }
-import { texture, attribute, mix, uv, vec2, vec3, float } from "three/tsl";
+import { texture, attribute, mix, uv, vec2, vec3, float, smoothstep } from "three/tsl";
 import { kitTexture } from "../../lab/painted/texjobs.js";
 import { LIB as OUT } from "../../lab/painted/outgen.js";
 
@@ -81,7 +81,10 @@ export function groundTextures(THREE, { textures = "async" } = {}) {
   toneA.anisotropy = toneB.anisotropy = 4;
   return { grass: kt("grass", [512]), gravel: kt("gravel", [512]), toneA, toneB };
 }
-export function groundMaterial(THREE, { textures } = {}) {
+// weather (R71, src/make/weather.js): wet (0..1) darkens the ground and gives it a sheen, most in its hollows (where the
+// tone field is low: water stands there) and on the gravel; snow (0..1) lies on it, thinnest where the tone is high. Neither
+// set, the graph is the dry ground's, unchanged
+export function groundMaterial(THREE, { textures, wet = 0, snow = 0 } = {}) {
   const { grass, gravel, toneA, toneB } = groundTextures(THREE, { textures });
   const m = new THREE.MeshStandardNodeMaterial({ roughness: 0.95, side: THREE.DoubleSide });
   const w = attribute("splat", "float");
@@ -90,5 +93,11 @@ export function groundMaterial(THREE, { textures } = {}) {
   const grassC = texture(grass, uv()).rgb.mul(vec3(1, 1, 1).add(vec3(0.15, 0.06, -0.06).mul(tone.sub(0.5).mul(2)))).mul(float(1).add(b.sub(0.5).mul(0.16)));   // drier and yellower where tone is high, greener where low
   const gravelC = texture(gravel, uv().mul(vec2(1.6, 1.6))).rgb.mul(float(1).add(tone.sub(0.5).mul(0.14)));
   m.colorNode = mix(grassC, gravelC, w);
+  if (wet > 0 || snow > 0) {
+    const hollow = smoothstep(float(0.55), float(0.3), tone), damp = float(wet).mul(float(0.55).add(w.mul(0.25)).add(hollow.mul(0.2)));
+    const dry = m.colorNode, wetC = dry.mul(float(1).sub(damp.mul(0.45)));
+    const lying = smoothstep(float(0.25), float(0.6), float(snow).add(float(0.35).sub(tone.mul(0.5))));
+    m.colorNode = mix(wetC, vec3(0.9, 0.92, 0.95).mul(float(0.95).add(tone.mul(0.1))), lying.mul(Math.min(1, snow * 1.1)));
+    m.roughnessNode = float(0.95).sub(damp.mul(0.6)).add(lying.mul(float(snow)).mul(0.2)).clamp(0.25, 1.0); }
   return m;
 }

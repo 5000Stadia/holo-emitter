@@ -86,6 +86,8 @@
 // ?fresh starts a new world; ?room=<id> starts you there; ?plan=banqueting the octagonal banqueting house; ?perf=1 shows the engine's numbers.
 import * as THREE from "three/webgpu";
 import { mix, smoothstep, distance, float, positionWorld, cameraPosition } from "three/tsl";
+import * as TSL from "three/tsl";
+import { weatherOf, anyWeather, lightUnder, precipitation, footprintMask } from "../../src/make/weather.js";
 import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
 import { makeKit } from "../painted/procedural.js";
 import { textureLog, oakLog, TEX_HALF } from "../painted/texjobs.js";
@@ -223,6 +225,9 @@ const DARK_ROOM = DARK || !!RECIPE?.plan.recipe.dark;
 // ?moon=full|half|new|0..1: night outside, by the moon's lit share (Kabe, 2026-10-12: "the difference between the full moon and
 // the new moon"): the sun becomes the moon, the sky and the fill fall to what it gives, the fires stay lit (src/make/night.js)
 const MOON = DARK ? null : moonOf(Q.get("moon")), NIGHT = MOON == null ? null : nightLight(MOON);
+// the weather (R71, src/make/weather.js): ?weather=rain|snow|fog|overcast, ?rain= ?snow= ?fog= ?cover= ?wet= (0..1), until
+// construct's set_conditions writes it; what the sky gives under it scales the day's (or night's) light
+const WEATHER = weatherOf(Q), WX = anyWeather(WEATHER) ? lightUnder(WEATHER, { night: !!NIGHT }) : null; window.__weather = () => ({ ...WEATHER, particles: PRECIP?.count ?? 0 });
 const OUTDOOR = !STORY && !DARK && Q.get("outdoor") !== "0";
 await window.__stillShown;   // (the title still on screen first: it is only waited for when shown, and never past 0.4 s)
 const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG; ENG.flags.tex = TEX_HALF ? "half" : "full";
@@ -275,8 +280,11 @@ const sun = new THREE.DirectionalLight(0xffe2b8, 1.8); sun.position.set(cx + 14,
 sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone ? 2048 : 4096); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
 Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
 sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
-const HEMI = NIGHT ? NIGHT.hemi : { sky: 0xc8d0d8, ground: 0x3a2c1e, intensity: DARK ? 0 : STORY ? 0.14 : 0.55 };
+const HEMI = { ...(NIGHT ? NIGHT.hemi : { sky: 0xc8d0d8, ground: 0x3a2c1e, intensity: DARK ? 0 : STORY ? 0.14 : 0.55 }) };
 if (NIGHT) { sun.color.setHex(NIGHT.moon.color); sun.intensity = NIGHT.moon.intensity; sun.castShadow = sun.intensity > 0; scene.background.setHex(NIGHT.sky.horizon); }
+// (under cloud: the sun's direct light mostly gone, and its shadow; the fill up; the sky greyed)
+if (WX && !DARK) { sun.intensity *= WX.sun; if (!WX.shadow) sun.castShadow = false; HEMI.intensity *= WX.hemi;
+  HEMI.sky = new THREE.Color(HEMI.sky).lerp(new THREE.Color(WX.sky.toward), WX.sky.by).getHex(); scene.background.lerp(new THREE.Color(WX.sky.toward), WX.sky.by); }
 scene.add(sun, sun.target, new THREE.HemisphereLight(HEMI.sky, HEMI.ground, HEMI.intensity));   // a story's hall underground: "that dark hall"
 if (DARK) { sun.intensity = 0; sun.castShadow = false; scene.background.setHex(0x000000); }
 // the light you carry: the eye's own faint pool by default, ?carry=candle|flashlight|none, L to change (src/make/carry.js); a
@@ -307,7 +315,7 @@ let carryDirty = false; window.__carry = (m) => { if (m !== undefined) { carry.s
 const RECT = Q.get("rect") ? Math.max(1, +Q.get("rect")) : ENG.phone ? 3 : 8; ENG.flags.rect = RECT;
 const rig = Array.from({ length: RECT }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
 const fires = Array.from({ length: STORY ? 4 : 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
-const winItems = manor.daylights.map((w, i) => ({ key: i, room: w.room, at: w.c, lands: w.c.clone().lerp(w.into, 0.3), reach: 3 + 2 * Math.sqrt(w.glazed), size: w.glazed, base: 9 * w.share * (NIGHT ? NIGHT.windows : 1), w }));   // a run of windows on a wall is one light (src/make/manor.js)
+const winItems = manor.daylights.map((w, i) => ({ key: i, room: w.room, at: w.c, lands: w.c.clone().lerp(w.into, 0.3), reach: 3 + 2 * Math.sqrt(w.glazed), size: w.glazed, base: 9 * w.share * (NIGHT ? NIGHT.windows : 1) * (WX ? WX.glass : 1), w }));   // a run of windows on a wall is one light (src/make/manor.js)
 let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
 // lights a room's own builder made (the muniment room's barred windows and door reveal, a candle in it) join the pools too:
 // out of the scene, so the count of lights never changes (seeing that room had taken the scene from 13 lights to 16 and
@@ -382,24 +390,31 @@ window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null
 // terrain-mesh.js), a sky and the haze of distance
 const site = OUTDOOR ? makeSite(plan) : null, fields = site ? makeFields(site) : null;
 if (fields) site.relief(fields.furrowZ);          // ridge and furrow in the ground's height, before anything samples it
-const ground = site ? makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") !== "0", material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)) }) }) : null;
+const ground = site ? makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") !== "0", material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)), wet: WEATHER.wet, snow: WEATHER.snowCover }) }) : null;
 // the fields' walls, hedges, gates and trees (src/make/hillside.js), in tiles round you; impostors drawn once by this renderer, lit by this sun
 const hill = site ? makeHillside(THREE, site, fields, { renderer, near: ENG.phone ? 100 : 150, nearTile: ENG.phone ? 100 : 150,
   light: { sun: sun.color.getHex(), sunI: sun.intensity, sky: HEMI.sky, ground: HEMI.ground, hemi: HEMI.intensity, dir: sun.position.clone().sub(sun.target.position).toArray() } }) : null;
 if (hill) scene.add(hill.group);
 window.__site = site; window.__ground = ground; window.__hill = hill;
+// rain or snow (R71): stateless particles round the eye, none under the house's roof (its rooms' footprint, every floor);
+// a phone's fewer. Drawn every frame while they fall
+const PRECIP = site && WEATHER.falls ? precipitation(THREE, TSL, WEATHER, { count: ENG.phone ? 2500 : 6000, box: ENG.phone ? [30, 18] : [36, 22],
+  mask: footprintMask(THREE, plan.rooms.filter(r => r.type !== "open").map(r => r.rect)), roof: Math.max(...plan.rooms.map(r => manor.levelOf(r.floor || "ground"))) + 12 }) : null;
+if (PRECIP) scene.add(PRECIP.mesh);
 if (ground) { scene.add(ground.group);
   scene.fog = new THREE.Fog(NIGHT ? NIGHT.fog : 0xb7c4cf, 220, 1500);
-  // the sky: a dome that goes with you, pale at the horizon, deeper overhead
+  if (WX) { scene.fog.color.lerp(new THREE.Color(WX.fog.toward), WX.fog.by); scene.fog.near = WX.fog.near; scene.fog.far = WX.fog.far; }
+  // the sky: a dome that goes with you, pale at the horizon, deeper overhead (greyed under cloud)
   const sg = new THREE.SphereGeometry(2400, 32, 16), col = [], top = new THREE.Color(NIGHT ? NIGHT.sky.top : 0x6f8fb4), hor = new THREE.Color(NIGHT ? NIGHT.sky.horizon : 0xc9d4dc), c = new THREE.Color();
+  if (WX) { top.lerp(new THREE.Color(WX.sky.toward), WX.sky.by); hor.lerp(new THREE.Color(WX.sky.toward), WX.sky.by); hor.lerp(scene.fog.color, WEATHER.fog); }
   for (let i = 0; i < sg.attributes.position.count; i++) { const y = sg.attributes.position.getY(i) / 2400; c.copy(hor).lerp(top, Math.max(0, Math.min(1, y * 1.6))); col.push(c.r, c.g, c.b); }
   sg.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
   const sky = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false })); sky.renderOrder = -1; sky.name = "sky";
   sky.onBeforeRender = () => sky.position.copy(camera.position); scene.add(sky); window.__sky = sky;
   // the moon where the sun stood, a little larger than life (half a degree is a speck on a phone)
   // the stars, a night's (R71; ?cover=0..1, the weather's cloud or fog until R71 sets it, hides them)
-  { const stars = NIGHT && starDome(THREE, MOON, { cover: +(Q.get("cover") || 0), width: ENG.phone ? 2048 : 4096, rng: rngOf(seedOf("sky/stars")) }); if (stars) { sky.add(stars); window.__stars = stars; } }
-  const disc = NIGHT && moonDisc(THREE, MOON); if (disc) { const d = sun.position.clone().sub(sun.target.position).normalize(); disc.position.copy(d).multiplyScalar(2300); disc.scale.setScalar(2300 * 0.035); disc.lookAt(0, 0, 0); disc.renderOrder = -1; sky.add(disc); } }
+  { const stars = NIGHT && starDome(THREE, MOON, { cover: WEATHER.cover, width: ENG.phone ? 2048 : 4096, rng: rngOf(seedOf("sky/stars")) }); if (stars) { sky.add(stars); window.__stars = stars; } }
+  const disc = NIGHT && WEATHER.cover < 0.8 && moonDisc(THREE, MOON); if (disc) { const d = sun.position.clone().sub(sun.target.position).normalize(); disc.position.copy(d).multiplyScalar(2300); disc.scale.setScalar(2300 * 0.035); disc.lookAt(0, 0, 0); disc.renderOrder = -1; sky.add(disc); } }
 
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
 const store = world.store();
@@ -1264,7 +1279,7 @@ renderer.setAnimationLoop((now) => {
   if (moved) lastMoved = now;
   camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
-  lap("you"); works.tick(dt);
+  lap("you"); works.tick(dt); PRECIP?.tick(now / 1000);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false; lap("place");
   if (bodies) bodies.hold("player", floorOf(ph), px, py, BODY.half);
@@ -1291,7 +1306,7 @@ renderer.setAnimationLoop((now) => {
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
   if (moved || focusDist == null) focusDist = focusAhead();
   const held = carry.update(camera, now, focusDist), burning = (flicker(now) || held) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
-  lap("you"); ENG.frame(scene, camera, { changed: moved || burning || carryDirty || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !window.__ok });
+  lap("you"); ENG.frame(scene, camera, { changed: moved || burning || carryDirty || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !!PRECIP || !window.__ok });
   carryDirty = false; lap("render");
   // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
   // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
