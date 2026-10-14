@@ -9,7 +9,7 @@ Rows are the project's own work units (`design/intention.md` "The spec list"; de
 
 The north star is the holodeck: step into a story and live it, on a phone first. Captain Picard walked into a noir mystery as Dixon Hill; a player should be able to walk into any story, in any genre, under any theme they choose, and be part of it.
 
-The family together is to be the best version of this: a new framework for interactive fiction and story-based games, one cohesive engine, diverse and dynamic, in which stories and games are easy to deploy (you, 2026-10-14). Its projects make it:
+Three projects of the family make it, a live narrative engine:
 - construct is the narrator. Built on the basic roots of storytelling structure, it fits over any genre, any situation and any theme the player prefers, and crafts the story with the player while holding to its core plot elements: the thematic backbone and the seed of everything that unfolds.
 - pattern-buffer holds the world's truth as it unfolds from that seed.
 - holo-emitter makes that truth a place you stand in.
@@ -25,7 +25,7 @@ Fundamentals every milestone keeps:
 - The document is the truth. The picture never lies about it, and changes only through the world's own rules.
 - Places come from descriptions. No hand-made assets per place. Each look is authored once for its period and place; after that, building a place costs seconds and no AI calls.
 - Code first. Everything that can be rules, data or arithmetic is: building, placing, checking, the world's rules. Language models come in at two moments only: when a new kind of thing is first made, and in the narrative and conversation. Each call is as narrow, rare and checkable as it can be made, and never holds a fact the world doesn't.
-- Phone first, and very good on a PC. What runs well on a phone runs everywhere; on a desktop the same world looks its best (you, 2026-10-14: "I chose mobile first because I like the compatibility but I want it to look very good on pc too").
+- Phone first. What runs well on a phone runs everywhere; quality rises from there.
 - It's ready for the family. pattern-buffer supplies the truth and construct the drama; holo-emitter projects them.
 
 ## M1 — The M0 demo: two rooms, four facings, a drawer that opens, a key you did not know existed
