@@ -58,7 +58,7 @@ export function playRecipe({ THREE, plan, manor, works, build, kindOf, K, look, 
   const usePeople = (population, note = () => {}) => {
     const materials = new Set();
     for (const p of R.people) {
-      if (p.posture !== "standing") { note(`${p.id}: ${p.posture}, which people p2 can't pose; the stand-in shown`); continue; }
+      if (p.posture !== "standing") { note(`${p.id}: ${p.posture}, which people p3 can't pose; the stand-in shown`); continue; }
       const rest = placements.find(q => q.id === p.id);
       const who = population.add({ id: p.id, recipe: p.names.join(" "), at: { pos: rest.pos.slice(), room: rest.room } });
       who.wear(p.wears || []); who.face({ pos: [rest.pos[0] + Math.sin(rest.facing), rest.pos[1], rest.pos[2] + Math.cos(rest.facing)] });

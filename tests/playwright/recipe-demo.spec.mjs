@@ -162,7 +162,7 @@ test("the dark room: no way out, dark; the switch lights the light across the ro
 
 // The same continuity check runs against the local stand-in and Photonic's public pinned population. Availability is
 // checked before opening the latter; an import, build, or application error after that is a failure, never a skip.
-const PINNED_PEOPLE = "https://5000stadia.github.io/photonic-phone-test/v/p2/people/index.js";
+const PINNED_PEOPLE = "https://5000stadia.github.io/photonic-phone-test/v/p3/people/index.js";
 for (const [name, people] of [["stand-in", null], ["legacy reference people", "reference"], ["pinned Photonic people", PINNED_PEOPLE]]) {
   test(`take-and-drop people: ${name} keeps the steward's hall and wardrobe byte-identical on reload`, async ({ browser, browserName, request }) => {
     test.skip(browserName !== "chromium", "the demo is the same on every engine");
@@ -216,7 +216,7 @@ for (const [name, people] of [["stand-in", null], ["legacy reference people", "r
       expect(typeof before.dump, "the continuity report is text").toBe("string");
       expect(before.dump, "the steward's actual room").toMatch(/"person:steward";[^\n]*\broom="hall";/);
       expect(before.dump, "black doublet").toMatch(/doublet:[^|\]\n]*colour=black/);
-      expect(before.dump, people === PINNED_PEOPLE ? "Photonic p2 wardrobe defect: wear() drops the supplied falling_band from dump()" : "white falling band").toMatch(/falling_band:[^|\]\n]*colour=white/);
+      expect(before.dump, people === PINNED_PEOPLE ? "Photonic retains the supplied white falling_band in its worn record" : "white falling band").toMatch(/falling_band:[^|\]\n]*colour=white/);
       expect(before.person).toMatchObject({ person: "person:steward", room: "hall", posture: "standing" });
       expect(before.facts, "the person's place is an author fact").toEqual(expect.arrayContaining([
         expect.objectContaining({ entity: "person:steward", attribute: "in", value: "place:hall", value_type: "entity", frame: "canon", source: expect.objectContaining({ lane: "author" }) }),

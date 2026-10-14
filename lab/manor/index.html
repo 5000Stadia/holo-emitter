@@ -545,7 +545,7 @@ if (bodies) { const src = Q.get("people"), module = await import(src.includes("/
   // later entries name their API explicitly, while an older factory ignores basis and gives us its actual population.
   const needsBasis = Symbol("people basis"); let modern = module.PEOPLE_API === "photonic.people/1";
   if (!modern) { try { POP = makePeople(THREE, { ctx: peopleCtx, get basis() { throw needsBasis; } }); } catch (e) { if (e !== needsBasis) throw e; modern = true; } }
-  if (modern) { const pinned = "https://5000stadia.github.io/photonic-phone-test/v/p2/people/index.js";
+  if (modern) { const pinned = "https://5000stadia.github.io/photonic-phone-test/v/p3/people/index.js";
     if (src !== pinned) throw new Error(`people: this client loads Photonic only from ${pinned}`);
     const { loadBasis } = await import(new URL("../gait.js", pinned).href), response = await fetch(new URL("../gait-basis.json", pinned));
     if (!response.ok) throw new Error(`people: gait basis HTTP ${response.status}`);
