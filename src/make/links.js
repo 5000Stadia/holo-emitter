@@ -95,7 +95,7 @@ export function linkKeys(links, things, { doorOf = () => null, weightOk = () => 
   links.forEach((l, n) => { const T = LINK_TYPES[l.type], f = by(l.from.thing), o = l.to.door || (by(l.to.thing) && doorOf(by(l.to.thing)));
     if (!T || !f || !o) return;
     doors[o] = { locked: true, key: `link${n}` };
-    const a = f.kind?.affordances?.[l.from.aff]; if (!a || !canWork(gateOf(a))) return;   // (a control whose kind isn't known can't be worked)
+    const a = f.kind?.affordances?.[l.from.aff]; if (!a || !canWork(gateOf(a), l, n)) return;   // (a control whose kind isn't known can't be worked)
     if (T.lasts === "held") { const w = by(l.weight), k = w ? refOf(w) : l.weight; if (!weightOk(l) || laid.has(k)) return; laid.add(k); }
     keys.push({ name: `link${n}`, room: f.room }); });
   return { doors, keys };

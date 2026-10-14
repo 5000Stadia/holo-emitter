@@ -13,11 +13,22 @@
 //     anything taken must be takeable by the engine's own rule, a control is worked only once its own gate opens (its key
 //     held), and a gate the proof can't follow grants nothing (codex's recheck, F2-F5)
 import { reachability } from "./reach.js";
-import { checkLinks, linkKeys, gateOf, gateOpen } from "./links.js";
+import { checkLinks, linkKeys, gateOf, gateOpen, answers, LINK_TYPES } from "./links.js";
 import { takeable, value, settle } from "./catalogue.js";
 
-// what the engine will let the player carry (works.js canTake): a kind not fixed, small and light enough
-const carriable = (kind) => !!kind?.size && takeable(kind, value(kind.size, settle(kind, 1)));
+// a case thing's own fields as the settings its kind reads: the lock a key fits, the keys a chest's padlocks need, how
+// it starts (a drawer open, a candle two-thirds burnt), and any settings it names; play builds it with these
+// (src/make/case-play.js), and the proof reads it with the same, so the two can't answer differently
+export const caseSettings = (t) => ({ ...(t.settings || {}), ...(t.key ? { fits: t.key } : {}), ...(t.locks_need ? { keys: t.locks_need } : {}), ...(t.state ? { start: t.state } : {}) });
+// what the engine will let the player carry (works.js canTake) for every birth of this thing: its kind's size under the
+// thing's own settings, each setting the case leaves to the seed tried at every end of its range or choice (a box the case
+// makes 2 m wide is no weight; codex's recheck, F3)
+function carriable(kind, t = {}) {
+  if (!kind?.size) return false; const over = caseSettings(t);
+  const free = Object.entries(kind.settings || {}).filter(([n, v]) => over[n] === undefined && (Array.isArray(v) || v?.one_of)).map(([n, v]) => [n, Array.isArray(v) ? v : v.one_of]);
+  const each = (i, o) => i === free.length ? takeable(kind, value(kind.size, settle(kind, 1, o))) : free[i][1].every(x => each(i + 1, { ...o, [free[i][0]]: x }));
+  return free.reduce((n, [, xs]) => n * xs.length, 1) <= 4096 ? each(0, over) : false;
+}
 
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 export const cluesOf = (k) => [...arr(k.clues), ...arr(k.cast).flatMap(c => arr(c.clues).map(q => ({ ...q, from: c.id })))];
@@ -41,12 +52,17 @@ export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
   // its links, against its things' kinds: every port its things carry is wired (even with no links at all), a weight is one
   // the engine lets you carry (and the case doesn't say carry: false), a control's gate is one the proof can follow, and a
   // weight left on a plate is not also wanted in hand (a key, or a thing a gate asks to be held)
-  if (kindOf) { const T = arr(k.things).map(t => ({ id: t.id, kind: kindOf(t.kind) || { kind: t.kind }, carry: t.carry !== false && carriable(kindOf(t.kind)) }));
+  if (kindOf) { const T = arr(k.things).map(t => ({ id: t.id, kind: kindOf(t.kind) || { kind: t.kind }, carry: t.carry !== false && carriable(kindOf(t.kind), t), fits: caseSettings(t).fits }));
     for (const why of checkLinks(arr(k.links), T, { openings: plan ? (plan.openings || []).map(o => o.id) : null, movable: (t) => t.carry }).faults) say("links", why);
     const wanted = new Set([...clues.values()].flatMap(c => arr(c.gate?.requires?.holding)).concat(arr(k.things).flatMap(t => arr(t.gate?.requires?.holding))));
     arr(k.links).forEach((l, n) => { const c = T.find(t => t.id === l.from?.thing), g = gateOf(c?.kind?.affordances?.[l.from?.aff]);
       if (g.unsupported.length) say("links", `link ${n}: its control ${l.from.thing} asks ${g.unsupported.join(", ")}, which the case's proof can't follow`);
-      const w = l.weight && things.get(l.weight); if (w && (w.key || wanted.has(w.id))) say("links", `link ${n}: its weight ${w.id} must lie on the plate, and is also wanted in hand`); }); }
+      // (wanted in hand: a key, a thing a clue's or a thing's gate asks to hold, or a name any thing's affordance or taking
+      // asks @holding that it answers: one box can't both lie on the hall's plate and be held to work the study's lever)
+      const w = l.weight && T.find(t => t.id === l.weight), asked = (kd) => [...Object.values(kd?.affordances || {}).map(a => a.requires), kd?.take?.requires]
+        .flatMap(r => [...arr(r?.["@holding"]), ...arr(r?.["@holding_all"])]);
+      if (w && (things.get(w.id).key || wanted.has(w.id) || T.some(t => asked(t.kind).some(name => answers(w, name)))))
+        say("links", `link ${n}: its weight ${w.id} must lie on the plate, and is also wanted in hand`); }); }
   else if (arr(k.links).length) say("links", "links can't be checked without the catalogue (kindOf)");
   return { ok: !f.length, findings: f };
 }
@@ -57,18 +73,25 @@ export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
 export function fairPlay(k, { plan, start = null, doors = k.doors || {}, kindOf = null } = {}) {   // doors: { [openingId]: { locked, key } }, the case's own locks; kindOf: the catalogue, for links and what can be carried
   const t0 = performance.now(), clues = cluesOf(k), things = arr(k.things), learned = new Set(), held = new Set(), path = [];
   const thingRoom = (t) => { let at = t.at, n = 0; while (at && things.some(q => q.id === at) && n++ < 8) at = things.find(q => q.id === at).at; return at; };
-  const open = (gate) => { const r = gate?.requires || {}; return arr(r.learned).every(l => learned.has(l)) && arr(r.holding).every(h => held.has(h)); };
+  const laid = new Set(), worked = new Set(), reachedBefore = new Set();   // weights left on plates; latching links worked; rooms reached so far
+  const open = (gate) => { const r = gate?.requires || {}; return arr(r.learned).every(l => learned.has(l)) && arr(r.holding).every(h => held.has(h) && !laid.has(h)); };
   for (let round = 0, grew = true; grew && round < 64; round++) {
     grew = false;
     // where the player can go: the house's doors, a locked one open once its key (a thing the player holds) is held
-    const keys = things.filter(t => held.has(t.id) && t.key).map(t => ({ name: t.key, room: start || plan.entrance }));
+    const keys = things.filter(t => held.has(t.id) && !laid.has(t.id) && t.key).map(t => ({ name: t.key, room: start || plan.entrance }));
     // its links: a lever's door a key in the lever's room; a plate's, in the plate's room once its weight is in hand
-    const asThing = (t) => ({ id: t.id, room: thingRoom(t), kind: kindOf?.(t.kind) || null, fits: t.fits }), inHand = things.filter(t => held.has(t.id)).map(asThing);
-    const lk = linkKeys(arr(k.links), things.map(asThing), { weightOk: (l) => held.has(l.weight), canWork: (g) => gateOpen(g, inHand) });
+    // a weight laid on a plate whose room is reached is out of your hands (F5): no gate counts it held. A latching control
+    // once worked stays worked (a lever pulled while you held its key stays pulled after the key goes on a plate)
+    const asThing = (t) => ({ id: t.id, room: thingRoom(t), kind: kindOf?.(t.kind) || null, fits: caseSettings(t).fits });
+    for (const l of arr(k.links)) if (LINK_TYPES[l.type]?.lasts === "held" && held.has(l.weight) && reachedBefore.has(thingRoom(things.find(t => t.id === l.from?.thing) || {}))) laid.add(l.weight);
+    const inHand = things.filter(t => held.has(t.id) && !laid.has(t.id)).map(asThing);
+    const lk = linkKeys(arr(k.links), things.map(asThing), { weightOk: (l) => laid.has(l.weight),
+      canWork: (g, l, n) => worked.has(n) || (gateOpen(g, inHand) && (LINK_TYPES[l.type]?.lasts !== "latching" || worked.add(n))) });
     const R = reachability(plan, { doors: { ...doors, ...lk.doors }, keys: [...keys, ...lk.keys], start: start || plan.entrance }), reached = new Set(R.reached || []);
+    for (const r of reached) if (!reachedBefore.has(r)) { reachedBefore.add(r); grew = true; }
     // things: take what can be carried, read or search what's in a reached room, if its own gate is open
     for (const t of things) { const room = thingRoom(t); if (!reached.has(room) || !open(t.gate)) continue;
-      if (t.carry !== false && (!kindOf || carriable(kindOf(t.kind))) && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }
+      if (t.carry !== false && (!kindOf || carriable(kindOf(t.kind), t)) && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }
       for (const c of arr(t.clue)) if (!learned.has(c)) { learned.add(c); path.push(`learn ${c} from ${t.id}`); grew = true; } }
     // people: ask whoever is present in a reached room, each clue whose gate is open
     for (const c of clues.filter(q => q.from)) { if (learned.has(c.id) || !open(c.gate)) continue;

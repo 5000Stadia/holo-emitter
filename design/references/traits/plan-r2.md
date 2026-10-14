@@ -99,4 +99,9 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
      - **F5:** one weight was counted on two plates. A weight now lies on one plate, and naming it for two is a fault. A weight that is also wanted in hand (a key, or something a gate asks to be held) is a fault too.
      - **F6:** links into one input were counted by spelling. They are now counted by the thing they resolve to.
    - Codex's fixtures are check 37.
+   - **Codex's second recheck closed F2 and F6.** Three narrower variants of F3–F5 remained, all of the same kind: the proof read a thing differently from how play does. All three are fixed:
+     - **F3:** takeability is judged from the thing's own case settings (`caseSettings`, now in case.js, which play also uses). Every setting the case leaves to the seed is tried at each end of its range or choice, so no birth can make it too big.
+     - **F4:** a key's fitted name (`key: "study_key"` → `fits`) is read the way the engine reads it.
+     - **F5:** a weight laid on a plate whose room is reached is out of your hands: no gate counts it as held, and it is not a key. A latching control, once worked, stays worked. A weight that any thing's affordance or taking asks to be held (`@holding`) is a fault.
+   - All three are in check 37, alongside the valid single-plate and fitted-key routes.
 4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.

@@ -17,9 +17,9 @@ import { cluesOf } from "./case.js";
 
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 
-// a case thing's own fields as the settings its kind reads: the lock a key fits, the keys a chest's padlocks need, how
-// it starts (a drawer open, a candle two-thirds burnt), and any settings it names
-export const caseSettings = (t) => ({ ...(t.settings || {}), ...(t.key ? { fits: t.key } : {}), ...(t.locks_need ? { keys: t.locks_need } : {}), ...(t.state ? { start: t.state } : {}) });
+// a case thing's own fields as the settings its kind reads (src/make/case.js, where the proof reads them too)
+export { caseSettings } from "./case.js";
+import { caseSettings } from "./case.js";
 
 // what the case puts in the house: each thing in its room, or in a slot of another of the case's things
 export function caseRequired(k, plan, known = null) {   // known: the catalogue's kinds; a thing of a kind not yet written is skipped (and listed by the page)
