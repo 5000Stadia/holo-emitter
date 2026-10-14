@@ -201,5 +201,5 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - **Kinds by what they carry:** a table is one that stands free with nothing to work (the smallest, for a small room: `table/carpeted`); a book a carriable thing with a slot inside under a hinge (`book/bound`, new); a page a leaf thinner than a card (`paper/leaf`, new).
 - **In play:** the page is shut in until the book is opened (works' slot inside under a hinge); taken, the outbox writes `obj:page · held_by · person:player`; put on the hall's table, `obj:page · in · obj:hall_table`.
 - **Check:** `recipe-demo.spec.mjs`, take-and-drop.
-- **Not yet:** "Reload, and it is in the hall": the page's place kept across a reload (the world store, or pattern-buffer's feed once the outbox is sent).
+- **Reload, and it is in the hall (2026-10-14):** a thing put down is kept in the world as `on` (what it was put on, its slot, where in it), and seated there again on load, once both it and its host are built (a late room brings either). This holds for the whole house, not only the demo. Checked in the take-and-drop test by reloading.
 

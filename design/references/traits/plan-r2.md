@@ -156,3 +156,9 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
 - Checks: check 1 (sources pinned; two sources refused), check 33 (every light-giving kind under a look of unique colours shines only in them and says so; one candle under two looks is two manifests and one pin; a look silent on a source takes the default and says so).
 - **Categories wait.** A category is a named set of characteristics, and today there are two (gives light, seat) that never stack. "flame-lit" (gives light + burns down + flickers) needs burning down and flicker to become characteristics first; they live in parts and processes now. Built then, not before.
 
+## Point 4's browser contract, generated (2026-10-14)
+- `tests/playwright/emitters.spec.mjs` on `?emitters` (the manor page stands one of every kind with pinned sources, out, in a row down the start room). Nothing to keep up: a new light-giving kind is in it by being made.
+- Each in turn, where you stand looking at it: lit by its own switch (or set as its link sets it, the bulb), the fire pool takes it, heading for full and already rising, in its source's colour as the look has it; put out, its slot heads for nothing. The fade's speed isn't timed (a step a drawn frame, under one a second here).
+- 8 kinds on WebGL today. WebGPU runs the same test where an adapter exists and skips with the reason where it doesn't (headless here has none). The 40-emitter phone tier stays crowd-lights.spec.
+- Mutation run: with the page's re-look on a light's change taken out, the hanging lamp and the bulb never take a slot and the rushlight never gives its back; the contract goes red.
+

@@ -121,5 +121,11 @@ test("take-and-drop in play: the page in the book is shut in until the book is o
     window.__actOn(window.__recipeThing("obj:hall_table"), null); return { took, put: [W.held().includes(pg), last()], room: pg.node.userData.room }; });
   expect(after.took, "taken: in your hands").toEqual([true, ["obj:page", "held_by", "person:player"]]);
   expect(after.put, "put on the hall's table: in it").toEqual([false, ["obj:page", "in", "obj:hall_table"]]);
+  // "Reload, and it is in the hall": the world keeps where it was put (on: the hall's table), and the page seats it there again
+  await page.reload({ timeout: LOAD }); await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  const again = await page.evaluate(() => { const T = window.__THREE, pg = window.__recipeThing("obj:page"), ht = window.__recipeThing("obj:hall_table"), h = window.__plan.rooms.find(q => q.id === "hall").rect;
+    const at = new T.Vector3(); pg.node.getWorldPosition(at);
+    return { on: pg.host?.b === ht, held: window.__works.held().includes(pg), shown: pg.node.visible, inHall: at.x > h.x0 && at.x < h.x1 && -at.z > h.y0 && -at.z < h.y1, room: pg.node.userData.room }; });
+  expect(again, "reloaded: on the hall's table, where it was put").toEqual({ on: true, held: false, shown: true, inHall: true, room: "hall" });
   expect(errs).toEqual([]);
 });

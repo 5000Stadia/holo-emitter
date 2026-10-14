@@ -136,7 +136,7 @@ import { signOf, kept, keep as keepTable } from "../../src/make/keep.js";
 import { build } from "../../src/make/index.js";
 import { soundness } from "../../src/make/sound.js";
 import { compileRoom } from "../house/plan-compile.js";
-import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, kindOf, hashOf, GENERATOR } from "../../src/make/index.js";
+import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, kindOf, missingParts, hashOf, GENERATOR } from "../../src/make/index.js";
 import { cues, fingerCue } from "../ui/cues.js";
 import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton, hint, doorAssist } from "../touch.js";
 fullscreenButton();
@@ -375,7 +375,7 @@ function flicker(now) {
   return any;
 }
 window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), gives: +s.l.intensity.toFixed(2) }),
-  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }), fireShare: +(firePool.boost?.() ?? 1).toFixed(2), sceneLights: (() => { let n = 0; scene.traverse(o => { if (o.isLight) n++; }); return n; })(), inView: [...inView], lit: [...lightRooms()],
+  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), target: s.target, color: s.l.color.getHex() }), fireShare: +(firePool.boost?.() ?? 1).toFixed(2), sceneLights: (() => { let n = 0; scene.traverse(o => { if (o.isLight) n++; }); return n; })(), inView: [...inView], lit: [...lightRooms()],
   candidates: (room) => fireItems.filter(it => it.room === room).map(it => ({ key: it.key, base: +(+it.base).toFixed(2), alight: alight(it), seen: seen(it) })) });
 
 // ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
@@ -427,6 +427,14 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
 const darkStart = (b) => { if (DARK && b.kind.affordances?.light?.lights) b.settings = { ...b.settings, start: { ...b.settings?.start, light: "out" } }; return b; };
 for (const b of manor.things) works.add(darkStart(b));
+// a thing put down somewhere in an earlier visit (the world's latest on: for it): seated there again once both it and what
+// it was put on are built (a room built late brings either), as the put seated it; until then it stands where it was born
+const seatedAgain = new Set();
+function seatAgain() {
+  for (const id of Object.keys(world.doc.entities)) { if (seatedAgain.has(id)) continue; const w = world.whereIs(id); if (w?.rel !== "on" || !w.to?.to) continue;
+    const b = works.things.get(id), host = works.things.get(w.to.to), s = host?.slots?.get(w.to.slot); if (!b || !s) continue;
+    b.node.position.set(...w.to.at); b.node.rotation.set(0, w.to.turn ?? 0, 0); s.node.add(b.node); b.host = { b: host, slot: w.to.slot }; b.node.userData.room = host.node.userData.room; seatedAgain.add(id); } }
+seatAgain();
 // ?candles=N: N candles stood lit on the start room's floor, a grid a step from its walls, to prove a crowd of lights on the
 // phone's budget (R79 S4; tests/playwright/crowd-lights.spec.mjs): each its own thing, its light pooled like any other
 { const n = Math.min(200, +(Q.get("candles") || 0)), r = n ? manor.rooms.get(START_ID) : null, q = r?.room.rect, crowd = [];
@@ -439,8 +447,21 @@ for (const b of manor.things) works.add(darkStart(b));
       b.node.updateMatrixWorld(true); const ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, START_ID); }
     // (kept here: the house's own list of things is remade as rooms arrive; where to stand to see them all: the near end, facing down the room)
     window.__candles = () => crowd; window.__candlesView = () => ({ x: (q.x0 + q.x1) / 2, y: q.y0 + 0.3, h: y0 }); } }
+// ?emitters: one of every kind that gives light (its pinned sources: R79 point 4), stood out in a row down the start room, for
+// the generated browser contract (tests/playwright/emitters.spec.mjs): each lit in turn takes a pool slot in its source's
+// colour from the look, and put out gives it back. Each built under the house's look, its lights pooled like any other
+{ const r = Q.has("emitters") ? manor.rooms.get(START_ID) : null, q = r?.room.rect, out = [];
+  if (r) { const ks = kinds().filter(k => k.sources && !missingParts(k).length), y0 = manor.levelOf(r.room.floor || "ground"), my = (q.y0 + q.y1) / 2; r.grp.updateMatrixWorld(true);
+    ks.forEach((k, i) => { const aff = Object.entries(k.affordances || {}).find(([, a]) => a.lights)?.[0];
+      const b = build(THREE, K, look1660, k.kind, `emitters/${START_ID}/${k.kind}`, aff ? { start: { [aff]: "out" } } : {}), x = q.x0 + 0.8 + (q.x1 - q.x0 - 1.6) * (ks.length > 1 ? i / (ks.length - 1) : 0.5);
+      b.node.position.copy(r.grp.worldToLocal(new THREE.Vector3(x, y0, -my))); b.node.userData.room = START_ID; r.grp.add(b.node); works.add(b);
+      b.node.updateMatrixWorld(true); const k0 = fireItems.length, ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, START_ID);
+      out.push({ b, aff, x, y: my, keys: fireItems.slice(k0).map(it => it.key) }); });
+    window.__emitters = () => out.map(({ b, aff, x, y, keys }) => ({ kind: b.kind.kind, aff, x, y, keys, sources: b.kind.sources, lights: b.info.lights }));
+    window.__emitter = (i) => out[i]?.b || null; } }
 // the recipe's things, links, people and proof (the main demo)
 const RP = RECIPE ? playRecipe({ THREE, plan, manor, works, build, kindOf, K, look: look1660, poolOwn, say: (t) => say(t), know: (n) => known.add(n) }) : null;
+seatAgain();   // (a recipe's things, put down in an earlier visit)
 window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.person && (({ room, person, posture }) => ({ room, person, posture }))(RP.person.userData), chosen: RECIPE.plan.chosen };
 window.__recipeThing = (id) => RP?.thingOf.get(id) || null; window.__recipeTalk = (id) => RP?.talk(id); window.__known = () => [...known];
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
@@ -1020,6 +1041,8 @@ function actOn(t) {
   // what you hold, put down on a surface you act on (the golden key back on the glass table)
   if (r.refused && works.held().length && t.b.slots?.get("top")) { const b = works.held().at(-1), s = t.b.slots.get("top"); r = works.put(b);
     if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] };
+      // where it was put, kept in the world (on: the thing, its slot, where in it): a reload finds it there (seatAgain)
+      b.host = { b: t.b, slot: "top" }; b.node.userData.room = t.b.node.userData.room; world.move(b.id, "on", { to: t.b.id, slot: "top", at: b.node.position.toArray().map(v => +v.toFixed(4)), turn: 0.35 }); keep();
       outbox.push(...eventFacts({ type: "put", b }, { at: Math.round(Date.now() / 1000), on: t.b })); } }
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
@@ -1041,7 +1064,8 @@ let here = null;
 function arrive(built) {
   for (const b of built) (window.__arrived ||= []).push({ id: b.id, ms: b.ms, at: Math.round(performance.now()) });
   for (const { id, things: made } of built) { const r = manor.rooms.get(id); nodeify(r.grp); if (r.movers) nodeify(r.movers); nightGlass(r.grp);
-    for (const b of made) { works.add(darkStart(b)); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }   // (a late room's own door, the strongroom's, stops you shut)
+    for (const b of made) { works.add(darkStart(b)); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }
+    seatAgain();   // (a late room's own door, the strongroom's, stops you shut)
     adoptCase();                                                                    // (a case's things in that room)
     r.grp.updateMatrixWorld(true); const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); }); for (const l of own) poolOwn(l, id);
     const q = r.room.rect; warm?.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); }
