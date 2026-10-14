@@ -7,6 +7,9 @@
 //   - each minute's p50 (throttling shows as a rising line), the scene (draws, triangles, programs, lights lit/held),
 //     the flags in force, memory (renderer.info's textures and vertex data, our count of what the page still holds
 //     on the CPU, Chrome's JS heap), the startup marks;
+//   - each layer's share of a tick (the main demo's cost line, Photonic's ask: people ms, place ms, loading): the page
+//     calls lap(name) after each layer's work in its loop, each lap the ms since the one before; p50 / p95 over the last
+//     3 s, against the phone's 33 ms frame (people's share at most 14 ms, design/one-world/coherence-recipes.md);
 //   - the heartbeat, always on (a localStorage write every 5 s): a page reloaded after an iOS tab kill (no pagehide)
 //     says "last session ended unexpectedly after N min at X MB".
 // ?bench=1: a fixed 60 s walk (hall, great stair, great chamber, through to the muniment room) once walkable, then
@@ -35,6 +38,7 @@ function describe(s) {
 export function makeCard(E) {
   const { renderer } = E, T0 = performance.now(), start = Date.now(), prev = lastSession();
   const gaps = [], cpu = [], gpu = [], all = [], minutes = [];         // drawn-frame gaps, last 3 s; since walkable; per-minute p50
+  const laps = new Map(); let lapAt = 0, tickMs = 0;                    // each layer's [at, ms, tick] of the last 3 s
   let lastDrawn = 0, minuteGaps = [], minuteAt = 0, walkAt = 0, scene = null, held = { tex: 0, geo: 0 }, heldAt = 0, adapter = "", bench = null, gpuBusy = false;
   const heap = () => performance.memory?.usedJSHeapSize || 0;
   const info = () => renderer.info.memory;
@@ -44,7 +48,7 @@ export function makeCard(E) {
   setInterval(beat, 5000); beat();
   addEventListener("pagehide", () => beat({ clean: true }));
   document.addEventListener("visibilitychange", () => beat());
-  if (!CARD) return { drawn() {}, walkable() {}, el: null };
+  if (!CARD) return { drawn() {}, walkable() {}, lap() {}, el: null };
 
   // the adapter: WebGPU's device says (iOS: only "apple"); WebGL's unmasked renderer
   (async () => { try {
@@ -76,8 +80,12 @@ export function makeCard(E) {
       last3s: r, sinceWalkable: w, cpu: c.p50, gpu: g.n ? g.p50 : null, minutes: minutes.slice(-10), flags: E.flags,
       draws: renderer.info.render.drawCalls, tris: renderer.info.render.triangles, programs: m.programs, lights: held.lights,
       mem: { tex: MB(m.texturesSize), geo: MB(m.attributesSize + m.indexAttributesSize), total: MB(m.total), heap: MB(heap()) || null, cpuTex: MB(held.tex), cpuGeo: MB(held.geo), device: navigator.deviceMemory || null },
-      marks: E.marks, bench, prev };
+      layers: layers(), marks: E.marks, bench, prev };
   }
+  // each layer's ms a tick, last 3 s (a tick's layers sum to its whole, the loop's own work included)
+  function layers() { const now = performance.now(), out = {};
+    for (const [k, a] of laps) { while (a.length && now - a[0][0] > 3000) a.shift(); const st = stats(a.map(x => x[1])); out[k] = { p50: +st.p50.toFixed(2), p95: +st.p95.toFixed(2), n: st.n }; }
+    return out; }
   function show() {
     const s = summary(), r = s.last3s, w = s.sinceWalkable, L = s.lights || {}, mk = s.marks, fl = s.flags || {};
     const lines = [
@@ -91,7 +99,11 @@ export function makeCard(E) {
       `scene: ${s.draws} draws · ${Math.round(s.tris / 1000)}k tris · ${s.programs} progs · rect ${L.rectLit ?? "?"}/${L.rect ?? "?"} point ${L.pointLit ?? "?"}/${L.point ?? "?"}`,
       `flags: ${Object.entries(fl).map(([k, v]) => `${k} ${v}`).join(" · ")}`,
       `mem: tex ${s.mem.tex} · geo ${s.mem.geo} · gpu ${s.mem.total} MB · held tex ${s.mem.cpuTex} geo ${s.mem.cpuGeo} · js heap ${s.mem.heap ?? "n/a"} (Chrome, coarse)${s.mem.device ? ` · dev ${s.mem.device} GB` : ""}`,
+      `layers ms p50/p95 (of 33 a phone frame; people ≤14): ${Object.entries(s.layers).map(([k, v]) => `${k} ${f1(v.p50)}/${f1(v.p95)}${k === "people" && v.p95 > 14 ? " OVER" : ""}`).join(" · ") || "…"}`,
       `start: first frame ${((mk["first-frame"] || 0) / 1000).toFixed(1)} s · walkable ${((mk.walkable || 0) / 1000).toFixed(1)} s`,
+      // loading by stage: each mark's seconds after the one before it (renderer, built, textures, …, walkable)
+      // (marks at the same moment said together: first-frame=walkable)
+      `loading s: ${Object.entries(mk).sort((a, b) => a[1] - b[1]).reduce((g, [k, v]) => { if (g.length && g.at(-1)[1] === v) g.at(-1)[0] += `=${k}`; else g.push([k, v]); return g; }, []).map(([k, v], i, a) => `${k} ${((v - (i ? a[i - 1][1] : 0)) / 1000).toFixed(1)}`).join(" · ")}`,
       describe(prev),
     ];
     if (bench) lines.push(bench.done ? `BENCH 60s (after ${bench.warmS} s warm-up): p50 ${f1(bench.all.p50)} p95 ${f1(bench.all.p95)} worst ${f1(bench.all.worst)} · >50ms ${bench.all.over50}/${bench.all.n} · ${Object.entries(bench.legs).map(([k, v]) => `${k} ${f1(v.p50)}/${f1(v.p95)}`).join(" ")}`
@@ -111,6 +123,8 @@ export function makeCard(E) {
       lastDrawn = now; cpu.push(cpuMs); if (cpu.length > 180) cpu.shift();
       if (renderer.backend.trackTimestamp && !gpuBusy) { gpuBusy = true; renderer.resolveTimestampsAsync("render").then(v => { if (v > 0) { gpu.push(v); if (gpu.length > 180) gpu.shift(); } }).catch(() => {}).finally(() => { gpuBusy = false; }); }
     },
+    // a layer's work done this tick: the ms since the last lap (lap(null) starts a tick)
+    lap(k) { const now = performance.now(); if (k) { let a = laps.get(k); if (!a) laps.set(k, a = []); if (a.length && a.at(-1)[2] === tickMs) a.at(-1)[1] += now - lapAt; else a.push([now, now - lapAt, tickMs]); } else tickMs = now; lapAt = now; },
     walkable() { walkAt = minuteAt = performance.now(); scan();
       // the bench starts once the rooms are compiled ahead (src/make/warm.js; at most 45 s), so it times walking, not first sight
       if (Q.get("bench")) { const t0 = performance.now(); bench = { leg: "waiting for the warm-up", t: 0, gaps: {}, done: false };

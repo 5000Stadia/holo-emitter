@@ -33,7 +33,15 @@ export function caseRequired(k, plan, known = null) {   // known: the catalogue'
   return out.sort((a, b) => (a.in ? 1 : 0) - (b.in ? 1 : 0));
 }
 
-export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {}, saved = null, persist = null, onTurn = null }) {
+// what you know of the case's codes (K3), as its proof counts them (src/make/case.js): a clue that carries one (its
+// knows) once learned, a thing that shows one (a note with its digits) once opened, taken or read. A keypad's own code
+// (its settings) tells no one; a person's own frame (knows entries, objects) is not a code. -> [names]
+export function codesKnown(k, learned, touched) {
+  const cl = new Map(cluesOf(k).map(c => [c.id, c])), names = (x) => arr(x).filter(n => typeof n === "string");
+  return [...new Set([...[...learned].flatMap(id => names(cl.get(id)?.knows)), ...arr(k.things).filter(t => touched.has(t.id)).flatMap(t => names(t.knows))])];
+}
+
+export function playCase({ kase: k, plan, manor, works, panel, voice = null, narrator = null, say = () => {}, presenceOf, setVar = () => {}, onEnd = () => {}, saved = null, persist = null, onTurn = null, know = () => {} }) {
   const clues = new Map(cluesOf(k).map(c => [c.id, c])), cast = new Map(arr(k.cast).map(c => [c.id, c]));
   const frame = { learned: new Set(), holding: new Set(), said: [], yielded: new Set(), guarded: new Map() };
   const notebook = { clues: [], persons: new Map(), caught: [], heard: [] };
@@ -45,7 +53,9 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   const label = (id) => clues.get(id)?.label || arr(k.things).find(t => t.id === id)?.label || id.replace(/_/g, " ");
   // (the narrator hears each turn as one array of events: src/make/narrator.js observe)
   let pending = [];
-  const learn = (id, where) => { if (frame.learned.has(id)) return false; frame.learned.add(id); notebook.clues.push({ id, label: label(id), where }); pending.push({ type: "learn", clue: id }); return true; };
+  const learn = (id, where) => { if (frame.learned.has(id)) return false; frame.learned.add(id); notebook.clues.push({ id, label: label(id), where }); pending.push({ type: "learn", clue: id }); tellCodes(); return true; };
+  // (the codes you know, handed to the page's keypads: K3)
+  const tellCodes = () => { for (const n of codesKnown(k, frame.learned, touched)) know(n); };
   const evidence = () => [...[...frame.learned].map(id => ({ id, label: label(id), kind: "clue" })), ...[...frame.holding].map(id => ({ id, label: label(id), kind: "thing" }))];
   const lexicon = [...arr(k.cast).map(c => c.name), ...arr(k.things).map(t => t.label).filter(Boolean)];
 
@@ -65,7 +75,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     if (!r || r.refused || !(r.took || r.did)) return;
     const shutting = !r.took && /^(closed|shut|locked|down)$/.test(r.state || "");
     if (r.took) { frame.holding.add(id); pending.push({ type: "take", thing: id }); }
-    pending.push({ type: "open", id }); R.opened++; touched.add(id); if (shutting) openNow.delete(id); else openNow.add(id);
+    pending.push({ type: "open", id }); R.opened++; touched.add(id); tellCodes(); if (shutting) openNow.delete(id); else openNow.add(id);
     const fresh = []; if (!shutting) for (const c of arr(thing.clue)) if (learn(c, thing.label || thing.kind)) fresh.push(c);
     // what it holds, said as it opens (the first time): Daniel's chest had opened on a box and a bundle too low and dark to
     // see over its front from where you stand on a phone, and a naive player searched it twice and left
@@ -97,7 +107,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
   const wouldLook = (id, i = null) => !!id && atSpot(id, i) && lookClues(id).length > 0;
   function look(id, i = null) {
     const thing = arr(k.things).find(q => q.id === id), want = lookClues(id); if (!thing || !want.length || !atSpot(id, i)) return false;
-    pending.push({ type: "open", id }); R.opened++;
+    pending.push({ type: "open", id }); R.opened++; touched.add(id); tellCodes();
     const fresh = want.filter(c => learn(c, thing.label || thing.kind)), paper = k.papers?.[id];
     if (paper && panel.openReader) { if (!papersRead.includes(id)) papersRead.push(id); panel.openReader({ ...paper, noted: fresh.map(c => ({ label: label(c) })) }); }
     else for (const c of fresh) say(clues.get(c)?.hook || `You note it: ${label(c)}.`);
@@ -287,6 +297,7 @@ export function playCase({ kase: k, plan, manor, works, panel, voice = null, nar
     for (const [id, room] of Object.entries(saved.rooms || {})) presenceOf(id, room);
     leadMemo.raised.push(...arr(saved.leads?.raised)); leadMemo.closed.push(...arr(saved.leads?.closed));
   }
+  tellCodes();   // (resumed: what you knew, known again)
   // the leads: the case's own
   if (k.leads) useLeads(k.leads);
   const resumed = saved?.case === k.id ? { minutes: +((saved.R?.played || 0) / 60000).toFixed(0), clues: frame.learned.size } : null;

@@ -175,7 +175,7 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - **Next:**
   - code-lock: the keypad by a door, a door made from facts, and the person telling the code;
   - take-and-drop;
-  - the per-layer cost line Photonic asked for;
+  - ~~the per-layer cost line Photonic asked for~~ built 2026-10-14 (below);
   - the story lane when pattern-buffer's library gives these facts.
 
 **Code-lock, built the same night.**
@@ -185,3 +185,14 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - **The person:** what they know in their own frame (the code), they tell when talked to. The line is a plain stand-in until construct's line and Photonic's voice; the code is then known, and the keypad offers it.
 - **The proof:** it now lives in the planner (`proveRecipe`, no build needed). It reaches outside only through the told code, and fails when no one tells it.
 - **The day outside:** a recipe's dark room no longer puts out the world. The room's dark is its own, and the court is in daylight.
+
+**The per-layer cost line, 2026-10-14** (Photonic's ask: "people ms, place ms, loading", for Kabe's iPhone).
+- `?perf` on any manor page, the demo included, shows it on the perf card a phone's screenshot carries (`src/make/perfcard.js`; `window.__layers()`).
+- **Each layer's ms a tick, p50/p95 over the last 3 s:** you (walking, aiming), place (things, rooms, building the rest), people, land (ground and hill tiles), lights (the pools), render. The page laps each after its work (`lap(name)`), so the layers sum to the whole tick. People over 14 ms at p95 is marked OVER (their share of the phone's 33 ms frame).
+- **Loading by stage:** each startup mark's seconds after the one before (renderer, built, textures, far-textures, tiles, first-frame=walkable, tiles-all).
+- Off (no `?perf`), nothing is counted.
+- First reading, the dark room, swiftshader at load 21: people 0.0/0.1, place 0.1/0.7, land 0.2/33 (the tiles' catch-up), lights 0.2/0.4, render 6.7/17.6 ms; walkable 8.7 s, of it textures 4.3 s.
+- Its check is in `recipe-demo.spec.mjs` (the dark room, with `?perf`).
+
+**K3, 2026-10-14:** the codes you learn in a case's play reach the page's keypads. `codesKnown` (`src/make/case-play.js`) counts them as the proof does: a clue that carries one, once learned (a person tells it); a thing that shows one (a note with its digits), once opened, taken or read. A keypad's own code tells no one. A resumed case knows again what it knew. A kind's `@knows` need is answered from the same set. Check: `keypad.spec.mjs` (K3).
+

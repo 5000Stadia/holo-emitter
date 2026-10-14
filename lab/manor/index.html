@@ -423,7 +423,7 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   // them (a put is written where the page puts it down, below, which knows on what)
   onChange: (ev) => { if (ev.type !== "put") outbox.push(...eventFacts(ev, { at: Math.round(Date.now() / 1000) })); },
   onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; if (aff === "sit") seatFollow(b); },
-  ask: (need, want) => need === "holding" && false });
+  ask: (need, want) => need === "knows" ? [].concat(want).every(n => known.has(n)) : false });   // (a kind's @knows: a code you know, K3)
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
 const darkStart = (b) => { if (DARK && b.kind.affordances?.light?.lights) b.settings = { ...b.settings, start: { ...b.settings?.start, light: "out" } }; return b; };
 for (const b of manor.things) works.add(darkStart(b));
@@ -606,7 +606,7 @@ if (CASE) {
   // tried 127.0.0.1 on every reply, which Android may answer with a local-network prompt)
   CP = playCase({ kase: CASE, plan, manor, works, panel, voice: /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && Q.get("voice") !== "0" ? makeVoice() : null, narrator, say, presenceOf,
     setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed."),
-    onTurn: bridge ? (t) => bridge.turn(t) : null, saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
+    onTurn: bridge ? (t) => bridge.turn(t) : null, know: (n) => known.add(n), saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
   // a minute gone with the house in view and nothing asked is a quiet turn to the narrator, so a lull in real time (not
   // only in questions) brings a servant's word towards what you haven't found
   setInterval(() => { if (!document.hidden && !panel.isOpen()) CP.idle(); }, 60000);
@@ -1191,9 +1191,11 @@ function thumbWalk(dt, ux, uy, blocked) {
   else if (Math.hypot(touch.stick.x, touch.stick.y) > 0.5) { tw.walk += dt; if (tw.walk > 6) hint("stride", "push the stick to its edge to stride", 5000); }
   const nd = tw.stuck > 1 && assist?.near(px, py, ph, ux, uy); if (nd && passable(nd.o.id)) hint("jamb", "double-tap the doorway to go through", 5000);
 }
-// ?fps / ?perf: the perf card (src/make/perfcard.js), timing drawn frames only, in render.js
+// ?fps / ?perf: the perf card (src/make/perfcard.js), timing drawn frames only, in render.js; and with it each layer's ms a
+// tick (the main demo's cost line): you (walking, aiming), place (things, rooms, building), people, land, lights, render
+const lap = ENG.card.lap; window.__layers = () => ENG.card.summary?.().layers ?? null;
 renderer.setAnimationLoop((now) => {
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; lap(null);
   // your body at your size (a story's sizes; the manor's 1.6 m eye otherwise); a new size eases in, the walker with it
   const B = SP ? SP.body() : null;
   if (SP && walk !== walkFor(SP.size())) { walk = walkFor(SP.size());
@@ -1232,23 +1234,25 @@ renderer.setAnimationLoop((now) => {
   if (moved) lastMoved = now;
   camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
-  works.tick(dt);
+  lap("you"); works.tick(dt);
   refreshView(viewDirty); viewDirty = false;
-  const growing = SP ? SP.tick(dt, px, py, here) : false;
+  const growing = SP ? SP.tick(dt, px, py, here) : false; lap("place");
   if (bodies) bodies.hold("player", floorOf(ph), px, py, BODY.half);
   const peopling = POP ? peopleFrame(now / 1000, dt) : false;
   for (const q of presences.values()) { q.p.group.visible = manor.rooms.get(q.room)?.grp.visible !== false; if (q.p.group.visible) q.p.tick(now / 1000, camera); }
+  lap("people");
   // (R65: started indoors, the outside is seen only through windows: 120 ms of its nearest tiles before the first frame,
   // not 500, then a catch-up budget a frame until every tile is built, then a few ms a frame; ?tilefirst= ?tilecatch=)
   const tileBudget = !window.__ok ? TILE_FIRST : tilesCaught ? (ENG.phone ? 2 : 4) : TILE_CATCH;
   const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, tileBudget) : false;
   const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, tileBudget) : false;   // the nearest before the first frame; the rest a few ms a frame, under the haze
   if (window.__ok && !tilesCaught && !hillBusy && !groundBusy) { tilesCaught = true; ENG.mark("tiles-all"); }
+  lap("land");
   // (outside, a window coming within reach of sight draws its room: R67)
   if (moved) { const out = outdoors(), k = out ? [...throughWindows()].sort().join() : ""; if (k !== windowKey) { windowKey = k; if (out) refreshView(true); } }
   if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
   if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
-  const fading = winPool.step(dt) | firePool.step(dt);
+  const fading = winPool.step(dt) | firePool.step(dt); lap("lights");
   if (!window.__ok && !ENG.marks.tiles) ENG.mark("tiles");
   const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
   if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   /* the cue re-aims at most ~15 times a second */ aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
@@ -1257,12 +1261,13 @@ renderer.setAnimationLoop((now) => {
   // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
   if (moved || focusDist == null) focusDist = focusAhead();
   const held = carry.update(camera, now, focusDist), burning = (flicker(now) || held) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
-  ENG.frame(scene, camera, { changed: moved || burning || carryDirty || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !window.__ok });
-  carryDirty = false;
+  lap("you"); ENG.frame(scene, camera, { changed: moved || burning || carryDirty || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !window.__ok });
+  carryDirty = false; lap("render");
   // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
   // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
   // stutter when you walk; one you walk into is built at once (refreshView). Building in workers removes the wait (point 2)
   if (window.__ok && !window.__whole && now - lastMoved > 300) arrive(manor.buildRest({ budgetMs: 8, next: nearestRoom }));   // (8 ms: light steps share a frame; the worst frame is the heaviest one thing)
+  lap("place");
   if (!window.__ok && Q.has("stopwatch")) {   // ?stopwatch: the seconds from opening the page to walking, on screen (R65 on your own phone)
     const t = performance.now() / 1000, tx = textureLog(), drawn = tx.filter(x => x.from && x.from !== "cache").length, d = document.createElement("div");
     d.style.cssText = "position:fixed;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);z-index:9;padding:8px 14px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.4 'IBM Plex Mono',monospace;text-align:center";

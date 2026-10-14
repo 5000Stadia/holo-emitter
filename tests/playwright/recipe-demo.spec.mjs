@@ -46,7 +46,8 @@ test("the dark room: no way out, dark; the switch lights the light across the ro
   test.skip(browserName !== "chromium", "the demo is the same on every engine");
   test.setTimeout(2 * LOAD);
   const page = await browser.newPage({ viewport: { width: 900, height: 600 } }), errs = []; page.on("pageerror", (e) => errs.push(e.message));
-  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&fresh&plan=recipe&recipe=switched-light`, { timeout: LOAD });
+  // (?perf: the perf card and its per-layer cost line, Photonic's ask: people ms, place ms, loading)
+  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&fresh&perf&plan=recipe&recipe=switched-light`, { timeout: LOAD });
   await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
   const start = await page.evaluate(() => { const r = window.__recipe(), W = window.__works, sw = window.__recipeThing("obj:switch"), lt = window.__recipeThing("obj:light");
     return { proof: r.proof, plan: window.__plan.rooms.length, openings: window.__plan.openings.length, windows: window.__plan.windows.length, person: r.person,
@@ -62,6 +63,12 @@ test("the dark room: no way out, dark; the switch lights the light across the ro
   expect([after.sw, after.light], "flipped: the light across the room comes on").toEqual(["on", "lit"]);
   expect(after.lit, "and it lights the room").toBe(1);
   expect(after.byHand, "the light is worked from its switch alone").toMatch(/worked from its switch/);
+  // the cost line: each layer's ms a tick, and loading by stage, on the card a phone's screenshot carries
+  await page.waitForFunction(() => { const L = window.__layers(); return L && ["you", "place", "people", "land", "lights", "render"].every(k => L[k]?.n > 0); }, null, { timeout: 60_000 });
+  const cost = await page.evaluate(() => ({ layers: window.__layers(), card: document.getElementById("perf-card")?.textContent || "" }));
+  for (const [k, v] of Object.entries(cost.layers)) expect(v.p95, `${k}: a tick's share, in ms`).toBeGreaterThanOrEqual(v.p50);
+  expect(cost.card, "the card says each layer").toMatch(/layers ms p50\/p95[^\n]*people [\d.]+\/[\d.]+[^\n]*render/);
+  expect(cost.card, "and loading by stage, to walkable").toMatch(/loading s:[^\n]*built [\d.]+[^\n]*walkable[= ][^\n]*/);
   expect(errs).toEqual([]);
 });
 
@@ -84,3 +91,4 @@ test("code-lock in play: talked to, the person tells the code; the keypad keys i
   expect(after, "the bolt drawn, the door opens").toEqual({ lock: "unlocked", open: true, leaf: "open" });
   expect(errs).toEqual([]);
 });
+
