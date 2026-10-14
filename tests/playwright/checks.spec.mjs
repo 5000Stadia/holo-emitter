@@ -501,11 +501,36 @@ const base = { cast: [{ id: "dog", home: "room", clues: [{ id: "dog_says", knows
 const untold = { ...base, cast: [{ id: "dog", home: "room" }, { id: "c", is_culprit: true }] };
 const note = { ...untold, things: [...base.things, { id: "note", at: "room", kind: "x/note", knows: "exit_code" }] };
 const proof = (k) => ({ checked: checkCase(k, { plan, kindOf }).findings.map(f => f.what), fair: fairPlay(k, { plan, kindOf }).ok });
-console.log(JSON.stringify({ told: proof(base), untold: proof(untold), note: proof(note) }));`));
+// (codex's keypad review: K1 a keypad only a link may work; K2 its code on a note in a box whose key lies beyond the door; K4 a code no key can type)
+const gated = { ...kinds.find(k => k.kind === "keypad/four-digit"), kind: "keypad/gated" }; gated.affordances = { entry: { ...gated.affordances.entry, requires: { "@worked_by_its_switch": true } } };
+const box = { kind: "box/locked", fixed: true, size: [0.3, 0.2, 0.3], affordances: { lid: { mover: "lid", motion: "hinge", axis: [1, 0, 0], angle: -1.6, requires: { "@holding": "key/box" } } } };
+const keyK = { kind: "key/box", fixed: false, size: [0.03, 0.01, 0.01], affordances: {} }, extra = { "keypad/gated": gated, "box/locked": box, "key/box": keyK }, kindOf2 = (n) => extra[n] || kindOf(n);
+const proof2 = (k) => ({ checked: checkCase(k, { plan, kindOf: kindOf2 }).findings.map(f => f.what), fair: fairPlay(k, { plan, kindOf: kindOf2 }).ok });
+const boxed = (keyAt) => ({ ...untold, things: [...base.things, { id: "box", at: "room", kind: "box/locked", carry: false }, { id: "note", at: "box", kind: "x/note", knows: "exit_code" }, { id: "key", at: keyAt, kind: "key/box" }] });
+console.log(JSON.stringify({ told: proof(base), untold: proof(untold), note: proof(note),
+  gated: proof2({ ...base, things: base.things.map(t => t.id === "keypad" ? { ...t, kind: "keypad/gated" } : t) }),
+  boxedKeyOut: proof2(boxed("out")), boxedKeyIn: proof2(boxed("room")),
+  letters: proof({ ...base, things: base.things.map(t => t.id === "keypad" ? { ...t, settings: { code: "ABCD", knows: "exit_code" } } : t) }) }));`));
   expect(r.told, "the dog tells the code: the way out is reached").toEqual({ checked: [], fair: true });
   expect(r.untold.fair, "no one tells it: guessing is never counted").toBe(false);
   expect(r.untold.checked.join(" "), "and the case is told so").toMatch(/needs the code "exit_code", which no one and nothing in the case tells/);
   expect(r.note, "a note in the room that shows it").toEqual({ checked: [], fair: true });
+  expect(r.gated.checked.join(" "), "K1: a keypad only a link may work is not the player's").toMatch(/asks @worked_by_its_switch, which the case's proof can't follow/); expect(r.gated.fair).toBe(false);
+  expect(r.boxedKeyOut.fair, "K2: the note in a box whose key lies beyond the door is never read").toBe(false);
+  expect(r.boxedKeyIn.fair, "and with the box's key in the room, it is").toBe(true);
+  expect(r.letters.checked.join(" "), "K4: a code no key can type").toMatch(/"ABCD" is not digits its keys can key in/);
+});
+
+test("check 39: the light pool's share reaches the lights themselves: forty lit, the three held give 1.6 times their own; the rest put out, their own (R79 S4; codex's review, L1)", () => {
+  const r = JSON.parse(node(`
+const { makePool } = await import(${JSON.stringify(ROOT_URL + "src/make/lightpool.js")});
+const lights = [0, 1, 2].map(() => ({ intensity: 0, userData: {} })), pool = makePool(lights, { share: 1.6, place: () => {} });
+const items = Array.from({ length: 40 }, (_, i) => ({ key: i, at: { x: (i % 8 - 3.5) * 0.3, y: 0.1, z: 0.4 + Math.floor(i / 8) * 0.3 }, size: 1, base: 1 })), at = { x: 0, y: 1.6, z: 0 };
+pool.update(items, at); pool.snap(); const all = lights.map(l => +l.intensity.toFixed(3));
+const held = new Set(pool.held()); pool.update(items.filter(it => held.has(it.key)), at); pool.snap(); const own = lights.map(l => +l.intensity.toFixed(3));
+console.log(JSON.stringify({ all, own, boost: pool.boost() }));`));
+  expect(r.all, "forty lit: the share carried by the lights' own strength").toEqual([1.6, 1.6, 1.6]);
+  expect(r.own, "only the three: their own").toEqual([1, 1, 1]);
 });
 
 test("check 4: ids, seeds and streams from fixed addresses equal the stored values (node, Chromium, Firefox when installed)", async ({ browser }) => {

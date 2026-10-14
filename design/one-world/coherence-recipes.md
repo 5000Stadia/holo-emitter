@@ -73,6 +73,19 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 | photonic | a person can stand in a room; acting on a thing through works: to agree | speaking from its frame: its own |
 | end to end | not yet: no story enters by text today | not yet |
 
-## Decisions for Kabe
+## Decided (Kabe, 2026-10-13)
 
-Asked on the board, each with a default.
+> "Yes to all but also ask around for an inventory of unique elements in each project that warrant other checks. There should be a main demo with all layers that should be tested across shapes to be able to test into - and mew features across projects can be tested there…. Unless thats more bulk for a test then warranted"
+
+**My reading:**
+- **First recipe:** the dark-room story, then its keypad-and-dog variant, built end to end in place of R79's own witness room (S6).
+- **Where recipes live:** `recipes/` here, one file per mechanism, each project answering for its own stage.
+- **The other projects:** pattern-buffer, Photonic and construct (the colony's "Newproject") are written to now.
+- **The inventory:** each project lists what is unique to it and could break where it meets the others (pattern-buffer's frames and their concealment, construct's beat proofs, Photonic's actors and voices, our links and characteristics). Each item becomes a recipe or a check.
+- **The main demo:** one demo with every layer, grown recipe by recipe: the dark room first, then the keypad and the dog, then the next mechanism. Each project's new feature lands there and is tested end to end. "Across shapes" I read as across story shapes (each recipe's own shape) and across devices (laptop and phone).
+- **Its limit:** it is only as big as its recipes, a room or a chain per mechanism and not a world, so its test stays a few minutes (Kabe: "unless that's more bulk for a test than warranted").
+
+## The recipes
+
+- `recipes/switched-light.md`: the dark room, a switch, a light, a friendly dog.
+- `recipes/code-lock.md`: the dog tells the code; a keypad by the only door.

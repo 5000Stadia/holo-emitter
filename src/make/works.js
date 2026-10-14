@@ -201,6 +201,9 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   }
   function add(b) {
     checkStart(b);
+    // a code is digits, as many as its keys can key in (codex's keypad review, K4: "ABCD" was taken, and no key types it)
+    for (const [n, a] of Object.entries(b.kind.affordances || {})) if (a.code != null && !/^\d{1,12}$/.test(String(value(a.code, b.settings))))
+      throw new Error(`${b.kind.kind} at ${b.address}: ${n}: its code ${JSON.stringify(value(a.code, b.settings))} is not digits its keys can key in`);
     if (b.host && !b.within) b.within = withinOf(b);
     if (b.within && !b.within.rides) lids.set(b.within.b, b.within.aff);
     things.set(b.id, b); targets = null;

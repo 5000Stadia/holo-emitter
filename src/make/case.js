@@ -13,7 +13,7 @@
 //     anything taken must be takeable by the engine's own rule, a control is worked only once its own gate opens (its key
 //     held), and a gate the proof can't follow grants nothing (codex's recheck, F2-F5)
 import { reachability } from "./reach.js";
-import { checkLinks, linkKeys, gateOf, gateOpen, answers, LINK_TYPES } from "./links.js";
+import { checkLinks, linkKeys, gateOf, gateOpen, answers, openable, LINK_TYPES } from "./links.js";
 import { takeable, value, settle } from "./catalogue.js";
 
 // a case thing's own fields as the settings its kind reads: the lock a key fits, the keys a chest's padlocks need, how
@@ -64,6 +64,8 @@ export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
     for (const why of checkLinks(arr(k.links), T, { openings: plan ? (plan.openings || []).map(o => o.id) : null, movable: (t) => t.carry }).faults) say("links", why);
     const wanted = new Set([...clues.values()].flatMap(c => arr(c.gate?.requires?.holding)).concat(arr(k.things).flatMap(t => arr(t.gate?.requires?.holding))));
     arr(k.links).forEach((l, n) => { const c = T.find(t => t.id === l.from?.thing), ct = things.get(l.from?.thing), g = gateOf(c?.kind?.affordances?.[l.from?.aff], c?.kind?.settings ? settle(c.kind, 1, caseSettings(ct)) : {});
+      { const a = c?.kind?.affordances?.[l.from?.aff], st = c?.kind?.settings ? settle(c.kind, 1, caseSettings(ct)) : {}, code = a?.code != null && (typeof a.code === "string" && a.code[0] === "$" ? st[a.code.slice(1)] : a.code);
+        if (a?.code != null && !/^\d{1,12}$/.test(String(code))) say("links", `link ${n}: its control ${l.from.thing}'s code ${JSON.stringify(code)} is not digits its keys can key in`); }
       if (g.unsupported.length) say("links", `link ${n}: its control ${l.from.thing} asks ${g.unsupported.join(", ")}, which the case's proof can't follow`);
       // (a code someone must know: something in the case tells it, a person's clue or a thing that shows it)
       const tellers = new Set([...[...clues.values()].flatMap(c => arr(c.knows)), ...arr(k.things).flatMap(t => arr(t.knows))]);
@@ -102,8 +104,15 @@ export function fairPlay(k, { plan, start = null, doors = k.doors || {}, kindOf 
       canWork: (g, l, n) => worked.has(n) || (gateOpen(g, inHand, known) && (LINK_TYPES[l.type]?.lasts !== "latching" || worked.add(n))) });
     const R = reachability(plan, { doors: { ...doors, ...lk.doors }, keys: [...keys, ...lk.keys], start: start || plan.entrance }), reached = new Set(R.reached || []);
     for (const r of reached) if (!reachedBefore.has(r)) { reachedBefore.add(r); grew = true; }
-    // things: take what can be carried, read or search what's in a reached room, if its own gate is open
-    for (const t of things) { const room = thingRoom(t); if (!reached.has(room) || !open(t.gate)) continue;
+    // things: take what can be carried, read or search what's in a reached room, if its own gate is open, and if every
+    // thing it is kept in can be opened by what is in hand and known (codex's keypad review, K2: a code note in a box locked
+    // with a key beyond the keypad's door had been read from outside the box): each of a keeper's movable parts (its lid,
+    // its drawers) must stand open or be openable, as play opens them (src/make/links.js openable); with no catalogue, as before
+    const within = (t) => { for (let at = t.at, n = 0; at && n < 8; n++) { const c = things.find(q => q.id === at); if (!c) return true;
+        const kd = kindOf?.(c.kind); if (kd) { const st = settle(kd, 1, caseSettings(c));
+          for (const [name, a] of Object.entries(kd.affordances || {})) if (a.mover && (a.motion === "hinge" || a.motion === "slide") && !openable(kd, name, st, inHand, known)) return false; }
+        at = c.at; } return true; };
+    for (const t of things) { const room = thingRoom(t); if (!reached.has(room) || !open(t.gate) || (kindOf && !within(t))) continue;
       if (t.carry !== false && (!kindOf || carriable(kindOf(t.kind), t)) && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }
       for (const c of arr(t.clue)) if (!learned.has(c)) { learned.add(c); path.push(`learn ${c} from ${t.id}`); grew = true; }
       // (a thing that shows a code, a note in a drawer with its digits, tells it to whoever reaches it)

@@ -104,12 +104,12 @@ export function linkKeys(links, things, { doorOf = () => null, weightOk = () => 
 // a control's gate, as the proof can follow it: what must be held (any of each entry; all of holding_all), and what it
 // can't follow (another affordance's state, an engine variable, a question to the world), which no proof grants
 // (a code to key in, a keypad's, is knowledge the player must have: its `knows`, read through the thing's settings; play lets
-// any digits be tried, the proof counts none but the known code). "@worked_by_…" is a link's own gate (the bulb, the bolted
-// door): only the link works it, so it asks nothing of the player.
+// any digits be tried, the proof counts none but the known code). A control "worked by" a link (a gate only a link opens) is
+// not the player's to work: unsupported, it grants nothing (codex's keypad review, K1).
 export function gateOf(a, settings = {}) {
   const any = [], all = [], knows = [], unsupported = [], val = (v) => typeof v === "string" && v[0] === "$" ? settings[v.slice(1)] : v;
   for (const [need, want] of Object.entries(a?.requires || {})) { if (need === "@holding") any.push([].concat(want)); else if (need === "@holding_all") all.push(...[].concat(want));
-    else if (need === "@knows") knows.push(...[].concat(val(want))); else if (!need.startsWith("@worked_by")) unsupported.push(need); }
+    else if (need === "@knows") knows.push(...[].concat(val(want))); else unsupported.push(need); }
   if (a?.code != null) knows.push(val(a.knows));
   return { any, all, knows, unsupported, free: !any.length && !all.length && !knows.length && !unsupported.length };
 }
@@ -131,4 +131,24 @@ export function linkReach(reachability, plan, links, things, base = {}, { doorOf
     R = reachability(plan, { ...base, doors: { ...(base.doors || {}), ...lk.doors }, keys: [...(base.keys || []), ...lk.keys] });
     const now = new Set(R.reached || []); if (now.size === reached.size) break; reached = now; }
   return R;
+}
+
+// whether the player can bring an affordance to its moved state (open a lid, draw a drawer), following its own gate the way
+// works.js does: @holding / @holding_all by what is in hand, @knows by what is known, another of its affordances needed in a
+// state either already in it (its start, or its initial) or itself openable (a lid that needs its lock unlocked, a lock that
+// needs its key); anything else (an engine variable, a question to the world, a link's own gate) can't be followed: false.
+const STATES = { slide: ["closed", "open"], hinge: ["closed", "open"], lever: ["rest", "pulled"], switch: ["out", "lit"], state: ["off", "on"] };
+export function openable(kind, aff, settings = {}, held = [], known = new Set(), seen = new Set()) {
+  const a = kind?.affordances?.[aff]; if (!a || seen.has(aff)) return false; seen = new Set([...seen, aff]);
+  const val = (v) => typeof v === "string" && v[0] === "$" ? settings[v.slice(1)] : v, statesOf = (b) => b.states || STATES[b.motion] || [];
+  const stateAt = (n) => { const b = kind.affordances[n], st = settings.start?.[n]; return st != null ? (typeof st === "number" ? statesOf(b)[st > 0 ? 1 : 0] : st) : val(b.initial) ?? statesOf(b)[0]; };
+  if (stateAt(aff) === statesOf(a)[1]) return true;
+  for (const [need, want] of Object.entries(a.requires || {})) {
+    if (need === "@holding") { if (![].concat(val(want)).some(n => held.some(t => answers(t, n)))) return false; }
+    else if (need === "@holding_all") { if (![].concat(val(want)).every(n => held.some(t => answers(t, n)))) return false; }
+    else if (need === "@knows") { if (![].concat(val(want)).every(n => known.has(n))) return false; }
+    else if (need[0] === "@" || need[0] === "$") return false;
+    else { const w = val(want), b = kind.affordances[need]; if (!b) return false; if (stateAt(need) === w) continue;
+      if (w !== statesOf(b)[1] || !openable(kind, need, settings, held, known, seen)) return false; } }
+  return true;
 }

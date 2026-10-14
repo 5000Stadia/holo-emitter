@@ -141,3 +141,10 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
 - **Entering the code:** four digits are checked automatically as the last goes in, with no Enter key.
 - **Rejected:** tiny in-world buttons, lockouts, and Enter/Cancel keys.
 - **Accessibility:** a remembered code needs one tap, and number keys work on a keyboard ([Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/)).
+
+**Codex's keypad review (420276de) and what was done:**
+- **K1:** a control "worked by" a link (a gate only a link opens) was treated as free. It is now refused by gateOf as something the proof can't follow.
+- **K2:** knowledge and clues were granted from a thing's room alone. Now everything a thing is kept in must be openable by what is in hand and known (`links.js` `openable`: a lid's own @holding, a lock it needs and its key, its start state).
+- **K4:** a code must be digits its keys can type. works.add refuses others, and checkCase reports them.
+- **L1:** the crowd test read the pool's own figures. Check 39 now holds the share to the lights' actual strength, and goes red with the multiplication removed.
+- **Open, for the recipe room (S6): K3.** The manor's knowledge set is filled only by `?knows=` and `__know`. Case play's learning (a clue's or a thing's `knows`, and its persistence) and works' `ask("knows")` must feed it before a story's keypad works in ordinary play.
