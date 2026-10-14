@@ -314,29 +314,55 @@ test("check 34: a switch across the room works its light through a link; the lig
   expect(r.off, "switched off, it goes out").toEqual(["off", "out", false]);
   expect(r.ok).toEqual({ ok: true, faults: [] });
   expect(r.none.join(" "), "a switch linked to nothing").toMatch(/its switch works nothing/);
-  expect(r.wrongEnd.join(" "), "a switch can only work a light").toMatch(/has no switch a switch can work/);
-  expect(r.plate.join(" "), "a plate with nothing to stay on it, and two links to one light").toMatch(/nothing is named to stay on it.*worked by 2 links|worked by 2 links.*nothing is named/);
+  expect(r.wrongEnd.join(" "), "a switch can only work a light").toMatch(/switch\/tumbler's switch takes no power/);
+  expect(r.plate.join(" "), "a plate wired to a switch and a light: wrong ports, only the player on it, two links to one light").toMatch(/gives no press.*takes no bolt.*only the player is named.*worked by 2 links/);
   expect(r.noThing.join(" ")).toMatch(/no thing nowhere/);
   expect(r.unreached.join(" "), "a switch the player can't get to").toMatch(/in cellar, which the player can't get to/);
 });
 
-test("check 35: links in the reachability proof: a lever opens a door from another room; a lever behind its own door is a softlock; a plate can't hold a way open for the one who must step off it (R79, P4)", () => {
+test("check 35: links in the reachability proof, by their ports: a lever opens a door from another room; a lever behind its own door is a softlock; a plate holds a way open only with a weight that can be carried there; a case's fair play runs its links (R79 S5)", () => {
   const r = JSON.parse(node(`
-const L = await import(${JSON.stringify(ROOT_URL + "src/make/links.js")}), { reachability } = await import(${JSON.stringify(ROOT_URL + "src/make/reach.js")});
+const L = await import(${JSON.stringify(ROOT_URL + "src/make/links.js")}), { reachability } = await import(${JSON.stringify(ROOT_URL + "src/make/reach.js")}), C = await import(${JSON.stringify(ROOT_URL + "src/make/case.js")});
 const plan = { entrance: "hall", rooms: [{ id: "hall" }, { id: "cellar" }, { id: "vault" }, { id: "study" }],
   openings: [["c", "hall", "cellar"], ["v", "hall", "vault"], ["s", "hall", "study"]].map(([id, a, b]) => ({ id, joins: [a, b], rect: { x0: 0, x1: 0.9, y0: 0, y1: 0 } })), stairs: [] };
-const kind = (aff, motion) => ({ kind: "x/y", affordances: { [aff]: { motion } } });
-const T = [{ id: "lever_study", room: "study", kind: kind("lever", "lever") }, { id: "lever_vault", room: "vault", kind: kind("lever", "lever") }, { id: "lever_hall", room: "hall", kind: kind("lever", "lever") },
-  { id: "plate_hall", room: "hall", kind: kind("plate", "state") }, ...["c", "v", "s"].map(o => ({ id: "door_" + o, room: "hall", kind: kind("lock", "state") }))];
-const doorOf = (t) => t.id.startsWith("door_") ? t.id.slice(5) : null, link = (type, from, aff, to) => ({ type, from: { thing: from, aff }, to: { thing: "door_" + to, aff: "lock" } });
-const run = (links) => { const r = reachability(plan, L.linkKeys(links, T, { doorOf })); return { unreachable: r.unreachable.map(u => u.room), softlocks: r.softlocks.map(s => s.lies_in) }; };
+const K = { lever: { kind: "lever/wall", fixed: true, affordances: { lever: { motion: "switch", port: "out:bolt" } } }, plate: { kind: "plate/floor", fixed: true, affordances: { plate: { motion: "state", port: "out:press" } } },
+  box: { kind: "box/strong", fixed: false, affordances: {} }, anvil: { kind: "anvil/forge", fixed: true, affordances: {} } };
+const T = [{ id: "lever_study", room: "study", kind: K.lever }, { id: "lever_vault", room: "vault", kind: K.lever }, { id: "lever_hall", room: "hall", kind: K.lever }, { id: "plate_hall", room: "hall", kind: K.plate },
+  { id: "box_hall", room: "hall", kind: K.box }, { id: "box_cellar", room: "cellar", kind: K.box }, { id: "box_vault", room: "vault", kind: K.box }, { id: "anvil_hall", room: "hall", kind: K.anvil }];
+const link = (type, from, aff, to, weight) => ({ type, from: { thing: from, aff }, to: { door: to }, ...(weight ? { weight } : {}) });
+const run = (links, doors = {}) => { const R = L.linkReach(reachability, plan, links, T, { start: "hall", doors }); return { unreachable: R.unreachable.map(u => u.room), softlocks: R.softlocks.map(s => s.lies_in) }; };
+const faults = (links) => L.checkLinks(links, T.filter(t => links.some(l => l.from.thing === t.id || l.weight === t.id)), { openings: ["c", "v", "s"], reached: ["hall", "cellar"] }).faults;
+// a case: the lever in the hall draws the study's bolt; the letter in the study names the culprit
+const kase = { cast: [{ id: "a", is_culprit: true }], pillars: [{ id: "who" }], clues: [{ id: "letter_says", pillar: "who" }],
+  things: [{ id: "lever", at: "hall", kind: "lever/wall", carry: false }, { id: "letter", at: "study", kind: "x/letter", clue: "letter_says" }] };
+const kindOf = (n) => Object.values(K).find(k => k.kind === n) || null;
 console.log(JSON.stringify({
   levers: run([link("lever", "lever_hall", "lever", "s"), link("lever", "lever_study", "lever", "c"), link("lever", "lever_vault", "lever", "v")]),
-  plate: run([link("plate", "plate_hall", "plate", "s")]),
-  leverSameWay: run([link("lever", "lever_hall", "lever", "s")]) }));`));
+  plateAlone: run([link("plate", "plate_hall", "plate", "s", "player")]),
+  plateBox: run([link("plate", "plate_hall", "plate", "s", "box_hall")]),
+  plateBoxBehindLever: run([link("lever", "lever_hall", "lever", "c"), link("plate", "plate_hall", "plate", "s", "box_cellar")]),
+  plateBoxInVault: run([link("plate", "plate_hall", "plate", "s", "box_vault")], { v: { locked: true, key: "lost" } }),
+  leverSameWay: run([link("lever", "lever_hall", "lever", "s")]),
+  okFaults: faults([link("plate", "plate_hall", "plate", "s", "box_hall")]),
+  playerOnly: faults([link("plate", "plate_hall", "plate", "s", "player")]), noWeight: faults([link("plate", "plate_hall", "plate", "s")]),
+  ghost: faults([link("plate", "plate_hall", "plate", "s", "box_nowhere")]), fixedWeight: faults([link("plate", "plate_hall", "plate", "s", "anvil_hall")]),
+  farWeight: faults([link("plate", "plate_hall", "plate", "s", "box_vault")]), wrongPort: faults([link("lever", "plate_hall", "plate", "s")]), noDoor: faults([link("lever", "lever_hall", "lever", "x")]),
+  caseLinked: C.fairPlay({ ...kase, links: [link("lever", "lever", "lever", "s")] }, { plan }).ok, caseUnlinked: C.fairPlay({ ...kase, doors: { s: { locked: true, key: "never" } } }, { plan }).ok,
+  caseChecked: C.checkCase({ ...kase, links: [link("lever", "lever", "lever", "s")] }, { plan, kindOf }).findings, caseBad: C.checkCase({ ...kase, links: [link("lever", "letter", "lever", "s")] }, { plan, kindOf }).findings.map(f => f.what) }));`));
   expect(r.levers, "the hall's lever opens the study, the study's opens the cellar; the vault's lever is behind its own door").toEqual({ unreachable: ["vault"], softlocks: ["vault"] });
-  expect(r.plate.unreachable, "a plate held by the player alone opens nothing they can pass").toEqual(["study"]);
+  expect(r.plateAlone.unreachable, "a plate held by the player alone opens nothing they can pass").toEqual(["study"]);
+  expect(r.plateBox, "a strongbox carried onto the plate holds the study open").toEqual({ unreachable: [], softlocks: [] });
+  expect(r.plateBoxBehindLever.unreachable, "the box got from the cellar the hall's lever opens: a fixpoint over rounds").toEqual([]);
+  expect(r.plateBoxInVault.unreachable, "a weight behind a locked door holds nothing").toEqual(expect.arrayContaining(["study", "vault"]));
   expect(r.leverSameWay, "a latching lever on the same doorway lets them through").toEqual({ unreachable: [], softlocks: [] });
+  expect(r.okFaults).toEqual([]);
+  expect(r.playerOnly.join(" ")).toMatch(/only the player is named/); expect(r.noWeight.join(" ")).toMatch(/only the player is named/);
+  expect(r.ghost.join(" ")).toMatch(/box_nowhere is no thing/); expect(r.fixedWeight.join(" ")).toMatch(/anvil\/forge can't be carried/);
+  expect(r.farWeight.join(" ")).toMatch(/box_vault is in vault, which the player can't get to/);
+  expect(r.wrongPort.join(" "), "a plate is no lever").toMatch(/gives no bolt/); expect(r.noDoor.join(" ")).toMatch(/no doorway x/);
+  expect(r.caseLinked, "a case's clue behind a lever's door is reached by its lever").toBe(true);
+  expect(r.caseUnlinked, "and not without it").toBe(false);
+  expect(r.caseChecked).toEqual([]); expect(r.caseBad.join(" "), "a case's link held to its kinds' ports").toMatch(/x\/letter's lever gives no bolt/);
 });
 
 test("check 36: every seat has a seated eye, over its seat, facing its front; a seat with nowhere to sit is refused (R80)", async ({ browser }) => {

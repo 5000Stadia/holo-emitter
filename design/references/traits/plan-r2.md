@@ -79,6 +79,13 @@ Both reviewers found the direction sound. Every finding holds up against the cod
 
 No reset; four points to meet before S2 and S5 are called landed. Codex re-checks each once it lands.
 1. **Parts declare their own implications.** `gives-light` still names candlestick, flame and bulb in its own table, and `definePart` carries no characteristic contract, so a new emitting part could slip past. Move the implication onto the part (item 2 above). **Met 2026-10-13:** each part's contract (`src/make/parts/contracts.js`) is pure data, so kinds still resolve before any part's code (which needs THREE) loads, the same way in node and on the page. The characteristic reads the property (`fromPart: "emits"`), and check 33 proves every built kind's lights match what its parts say. Pins are unchanged.
-2. **Typed ports, run in ordinary place planning.** The link predicates accept any affordance (a lever or plate drives anything; a switch is any non-light), and `checkLinks`/`linkKeys` are called only from the object page and tests. Land the port contract and the planner's call together.
-3. **A held plate proved with a real weight:** a named, movable, reachable weight passes, and a missing, unreachable or player-only weight is refused (today any truthy `weight` passes).
+2. **Typed ports, run in ordinary place planning.** The link predicates accept any affordance (a lever or plate drives anything; a switch is any non-light), and `checkLinks`/`linkKeys` are called only from the object page and tests. Land the port contract and the planner's call together. **Met 2026-10-13, for the place's proof:**
+   - An affordance says what it carries, `port: "out:power"` or `"in:bolt"`, from a closed family of signals (power, bolt, press). The catalogue refuses anything else.
+   - Each link type names the signal at each of its ends, and a door's lock can be a link's far end. The kind-level `controls` is gone: an unwired out port (a switch that works nothing) and an unwired in port (a light nothing can work) are both faults.
+   - A case's links are checked in `checkCase` against its kinds' ports, and played in `fairPlay`'s rounds. So a place's links are proved where its doors and keys are, by `tools/check-case.mjs` and on the page.
+   - No place has links yet: the first is S6's witness room.
+3. **A held plate proved with a real weight:** a named, movable, reachable weight passes, and a missing, unreachable or player-only weight is refused (today any truthy `weight` passes). **Met 2026-10-13:**
+   - The weight must be a thing of the place that can be carried (a fixed anvil can't) and that the player can get to. `player`, or no weight, is refused.
+   - `linkReach` runs to a fixpoint, so a strongbox got from a cellar that a lever opens can hold a plate down. In a case, the weight counts once it is in hand.
+   - Check 35 covers both the cases that pass and those that are refused.
 4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.

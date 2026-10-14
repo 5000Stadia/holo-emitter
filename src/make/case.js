@@ -6,12 +6,17 @@
 //     from arrival, what can be reached by the house's own rules (src/make/reach.js: doors, locks, keys), taken,
 //     read and asked, round and round until nothing new is learned; every pillar of the solution must be covered by
 //     a genuine clue so reached, and no clue may sit only behind a door its own key is behind
+//   links (R79 S5, src/make/links.js): a case's things may work the house's doors, `links: [{ type, from: { thing, aff },
+//     to: { door } , weight }]` (a lever in the steward's room drawing the muniment door's bolt; a plate held down by a
+//     strongbox): checkCase holds each to its kinds' ports (given kindOf), and fairPlay opens a door once its lever's room
+//     is reached, or its plate's, with its weight in hand
 import { reachability } from "./reach.js";
+import { checkLinks, linkKeys } from "./links.js";
 
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
 export const cluesOf = (k) => [...arr(k.clues), ...arr(k.cast).flatMap(c => arr(c.clues).map(q => ({ ...q, from: c.id })))];
 
-export function checkCase(k, { plan, kinds = null } = {}) {
+export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
   const f = [], say = (at, what) => f.push({ at, what });
   const people = new Set(arr(k.cast).map(c => c.id)), clues = new Map(cluesOf(k).map(c => [c.id, c])), things = new Map(arr(k.things).map(t => [t.id, t]));
   const rooms = new Set((plan?.rooms || []).map(r => r.id)), pillars = new Set(arr(k.pillars).map(p => p.id));
@@ -27,6 +32,10 @@ export function checkCase(k, { plan, kinds = null } = {}) {
     for (const h of arr(req.holding)) if (!things.has(h)) say(`clues.${id}`, `needs to hold "${h}", which isn't a thing`);
     for (const d of arr(c.debunked_by)) if (!clues.has(d)) say(`clues.${id}`, `debunked by "${d}", which doesn't exist`); }
   for (const p of arr(k.pillars)) if (p.required !== false && ![...clues.values()].some(c => arr(c.pillar).includes(p.id) && (c.effect || "genuine") === "genuine")) say(`pillars.${p.id}`, "no genuine clue covers it");
+  // its links, against its things' kinds (a case thing is carried unless it says carry: false)
+  if (arr(k.links).length) { if (!kindOf) say("links", "links can't be checked without the catalogue (kindOf)");
+    else for (const why of checkLinks(arr(k.links), arr(k.things).map(t => ({ id: t.id, kind: kindOf(t.kind) || { kind: t.kind }, carry: t.carry !== false })),
+      { openings: plan ? (plan.openings || []).map(o => o.id) : null, movable: (t) => t.carry }).faults) say("links", why); }
   return { ok: !f.length, findings: f };
 }
 
@@ -41,7 +50,9 @@ export function fairPlay(k, { plan, start = null, doors = k.doors || {} } = {}) 
     grew = false;
     // where the player can go: the house's doors, a locked one open once its key (a thing the player holds) is held
     const keys = things.filter(t => held.has(t.id) && t.key).map(t => ({ name: t.key, room: start || plan.entrance }));
-    const R = reachability(plan, { doors, keys, start: start || plan.entrance }), reached = new Set(R.reached || []);
+    // its links: a lever's door a key in the lever's room; a plate's, in the plate's room once its weight is in hand
+    const lk = linkKeys(arr(k.links), things.map(t => ({ id: t.id, room: thingRoom(t) })), { weightOk: (l) => held.has(l.weight) });
+    const R = reachability(plan, { doors: { ...doors, ...lk.doors }, keys: [...keys, ...lk.keys], start: start || plan.entrance }), reached = new Set(R.reached || []);
     // things: take what can be carried, read or search what's in a reached room, if its own gate is open
     for (const t of things) { const room = thingRoom(t); if (!reached.has(room) || !open(t.gate)) continue;
       if (t.carry !== false && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }

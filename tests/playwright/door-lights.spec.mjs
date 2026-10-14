@@ -27,7 +27,10 @@ test("a room behind a door in reach is lit before the door opens, and gives no l
       // settled where you stand, however slow the frames (a fixed 2 s had read the hall still in view on a loaded machine)
       for (let t = 0; t < 40 && window.__lights().inView.includes(B); t++) await wait(250); await wait(1500);
       const of = () => window.__lights().windows.filter(w => w && w.room === B);
-      const shut = of(); window.__actOn(d, "leaf"); await wait(250); const open = of();
+      // open: read at the first frame that gives anything, which must already be full (no fade to watch); however slow the
+      // frames (a fixed 250 ms had read before any frame on a loaded machine, at 0.7 frames a second)
+      const shut = of(); window.__actOn(d, "leaf"); let open = of();
+      for (let t = 0; t < 300 && !(open.length && open.some(w => w.gives > 0)); t++) { await wait(50); open = of(); }
       out.push({ id, B, opened: W.stateOf(d, "leaf"), shut, open });
       window.__actOn(d, "leaf"); await wait(300); }
     return out; });

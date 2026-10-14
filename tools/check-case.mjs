@@ -48,7 +48,9 @@ const k = JSON.parse(fs.readFileSync(given || src, "utf8")), out = [], bad = (wh
 const hearths = Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([n, v]) => [n, v.hearth]));
 const plan = planHybridE(GENTRY_SEAT_1660, { hearths });
 
-const cc = checkCase(k, { plan, kinds: KINDS });
+// the kinds as written, for a case's links (their ports are the author's own words; node loads no part code)
+const RAW = (await Promise.all(fs.readdirSync("src/make/kinds").filter(f => f.endsWith(".js")).map(f => import(`../src/make/kinds/${f}`)))).flatMap(m => m.default || []);
+const cc = checkCase(k, { plan, kinds: KINDS, kindOf: (n) => RAW.find(q => q.kind === n) || null });
 for (const f of cc.findings || []) bad(`case: ${f.at}: ${f.what}`);
 const fp = fairPlay(k, { plan });
 if (!fp.ok) bad(`fair play: pillars not covered: ${fp.pillars.filter(p => !p.covered).map(p => p.id).join(", ")}`);

@@ -6,6 +6,7 @@
 // Pure: no THREE, so node can check kinds.
 import { hashOf, streamOf } from "./id.js";
 import { resolveCharacteristics } from "./characteristics.js";
+import { SIGNALS } from "./links.js";
 
 const PARTS = new Map(), KINDS = new Map();
 
@@ -25,8 +26,8 @@ export const partOf = (name) => PARTS.get(name) || null;
 // what moves a mover: slide along an axis, turn on a hinge, a lever that springs back, a switch,
 // or nothing visible (a state only). Each affordance has two states, rest and moved.
 export const MOTIONS = ["slide", "hinge", "lever", "switch", "state"];
-const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held", "place", "is", "controls", "seat"]);
-const AFF_KEYS = new Set(["mover", "motion", "axis", "travel", "angle", "states", "initial", "verbs", "requires", "refused", "starts", "lights", "hit", "speed", "sets", "auto", "done", "release", "held"]);
+const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held", "place", "is", "seat"]);
+const AFF_KEYS = new Set(["mover", "motion", "axis", "travel", "angle", "states", "initial", "verbs", "requires", "refused", "starts", "lights", "hit", "speed", "sets", "auto", "done", "release", "held", "port"]);
 const PROC_KEYS = new Set(["initial", "phases", "drives"]);
 
 export function defineKind(raw) {
@@ -47,6 +48,8 @@ export function defineKind(raw) {
     // the world answers ("@holding": "key/iron": something in the inventory)
     for (const need of Object.keys(a.requires || {})) if (!"@$".includes(need[0]) && !(k.affordances || {})[need]) bad(`affordance ${name} requires ${need}, which it doesn't have`);
     if (a.starts && !(k.processes || {})[a.starts]) bad(`affordance ${name} starts ${a.starts}, which isn't a process`);
+    // a port (src/make/links.js): what it gives or takes through a link, "out:power", "in:bolt", in a closed family
+    if (a.port != null && !new RegExp(`^(in|out):(${SIGNALS.join("|")})$`).test(a.port)) bad(`affordance ${name}: port is in: or out: one of ${SIGNALS.join(", ")} (not ${a.port})`);
   }
   if (k.take) for (const need of Object.keys(k.take.requires || {})) if (!"@$".includes(need[0]) && !(k.affordances || {})[need]) bad(`taking it requires ${need}, which it doesn't have`);
   for (const [name, p] of Object.entries(k.processes || {})) {
