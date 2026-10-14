@@ -50,7 +50,10 @@ import { value, takeable } from "./catalogue.js";
 const DEFAULT_STATES = { slide: ["closed", "open"], hinge: ["closed", "open"], lever: ["rest", "pulled"], switch: ["out", "lit"], state: ["off", "on"] };
 const DEFAULT_VERBS = { slide: ["open", "close"], hinge: ["open", "close"], lever: ["pull", "pull"], switch: ["light", "put out"], state: ["turn on", "turn off"] };
 
-export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => false, onMove = () => {}, say = () => {}, clock = () => Date.now() / 1000 } = {}) {
+// onChange(event): each change the world keeps, as it is made: { type: "state", b, aff, i, state, was } when an affordance
+// turns (by you, a rule or a link), { type: "take", b } and { type: "put", b } (the caller says where it was put), so what
+// changed can be written where the world's facts live (pattern-buffer, R75; src/make/facts-out.js)
+export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => false, onMove = () => {}, onChange = () => {}, say = () => {}, clock = () => Date.now() / 1000 } = {}) {
   const things = new Map(), anim = new Map(), procs = new Set();
   let targets = null, rules = [];
   const key = (id, aff, i) => i == null ? `${id}.${aff}` : `${id}.${aff}#${i}`;
@@ -132,8 +135,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   }
   // turn an affordance to a state and play the motion toward it
   function turn(b, aff, i, to) {
-    const a = b.kind.affordances[aff], k = key(b.id, aff, i), was = standsAt(b, aff, i);
-    store[k] = to;
+    const a = b.kind.affordances[aff], k = key(b.id, aff, i), was = standsAt(b, aff, i), wasState = stateOf(b, aff, i);
+    store[k] = to; if (wasState !== to) onChange({ type: "state", b, aff, i, state: to, was: wasState });
     anim.set(k, { b, aff, i, to: to === statesOf(a)[1] ? 1 : (to === statesOf(a)[0] ? 0 : was), at: anim.get(k)?.at ?? was });
     // what it sets: a variable takes its value when moved, and a true goes back to false when undone
     for (const [name, v] of Object.entries(a.sets || {})) store[`$${name}`] = moved(b, aff, i) ? v : (v === true ? false : store[`$${name}`]);
@@ -297,7 +300,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (shutIn(t.b)) return { did: false, refused: "It is shut away." };
     const shut = unmet(t.b, t.b.kind.take?.requires);
     if (shut) return { did: false, refused: t.b.kind.take?.refused || "It won't come away." };
-    store["@held"] = [...held(), t.b.id]; t.b.node.visible = false; targets = null;
+    store["@held"] = [...held(), t.b.id]; t.b.node.visible = false; targets = null; onChange({ type: "take", b: t.b });
     settle();
     return { did: true, took: nameOf(t.b) };
   }
@@ -305,7 +308,7 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   // caller seats it
   function put(b) {
     if (!held().includes(b.id)) return { did: false, refused: "You aren't holding it." };
-    store["@held"] = held().filter(id => id !== b.id); b.node.visible = true; targets = null;
+    store["@held"] = held().filter(id => id !== b.id); b.node.visible = true; targets = null; onChange({ type: "put", b });
     settle();
     return { did: true, put: b.kind.noun };
   }
@@ -326,6 +329,8 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
   function set(b, aff, i, state) { if (stateOf(b, aff, i) !== state) { turn(b, aff, i, state); settle(); } }
   return {
     add, meshes, find, hint, cue, act, take, put, set, tick, stateOf, level, things, shutIn,
+    // how a thing was made to start, whatever has happened since (its kind's initial, or the place's start): the world as generated
+    initialOf: (b, aff, i = null) => { const a = b.kind.affordances[aff], st = startOf(b, aff, i); if (st != null) return typeof st === "number" ? statesOf(a)[st > 0 ? 1 : 0] : st; return value(a.initial, b.settings) || statesOf(a)[0]; },
     // a switched light: lit by the world's state (true/false); null for a light no switch turns
     lit: (l) => { const e = l.userData.emits; return e ? moved(e.b, e.aff) : null; },
     rules: (list) => { rules = list; settle(); },

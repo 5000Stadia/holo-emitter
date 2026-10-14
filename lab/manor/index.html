@@ -110,6 +110,7 @@ import { checkScene } from "../../src/make/scene.js";
 import { matchKinds } from "../../src/make/match.js";
 import { planStoryHall } from "../../src/make/plans/story-hall.js";
 import { planRecipe } from "../../src/make/recipe.js";
+import { placementFacts, eventFacts } from "../../src/make/facts-out.js";
 import { playRecipe } from "../../src/make/recipe-play.js";
 import { compileStory, bodyAt } from "../../src/make/story.js";
 import { playStory } from "../../src/make/story-play.js";
@@ -404,6 +405,13 @@ if (ground) { scene.add(ground.group);
 const store = world.store();
 // what you know (a code a person told you, one a note showed you): its name; and the keypad's panel while it is open
 const known = new Set((Q.get("knows") || "").split(",").filter(Boolean)); let padOpen = null; window.__know = (n) => known.add(n); window.__pad = () => !!padOpen;
+// the facts this page has to send pattern-buffer (R75): play events as they happen; placements (the author lane) worked out
+// when asked, from every thing as built (window.__outbox({ placements: true }))
+const outbox = []; let placementsOut = null;
+// (a thing's room: its own, its keeper's, or for a door the first room its doorway joins, which hangs it; its states as made)
+const roomOfThing = (b) => b.node.userData.room || b.host?.b?.node.userData.room || plan.openings.find(o => o.id === b.node.userData.opening)?.joins?.[0] || null;
+window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff) });
+  return { placements: placements ? placementsOut : undefined, events: outbox.slice() }; };
 let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
 for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
 let viewDirty = true;
@@ -411,6 +419,9 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
   // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
   // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you
   // stood lit nothing, Kabe 2026-10-13)
+  // what changes in play, as facts for pattern-buffer (R75; src/make/facts-out.js): kept in the outbox till its queue takes
+  // them (a put is written where the page puts it down, below, which knows on what)
+  onChange: (ev) => { if (ev.type !== "put") outbox.push(...eventFacts(ev, { at: Math.round(Date.now() / 1000) })); },
   onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; if (aff === "sit") seatFollow(b); },
   ask: (need, want) => need === "holding" && false });
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
@@ -1008,7 +1019,8 @@ function actOn(t) {
         lightsDirty = true; refreshView(true); return { ok: !!r2.did }; } }); }); return true; }
   // what you hold, put down on a surface you act on (the golden key back on the glass table)
   if (r.refused && works.held().length && t.b.slots?.get("top")) { const b = works.held().at(-1), s = t.b.slots.get("top"); r = works.put(b);
-    if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] }; } }
+    if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] };
+      outbox.push(...eventFacts({ type: "put", b }, { at: Math.round(Date.now() / 1000), on: t.b })); } }
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
   CP?.afterAct(t, r);                                  // a case's clue in what you opened or took
