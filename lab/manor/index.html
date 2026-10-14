@@ -650,6 +650,7 @@ addEventListener("keyup", e => { keys[e.code] = false; });
 // a little down, still free to look round. A step, a glide, crouching or the seat clicked again stands you where you stood.
 // Where the eye goes is the seat's own (its build's seat.eye; a form's or a daybed's along its length, nearest where you clicked).
 let sitPoint = null;   // where the click that sat you landed (world), for a long seat
+const SIT_MS = 840;     // sitting down takes this long (standing up, 420 ms for the eye and 320 for the step back)
 function sitIn(b) {
   if (!b.seat || seated?.b === b) return; if (seated) standUp(false);
   b.node.updateWorldMatrix(true, false);
@@ -657,13 +658,14 @@ function sitIn(b) {
   const at = new THREE.Vector3(e[0] + along, e[1], e[2]).applyMatrix4(b.node.matrixWorld), f = new THREE.Vector3(0, 0, 1).transformDirection(b.node.matrixWorld);
   const yaw1 = Math.atan2(-f.x, -f.z); let dyaw = yaw1 - yaw; while (dyaw > Math.PI) dyaw -= 2 * Math.PI; while (dyaw < -Math.PI) dyaw += 2 * Math.PI;
   seated = { b, back: [px, py, ph], eye: at.y - ph }; crouch = false; crouchTouch?.(false);
-  eyeEase = { from: eyeNow, t0: performance.now() };
-  glide = { from: [px, py, ph, yaw, pitch], to: [at.x, -at.z, ph, yaw + dyaw, -0.3], t0: performance.now(), ms: 420, then: () => {}, cancel: false, sit: true };
+  // (at half the pace it was, 0.84 s: Kabe, 2026-10-13: "too fast to sit down though like half that speed")
+  eyeEase = { from: eyeNow, t0: performance.now(), ms: SIT_MS };
+  glide = { from: [px, py, ph, yaw, pitch], to: [at.x, -at.z, ph, yaw + dyaw, -0.3], t0: performance.now(), ms: SIT_MS, then: () => {}, cancel: false, sit: true };
 }
 // stand: back where you stood before you sat (restore), or where you are (a glide or a jump is taking you elsewhere); the
 // seat is empty again in the world
 function standUp(restore = true) {
-  const s = seated; if (!s) return; seated = null; eyeEase = { from: eyeNow, t0: performance.now() };
+  const s = seated; if (!s) return; seated = null; eyeEase = { from: eyeNow, t0: performance.now(), ms: 420 };
   if (works.stateOf(s.b, "sit") === "sat") works.set(s.b, "sit", null, "empty");
   if (restore) glide = { from: [px, py, ph, yaw, pitch], to: [s.back[0], s.back[1], s.back[2], yaw, Math.max(pitch, -0.3)], t0: performance.now(), ms: 320, then: () => {}, cancel: false };
 }
@@ -1165,7 +1167,7 @@ renderer.setAnimationLoop((now) => {
   if (!seated && !glide?.sit) { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }   // (a seat stands on claimed floor: its height is the seat's)
   // the eye: a sitter's while seated, easing between that and standing (crouched: 55%)
   const eyeTo = seated ? seated.eye : (B ? B.eye : EYE) * (crouch ? 0.55 : 1);
-  let eye = eyeTo; if (eyeEase) { const k = Math.min(1, (now - eyeEase.t0) / 420), e = k * k * (3 - 2 * k); eye = eyeEase.from + (eyeTo - eyeEase.from) * e; if (k >= 1) eyeEase = null; }
+  let eye = eyeTo; if (eyeEase) { const k = Math.min(1, (now - eyeEase.t0) / eyeEase.ms), e = k * k * (3 - 2 * k); eye = eyeEase.from + (eyeTo - eyeEase.from) * e; if (k >= 1) eyeEase = null; }
   eyeNow = eye;
   const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + eye || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   if (moved) lastMoved = now;
