@@ -68,9 +68,13 @@ export function checkLinks(links, things, { reached = null, openings = null, mov
         if (reach && w.room && !reach.has(w.room)) faults.push(`${at}: its weight ${refOf(w)} is in ${w.room}, which the player can't get to`); } }
     if (reach && f.room && !reach.has(f.room)) faults.push(`${at}: ${f.kind.kind} in ${f.room}, which the player can't get to`);
   });
-  // one link into each in port (two-way switching is not yet a link type)
-  const ends = new Map(); for (const l of links) { const k = l.to?.door ? `door ${l.to.door}` : `${l.to?.thing}.${l.to?.aff}`; ends.set(k, (ends.get(k) || 0) + 1); }
+  // one link into each in port, counted by the thing it resolves to, not how it is spelt (an id and an address are one thing;
+  // two-way switching is not yet a link type)
+  const ends = new Map(); for (const l of links) { const t = !l.to?.door && by(l.to?.thing), k = l.to?.door ? `door ${l.to.door}` : `${t ? refOf(t) : l.to?.thing}.${l.to?.aff}`; ends.set(k, (ends.get(k) || 0) + 1); }
   for (const [k, c] of ends) if (c > 1) faults.push(`${k}: worked by ${c} links (two-way switching is not yet a link type)`);
+  // a weight lies on one plate at a time: named for two, it holds only one of them (the player must leave it on the first)
+  const weighs = new Map(); for (const l of links) if (LINK_TYPES[l.type]?.lasts === "held" && l.weight && l.weight !== "player") { const w = by(l.weight), k = w ? refOf(w) : l.weight; weighs.set(k, (weighs.get(k) || 0) + 1); }
+  for (const [k, c] of weighs) if (c > 1) faults.push(`weight ${k}: named for ${c} plates, and it can lie on only one`);
   // a port nothing is wired to: a switch on the wall that drives nothing, a light no switch works (it can't be worked at all)
   for (const b of things) for (const [aff, a] of Object.entries(b.kind.affordances || {})) { const p = portOf(a); if (!p) continue;
     const wired = links.some(l => p.dir === "out" ? (l.from.thing === refOf(b) || l.from.thing === b.id) && l.from.aff === aff : (l.to.thing === refOf(b) || l.to.thing === b.id) && l.to.aff === aff);
@@ -83,17 +87,35 @@ export function checkLinks(links, things, { reached = null, openings = null, mov
 // so it goes in as one: { doors, keys } to merge into reachability's. A held link (a plate) is a key in the plate's room
 // only when weightOk(link) says its weight can be got onto it; never for the player alone. A far end is a door end, or a
 // thing standing in a doorway (doorOf(thing) -> its opening id).
-export function linkKeys(links, things, { doorOf = () => null, weightOk = () => false } = {}) {
-  const by = (ref) => things.find(b => b.address === ref || b.id === ref), doors = {}, keys = [];
+// A control is worked only if its own gate opens (codex's recheck, F4: a lever whose key lay behind the very door it draws
+// had been granted): canWork(gate) answers a control's needs (gateOf below); by default only a control with none. A weight
+// holds the first plate that names it, never a second (F5).
+export function linkKeys(links, things, { doorOf = () => null, weightOk = () => false, canWork = (g) => g.free } = {}) {
+  const by = (ref) => things.find(b => b.address === ref || b.id === ref), doors = {}, keys = [], laid = new Set();
   links.forEach((l, n) => { const T = LINK_TYPES[l.type], f = by(l.from.thing), o = l.to.door || (by(l.to.thing) && doorOf(by(l.to.thing)));
     if (!T || !f || !o) return;
     doors[o] = { locked: true, key: `link${n}` };
-    if (T.lasts === "latching" || weightOk(l)) keys.push({ name: `link${n}`, room: f.room }); });
+    const a = f.kind?.affordances?.[l.from.aff]; if (!a || !canWork(gateOf(a))) return;   // (a control whose kind isn't known can't be worked)
+    if (T.lasts === "held") { const w = by(l.weight), k = w ? refOf(w) : l.weight; if (!weightOk(l) || laid.has(k)) return; laid.add(k); }
+    keys.push({ name: `link${n}`, room: f.room }); });
   return { doors, keys };
 }
+// a control's gate, as the proof can follow it: what must be held (any of each entry; all of holding_all), and what it
+// can't follow (another affordance's state, an engine variable, a question to the world), which no proof grants
+export function gateOf(a) {
+  const any = [], all = [], unsupported = [];
+  for (const [need, want] of Object.entries(a?.requires || {})) { if (need === "@holding") any.push([].concat(want)); else if (need === "@holding_all") all.push(...[].concat(want)); else unsupported.push(need); }
+  return { any, all, unsupported, free: !any.length && !all.length && !unsupported.length };
+}
+// whether a held thing answers a name, as works.js's @holding does: its id, its story id, its kind, its family, family/*,
+// or a name its fits setting gives it
+export const answers = (t, name) => t.id === name || (t.story != null && t.story === name) || t.kind?.kind === name || !!t.kind?.kind?.startsWith(`${name}/`)
+  || name === `${(t.kind?.kind || "").split("/")[0]}/*` || (t.fits != null && [].concat(t.fits).includes(name));
+export const gateOpen = (g, held) => !g.unsupported.length && g.any.every(names => names.some(n => held.some(t => answers(t, n)))) && g.all.every(n => held.some(t => answers(t, n)));
 
 // a place's reach with its links, to a fixpoint: a plate's weight counts once its room and the plate's are both reached,
-// which may take a lever's door first. reachability: reach.js's; base: its own { doors, keys, start, ... }.
+// which may take a lever's door first; a gated control (a lever under a padlock) is not granted here, where nothing is
+// held: a case's proof, which follows what is held, grants it (src/make/case.js). reachability: reach.js's; base: its own { doors, keys, start, ... }.
 // -> reachability's result, with the links' doors and keys in it
 export function linkReach(reachability, plan, links, things, base = {}, { doorOf = () => null } = {}) {
   const by = (ref) => things.find(b => b.address === ref || b.id === ref); let reached = new Set(), R = null;

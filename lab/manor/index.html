@@ -503,7 +503,7 @@ if (CASE) {
   if (window.__case) Object.assign(window.__case, { placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) }); };
   adoptCase();
   // fair by the project's own check, at load (ms)
-  const fp = fairPlay(CASE, { plan }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)), kindOf });
+  const fp = fairPlay(CASE, { plan, kindOf }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)), kindOf });
   window.__case = { check: cc, fair: fp, placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) };
   // the people: each where the case puts them at the start, as the holodeck shows them, a portrait painted in code
   // painted in code from each person's look in the case (src/make/sitter.js): for the projection the figure alone, on

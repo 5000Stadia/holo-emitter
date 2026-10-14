@@ -50,9 +50,10 @@ const plan = planHybridE(GENTRY_SEAT_1660, { hearths });
 
 // the kinds as written, for a case's links (their ports are the author's own words; node loads no part code)
 const RAW = (await Promise.all(fs.readdirSync("src/make/kinds").filter(f => f.endsWith(".js")).map(f => import(`../src/make/kinds/${f}`)))).flatMap(m => m.default || []);
-const cc = checkCase(k, { plan, kinds: KINDS, kindOf: (n) => RAW.find(q => q.kind === n) || null });
+const kindOf = (n) => RAW.find(q => q.kind === n) || null;
+const cc = checkCase(k, { plan, kinds: KINDS, kindOf });
 for (const f of cc.findings || []) bad(`case: ${f.at}: ${f.what}`);
-const fp = fairPlay(k, { plan });
+const fp = fairPlay(k, { plan, kindOf });
 if (!fp.ok) bad(`fair play: pillars not covered: ${fp.pillars.filter(p => !p.covered).map(p => p.id).join(", ")}`);
 for (const c of fp.unreachable) bad(`fair play: clue ${c} can't be reached`);
 const cn = checkNarrator(k, { rooms: plan.rooms.map(r => r.id) });

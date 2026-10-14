@@ -92,4 +92,11 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
    - The weight must be a thing of the place that can be carried (a fixed anvil can't) and that the player can get to. `player`, or no weight, is refused.
    - `linkReach` runs to a fixpoint, so a strongbox got from a cellar that a lever opens can hold a plate down. In a case, the weight counts once it is in hand.
    - Check 35 covers both the cases that pass and those that are refused.
+   - **Codex's recheck of points 2 and 3 found five more holes, all fixed:**
+     - **F2:** with no links, the port audit was skipped. It now always runs.
+     - **F3:** a case's weight was judged by the case's own carry flag. It now has to pass the engine's own takeability rule, as play does: a gateleg table can't be a weight, and fairPlay doesn't take it.
+     - **F4:** a control's own gate was dropped. A link now takes effect only once its control can be worked: its `@holding` is met by what is in hand, matched the way works.js matches. A gate the proof can't follow grants nothing and is reported. A control whose kind the proof can't see grants nothing.
+     - **F5:** one weight was counted on two plates. A weight now lies on one plate, and naming it for two is a fault. A weight that is also wanted in hand (a key, or something a gate asks to be held) is a fault too.
+     - **F6:** links into one input were counted by spelling. They are now counted by the thing they resolve to.
+   - Codex's fixtures are check 37.
 4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.
