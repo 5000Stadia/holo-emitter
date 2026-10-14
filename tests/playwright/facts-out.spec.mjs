@@ -21,15 +21,17 @@ test("code-lock: its placements (the door, switch, keypad and light fixtures in 
     const o = window.__outbox({ placements: true }), pick = (f) => [f.entity, f.attribute, f.value];
     return { placements: o.placements.map(pick), events: o.events.map(pick), lanes: [...new Set(o.events.map(f => f.source.lane))], frames: [...new Set([...o.placements, ...o.events].map(f => f.frame))] }; });
   expect(errs).toEqual([]);
-  for (const id of ["obj:obj:door", "obj:obj:switch", "obj:obj:keypad", "obj:obj:light"]) expect(r.placements, `${id} is built in`).toContainEqual([id, "fixture", true]);
-  expect(r.placements).toContainEqual(["obj:obj:switch", "in", "place:room"]);
-  expect(r.placements, "the light starts off, as made, whatever has happened since").toContainEqual(["obj:obj:light", "state", "off"]);
-  expect(r.placements, "the door starts locked and shut").toEqual(expect.arrayContaining([["obj:obj:door", "locked", true], ["obj:obj:door", "state", "shut"]]));
-  expect(r.placements, "the door is in the room whose doorway hangs it").toContainEqual(["obj:obj:door", "in", "place:room"]);
-  expect(r.events, "flipped: the switch on, and its link lights the light (pattern-buffer's words: state on)").toEqual(expect.arrayContaining([["obj:obj:switch", "state", "on"], ["obj:obj:light", "state", "on"]]));
-  expect(r.events, "the code keyed in: its link draws the bolt (locked false); then the door opened (state open)").toEqual(expect.arrayContaining([["obj:obj:door", "locked", false], ["obj:obj:door", "state", "open"]]));
-  expect(r.events.some(([e]) => e === "obj:obj:keypad"), "the keypad's own accepted code is not written: the door's locked says it").toBe(false);
+  for (const id of ["obj:door", "obj:switch", "obj:keypad", "obj:light"]) expect(r.placements, `${id} is built in`).toContainEqual([id, "fixture", true]);
+  expect(r.placements).toContainEqual(["obj:switch", "in", "place:room"]);
+  expect(r.placements, "the light starts off, as made, whatever has happened since").toContainEqual(["obj:light", "state", "off"]);
+  expect(r.placements, "the door starts locked and shut").toEqual(expect.arrayContaining([["obj:door", "locked", true], ["obj:door", "state", "shut"]]));
+  expect(r.placements, "the door is in the room whose doorway hangs it").toContainEqual(["obj:door", "in", "place:room"]);
+  expect(r.events, "flipped: the switch on, and its link lights the light (pattern-buffer's words: state on)").toEqual(expect.arrayContaining([["obj:switch", "state", "on"], ["obj:light", "state", "on"]]));
+  expect(r.events, "the code keyed in: its link draws the bolt (locked false); then the door opened (state open)").toEqual(expect.arrayContaining([["obj:door", "locked", false], ["obj:door", "state", "open"]]));
+  expect(r.events.some(([e]) => e === "obj:keypad"), "the keypad's own accepted code is not written: the door's locked says it").toBe(false);
   expect(r.lanes, "play events go to record").toEqual(["record"]); expect(r.frames).toEqual(["canon"]);
+  const ID = /^[a-z][a-z0-9_]*:[a-z0-9_:]+$/;
+  expect([...r.placements, ...r.events].filter(([e, , v]) => !ID.test(e) || (typeof v === "string" && v.includes(":") && !ID.test(v))), "every id in pattern-buffer's grammar").toEqual([]);
 });
 
 test("the manor: a thing taken is in the player's hands; put down on a table, it is on the table", async ({ browser, browserName }) => {
@@ -49,6 +51,8 @@ test("the manor: a thing taken is in the player's hands; put down on a table, it
     return { took, afterTake: [afterTake.entity, afterTake.attribute, afterTake.value, afterTake.source.event], afterPut: [afterPut.entity, afterPut.attribute, afterPut.value, afterPut.source.event], candle: candle.address, table: table.address }; });
   expect(errs).toEqual([]);
   expect(r.missing, "a thing you can carry and a table in the house").toBeUndefined();
-  expect(r.afterTake, "taken: in the player's hands (held_by · person:player, as pattern-buffer's library writes it)").toEqual([`obj:${r.candle}`, "held_by", "person:player", "take"]);
-  expect(r.afterPut, "put down on the table").toEqual([`obj:${r.candle}`, "in", `obj:${r.table}`, "put"]);
+  const ID = /^[a-z][a-z0-9_]*:[a-z0-9_:]+$/;   // (pattern-buffer's id grammar)
+  expect(r.afterTake.slice(1), "taken: in the player's hands (held_by · person:player, as pattern-buffer's library writes it)").toEqual(["held_by", "person:player", "take"]);
+  expect(r.afterTake[0]).toMatch(ID);
+  expect(r.afterPut, "put down on the table").toEqual([r.afterTake[0], "in", r.afterPut[2], "put"]); expect(r.afterPut[2]).toMatch(ID); expect(r.afterPut[2]).not.toBe(r.afterTake[0]);
 });

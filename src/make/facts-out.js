@@ -14,17 +14,22 @@
 // `locked`; any other setting keeps its own name and its own words.
 // Until pattern-buffer's module comes in, the page keeps these in an outbox (window.__outbox) the queue will take over.
 // Pure: things in, facts out.
-const id = (s) => String(s).replace(/[^a-z0-9_:./#-]/gi, "_");
-export const entityOf = (b) => `obj:${id(b.story || b.address || b.id)}`;
+// ids in pattern-buffer's grammar, [a-z][a-z0-9_]*:[a-z0-9_:]+ (m7d24d9): a story id that already names its class (obj:switch,
+// person:dog) as it is; anything else, a story id or a build address (manor/room/obj_door), an obj: with every other mark an _
+const id = (s) => String(s).toLowerCase().replace(/[^a-z0-9_]/g, "_");
+export const entityOf = (b) => { const s = b.story != null ? String(b.story).toLowerCase() : null;
+  return s && /^[a-z][a-z0-9_]*:[a-z0-9_:]+$/.test(s) ? s : `obj:${id(s ?? b.address ?? b.id)}`; };
 const fact = (entity, attribute, value, valueType, at, source) => ({ entity, attribute, value, value_type: valueType, frame: "canon", valid_from: at, source: { by: "holo-emitter", ...source } });
 
 // a thing built into its room: a door in its doorway, anything fixed on a wall (a switch, a keypad) or hung from the ceiling
-// (a pendant light: it rests held)
+// (a pendant light: it rests held). A locked door is also shut (state · shut): RFC-003's routes read a portal's state.
 export const isFixture = (b) => !!b.node?.userData?.opening || (b.kind.fixed === true && ([].concat(b.kind.traits || []).includes("wall") || b.kind.rests === "held"));
 
 const WORD = { closed: "shut", open: "open", lit: "on", out: "off", on: "on", off: "off" };
 function settingFacts(e, b, aff, i, state, mk) {
-  const a = b.kind.affordances?.[aff] || {}, ent = i == null ? e : `${e}#${aff}${i}`;
+  // (a drawer of a bank, its own part: obj:press:drawers_3, part_of obj:press)
+  const a = b.kind.affordances?.[aff] || {}, ent = i == null ? e : `${e}:${id(aff)}_${i}`;
+  if (i != null) return [mk(ent, "part_of", e, "entity"), ...settingFacts(ent, { kind: { affordances: { [aff]: a } } }, aff, null, state, mk)];
   if (aff === "lock" || (a.states || []).includes("locked") && a.port !== "out:bolt" && a.code == null && aff !== "entry") return [mk(ent, "locked", state === "locked", "literal")];
   if (a.code != null) return [];                                          // (the keypad: its door's locked says it)
   if (aff === "sit") return state === "sat" ? [mk("person:player", "sits_on", e, "entity")] : [mk("person:player", "sits_on", null, "entity")];
