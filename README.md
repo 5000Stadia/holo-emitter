@@ -66,9 +66,8 @@ Keep the local server running, then run the named client suites:
 
 ```sh
 npx playwright test -c tests/playwright \
-  checks.spec.mjs emitters.spec.mjs candle-lights.spec.mjs crowd-lights.spec.mjs \
-  door-lights.spec.mjs keypad.spec.mjs recipe-demo.spec.mjs facts-out.spec.mjs \
-  narrator-conditions.spec.mjs keep.spec.mjs sit.spec.mjs weather.spec.mjs accuse-phone.spec.mjs \
+  checks keep manor candle-lights door-lights sit crowd-lights keypad night-sky \
+  recipe-demo facts-out stations startview accuse-phone emitters narrator-conditions weather \
   --project chromium
 ```
 
@@ -80,6 +79,9 @@ The current client suites include:
 - `recipe-demo.spec.mjs`, `facts-out.spec.mjs` — story facts turned into rooms, and play written back as facts.
 - `narrator-conditions.spec.mjs` — story conditions evaluated in code.
 - `keep.spec.mjs`, `sit.spec.mjs`, `weather.spec.mjs`, `accuse-phone.spec.mjs` — persistence, seating, weather and the phone accusation flow.
+- `manor.spec.mjs`, `startview.spec.mjs`, `stations.spec.mjs`, `night-sky.spec.mjs` — the manor walked and seen, the start view first, the case's stations, and the night sky.
+
+Run them one browser at a time (`PW_WORKERS=1`); the whole list takes about 40 minutes on a loaded machine.
 
 Local full-directory discovery currently fails in `brief-room.spec.mjs`: `framesOf` is reported as a missing named export while loading `src/make/walls.js` as CommonJS. The command above selects the named suites instead.
 
