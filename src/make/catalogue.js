@@ -26,8 +26,8 @@ export const partOf = (name) => PARTS.get(name) || null;
 // what moves a mover: slide along an axis, turn on a hinge, a lever that springs back, a switch,
 // or nothing visible (a state only). Each affordance has two states, rest and moved.
 export const MOTIONS = ["slide", "hinge", "lever", "switch", "state"];
-const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held", "place", "is", "seat"]);
-const AFF_KEYS = new Set(["mover", "motion", "axis", "travel", "angle", "states", "initial", "verbs", "requires", "refused", "starts", "lights", "hit", "speed", "sets", "auto", "done", "release", "held", "port", "code", "knows", "wrong"]);
+const KIND_KEYS = new Set(["kind", "v", "noun", "why", "settings", "parts", "affordances", "processes", "slots", "habit", "checks", "fixed", "size", "traits", "take", "rests", "held", "place", "is", "seat", "sources"]);
+const AFF_KEYS = new Set(["mover", "motion", "axis", "travel", "angle", "states", "initial", "verbs", "requires", "refused", "starts", "lights", "hit", "speed", "sets", "auto", "done", "release", "held", "port", "code", "knows", "wrong", "onto"]);
 const PROC_KEYS = new Set(["initial", "phases", "drives"]);
 
 export function defineKind(raw) {
@@ -44,6 +44,8 @@ export function defineKind(raw) {
   for (const [name, a] of Object.entries(k.affordances || {})) {
     for (const key of Object.keys(a)) if (!AFF_KEYS.has(key)) bad(`affordance ${name}: unknown field ${key}`);
     if (!MOTIONS.includes(a.motion)) bad(`affordance ${name}: motion is one of ${MOTIONS.join(", ")}`);
+    // (onto: "face": a hinged cover that opens onto a face, not into a hollow, declared so check 12a doesn't look for one)
+    if (a.onto != null && !(a.onto === "face" && a.motion === "hinge")) bad(`affordance ${name}: onto is "face", on a hinge`);
     // a need is another of its affordances in a state, "$variable" an engine condition, or "@something"
     // the world answers ("@holding": "key/iron": something in the inventory)
     for (const need of Object.keys(a.requires || {})) if (!"@$".includes(need[0]) && !(k.affordances || {})[need]) bad(`affordance ${name} requires ${need}, which it doesn't have`);

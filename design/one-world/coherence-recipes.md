@@ -174,7 +174,7 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - **Fixed on the way:** the fire pool lit everything in a hearth's orange. Each slot now takes its own light's colour, so the bulb is warm white and candles their own.
 - **Next:**
   - code-lock: the keypad by a door, a door made from facts, and the person telling the code;
-  - take-and-drop;
+  - ~~take-and-drop~~ built 2026-10-14 (below);
   - ~~the per-layer cost line Photonic asked for~~ built 2026-10-14 (below);
   - the story lane when pattern-buffer's library gives these facts.
 
@@ -195,4 +195,11 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - Its check is in `recipe-demo.spec.mjs` (the dark room, with `?perf`).
 
 **K3, 2026-10-14:** the codes you learn in a case's play reach the page's keypads. `codesKnown` (`src/make/case-play.js`) counts them as the proof does: a clue that carries one, once learned (a person tells it); a thing that shows one (a note with its digits), once opened, taken or read. A keypad's own code tells no one. A resumed case knows again what it knew. A kind's `@knows` need is answered from the same set. Check: `keypad.spec.mjs` (K3).
+
+**take-and-drop, 2026-10-14:** `lab/manor/?plan=recipe&recipe=take-and-drop`, from `lab/recipes/take-and-drop.facts.json` (drafted in pattern-buffer's shape; its wording and `in` for lying on, m524bb7).
+- **The planner** (`src/make/recipe.js`) now lays more than one room: a door into another room lays it beyond the door's wall, the first room's size; a door the facts call open stands open. A thing in another (a page in a book on a table) is placed in its host's slot, and its place is its host's.
+- **Kinds by what they carry:** a table is one that stands free with nothing to work (the smallest, for a small room: `table/carpeted`); a book a carriable thing with a slot inside under a hinge (`book/bound`, new); a page a leaf thinner than a card (`paper/leaf`, new).
+- **In play:** the page is shut in until the book is opened (works' slot inside under a hinge); taken, the outbox writes `obj:page · held_by · person:player`; put on the hall's table, `obj:page · in · obj:hall_table`.
+- **Check:** `recipe-demo.spec.mjs`, take-and-drop.
+- **Not yet:** "Reload, and it is in the hall": the page's place kept across a reload (the world store, or pattern-buffer's feed once the outbox is sent).
 

@@ -1,7 +1,7 @@
 {
   "schema": "patternbuffer.recipe-facts/1",
   "recipe": "switched-light",
-  "note": "golden lane, drafted by holo-emitter from pattern-buffer's row (m046211) for pattern-buffer to confirm or replace with its build library's output; shapes confirmed by pattern-buffer (m5f3da8): outdoors a timeless fact, entities only id/kind/names, a fixture's source the manifest",
+  "note": "RECIPE-VOCAB-V1 r1.3 golden. Imported from holo-emitter's draft (m046211); the draft already carried the settled shapes (an observed `exits · none`, `control_mode`, entities with only id/kind/names).",
   "story": "the world is empty, except for a room with no exits. The room is completely dark. There is a light switch in the room, that if flipped turns on a light, the brightly illuminate the room and shows that there is a friendly dog.",
   "entities": [
     {

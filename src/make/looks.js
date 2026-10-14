@@ -2,6 +2,7 @@
 // kind names roles (wood, wood_face, iron, parchment…); the look decides what they are, so the same
 // kinds build an English evidence house in 1660 or, with another look, somewhere else.
 import { drawerInside } from "../../lab/painted/procedural.js";
+import { LIGHT_SOURCES } from "./characteristics.js";
 
 // an English house c. 1660, from the kit's oak and the strongroom's iron, stone and paper
 export function lookC1660(THREE, K, S) {
@@ -48,8 +49,13 @@ export function lookC1660(THREE, K, S) {
       coverlet: m("coverlet", { color: 0x3e5530, roughness: 0.97 }),             // a bed's coverlet of green wool (a sleeper's, over the bed's own)
       cushion: m("cushion", { color: 0x7c2a2e, roughness: 0.8 }),                // a crimson cushion
       flesh: m("flesh", { color: 0xb5a7a0, roughness: 0.62, vertexColors: true }), // an old man's, pale and grey (a part paints its vertices as multiples of it)
+      calf: m("calf", { color: 0x6a4226, roughness: 0.72 }),                   // a book's binding: calf over boards, browned
       carpet: (() => { const x = m("turkey_carpet", { map: turkeyCarpet(THREE), roughness: 0.95 }); return x; })(),
     },
+    // the light a 1660 house is lit by (R79 point 4: a light's colour and strength are the look's, never its part's): tallow
+    // and wax candles, and rushes dipped in fat; the values the parts had, so nothing in the picture moved. Lamps and
+    // filaments it doesn't know (a recipe's bulb built under it says it took the default)
+    lights: { candle: { ...LIGHT_SOURCES.candle }, rush: { ...LIGHT_SOURCES.rush } },
   };
   return K.look1660;
 }

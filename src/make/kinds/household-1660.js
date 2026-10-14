@@ -16,7 +16,7 @@ export default [
   // hearths' flicker, so a lit one never asks for a frame of its own) and its light is only ever where its flame is
   { kind: "lantern/stair", v: 1, noun: "the lantern", fixed: true, rests: "held", held: "hung from the ceiling on its chain",
     why: "a hanging lantern for a stairhead, c. 1660: a square iron frame on a base plate, leaves of scraped horn (glass was dearer, and a stair's lantern is a working light), a pyramid roof with a ring, hung on an iron chain from a plate in the ceiling; a tallow candle in a socket inside, lit. Its lowest point is y = 0, the ceiling at its top; drop is the chain's length",
-    size: [0.212, "=drop+0.49", 0.212], settings: { drop: 0.6, glow: 2.2 },
+    size: [0.212, "=drop+0.49", 0.212], settings: { drop: 0.6, glow: 3.67 },       // glow: in candles (the look's)
     // by relations: the corner posts on the base, the horn leaves on the base between them, the top on the posts, the roof on
     // the top, the finial on the roof, the ring on the finial, the chain hanging in the ring (its lowest link through it,
     // resting on it), the ceiling plate on the chain; the candle's socket on the base, the candle in it
@@ -37,7 +37,7 @@ export default [
     affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the lantern", "put out the lantern"] } } },
   { kind: "sconce/candle", v: 1, noun: "the sconce", fixed: true, traits: ["wall"],
     why: "a wall sconce of latten (brass), c. 1660: a back plate with a boss that throws the light back into the room, an arm, a drip pan and a socket, a tallow candle in it, lit; fixed beside a passage's door, at_y the plate's middle",
-    size: [0.1, 0.3, 0.16], settings: { at_y: 1.5, glow: 1.2, candle: "wax" },        // candle: tallow ("wax"), or a great room's "beeswax"
+    size: [0.1, 0.3, 0.16], settings: { at_y: 1.5, glow: 2, candle: "wax" },        // candle: tallow ("wax"), or a great room's "beeswax"
     // by relations: the plate on the wall, the boss and the arm on the plate, the pan on the arm's end, the socket on the pan,
     // the candle in the socket
     parts: [
@@ -51,7 +51,7 @@ export default [
     affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the candle", "put out the candle"] } } },
   { kind: "candlestick/branched", v: 1, noun: "the branched candlestick", fixed: true,
     why: "a brass branched candlestick for a hall's table, c. 1660: a turned stem on a domed foot, a socket at its top and two arms curving out and up to a socket each, three wax candles; a hall's light at supper, set out by day and not lit while the windows serve",
-    size: [0.27, 0.6, 0.15], settings: { glow: 1.8 },
+    size: [0.27, 0.6, 0.15], settings: { glow: 3 },
     // by relations: the stem on the foot, the middle socket on the stem, its candle in it; the arms through the stem, a socket
     // on each arm's end, a candle in each. One light for the three flames, at the middle one (three would be three lights)
     parts: [
@@ -67,7 +67,7 @@ export default [
     affordances: { light: { motion: "switch", lights: "flame", hit: "body", verbs: ["light the candles", "put out the candles"] } } },
   { kind: "rushlight/nip", v: 1, noun: "the rushlight", fixed: true,
     why: "a rushlight holder: an iron nip on a stem set in a turned wooden block, its jaw closed by a weighted lever, gripping a peeled rush dipped in fat at a slant, lit at its upper end: the servants' and the back stair's light, about a third of a candle's (Gilbert White, Selborne, 1775, describes the making)",
-    size: [0.24, 0.4, 0.1], settings: { glow: 0.6 },
+    size: [0.24, 0.4, 0.1], settings: { glow: 1 },
     // by relations: the stem in the block, the jaw on the stem, the lever off the jaw's side, its knob on its end; the rush
     // set through the jaw by its own turn
     parts: [
@@ -77,7 +77,7 @@ export default [
       { id: "lever", part: "cylinder", role: "iron", r: 0.0035, h: 0.07, segments: 6, ops: [["rz", -P / 2 - 0.5], ["t", 0, 0.233, 0]], meets: { to: "jaw", face: "right" }, sink: 0.004 },
       { part: "sphere", role: "iron", r: 0.008, w: 10, h: 8, meets: { to: "lever", face: "right" }, sink: 0.003, align: { y: 0 } },
       { part: "cylinder", role: "wax", r: 0.0028, h: 0.32, segments: 6, ops: [["t", 0, -0.096, 0], ["rz", -0.8], ["t", 0, 0.233, 0]], frame: "a third of the rush below the jaw's middle (0.233 m: the block 0.042, the stem 0.2 let 0.012 in, the jaw 0.014 let 0.004 on), slanted 0.8 rad up and away", within: "gripped between the nip's jaws, through them" },
-      { part: "flame", at: [0.163, 0.396, 0], r: 0.005, light: "$glow", still: true, frame: "the flame on the rush's upper end (0.224 m up its slant from the jaw: x 0.161, y 0.389)" }],
+      { part: "flame", at: [0.163, 0.396, 0], r: 0.005, light: "$glow", source: "rush", still: true, frame: "the flame on the rush's upper end (0.224 m up its slant from the jaw: x 0.161, y 0.389)" }],
     affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["light the rushlight", "put out the rushlight"] } } },
   { kind: "key/iron", v: 1, noun: "the key", why: "a wrought-iron key, about 11 cm: a looped bow, a round shank, a warded bit",
     size: [0.11, 0.02, 0.04], settings: {}, traits: [],
@@ -170,6 +170,22 @@ export default [
       { id: "bundle", part: "box", role: "paper", size: [0.11, 0.035, 0.08] },
       { part: "box", role: "tape", size: [0.012, 0.037, 0.082], on: "floor", within: "the tape tied round the bundle" }],
     affordances: { read: { hit: "body", motion: "state", states: ["unread", "read"], verbs: ["read the letters"], release: { "$forgotten": true }, held: "they are read" } } },
+  // a book and a loose leaf (take-and-drop, the main demo's recipe for R75: a page lies in a book in the study; you take it,
+  // carry it to the hall and put it down there): the book opens on its spine, its cover swung over to the left; what lies
+  // in it is kept shut in until it is opened (works.js: a slot inside under a hinge)
+  { kind: "book/bound", v: 1, noun: "the book", why: "a quarto bound in calf over boards: a loose leaf may lie between its leaves; opened where it lies, or carried off",
+    size: [0.17, 0.042, 0.23], settings: {}, traits: [],
+    parts: [
+      { id: "board", part: "box", role: "calf", size: [0.17, 0.004, 0.23], on: "floor" },
+      { id: "block", part: "box", role: "paper", size: [0.16, 0.032, 0.22], on: "board", frame: "the leaves, a little inside the boards" },
+      { id: "spine", part: "box", role: "calf", size: [0.005, 0.035, 0.23], at: [-0.0825, 0, 0], on: "board", frame: "the spine along the left edge, from the lower board to the upper, against the leaves: 3 mm over them, room for a loose leaf" },
+      { part: "mover", name: "cover", pivot: { at: "spine", x: "left", y: "top", z: "mid" } },
+      { part: "box", role: "calf", mover: "cover", size: [0.17, 0.004, 0.23], on: "spine", frame: "the upper board, hung on the spine, 3 mm over the leaves" },
+      { part: "slot", name: "inside", at: [0, 0.036, 0], area: [0.14, 0.2], frame: "on the top leaf, under the cover (the board 0.004, the leaves 0.032)" }],
+    affordances: { cover: { mover: "cover", motion: "hinge", axis: [0, 0, 1], angle: 2.9, onto: "face", verbs: ["open the book", "close the book"] } } },
+  { kind: "paper/leaf", v: 1, noun: "the page", why: "a loose leaf of paper: a page come away from its book, or a note slipped between its leaves",
+    size: [0.14, 0.0015, 0.2], settings: {}, traits: [],
+    parts: [{ part: "box", role: "paper", size: [0.14, 0.0015, 0.2] }] },
   // a death in the house: the dead are laid out at home, and a sudden death waits there for the coroner's jury
   { kind: "body/laid-out", v: 1, noun: "the body", fixed: true, place: { anchor: "in", of: "bed/standing-curtained", slot: "bed", turn: 0 },
     why: "a man laid out on his own bed until the coroner's jury has had its view of him (design/case/period-1660-death.md §1: the view of the body, within about two days, often in the house where he died): a sheet drawn up over his face, his head on a pillow; a shrouded form only, nothing of the man shown; it lies square in the bed, the head to the bolster end",

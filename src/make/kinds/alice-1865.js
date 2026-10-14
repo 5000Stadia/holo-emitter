@@ -87,7 +87,7 @@ export default [
   // is at y = its height (drop + 0.34 m); its frame and rest are for the one who hangs it, from above.
   { kind: "lamp/hanging", v: 1, noun: "the lamp", fixed: true, rests: "held", held: "hung from the roof by its rod",
     why: "Alice, ch. 1: 'a row of lamps hanging from the roof'; a brass oil lamp 15 cm across on a rod (chosen: the text gives neither), lit from the start; its lowest point at y = 0 and the roof at y = drop + 0.34 m",
-    size: [0.15, "=drop+0.34", 0.15], settings: { drop: 0.6, glow: 0.6 },
+    size: [0.15, "=drop+0.34", 0.15], settings: { drop: 0.6, glow: 1 },           // glow: in oil lamps' wicks (the look's)
     // by relations: the burner on the fount, the chimney on it, the bell on the chimney, the rod on the bell, the rose on the rod; the flame in the chimney
     parts: [
       { id: "fount", part: "lathe", role: "metal", segments: 20, profile: [[0, 0], [0.02, 0], [0.05, 0.01], [0.075, 0.04], [0.07, 0.07], [0.045, 0.092], [0.02, 0.105], [0, 0.105]] },
@@ -96,6 +96,6 @@ export default [
       { id: "bell", part: "lathe", role: "metal", segments: 20, profile: [[0, 0], [0.026, 0], [0.028, 0.004], [0.018, 0.022], [0.008, 0.034], [0.008, 0.04], [0, 0.04]], on: "chimney", sink: 0.004 },
       { id: "rod", part: "cylinder", role: "metal", r: 0.005, h: "$drop", segments: 8, on: "bell", sink: 0.004 },
       { part: "cylinder", role: "iron", r: 0.05, h: 0.014, segments: 16, on: "rod", sink: 0.004 },
-      { part: "flame", at: [0, 0.15, 0], r: 0.007, light: "$glow", frame: "the flame stands in the chimney, 2 cm above its floor" }],
+      { part: "flame", at: [0, 0.15, 0], r: 0.007, light: "$glow", source: "oil", frame: "the flame stands in the chimney, 2 cm above its floor" }],
     affordances: { light: { motion: "switch", lights: "flame", initial: "lit", hit: "body", verbs: ["put out the lamp", "light the lamp"] } } },
 ];

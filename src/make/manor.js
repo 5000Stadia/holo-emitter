@@ -425,7 +425,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
         // them (a bedchamber, the nursery, the long gallery) a sconce beside the door. Lit only in a dim room
         const start = { light: dim ? "lit" : "out" };
         const host = builtHere.find(q => /^table\//.test(q.kind.kind) && q.kind.kind !== "table/kitchen") || builtHere.find(q => q.kind.kind === "cabinet/japanned") || builtHere.find(q => q.kind.kind === "cupboard/court");
-        if (host) { light("candle/in-candlestick", { still: true, glow: 1.2, start }, (n) => onTop(host, n)); continue; }
+        if (host) { light("candle/in-candlestick", { still: true, glow: 2, start }, (n) => onTop(host, n)); continue; }
         const at = byDoor(); if (!at) { lightNotes.push(`${what}: no table and no clear wall by a door`); continue; }
         light("sconce/candle", { start }, (n) => onWall(at.F, at.r, 0, 0, n));
       } else if (what === "wax_candles") {

@@ -17,7 +17,7 @@ export default [
     affordances: { switch: { mover: "dolly", motion: "switch", axis: [1, 0, 0], angle: 0.6, states: ["off", "on"], port: "out:power", hit: "body", verbs: ["switch on the light", "switch off the light"] } } },
   { kind: "lamp/pendant-bulb", v: 1, noun: "the light", fixed: true, rests: "held", held: "hung from the ceiling on its flex",
     why: "an electric pendant, c. 1900: a ceiling rose, a twisted flex, a brass lampholder and a clear pear bulb, worked from the switch by the door. Its lowest point is y = 0, the ceiling at its top; drop is the flex's length",
-    size: [0.08, "=drop+0.17", 0.08], settings: { drop: 0.6, glow: 3 },
+    size: [0.08, "=drop+0.17", 0.08], settings: { drop: 0.6, glow: 1 },           // glow: in filaments (the look's)
     // by relations: the bulb at the bottom, the holder on the bulb, the flex on the holder, the rose on the flex
     parts: [
       { id: "glass", part: "bulb", at: [0, 0.0375, 0], r: 0.03, light: "$glow", frame: "the bulb's centre, its glass 3.75 cm round it downward" },

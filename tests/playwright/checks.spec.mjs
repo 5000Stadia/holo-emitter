@@ -144,6 +144,8 @@ const cases = {
   "said to give light, with nothing that makes one": { ...good, kind: "test/nolight", is: ["gives-light"] },
   "a switch for a light no part makes": { kind: "test/wrongswitch", v: 1, parts: [{ part: "candlestick" }], affordances: { light: { motion: "switch", lights: "lamp" } } },
   "a characteristic that doesn't exist": { ...good, kind: "test/nochar", is: ["gives-warmth-and-joy"] },
+  // (R79 point 4: each light's source pinned with the kind; one light can't be two)
+  "one light from two sources": { kind: "test/twosources", v: 1, parts: [{ part: "candlestick" }, { part: "flame", source: "oil" }] },
 };
 const out = { refused: {}, registered: [] };
 for (const [name, k] of Object.entries(cases)) { try { defineKind(k); out.refused[name] = null; } catch (e) { out.refused[name] = String(e.message); } if (kindOf(k.kind)) out.registered.push(k.kind); }
@@ -151,17 +153,18 @@ defineKind(good); out.good = !!kindOf("test/good");
 // a candlestick made with no switch for its flame: given one, lit from the start, and it says so; pinned with what it is
 definePart("candlestick", { build() {} });
 const bare = defineKind({ kind: "test/bare-candle", v: 1, parts: [{ part: "candlestick" }] });
-out.filled = { has: bare.has, filled: bare.filled, light: bare.affordances?.light, pinOwn: bare.pin !== (await import(${JSON.stringify(ROOT_URL + "src/make/id.js")})).hashOf({ ...bare, has: undefined, filled: undefined, pin: undefined }) };
+out.filled = { has: bare.has, filled: bare.filled, light: bare.affordances?.light, sources: bare.sources, pinOwn: bare.pin !== (await import(${JSON.stringify(ROOT_URL + "src/make/id.js")})).hashOf({ ...bare, has: undefined, filled: undefined, pin: undefined }) };
 console.log(JSON.stringify(out));`));
   const want = { "a bad name": /family\/name/, "an unknown field": /unknown field colour/, "a missing part": /no part called nothing_by_this_name/, "an unknown motion": /motion is one of/,
     "a need on an affordance it doesn't have": /requires lock, which it doesn't have/, "a version that is not an integer": /integer/, "no parts at all": /at least one part/,
     "an unknown field on an affordance": /unknown field speeed/, "a start of a process it doesn't have": /isn't a process/, "a setting that is neither number, range, choice nor value": /setting w is/,
     "said to give light, with nothing that makes one": /gives light, but no part makes a light/, "a switch for a light no part makes": /lights "lamp", which no part makes/,
-    "a characteristic that doesn't exist": /no characteristic called gives-warmth-and-joy/ };
+    "a characteristic that doesn't exist": /no characteristic called gives-warmth-and-joy/, "one light from two sources": /its light "flame" is both candle and oil/ };
   for (const [name, re] of Object.entries(want)) { expect(r.refused[name], `${name}: refused`).not.toBeNull(); expect(r.refused[name], `${name}: the reason`).toMatch(re); }
   expect(r.registered, "a refused kind is never registered").toEqual([]);
   expect(r.good, "a good kind is accepted").toBe(true);
-  expect(r.filled.has, "a candlestick gives light").toEqual([{ name: "gives-light", v: 1, from: "its part candlestick" }]);
+  expect(r.filled.has, "a candlestick gives light").toEqual([{ name: "gives-light", v: 2, from: "its part candlestick" }]);
+  expect(r.filled.sources, "its light's source, pinned with it (its colour and strength the look's)").toEqual({ flame: "candle" });
   expect(r.filled.light, "its missing switch is filled").toEqual({ motion: "switch", lights: "flame", initial: "lit", hit: "body" });
   expect(r.filled.filled.map(f => f.by + ": " + f.what), "and it says what was filled, by what").toEqual(["gives-light: affordance light"]);
   expect(r.filled.pinOwn, "pinned as resolved, not as written").toBe(true);
@@ -294,6 +297,28 @@ test("check 33: every light a switch turns is owned by its thing, and shines by 
       plant("candle/stub", { madeBy: { kind: "candle/stub", part: 0 } })].map(f => f.join(" | "));
     return out; });
   console.log(`check 33: ${w.kinds} kinds, ${w.lights} lights held to their own parts' contracts`);
+  // R79 point 4: a light's colour and strength are its source's in the look, never its part's own: every kind that gives light,
+  // built under a look whose sources are each a colour no part uses, shines in exactly those (and says where they came from);
+  // one candle under two looks is two manifests and one pin
+  const lk = await page.evaluate(async () => { const { THREE, K, M, look } = window.__chk, { contractOf } = await import("/src/make/parts/contracts.js"), out = { kinds: 0, lights: 0, faults: [] };
+    const test = { ...look, name: "test-sources", lights: { candle: { color: 0x102030, strength: 1.5, flame: 0x203040, halo: 0x304050 }, rush: { color: 0x112131, strength: 0.25, flame: 0x213141, halo: 0x314151 },
+      oil: { color: 0x122232, strength: 0.75, flame: 0x223242, halo: 0x324252 }, filament: { color: 0x132333, strength: 7, flame: 0x233343, halo: 0x334353 } } };
+    for (const k of M.kinds()) { if (!k.sources || M.missingParts(k).length) continue;
+      const b = M.build(THREE, K, test, k.kind, `check/${k.kind}`); if (b.placeholder) continue; out.kinds++;
+      b.node.traverse(o => { if (!o.userData.lightGroup) return; const by = o.userData.madeBy, p = M.kindOf(by.kind)?.parts?.[by.part], src = contractOf(p.part).source(p), L = test.lights[src];
+        const hex = o.isLight ? o.color.getHex() : o.material?.color?.getHex(); if (o.isLight) out.lights++;
+        if (![L.color, L.flame, L.halo].includes(hex)) out.faults.push(`${k.kind}: a ${o.type} of its ${p.part} in #${hex.toString(16)}, not its ${src}'s in the look`);
+        if (o.isLight && o.intensity > 0 && Math.abs(o.intensity / L.strength - Math.round(o.intensity / L.strength * 100) / 100) > 1e-9) out.faults.push(`${k.kind}: a light of ${o.intensity}, not in ${src}s of the look's ${L.strength}`); });
+      for (const src of new Set(Object.values(k.sources))) if (b.info.lights?.[src]?.from !== "the look test-sources") out.faults.push(`${k.kind}: says its ${src} came from ${b.info.lights?.[src]?.from}`); }
+    const one = M.build(THREE, K, look, "candle/stub", "check/two-looks"), two = M.build(THREE, K, test, "candle/stub", "check/two-looks");
+    out.twoLooks = { manifests: [one.info.lights, two.info.lights].map(x => JSON.stringify(x)), pins: [one.kind.pin, two.kind.pin] };
+    out.defaultFrom = M.build(THREE, K, { ...look, name: "test-nothing", lights: {} }, "lamp/pendant-bulb", "check/default").info.lights.filament.from;
+    return out; });
+  console.log(`check 33: ${lk.kinds} kinds, ${lk.lights} lights in their sources' colours from the look`);
+  expect(lk.kinds, "kinds that give light").toBeGreaterThan(5); expect(lk.faults).toEqual([]);
+  expect(lk.twoLooks.manifests[0], "one candle under two looks: two manifests").not.toEqual(lk.twoLooks.manifests[1]);
+  expect(lk.twoLooks.pins[0], "and one pin").toBe(lk.twoLooks.pins[1]);
+  expect(lk.defaultFrom, "a look that says nothing of a source: the default, and said").toMatch(/the default \(the look test-nothing says nothing of filament\)/);
   expect(w.faults).toEqual([]);
   expect(w.planted[0], "a light beside a candlestick that no part made").toMatch(/that no part made/);
   expect(w.planted[1], "a light in the bulb's group made by its brass holder, which emits nothing").toMatch(/made by its part cylinder \(#1\) in "bulb", which cylinder's contract doesn't emit/);

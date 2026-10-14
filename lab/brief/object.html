@@ -221,8 +221,9 @@ window.__opensOnto = (names = furniture1660.map(k => k.kind).concat(kinds().map(
     b.node.updateMatrixWorld(true);
     const all = []; b.node.traverse(o => { if (o.isMesh) all.push(o); });
     const box = new THREE.Box3().setFromObject(b.node), mid = box.getCenter(new THREE.Vector3());
-    // what opens onto an inside: a hinged door or lid ("open…", "lift…"); not a gate, a padlock, a leaf or a drawer
-    const affs = Object.entries(k.affordances).filter(([, a]) => a.mover && a.motion === "hinge" && /^(open|lift)/.test(a.verbs?.[0] || ""));
+    // what opens onto an inside: a hinged door or lid ("open…", "lift…"); not a gate, a padlock, a leaf or a drawer, nor a
+    // cover the kind declares opens onto a face (onto: "face": a book's cover onto its top leaf, declared, never assumed)
+    const affs = Object.entries(k.affordances).filter(([, a]) => a.mover && a.motion === "hinge" && a.onto !== "face" && /^(open|lift)/.test(a.verbs?.[0] || ""));
     // where each leaf stood, shut
     const shut = affs.map(([aff, a]) => { const ms = all.filter(m => m.userData.make?.mover === a.mover); if (!ms.length) return null; const bb = new THREE.Box3(); for (const m of ms) bb.expandByObject(m); return { aff, a, bb, ms }; }).filter(Boolean);
     const w = makeWorks(THREE, {}); w.add(b); for (const [aff] of Object.entries(k.affordances)) { try { if (!k.affordances[aff].requires) w.act({ b, aff }); } catch (_) {} } w.finish?.(); b.node.updateMatrixWorld(true);

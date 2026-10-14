@@ -13,19 +13,28 @@ import { proveRecipe } from "./recipe.js";
 export function playRecipe({ THREE, plan, manor, works, build, kindOf, K, look, poolOwn, say = () => {}, know = () => {} }) {
   const R = plan.recipe, room = plan.rooms.find(r => r.id === plan.entrance), Y = manor.levelOf(room.floor), H = manor.heightOf(room), grp = manor.rooms.get(room.id)?.grp;
   grp?.updateMatrixWorld(true);
-  const at = (x, y, h) => grp ? grp.worldToLocal(new THREE.Vector3(x, h, -y)) : new THREE.Vector3(x, h, -y), box = new THREE.Box3();
+  const at = (x, y, h, g = grp) => g ? g.worldToLocal(new THREE.Vector3(x, h, -y)) : new THREE.Vector3(x, h, -y), box = new THREE.Box3();
   const thingOf = new Map();
-  for (const t of R.things) {
+  // (a thing in another is built after it: a table, the book on it, the page in the book)
+  const depth = (t, n = 0) => { const h = R.things.find(q => q.id === t.in); return h && n < 8 ? 1 + depth(h, n + 1) : 0; };
+  for (const t of [...R.things].sort((a, b) => depth(a) - depth(b))) {
     // (a light's start, out or lit, on the affordance that lights it)
     const lit = Object.entries(kindOf(t.kind)?.affordances || {}).find(([, a]) => a.lights)?.[0];
     const b = build(THREE, K, look, t.kind, `recipe:${plan.entrance}/${t.id.replace(/[^a-z0-9_]/gi, "_")}`, { ...(t.over || {}), ...(t.start && lit ? { start: { [lit]: t.start } } : {}) });
     b.node.updateMatrixWorld(true); box.setFromObject(b.node);
-    // hanging: its top at the ceiling; on a wall: its back on the wall, its front facing into the room
-    const h = t.hangs ? Y + H - (box.max.y - b.node.position.y) : Y;
-    b.node.position.copy(at(t.at[0], t.at[1], h)); b.node.rotation.y = { S: 0, N: Math.PI, E: -Math.PI / 2, W: Math.PI / 2 }[t.face || "S"];
-    b.node.userData.room = room.id; b.story = t.id; b.node.userData.story = t.id; grp?.add(b.node);
+    const rid = t.room || room.id, rg = manor.rooms.get(rid)?.grp || grp, host = t.in ? thingOf.get(t.in) : null;
+    // in another: in its slot (a table's top, a book's inside), moving with it, kept by it (what shuts it in, works.js)
+    if (host) { const s = host.slots?.get(t.slot); if (!s) throw new Error(`recipe: ${host.kind.kind} has no ${t.slot} for ${t.id}`);
+      // (several in one slot side by side, as the house lays them: the book, and the candle beside it)
+      const k = (s.count = (s.count || 0) + 1) - 1, w = host.info?.slots?.[t.slot]?.area?.[0] ?? 0.6;
+      b.node.position.set(s.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), s.at[1], s.at[2]); b.node.rotation.y = kindOf(t.kind)?.place?.turn ?? 0; s.node.add(b.node); b.host = { b: host, slot: t.slot }; }
+    else {
+      // hanging: its top at the ceiling; on a wall: its back on the wall, its front facing into the room
+      const h = t.hangs ? Y + H - (box.max.y - b.node.position.y) : Y;
+      rg?.updateMatrixWorld(true); b.node.position.copy(at(t.at[0], t.at[1], h, rg)); b.node.rotation.y = { S: 0, N: Math.PI, E: -Math.PI / 2, W: Math.PI / 2 }[t.face || "S"]; rg?.add(b.node); }
+    b.node.userData.room = rid; b.story = t.id; b.node.userData.story = t.id;
     works.add(b); thingOf.set(t.id, b);
-    b.node.updateMatrixWorld(true); const ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, room.id);
+    b.node.updateMatrixWorld(true); const ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, rid);
   }
   // a door the house hung in its doorway (its opening's): the recipe's, for its links
   for (const l of R.links) if (l.opening && !thingOf.has(l.to)) { const d = manor.things.find(b => b.node.userData.opening === l.opening); if (d) { d.story = l.to; thingOf.set(l.to, d); } }

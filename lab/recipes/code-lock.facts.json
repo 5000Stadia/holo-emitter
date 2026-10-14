@@ -1,7 +1,7 @@
 {
   "schema": "patternbuffer.recipe-facts/1",
   "recipe": "code-lock",
-  "note": "golden lane, drafted by holo-emitter from pattern-buffer's rows (m046211) for pattern-buffer to confirm or replace with its build library's output; the dark room with its one way out; shapes confirmed by pattern-buffer (m5f3da8): outdoors a timeless fact, entities only id/kind/names, a fixture's source the manifest",
+  "note": "RECIPE-VOCAB-V1 r1.3 golden. Imported from holo-emitter's draft (m046211) and corrected by the settled points: `outdoors` is a timeless boolean; the door's `fixture` is a timeless manifest row (the draft gave it valid_from 0); the code is a canon row plus the same row in knows:person:dog; the door is `locked · true` and also `state · shut` (r1.2/r1.3). The draft cited sentence 5, but the story has four sentences: the door, the keypad and the outside are all in sentence 4.",
   "story": "the world is empty, except for a room. The room is completely dark. There is a light switch in the room, that if flipped turns on a light, the brightly illuminate the room and shows that there is a friendly dog. The dog only says a four digit code to the main player, and the only way to exit the room is a keypad with a four digit number.",
   "entities": [
     {
@@ -63,9 +63,9 @@
       "frame": "canon",
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       },
-      "note": "timeless: what the place is"
+      "timeless": true
     },
     {
       "entity": "place:room",
@@ -196,7 +196,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -205,10 +205,9 @@
       "value": true,
       "value_type": "literal",
       "frame": "canon",
-      "valid_from": 0,
+      "timeless": true,
       "source": {
-        "manifest": true,
-        "note": "a host's manifest entry (Entry.fixture), never story text"
+        "manifest": true
       }
     },
     {
@@ -220,7 +219,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -232,7 +231,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -244,7 +243,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -256,7 +255,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -268,7 +267,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -280,7 +279,7 @@
       "valid_from": 0,
       "source": {
         "chapter": 1,
-        "sentence": 5
+        "sentence": 4
       }
     },
     {
@@ -301,6 +300,30 @@
       "value": "4071",
       "value_type": "literal",
       "frame": "knows:person:dog",
+      "valid_from": 0,
+      "source": {
+        "chapter": 1,
+        "sentence": 4
+      }
+    },
+    {
+      "entity": "obj:door",
+      "attribute": "locked",
+      "value": true,
+      "value_type": "literal",
+      "frame": "canon",
+      "valid_from": 0,
+      "source": {
+        "chapter": 1,
+        "sentence": 4
+      }
+    },
+    {
+      "entity": "obj:door",
+      "attribute": "state",
+      "value": "shut",
+      "value_type": "literal",
+      "frame": "canon",
       "valid_from": 0,
       "source": {
         "chapter": 1,

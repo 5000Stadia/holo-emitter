@@ -6,6 +6,7 @@ import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 import { idOf, seedOf, streamOf } from "./id.js";
 import { settleFaces } from "./coplanar.js";
 import { kindOf, partOf, settle, value, missingParts } from "./catalogue.js";
+import { lightOf } from "./characteristics.js";
 
 // a look says what each material role is for one period and place: { roles: { wood: material, … } }
 export function material(look, role) {
@@ -38,6 +39,9 @@ function buildThing(THREE, K, look, kindName, address, over = {}, context = {}) 
     shared: {}, info: {},                                       // what one part leaves for the next; what the thing reports
     r: (name) => streamOf(seed, name),                         // a part's own named stream of choices
     mat: (role) => material(look, role),
+    // a source of light as the look has it (its colour and strength: src/make/characteristics.js lightOf), as material roles
+    // are; what the thing was lit with is kept in what it reports (info.lights: each source, its colour, strength and where from)
+    light(source) { const L = lightOf(look, source); (c.info.lights ||= {})[source] = { color: L.color, strength: L.strength, from: L.from }; return L; },
     // add geometry, in the thing's own frame, to the body or to a mover; spread is how far each
     // member's tone and grain may differ (wood is cut board by board)
     add(g, role, { mover = null, spread = 0.14, sheet = false, seen = true } = {}) {

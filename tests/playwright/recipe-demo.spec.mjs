@@ -92,3 +92,34 @@ test("code-lock in play: talked to, the person tells the code; the keypad keys i
   expect(errs).toEqual([]);
 });
 
+// take-and-drop (design/one-world/recipes/take-and-drop.md; Kabe, 2026-10-13: "placement … and status changes in pattern
+// buffer … When an item is taken"): two rooms from the facts, joined by an open door; the page in the book on the study's
+// table, kept shut in until the book is opened; taken, it is in your hands; put down on the hall's table, it is on that
+// table, each as pattern-buffer's facts (the outbox, R75)
+test("take-and-drop in play: the page in the book is shut in until the book is opened; taken, it is held; put on the hall's table, it is in it", async ({ browser, browserName }) => {
+  test.skip(browserName !== "chromium", "the demo is the same on every engine");
+  test.setTimeout(2 * LOAD);
+  const page = await browser.newPage({ viewport: { width: 900, height: 600 } }), errs = []; page.on("pageerror", (e) => errs.push(e.message));
+  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&fresh&plan=recipe&recipe=take-and-drop`, { timeout: LOAD });
+  await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  const before = await page.evaluate(() => { const W = window.__works, R = window.__recipe(), pg = window.__recipeThing("obj:page"), book = window.__recipeThing("obj:book");
+    const n = window.__outbox().events.length; window.__actOn(pg, null);
+    return { proof: R.proof.ok, reached: R.proof.reached, rooms: window.__plan.rooms.map(q => q.id), things: R.things.map(t => t.id).sort(),
+      inBook: pg.host?.b === book, bookOn: book.host?.b === window.__recipeThing("obj:study_table"), shut: W.shutIn(pg), tookShut: W.held().includes(pg), wrote: window.__outbox().events.length - n,
+      placements: window.__outbox({ placements: true }).placements.filter(f => ["obj:page", "obj:book"].includes(f.entity) && f.attribute === "in").map(f => [f.entity, f.value]).sort() }; });
+  expect(before.proof, "the place's proof").toBe(true);
+  expect(before.rooms, "two rooms, as the facts say").toEqual(["study", "hall"]); expect(before.reached).toEqual(expect.arrayContaining(["study", "hall"]));
+  expect(before.things, "the facts' things, and each room's candle (chosen: the facts don't call them dark)").toEqual(["obj:book", "obj:hall_candle", "obj:hall_table", "obj:page", "obj:study_candle", "obj:study_table"]);
+  expect([before.inBook, before.bookOn], "the page in the book, the book on the table").toEqual([true, true]);
+  expect([before.shut, before.tookShut, before.wrote], "shut in: it can't be taken, and nothing is written").toEqual([true, false, 0]);
+  expect(before.placements, "where they are, as made").toEqual([["obj:book", "obj:study_table"], ["obj:page", "obj:book"]]);
+  await page.evaluate(() => window.__actOn(window.__recipeThing("obj:book"), "cover"));
+  await page.waitForFunction(() => !window.__works.shutIn(window.__recipeThing("obj:page")), null, { timeout: 30_000 });
+  const after = await page.evaluate(() => { const W = window.__works, pg = window.__recipeThing("obj:page"), last = () => { const e = window.__outbox().events.at(-1); return e && [e.entity, e.attribute, e.value]; };
+    window.__actOn(pg, null); const took = [W.held().includes(pg), last()];
+    const h = window.__plan.rooms.find(q => q.id === "hall").rect; window.__place((h.x0 + h.x1) / 2, h.y0 + 0.8, 0);
+    window.__actOn(window.__recipeThing("obj:hall_table"), null); return { took, put: [W.held().includes(pg), last()], room: pg.node.userData.room }; });
+  expect(after.took, "taken: in your hands").toEqual([true, ["obj:page", "held_by", "person:player"]]);
+  expect(after.put, "put on the hall's table: in it").toEqual([false, ["obj:page", "in", "obj:hall_table"]]);
+  expect(errs).toEqual([]);
+});

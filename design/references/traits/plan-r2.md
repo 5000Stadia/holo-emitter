@@ -148,3 +148,11 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
 - **K4:** a code must be digits its keys can type. works.add refuses others, and checkCase reports them.
 - **L1:** the crowd test read the pool's own figures. Check 39 now holds the share to the lights' actual strength, and goes red with the multiplication removed.
 - **Closed 2026-10-14 (`codesKnown` in case-play.js; the page's `@knows` answered; keypad.spec K3). Was open, for the recipe room (S6): K3.** The manor's knowledge set is filled only by `?knows=` and `__know`. Case play's learning (a clue's or a thing's `knows`, and its persistence) and works' `ask("knows")` must feed it before a story's keypad works in ordinary play.
+
+## Point 4, the look's lights (2026-10-14)
+- A part's contract says what makes its light (`source`: a candlestick a candle, a flame part its `source`, a bulb a filament). gives-light (v2) pins each light group's source with the kind (`sources`: `{ flame: "candle" }`), and refuses a group lit by two sources.
+- The look says what each source is (`look.lights[source]`: colour, strength, flame and halo colours); `characteristics.js` `LIGHT_SOURCES` holds the defaults, used and said when a look knows nothing of a source (the 1660 look and a recipe's bulb). Build records what each thing was lit with (`info.lights`: colour, strength, where from).
+- A kind's `glow` / a part's `light` is now in sources (a lantern 3 candles, a sconce 2, the branched candlestick's middle 3.67); every value converts exactly, so no picture moved.
+- Checks: check 1 (sources pinned; two sources refused), check 33 (every light-giving kind under a look of unique colours shines only in them and says so; one candle under two looks is two manifests and one pin; a look silent on a source takes the default and says so).
+- **Categories wait.** A category is a named set of characteristics, and today there are two (gives light, seat) that never stack. "flame-lit" (gives light + burns down + flickers) needs burning down and flicker to become characteristics first; they live in parts and processes now. Built then, not before.
+

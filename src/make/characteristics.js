@@ -7,7 +7,8 @@
 // filled and the kind says so (`filled`: what, by which characteristic, why), so nobody has to guess where a value came
 // from; a need nothing can fill, or a contradiction, refuses the kind with the reason. The resolved kind is what is pinned,
 // with each characteristic's version, so a changed default makes a new pin and a world keeps the candles it was made with.
-// Structure only: colour and strength are the look's, at build (design/references/traits/plan-r2.md, round two).
+// Structure only: colour and strength are the look's, at build (design/references/traits/plan-r2.md, round two): a kind
+// says which source each of its lights is (gives-light's `sources`), and the look what that source is like (lightOf).
 // Whether the promise holds in play is proved at authoring for every kind that has it (checks.spec.mjs check 33), never
 // at page load. Pure: no THREE.
 import { contractOf } from "./parts/contracts.js";
@@ -41,26 +42,48 @@ export function resolveCharacteristics(k) {
   return { kind, has: [...has].map(([name, from]) => ({ name, v: CHARS.get(name).v, from })), filled };
 }
 
+// what each source of light is like where the look says nothing of it: its light's colour and strength (one source's
+// worth: a part's light or glow is how many, a lantern's or a sconce's 3 or 2), and its flame's and halo's colours. A look
+// says its own (look.lights[source]: a 1660 house's candles; a Blade Runner street's neon), and a source neither knows is
+// refused. The values are the ones the parts had (2026-10-13), so no picture changed when the look took them over.
+export const LIGHT_SOURCES = {
+  candle: { color: 0xffb070, strength: 0.6, flame: 0xffd9a0, halo: 0xffc070 },
+  rush: { color: 0xffb070, strength: 0.6, flame: 0xffd9a0, halo: 0xffc070 },          // (a rushlight, as a candle until measured)
+  oil: { color: 0xffb070, strength: 0.6, flame: 0xffd9a0, halo: 0xffc070 },           // (an oil lamp's wick, the same)
+  filament: { color: 0xffe2b0, strength: 3, flame: 0xfff0c8, halo: 0xfff0c8 },        // a carbon or tungsten filament, mains-steady
+};
+// a source as the look has it -> { color, strength, flame, halo, from }
+export function lightOf(look, source) {
+  const own = look?.lights?.[source], base = LIGHT_SOURCES[source];
+  if (!own && !base) throw new Error(`no light source called ${source}, in the look ${look?.name || "?"} or by default`);
+  return { ...base, ...own, from: own ? `the look ${look.name}` : `the default (the look ${look?.name || "?"} says nothing of ${source})` };
+}
+
 // ---- the characteristics
 
-// gives light: a part that emits a light group (its contract: a candlestick's flame; a flame part's `group`) means the kind gives light.
+// gives light: a part that emits a light group (its contract: a candlestick's flame; a flame part's `group`) means the kind gives light,
+// and each group's source (its part's word: a candle, a filament) is pinned with the kind (`sources`: { flame: "candle" }), so a
+// group lit by two sources at once is refused.
 // It needs a switch for each group it makes (an affordance whose `lights` names it): one missing is filled, lit from the
 // start (a light set out is lit; a story or a place may start it out). A switch naming a group no part makes switches
 // nothing, and is refused; so is a kind that says it gives light with no part that makes one: a candle that gives no light
 // can't be made.
 defineCharacteristic({
-  name: "gives-light", v: 1,
+  name: "gives-light", v: 2,
   fromPart: "emits",
   resolve(k, { bad, parts }) {
     const groups = [...new Set(parts.flatMap(x => x.groups))];
     if (!groups.length) bad("it gives light, but no part makes a light (a flame, a candlestick)");
+    const sources = {}; for (const { p, groups: gs } of parts) for (const g of gs) { const s = contractOf(p.part).source?.(p);
+      if (!s) bad(`its part ${p.part} gives light and says nothing of its source`);
+      if (sources[g] && sources[g] !== s) bad(`its light "${g}" is both ${sources[g]} and ${s}`); sources[g] = s; }
     const affs = { ...(k.affordances || {}) }, filled = [];
     for (const [name, a] of Object.entries(affs)) if (a.lights && !groups.includes(a.lights)) bad(`affordance ${name} lights "${a.lights}", which no part makes (it makes ${groups.join(", ")})`);
     for (const g of groups) if (!Object.values(affs).some(a => a.lights === g)) {
       const name = affs.light ? `light_${g}` : "light";
       affs[name] = { motion: "switch", lights: g, initial: "lit", hit: "body" };
       filled.push({ what: `affordance ${name}`, why: `a switch for its light "${g}", lit from the start` }); }
-    return filled.length ? { kind: { ...k, affordances: affs }, filled } : {};
+    return { kind: { ...k, affordances: affs, sources }, filled };
   },
 });
 

@@ -2,14 +2,14 @@
 // process: the mover "candle" scales from its socket, the mover "flame" rides its top); the flame and
 // its light belong to the light group "flame", shown only while lit; the flame flickers, or with still burns steady
 // (no animation, its light kept from the page's flicker: a candle the house set out, in still air). glow: its light's
-// strength; candle: the candle's role (tallow, "wax", or "beeswax")
+// strength in candles (a candle's colour and strength are the look's: c.light); candle: the candle's role (tallow, "wax", or "beeswax")
 import { definePart } from "../catalogue.js";
 import { turned } from "./shapes.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 definePart("candlestick", {
-  build(c, { length = 0.2, radius = 0.011, x = 0, y = 0, z = 0, still = false, glow = 0.6, candle = "wax" }) {
-    const { THREE } = c, lathe = (pts, seg = 20) => turned(THREE, pts, seg);
+  build(c, { length = 0.2, radius = 0.011, x = 0, y = 0, z = 0, still = false, glow = 1, candle = "wax" }) {
+    const { THREE } = c, L = c.light("candle"), strength = L.strength * glow, lathe = (pts, seg = 20) => turned(THREE, pts, seg);
     const base = lathe([[0, 0], [0.05, 0], [0.05, 0.012], [0.022, 0.03], [0.012, 0.05], [0.014, 0.12], [0.01, 0.15], [0.016, 0.16], [0.022, 0.17], [0.014, 0.175], [0, 0.175]]);
     base.translate(x, y, z); c.add(base, "metal");
     // the candle stands in the socket; it burns down from the top
@@ -20,15 +20,15 @@ definePart("candlestick", {
     // process lifts it to the candle's top
     c.mover("flame", [x, top, z]);
     const wick = new THREE.CylinderGeometry(0.0012, 0.0012, 0.008, 5); wick.translate(x, top + 0.004, z); c.add(wick, "dark", { mover: "flame" });
-    const flameMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0, transparent: true, opacity: 0.92 });
+    const flameMat = new THREE.MeshBasicMaterial({ color: L.flame, transparent: true, opacity: 0.92 });
     const flame = new THREE.Mesh(new THREE.SphereGeometry(0.006, 10, 8), flameMat); flame.scale.set(1, 2.6, 1);
     flame.position.set(x, top + 0.02, z); flame.userData.lightGroup = "flame";
-    const light = new THREE.PointLight(0xffb070, glow, 4, 2); light.position.set(x, top + 0.04, z); light.userData.lightGroup = "flame"; light.userData.still = still;
+    const light = new THREE.PointLight(L.color, strength, 4, 2); light.position.set(x, top + 0.04, z); light.userData.lightGroup = "flame"; light.userData.still = still;
     c.extra(flame, "flame"); c.extra(light, "flame"); flame.userData.light = light;     // (put out, a light the page has pooled goes dark too)
     // it flickers while it burns: two slow waves and a quick one, the light following the flame
     if (!still) c.animate((t, isLit) => { if (!isLit("light")) return;
       const f = 1 + 0.08 * Math.sin(t * 7.3) + 0.05 * Math.sin(t * 13.1 + 1.7) + 0.04 * Math.sin(t * 29.7);
-      flame.scale.set(1, 2.6 * f, 1); light.intensity = (light.userData.on ?? glow) * f; });
+      flame.scale.set(1, 2.6 * f, 1); light.intensity = (light.userData.on ?? strength) * f; });
     c.footprint({ w: 0.1, d: 0.1, h: 0.175 + length });
   },
 });
@@ -48,14 +48,15 @@ definePart("chain", {
 // an electric bulb (R79's first link, Kabe 2026-10-13: "a light switch that is in a different part of the room that the
 // light it turns on"): a clear glass pear with a glowing filament in it, its light at the filament; the filament and the light
 // are the light group `group` ("bulb"), shown and lit only while its affordance is on. It never flickers (still): mains
-// light is steady. at: the bulb's centre; r: the glass's radius; light: its light's strength
+// light is steady. at: the bulb's centre; r: the glass's radius; light: its light's strength in filaments (a filament's
+// colour and strength are the look's: c.light)
 definePart("bulb", {
-  build(c, { at = [0, 0, 0], r = 0.03, light = 3, reach = 6, group = "bulb" }) {
-    const { THREE } = c;
+  build(c, { at = [0, 0, 0], r = 0.03, light = 1, reach = 6, group = "bulb" }) {
+    const { THREE } = c, L = c.light("filament");
     const glass = new THREE.SphereGeometry(r, 18, 12); glass.scale(1, 1.25, 1); glass.translate(...at); c.add(glass, "glass_clear");
-    const glowMat = new THREE.MeshBasicMaterial({ color: 0xfff0c8 });
+    const glowMat = new THREE.MeshBasicMaterial({ color: L.flame });
     const fil = new THREE.Mesh(new THREE.TorusGeometry(r * 0.28, r * 0.05, 6, 16), glowMat); fil.position.set(...at); fil.userData.lightGroup = group;
-    const lamp = new THREE.PointLight(0xffe2b0, light, reach, 2); lamp.position.set(...at); lamp.userData.lightGroup = group; lamp.userData.still = true;
+    const lamp = new THREE.PointLight(L.color, L.strength * light, reach, 2); lamp.position.set(...at); lamp.userData.lightGroup = group; lamp.userData.still = true;
     fil.userData.light = lamp; c.extra(fil); c.extra(lamp);
   },
 });
