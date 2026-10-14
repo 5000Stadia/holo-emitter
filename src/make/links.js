@@ -25,6 +25,7 @@ export const LINK_TYPES = {
   switch: { lasts: "latching", from: "power", to: "power" },   // a switch works a light: on is lit, off is out
   lever: { lasts: "latching", from: "bolt", to: "bolt" },      // a lever or a breaker draws a bolt (a door's, a hatch's)
   plate: { lasts: "held", from: "press", to: "bolt" },         // a plate pressed holds its bolt drawn only while pressed
+  keypad: { lasts: "latching", from: "bolt", to: "bolt" },     // a keypad given its code draws its bolt (worked only by one who knows the code)
 };
 const DEFAULT_STATES = { slide: ["closed", "open"], hinge: ["closed", "open"], lever: ["rest", "pulled"], switch: ["out", "lit"], state: ["off", "on"] };
 const statesOf = (a) => a.states || DEFAULT_STATES[a.motion];
@@ -95,23 +96,29 @@ export function linkKeys(links, things, { doorOf = () => null, weightOk = () => 
   links.forEach((l, n) => { const T = LINK_TYPES[l.type], f = by(l.from.thing), o = l.to.door || (by(l.to.thing) && doorOf(by(l.to.thing)));
     if (!T || !f || !o) return;
     doors[o] = { locked: true, key: `link${n}` };
-    const a = f.kind?.affordances?.[l.from.aff]; if (!a || !canWork(gateOf(a), l, n)) return;   // (a control whose kind isn't known can't be worked)
+    const a = f.kind?.affordances?.[l.from.aff]; if (!a || !canWork(gateOf(a, f.settings), l, n)) return;   // (a control whose kind isn't known can't be worked)
     if (T.lasts === "held") { const w = by(l.weight), k = w ? refOf(w) : l.weight; if (!weightOk(l) || laid.has(k)) return; laid.add(k); }
     keys.push({ name: `link${n}`, room: f.room }); });
   return { doors, keys };
 }
 // a control's gate, as the proof can follow it: what must be held (any of each entry; all of holding_all), and what it
 // can't follow (another affordance's state, an engine variable, a question to the world), which no proof grants
-export function gateOf(a) {
-  const any = [], all = [], unsupported = [];
-  for (const [need, want] of Object.entries(a?.requires || {})) { if (need === "@holding") any.push([].concat(want)); else if (need === "@holding_all") all.push(...[].concat(want)); else unsupported.push(need); }
-  return { any, all, unsupported, free: !any.length && !all.length && !unsupported.length };
+// (a code to key in, a keypad's, is knowledge the player must have: its `knows`, read through the thing's settings; play lets
+// any digits be tried, the proof counts none but the known code). "@worked_by_…" is a link's own gate (the bulb, the bolted
+// door): only the link works it, so it asks nothing of the player.
+export function gateOf(a, settings = {}) {
+  const any = [], all = [], knows = [], unsupported = [], val = (v) => typeof v === "string" && v[0] === "$" ? settings[v.slice(1)] : v;
+  for (const [need, want] of Object.entries(a?.requires || {})) { if (need === "@holding") any.push([].concat(want)); else if (need === "@holding_all") all.push(...[].concat(want));
+    else if (need === "@knows") knows.push(...[].concat(val(want))); else if (!need.startsWith("@worked_by")) unsupported.push(need); }
+  if (a?.code != null) knows.push(val(a.knows));
+  return { any, all, knows, unsupported, free: !any.length && !all.length && !knows.length && !unsupported.length };
 }
 // whether a held thing answers a name, as works.js's @holding does: its id, its story id, its kind, its family, family/*,
 // or a name its fits setting gives it
 export const answers = (t, name) => t.id === name || (t.story != null && t.story === name) || t.kind?.kind === name || !!t.kind?.kind?.startsWith(`${name}/`)
   || name === `${(t.kind?.kind || "").split("/")[0]}/*` || (t.fits != null && [].concat(t.fits).includes(name));
-export const gateOpen = (g, held) => !g.unsupported.length && g.any.every(names => names.some(n => held.some(t => answers(t, n)))) && g.all.every(n => held.some(t => answers(t, n)));
+export const gateOpen = (g, held, known = new Set()) => !g.unsupported.length && g.any.every(names => names.some(n => held.some(t => answers(t, n)))) && g.all.every(n => held.some(t => answers(t, n)))
+  && g.knows.every(n => n != null && known.has(n));
 
 // a place's reach with its links, to a fixpoint: a plate's weight counts once its room and the plate's are both reached,
 // which may take a lever's door first; a gated control (a lever under a padlock) is not granted here, where nothing is

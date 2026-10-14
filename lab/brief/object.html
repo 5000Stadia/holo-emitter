@@ -79,6 +79,13 @@ const OBJECTS = {
     const lamp = make("lamp/pendant-bulb", "stage/switch/room/lamp", { drop: 0.7 }); lamp.node.position.set(1.2, 2.8 - new THREE.Box3().setFromObject(lamp.node).max.y, 1.4); g.add(lamp.node);
     g.userData.links = [{ type: "switch", from: { thing: sw.address, aff: "switch" }, to: { thing: lamp.address, aff: "light" } }];
     g.userData.view = [0.25, 0.1, 5.2, 1.4]; g.userData.dusk = true; return g; },
+  // a keypad by a bolted door (R79's keypad): the code is the place's (?code=, 4071 by default); ?knows says you know it (a
+  // button keys it in for you); the keypad's bolt is linked to the door's lock, which can't be worked by hand
+  keypad: () => { const g = new THREE.Group(), code = Q.get("code") || "4071";
+    const door = make("door/panelled-bolted", "stage/keypad/room/door"); door.node.position.set(0.45, 0, 0.15); g.add(door.node);
+    const pad = make("keypad/four-digit", "stage/keypad/room/keypad", { code, knows: "stage_code" }); pad.node.position.set(-0.45, 0, 0.15); g.add(pad.node);
+    g.userData.links = [{ type: "keypad", from: { thing: pad.address, aff: "entry" }, to: { thing: door.address, aff: "lock" } }];
+    g.userData.view = [0.0, 0.1, 3.4, 1.3]; return g; },
   // play never waits (plan §5): a kind whose part is not written yet stands as holodeck grid at its true
   // size, takeable; when the part arrives (here, three seconds later, as if just authored) it turns real
   arrival: () => { const g = new THREE.Group();
@@ -161,7 +168,7 @@ const aimCam = () => { camera.position.set(tx + Math.sin(az) * Math.cos(el) * di
 window.__view = (a, e, d, y = ty) => { az = a; el = e; dist = d; ty = y; aimCam(); };
 const lineEl = document.getElementById("line"); let lineTimer = null;
 const say = (t) => { if (!t) return; lineEl.textContent = t; lineEl.hidden = false; clearTimeout(lineTimer); lineTimer = setTimeout(() => { lineEl.hidden = true; }, 5000); };
-const works = makeWorks(THREE, { say }); for (const b of built) works.add(b); window.__works = works;
+const works = makeWorks(THREE, { say }); for (const b of built) works.add(b); window.__works = works; window.__built = built; window.__use = (t) => use(t);
 if (obj.userData.rules) works.rules(obj.userData.rules);
 if (obj.userData.links) { const { linkRules } = await import("../../src/make/links.js"); works.rules(linkRules(obj.userData.links, (a) => built.find(b => b.address === a))); }
 // what stood as grid turns real when its part arrives: rebuilt at the same address, in the same place
@@ -175,7 +182,11 @@ if (obj.userData.arrives) setTimeout(() => definePart("paper_tag", { build(c, { 
   const card = new THREE.PlaneGeometry(0.07, 0.035); card.rotateX(-0.12); card.translate(at[0], at[1] - 0.045, at[2] + 0.04); c.add(card, paper);
   const loop = new THREE.TorusGeometry(0.0125, 0.0012, 4, 20); loop.rotateX(Math.PI / 2); loop.translate(at[0], at[1] + 0.025, at[2]); c.add(loop, "tape");
 } }), 3000);
-const use = (t) => { if (!t) return; const r = works.act(t); if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); };
+// (a keypad asks for its code: its keys as a panel, lab/codepad.js; ?knows, you know it)
+const use = (t) => { if (!t) return; const r = works.act(t);
+  if (r.asks === "code") { import("../codepad.js").then(({ codePad }) => { const code = String(t.b.settings.code);
+      window.__pad = codePad({ length: r.length, remembered: Q.has("knows") ? code : null, onEnter: (digits) => { const r2 = works.act({ ...t, entered: digits });
+        if (r2.refused) say(r2.refused[0].toUpperCase() + r2.refused.slice(1) + "."); else say("The keypad chimes, and a bolt draws back."); return { ok: !!r2.did }; }, onClose: () => { window.__pad = null; } }); }); return; } if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`); };
 const takeIt = (t) => { if (!t) return; const r = works.take(t); say(r.refused ? r.refused : `You take ${r.took}.`); };
 let pointer = null;
 addEventListener("keydown", e => { if (e.code === "KeyG" && pointer) takeIt(aim(pointer)); });

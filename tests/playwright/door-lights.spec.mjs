@@ -29,7 +29,10 @@ test("a room behind a door in reach is lit before the door opens, and gives no l
       const of = () => window.__lights().windows.filter(w => w && w.room === B);
       // open: read at the first frame that gives anything, which must already be full (no fade to watch); however slow the
       // frames (a fixed 250 ms had read before any frame on a loaded machine, at 0.7 frames a second)
-      const shut = of(); window.__actOn(d, "leaf"); let open = of();
+      // (the room behind readied while its door is still shut: waited for, however slow the frames, up to 15 s; a fixed 1.5 s
+      // had read the kitchen not yet readied at 0.7 frames a second)
+      let shut = of(); for (let t = 0; t < 300 && !(shut.length && shut.every(w => w.level > 0.95)); t++) { await wait(50); shut = of(); }
+      window.__actOn(d, "leaf"); let open = of();
       for (let t = 0; t < 300 && !(open.length && open.some(w => w.gives > 0)); t++) { await wait(50); open = of(); }
       out.push({ id, B, opened: W.stateOf(d, "leaf"), shut, open });
       window.__actOn(d, "leaf"); await wait(300); }

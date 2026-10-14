@@ -63,8 +63,11 @@ export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
   if (kindOf) { const T = arr(k.things).map(t => ({ id: t.id, kind: kindOf(t.kind) || { kind: t.kind }, carry: t.carry !== false && carriable(kindOf(t.kind), t), fits: caseSettings(t).fits }));
     for (const why of checkLinks(arr(k.links), T, { openings: plan ? (plan.openings || []).map(o => o.id) : null, movable: (t) => t.carry }).faults) say("links", why);
     const wanted = new Set([...clues.values()].flatMap(c => arr(c.gate?.requires?.holding)).concat(arr(k.things).flatMap(t => arr(t.gate?.requires?.holding))));
-    arr(k.links).forEach((l, n) => { const c = T.find(t => t.id === l.from?.thing), g = gateOf(c?.kind?.affordances?.[l.from?.aff]);
+    arr(k.links).forEach((l, n) => { const c = T.find(t => t.id === l.from?.thing), ct = things.get(l.from?.thing), g = gateOf(c?.kind?.affordances?.[l.from?.aff], c?.kind?.settings ? settle(c.kind, 1, caseSettings(ct)) : {});
       if (g.unsupported.length) say("links", `link ${n}: its control ${l.from.thing} asks ${g.unsupported.join(", ")}, which the case's proof can't follow`);
+      // (a code someone must know: something in the case tells it, a person's clue or a thing that shows it)
+      const tellers = new Set([...[...clues.values()].flatMap(c => arr(c.knows)), ...arr(k.things).flatMap(t => arr(t.knows))]);
+      for (const name of g.knows) if (!tellers.has(name)) say("links", `link ${n}: its control ${l.from.thing} needs the code "${name}", which no one and nothing in the case tells`);
       // (wanted in hand: a key, a thing a clue's or a thing's gate asks to hold, or a name any thing's affordance or taking
       // asks @holding that it answers: one box can't both lie on the hall's plate and be held to work the study's lever)
       { const wt = l.weight && things.get(l.weight), wk = wt && kindOf(wt.kind), free = wk ? sizeFree(wk, wt) : [];
@@ -83,7 +86,7 @@ export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
 export function fairPlay(k, { plan, start = null, doors = k.doors || {}, kindOf = null } = {}) {   // doors: { [openingId]: { locked, key } }, the case's own locks; kindOf: the catalogue, for links and what can be carried
   const t0 = performance.now(), clues = cluesOf(k), things = arr(k.things), learned = new Set(), held = new Set(), path = [];
   const thingRoom = (t) => { let at = t.at, n = 0; while (at && things.some(q => q.id === at) && n++ < 8) at = things.find(q => q.id === at).at; return at; };
-  const laid = new Set(), worked = new Set(), reachedBefore = new Set();   // weights left on plates; latching links worked; rooms reached so far
+  const laid = new Set(), worked = new Set(), reachedBefore = new Set(), known = new Set();   // weights left on plates; latching links worked; rooms reached so far; what the player knows (a code)
   const open = (gate) => { const r = gate?.requires || {}; return arr(r.learned).every(l => learned.has(l)) && arr(r.holding).every(h => held.has(h) && !laid.has(h)); };
   for (let round = 0, grew = true; grew && round < 64; round++) {
     grew = false;
@@ -92,22 +95,27 @@ export function fairPlay(k, { plan, start = null, doors = k.doors || {}, kindOf 
     // its links: a lever's door a key in the lever's room; a plate's, in the plate's room once its weight is in hand
     // a weight laid on a plate whose room is reached is out of your hands (F5): no gate counts it held. A latching control
     // once worked stays worked (a lever pulled while you held its key stays pulled after the key goes on a plate)
-    const asThing = (t) => ({ id: t.id, room: thingRoom(t), kind: kindOf?.(t.kind) || null, fits: caseSettings(t).fits });
+    const asThing = (t) => { const kd = kindOf?.(t.kind) || null; return { id: t.id, room: thingRoom(t), kind: kd, fits: caseSettings(t).fits, settings: kd ? settle(kd, 1, caseSettings(t)) : caseSettings(t) }; };
     for (const l of arr(k.links)) if (LINK_TYPES[l.type]?.lasts === "held" && held.has(l.weight) && reachedBefore.has(thingRoom(things.find(t => t.id === l.from?.thing) || {}))) laid.add(l.weight);
     const inHand = things.filter(t => held.has(t.id) && !laid.has(t.id)).map(asThing);
     const lk = linkKeys(arr(k.links), things.map(asThing), { weightOk: (l) => laid.has(l.weight),
-      canWork: (g, l, n) => worked.has(n) || (gateOpen(g, inHand) && (LINK_TYPES[l.type]?.lasts !== "latching" || worked.add(n))) });
+      canWork: (g, l, n) => worked.has(n) || (gateOpen(g, inHand, known) && (LINK_TYPES[l.type]?.lasts !== "latching" || worked.add(n))) });
     const R = reachability(plan, { doors: { ...doors, ...lk.doors }, keys: [...keys, ...lk.keys], start: start || plan.entrance }), reached = new Set(R.reached || []);
     for (const r of reached) if (!reachedBefore.has(r)) { reachedBefore.add(r); grew = true; }
     // things: take what can be carried, read or search what's in a reached room, if its own gate is open
     for (const t of things) { const room = thingRoom(t); if (!reached.has(room) || !open(t.gate)) continue;
       if (t.carry !== false && (!kindOf || carriable(kindOf(t.kind), t)) && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }
-      for (const c of arr(t.clue)) if (!learned.has(c)) { learned.add(c); path.push(`learn ${c} from ${t.id}`); grew = true; } }
+      for (const c of arr(t.clue)) if (!learned.has(c)) { learned.add(c); path.push(`learn ${c} from ${t.id}`); grew = true; }
+      // (a thing that shows a code, a note in a drawer with its digits, tells it to whoever reaches it)
+      for (const n of arr(t.knows)) if (!known.has(n)) { known.add(n); path.push(`know ${n} from ${t.id}`); grew = true; } }
     // people: ask whoever is present in a reached room, each clue whose gate is open
     for (const c of clues.filter(q => q.from)) { if (learned.has(c.id) || !open(c.gate)) continue;
       const who = arr(k.cast).find(p => p.id === c.from), rooms = [who?.home, ...arr(who?.presence).map(p => p.room)].filter(Boolean);
       if (!rooms.some(r => reached.has(r))) continue;
-      learned.add(c.id); path.push(`learn ${c.id} from ${c.from}`); grew = true; }
+      learned.add(c.id); path.push(`learn ${c.id} from ${c.from}`); grew = true;
+      for (const n of arr(c.knows)) if (!known.has(n)) { known.add(n); path.push(`know ${n} from ${c.from}`); } }
+    // (a clue a thing gives, if it carries knowledge, tells it too)
+    for (const c of clues) if (learned.has(c.id)) for (const n of arr(c.knows)) if (!known.has(n)) { known.add(n); path.push(`know ${n} (${c.id})`); grew = true; }
   }
   const unreachable = clues.filter(c => !learned.has(c.id)).map(c => c.id);
   const pillars = arr(k.pillars).map(p => ({ id: p.id, covered: clues.some(c => learned.has(c.id) && arr(c.pillar).includes(p.id) && (c.effect || "genuine") === "genuine") }));

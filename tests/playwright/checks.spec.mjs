@@ -188,7 +188,8 @@ test("check 2: every movable moves and comes home exactly; every process reaches
       // drive every affordance to its moved state, retrying what waits on another (a lid on its padlocks)
       let todo = affs.map(([n]) => n);
       for (let round = 0; round < 4 && todo.length; round++) todo = todo.filter((n) => { const a = k.affordances[n]; let did;
-        try { did = w.act({ b, aff: n, i: at(a) }).did; } catch (e) { out.faults.push(`${k.kind} ${n}: ${e}`); return false; }
+        // (a keypad is given its own code: check 38 proves a wrong one is refused)
+        try { did = w.act({ b, aff: n, i: at(a), ...(a.code != null ? { entered: String(b.settings[String(a.code).slice(1)] ?? a.code) } : {}) }).did; } catch (e) { out.faults.push(`${k.kind} ${n}: ${e}`); return false; }
         if (!did) return true;
         let md = 0; for (let i = 0; i < 400; i++) { w.tick(0.05); const g = b.movers.get(a.mover); if (g) md = Math.max(md, dist(snap(g), home.get(a.mover)));
           if (bank(a)) md = Math.max(md, dist(bankM(a, 0), shut.get(n)[0])); }
@@ -467,6 +468,44 @@ test("check 36: every seat has a seated eye, over its seat, facing its front; a 
   expect(r.seats.filter(s => !s.startsWith("refused")).length, "the chairs, stools, forms and the daybed").toBeGreaterThanOrEqual(6);
   expect(r.seats.filter(s => s.startsWith("refused")).length).toBe(2);
   expect(errs).toEqual([]);
+});
+
+test("check 38: a keypad opens its door for its code alone, and the proof counts a code only once someone or something has told it (R79's keypad)", async ({ browser }) => {
+  test.setTimeout(LOAD + 60_000);
+  const { page, errs } = await objects(browser);
+  await page.evaluate(makeCtx);
+  const w = await page.evaluate(async () => { const { THREE, K, M, look } = window.__chk, L = await import("/src/make/links.js");
+    const pad = M.build(THREE, K, look, "keypad/four-digit", "check/room/keypad", { code: "4071", knows: "vault_code" }), door = M.build(THREE, K, look, "door/panelled-bolted", "check/room/door");
+    const W = M.makeWorks(THREE, { ask: () => false }); W.add(pad); W.add(door);
+    W.rules(L.linkRules([{ type: "keypad", from: { thing: pad.address, aff: "entry" }, to: { thing: door.address, aff: "lock" } }], (a) => [pad, door].find(b => b.address === a)));
+    const st = () => [W.stateOf(pad, "entry"), W.stateOf(door, "lock")], t = { b: pad, aff: "entry", i: null }, out = {};
+    out.asks = W.act(t); out.byHand = [W.act({ b: door, aff: "lock", i: null }).refused, W.act({ b: door, aff: "leaf", i: null }).refused];
+    out.wrong = W.act({ ...t, entered: "1234" }); out.afterWrong = st();
+    out.right = W.act({ ...t, entered: "4071" }); for (let i = 0; i < 20; i++) W.tick(0.05); out.afterRight = st();
+    out.leaf = W.act({ b: door, aff: "leaf", i: null }).did;
+    return out; });
+  expect(errs).toEqual([]);
+  expect(w.asks, "without digits it asks for four").toEqual({ did: false, asks: "code", length: 4 });
+  expect(w.byHand[0], "the bolt can't be worked by hand").toMatch(/its keypad works it/); expect(w.byHand[1]).toMatch(/bolted/);
+  expect(w.wrong.refused, "a wrong code buzzes").toMatch(/isn't the code/); expect(w.afterWrong).toEqual(["locked", "locked"]);
+  expect(w.right.did).toBe(true); expect(w.afterRight, "the right code draws the door's bolt").toEqual(["open", "unlocked"]);
+  expect(w.leaf, "and the door opens").toBe(true);
+  // the proof: a keypad's door counts as open only once its code is known (a dog that says it, a note that shows it)
+  const r = JSON.parse(node(`
+const { checkCase, fairPlay } = await import(${JSON.stringify(ROOT_URL + "src/make/case.js")});
+const kinds = (await import(${JSON.stringify(ROOT_URL + "src/make/kinds/modern.js")})).default, kindOf = (n) => kinds.find(k => k.kind === n) || (n === "x/note" ? { kind: n, fixed: false, size: [0.1, 0.001, 0.1], affordances: {} } : null);
+const plan = { entrance: "room", rooms: [{ id: "room" }, { id: "out" }], openings: [{ id: "d", joins: ["room", "out"], rect: { x0: 0, x1: 0.9, y0: 0, y1: 0 } }], stairs: [] };
+const base = { cast: [{ id: "dog", home: "room", clues: [{ id: "dog_says", knows: "exit_code" }] }, { id: "c", is_culprit: true }], pillars: [{ id: "out" }], clues: [{ id: "outside", pillar: "out" }],
+  things: [{ id: "keypad", at: "room", kind: "keypad/four-digit", carry: false, settings: { code: "4071", knows: "exit_code" } }, { id: "sign", at: "out", kind: "x/note", clue: "outside" }],
+  links: [{ type: "keypad", from: { thing: "keypad", aff: "entry" }, to: { door: "d" } }] };
+const untold = { ...base, cast: [{ id: "dog", home: "room" }, { id: "c", is_culprit: true }] };
+const note = { ...untold, things: [...base.things, { id: "note", at: "room", kind: "x/note", knows: "exit_code" }] };
+const proof = (k) => ({ checked: checkCase(k, { plan, kindOf }).findings.map(f => f.what), fair: fairPlay(k, { plan, kindOf }).ok });
+console.log(JSON.stringify({ told: proof(base), untold: proof(untold), note: proof(note) }));`));
+  expect(r.told, "the dog tells the code: the way out is reached").toEqual({ checked: [], fair: true });
+  expect(r.untold.fair, "no one tells it: guessing is never counted").toBe(false);
+  expect(r.untold.checked.join(" "), "and the case is told so").toMatch(/needs the code "exit_code", which no one and nothing in the case tells/);
+  expect(r.note, "a note in the room that shows it").toEqual({ checked: [], fair: true });
 });
 
 test("check 4: ids, seeds and streams from fixed addresses equal the stored values (node, Chromium, Firefox when installed)", async ({ browser }) => {

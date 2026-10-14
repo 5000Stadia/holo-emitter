@@ -40,6 +40,9 @@
 // never from its strength in the picture, which an animation is still easing up or a flicker is moving (R79, P1: the
 // world decides, the picture follows; a lit candle lit nothing while its flame's strength was still 0).
 //
+// A code (a keypad's, `code` and the name of the knowledge it is, `knows`) is keyed in with the act: act({ b, aff, entered });
+// asked for when not given, refused when wrong.
+//
 // An affordance with one verb is a deed that can be done again but never undone (reading a letter: read it
 // twice, it stays read); it says it is one-way, as a drunk bottle does, by a release gate no one opens.
 import { value, takeable } from "./catalogue.js";
@@ -267,6 +270,11 @@ export function makeWorks(THREE, { store = {}, save = () => {}, ask = () => fals
     if (shutIn(t.b)) return { did: false, refused: "It is shut away." };
     const a = t.b.kind.affordances[t.aff], k = key(t.b.id, t.aff, t.i);
     if (unmet(t.b, a.requires) && !moved(t.b, t.aff, t.i)) return { did: false, refused: a.refused || "It won't move." };
+    // a code to key in (a keypad): the digits come with the act (t.entered); without them it asks (the page shows its keys),
+    // a wrong code is refused, the right one turns it. Any digits may be tried: only the proof asks that the code be known
+    if (a.code != null && !moved(t.b, t.aff, t.i) && !t.force) { const code = String(value(a.code, t.b.settings));
+      if (t.entered == null) return { did: false, asks: "code", length: code.length };
+      if (String(t.entered) !== code) return { did: false, refused: value(a.wrong, t.b.settings) || "That isn't the code", wrong: true }; }
     // a deed done again (a letter read twice): nothing turns, it stays as it is
     if (again(a) && moved(t.b, t.aff, t.i)) { settle(); return { did: true, state: stateOf(t.b, t.aff, t.i), again: true }; }
     // its gate going back: a gate-leg won't fold while the leaf rests on it

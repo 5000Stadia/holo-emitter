@@ -46,5 +46,5 @@ export function makePool(lights, { place, fade = 0.6, keep = 1.5, share = 0 } = 
   // straight to where the fades are going (the first frame, a jump to another place)
   const snap = () => { for (const s of slots) s.level = s.target; boost = boostTo; step(0); };
   const held = () => slots.map(s => s.key);
-  return { update, step, snap, held, slots };
+  return { boost: () => boost, update, step, snap, held, slots };
 }

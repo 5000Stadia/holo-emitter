@@ -315,7 +315,9 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
   for (const [id, r] of manor.rooms) { const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); });
     for (const l of own) poolOwn(l, id); } }
 const winPool = makePool(rig, { share: 1.6, place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
-const firePool = makePool(fires, { place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
+// (fires share as windows do, R79 S4: a candle past the pool's few slots still shows its flame, and what it would give is
+// carried by the slots near it, up to 1.6 times their own: forty candles light a room as forty do, on a phone's three lights)
+const firePool = makePool(fires, { share: 1.6, place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
 // (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at
 // zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern;
@@ -358,7 +360,7 @@ function flicker(now) {
   return any;
 }
 window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), gives: +s.l.intensity.toFixed(2) }),
-  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }), inView: [...inView], lit: [...lightRooms()],
+  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, level: +s.level.toFixed(2) }), fireShare: +(firePool.boost?.() ?? 1).toFixed(2), sceneLights: (() => { let n = 0; scene.traverse(o => { if (o.isLight) n++; }); return n; })(), inView: [...inView], lit: [...lightRooms()],
   candidates: (room) => fireItems.filter(it => it.room === room).map(it => ({ key: it.key, base: +(+it.base).toFixed(2), alight: alight(it), seen: seen(it) })) });
 
 // ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
@@ -384,6 +386,8 @@ if (ground) { scene.add(ground.group);
 
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
 const store = world.store();
+// what you know (a code a person told you, one a note showed you): its name; and the keypad's panel while it is open
+const known = new Set((Q.get("knows") || "").split(",").filter(Boolean)); let padOpen = null; window.__know = (n) => known.add(n); window.__pad = () => !!padOpen;
 let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
 for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
 let viewDirty = true;
@@ -396,6 +400,18 @@ const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player",
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
 const darkStart = (b) => { if (DARK && b.kind.affordances?.light?.lights) b.settings = { ...b.settings, start: { ...b.settings?.start, light: "out" } }; return b; };
 for (const b of manor.things) works.add(darkStart(b));
+// ?candles=N: N candles stood lit on the start room's floor, a grid a step from its walls, to prove a crowd of lights on the
+// phone's budget (R79 S4; tests/playwright/crowd-lights.spec.mjs): each its own thing, its light pooled like any other
+{ const n = Math.min(200, +(Q.get("candles") || 0)), r = n ? manor.rooms.get(START_ID) : null, q = r?.room.rect, crowd = [];
+  if (r) { const cols = Math.ceil(Math.sqrt(n * (q.x1 - q.x0) / (q.y1 - q.y0))), rows = Math.ceil(n / cols), y0 = manor.levelOf(r.room.floor || "ground");
+    r.grp.updateMatrixWorld(true);
+    for (let i = 0; i < n; i++) { const b = build(THREE, K, look1660, "candle/stub", `candles/${START_ID}/candle:${i}`, { start: { light: "lit" } }), c = i % cols, w = Math.floor(i / cols);
+      // (the room's group has its own frame: placed in the world's, through it)
+      b.node.position.copy(r.grp.worldToLocal(new THREE.Vector3(q.x0 + 0.8 + (q.x1 - q.x0 - 1.6) * (cols > 1 ? c / (cols - 1) : 0.5), y0, -(q.y0 + 0.8 + (q.y1 - q.y0 - 1.6) * (rows > 1 ? w / (rows - 1) : 0.5)))));
+      b.node.userData.room = START_ID; r.grp.add(b.node); crowd.push(b); works.add(b);
+      b.node.updateMatrixWorld(true); const ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, START_ID); }
+    // (kept here: the house's own list of things is remade as rooms arrive; where to stand to see them all: the near end, facing down the room)
+    window.__candles = () => crowd; window.__candlesView = () => ({ x: (q.x0 + q.x1) / 2, y: q.y0 + 0.3, h: y0 }); } }
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
 // what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
 // every room is in (the rooms built after the start view measure kinds of their own)
@@ -960,6 +976,12 @@ function actOn(t) {
   if (SP?.beforeAct(t)) return true;
   if (t.aff === "sit" && t.point) sitPoint = t.point.clone ? t.point.clone() : new THREE.Vector3(t.point.x, t.point.y, t.point.z);
   let r = works.act(t);
+  // a keypad asks for its code: its keys as a panel (lab/codepad.js), the code you know (?knows=name,…; window.__know(name))
+  // keyed in for you; what it then does is said as any act's is
+  if (r.asks === "code") { const name = String(t.b.settings?.knows ?? ""), code = String(t.b.settings?.code ?? "");
+    import("../codepad.js").then(({ codePad }) => { padOpen = codePad({ length: r.length, remembered: known.has(name) ? code : null, onClose: () => { padOpen = null; },
+      onEnter: (digits) => { const r2 = works.act({ ...t, entered: digits }); if (r2.refused) say(r2.refused[0].toUpperCase() + r2.refused.slice(1) + "."); else say("The keypad chimes, and a bolt draws back.");
+        lightsDirty = true; refreshView(true); return { ok: !!r2.did }; } }); }); return true; }
   // what you hold, put down on a surface you act on (the golden key back on the glass table)
   if (r.refused && works.held().length && t.b.slots?.get("top")) { const b = works.held().at(-1), s = t.b.slots.get("top"); r = works.put(b);
     if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] }; } }
@@ -1144,6 +1166,7 @@ renderer.setAnimationLoop((now) => {
   if (B && Math.abs(camera.near - B.near) > 1e-4) { camera.near = B.near; camera.updateProjectionMatrix(); } if (B) ray.far = B.far;
   const sp = ((keys.ShiftLeft || keys.ShiftRight) ? (B ? B.speed * 1.8 : 2.8) : (B ? B.speed : 1.4)) * (crouch ? 0.5 : 1), fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
   let dx = 0, dy = 0;
+  if (padOpen) for (const k of ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]) keys[k] = false;   // (the keypad's panel holds your hands)
   if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
   if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
   // the thumb: the stick pushed past four-fifths of its reach strides, up to the keyboard's shift pace (lab/touch.js);

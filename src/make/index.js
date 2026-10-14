@@ -18,8 +18,9 @@ import furniture1660 from "./kinds/furniture-1660.js";
 import alice1865 from "./kinds/alice-1865.js";
 import outdoor1660 from "./kinds/outdoor-1660.js";
 import electric1900 from "./kinds/electric-1900.js";
+import modern from "./kinds/modern.js";
 
-for (const k of [...strongroom1660, ...household1660, ...house1660, ...furniture1660, ...alice1865, ...outdoor1660, ...electric1900]) defineKind(k);
+for (const k of [...strongroom1660, ...household1660, ...house1660, ...furniture1660, ...alice1865, ...outdoor1660, ...electric1900, ...modern]) defineKind(k);
 
 export { build } from "./build.js";
 export { makeWorks } from "./works.js";

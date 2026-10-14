@@ -112,3 +112,32 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
      - A thing placed in a room is born where the placer puts it, which the proof can't know, so it is not certified. checkCase says which setting to pin.
      - **Codex's fourth recheck:** being kept inside another case thing doesn't fix a thing's birth either. The placer builds what a case requires at its own address, and the `case/<id>` fallback comes only after that. So any size that reads an unpinned setting is not certified, wherever the thing is, until the case pins the setting.
 4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.
+
+## Built after the review (2026-10-13)
+
+**S4, a crowd of lights on the phone's budget.**
+- The fire pool now shares, as the window pool does. Candles beyond its 3 slots still show their flames, and what they would give is carried by the slots near them, up to 1.6 times their own.
+- `?candles=N` on the manor page stands N lit candles in the start room.
+- `tests/playwright/crowd-lights.spec.mjs` runs on the phone tier and counts rather than times:
+  - all 40 candles show their state, out and lit again;
+  - the scene keeps 9 lights;
+  - 49 programs, with none new after 40 switches;
+  - at most 2 draw calls a candle (measured: 131 draws with one candle, 152–163 with forty).
+- Not yet: the generated browser contract (item 4 above), which covers each renderer path.
+
+**The keypad.**
+- **The kinds** (`src/make/kinds/modern.js`):
+  - `keypad/four-digit`: a pewter plate, a display and twelve keys. Its `entry` holds its `code` and names the knowledge that is the code (`knows`), and gives a bolt.
+  - `door/panelled-bolted`: its lock takes a bolt and can't be worked by hand.
+- **The engine:** a link of type `keypad`. `works.act({ …, entered })` asks for the digits when they aren't given, refuses wrong ones and turns on the right ones.
+- **The proof:** `gateOf` turns a code into knowledge the player must have. In `fairPlay` a code becomes known through a clue's `knows` (a person who says it) or a thing's `knows` (a note that shows it). `checkCase` faults a code that nothing in the case tells.
+- **The panel** (`lab/codepad.js`) works on the object page (`?o=keypad`, with `&knows` to know the code) and on the manor page (`?knows=`, `window.__know`).
+- **Checks:** check 38, and `tests/playwright/keypad.spec.mjs` on laptop and phone.
+
+**Prior art for the keypad** (a helper's read-only pass, 2026-10-13):
+- **Target size:** Apple, Material and WCAG put a target at 44–48 px, and the W3C mobile task force puts a thumb at about 9–10 mm. Tiny keys in the 3D world can't be hit on a phone, so the keys open as a screen panel of 60 px keys ([W3C](https://www.w3.org/WAI/GL/mobile-a11y-tf/wiki/Proposed_SC_Target_Size)).
+- **Knowing a code:** Inform 7 models it as knowledge, and TADS 3 keeps a list of known keys that fill in once learned ([TADS](https://www.tads.org/t3doc/doc/libref/object/LockableWithKey.html)). Adopted: knowing a code is a fact, and a "use the code you know" button keys it in.
+- **Guessing:** escape-room designers treat brute force as a given ([Room Escape Artist](https://roomescapeartist.com/2015/06/29/brute-force-and-escape-games)). Adopted: any digits may be tried with no lockout, and the proof never counts a guess.
+- **Entering the code:** four digits are checked automatically as the last goes in, with no Enter key.
+- **Rejected:** tiny in-world buttons, lockouts, and Enter/Cancel keys.
+- **Accessibility:** a remembered code needs one tap, and number keys work on a keyboard ([Game Accessibility Guidelines](https://gameaccessibilityguidelines.com/)).
