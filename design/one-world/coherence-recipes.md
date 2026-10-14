@@ -137,3 +137,17 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - the hooded stranger;
 - two Rexes;
 - a prisoner who becomes a hero.
+
+## The main demo, built (2026-10-13, the night)
+
+- **The page:** `lab/manor/?plan=recipe&recipe=<name>`, the manor's own engine on a place built from a recipe's facts.
+- **The golden lane:** `lab/recipes/<name>.facts.json`, pattern-buffer's shape.
+- **The plan:** `src/make/recipe.js` reads and checks the facts and refuses what it can't build, with the reason. It chooses kinds by what they carry (a switch gives power, a light takes it) and lists every choice the facts leave open.
+- **Play:** `src/make/recipe-play.js` builds and links the things, stands in the people, and runs the place's proof at load.
+- **The first recipe:** switched-light, dark room and all. Its test is `tests/playwright/recipe-demo.spec.mjs`.
+- **Fixed on the way:** the fire pool lit everything in a hearth's orange. Each slot now takes its own light's colour, so the bulb is warm white and candles their own.
+- **Next:**
+  - code-lock: the keypad by a door, a door made from facts, and the person telling the code;
+  - take-and-drop;
+  - the per-layer cost line Photonic asked for;
+  - the story lane when pattern-buffer's library gives these facts.

@@ -5,6 +5,10 @@ export const STORY_ROOM_TYPES = {
   // "a long, low hall, which was lit up by a row of lamps hanging from the roof"; "that dark hall"
   story_hall: { fullness: 0, also: [], floor: "flags", walls: "wainscot", ceiling: "beams", hearth: "none", windows: "none", light: ["lamps"], anchor: [],
     why: "Alice, ch. I: panelling and flags chosen (open in the text; Tenniel draws panelling)" },
+  // a recipe's room (the main demo, design/one-world/coherence-recipes.md): bare, so what the recipe brings is all there is;
+  // no window, no hearth and no light of its own (a room with no exits; "the room is completely dark")
+  recipe_room: { fullness: 0, also: [], floor: "boards", walls: "limewash", ceiling: "plaster", hearth: "none", windows: "none", light: [], anchor: [],
+    why: "a recipe's room: limewash, boards and a plaster ceiling, chosen plain" },
   // "a small passage, not much larger than a rat-hole"
   rat_hole: { fullness: 0, also: [], floor: "flags", walls: "stone", ceiling: "plaster", hearth: "none", windows: "none", light: [], anchor: [],
     why: "Alice, ch. I: a bare stone passage, chosen" },

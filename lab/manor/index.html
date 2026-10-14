@@ -109,6 +109,8 @@ import { moonOf, nightLight, moonDisc, starDome } from "../../src/make/night.js"
 import { checkScene } from "../../src/make/scene.js";
 import { matchKinds } from "../../src/make/match.js";
 import { planStoryHall } from "../../src/make/plans/story-hall.js";
+import { planRecipe } from "../../src/make/recipe.js";
+import { playRecipe } from "../../src/make/recipe-play.js";
 import { compileStory, bodyAt } from "../../src/make/story.js";
 import { playStory } from "../../src/make/story-play.js";
 import { STORY_ROOM_TYPES } from "../../src/make/rooms/story.js";
@@ -160,8 +162,13 @@ const STORY = Q.get("plan") === "alice-hall" ? await (async () => { const t0 = p
   const check = checkScene(scene, text); if (!check.ok) throw new Error("scene refused: " + check.findings.map(f => `${f.at}: ${f.what}`).join("; "));
   const match = matchKinds(scene, kinds()), plan = planStoryHall(scene, { kinds: match.kinds });
   return { scene, text, check, match, plan, story: compileStory(scene), ms: Math.round(performance.now() - t0) }; })() : null;
+// ?plan=recipe&recipe=<name>: the main demo (design/one-world/coherence-recipes.md): a recipe's place from its facts
+// (lab/recipes/<name>.facts.json, pattern-buffer's patternbuffer.recipe-facts/1: the golden lane), laid out by rule
+// (src/make/recipe.js) and played (src/make/recipe-play.js)
+const RECIPE = Q.get("plan") === "recipe" ? await (async () => { const name = (Q.get("recipe") || "switched-light").replace(/[^a-z0-9-]/g, "");
+  const doc = await (await fetch(`../recipes/${name}.facts.json`)).json(); return { name, doc, plan: planRecipe(doc, { kinds: kinds() }) }; })() : null;
 window.__story = () => STORY && { quotes: STORY.check.quotes, match: STORY.match, chosen: STORY.plan.chosen, unread: STORY.story.unread, ms: STORY.ms };
-const fresh = STORY ? STORY.plan : Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
+const fresh = STORY ? STORY.plan : RECIPE ? RECIPE.plan : Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
 // what the story requires, placed first in its room with what holds it (R54 step 6; pattern-buffer will supply
 // these): ?require=key/iron@study:table/joined-with-drawer.drawer (kind@room, optionally :in-kind.slot), comma-separated
 if (Q.get("require")) fresh.required = Q.get("require").split(",").map(t => { const [what, inside] = t.split(":"), [kind, room] = what.split("@"), [ik, slot] = (inside || "").split(".");
@@ -207,7 +214,7 @@ keep();
 // at no measurable cost); a story's hall underground is not
 // ?dark: every light out, the house at night with its shutters to, no fire or candle lit and nothing outside (Kabe, 2026-10-12:
 // "a completely dark room"): what you see is what the light you carry shows (src/make/carry.js)
-const DARK = Q.has("dark");
+const DARK = Q.has("dark") || !!RECIPE?.plan.recipe.dark;   // (a recipe's room dark at the start: its facts say so)
 // ?moon=full|half|new|0..1: night outside, by the moon's lit share (Kabe, 2026-10-12: "the difference between the full moon and
 // the new moon"): the sun becomes the moon, the sky and the fill fall to what it gives, the fires stay lit (src/make/night.js)
 const MOON = DARK ? null : moonOf(Q.get("moon")), NIGHT = MOON == null ? null : nightLight(MOON);
@@ -304,7 +311,7 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
   return (l, id) => { l.updateWorldMatrix(true, false); l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
       if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
         const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
-      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, switched: !!l.userData.lightGroup, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
+      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, switched: !!l.userData.lightGroup, color: l.color.clone(), h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
         // a light a switch turns shines by the world's state (works.lit), its flicker the picture's: lit, its strength as
         // the flame now draws it, or its full strength while the flame is still coming up; out, nothing (R79, P1)
         it.l = l; Object.defineProperty(it, "base", { get: () => { const lit = l.userData.emits ? works.lit(l) : null;
@@ -317,7 +324,10 @@ const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion
 const winPool = makePool(rig, { share: 1.6, place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
 // (fires share as windows do, R79 S4: a candle past the pool's few slots still shows its flame, and what it would give is
 // carried by the slots near it, up to 1.6 times their own: forty candles light a room as forty do, on a phone's three lights)
-const firePool = makePool(fires, { share: 1.6, place: (l, { h }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); } });
+// (each slot takes the colour of what it carries: a hearth's orange, a candle's, a bulb's warm white; the slot had kept the
+// hearth's for everything, and a recipe room's bulb lit its walls orange)
+const FIRE = new THREE.Color(0xff9a4a);
+const firePool = makePool(fires, { share: 1.6, place: (l, { h, color }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); l.color.copy(color || FIRE); } });
 let inView = new Set(), lightsDirty = true, snapLights = true;
 // (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at
 // zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern;
@@ -414,6 +424,10 @@ for (const b of manor.things) works.add(darkStart(b));
       b.node.updateMatrixWorld(true); const ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, START_ID); }
     // (kept here: the house's own list of things is remade as rooms arrive; where to stand to see them all: the near end, facing down the room)
     window.__candles = () => crowd; window.__candlesView = () => ({ x: (q.x0 + q.x1) / 2, y: q.y0 + 0.3, h: y0 }); } }
+// the recipe's things, links, people and proof (the main demo)
+const RP = RECIPE ? playRecipe({ THREE, plan, manor, works, build, kindOf, K, look: look1660, poolOwn }) : null;
+window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.person?.userData, chosen: RECIPE.plan.chosen };
+window.__recipeThing = (id) => RP?.thingOf.get(id) || null;
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
 // what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
 // every room is in (the rooms built after the start view measure kinds of their own)
@@ -603,6 +617,7 @@ if (CASE) {
 const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
 // a story starts you where the text brings you in: the hall's near end, from the passage the Rabbit took
 let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
+if (RECIPE) { const s0 = RECIPE.plan.recipe.start; px = s0.x; py = s0.y; yaw = s0.yaw; }   // (where the recipe's plan says you arrive)
 // not inside the furniture: the nearest clear floor to the room's middle
 for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
 // a frame of the people: what happened handed to the crowd, then the population's tick (the page's loop, and

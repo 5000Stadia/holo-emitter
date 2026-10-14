@@ -1,0 +1,25 @@
+{
+  "schema": "patternbuffer.recipe-facts/1",
+  "recipe": "switched-light",
+  "note": "golden lane, drafted by holo-emitter from pattern-buffer's row (m046211) for pattern-buffer to confirm or replace with its build library's output",
+  "story": "the world is empty, except for a room with no exits. The room is completely dark. There is a light switch in the room, that if flipped turns on a light, the brightly illuminate the room and shows that there is a friendly dog.",
+  "entities": [
+    { "id": "place:room", "kind": "place", "names": ["room"] },
+    { "id": "obj:switch", "kind": "switch", "names": ["light switch"] },
+    { "id": "obj:light", "kind": "light", "names": ["light"] },
+    { "id": "person:dog", "kind": "person", "names": ["dog"], "note": "a person who thinks they're a dog (Kabe, 2026-10-13)" }
+  ],
+  "facts": [
+    { "entity": "place:room", "attribute": "exits", "value": "none", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 1 } },
+    { "entity": "place:room", "attribute": "lit", "value": "dark", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 2 } },
+    { "entity": "obj:switch", "attribute": "in", "value": "place:room", "value_type": "entity", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "obj:light", "attribute": "in", "value": "place:room", "value_type": "entity", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "obj:switch", "attribute": "controls", "value": "obj:light", "value_type": "entity", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "obj:switch", "attribute": "link_type", "value": "switch", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "obj:switch", "attribute": "mode", "value": "latching", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "obj:light", "attribute": "state", "value": "off", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "person:dog", "attribute": "in", "value": "place:room", "value_type": "entity", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "person:dog", "attribute": "disposition", "value": "friendly", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } },
+    { "entity": "person:dog", "attribute": "posture", "value": "all_fours", "value_type": "literal", "frame": "canon", "valid_from": 0, "source": { "chapter": 1, "sentence": 3 } }
+  ]
+}
