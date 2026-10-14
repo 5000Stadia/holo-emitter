@@ -82,8 +82,10 @@ const OBJECTS = {
   // a keypad by a bolted door (R79's keypad): the code is the place's (?code=, 4071 by default); ?knows says you know it (a
   // button keys it in for you); the keypad's bolt is linked to the door's lock, which can't be worked by hand
   keypad: () => { const g = new THREE.Group(), code = Q.get("code") || "4071";
-    const door = make("door/panelled-bolted", "stage/keypad/room/door"); door.node.position.set(0.45, 0, 0.15); g.add(door.node);
-    const pad = make("keypad/four-digit", "stage/keypad/room/keypad", { code, knows: "stage_code" }); pad.node.position.set(-0.45, 0, 0.15); g.add(pad.node);
+    // the door against the stage's wall (its face at z = 0), its hinge on the left; the keypad on the wall a hand's width
+    // from the latch-side jamb, as keypads go
+    const door = make("door/panelled-bolted", "stage/keypad/room/door"); door.node.position.set(-0.45, 0, 0.15); g.add(door.node);
+    const pad = make("keypad/four-digit", "stage/keypad/room/keypad", { code, knows: "stage_code" }); pad.node.position.set(0.8, 0, 0); g.add(pad.node);
     g.userData.links = [{ type: "keypad", from: { thing: pad.address, aff: "entry" }, to: { thing: door.address, aff: "lock" } }];
     g.userData.view = [0.0, 0.1, 3.4, 1.3]; return g; },
   // play never waits (plan §5): a kind whose part is not written yet stands as holodeck grid at its true
