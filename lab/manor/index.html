@@ -214,7 +214,11 @@ keep();
 // at no measurable cost); a story's hall underground is not
 // ?dark: every light out, the house at night with its shutters to, no fire or candle lit and nothing outside (Kabe, 2026-10-12:
 // "a completely dark room"): what you see is what the light you carry shows (src/make/carry.js)
-const DARK = Q.has("dark") || !!RECIPE?.plan.recipe.dark;   // (a recipe's room dark at the start: its facts say so)
+const DARK = Q.has("dark");
+// a recipe's room dark at the start (its facts say so): the room's own lights out and no window, which its plan already
+// makes it; the world outside keeps its day. Only your eye's faint light is as a dark house's (it had set DARK, which puts
+// out the sun and the outdoors, and the court beyond the keypad's door stood black)
+const DARK_ROOM = DARK || !!RECIPE?.plan.recipe.dark;
 // ?moon=full|half|new|0..1: night outside, by the moon's lit share (Kabe, 2026-10-12: "the difference between the full moon and
 // the new moon"): the sun becomes the moon, the sky and the fill fall to what it gives, the fires stay lit (src/make/night.js)
 const MOON = DARK ? null : moonOf(Q.get("moon")), NIGHT = MOON == null ? null : nightLight(MOON);
@@ -276,7 +280,7 @@ scene.add(sun, sun.target, new THREE.HemisphereLight(HEMI.sky, HEMI.ground, HEMI
 if (DARK) { sun.intensity = 0; sun.castShadow = false; scene.background.setHex(0x000000); }
 // the light you carry: the eye's own faint pool by default, ?carry=candle|flashlight|none, L to change (src/make/carry.js); a
 // phone holds the flashlight's cone only when it starts with one (every lit pixel pays for every light)
-const carry = makeCarry(THREE, { spot: (!ENG.phone && !Q.has("nospot")) || Q.get("carry") === "flashlight", mode: Q.get("carry") || "eye", eye: DARK || NIGHT ? 1 : STORY ? 0.8 : 0.35, ...(Q.get("eyecap") ? { cap: +Q.get("eyecap") } : {}) });   // (?eyecap=m: nearer than that, lit no more than there)
+const carry = makeCarry(THREE, { spot: (!ENG.phone && !Q.has("nospot")) || Q.get("carry") === "flashlight", mode: Q.get("carry") || "eye", eye: DARK_ROOM || NIGHT ? 1 : STORY ? 0.8 : 0.35, ...(Q.get("eyecap") ? { cap: +Q.get("eyecap") } : {}) });   // (?eyecap=m: nearer than that, lit no more than there)
 if (Q.get("carry") !== "off") scene.add(...carry.lights);   // (?carry=off: none in the scene, their cost unpaid, to measure it)
 // how far off what you look at is, for the eye's pool (src/make/carry.js cap): along your gaze to the first wall (the house's
 // grid), the first thing in your room (its box, kept once: a ray against a few dozen boxes, no mesh raycast) or the floor
@@ -425,9 +429,9 @@ for (const b of manor.things) works.add(darkStart(b));
     // (kept here: the house's own list of things is remade as rooms arrive; where to stand to see them all: the near end, facing down the room)
     window.__candles = () => crowd; window.__candlesView = () => ({ x: (q.x0 + q.x1) / 2, y: q.y0 + 0.3, h: y0 }); } }
 // the recipe's things, links, people and proof (the main demo)
-const RP = RECIPE ? playRecipe({ THREE, plan, manor, works, build, kindOf, K, look: look1660, poolOwn }) : null;
-window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.person?.userData, chosen: RECIPE.plan.chosen };
-window.__recipeThing = (id) => RP?.thingOf.get(id) || null;
+const RP = RECIPE ? playRecipe({ THREE, plan, manor, works, build, kindOf, K, look: look1660, poolOwn, say: (t) => say(t), know: (n) => known.add(n) }) : null;
+window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.person && (({ room, person, posture }) => ({ room, person, posture }))(RP.person.userData), chosen: RECIPE.plan.chosen };
+window.__recipeThing = (id) => RP?.thingOf.get(id) || null; window.__recipeTalk = (id) => RP?.talk(id); window.__known = () => [...known];
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
 // what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
 // every room is in (the rooms built after the start view measure kinds of their own)
@@ -500,6 +504,8 @@ const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 // ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
 // narrator in code (the live narrative is construct's, over the contract: design/case/boundary-with-construct.md)
 let CP = null, adoptCase = () => {}; const presences = new Map(), lookMeshes = [];
+// a recipe's person, talked to as the case's people are (aimed at by their hit box)
+if (RP?.person) presences.set(RP.person.userData.person, { p: { group: RP.person, hit: RP.person.userData.hit, tick: () => {} }, room: RP.person.userData.room });
 if (CASE) {
   const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values()), knownKinds = new Set(kinds().map(k => k.kind)), looked = new Set();
   // (adoptCase: run at load and again as each room arrives after the start view, R65: it takes only what isn't taken yet)
@@ -979,6 +985,7 @@ window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
 function whereFloor(r) { $("where").querySelector(".f").textContent = `${r.floor} floor${CP?.searched(r.id) ? " · nothing more to find here" : ""}`; }
 function actOn(t) {
   touch.stop?.();                                      // a locked stride ends at anything you do
+  if (t?.presence && RP?.talk(t.presence)) return true;   // (a recipe's person: what they know that is theirs to tell)
   if (t?.presence) { if (!CP && POP?.get(t.presence)) { POP.get(t.presence).face({ pos: [px, ph, -py], floor: floorOf(ph) }); return true; } CP?.talkTo(t.presence); return true; }
   // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
   const refloor = () => { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); return true; };

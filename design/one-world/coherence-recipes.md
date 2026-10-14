@@ -151,3 +151,11 @@ end to end:        story text in → walk in, see nothing → flip the switch �
   - take-and-drop;
   - the per-layer cost line Photonic asked for;
   - the story lane when pattern-buffer's library gives these facts.
+
+**Code-lock, built the same night.**
+- `lab/manor/?plan=recipe&recipe=code-lock`: the dark room with one way out.
+- **The door:** a door from the facts, its opening in the wall behind you, its kind (the bolted one) chosen by its port, an open court beyond. The plan names a doorway's door kind, and the house builder hangs it.
+- **The keypad:** beside the doorway on the latch side, with the facts' code.
+- **The person:** what they know in their own frame (the code), they tell when talked to. The line is a plain stand-in until construct's line and Photonic's voice; the code is then known, and the keypad offers it.
+- **The proof:** it now lives in the planner (`proveRecipe`, no build needed). It reaches outside only through the told code, and fails when no one tells it.
+- **The day outside:** a recipe's dark room no longer puts out the world. The room's dark is its own, and the court is in daylight.

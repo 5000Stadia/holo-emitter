@@ -28,6 +28,20 @@ console.log(JSON.stringify({ good: R.readFacts(doc), noExits: R.readFacts(drop("
   expect(r.unsourced.join(" "), "every fact cites its sentence").toMatch(/no source sentence/);
 });
 
+test("code-lock's proof: the way out is reached only through the code the person who thinks they're a dog tells", () => {
+  const ROOT = new URL("../../", import.meta.url).href;
+  const r = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", `
+const R = await import(${JSON.stringify(ROOT + "src/make/recipe.js")}), fs = await import("node:fs");
+const kinds = [...(await import(${JSON.stringify(ROOT + "src/make/kinds/electric-1900.js")})).default, ...(await import(${JSON.stringify(ROOT + "src/make/kinds/modern.js")})).default, ...(await import(${JSON.stringify(ROOT + "src/make/kinds/house-1660.js")})).default];
+const kindOf = (n) => kinds.find(k => k.kind === n) || null, read = (n) => JSON.parse(fs.readFileSync(new URL("lab/recipes/" + n + ".facts.json", ${JSON.stringify(ROOT)})));
+const told = read("code-lock"), untold = { ...told, facts: told.facts.filter(f => !String(f.frame).startsWith("knows:")) }, plan = R.planRecipe(told, { kinds });
+console.log(JSON.stringify({ told: R.proveRecipe(plan, kindOf), untold: R.proveRecipe(R.planRecipe(untold, { kinds }), kindOf), door: plan.openings[0]?.door, keypad: plan.recipe.things.find(t => t.id === "obj:keypad")?.over }));`], { encoding: "utf8" }));
+  expect(r.told, "told: out").toMatchObject({ ok: true, reached: ["room", "outside"], known: ["obj:keypad.code"] });
+  expect(r.untold, "no one tells it: no way out, and the proof says so").toMatchObject({ ok: false, unreachable: ["outside"], known: [] });
+  expect(r.door, "the door a keypad bolts is a bolted one").toEqual({ kind: "door/panelled-bolted" });
+  expect(r.keypad, "the keypad's code is the facts'").toEqual({ code: "4071", knows: "obj:keypad.code" });
+});
+
 test("the dark room: no way out, dark; the switch lights the light across the room; the person who thinks they're a dog is there", async ({ browser, browserName }) => {
   test.skip(browserName !== "chromium", "the demo is the same on every engine");
   test.setTimeout(2 * LOAD);
@@ -48,5 +62,25 @@ test("the dark room: no way out, dark; the switch lights the light across the ro
   expect([after.sw, after.light], "flipped: the light across the room comes on").toEqual(["on", "lit"]);
   expect(after.lit, "and it lights the room").toBe(1);
   expect(after.byHand, "the light is worked from its switch alone").toMatch(/worked from its switch/);
+  expect(errs).toEqual([]);
+});
+
+test("code-lock in play: talked to, the person tells the code; the keypad keys it in; the bolt draws back and the door opens on the day outside", async ({ browser, browserName }) => {
+  test.skip(browserName !== "chromium", "the demo is the same on every engine");
+  test.setTimeout(2 * LOAD);
+  const page = await browser.newPage({ viewport: { width: 900, height: 600 } }), errs = []; page.on("pageerror", (e) => errs.push(e.message));
+  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&fresh&plan=recipe&recipe=code-lock`, { timeout: LOAD });
+  await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  const before = await page.evaluate(() => ({ proof: window.__recipe().proof.ok, known: window.__known(), outside: !!window.__site, door: window.__works.act({ b: window.__recipeThing("obj:door"), aff: "leaf", i: null }).refused }));
+  expect(before.proof).toBe(true); expect(before.known, "nothing known yet").toEqual([]);
+  expect(before.outside, "the world outside is there (the room's dark is its own)").toBe(true);
+  expect(before.door, "bolted").toMatch(/bolted/);
+  const told = await page.evaluate(() => { window.__recipeTalk("person:dog"); return { known: window.__known(), said: window.__said.at(-1) }; });
+  expect(told.known).toEqual(["obj:keypad.code"]); expect(told.said, "the digits said").toMatch(/4, 0, 7, 1/);
+  await page.evaluate(() => window.__actOn(window.__recipeThing("obj:keypad"), "entry")); await page.waitForSelector("#codepad", { timeout: 20_000 });
+  await page.click('#codepad button[data-k="known"]');
+  await page.waitForFunction(() => !document.getElementById("codepad"), null, { timeout: 10_000 });
+  const after = await page.evaluate(() => { const d = window.__recipeThing("obj:door"); return { lock: window.__works.stateOf(d, "lock"), open: window.__works.act({ b: d, aff: "leaf", i: null }).did, leaf: window.__works.stateOf(d, "leaf") }; });
+  expect(after, "the bolt drawn, the door opens").toEqual({ lock: "unlocked", open: true, leaf: "open" });
   expect(errs).toEqual([]);
 });
