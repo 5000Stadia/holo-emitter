@@ -20,12 +20,16 @@ const doc = JSON.parse(fs.readFileSync(new URL("lab/recipes/switched-light.facts
 const drop = (attr) => ({ ...doc, facts: doc.facts.filter(f => f.attribute !== attr) });
 console.log(JSON.stringify({ good: R.readFacts(doc), noExits: R.readFacts(drop("exits")).findings.map(f => f.what), noType: R.readFacts(drop("link_type")).findings.map(f => f.what),
   ghost: R.readFacts({ ...doc, facts: [...doc.facts, { entity: "obj:switch", attribute: "controls", value: "obj:nothing", value_type: "entity", source: { sentence: 3 } }] }).findings.map(f => f.what),
-  unsourced: R.readFacts({ ...doc, facts: doc.facts.map((f, i) => i ? f : { ...f, source: undefined }) }).findings.map(f => f.what) }));`], { encoding: "utf8" }));
+  unsourced: R.readFacts({ ...doc, facts: doc.facts.map((f, i) => i ? f : { ...f, source: undefined }) }).findings.map(f => f.what),
+  authored: R.readFacts({ ...doc, facts: doc.facts.map((f, i) => i ? f : { ...f, source: { authored: "Kabe 2026-10-13", note: "the test's" } }) }).findings.map(f => f.what),
+  both: R.readFacts({ ...doc, facts: doc.facts.map((f, i) => i ? f : { ...f, source: { chapter: 1, sentence: 1, authored: "manifest" } }) }).findings.map(f => f.what) }));`], { encoding: "utf8" }));
   expect(r.good.ok).toBe(true); expect(r.good.links).toEqual([{ from: "obj:switch", to: "obj:light", type: "switch", mode: "latching" }]);
   expect(r.noExits.join(" "), "a room must say it has no exits").toMatch(/says nothing of its exits/);
   expect(r.noType.join(" ")).toMatch(/says no link type/);
   expect(r.ghost.join(" ")).toMatch(/points at obj:nothing/);
-  expect(r.unsourced.join(" "), "every fact cites its sentence").toMatch(/no source sentence/);
+  expect(r.unsourced.join(" "), "every fact cites its sentence or its author").toMatch(/cites neither its sentence nor its author/);
+  expect(r.authored, "an authored fact, its author named: read").toEqual([]);
+  expect(r.both.join(" "), "one or the other").toMatch(/cites both a sentence and an author/);
 });
 
 test("code-lock's proof: the way out is reached only through the code the person who thinks they're a dog tells", () => {

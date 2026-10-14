@@ -23,7 +23,11 @@ export function readFacts(doc) {
   const of = (id, attr) => canon.filter(f => f.entity === id && f.attribute === attr).map(f => f.value);
   for (const f of arr(doc?.facts)) { if (!ents.has(f.entity)) say(`fact ${f.entity}.${f.attribute}`, "names an entity the facts don't declare");
     if (f.value_type === "entity" && !ents.has(f.value)) say(`fact ${f.entity}.${f.attribute}`, `points at ${f.value}, which the facts don't declare`);
-    if (!f.source) say(`fact ${f.entity}.${f.attribute}`, "has no source sentence"); }
+    // (every fact cites its sentence, { chapter, sentence }, or its author, { authored: "manifest" | "holo-emitter planner" |
+    // "Kabe <date>" }: RECIPE-VOCAB-V1 r1.4; a host's { manifest: true } is the older spelling of the manifest's)
+    const src = f.source, cites = src && (src.sentence != null || (typeof src.authored === "string" && src.authored) || src.manifest === true);
+    if (!cites) say(`fact ${f.entity}.${f.attribute}`, "cites neither its sentence nor its author");
+    else if (src.sentence != null && src.authored) say(`fact ${f.entity}.${f.attribute}`, "cites both a sentence and an author (one or the other)"); }
   const rooms = [...ents.values()].filter(e => e.kind === "place").map(e => ({ id: e.id, exits: of(e.id, "exits")[0] ?? null, lit: of(e.id, "lit")[0] ?? null,
     outdoors: e.outdoors === true || of(e.id, "outdoors")[0] === true, names: e.names || [] }));
   if (!rooms.some(r => !r.outdoors)) say("places", "no room to build");
