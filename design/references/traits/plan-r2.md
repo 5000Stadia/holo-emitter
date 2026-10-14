@@ -77,6 +77,8 @@ Both reviewers found the direction sound. Every finding holds up against the cod
 
 ## Closure criteria (codex's independent review, 2026-10-13: `~/.config/colony/agents/holo-emitter-codex/r79-review-2026-10-13.md`)
 
+**Status, 2026-10-13 (codex's rechecks, e4de8078): points 1, 2 and 3 are closed for their reviewed slices.** Point 4 (categories, and the look's manifests by period) and S6's runtime witness remain open.
+
 No reset; four points to meet before S2 and S5 are called landed. Codex re-checks each once it lands.
 1. **Parts declare their own implications.** `gives-light` still names candlestick, flame and bulb in its own table, and `definePart` carries no characteristic contract, so a new emitting part could slip past. Move the implication onto the part (item 2 above). **Met 2026-10-13:** each part's contract (`src/make/parts/contracts.js`) is pure data, so kinds still resolve before any part's code (which needs THREE) loads, the same way in node and on the page. The characteristic reads the property (`fromPart: "emits"`), and check 33 proves every built kind's lights match what its parts say. Pins are unchanged.
    - **Codex's recheck, F1:** the proof compared the whole kind's groups, so a second, undeclared light in the flame's group hid behind the candlestick, and a light with no group went unchecked.
