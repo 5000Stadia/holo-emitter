@@ -105,7 +105,7 @@ import { framesOf } from "../../src/make/walls.js";
 import { coplanar } from "../../src/make/coplanar.js";
 import { makePool } from "../../src/make/lightpool.js";
 import { makeCarry } from "../../src/make/carry.js";
-import { moonOf, nightLight, moonDisc } from "../../src/make/night.js";
+import { moonOf, nightLight, moonDisc, starDome } from "../../src/make/night.js";
 import { checkScene } from "../../src/make/scene.js";
 import { matchKinds } from "../../src/make/match.js";
 import { planStoryHall } from "../../src/make/plans/story-hall.js";
@@ -382,6 +382,8 @@ if (ground) { scene.add(ground.group);
   const sky = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false })); sky.renderOrder = -1; sky.name = "sky";
   sky.onBeforeRender = () => sky.position.copy(camera.position); scene.add(sky); window.__sky = sky;
   // the moon where the sun stood, a little larger than life (half a degree is a speck on a phone)
+  // the stars, a night's (R71; ?cover=0..1, the weather's cloud or fog until R71 sets it, hides them)
+  { const stars = NIGHT && starDome(THREE, MOON, { cover: +(Q.get("cover") || 0), width: ENG.phone ? 2048 : 4096, rng: rngOf(seedOf("sky/stars")) }); if (stars) { sky.add(stars); window.__stars = stars; } }
   const disc = NIGHT && moonDisc(THREE, MOON); if (disc) { const d = sun.position.clone().sub(sun.target.position).normalize(); disc.position.copy(d).multiplyScalar(2300); disc.scale.setScalar(2300 * 0.035); disc.lookAt(0, 0, 0); disc.renderOrder = -1; sky.add(disc); } }
 
 // ---- things that work: every door, the strongroom's drawers and chest; state is the world document's

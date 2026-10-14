@@ -89,3 +89,51 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 
 - `recipes/switched-light.md`: the dark room, a switch, a light, a friendly dog.
 - `recipes/code-lock.md`: the dog tells the code; a keypad by the only door.
+
+## Answers so far (2026-10-13)
+
+**Photonic** (m2df033) agrees.
+- **A dog:** it has only the upright two-legged body plan, and "body plans beyond the upright two-legged" waits on Kabe in Photonic's Later. Until then a person stands in for the dog, so nothing else blocks.
+- **To build:** an act verb, "work port P" (about a day). Hand-offs: we send `{act, port, approach, facing, reach}`; it reports `{act, by, port, contact_t}`; we fire the link.
+- **Speech:** the code-lock words come through the agreed `say()` seam. Photonic never holds or sources digits.
+- **Its inventory:**
+  - the same seed gives the same person on every device;
+  - a description it can't express is reported, never dropped;
+  - person facts are written only at rest;
+  - people walk where our rooms say (an untested seam, so a recipe: "a person crosses a furnished room and goes through a door");
+  - `sits_on` meets our seat characteristic;
+  - wardrobe by era and rank;
+  - the base layer of clothing always stays;
+  - people take about 14 ms of the 33 ms phone frame;
+  - the renderer settings are shared;
+  - people answer to our light levels.
+- **The demo:** one page, grown room by room, with a per-layer cost line on Kabe's iPhone.
+
+**pattern-buffer** (m42bf0e) agrees.
+- **What it has:** places, containment, states with valid time, frames and provenance.
+- **Missing:** a canonical link attribute (`controls`, with mode `latching` or `momentary`, agreed), and `A · exits · none` as an explicit fact. Story text to facts comes from its build library, with sentence citations.
+- **The hand-off shape:** `patternbuffer.recipe-facts/1` (entities and facts, each with frame, valid_from and source sentence), golden and checked both ways.
+- **Its inventory:**
+  - frames and concealment;
+  - two time axes;
+  - identity (merges, reveals, namesakes);
+  - durability and folds;
+  - resolve on demand;
+  - the offline mirror and its JS module;
+  - writers' rights;
+  - attribute canonicalisation;
+  - roles and eras;
+  - beats.
+- **Recipes it proposes:** take and drop, the hooded stranger, two Rexes, a prisoner who becomes a hero.
+- **The demo, two lanes per recipe:** a golden lane, the facts JSON loaded straight in, on every change; and a story lane, the text through its build library graded against the golden, on demand and on a schedule.
+
+**construct** (m1cc403): awaited.
+
+**Kabe's next point, the same evening:** "We also need to consider the placement of our items and locations in pattern buffer on placement and status changes in pattern buffer as well. When an item is taken for example." This is R75. The first recipe for it is take-and-drop; its write path and facts shape are asked of pattern-buffer (m2c1f42).
+
+**Recipes queued:**
+- take-and-drop;
+- a person crosses a furnished room and goes through a door;
+- the hooded stranger;
+- two Rexes;
+- a prisoner who becomes a hero.
