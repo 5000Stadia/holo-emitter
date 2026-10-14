@@ -61,6 +61,22 @@ const FIELDS = { state_is: ["entity", "attribute", "value"], located: ["entity",
   not: ["operand"], all_of: ["operands"], any_of: ["operands"], at_least: ["k", "operands"] };
 const NEED = { state_is: ["entity", "attribute", "value"], located: ["entity", "place"], in_frame: ["frame", "entity", "attribute", "value"], occurred: ["kind"], beat_achieved: ["beat_id"], clock_fired: ["clock_id"],
   turns_elapsed: ["at_least"], turns_quiet: ["at_least"], quantity: ["entity", "attribute", "cmp", "value"], not: ["operand"], all_of: ["operands"], any_of: ["operands"], at_least: ["k", "operands"] };
+// a deck's own event kinds (construct's arcs name theirs per world, mc9f6f4), mapped by the deck to what the page observes:
+// occurred_kinds: { kind: { page: one of EVENT_KINDS, ids: [bare ids the event must name] } | "unobservable" }. Applied to a
+// part's condition before it is read: a mapped kind becomes the page's event with those ids among its participants; an
+// unobservable or unmapped kind refuses the part with the reason (never read as false). -> the condition, mapped
+export function mapKinds(cond, kinds = {}) {
+  if (typeof cond === "string") { if (cond.trim()[0] !== "{") return cond; return mapKinds(JSON.parse(cond), kinds); }
+  if (!cond || typeof cond !== "object" || Array.isArray(cond) || !("op" in cond)) return cond;
+  if (cond.op === "occurred" && !EVENT_KINDS.includes(cond.kind)) { const m = kinds[cond.kind];
+    if (m === "unobservable") throw new Error(`occurred ${cond.kind}: the deck marks it unobservable here`);
+    if (!m) throw new Error(`occurred ${cond.kind}: not something the page observes (${EVENT_KINDS.join(" ")}), and the deck maps it to nothing (occurred_kinds)`);
+    if (!EVENT_KINDS.includes(m.page) || !Array.isArray(m.ids) || m.ids.some(x => typeof x !== "string")) throw new Error(`occurred_kinds ${cond.kind}: page is one of ${EVENT_KINDS.join(" ")}, ids a list of names`);
+    return { ...cond, kind: m.page, participants: [...new Set([...arr(cond.participants), ...m.ids])] }; }
+  if (cond.operand) return { ...cond, operand: mapKinds(cond.operand, kinds) };
+  if (cond.operands) return { ...cond, operands: cond.operands.map(x => mapKinds(x, kinds)) };
+  return cond;
+}
 export function fromCondition(c) {
   const no = (why) => { throw new Error(`condition/1 ${c?.op ?? "?"}: ${why}`); };
   if (!c || typeof c !== "object" || Array.isArray(c)) no("not an object with op");
@@ -453,9 +469,12 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null, world = n
         old.__restore = () => { if (bi >= 0) beats.push(old); else clocks.push(old); fromDeck.add(id); };
         pendingSwap.set(id, old); } }
     const have = new Set([...beats.map(b => b.id), ...clocks.map(c => c.id)]);
-    const tryPart = (part, isClock) => {
+    const tryPart = (given, isClock) => {
+      // (the deck's own event kinds, mapped to the page's, or the part refused with the reason)
+      let part = given; try { if (deck?.occurred_kinds && given) part = { ...given, when: mapKinds(given.when, deck.occurred_kinds), ...(given.unless ? { unless: mapKinds(given.unless, deck.occurred_kinds) } : {}) }; }
+      catch (e) { return out.refused.push({ id: given?.id, why: e.message }); }
       if (part?.id && played(part.id)) return out.kept.push(part.id);
-      if (part?.id && fromDeck.has(part.id) && JSON.stringify(part) === JSON.stringify(deckParts.get(part.id))) return out.kept.push(part.id);   // (unchanged: stays as it is)
+      if (part?.id && fromDeck.has(part.id) && JSON.stringify(given) === JSON.stringify(deckParts.get(part.id))) return out.kept.push(part.id);   // (unchanged: stays as it is)
       if (!part?.id || have.has(part.id)) return out.refused.push({ id: part?.id, why: "no id, or one already in the story" });
       const probe = { ...k, beats: isClock ? arr(k.beats) : [...arr(k.beats), part], clocks: isClock ? [...arr(k.clocks), part] : arr(k.clocks) };
       const c = checkNarrator(probe, { rooms }), mine = c.findings.filter(f => String(f.at).includes(part.id));
@@ -463,7 +482,7 @@ export function makeNarrator(k, { seed = 1, rooms = null, from = null, world = n
       try { if (isClock) clocks.push({ ...part, ast: parseExpr(part.when) });
         else beats.push({ ...part, ast: parseExpr(part.when), unlessAst: part.unless ? parseExpr(part.unless) : null, phase: part.phase || "setup", weight: part.weight || "optional", rung: part.rung || KIND_RUNG[part.kind] }); }
       catch (e) { return out.refused.push({ id: part.id, why: e.message }); }
-      have.add(part.id); fromDeck.add(part.id); deckParts.set(part.id, part); if (pendingSwap.has(part.id)) { pendingSwap.delete(part.id); out.replaced.push(part.id); } else out.added.push(part.id);
+      have.add(part.id); fromDeck.add(part.id); deckParts.set(part.id, given); if (pendingSwap.has(part.id)) { pendingSwap.delete(part.id); out.replaced.push(part.id); } else out.added.push(part.id);
       for (const r of arr(part.replaces)) if (beats.some(b => b.id === r)) { heldBack.add(r); out.replaced.push(r); } };
     for (const b of arr(deck?.beats)) tryPart(b, false);
     for (const c of arr(deck?.clocks)) tryPart(c, true);

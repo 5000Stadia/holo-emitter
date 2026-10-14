@@ -120,6 +120,34 @@ test("in play: a beat written in pattern-buffer's conditions comes on the menu w
   expect(again.menu().some(b => b.id === "door_shut")).toBe(true);
 });
 
+// a deck's own event kinds (construct, mc9f6f4: R20 run 12's Ironhold deck, its authored kinds as sent), mapped by the deck's
+// occurred_kinds to what the page observes, or marked unobservable: the unobservable, the unmapped and the host-reserved
+// walk-away are refused with their reasons, the mapped come into play on the page's own events
+test("a deck's own event kinds: mapped ones play on the page's events, the rest refused with the reason", () => {
+  const occ = (kind) => JSON.stringify({ op: "occurred", kind, participants: [], since: null, until: null, min_count: 1 });
+  const beat = (id, kind) => ({ id, kind: "pressure", phase: "setup", weight: "optional", rung: "now", hook: `${id} lands.`, when: occ(kind) });
+  const deck = { beats: [beat("last_labor_access_used", "last_labor_writ_exploited_for_escape_work_lawfully_enough_to_pass_tally_initially"),
+      beat("compact_given_a_safe_lie", "northwatch_compact_bypassed_without_openly_naming_a_guard_traitor"),
+      beat("river_blinks", "slack_bell_escape_into_the_frostwake_routine_before_hanging_dawn"), beat("refusal", "event:abandoned")],
+    occurred_kinds: { last_labor_writ_exploited_for_escape_work_lawfully_enough_to_pass_tally_initially: "unobservable",
+      northwatch_compact_bypassed_without_openly_naming_a_guard_traitor: { page: "talk", ids: ["constable"] },
+      slack_bell_escape_into_the_frostwake_routine_before_hanging_dawn: { page: "enter", ids: ["garden"] } } };
+  const n = makeNarrator(kase, { seed: 7, rooms: ROOMS }), m = n.merge(deck);
+  expect(m.added, "mapped: in").toEqual(["compact_given_a_safe_lie", "river_blinks"]);
+  const why = Object.fromEntries(m.refused.map(x => [x.id, x.why]));
+  expect(why.last_labor_access_used, "marked unobservable").toMatch(/the deck marks it unobservable here/);
+  expect(why.refusal, "the walk-away: the page has none yet").toMatch(/occurred event:abandoned: not something the page observes/);
+  const on = (id) => n.menu().some(b => b.id === id);
+  expect(on("compact_given_a_safe_lie"), "before: not yet").toBe(false);
+  n.observe({ type: "talk", who: "constable" });
+  expect(on("compact_given_a_safe_lie"), "talked to the constable: the compact's beat").toBe(true);
+  expect(on("river_blinks"), "the garden not entered: the river's beat still waits").toBe(false);
+  n.observe({ type: "enter", room: "garden" }); expect(on("river_blinks")).toBe(true);
+  // a deck's mapping malformed: refused with the reason
+  const bad = makeNarrator(kase, { seed: 7, rooms: ROOMS }).merge({ beats: [beat("x", "a_kind")], occurred_kinds: { a_kind: { page: "teleport", ids: [] } } });
+  expect(bad.refused[0]?.why).toMatch(/page is one of learn take/);
+});
+
 for (const f of fails) console.log("  " + f);
 console.log(`${checks.length} checks, ${fails.length} failed`);
 process.exit(fails.length ? 1 : 0);
