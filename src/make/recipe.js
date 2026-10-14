@@ -28,7 +28,7 @@ export function readFacts(doc) {
     outdoors: e.outdoors === true || of(e.id, "outdoors")[0] === true, names: e.names || [] }));
   if (!rooms.some(r => !r.outdoors)) say("places", "no room to build");
   const things = [...ents.values()].filter(e => e.kind !== "place" && e.kind !== "person").map(e => ({ id: e.id, kind: e.kind, in: of(e.id, "in")[0] ?? null, state: of(e.id, "state")[0] ?? null,
-    controls: of(e.id, "controls"), link_type: of(e.id, "link_type")[0] ?? null, mode: of(e.id, "mode")[0] ?? null, fixture: of(e.id, "fixture")[0] === true || of(e.id, "fixture")[0] === "true",
+    controls: of(e.id, "controls"), link_type: of(e.id, "link_type")[0] ?? null, mode: of(e.id, "control_mode")[0] ?? of(e.id, "mode")[0] ?? null,   // (control_mode, RECIPE-VOCAB-V1; mode, the first drafts') fixture: of(e.id, "fixture")[0] === true || of(e.id, "fixture")[0] === "true",
     connects_to: of(e.id, "connects_to")[0] ?? null, code: of(e.id, "code")[0] ?? null, names: e.names || [] }));
   // (an absence means nothing unless something says so: a room must say it has no exits, or have its doors, RFC-002)
   for (const r of rooms) if (!r.outdoors && r.exits == null && !things.some(t => t.kind === "door" && t.in === r.id && t.connects_to)) say(r.id, "says nothing of its exits (exits: none, or its doors)");

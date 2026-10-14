@@ -8,6 +8,10 @@
 //     `held_by · person:player` (pattern-buffer, m342c1a: what its library writes from text, classed as state with no model
 //     call; its grader folds the containment family, so construct's `in · person:player` still matches), put down `in · place:<room>` or `in · obj:<what it is on>`, and
 //     each affordance's state under its own name (`obj:door · leaf · open`, `obj:light · light · lit`).
+// A thing's settings in pattern-buffer's words (RECIPE-VOCAB-V1, proposed to it in mfb985e): its main setting is `state`
+// (a door's or a lid's leaf open or shut, a light or a switch on or off), a lock is `locked` (true or false), a drawer of a
+// bank its own part (`obj:<thing>#drawer3`); a seat is the sitter's `sits_on`, a keypad's accepted code its door's
+// `locked`; any other setting keeps its own name and its own words.
 // Until pattern-buffer's module comes in, the page keeps these in an outbox (window.__outbox) the queue will take over.
 // Pure: things in, facts out.
 const id = (s) => String(s).replace(/[^a-z0-9_:./#-]/gi, "_");
@@ -18,13 +22,24 @@ const fact = (entity, attribute, value, valueType, at, source) => ({ entity, att
 // (a pendant light: it rests held)
 export const isFixture = (b) => !!b.node?.userData?.opening || (b.kind.fixed === true && ([].concat(b.kind.traits || []).includes("wall") || b.kind.rests === "held"));
 
+const WORD = { closed: "shut", open: "open", lit: "on", out: "off", on: "on", off: "off" };
+function settingFacts(e, b, aff, i, state, mk) {
+  const a = b.kind.affordances?.[aff] || {}, ent = i == null ? e : `${e}#${aff}${i}`;
+  if (aff === "lock" || (a.states || []).includes("locked") && a.port !== "out:bolt" && a.code == null && aff !== "entry") return [mk(ent, "locked", state === "locked", "literal")];
+  if (a.code != null) return [];                                          // (the keypad: its door's locked says it)
+  if (aff === "sit") return state === "sat" ? [mk("person:player", "sits_on", e, "entity")] : [mk("person:player", "sits_on", null, "entity")];
+  if (a.lights || a.motion === "switch" || a.motion === "hinge" || a.motion === "slide") return [mk(ent, "state", WORD[state] ?? state, "literal")];
+  return [mk(ent, aff, state, "literal")];
+}
+
 // placements at generation: things [{ b, room, host }], host the thing it is kept in (or none); stateOf(b, aff) its states
 export function placementFacts(things, { at = 0, stateOf = null } = {}) {
   const out = [];
   for (const { b, room, host } of things) { const e = entityOf(b);
     if (isFixture(b)) out.push(fact(e, "fixture", true, "literal", at, { lane: "author", why: "built into its room" }));
     out.push(fact(e, "in", host ? entityOf(host) : `place:${id(room)}`, "entity", at, { lane: "author" }));
-    for (const [aff, a] of Object.entries(b.kind.affordances || {})) if (!b.banks?.get?.(a.mover)) out.push(fact(e, aff, stateOf ? stateOf(b, aff) : null, "literal", at, { lane: "author" })); }
+    for (const [aff, a] of Object.entries(b.kind.affordances || {})) if (!b.banks?.get?.(a.mover) && aff !== "sit" && stateOf)
+      out.push(...settingFacts(e, b, aff, null, stateOf(b, aff), (en, at2, v, t) => fact(en, at2, v, t, at, { lane: "author" }))); }
   return out;
 }
 
@@ -33,6 +48,6 @@ export function eventFacts(ev, { at, room = null, on = null, state = null } = {}
   const e = entityOf(ev.b);
   if (ev.type === "take") return [fact(e, "held_by", "person:player", "entity", at, { lane: "record", event: "take" })];
   if (ev.type === "put") return [fact(e, "in", on ? entityOf(on) : `place:${id(room)}`, "entity", at, { lane: "record", event: "put" })];
-  if (ev.type === "state") return [fact(e, ev.i == null ? ev.aff : `${ev.aff}#${ev.i}`, ev.state, "literal", at, { lane: "record", event: "state", was: ev.was })];
+  if (ev.type === "state") return settingFacts(e, ev.b, ev.aff, ev.i, ev.state, (en, a, v, t) => fact(en, a, v, t, at, { lane: "record", event: "state", was: ev.was }));
   return [];
 }

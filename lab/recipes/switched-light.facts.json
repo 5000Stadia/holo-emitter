@@ -108,7 +108,7 @@
     },
     {
       "entity": "obj:switch",
-      "attribute": "mode",
+      "attribute": "control_mode",
       "value": "latching",
       "value_type": "literal",
       "frame": "canon",

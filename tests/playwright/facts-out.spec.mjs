@@ -23,10 +23,12 @@ test("code-lock: its placements (the door, switch, keypad and light fixtures in 
   expect(errs).toEqual([]);
   for (const id of ["obj:obj:door", "obj:obj:switch", "obj:obj:keypad", "obj:obj:light"]) expect(r.placements, `${id} is built in`).toContainEqual([id, "fixture", true]);
   expect(r.placements).toContainEqual(["obj:obj:switch", "in", "place:room"]);
-  expect(r.placements, "the light starts out, as made, whatever has happened since").toContainEqual(["obj:obj:light", "light", "out"]);
+  expect(r.placements, "the light starts off, as made, whatever has happened since").toContainEqual(["obj:obj:light", "state", "off"]);
+  expect(r.placements, "the door starts locked and shut").toEqual(expect.arrayContaining([["obj:obj:door", "locked", true], ["obj:obj:door", "state", "shut"]]));
   expect(r.placements, "the door is in the room whose doorway hangs it").toContainEqual(["obj:obj:door", "in", "place:room"]);
-  expect(r.events, "flipped: the switch on, and its link lights the light").toEqual(expect.arrayContaining([["obj:obj:switch", "switch", "on"], ["obj:obj:light", "light", "lit"]]));
-  expect(r.events, "the code keyed in: the keypad open, its link draws the bolt; then the door opened").toEqual(expect.arrayContaining([["obj:obj:keypad", "entry", "open"], ["obj:obj:door", "lock", "unlocked"], ["obj:obj:door", "leaf", "open"]]));
+  expect(r.events, "flipped: the switch on, and its link lights the light (pattern-buffer's words: state on)").toEqual(expect.arrayContaining([["obj:obj:switch", "state", "on"], ["obj:obj:light", "state", "on"]]));
+  expect(r.events, "the code keyed in: its link draws the bolt (locked false); then the door opened (state open)").toEqual(expect.arrayContaining([["obj:obj:door", "locked", false], ["obj:obj:door", "state", "open"]]));
+  expect(r.events.some(([e]) => e === "obj:obj:keypad"), "the keypad's own accepted code is not written: the door's locked says it").toBe(false);
   expect(r.lanes, "play events go to record").toEqual(["record"]); expect(r.frames).toEqual(["canon"]);
 });
 
