@@ -37,14 +37,18 @@ function settingFacts(e, b, aff, i, state, mk) {
   return [mk(ent, aff, state, "literal")];
 }
 
-// placements at generation: things [{ b, room, host }], host the thing it is kept in (or none); stateOf(b, aff) its states
-export function placementFacts(things, { at = 0, stateOf = null } = {}) {
+// Placements at generation: things [{ b, room, host }], and people at rest with the garments they wear, never motion.
+export function placementFacts(things, { at = 0, stateOf = null, people = [] } = {}) {
   const out = [];
   for (const { b, room, host } of things) { const e = entityOf(b);
     if (isFixture(b)) out.push(fact(e, "fixture", true, "literal", at, { lane: "author", why: "built into its room" }));
     out.push(fact(e, "in", host ? entityOf(host) : `place:${id(room)}`, "entity", at, { lane: "author" }));
     for (const [aff, a] of Object.entries(b.kind.affordances || {})) if (!b.banks?.get?.(a.mover) && aff !== "sit" && stateOf)
       out.push(...settingFacts(e, b, aff, null, stateOf(b, aff), (en, at2, v, t) => fact(en, at2, v, t, at, { lane: "author" }))); }
+  for (const p of people) { const e = entityOf({ story: p.id }), mk = (en, a, v, t = "literal") => fact(en, a, v, t, at, { lane: "author" });
+    out.push(mk(e, "in", `place:${id(p.room)}`, "entity"), mk(e, "posture", p.posture), mk(e, "facing", p.facing), mk(e, "rest_pos", p.pos.slice()));
+    for (const g of p.wears || []) { const en = entityOf({ story: g.id }); out.push(mk(en, "worn_by", e, "entity"));
+      for (const [a, v] of Object.entries(g.aspects || {})) out.push(mk(en, a, v)); } }
   return out;
 }
 

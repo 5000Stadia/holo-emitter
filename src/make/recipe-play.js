@@ -44,13 +44,32 @@ export function playRecipe({ THREE, plan, manor, works, build, kindOf, K, look, 
   works.rules(linkRules(links, (a) => [...thingOf.values()].find(b => b.address === a)));
   // the people: until Photonic's people come in, a stand-in body the room's light reveals (a projection would glow in the
   // dark and give the story away): on all fours if the facts say so, facing along the room
-  let person = null;
+  const people = new Map(), placements = [];
   const told = new Set();
-  for (const p of R.people) { person = standIn(THREE, p.posture); person.position.copy(at(p.at[0], p.at[1], Y)); person.rotation.y = { E: -Math.PI / 2, W: Math.PI / 2, N: Math.PI, S: 0 }[p.facing || "E"];
-    person.name = `recipe-person:${p.id}`; person.userData = { room: room.id, person: p.id, posture: p.posture, tells: p.tells.map(t => t.knows) }; grp?.add(person);
+  for (const p of R.people) { const rid = p.room || room.id, pr = plan.rooms.find(r => r.id === rid), pg = manor.rooms.get(rid)?.grp, h = manor.levelOf(pr.floor);
+    const pos = [p.at[0], h, -p.at[1]], facing = { E: Math.PI / 2, W: -Math.PI / 2, N: Math.PI, S: 0 }[p.facing || "E"];
+    placements.push({ id: p.id, room: rid, pos, facing, posture: p.posture, wears: p.wears || [] });
+    const person = standIn(THREE, p.posture); pg?.updateMatrixWorld(true); person.position.copy(at(p.at[0], p.at[1], h, pg)); person.rotation.y = facing;
+    person.name = `recipe-person:${p.id}`; person.userData = { room: rid, person: p.id, posture: p.posture, tells: p.tells.map(t => t.knows) }; pg?.add(person); people.set(p.id, person);
     // what you aim at to talk to them: a box round the body, never drawn
     const hb = new THREE.Box3().setFromObject(person), hit = new THREE.Mesh(new THREE.BoxGeometry(...hb.getSize(new THREE.Vector3()).toArray()), new THREE.MeshBasicMaterial({ visible: false }));
     person.updateMatrixWorld(true); hit.position.copy(person.worldToLocal(hb.getCenter(new THREE.Vector3()))); hit.userData.presence = p.id; person.add(hit); person.userData.hit = hit; }
+  // A population that can dress people takes over the same resting records; no motion or random placement is invented.
+  const usePeople = (population, note = () => {}) => {
+    const materials = new Set();
+    for (const p of R.people) {
+      if (p.posture !== "standing") { note(`${p.id}: ${p.posture}, which people p2 can't pose; the stand-in shown`); continue; }
+      const rest = placements.find(q => q.id === p.id);
+      const who = population.add({ id: p.id, recipe: p.names.join(" "), at: { pos: rest.pos.slice(), room: rest.room } });
+      who.wear(p.wears || []); who.face({ pos: [rest.pos[0] + Math.sin(rest.facing), rest.pos[1], rest.pos[2] + Math.cos(rest.facing)] });
+      const person = people.get(p.id); person.removeFromParent(); person.traverse(o => { o.geometry?.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) if (m) materials.add(m); }); people.delete(p.id); }
+    for (const m of materials) m.dispose();
+  };
+  const decimal = (n) => Number(n.toFixed(2)).toFixed(2), atom = (s) => typeof s === "string" && /^[\w#-]+$/.test(s) ? s : JSON.stringify(s);
+  const dump = () => placements.filter(p => people.has(p.id)).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0).map(p => {
+    const garments = p.wears.map(g => `${atom(g.kind)}:${Object.keys(g.aspects).sort().map(k => `${atom(k)}=${atom(g.aspects[k])}`).join(",")}`).sort();
+    return `${JSON.stringify(p.id)}; room=${JSON.stringify(p.room)}; position=[${p.pos.map(decimal).join(",")}]; facing=${decimal(p.facing)}; ${p.posture}; garments=[${garments.join("|")}]`;
+  }).join("\n");
   // talked to: what they know that is theirs to tell, said (the digits, one by one, and a bark: a stand-in line), and known
   const talk = (id) => { const p = R.people.find(q => q.id === id); if (!p) return false;
     if (!p.tells.length) { say("They look up at you, and wag."); return true; }
@@ -59,7 +78,7 @@ export function playRecipe({ THREE, plan, manor, works, build, kindOf, K, look, 
   // the proof, from the plan alone (src/make/recipe.js proveRecipe): every link sound, every place reached by what the place
   // gives (a keypad's door only for a code someone you can reach tells)
   const proof = proveRecipe(plan, kindOf);
-  return { thingOf, person, proof, links, talk, told };
+  return { thingOf, get person() { return people.values().next().value || null; }, people, placements, usePeople, dump, proof, links, talk, told };
 }
 
 // a stand-in body (not Photonic's: their people are theirs to bring in): a plain figure in work clothes, lit by the room,

@@ -20,7 +20,7 @@ export function readFacts(doc) {
   const findings = [], say = (at, what) => findings.push({ at, what });
   if (doc?.schema !== "patternbuffer.recipe-facts/1") say("schema", `not patternbuffer.recipe-facts/1 (${doc?.schema})`);
   const ents = new Map(arr(doc?.entities).map(e => [e.id, e])), canon = arr(doc?.facts).filter(f => (f.frame || "canon") === "canon");
-  const of = (id, attr) => canon.filter(f => f.entity === id && f.attribute === attr).map(f => f.value);
+  const of = (id, attr) => canon.filter(f => f.entity === id && (f.attribute === attr || attr === "colour" && f.attribute === "color")).map(f => f.value);
   for (const f of arr(doc?.facts)) { if (!ents.has(f.entity)) say(`fact ${f.entity}.${f.attribute}`, "names an entity the facts don't declare");
     if (f.value_type === "entity" && !ents.has(f.value)) say(`fact ${f.entity}.${f.attribute}`, `points at ${f.value}, which the facts don't declare`);
     // (every fact cites its sentence, { chapter, sentence }, or its author, { authored: "manifest" | "holo-emitter planner" |
@@ -32,6 +32,7 @@ export function readFacts(doc) {
     outdoors: e.outdoors === true || of(e.id, "outdoors")[0] === true, names: e.names || [] }));
   if (!rooms.some(r => !r.outdoors)) say("places", "no room to build");
   const things = [...ents.values()].filter(e => e.kind !== "place" && e.kind !== "person").map(e => ({ id: e.id, kind: e.kind, in: of(e.id, "in")[0] ?? null, state: of(e.id, "state")[0] ?? null,
+    worn_by: of(e.id, "worn_by")[0] ?? null, aspects: of(e.id, "colour").length ? { colour: of(e.id, "colour")[0] } : {},
     controls: of(e.id, "controls"), link_type: of(e.id, "link_type")[0] ?? null, mode: of(e.id, "control_mode")[0] ?? of(e.id, "mode")[0] ?? null,   // (control_mode, RECIPE-VOCAB-V1; mode, the first drafts') fixture: of(e.id, "fixture")[0] === true || of(e.id, "fixture")[0] === "true",
     connects_to: of(e.id, "connects_to")[0] ?? null, code: of(e.id, "code")[0] ?? null, names: e.names || [] }));
   // (an absence means nothing unless something says so: a room must say it has no exits, or have its doors, RFC-002)
@@ -41,9 +42,11 @@ export function readFacts(doc) {
   const knowsOf = (id) => arr(doc?.facts).filter(f => f.frame === `knows:${id}`).map(f => ({ entity: f.entity, attribute: f.attribute, value: f.value }));
   const people = [...ents.values()].filter(e => e.kind === "person").map(e => ({ id: e.id, in: of(e.id, "in")[0] ?? null, posture: of(e.id, "posture")[0] ?? "standing", disposition: of(e.id, "disposition")[0] ?? null,
     knows: knowsOf(e.id), names: e.names || [] }));
-  // (a thing may be in another (a page in a book on a table): its place is its host's, followed to a place)
-  const placeOf = (id, n = 0) => { const q = things.find(t => t.id === id); return q && n < 8 ? placeOf(q.in, n + 1) : id; };
-  for (const t of [...things, ...people]) { t.place = placeOf(t.in); if (!rooms.some(r => r.id === t.place)) say(t.id, `is in ${t.in}, which is no place the facts build`); }
+  // (what is worn is in its wearer's place, never a separate thing to build; its wearer must be a declared person)
+  for (const t of things) if (t.worn_by != null && !people.some(p => p.id === t.worn_by)) say(t.id, `worn_by ${t.worn_by}, which is not a declared person`);
+  const located = [...things, ...people], placeOf = (id, n = 0) => { const q = located.find(t => t.id === id); return q && n < 8 ? placeOf(q.worn_by ?? q.in, n + 1) : id; };
+  for (const t of located) { t.place = placeOf(t.worn_by ?? t.in); if (!rooms.some(r => r.id === t.place)) say(t.id, `is in ${t.worn_by ?? t.in}, which is no place the facts build`); }
+  for (const p of people) p.wears = things.filter(t => t.worn_by === p.id).map(t => ({ id: t.id, kind: t.kind, aspects: t.aspects }));
   const links = things.flatMap(t => t.controls.map(to => ({ from: t.id, to, type: t.link_type, mode: t.mode })));
   for (const l of links) { if (!l.type) say(l.from, "controls something, and says no link type (link_type)"); if (l.mode && !["latching", "momentary"].includes(l.mode)) say(l.from, `mode ${l.mode}: latching or momentary`); }
   return { ok: !findings.length, findings, rooms, things, links, people };
@@ -102,7 +105,7 @@ export function planRecipe(doc, { kinds = [] } = {}) {
   // (of the kinds that would do, the first; a table, the smallest, for a small room)
   const area = (k) => (k.settings?.W ?? 9) * (k.settings?.D ?? 9);
   const kindFor = (t) => { if (t.kind === "door") return { kind: "door" }; const want = WANT[t.kind]; const k = want && (t.kind === "table" ? kinds.filter(want).sort((a, b) => area(a) - area(b))[0] : kinds.find(want)); if (!k) throw new Error(`recipe refused: no kind is a ${t.kind} (none carries what one carries)`); return k; };
-  for (const t of r.things) { const k = kindFor(t);
+  for (const t of r.things) { if (t.worn_by != null) continue; const k = kindFor(t);
     if (t.kind === "switch") recipe.things.push({ id: t.id, kind: choose(`the ${t.names[0] || "switch"}'s kind`, k.kind, "the first kind that gives power (out:power)"),
       at: choose(`where the ${t.names[0] || "switch"} is`, [W / 2 + 0.6, D], "on the wall you face as you arrive, a hand right of its middle; the facts say only that it is in the room"), face: "S" });
     else if (t.kind === "light") recipe.things.push({ id: t.id, kind: choose(`the ${t.names[0] || "light"}'s kind`, k.kind, "the first kind that takes power (in:power)"),
@@ -126,11 +129,16 @@ export function planRecipe(doc, { kinds = [] } = {}) {
     if (table) recipe.things.push({ id: `obj:${rid}_candle`, kind: "candle/in-candlestick", room: rid, in: table.id, slot: "top", start: "lit", over: { still: true, glow: 2 },
       chosen: choose(`the ${(q.names[0] || rid)}'s light`, "a candle on its table", "the facts don't say it is dark, and give it no light") }); }
   recipe.links = r.links.map(l => ({ type: l.type, from: l.from, to: l.to, mode: l.mode, opening: doorAt.find(d => d.id === l.to)?.opening || null }));
-  // the people: in the corner to your left as you arrive, on all fours if the facts say so (a stand-in body until Photonic's)
-  // (what a person knows of a keypad's code is theirs to tell: told, it is known as that keypad's code)
-  for (const p of r.people) recipe.people.push({ id: p.id, names: p.names, posture: p.posture, disposition: p.disposition,
-    tells: p.knows.filter(f => f.attribute === "code").map(f => ({ knows: `${f.entity}.code`, code: String(f.value), of: f.entity })),
-    at: choose(`where ${p.names[0] || p.id} is`, [0.9, D - 1.1], "in a corner away from the switch: the facts say only that they are in the room"), facing: "E" });
+  // the people: in their own room, beside its table where it has one, otherwise in a corner away from the switch.
+  // What a person knows of a keypad's code is theirs to tell, not knowledge everyone has on arrival.
+  for (const p of r.people) { const rid = idOf(p.place), rect = plan.rooms.find(q => q.id === rid)?.rect;
+    if (!rect) throw new Error(`recipe refused: no built room for ${p.id} in ${p.place}`);
+    const table = recipe.things.find(t => t.room === rid && !t.in && WANT.table(kinds.find(k => k.kind === t.kind) || { kind: "" }));
+    const width = table && (kinds.find(k => k.kind === table.kind)?.settings?.W ?? 1.2);
+    const pos = table ? [Math.max(rect.x0 + 0.6, table.at[0] - width / 2 - 0.65), table.at[1]] : [rect.x0 + 0.9, rect.y1 - 1.1];
+    recipe.people.push({ id: p.id, room: rid, names: p.names, posture: p.posture, disposition: p.disposition, wears: p.wears,
+      tells: p.knows.filter(f => f.attribute === "code").map(f => ({ knows: `${f.entity}.code`, code: String(f.value), of: f.entity })),
+      at: choose(`where ${p.names[0] || p.id} is`, pos, table ? `beside the table in ${rid}: the facts name the room, not a resting spot` : `in a corner of ${rid} away from the switch: the facts name the room, not a resting spot`), facing: "E" }); }
   // where you arrive: by the wall opposite the switch, facing it (the facts give no start: chosen)
   recipe.start = choose("where you arrive", { x: W / 2, y: 0.7, yaw: 0 }, "by the wall opposite the switch, facing it");
   plan.recipe = recipe; plan.entrance = id;
@@ -153,7 +161,7 @@ export function proveRecipe(plan, kindOf) {
   for (let round = 0; round < 8; round++) {
     const lk = linkKeys(links, things, { doorOf: (t) => t.opening || null, canWork: (g) => gateOpen(g, [], known) });
     reach = reachability(plan, { start: room, doors: lk.doors, keys: lk.keys }); const reached = new Set(reach.reached), before = known.size;
-    for (const p of R.people) if (reached.has(room)) for (const t of p.tells || []) known.add(t.knows);
+    for (const p of R.people) if (reached.has(p.room || room)) for (const t of p.tells || []) known.add(t.knows);
     if (known.size === before) break; }
   const lc = checkLinks(links, things, { reached: reach.reached });
   const unreachable = reach.unreachable.map(u => u.room ?? u);

@@ -425,7 +425,7 @@ const known = new Set((Q.get("knows") || "").split(",").filter(Boolean)); let pa
 const outbox = []; let placementsOut = null;
 // (a thing's room: its own, its keeper's, or for a door the first room its doorway joins, which hangs it; its states as made)
 const roomOfThing = (b) => b.node.userData.room || b.host?.b?.node.userData.room || plan.openings.find(o => o.id === b.node.userData.opening)?.joins?.[0] || null;
-window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff) });
+window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff), people: RP?.placements || [] });
   return { placements: placements ? placementsOut : undefined, events: outbox.slice() }; };
 let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
 for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
@@ -477,7 +477,7 @@ seatAgain();
 // the recipe's things, links, people and proof (the main demo)
 const RP = RECIPE ? playRecipe({ THREE, plan, manor, works, build, kindOf, K, look: look1660, poolOwn, say: (t) => say(t), know: (n) => known.add(n) }) : null;
 seatAgain();   // (a recipe's things, put down in an earlier visit)
-window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.person && (({ room, person, posture }) => ({ room, person, posture }))(RP.person.userData), chosen: RECIPE.plan.chosen };
+window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.placements[0] && (({ room, id, posture }) => ({ room, person: id, posture }))(RP.placements[0]), chosen: RECIPE.plan.chosen };
 window.__recipeThing = (id) => RP?.thingOf.get(id) || null; window.__recipeTalk = (id) => RP?.talk(id); window.__known = () => [...known];
 window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
 // what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
@@ -536,23 +536,35 @@ walk = joined(walk);
 // Photonic (design/people/photonic-brief.md §3), in our rooms, walking by our rules, holding their place in the moving
 // bodies' layer, which your own walk reads too (nobody walks through anybody); ?crowd=N wanderers on the floor you
 // start on, for the phone budget (lab/people/ lists the harness's set-ups)
-let POP = null, CROWD = null, peopleCtx = null; const peopleLog = []; window.__peopleLog = peopleLog; const bodies = Q.get("people") ? withBodies(walk0.claims) : null;
-if (bodies) { const src = Q.get("people"), { makePeople } = await import(src.includes("/") ? src : `../../src/people/${src}.js`), pw = new Map();
+let POP = null, CROWD = null, peopleCtx = null; const peopleLog = [], peopleNotes = []; window.__peopleLog = peopleLog; window.__peopleNotes = peopleNotes;
+const bodies = Q.get("people") ? withBodies(walk0.claims) : null;
+if (bodies) { const src = Q.get("people"), module = await import(src.includes("/") ? src : `../../src/people/${src}.js`), { makePeople } = module, pw = new Map();
   const walkOf = (half) => { const k = Math.round(half * 100); if (!pw.has(k)) pw.set(k, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { ...BODY, half: k / 100 } })); return pw.get(k); };
   peopleCtx = { walk: { floorOf: walk0.floorOf, walkFor: walkOf }, claims: bodies, place: { roomAt: walk0.roomAt }, works, device: { share: +(Q.get("share") ?? 1) }, budgetMs: +(Q.get("routems") ?? 3) };   // ?routems: the frame's milliseconds for finding ways
-  POP = makePeople(THREE, { ctx: peopleCtx });
+  // An older Photonic entry and the reference both export only makePeople. A request for basis identifies Photonic before it allocates a drawing;
+  // later entries name their API explicitly, while an older factory ignores basis and gives us its actual population.
+  const needsBasis = Symbol("people basis"); let modern = module.PEOPLE_API === "photonic.people/1";
+  if (!modern) { try { POP = makePeople(THREE, { ctx: peopleCtx, get basis() { throw needsBasis; } }); } catch (e) { if (e !== needsBasis) throw e; modern = true; } }
+  if (modern) { const pinned = "https://5000stadia.github.io/photonic-phone-test/v/p2/people/index.js";
+    if (src !== pinned) throw new Error(`people: this client loads Photonic only from ${pinned}`);
+    const { loadBasis } = await import(new URL("../gait.js", pinned).href), response = await fetch(new URL("../gait-basis.json", pinned));
+    if (!response.ok) throw new Error(`people: gait basis HTTP ${response.status}`);
+    POP = makePeople(THREE, { basis: loadBasis(await response.json()), quality: ENG.phone ? "phone" : "pc" });
+    RP?.usePeople(POP, (message) => { peopleNotes.push(message); console.warn(message); }); }
   scene.add(POP.group); window.__people = POP; window.__bodies = bodies; window.__peopleWalk = walkOf;
+  if (modern) { POP.warm(); await POP.compile(renderer, scene, camera, { defer: false }); }
   // the checks on every person (src/people/checks.js): doors as built, their width and head
   const doorDims = new Map(); for (const { spec } of manor.specs.values()) for (const e of Object.values(spec.walls).flat()) if (e.kind === "door" && e.id) doorDims.set(e.id, { w: e.r1 - e.r0, top: e.top });
   window.__peopleCheck = () => checkPeople({ people: POP, walkOf, claims: bodies, doors: doorDims });
   const base = walk; walk = { ...base, groundAt: (x, y, h) => bodies.bodyAt(base.floorOf(h), x, y, BODY.half, "player") != null ? null : base.groundAt(x, y, h) }; }
+window.__peopleDump = () => [POP?.dump?.(), RP?.dump()].filter(Boolean).join("\n");
 const { floorOf, roomAt } = walk;
 const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
 // ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
 // narrator in code (the live narrative is construct's, over the contract: design/case/boundary-with-construct.md)
 let CP = null, adoptCase = () => {}; const presences = new Map(), lookMeshes = [];
 // a recipe's person, talked to as the case's people are (aimed at by their hit box)
-if (RP?.person) presences.set(RP.person.userData.person, { p: { group: RP.person, hit: RP.person.userData.hit, tick: () => {} }, room: RP.person.userData.room });
+for (const [id, person] of RP?.people || []) presences.set(id, { p: { group: person, hit: person.userData.hit, tick: () => {} }, room: person.userData.room });
 if (CASE) {
   const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values()), knownKinds = new Set(kinds().map(k => k.kind)), looked = new Set();
   // (adoptCase: run at load and again as each room arrives after the start view, R65: it takes only what isn't taken yet)
