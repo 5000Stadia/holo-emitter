@@ -104,4 +104,8 @@ No reset; four points to meet before S2 and S5 are called landed. Codex re-check
      - **F4:** a key's fitted name (`key: "study_key"` → `fits`) is read the way the engine reads it.
      - **F5:** a weight laid on a plate whose room is reached is out of your hands: no gate counts it as held, and it is not a key. A latching control, once worked, stays worked. A weight that any thing's affordance or taking asks to be held (`@holding`) is a fault.
    - All three are in check 37, alongside the valid single-plate and fitted-key routes.
+   - **Codex's third recheck closed F4 and F5, and point 2's slice.** One F3 hole remained: testing a range at its ends bounds nothing, because a size like `=0.2+2*u*(1-u)` is widest in the middle.
+     - **The fix:** when a size reads a setting the case leaves to the seed, only the actual birth can answer.
+     - A thing kept inside another case thing is born at `case/<id>`, so its birth is known and is used.
+     - A thing placed in a room is born where the placer puts it, which the proof can't know, so it is not certified. checkCase says which setting to pin.
 4. **S2 stays "begun"** until categories and the look's per-period manifest exist, so that kinds made meanwhile don't set into the temporary shape.

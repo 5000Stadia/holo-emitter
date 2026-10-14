@@ -15,19 +15,30 @@
 import { reachability } from "./reach.js";
 import { checkLinks, linkKeys, gateOf, gateOpen, answers, LINK_TYPES } from "./links.js";
 import { takeable, value, settle } from "./catalogue.js";
+import { seedOf } from "./id.js";
 
 // a case thing's own fields as the settings its kind reads: the lock a key fits, the keys a chest's padlocks need, how
 // it starts (a drawer open, a candle two-thirds burnt), and any settings it names; play builds it with these
 // (src/make/case-play.js), and the proof reads it with the same, so the two can't answer differently
 export const caseSettings = (t) => ({ ...(t.settings || {}), ...(t.key ? { fits: t.key } : {}), ...(t.locks_need ? { keys: t.locks_need } : {}), ...(t.state ? { start: t.state } : {}) });
-// what the engine will let the player carry (works.js canTake) for every birth of this thing: its kind's size under the
-// thing's own settings, each setting the case leaves to the seed tried at every end of its range or choice (a box the case
-// makes 2 m wide is no weight; codex's recheck, F3)
-function carriable(kind, t = {}) {
+// the settings a kind's size reads ("$w", or a name in "=0.2+2*u"), and those they read in turn
+function sizeReads(kind) {
+  const names = Object.keys(kind.settings || {}), out = new Set(), scan = (v) => { if (typeof v === "string") { for (const n of names) if (!out.has(n) && new RegExp(`(^\\$|[^\\w])${n}(?!\\w)`).test(v)) { out.add(n); scan(kind.settings[n]); } }
+    else if (Array.isArray(v)) v.forEach(scan); };
+  scan(kind.size); return [...out];
+}
+// the size settings a case leaves to the seed: those its size reads, ranged or chosen, that the case doesn't pin
+const sizeFree = (kind, t) => { const over = caseSettings(t); return sizeReads(kind).filter(n => over[n] === undefined && (Array.isArray(kind.settings[n]) || kind.settings[n]?.one_of)); };
+// what the engine will let the player carry (works.js canTake), for this thing as it will be born: its kind's size under its
+// own case settings. If that size reads a setting the case leaves to the seed, only the actual birth can answer (a range's
+// ends bound nothing: "=0.2+2*u*(1-u)" is widest in its middle; codex's rechecks, F3): a thing kept in another case thing
+// is born at case/<id> (src/make/case-play.js, lab/manor/index.html), so its birth is known and is used; one placed in a
+// room is born where the placer puts it, unknowable here, and is not certified (pin the setting to make it one)
+function carriable(kind, t = {}, things = []) {
   if (!kind?.size) return false; const over = caseSettings(t);
-  const free = Object.entries(kind.settings || {}).filter(([n, v]) => over[n] === undefined && (Array.isArray(v) || v?.one_of)).map(([n, v]) => [n, Array.isArray(v) ? v : v.one_of]);
-  const each = (i, o) => i === free.length ? takeable(kind, value(kind.size, settle(kind, 1, o))) : free[i][1].every(x => each(i + 1, { ...o, [free[i][0]]: x }));
-  return free.reduce((n, [, xs]) => n * xs.length, 1) <= 4096 ? each(0, over) : false;
+  if (!sizeFree(kind, t).length) return takeable(kind, value(kind.size, settle(kind, 1, over)));
+  if (!things.some(q => q.id === t.at)) return false;
+  return takeable(kind, value(kind.size, settle(kind, seedOf(`case/${t.id}`), over)));
 }
 
 const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
@@ -52,13 +63,15 @@ export function checkCase(k, { plan, kinds = null, kindOf = null } = {}) {
   // its links, against its things' kinds: every port its things carry is wired (even with no links at all), a weight is one
   // the engine lets you carry (and the case doesn't say carry: false), a control's gate is one the proof can follow, and a
   // weight left on a plate is not also wanted in hand (a key, or a thing a gate asks to be held)
-  if (kindOf) { const T = arr(k.things).map(t => ({ id: t.id, kind: kindOf(t.kind) || { kind: t.kind }, carry: t.carry !== false && carriable(kindOf(t.kind), t), fits: caseSettings(t).fits }));
+  if (kindOf) { const T = arr(k.things).map(t => ({ id: t.id, kind: kindOf(t.kind) || { kind: t.kind }, carry: t.carry !== false && carriable(kindOf(t.kind), t, arr(k.things)), fits: caseSettings(t).fits }));
     for (const why of checkLinks(arr(k.links), T, { openings: plan ? (plan.openings || []).map(o => o.id) : null, movable: (t) => t.carry }).faults) say("links", why);
     const wanted = new Set([...clues.values()].flatMap(c => arr(c.gate?.requires?.holding)).concat(arr(k.things).flatMap(t => arr(t.gate?.requires?.holding))));
     arr(k.links).forEach((l, n) => { const c = T.find(t => t.id === l.from?.thing), g = gateOf(c?.kind?.affordances?.[l.from?.aff]);
       if (g.unsupported.length) say("links", `link ${n}: its control ${l.from.thing} asks ${g.unsupported.join(", ")}, which the case's proof can't follow`);
       // (wanted in hand: a key, a thing a clue's or a thing's gate asks to hold, or a name any thing's affordance or taking
       // asks @holding that it answers: one box can't both lie on the hall's plate and be held to work the study's lever)
+      { const wt = l.weight && things.get(l.weight), wk = wt && kindOf(wt.kind), free = wk ? sizeFree(wk, wt) : [];
+        if (free.length && !arr(k.things).some(q => q.id === wt.at)) say("links", `link ${n}: its weight ${wt.id} is sized by ${free.join(", ")}, which the case leaves to where it is placed: pin ${free.length > 1 ? "them" : "it"} (settings) to certify it carriable`); }
       const w = l.weight && T.find(t => t.id === l.weight), asked = (kd) => [...Object.values(kd?.affordances || {}).map(a => a.requires), kd?.take?.requires]
         .flatMap(r => [...arr(r?.["@holding"]), ...arr(r?.["@holding_all"])]);
       if (w && (things.get(w.id).key || wanted.has(w.id) || T.some(t => asked(t.kind).some(name => answers(w, name)))))
@@ -91,7 +104,7 @@ export function fairPlay(k, { plan, start = null, doors = k.doors || {}, kindOf 
     for (const r of reached) if (!reachedBefore.has(r)) { reachedBefore.add(r); grew = true; }
     // things: take what can be carried, read or search what's in a reached room, if its own gate is open
     for (const t of things) { const room = thingRoom(t); if (!reached.has(room) || !open(t.gate)) continue;
-      if (t.carry !== false && (!kindOf || carriable(kindOf(t.kind), t)) && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }
+      if (t.carry !== false && (!kindOf || carriable(kindOf(t.kind), t, things)) && !held.has(t.id)) { held.add(t.id); path.push(`take ${t.id} (${room})`); grew = true; }
       for (const c of arr(t.clue)) if (!learned.has(c)) { learned.add(c); path.push(`learn ${c} from ${t.id}`); grew = true; } }
     // people: ask whoever is present in a reached room, each clue whose gate is open
     for (const c of clues.filter(q => q.from)) { if (learned.has(c.id) || !open(c.gate)) continue;

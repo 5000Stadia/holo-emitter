@@ -397,6 +397,7 @@ const K = { lever: { kind: "lever/wall", fixed: true, size: [0.1, 0.1, 0.1], aff
   letter: { kind: "paper/letter", fixed: false, size: [0.1, 0.001, 0.1], affordances: {} }, table: furniture.find(k => k.kind === "table/gateleg") };
 K.lockedLever = { ...K.lever, kind: "lever/locked", affordances: { lever: { ...K.lever.affordances.lever, requires: { "@holding": "key/test" } } } };
 K.boxParam = { ...K.box, kind: "box/param", size: ["$w", "$h", "$d"], settings: { w: 0.3, h: 0.2, d: 0.3 } };
+K.rangeBox = { kind: "box/range-weight", fixed: false, size: ["=0.2+2*u*(1-u)", 0.2, 0.3], settings: { u: [0, 1] }, affordances: {} };   // widest mid-range: its ends bound nothing
 K.weightLever = { ...K.lever, kind: "lever/weight", affordances: { lever: { ...K.lever.affordances.lever, requires: { "@holding": "box/strong" } } } };
 K.fittedLever = { ...K.lever, kind: "lever/fitted", affordances: { lever: { ...K.lever.affordances.lever, requires: { "@holding": "study_key" } } } };
 const kindOf = (n) => Object.values(K).find(k => k.kind === n) || null;
@@ -418,6 +419,8 @@ console.log(JSON.stringify({
   held: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.box), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
   oversize: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.boxParam, { settings: { w: 2 } }), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
   fitted: proof({ ...base, things: [th("lever", "hall", K.fittedLever, { carry: false }), th("key", "hall", K.key, { key: "study_key" }), letter("study")], links: [link("lever", "lever", "lever", "a")] }),
+  rangeFree: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.rangeBox), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
+  rangePinned: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.rangeBox, { settings: { u: 0 } }), letter("study")], links: [link("plate", "plate", "plate", "a", "weight")] }),
   placedAndHeld: proof({ ...base, things: [th("plate", "hall", K.plate, { carry: false }), th("weight", "hall", K.box), th("lever", "study", K.weightLever, { carry: false }), letter("vault")],
     links: [link("plate", "plate", "plate", "a", "weight"), link("lever", "lever", "lever", "b")] }),
   reused: proof(reused), reusedGraph: L.linkReach(reachability, plan, reused.links, T).reached,
@@ -433,6 +436,8 @@ console.log(JSON.stringify({
   expect(r.aliases.join(" "), "F6: an id and an address are one input").toMatch(/place\/lamp.input: worked by 2 links/);
   expect(r.held, "a strongbox on the hall's plate holds the study open").toEqual({ checked: [], fair: true });
   expect(r.oversize.checked.join(" "), "F3: a box the case makes 2 m wide is no weight").toMatch(/box\/param can't be carried/); expect(r.oversize.fair).toBe(false);
+  expect(r.rangeFree.checked.join(" "), "F3: a weight sized by a setting the case leaves to its placing is not certified").toMatch(/sized by u, which the case leaves to where it is placed: pin it/); expect(r.rangeFree.fair).toBe(false);
+  expect(r.rangePinned, "and pinned, it is").toEqual({ checked: [], fair: true });
   expect(r.fitted, "F4: a key cut for the study (key: study_key) works the lever that asks for it").toEqual({ checked: [], fair: true });
   expect(r.placedAndHeld.checked.join(" "), "F5: the box on the plate is also wanted for the study's lever").toMatch(/must lie on the plate, and is also wanted in hand/); expect(r.placedAndHeld.fair).toBe(false);
 });
