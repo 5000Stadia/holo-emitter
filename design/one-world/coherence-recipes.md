@@ -127,13 +127,39 @@ end to end:        story text in → walk in, see nothing → flip the switch �
 - **Recipes it proposes:** take and drop, the hooded stranger, two Rexes, a prisoner who becomes a hero.
 - **The demo, two lanes per recipe:** a golden lane, the facts JSON loaded straight in, on every change; and a story lane, the text through its build library graded against the golden, on demand and on a schedule.
 
-**construct** (m1cc403): awaited.
+**construct** (m1b5d34, main dde0aaa) agrees.
+- **What it has:** beats with a solvability proof (R35's producer fixed point). The told secret is its clue delivery: InFrame(knows:player, keypad·code), by ASK from a reachable holder, with concealment by protected keys. Take and drop are deterministic canon writes.
+- **Missing:**
+  - a deterministic link consequence (read `controls`, write `obj:light · state · on` itself rather than through prose extraction);
+  - light-gated perception ("seen only when lit");
+  - a deterministic keypad check;
+  - a structured `say` payload for Photonic (with its held live bridge, R25);
+  - hosting placements (also R25).
+- **The hand-off:** `construct.recipe-beats/1` = `{recipe, beats:[{id, weight, condition}], clues:[{holder, fact, reveal_condition}], proof:{findings}, says:[{beat, speaker, to, text}]}`.
+- **Its inventory:**
+  - the play horizon (reads bound to the player's moment);
+  - ids never taken from the future;
+  - frame concealment;
+  - beat proofs;
+  - clue delivery;
+  - the diegetic clock;
+  - chapter bridging;
+  - player intent (speech is never fact);
+  - places grown in play;
+  - narrator facts quarantined;
+  - reshape.
+- **Recipes it proposes:** the told secret leaks nowhere; chapter 2 opens where chapter 1 ended; a lie told to a character stays a belief; a place grown in play survives a reload.
+- **Its lane in the demo:** a pytest per recipe that loads the golden facts, authors the beats, runs the R35 proof, checks concealment and plays a scripted 3 to 5 turn walkthrough on stubs (seconds, no model, on every change). A live narrator runs on demand.
+- **Held, one spelling:** construct writes `in · person:player`; pattern-buffer proposed `held_by`; pattern-buffer folds both as one key. Decided for the golden: `in · person:player` (construct already writes it, and one word fewer). Asked of both.
+
+**pattern-buffer, later:** CONTAINMENT-DURABILITY-V1 has landed (42d0c23), so take-and-drop's pattern-buffer stage is built. Fixtures are written by a host (author session or build manifest), never by prose extraction, and a model's guess below 0.95 never makes containment permanent.
 
 **Kabe's next point, the same evening:** "We also need to consider the placement of our items and locations in pattern buffer on placement and status changes in pattern buffer as well. When an item is taken for example." This is R75. The first recipe for it is take-and-drop; its write path and facts shape are asked of pattern-buffer (m2c1f42).
 
 **Recipes queued:**
 - take-and-drop;
 - a person crosses a furnished room and goes through a door;
+- the told secret leaks nowhere; chapter 2 opens where chapter 1 ended; a lie told to a character stays a belief; a place grown in play survives a reload (construct's);
 - the hooded stranger;
 - two Rexes;
 - a prisoner who becomes a hero.
