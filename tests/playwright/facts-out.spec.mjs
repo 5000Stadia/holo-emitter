@@ -9,6 +9,41 @@ const BASE = process.env.BASE || "http://localhost:8794";
 const LOAD = 300_000;
 test.use({ launchOptions: { args: ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] } });
 
+test("placement facts give independent controls distinct parts, preserve single controls and bank ids, and name outside for a missing room", () => {
+  const module = new URL("../../src/make/facts-out.js", import.meta.url).href;
+  const r = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", `
+const { placementFacts, eventFacts } = await import(${JSON.stringify(module)});
+const dual={story:"obj:gates",kind:{affordances:{left:{motion:"hinge"},right:{motion:"hinge"}}}};
+const mixed={story:"obj:lamp",kind:{affordances:{bulb:{lights:true},button:{motion:"switch"}}}};
+const single={story:"obj:door",kind:{affordances:{leaf:{motion:"hinge"}}}};
+const bank={story:"obj:press",kind:{affordances:{drawers:{motion:"slide"}}}};
+const colliding={story:"obj:ambiguous",kind:{affordances:{"left-door":{motion:"hinge"},left_door:{motion:"hinge"}}}};
+const pick=facts=>facts.map(f=>[f.entity,f.attribute,f.value]);
+const place=(b,room="hall",stateOf=()=>"closed")=>pick(placementFacts([{b,room,host:null}],{stateOf}));
+const event=(b,aff,i=null)=>pick(eventFacts({type:"state",b,aff,i,state:"open",was:"closed"},{at:7}));
+let collision; try { place(colliding); } catch(e) { collision=String(e); }
+console.log(JSON.stringify({dual:place(dual),mixed:place(mixed,"hall",(_b,a)=>a==="bulb"?"out":"off"),single:place(single),
+ left:event(dual,"left"),right:event(dual,"right"),singleEvent:event(single,"leaf"),bank:event(bank,"drawers",2),
+ collision,outside:place(single,null),putOutside:pick(eventFacts({type:"put",b:single},{at:9,room:null}))}));`], { encoding: "utf8" }));
+  expect(r.dual).toEqual([
+    ["obj:gates", "in", "place:hall"],
+    ["obj:gates:left", "part_of", "obj:gates"], ["obj:gates:left", "state", "shut"],
+    ["obj:gates:right", "part_of", "obj:gates"], ["obj:gates:right", "state", "shut"],
+  ]);
+  expect(r.mixed).toEqual([
+    ["obj:lamp", "in", "place:hall"],
+    ["obj:lamp:bulb", "part_of", "obj:lamp"], ["obj:lamp:bulb", "state", "off"],
+    ["obj:lamp:button", "part_of", "obj:lamp"], ["obj:lamp:button", "state", "off"],
+  ]);
+  for (const aff of ["left", "right"]) expect(r[aff]).toEqual([[`obj:gates:${aff}`, "part_of", "obj:gates"], [`obj:gates:${aff}`, "state", "open"]]);
+  expect(r.single).toEqual([["obj:door", "in", "place:hall"], ["obj:door", "state", "shut"]]);
+  expect(r.singleEvent).toEqual([["obj:door", "state", "open"]]);
+  expect(r.bank).toEqual([["obj:press:drawers_2", "part_of", "obj:press"], ["obj:press:drawers_2", "state", "open"]]);
+  expect(r.outside).toEqual([["obj:door", "in", "place:outside"], ["obj:door", "state", "shut"]]);
+  expect(r.putOutside).toEqual([["obj:door", "in", "place:outside"]]);
+  expect(r.collision, "ambiguous part ids are refused before conflicting facts can be queued").toBe("TypeError: affordance part ids collide on obj:ambiguous:left_door");
+});
+
 test("pattern-buffer's wire adapter preserves values and fixed times, and only allows loopback transport from a loopback page", () => {
   const adapter = new URL("../../src/make/patternbuffer.js", import.meta.url).href;
   const vendor = new URL("../../src/vendor/patternbuffer/index.mjs", import.meta.url).href;
@@ -90,9 +125,11 @@ test("the manor: a thing taken is in the player's hands; put down on a table, it
   const posts = []; page.on("request", request => { if (request.method() === "POST") posts.push(request.url()); });
   try {
   // (a candle stub required in the great hall, where you start: the house's own candles stand in candlesticks no one carries)
-  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&fresh&require=candle/stub@great_hall`, { timeout: LOAD });
-  await page.waitForFunction(() => window.__ok, null, { timeout: LOAD });
+  await page.goto(`${BASE}/lab/manor/index.html?webgl=1&fresh&whole=1&require=candle/stub@great_hall`, { timeout: LOAD });
+  await page.waitForFunction(() => window.__ok && window.__whole, null, { timeout: LOAD });
   const r = await page.evaluate(async () => { const W = window.__works, all = [...W.things.values()];
+    const { entityOf } = await import("../../src/make/facts-out.js"), placements = window.__outbox({ placements: true }).placements;
+    const gates = all.filter(b => b.kind.kind === "gate/iron-pair").map(entityOf);
     const queueBefore = await window.__pbQueue(), eventStart = window.__outbox().events.length;
     // (the first thing the engine lets you carry: tried in turn, taken when it is)
     let candle = null; for (const b of all) { if (b.kind.fixed === true || W.shutIn(b) || b.node.userData.opening) continue; const n = window.__outbox().events.length; window.__actOn(b, null); if (window.__outbox().events.length > n && W.held().includes(b)) { candle = b; break; } }
@@ -103,9 +140,21 @@ test("the manor: a thing taken is in the player's hands; put down on a table, it
     window.__actOn(table, null); const afterPut = window.__outbox().events.slice(-1)[0];
     const queuePut = await window.__pbQueue(), eventsPut = window.__outbox().events.slice(eventStart);
     return { took, afterTake: [afterTake.entity, afterTake.attribute, afterTake.value, afterTake.source.event], afterPut: [afterPut.entity, afterPut.attribute, afterPut.value, afterPut.source.event], candle: candle.address, table: table.address,
-      queueBefore, queueTake, queuePut, eventsTake, eventsPut }; });
+      queueBefore, queueTake, queuePut, eventsTake, eventsPut, placements, gates }; });
   expect(errs).toEqual([]);
   expect(r.missing, "a thing you can carry and a table in the house").toBeUndefined();
+  expect(r.placements.filter(f => f.attribute === "in" && f.value === "place:null"), "every built thing has a real place").toEqual([]);
+  const keys = r.placements.map(f => `${f.entity}\u0000${f.attribute}`);
+  expect(keys.filter((key, i) => keys.indexOf(key) !== i), "one snapshot has one value for each entity and attribute").toEqual([]);
+  expect(r.gates.length, "the full manor includes the forecourt's gates").toBeGreaterThan(0);
+  for (const gate of r.gates) {
+    expect(r.placements).toEqual(expect.arrayContaining([expect.objectContaining({ entity: gate, attribute: "in", value: "place:forecourt" })]));
+    for (const aff of ["left", "right"]) expect(r.placements).toEqual(expect.arrayContaining([
+      expect.objectContaining({ entity: `${gate}:${aff}`, attribute: "part_of", value: gate }),
+      expect.objectContaining({ entity: `${gate}:${aff}`, attribute: "state", value: "shut" }),
+    ]));
+    expect(r.placements.some(f => f.entity === gate && f.attribute === "state"), "independent leaves have no conflicting parent state").toBe(false);
+  }
   const ID = /^[a-z][a-z0-9_]*:[a-z0-9_:]+$/;   // (pattern-buffer's id grammar)
   expect(r.afterTake.slice(1), "taken: in the player's hands (held_by · person:player, as pattern-buffer's library writes it)").toEqual(["held_by", "person:player", "take"]);
   expect(r.afterTake[0]).toMatch(ID);

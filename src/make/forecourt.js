@@ -33,6 +33,8 @@ export function buildForecourt({ THREE, K, look, build, plan, site, works, mater
   for (const [i, x] of [[0, cx - GATE_W / 2 - PIER / 2], [1, cx + GATE_W / 2 + PIER / 2]].map(([i, x]) => [i, x])) {
     const p = build(THREE, K, look, "pier/ashlar-ball", `manor/forecourt/pier:${i}`, {}); p.node.position.set(x, site.z(x, yc) - 0.02, -yc); group.add(p.node); things.push(p); }
   const gates = build(THREE, K, look, "gate/iron-pair", "manor/forecourt/gates", { W: GATE_W }); gates.node.position.set(cx, site.z(cx, yc), -yc); group.add(gates.node);
+  // The enclosure belongs to the court even where its boundary stands just beyond the room's floor rectangle.
+  for (const b of [...things, gates]) b.node.userData.room = court.id;
   works?.add(gates); things.push(gates);
   // what stops a body: the walls (with railings, to their full height), the piers, and each leaf: across the gateway
   // shut, along its hinge side into the court open

@@ -428,8 +428,11 @@ const PB = await openFactsQueue({ worldId: WKEY, pb: Q.get("pb"), hostname: loca
 window.__pbQueue = () => PB.snapshot();
 window.addEventListener("online", () => { void PB.flush(); });
 const recordFacts = (facts) => { outbox.push(...facts); PB.record(facts); };
-// (a thing's room: its own, its keeper's, or for a door the first room its doorway joins, which hangs it; its states as made)
-const roomOfThing = (b) => b.node.userData.room || b.host?.b?.node.userData.room || plan.openings.find(o => o.id === b.node.userData.opening)?.joins?.[0] || null;
+// A thing's named room (including a boundary's owner), its keeper's, or a door's hanging room; otherwise the plan room
+// containing its world position, open rooms too. Beyond the plan it still has a place: outside.
+const roomOfThing = (b) => { const named = b.node.userData.room || b.host?.b?.node.userData.room || plan.openings.find(o => o.id === b.node.userData.opening)?.joins?.[0]; if (named) return named;
+  const p = b.node.getWorldPosition(new THREE.Vector3()), rooms = plan.rooms.filter(r => r.rect && p.x >= r.rect.x0 && p.x <= r.rect.x1 && -p.z >= r.rect.y0 && -p.z <= r.rect.y1 && manor.levelOf(r.floor || "ground") <= p.y + 0.3);
+  rooms.sort((a, b) => manor.levelOf(b.floor || "ground") - manor.levelOf(a.floor || "ground")); return rooms[0]?.id || "outside"; };
 // Author role is offered by the module: the existing lazy placement snapshot goes to its own canon queue, never the recorder.
 window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) { placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff), people: RP?.placements || [] }); PB.author(placementsOut); }
   return { placements: placements ? placementsOut : undefined, events: outbox.slice() }; };
