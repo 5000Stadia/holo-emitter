@@ -63,6 +63,25 @@ export function placementFacts(things, { at = 0, stateOf = null, people = [] } =
   return out;
 }
 
+// when a play event happened: a session's clock, its stamps strictly increasing (a take and a put at one instant read as
+// the thing in two places at once; pattern-buffer, md2186a). Standalone, epoch seconds to the millisecond. In a construct-
+// hosted session, the play clock (construct, m3bce51): construct hands the page the turn's time (the C3 envelope's top-level turn_time, the play
+// origin + n), and the turn's mechanisms take it plus a millisecond each, below the next turn's; a wall-time stamp there
+// would sit past the play horizon and be read as future, or outrank turns.
+//   stamper({ now })  -> { next(), turn(t) }   turn(t): from now on stamp on the play clock, from turn time t
+export function stamper({ now = () => Date.now() / 1000 } = {}) {
+  let last = -Infinity, turnAt = null;
+  return {
+    turn(t) { turnAt = +t; if (!(last >= turnAt && last < turnAt + 1)) last = turnAt - 0.001; },   // (the play clock replaces wall time; the same turn handed again keeps its count)
+    next() {
+      const ms = (v) => Math.round(v * 1000) / 1000, t = ms(turnAt == null ? Math.max(now(), last + 0.001) : last + 0.001);
+      if (turnAt == null) return (last = t);
+      if (t >= turnAt + 1) throw new Error(`play clock: more than 1000 mechanisms in turn ${turnAt}; the next turn's time is construct's to give`);
+      return (last = t);
+    },
+  };
+}
+
 // a play event (works' onChange, and where a thing was put): -> facts
 export function eventFacts(ev, { at, room = null, on = null, state = null } = {}) {
   const e = entityOf(ev.b);

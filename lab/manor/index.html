@@ -112,7 +112,7 @@ import { checkScene } from "../../src/make/scene.js";
 import { matchKinds } from "../../src/make/match.js";
 import { planStoryHall } from "../../src/make/plans/story-hall.js";
 import { planRecipe } from "../../src/make/recipe.js";
-import { placementFacts, eventFacts, entityOf } from "../../src/make/facts-out.js";
+import { placementFacts, eventFacts, entityOf, stamper } from "../../src/make/facts-out.js";
 import { openFactsQueue } from "../../src/make/patternbuffer.js";
 import { playRecipe } from "../../src/make/recipe-play.js";
 import { compileStory, bodyAt } from "../../src/make/story.js";
@@ -439,9 +439,9 @@ window.__outbox = ({ placements = false } = {}) => { if (placements && !placemen
 let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
 for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
 let viewDirty = true;
-// when a play event happened, for pattern-buffer: epoch seconds to the millisecond, strictly increasing in this session
-// (a take and a put stamped in the same rounded second read as the thing in two places at once; pattern-buffer, md2186a)
-let lastStamp = 0; const stampNow = () => (lastStamp = Math.max(Date.now() / 1000, lastStamp + 0.001));
+// when a play event happened (facts-out.js stamper): wall time standalone; on construct's play clock once it hands the
+// page a turn's time (the C3 envelope's top-level turn_time, construct m2a2887; window.__turn(t) until that envelope arrives)
+const clock = stamper(), stampNow = () => clock.next(); window.__turn = (t) => clock.turn(t);
 const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keep(); }, say,
   // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
   // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you

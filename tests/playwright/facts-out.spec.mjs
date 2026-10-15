@@ -44,6 +44,19 @@ console.log(JSON.stringify({dual:place(dual),mixed:place(mixed,"hall",(_b,a)=>a=
   expect(r.collision, "ambiguous part ids are refused before conflicting facts can be queued").toBe("TypeError: affordance part ids collide on obj:ambiguous:left_door");
 });
 
+test("the session's clock: wall time standalone, strictly increasing; on construct's play clock, turn time plus a millisecond each, below the next turn", () => {
+  const mod = new URL("../../src/make/facts-out.js", import.meta.url).href;
+  const r = JSON.parse(execFileSync(process.execPath, ["--input-type=module", "-e", `
+const { stamper } = await import(${JSON.stringify(mod)});
+const wall = stamper({ now: () => 1792023650.5 }), w = [wall.next(), wall.next(), wall.next()];
+const play = stamper({ now: () => 1792023650.5 }); play.next(); play.turn(1001000); const p = [play.next(), play.next()]; play.turn(1001001); p.push(play.next());
+const full = stamper(); full.turn(7); let err = null; try { for (let i = 0; i < 1001; i++) full.next(); } catch (e) { err = e.message; }
+console.log(JSON.stringify({ w, p, err }));`], { encoding: "utf8" }));
+  expect(r.w, "same instant: a millisecond apart").toEqual([1792023650.5, 1792023650.501, 1792023650.502]);
+  expect(r.p, "the turn's time, then a millisecond each; a new turn starts at its own time").toEqual([1001000, 1001000.001, 1001001]);
+  expect(r.err, "the 1001st mechanism in one turn would reach the next turn's time: refused").toMatch(/more than 1000 mechanisms in turn 7/);
+});
+
 test("pattern-buffer's wire adapter preserves values and fixed times, and only allows loopback transport from a loopback page", () => {
   const adapter = new URL("../../src/make/patternbuffer.js", import.meta.url).href;
   const vendor = new URL("../../src/vendor/patternbuffer/index.mjs", import.meta.url).href;
