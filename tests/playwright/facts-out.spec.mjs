@@ -139,7 +139,7 @@ test("the manor: a thing taken is in the player's hands; put down on a table, it
     const queueTake = await window.__pbQueue(), eventsTake = window.__outbox().events.slice(eventStart);
     window.__actOn(table, null); const afterPut = window.__outbox().events.slice(-1)[0];
     const queuePut = await window.__pbQueue(), eventsPut = window.__outbox().events.slice(eventStart);
-    return { took, afterTake: [afterTake.entity, afterTake.attribute, afterTake.value, afterTake.source.event], afterPut: [afterPut.entity, afterPut.attribute, afterPut.value, afterPut.source.event], candle: candle.address, table: table.address,
+    return { took, stamps: [afterTake.valid_from, afterPut.valid_from], afterTake: [afterTake.entity, afterTake.attribute, afterTake.value, afterTake.source.event], afterPut: [afterPut.entity, afterPut.attribute, afterPut.value, afterPut.source.event], candle: candle.address, table: table.address,
       queueBefore, queueTake, queuePut, eventsTake, eventsPut, placements, gates }; });
   expect(errs).toEqual([]);
   expect(r.missing, "a thing you can carry and a table in the house").toBeUndefined();
@@ -158,6 +158,8 @@ test("the manor: a thing taken is in the player's hands; put down on a table, it
   const ID = /^[a-z][a-z0-9_]*:[a-z0-9_:]+$/;   // (pattern-buffer's id grammar)
   expect(r.afterTake.slice(1), "taken: in the player's hands (held_by · person:player, as pattern-buffer's library writes it)").toEqual(["held_by", "person:player", "take"]);
   expect(r.afterTake[0]).toMatch(ID);
+  // (taken and put in the same instant: the put stamped after the take, never at the same moment, pattern-buffer md2186a)
+  expect(r.stamps[1], "the put stamped strictly after the take").toBeGreaterThan(r.stamps[0]);
   expect(r.afterPut, "put down on the table").toEqual([r.afterTake[0], "in", r.afterPut[2], "put"]); expect(r.afterPut[2]).toMatch(ID); expect(r.afterPut[2]).not.toBe(r.afterTake[0]);
   const wire = facts => facts.map(({ entity, attribute, value, value_type, valid_from }) => ({ entity, attribute, value, value_type, valid_from }));
   for (const [name, queue, events] of [["take", r.queueTake, r.eventsTake], ["put", r.queuePut, r.eventsPut]]) {

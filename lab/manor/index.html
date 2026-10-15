@@ -439,12 +439,15 @@ window.__outbox = ({ placements = false } = {}) => { if (placements && !placemen
 let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
 for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
 let viewDirty = true;
+// when a play event happened, for pattern-buffer: epoch seconds to the millisecond, strictly increasing in this session
+// (a take and a put stamped in the same rounded second read as the thing in two places at once; pattern-buffer, md2186a)
+let lastStamp = 0; const stampNow = () => (lastStamp = Math.max(Date.now() / 1000, lastStamp + 0.001));
 const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keep(); }, say,
   // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
   // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you
   // stood lit nothing, Kabe 2026-10-13)
   // Facts stay in the outbox and enqueue locally as they happen (a put is written below, which knows on what).
-  onChange: (ev) => { if (ev.type !== "put") recordFacts(eventFacts(ev, { at: Math.round(Date.now() / 1000) })); },
+  onChange: (ev) => { if (ev.type !== "put") recordFacts(eventFacts(ev, { at: stampNow() })); },
   onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; if (aff === "sit") seatFollow(b); },
   ask: (need, want) => need === "knows" ? [].concat(want).every(n => known.has(n)) : false });   // (a kind's @knows: a code you know, K3)
 // ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
@@ -1084,7 +1087,7 @@ function actOn(t) {
     if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] };
       // where it was put, kept in the world (on: the thing, its slot, where in it): a reload finds it there (seatAgain)
       b.host = { b: t.b, slot: "top" }; b.node.userData.room = t.b.node.userData.room; world.move(b.id, "on", { to: t.b.id, slot: "top", at: b.node.position.toArray().map(v => +v.toFixed(4)), turn: 0.35 }); keep();
-      recordFacts(eventFacts({ type: "put", b }, { at: Math.round(Date.now() / 1000), on: t.b })); } }
+      recordFacts(eventFacts({ type: "put", b }, { at: stampNow(), on: t.b })); } }
   if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
   SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
   CP?.afterAct(t, r);                                  // a case's clue in what you opened or took
