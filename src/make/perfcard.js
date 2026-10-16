@@ -80,14 +80,14 @@ export function makeCard(E) {
       last3s: r, sinceWalkable: w, cpu: c.p50, gpu: g.n ? g.p50 : null, minutes: minutes.slice(-10), flags: E.flags,
       draws: renderer.info.render.drawCalls, tris: renderer.info.render.triangles, programs: m.programs, lights: held.lights,
       mem: { tex: MB(m.texturesSize), geo: MB(m.attributesSize + m.indexAttributesSize), total: MB(m.total), heap: MB(heap()) || null, cpuTex: MB(held.tex), cpuGeo: MB(held.geo), device: navigator.deviceMemory || null },
-      layers: layers(), marks: E.marks, bench, prev };
+      layers: layers(), marks: E.marks, budget: window.__budget?.() ?? null, bench, prev };
   }
   // each layer's ms a tick, last 3 s (a tick's layers sum to its whole, the loop's own work included)
   function layers() { const now = performance.now(), out = {};
     for (const [k, a] of laps) { while (a.length && now - a[0][0] > 3000) a.shift(); const st = stats(a.map(x => x[1])); out[k] = { p50: +st.p50.toFixed(2), p95: +st.p95.toFixed(2), n: st.n }; }
     return out; }
   function show() {
-    const s = summary(), r = s.last3s, w = s.sinceWalkable, L = s.lights || {}, mk = s.marks, fl = s.flags || {};
+    const s = summary(), r = s.last3s, w = s.sinceWalkable, L = s.lights || {}, mk = s.marks, fl = s.flags || {}, B = window.__budget?.() ?? null;
     const lines = [
       `${s.backend} · ${adapter || "…"}`,
       `${os || "?"} ${br} · ${s.screen} @${s.dpr} · buf ${s.buf} (×${s.ratio})`,
@@ -99,7 +99,9 @@ export function makeCard(E) {
       `scene: ${s.draws} draws · ${Math.round(s.tris / 1000)}k tris · ${s.programs} progs · rect ${L.rectLit ?? "?"}/${L.rect ?? "?"} point ${L.pointLit ?? "?"}/${L.point ?? "?"}`,
       `flags: ${Object.entries(fl).map(([k, v]) => `${k} ${v}`).join(" · ")}`,
       `mem: tex ${s.mem.tex} · geo ${s.mem.geo} · gpu ${s.mem.total} MB · held tex ${s.mem.cpuTex} geo ${s.mem.cpuGeo} · js heap ${s.mem.heap ?? "n/a"} (Chrome, coarse)${s.mem.device ? ` · dev ${s.mem.device} GB` : ""}`,
-      `layers ms p50/p95 (of 33 a phone frame; people ≤14): ${Object.entries(s.layers).map(([k, v]) => `${k} ${f1(v.p50)}/${f1(v.p95)}${k === "people" && v.p95 > 14 ? " OVER" : ""}`).join(" · ") || "…"}`,
+      // (the frame and the people's share are the tier's, from the frame budget: src/make/frame-budget.js)
+      `layers ms p50/p95 (of ${Math.round(B?.frame ?? 33)} a ${B?.tier ?? "phone"} frame; people ${B?.people?.floor ?? 4}-${B?.people?.ceiling ?? "?"}): ${Object.entries(s.layers).map(([k, v]) => `${k} ${f1(v.p50)}/${f1(v.p95)}${k === "people" && B?.people?.ceiling && v.p95 > B.people.ceiling ? " OVER" : ""}`).join(" · ") || "…"}`,
+      ...(B ? [`budget ${B.tier}: pot ${B.pot[0]} moving / ${B.pot[1]} still (+${B.urgent} urgent) · worst ${f1(B.worst)} · over ${B.overPot}/${B.frames} · ${Object.entries(B.jobs).map(([k, j]) => `${k} ${f1(j.avg)}/${f1(j.max)}${j.skipped ? ` skip ${j.skipped}` : ""}`).join(" · ")}`] : []),
       `start: first frame ${((mk["first-frame"] || 0) / 1000).toFixed(1)} s · walkable ${((mk.walkable || 0) / 1000).toFixed(1)} s`,
       // loading by stage: each mark's seconds after the one before it (renderer, built, textures, …, walkable)
       // (marks at the same moment said together: first-frame=walkable)

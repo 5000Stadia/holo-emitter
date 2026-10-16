@@ -67,7 +67,7 @@ Keep the local server running, then run the named client suites:
 ```sh
 npx playwright test -c tests/playwright \
   checks keep manor candle-lights door-lights sit crowd-lights keypad night-sky \
-  recipe-demo facts-out stations startview accuse-phone emitters narrator-conditions weather \
+  recipe-demo facts-out stations startview accuse-phone emitters narrator-conditions weather frame-budget \
   --project chromium
 ```
 
@@ -79,6 +79,7 @@ The current client suites include:
 - `recipe-demo.spec.mjs`, `facts-out.spec.mjs` — story facts turned into rooms, and play written back as facts.
 - `narrator-conditions.spec.mjs` — story conditions evaluated in code.
 - `keep.spec.mjs`, `sit.spec.mjs`, `weather.spec.mjs`, `accuse-phone.spec.mjs` — persistence, seating, weather and the phone accusation flow.
+- `frame-budget.spec.mjs` — one budget a frame for deferrable work, with phone and PC numbers.
 - `manor.spec.mjs`, `startview.spec.mjs`, `stations.spec.mjs`, `night-sky.spec.mjs` — the manor walked and seen, the start view first, the case's stations, and the night sky.
 
 Run them one browser at a time (`PW_WORKERS=1`); the whole list takes about 40 minutes on a loaded machine.

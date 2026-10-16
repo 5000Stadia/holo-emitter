@@ -95,6 +95,7 @@ import { strongroomMaterials } from "../brief/strongroom.js";
 import { makeRender } from "../../src/make/render.js";
 import { nodeify } from "../../src/make/nodes.js";
 import { makeWarm } from "../../src/make/warm.js";
+import { makeFrameBudget } from "../../src/make/frame-budget.js";
 import { makeGeoDrop, geodropWanted } from "../../src/make/geodrop.js";
 import { buildManor } from "../../src/make/manor.js";
 import { makeWalk, BODY } from "../../src/make/walk.js";
@@ -1247,7 +1248,7 @@ ENG.mark("ready");                                  // everything built and wire
 if (Q.get("precompile") === "1" && renderer.compileAsync) { camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ"); camera.updateMatrixWorld();
   try { await renderer.compileAsync(scene, camera); } catch (_) {} ENG.mark("compiled"); }
 let last = performance.now(), lastMoved = 0, flickAt = 0;
-const INDOORS = start.type !== "open", TILE_FIRST = +(Q.get("tilefirst") ?? (INDOORS ? 120 : 500)), TILE_CATCH = +(Q.get("tilecatch") ?? (ENG.phone ? 6 : 12)); let tilesCaught = false;
+const INDOORS = start.type !== "open", TILE_FIRST = +(Q.get("tilefirst") ?? (INDOORS ? 120 : 500)), TILE_CATCH = +(Q.get("tilecatch") ?? (ENG.phone ? 6 : 12)); let tilesCaught = false, hillBusy = true, groundBusy = true;   // (kept between frames: a frame the land isn't granted, its tiles are still owed)
 // after a thumb's step: a shut door walked into opens (?autodoor=0: not); a locked stride that stalls ends; and the words
 // for the controls, once each, when they help (a long walk at walking pace, a stride, a stop at a jamb)
 const tw = { walk: 0, stride: 0, stuck: 0 };
@@ -1262,6 +1263,11 @@ function thumbWalk(dt, ux, uy, blocked) {
 // ?fps / ?perf: the perf card (src/make/perfcard.js), timing drawn frames only, in render.js; and with it each layer's ms a
 // tick (the main demo's cost line): you (walking, aiming), place (things, rooms, building), people, land, lights, render
 const lap = ENG.card.lap; window.__layers = () => ENG.card.summary?.().layers ?? null;
+// the work that can wait, one budget a frame for the tier (R81, src/make/frame-budget.js): people finding their ways first (you
+// see them walk), the land's tiles, then the rooms still to build; ?budget=phone|pc tries the other tier's numbers
+const FB = makeFrameBudget(Q.get("budget") || (ENG.phone ? "phone" : "pc"))
+  .job("ways", { floor: 1, ceil: +(Q.get("routems") ?? 3) }).job("land", { floor: 1 }).job("rooms", { floor: 1, ceil: 8 });
+window.__budget = () => FB.ledger();
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; lap(null);
   // your body at your size (a story's sizes; the manor's 1.6 m eye otherwise); a new size eases in, the walker with it
@@ -1300,20 +1306,28 @@ renderer.setAnimationLoop((now) => {
   eyeNow = eye;
   const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + eye || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
   if (moved) lastMoved = now;
+  FB.begin({ still: now - lastMoved > 300 });
   camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
   if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
   lap("you"); works.tick(dt); PRECIP?.tick(now / 1000);
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false; lap("place");
   if (bodies) bodies.hold("player", floorOf(ph), px, py, BODY.half);
-  const peopling = POP ? peopleFrame(now / 1000, dt) : false;
+  // (the ways' grant is what Photonic's search may spend, 0 when none: the people tick every frame whatever it is; their
+  // whole frame is counted against it, the tick with it)
+  let peopling = false;
+  if (POP) { const g = FB.grant("ways", { urgent: true }), t0 = performance.now(); peopleCtx.budgetMs = g; peopling = peopleFrame(now / 1000, dt); FB.spent("ways", performance.now() - t0, true); }
   for (const q of presences.values()) { q.p.group.visible = manor.rooms.get(q.room)?.grp.visible !== false; if (q.p.group.visible) q.p.tick(now / 1000, camera); }
   lap("people");
   // (R65: started indoors, the outside is seen only through windows: 120 ms of its nearest tiles before the first frame,
   // not 500, then a catch-up budget a frame until every tile is built, then a few ms a frame; ?tilefirst= ?tilecatch=)
-  const tileBudget = !window.__ok ? TILE_FIRST : tilesCaught ? (ENG.phone ? 2 : 4) : TILE_CATCH;
-  const hillBusy = hill ? hill.update(camera.position.x, -camera.position.z, tileBudget) : false;
-  const groundBusy = ground ? ground.update(camera.position.x, -camera.position.z, tileBudget) : false;   // the nearest before the first frame; the rest a few ms a frame, under the haze
+  // (after walkable, the hill's tiles and the ground's share the land's one grant from the frame budget)
+  const lx = camera.position.x, ly = -camera.position.z;
+  if (!window.__ok) { hillBusy = hill ? hill.update(lx, ly, TILE_FIRST) : false; groundBusy = ground ? ground.update(lx, ly, TILE_FIRST) : false; }   // the nearest before the first frame
+  else if (hill || ground) FB.serve("land", (ms) => { const t0 = performance.now();   // the rest a few ms a frame, under the haze
+    hillBusy = hill ? hill.update(lx, ly, ms) : false; groundBusy = ground ? ground.update(lx, ly, Math.max(0.5, ms - (performance.now() - t0))) : false;
+    return hillBusy || groundBusy; }, { ceil: tilesCaught ? (ENG.phone ? 2 : 4) : TILE_CATCH });
+  else { hillBusy = groundBusy = false; FB.spent("land", 0, false); }
   if (window.__ok && !tilesCaught && !hillBusy && !groundBusy) { tilesCaught = true; ENG.mark("tiles-all"); }
   lap("land");
   // (outside, a window coming within reach of sight draws its room: R67)
@@ -1334,7 +1348,8 @@ renderer.setAnimationLoop((now) => {
   // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
   // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
   // stutter when you walk; one you walk into is built at once (refreshView). Building in workers removes the wait (point 2)
-  if (window.__ok && !window.__whole && now - lastMoved > 300) arrive(manor.buildRest({ budgetMs: 8, next: nearestRoom }));   // (8 ms: light steps share a frame; the worst frame is the heaviest one thing)
+  if (window.__ok && !window.__whole && now - lastMoved > 300) FB.serve("rooms", (ms) => { arrive(manor.buildRest({ budgetMs: ms, next: nearestRoom })); return manor.pending().length > 0; });
+  else FB.spent("rooms", 0, false);   // (8 ms: light steps share a frame; the worst frame is the heaviest one thing)
   lap("place");
   if (!window.__ok && Q.has("stopwatch")) {   // ?stopwatch: the seconds from opening the page to walking, on screen (R65 on your own phone)
     const t = performance.now() / 1000, tx = textureLog(), drawn = tx.filter(x => x.from && x.from !== "cache").length, d = document.createElement("div");
