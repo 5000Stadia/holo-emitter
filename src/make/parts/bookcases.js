@@ -14,6 +14,7 @@ import { fillRow, booksMesh, bookContext } from "./books.js";
 // ---- carving: a running band of acanthus. u across one leaf's repeat (0..1), Y up the band (0..1);
 // returns relief 0..1. Each leaf a rounded tongue with a sunk midrib and lobed edges, its tip turning over;
 // a narrow dart between leaves.
+const CARVED = new Map();
 function acanthus(u, Y) {
   const cu = Math.abs(u - 0.5) * 2;
   const halfW = Y < 0.5 ? 0.82 * Math.pow(Math.sin(Math.PI * (Y * 0.9 + 0.05)), 0.5) : 0.82 * Math.pow(Math.sin(Math.PI * 0.5), 0.5) * Math.max(0, (1 - Y) / 0.5) ** 0.8;   // swelling, then drawn to a point
@@ -52,10 +53,13 @@ definePart("glazed_bookpress", {
     box(W + 0.04, 0.06, Db + 0.03, 0, waist + 0.03, (Db + 0.03) / 2, "wood_face", { spread: 0.08 });
     moulding(waist + 0.06, Du, W + 0.02, [[0, 0.17], [0, 0.18], [0.012, 0.16], [0.03, 0.14], [0.05, 0.0]]);
     // carved bands of acanthus: the cornice's frieze, and the same leaf smaller on the plinth
+    // (a band is carved once for its size and kept: a second press of the same width copies it, R81's 60 ms a press)
     const carve = (len, fh, rep, depth, y, z) => {
-      const cg = new THREE.PlaneGeometry(len, fh, Math.round(len * 420), Math.round(fh * 420)), pa = cg.attributes.position;
-      for (let i = 0; i < pa.count; i++) { const X = pa.getX(i) + len / 2, Y = pa.getY(i) / fh + 0.5; pa.setZ(i, acanthus((X % rep) / rep, Y) * depth); }
-      cg.computeVertexNormals(); cg.translate(0, y, z); c.add(cg, "wood_face", { spread: 0.06, sheet: true });
+      const key = `${len}|${fh}|${rep}|${depth}`;
+      if (!CARVED.has(key)) { const cg = new THREE.PlaneGeometry(len, fh, Math.round(len * 420), Math.round(fh * 420)), pa = cg.attributes.position;
+        for (let i = 0; i < pa.count; i++) { const X = pa.getX(i) + len / 2, Y = pa.getY(i) / fh + 0.5; pa.setZ(i, acanthus((X % rep) / rep, Y) * depth); }
+        cg.computeVertexNormals(); CARVED.set(key, cg); }
+      const cg = CARVED.get(key).clone(); cg.translate(0, y, z); c.add(cg, "wood_face", { spread: 0.06, sheet: true });
     };
     { const fy = upperTop, fh = 0.075;
       carve(W + 0.02, fh, 0.048, 0.011, fy + fh / 2, Du + 0.012);

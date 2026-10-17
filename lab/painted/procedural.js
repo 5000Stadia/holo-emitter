@@ -267,6 +267,7 @@ function grime(THREE, mat, soot = null, walls = true) {
 }
 // the carved vine and leaves as a height, X metres along the band, Y 0..1 up it
 const CARVE_K = [0.25, 0.75];
+const FRIEZE = new Map();
 function carveHeight(X, Y, rep = 0.11) {
   if (Y < 0.08 || Y > 0.92) return 1;                                  // the band's flat borders
   // a hand-cut vine: each repeat swings a little differently, and its leaves come and go
@@ -633,13 +634,15 @@ export function buildWall(THREE, K, F, L, H, elems, { style = "panelled", depth 
         for (const y of [cy - ch / 2 - 0.018, cy + ch / 2 + 0.006])
           add(run(THREE, m.r0 + 0.03, m.r1 - 0.03, y, [[0, fz], [0, fz + 0.012], [0.006, fz + 0.016], [0.012, fz + 0.012], [0.012, fz]]), M.oak, 0.05);
         { // the carving itself: a grid displaced by the vine's height, so it catches real light and shadow
-          const dens = K.carveDensity || 320, nx = Math.round(len * dens), ny = Math.round(ch * dens);
-          const cg = new THREE.PlaneGeometry(len, ch, nx, ny), pa = cg.attributes.position;
-          for (let i = 0, A = pa.array; i < pa.count; i++) {
-            const X = A[3 * i] + len / 2, Y = A[3 * i + 1] / ch + 0.5;
-            A[3 * i + 2] = carveHeight(X, Y) * 0.011;
-          }
-          cg.computeVertexNormals(); cg.translate((m.r0 + m.r1) / 2, cy, fz + 0.002);
+          // (carved once for its size and kept: a mantel of the same width copies it, R81)
+          const dens = K.carveDensity || 320, nx = Math.round(len * dens), ny = Math.round(ch * dens), ckey = `${len}|${ch}|${dens}`;
+          if (!FRIEZE.has(ckey)) { const g = new THREE.PlaneGeometry(len, ch, nx, ny), pa = g.attributes.position;
+            for (let i = 0, A = pa.array; i < pa.count; i++) {
+              const X = A[3 * i] + len / 2, Y = A[3 * i + 1] / ch + 0.5;
+              A[3 * i + 2] = carveHeight(X, Y) * 0.011;
+            }
+            g.computeVertexNormals(); FRIEZE.set(ckey, g); }
+          const cg = FRIEZE.get(ckey).clone(); cg.translate((m.r0 + m.r1) / 2, cy, fz + 0.002);
           const carv = carvedTextures(THREE, null, len, ch);
           const carvM = grime(THREE, new THREE.MeshStandardMaterial({ map: carv.map, roughness: 0.55 }));
           carvM.userData.cls = "oak_carved";
