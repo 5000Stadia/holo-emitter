@@ -19,8 +19,9 @@
 export const TIERS = {
   // (a phone draws at 30 a second: 33 ms; people's 4-14 ms of it is Photonic's, m897603, scaling with headcount)
   phone: { frame: 1000 / 30, moving: 6, still: 14, urgent: 6, people: { floor: 4, ceiling: 14 } },
-  // (a PC at 60: 17 ms, the richer tier's people with their shadows from 6 ms; no ceiling agreed yet)
-  pc: { frame: 1000 / 60, moving: 5, still: 12, urgent: 4, people: { floor: 6, ceiling: null } },
+  // (a PC at 60: 17 ms, the richer tier's people with their shadows from 6 ms, to 10: a burst of hand-overs done in a frame
+  // or two without eating the frame, Photonic mc4c24a)
+  pc: { frame: 1000 / 60, moving: 5, still: 12, urgent: 4, people: { floor: 6, ceiling: 10 } },
 };
 
 export function makeFrameBudget(tier = "phone", { now = () => performance.now() } = {}) {

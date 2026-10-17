@@ -44,7 +44,7 @@ console.log(JSON.stringify(out));`], { encoding: "utf8" }));
     expect(g.roomsS, `${tier}: still, the pot grows and the rooms get their ceiling or the rest (the urgent extra is only for urgent work)`).toBe(Math.min(8, T.still - 3 - 2));
     expect(g.landS, `${tier}: a frame's own ceiling`).toBe(2); }
   expect(r.pc.T.frame, "a PC's frame is half a phone's").toBeCloseTo(r.phone.T.frame / 2);
-  expect(r.phone.T.people, "the people's share, agreed with Photonic").toEqual({ floor: 4, ceiling: 14 }); expect(r.pc.T.people.floor).toBe(6);
+  expect(r.phone.T.people, "the people's share, agreed with Photonic").toEqual({ floor: 4, ceiling: 14 }); expect(r.pc.T.people).toEqual({ floor: 6, ceiling: 10 });
   expect(r.heldBack, "the land asked first keeps back the ways' and the rooms' floors").toBe(r.phone.T.moving - 2);
   expect(r.freshLand, "a job that has never said it has work holds no floor").toBe(r.phone.T.moving);
   expect(r.idleFreed, "the rooms gone idle: their floor free for the others, the ways' still kept").toBe(r.phone.T.moving - 1);
