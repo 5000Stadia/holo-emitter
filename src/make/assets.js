@@ -1,0 +1,108 @@
+globalThis.HOLO_ASSET_MANIFEST = {"v":1,"cdn":"https://cdn.jsdelivr.net/gh/5000Stadia/holo-emitter@","groups":{"97fae4a6d253142f200f1cfcf8c0ecebeab1d1f5":["backdrops/served/back_office/E.jpg","backdrops/served/back_office/N.jpg","backdrops/served/back_office/S.jpg","backdrops/served/back_office/W.jpg","backdrops/served/back_stair/N.jpg","backdrops/served/back_stair/W.jpg","backdrops/served/back_stair_head/N.jpg"],"af75da273933f80612106cdf8783614221192182":["backdrops/served/back_stair_head/S.jpg","backdrops/served/buttery_pantry/E.jpg","backdrops/served/buttery_pantry/N.jpg","backdrops/served/buttery_pantry/S.jpg","backdrops/served/buttery_pantry/W.jpg","backdrops/served/closet_chamber/E.jpg","backdrops/served/closet_chamber/N.jpg","backdrops/served/closet_chamber/S.jpg"],"2a023db75224f0155486b4821c2a3be49de6c1a2":["backdrops/served/booking_hall/E.jpg","backdrops/served/booking_hall/N.jpg","backdrops/served/booking_hall/S.jpg","backdrops/served/booking_hall/W.jpg"],"9119437e872432abf21d1683db512b44bed9df67":["backdrops/served/closet_chamber/W.jpg","backdrops/served/dining_parlour/E.jpg","backdrops/served/dining_parlour/N.jpg","backdrops/served/dining_parlour/S.jpg","backdrops/served/dining_parlour/W.jpg","backdrops/served/entrance_approach/E.jpg","backdrops/served/entrance_approach/S.jpg","backdrops/served/entrance_approach/W.jpg","backdrops/served/entrance_court/E.jpg","backdrops/served/entrance_court/S.jpg","backdrops/served/garden_room/E.jpg","backdrops/served/garden_room/N.jpg","backdrops/served/garden_room/S.jpg","backdrops/served/garden_room/W.jpg","backdrops/served/great_hall/N.jpg","backdrops/served/great_hall/S.jpg","backdrops/served/great_stair_hall/E.jpg","backdrops/served/guest_chamber/E.jpg","backdrops/served/guest_chamber/N.jpg","backdrops/served/guest_chamber/S.jpg","backdrops/served/guest_chamber/W.jpg","backdrops/served/kitchen/E.jpg","backdrops/served/kitchen/S.jpg","backdrops/served/kitchen/W.jpg","backdrops/served/library/E.jpg","backdrops/served/library/N.jpg","backdrops/served/library/W.jpg","backdrops/served/long_gallery/E.jpg","backdrops/served/long_gallery/N.jpg","backdrops/served/long_gallery/S.jpg","backdrops/served/master_bedchamber/E.jpg"],"f3dd1915ada989815af51fa5bf4dac270e105ad6":["backdrops/served/gallery/E.jpg","backdrops/served/gallery_far/W.jpg"],"c6de07f5b45cf2d3df00eabcc781045249b9e89c":["backdrops/served/gallery/N.jpg"],"be18fcace3b3e76a9bfb889daa407b4da2a1800f":["backdrops/served/gallery/S.jpg","backdrops/served/gallery/W.jpg","backdrops/served/gallery_far/E.jpg","backdrops/served/gallery_far/S.jpg"],"a2c92a421b8a39664562dfa9904fd56f0f5a4ba6":["backdrops/served/gallery_far/N.jpg","backdrops/served/writing_room/E.jpg","backdrops/served/writing_room/N.jpg","backdrops/served/writing_room/S.jpg"],"e3c3b5ff5ecf800380ac49fe35ff85223e59d5cf":["backdrops/served/master_bedchamber/N.jpg","backdrops/served/master_bedchamber/S.jpg","backdrops/served/master_bedchamber/W.jpg","backdrops/served/muniment_room/E.jpg","backdrops/served/muniment_room/N.jpg","backdrops/served/muniment_room/S.jpg","backdrops/served/muniment_room/W.jpg","backdrops/served/noodle_bar/E.jpg","backdrops/served/noodle_bar/N.jpg","backdrops/served/noodle_bar/S.jpg","backdrops/served/noodle_bar/W.jpg","backdrops/served/privy_garden/N.jpg","backdrops/served/privy_garden/S.jpg","backdrops/served/reception/S.jpg","backdrops/served/reception/W.jpg","backdrops/served/servants_hall/E.jpg","backdrops/served/servants_hall/N.jpg","backdrops/served/servants_hall/S.jpg","backdrops/served/servants_hall/W.jpg","backdrops/served/solar/E.jpg","backdrops/served/solar/N.jpg","backdrops/served/solar/S.jpg","backdrops/served/solar/W.jpg","backdrops/served/stair_landing/E.jpg","backdrops/served/stair_landing/N.jpg","backdrops/served/study/N.jpg","backdrops/served/study/W.jpg","backdrops/served/treatment_room/W.jpg","backdrops/served/ward/E.jpg","backdrops/served/ward/N.jpg","backdrops/served/ward/S.jpg"],"2eff980a22b89303df26151e5138678888f40b0b":["backdrops/served/platform/E.jpg"],"c326ffc18d375eda2a489d4a99d8d0e561df8165":["backdrops/served/platform/N.jpg","backdrops/served/platform/S.jpg","backdrops/served/platform_far/N.jpg"],"d3f71820c894bb30c7bc504c3c7ae60dbaae84de":["backdrops/served/platform/W.jpg","backdrops/served/platform_far/E.jpg"],"027c4ab3323a045df4992d2834b40192d6a3f308":["backdrops/served/platform_far/S.jpg"],"6cc590fd488bbbc484bfced514bd1ab324d3e4be":["backdrops/served/platform_far/W.jpg"],"20ae8d0c375924b539829d1b562e5ed8be254017":["backdrops/served/reception/E.jpg","backdrops/served/reception/N.jpg"],"d27a23e403a5f976cf6ddf791992e8c03b3872bf":["backdrops/served/saloon/E.jpg","backdrops/served/saloon/N.jpg"],"11d9860489072e7de25fc916062b8b084af62764":["backdrops/served/saloon/S.jpg","backdrops/served/saloon/W.jpg","backdrops/served/saloon_e/E.jpg","backdrops/served/saloon_e/S.jpg","backdrops/served/saloon_n/N.jpg","backdrops/served/saloon_n/W.jpg","backdrops/served/saloon_ne/E.jpg","backdrops/served/saloon_ne/N.jpg"],"a4fd235ea9acf02af10b032ad28eb4d74f34d4c6":["backdrops/served/saloon_e/N.jpg","backdrops/served/saloon_e/W.jpg"],"8cfadf6c3d1e8e792538d4c7e6abd3d269530296":["backdrops/served/saloon_n/E.jpg"],"5ebe69311e2ff5b4fb330a7e015c3dac0b92a02d":["backdrops/served/saloon_n/S.jpg"],"1eefd4def9880457cb251d70ba79e30558c25a7b":["backdrops/served/saloon_ne/S.jpg"],"2253a5314795c2bcb866bc461f5e95b9810ed15c":["backdrops/served/saloon_ne/W.jpg"],"097b66b9565e4a2a9921128f08f8aa5188e77c96":["backdrops/served/treatment_room/E.jpg","backdrops/served/treatment_room/N.jpg","backdrops/served/treatment_room/S.jpg","backdrops/served/ward/W.jpg"],"95bdcb9a12e1db3ad20505faa93f8fbe2dd02b7c":["backdrops/served/writing_room/W.jpg"],"dad1b7a7a0a2cad33da76a0a2191f44c5581d968":["lab/brief/review/bookpress.jpg"],"4e3366a067ea2d1dc66fb6d440f8b6c043c6a2cb":["lab/brief/review/library-means.jpg"],"8d8a8dc0a8e7a80b35e394eee393c86aff9187bc":["lab/brief/review/library-wall.jpg"],"33c5079693447daff675db2a37870aea3e20c8b4":["lab/brief/review/strongroom.jpg"],"c53c766d17f5eb7e53b926450a1a5696ac254ee3":["lab/case/case-1660.json"],"b62b0fb962569e2323dca6760d230b2388174b4c":["lab/catalogue/sheet.png","lab/gallery/bicycle.png","lab/gallery/camera.png","lab/gallery/car_(automobile).png","lab/gallery/chair.png","lab/gallery/clock.png","lab/gallery/lamp.png","lab/gallery/radio_receiver.png","lab/gallery/telephone.png","lab/gallery/television_set.png","lab/gallery/typewriter.png","library/basket-liner-1934-waste/model.glb","library/bookcase-liner-1934-low/model.glb","library/clock-liner-1934-mantel/model.glb","library/lamp-liner-1934-floor/model.glb","library/stand-liner-1934-coat/model.glb"],"8a083860302976b1f566c746df06f090b7644e43":["lab/fps/godot/layout.json","lab/fps/layout.json"],"df6bbc55b3f78fcaea104624350e89f077fd0bd2":["lab/fps/shots/direct-gl-edges.jpg","lab/fps/shots/direct.jpg","lab/fps/shots/godot.jpg","lab/fps/shots/out8.jpg","lab/fps/shots/phone-set.jpg","lab/fps/shots/rect.jpg","lab/fps/shots/tex-phone.jpg"],"29e07f4010c5794bb1e8ff3ff802e94fefa3624d":["lab/house/grand-tour.jpg"],"6286f6a67092d15de2e20623b240945557197218":["lab/house/tour.jpg"],"3e421ac039ead1162bc04f414b2c0ff5bc704dbf":["lab/objects/img2threejs-chair-record/cmp-final.png"],"a9c9afa110f3047bafdd9087edfdec8381420b2f":["lab/painted/compare-gi.jpg"],"e470ce4d918cf508a78d299cf15e112d8800d6db":["lab/painted/compare-painted-v1-v2.jpg","lab/painted/interaction/1-clean-closed-close.png","lab/painted/interaction/1-clean-closed-room.png","lab/painted/interaction/2-opened-key-revealed-close.png","lab/painted/interaction/2-opened-key-revealed-room.png","lab/painted/interaction/3-key-taken-cavity-empty-close.png","lab/painted/interaction/3-key-taken-cavity-empty-room.png","lab/painted/interaction/4-closed-after-take-close.png","lab/painted/interaction/4-closed-after-take-room.png","lab/painted/interaction/5-reopened-still-empty-close.png","lab/painted/interaction/5-reopened-still-empty-room.png","lab/painted/interaction/6-returned-persisted-close.png","lab/painted/interaction/6-returned-persisted-room.png","lab/painted/interaction/states.jpg"],"6b5509b31e9aa488d6b44a2c63acd719ea40742a":["lab/painted/compare-painted-vs-code.jpg"],"799d8e5d8129035991a58714337456e743f1eb93":["lab/painted/drawer-and-key.jpg"],"269d0db3183df8f1c8b912a4688774208857bfb3":["lab/painted/muniment_room/E.jpg","lab/painted/muniment_room/N.jpg","lab/painted/muniment_room/S.jpg","lab/painted/muniment_room/W.jpg","lab/painted/muniment_room/ceiling.jpg","lab/painted/muniment_room/floor.jpg"],"273762ca630a91dd99aefdb36fa4d4236e358f51":["lab/painted/review/drawer-and-key-states.jpg","lab/painted/review/painted-vs-code.jpg","lab/painted/review/painted-w1.jpg"],"49a5589efc56f7e5870a4216c81c911007eaa2ba":["library/armchair-liner-1934-club/model.glb","library/chair-objaverse-1/model.glb","library/desk-liner-1934-writing/model.glb","library/table-liner-1934-side/model.glb"],"a2e75f164427a3e7dc07beaa5283cf3b1e40c7fd":["library/cabinet-filing/model.glb","library/chair-office/model.glb","library/chair-waiting/model.glb","library/cooler-water/model.glb","library/desk-manager/model.glb","library/desk-office/model.glb","library/desk-reception/model.glb","library/fridge/model.glb","library/plant-potted/model.glb","library/sofa-annex/model.glb","library/table-conference/model.glb"],"f6162704243f81e12ffbd2721d3613c81344fcba":["library/casement-leaded-v1/sprite.png"],"c911493ba73256ea7762377fd5d3b1e31b92b14e":["library/chair-conference/model.glb"],"3a44eb83deafa1a505538fce32785bc21eb86a36":["library/chair-liner-1934-mesh/model.glb"],"a88bcc549e70536b047ef8f40e508aab7614fac2":["library/chair-sf-1/model.glb"],"378e1b709d259fb821ddd1cdb4a0d7ec616c5f1b":["library/desk-joined-oak-1660/sprite.png"],"cd28eee6c486dfb98d66475494c0467f60ca098b":["library/settee-objaverse-1/model.glb"],"757998232fcc1b0480ec345644553d80ebc08f22":["library/telegraph-liner-1934-engine-order/model.glb"]},"count":204,"bytes":130952452};
+/* assets.js — heavy files from jsDelivr, with the Pages URL as the fallback.
+ *
+ * [Kabe, gate g8dfd99, 2026-10-07] GitHub Pages caches for 10 minutes and has no
+ * Brotli; jsDelivr serves a GitHub file by commit for a year, immutable, Brotli,
+ * HTTP/3. The published site lists the files it moves in a manifest
+ * (tools/asset-manifest.mjs, made by tools/publish-site.sh) and the publish
+ * prepends it to this file as `globalThis.HOLO_ASSET_MANIFEST = {...};` and
+ * adds this script to the published copy of every page. NOTHING IN THE WORKING
+ * TREE CHANGES: with no manifest (a local run, the test suite, file://) this
+ * file does nothing at all and every URL is the one the page wrote.
+ *
+ * With a manifest it
+ *   - exposes  HoloAssets.assetURL(path)   (path as the page would fetch it,
+ *     relative to the page or absolute; returns the jsDelivr URL if the file is
+ *     listed, else the same path resolved) for code that wants it directly, and
+ *   - hooks the two ways a page loads data: fetch(url) and img.src = url (so
+ *     THREE.TextureLoader / ImageLoader / ImageBitmapLoader / GLTF fetches /
+ *     the painted-wall <img>s all go through without being edited). Only a URL
+ *     that resolves to a LISTED path on this site is touched; everything else
+ *     (three.js, fonts, blobs, data: URIs, other origins) passes through.
+ *
+ * FALLBACK. fetch: a network error, a non-2xx, or no answer within 8 s falls back
+ * to the Pages URL. img: the CDN is tried on a detached probe Image first; an error,
+ * or no load within 20 s, gives the page's element the Pages URL instead (so the
+ * page's own error handlers only ever hear about the Pages URL failing). After the first CDN
+ * failure the page stops asking the CDN at all (HoloAssets.cdnDown), so one dead
+ * CDN costs one timeout, not one per file. An image taken from the CDN gets
+ * crossOrigin="anonymous" (jsDelivr sends Access-Control-Allow-Origin: *), which
+ * WebGL needs to use it as a texture.
+ *
+ * Classic script, no imports, so it loads before module scripts and works in
+ * every page: <script src="…/src/make/assets.js"></script>. */
+(function (g) {
+  "use strict";
+  var M = g.HOLO_ASSET_MANIFEST;
+  var A = g.HoloAssets = { active: false, cdnDown: false, served: 0, fellBack: 0, files: 0, assetURL: null };
+  if (!M || !M.groups || !g.document) { A.assetURL = function (p) { try { return new URL(p, g.document ? g.document.baseURI : g.location.href).href; } catch (e) { return p; } }; return; }
+
+  var cs = g.document.currentScript;
+  var root = null;                                    // the site root: the directory the manifest's paths are relative to
+  try { root = new URL(cs && cs.src ? "../../" : "./", cs && cs.src ? cs.src : g.location.href); } catch (e) { return; }
+  // assets.js is published at <root>/src/make/assets.js, so ../../ is the root
+  var path2url = {};
+  for (var sha in M.groups) for (var i = 0, a = M.groups[sha]; i < a.length; i++) { path2url[a[i]] = M.cdn + sha + "/" + a[i]; A.files++; }
+
+  function rel(u) {                                   // absolute URL -> manifest key, or null
+    var x;
+    try { x = new URL(u, g.document.baseURI); } catch (e) { return null; }
+    if (x.origin !== root.origin || x.pathname.indexOf(root.pathname) !== 0) return null;
+    var p = x.pathname.slice(root.pathname.length);
+    try { p = decodeURIComponent(p); } catch (e) { /* keep raw */ }
+    return Object.prototype.hasOwnProperty.call(path2url, p) ? p : null;
+  }
+  function cdn(u) { var p = rel(u); return p ? path2url[p] : null; }
+
+  A.assetURL = function (p) { var x = new URL(p, g.document.baseURI).href; return (!A.cdnDown && cdn(x)) || x; };
+
+  /* fetch */
+  var nativeFetch = g.fetch && g.fetch.bind(g);
+  if (nativeFetch) g.fetch = function (input, init) {
+    var url = typeof input === "string" ? input : (input instanceof g.URL ? input.href : (input && input.url));
+    var plain = typeof input === "string" || input instanceof g.URL ||
+      (input instanceof g.Request && input.method === "GET" && ![...input.headers].length);
+    var c = !A.cdnDown && plain && (!init || ((!init.method || /^GET$/i.test(init.method)) && !init.headers)) ? cdn(url) : null;
+    if (!c) return nativeFetch(input, init);
+    var ctl = new g.AbortController(), timer = setTimeout(function () { ctl.abort(); }, 8000);
+    var opts = {}; for (var k in (init || {})) opts[k] = init[k];
+    opts.signal = ctl.signal; opts.mode = "cors"; opts.credentials = "omit";
+    return nativeFetch(c, opts).then(function (r) {
+      clearTimeout(timer);
+      if (!r.ok) throw new Error("cdn " + r.status);
+      A.served++; return r;
+    }).catch(function () {
+      clearTimeout(timer); A.cdnDown = true; A.fellBack++;
+      return nativeFetch(input, init);
+    });
+  };
+
+  /* Image.src */
+  var desc = g.HTMLImageElement && Object.getOwnPropertyDescriptor(g.HTMLImageElement.prototype, "src");
+  if (desc && desc.set) Object.defineProperty(g.HTMLImageElement.prototype, "src", {
+    configurable: true, enumerable: desc.enumerable, get: desc.get,
+    set: function (v) {
+      var img = this, c = (!A.cdnDown && typeof v === "string") ? cdn(v) : null;
+      if (!c) { img.__holoTok = null; return desc.set.call(img, v); }
+      /* The CDN is tried on a DETACHED probe Image, then the page's own element is given the
+         URL that worked (a cache hit). A failure then fires its error event on the probe,
+         which is not in the document and so never reaches a window-level error listener
+         (index.html's "boot fault" handler captures every resource error, and prints an
+         apology while nothing has painted); the page's element only ever hears about the
+         Pages URL. */
+      if (img.crossOrigin == null) img.crossOrigin = "anonymous";
+      var tok = img.__holoTok = {}, probe = new g.Image(), done = false, timer = null;
+      probe.crossOrigin = "anonymous";
+      function settle(url, ok) {
+        if (done) return; done = true; clearTimeout(timer);
+        if (ok) A.served++; else { A.cdnDown = true; A.fellBack++; }
+        if (img.__holoTok === tok) desc.set.call(img, url);
+      }
+      probe.onload = function () { settle(c, true); };
+      probe.onerror = function () { settle(v, false); };
+      timer = setTimeout(function () { probe.onload = probe.onerror = null; settle(v, false); }, 20000);
+      desc.set.call(probe, c);
+      return;
+    }
+  });
+})(typeof globalThis !== "undefined" ? globalThis : window);

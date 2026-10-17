@@ -1,0 +1,1375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=6dc881b8"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Manor by Purpose</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --ink: #ece4d2; --dim: #a89e88; --panel: rgba(18, 15, 12, 0.72); --line: rgba(236, 228, 210, 0.18); --brass: #c9a35c; }
+  html, body { height: 100%; margin: 0; background: #070605; color: var(--ink); overflow: hidden; font: 12px "IBM Plex Mono", ui-monospace, monospace; }
+  canvas { display: block; touch-action: none; }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; background: #070605; color: var(--dim); z-index: 5; }
+  #status[hidden] { display: none; }
+  /* the first screen (R65; Teleoperator's title, design/references/teleoperator/): a still of the very view you will
+     start in, rendered from the page itself (tools/title-stills.mjs). A tiny copy inlined below paints at once, the full one
+     sharpens over it, and a slow drift run by the compositor keeps it alive while the house is raised; at walkable it
+     fades into the live frame */
+  #still { position: fixed; inset: 0; z-index: 4; overflow: hidden; background: #070605 center / cover no-repeat; transition: opacity .7s ease; pointer-events: none; }
+  #still img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  #still.drift img, #still.drift { animation: drift 40s ease-out forwards; }
+  #still.gone { opacity: 0; }
+  @keyframes drift { from { transform: scale(1); } to { transform: scale(1.06); } }
+  @media (prefers-reduced-motion: reduce) { #still.drift, #still.drift img { animation: none; } }
+  #status.over { background: linear-gradient(to bottom, transparent 62%, rgba(7, 6, 5, .78)); place-items: end center; padding-bottom: calc(9vh + env(safe-area-inset-bottom)); box-sizing: border-box; color: var(--ink); text-shadow: 0 1px 3px #000; }
+  #where { position: fixed; left: 14px; top: 12px; padding: 8px 12px; background: var(--panel); border: 1px solid var(--line); }
+  #where .n { font: 600 20px "Cormorant Garamond", Georgia, serif; color: var(--brass); letter-spacing: .04em; }
+  #where .f { color: var(--dim); }
+  #keys { position: fixed; left: 14px; bottom: 12px; padding: 6px 10px; background: var(--panel); border: 1px solid var(--line); color: var(--dim); }
+  kbd { border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; font: inherit; }
+  #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%; background: rgba(236,228,210,0.7); z-index: 2; pointer-events: none; }
+  #cross.icon { width: 24px; height: 24px; margin: -12px 0 0 -12px; background: none; border-radius: 0; filter: drop-shadow(0 0 2px rgba(0,0,0,0.7)); }
+  #cross[hidden], #line[hidden], #gate[hidden] { display: none !important; }
+  #line { position: fixed; left: 0; right: 0; margin: 0 auto; width: fit-content; bottom: 70px; max-width: min(60ch, calc(100vw - 32px)); box-sizing: border-box; text-align: center; background: var(--panel); border: 1px solid var(--line); padding: 8px 14px; z-index: 2; cursor: pointer; touch-action: manipulation; }
+  /* a phone: the line up top, under the room's name, clear of both thumbs and of what you have just opened below the
+     dot (it had sat over the stick's ground, and a thumb set down on it to walk dismissed it instead, and walked nowhere);
+     it takes no touch of its own: a tap on it still goes on to the next (tapAt), a drag begun on it walks or looks */
+  @media (pointer: coarse) { #line { bottom: auto; top: calc(70px + env(safe-area-inset-top)); pointer-events: none; }
+    #where { left: calc(14px + env(safe-area-inset-left)); top: calc(12px + env(safe-area-inset-top)); } }
+  @media (pointer: coarse) and (orientation: landscape) { #line { top: calc(10px + env(safe-area-inset-top)); max-width: min(60ch, calc(100vw - 440px)); } }
+  #line.more::after { content: " ›"; color: var(--brass); }
+  #gate { position: fixed; left: 50%; top: 18px; transform: translateX(-50%); cursor: pointer; z-index: 3; border: 1px solid var(--brass); padding: 10px 18px; background: var(--panel); }
+  #end { position: fixed; left: 50%; top: 38%; transform: translate(-50%, -50%); max-width: min(46ch, 88vw); text-align: center; font: 600 24px "Cormorant Garamond", Georgia, serif; color: var(--brass); background: var(--panel); border: 1px solid var(--line); padding: 16px 22px; z-index: 4; }
+  #end small { display: block; margin-top: 8px; font: 12px "IBM Plex Mono", monospace; color: var(--dim); }
+  @media (max-width: 640px), (pointer: coarse) { #where .n { font-size: 16px; } #keys { display: none; } }
+</style>
+</head>
+<body>
+<div id="status">raising the house…</div>
+<div id="still" hidden></div>
+<!-- stills:begin (written by tools/title-stills.mjs) -->
+<script>window.__stillsMade = {"manor":{"thumb":"data:image/webp;base64,UklGRvwBAABXRUJQVlA4IPABAACwDACdASpQAC0APq1Gm0mmI6KhMzcdUMAViWkA0NAOhegmY7FOO8SvhY3/6XWN3SyYUUKniQ1/Dhb0izskdmJ7dePREabe1yaeVq5SAa1SsxOMYw2vPOzOq0Zxuj6+eeWzka/y/XDhhIUtRqa84AD++6G+gfRUe3PJqLfUQm8XRTNqNBkHBgQ4UPJJ2RaxzM+vOrvnFnZ3+d1LtEAbPCm1T+0THEWrDjQi5T3v8HAt2cEOFUx0CzXb9PXcJz6GcPznvm/jZuCJ2wuwzoR+rfuun86vFRH1g8MlpdkByZnPfUIqTcCIg/5T4vnSD5TxRNrIdvsNSXzIXXIjFzybvidSzTsIkbqMfIcKD8nlHOQ6nFG9k44UivI9/L5lub42OMFIoDD5N+ZEbJUxbrVxKaUG8efA0VZTHVqhmQzSNn1PPSMtqeaw2NbEC6B5FmFcGyyvZ8bluvKiepfpJAeOCQ2AkmIUbxAyfN+1rt0jOadMoq/RObtcz4ZGU1uRyaqnNeOXiAzERnZJtBk+CxLwoneEbuoy5qiYrm/mEOdsLXF8XE/5Nbo+OMAOgGkwdkxlpdMBhMgpT5vjTlVrxdFGG7PNjWUIzG2FKs6o34MkStls8CpbvagVY+ZlTU/QrpB7FhM55ybemf/kMpECzFHNIQAA","v":"c05b3x8b","world":"1mszx1y1vww5xb/1jh5qgc05b3x8b","thumbTall":"data:image/webp;base64,UklGRg4BAABXRUJQVlA4IAIBAACwCACdASokAE4APrVOoksnJCMlKrZsAOAWiWkA0FROX/7tqXxgj5XHGF8wjA09s7D3ef6icZctTdHrvJkI0Q27ewfjfXEOfSXrOHYUFUAA/vluPWvmRZ3T1T9+r21NweiXkRPMP9ptoZF7vEKc5K/Gh5BSEwpxURIgCPIo76JEEsdakRfIiMyqJFhA5JDlIqLoLlUSn96B1HgrPkX/88Umk9kCS8yCEDrpYZ/gN45B0ZWC133EtOGnHchKlgTCK8zigZO78/h/XH+tssw97ZBMCNaZ2H7+wSdIn3w6ibL542sWN2cXVwnHgrbOduCv0YT7Lnv7xkJNhYdRr1N6bCAAAAA="},"case-1660":{"thumb":"data:image/webp;base64,UklGRmwCAABXRUJQVlA4IGACAADwDQCdASpQAC0APrVKnUsnJCKhrvbcAOAWiWUAx+r1fjiCTHqXMy4KrXFhD4uLHmlTeBKEyLNvjHmz3/D9c+4QRRgDCgkK6wJzQ0mKUIcK74Po8blY6iUL7h7pQTIBgs6mVFvan5k7Ba9wRCnHsVgkmZ8o6p24NgAA/vxa68TlvbM7PantGpIJHOouYqNKQsyQY8qMzTbNBx0QL7M28giRx3RCkj76JEfSVu7LnPrZrUowXDr8SD3lJ/oC7S4sbeZ35vhNObfkg1kNT3SSd5m48Tl/xEIi44pvvKWWnjg7HCvEuvkLw7pMgpaoxaiGvbOLJJoWU0mKb7KF3cMcK8MMvWpD8AuSTHIF8uXza0ctqHu5b1sFzJ6xc1oEeNbNo9m7kJpVZ+Lf7dsb304hvfVYVAHMpVWTYVL+puSZmbbwzfyQyI09p2v20+PRhe2V+W7Aru2qiBn/C9AUQAJ043XP1kEeDl4ZZy/EhEIlb5Hmdj3VomFZT6RYNy0eHN166fgMB3L908qyyxJ6alxWCs0wvcTt/UwqC1adMbKfPPpaFdXomsIQOvURCSjxg1xKB8OKpP2KQg6eHHGnjPo7FkymZ6orJgIYYVrA8ws5XqXMPJ6Y+UWuGunV1dSV/40WpBZTNE9R14n8qWzcCGaLaAo1tzWfwd6DbBvNhmmjz6pI2dCNLBUJAnes4RBMEsQPcKR/ILaZSiEyaJzC8AujRjbljNQcXzNGLSOKW4vxbmwXmklPj0RABVYgED+YBCJg7+Pp9IcoA/YJ8gseyQV/piGJWsdDNZGSrZV6fXA9JFEAAA==","v":"71jdnx7w","world":"1mszx1y1vww5xb/1x6zo271jdnx7w","thumbTall":"data:image/webp;base64,UklGRlgBAABXRUJQVlA4IEwBAADQCACdASokAE4APrVQn0qnJSKhqrmcyOAWiWcA0YBT2y6dPWxf+San6glcLVGMOXZSLVd6KyTmcSDFBJ+nuX9DrO9uoMVTbivHmGYzwYAAAP76Vq+fkiG63MI+cx+//NgVUeO/WYAVA4y4LdUiPcpF0zCa6VM8cvwfOZSdSPA/3276b9zNs4r+d29k1c7+m7ah5/jXAM27S2djYGmQUsksEpDS4oPPNEC9/BjKeoNfG9hEwWRHlpZkJwekU0ELDLfAQxsUZN6wL8u1/0j82PY17r5OG/VDHw5UaWse5JlzsRoEbFouJUUNpeSh2BSWFJQUuxI3M2o35eVR4lbuI0S4f3dci5PLBfhitjLAkyKDV/hNAORdepIUXsZQXx0T+zxqFSl58zzcYfNeih9fd9gKa13Ee9kzBD32y3o8hUURlueVqYKI1HO/MCAAAA=="},"banqueting":{"thumb":"data:image/webp;base64,UklGRp4DAABXRUJQVlA4IJIDAADwDgCdASpQAC0APrVOokunJCMhqrZrMOAWiWMAuzPxByp/3HKsNNNSpR2E5NVst9rqhghAVIhyQYDmfeFnAzNaQJKXY+i1OrCMxgkVffRfI8f41zPGapBljXzj5zEar0QHgs3FPDZC3C/7x4frrag2Tyi6iXKJIoYg5H6gLwRTAAD91f6euJKtbh/QVG7JNjd6qn5VyGm32jLrHLq8gzmwVWB1sX7/iQOx4RJGwfKqImTzK8L9I5wmEHjv0UCrfw/wNxnkZhScKbtoNC5rHQ4rJxUz+x8cWoG5Ye4jreIWQCoqu8D/HJhN6vhKjrBEEEzo68nzt8s8FcqVCStCfEtqNdDCzcoq/H3rRceRZ5IoOhW5yZOZ1rCaTGHTusnfQOqk6SPDG0bK2boE75S0ZyNCxCYL7FeHmKL0Xlt2fPub7RZWHX4tujUvOg9VXd1K0B1TPKHt764cYBFs6x2pFaxKFNjiW0kdwKp3Dp3Oi0gqDdOZNABUqwv2HVm+qGWe6n0AWMEeNXVObw2RFWSH/XbjQ2Q4jhxpIsuwPbH7GBExGwGbe5brLO6OqEtTrbPcg/ZoeOXGHlcXrbPQXIG/lvOad2tRQie18/QcrZ2U5rCHHecUjMyzdbNIkvmovTA8feEsBzleixY7tt7mWjjXCu414uLHPhGOtNq8TbAy//UP3Qspt5411U3BjN9ngj5BO1QcMnMzSE4yxP1zK5t1GuFDZy533RTp8PmtBNT0l5VNl3hKyP6vV7Tq47b7cOVm2THVYSQLCF6igcRa3Cunuxzh8lF8OxbUpRiuFavbRXegJRGo/6fpZVLAXrJugbZq6yyPsYw2abdl/1lw1jyVDXakNHhGiaAbTY3d6jXKcCubRmTd9Klb5RKwu29xVDCC5tViXG1LzCSM3lzEuj/e7+wPxhn2mYzCQ+zBtClYC/j19k9KnYHJEyA48tXAG1jGae+AMMgcBf6Vl1JkIaMjOZudLQz5kabmUSe1/FY3mvOOu6TgBmtK09EX/jf9J+iyvVFUXDGa6QlocAOSTAfONcr4qgy4wlayEVMb/unKLEEOdiohQIYYWQXl4yxMq2L8u0mGlm1HDy0i2jun4szeGMUUib36DNXKswTTYKbW0H4sFv4YmKnsxFiZ27A0u3AllpFUdVMBEHp7aGH5nKsNfrmNZbr7OqPRYNtoBPISI3aU6KVzInIJMuDKbpTQTVDXXZXgAA==","v":"b0u2rimi","world":"1mszx1y1vww5xb/0tizhsb0u2rimi","thumbTall":"data:image/webp;base64,UklGRjQCAABXRUJQVlA4ICgCAACQDACdASokAE4APrVInUsnI6KhrvSc+OAWiWUAxFhuuSs/G6Sbthj5gL3LXiabsao6xih2WXa6UTRh9kd5tAVuzctPUTT1/qtFNwu3HwMr+HawGr1iEs98zAgrrU6V/3o5r5tnX1kSi0Tbzh4AAPpljwN9Y87wi+dhoX47lBkNnaV+PV7vlbpM58UYq5nbXdd7OsnQDzuwznX3IcWSxhpzTj5B4kAz1BxaeNyb4FM4hylqobf8AiOhqYWLvQ+xFd9ZX3qQnUJVCY/xXsHOoM+sIzMn52Neps0mxlayu0I0LPc6kRu+l8W4osVvpmyf7O8yesZG/yXshZwmZ7JH7ud6R2bbSGktPICijnyzwu7RCUZjVAFu+JnLcl9VkoxOmyAvJ6c00ixzNvCgyHvXmAh7PRUgLutU5v+NreVMUNviwTqyKGxmff6EQXQJIQNZnSalP9ROUqHd/6aUVm1DS8j0kM7NOt9piY5txeevcMmWdzPjbo9mxXuz/lRE3vi6/OfewPeOMxQtKy5zQyfRSCHgV+2pbYRilP9bzRqeavW9q9KWW2CT8tQVQQ3d+wkOewtxlRqkx4IgM53FSZNIWaaMGaUk5u9XDWZAuYl8LDKCzOYXynpa50dBI4s3hsqUi/gU3Cl/0kG9IbAQNjKhFIIPVa3DbqVzGAm/Y8J5e4M912/3u33mBBK8kGeVjrBIBWiUNYhMw4dgDAuKzEh8mcfyuxg95qgAAAA="},"alice-hall":{"thumb":"data:image/webp;base64,UklGRo4BAABXRUJQVlA4IIIBAADwCQCdASpQAC0APrFIm0mnJCIhNVgIAOAWCUziSZbVQMKQ6IZZfimwPuMgRvNNUYxAsWqSzhu2cya59SACrFjEg3f51N2pavG3trAgc62dg6DR0Ci7wUAAAP72xJp7nrhhNcyqxtplWzfwxP5s+UgX3qPNd3UX9IBNLke4f4RV1hU6eKqRkAJAW/Fjs5e8V4MQ8GzSzBp8cHwfgalROwu7fQQ2wZIYdL0yFbHGyLE7pN0b6VEdYOlo1nOGoKcwMiEa+oDf40QdP9EqCMPWTaTliWm5fqgeZJbZ/CzvKP9AMsz3r9CZyA/wXzubOj8Hs4XeEBuPlCkqGno4rf843zzsgKD2vgcL3T1o5z9dZWyTN6Vybu1iDMk2ww5baNBfguBbnc4MjtSPw+TZumPjvIrFBxZd5HCw9UE1SodeOwgjCevajBL5MQ78iEYP4RAtd08rjcexdPqU82/vTyuUr/nAUt8wom0OXTBhPdAU7RXS0KYh89CdTSWmlygUfbpW4eAAAA==","v":"21bx7jkt","world":"1mszx1y1vww5xb/1hx92j21bx7jkt","thumbTall":"data:image/webp;base64,UklGRsIBAABXRUJQVlA4ILYBAACQCwCdASokAE4APrVKnksnJCKhrvScAOAWiWMAr7gECJD3W2wlVoDyP/HP42O7mMDzAp0aKK9frIYXQK9yZfqDJbScJM1EIpiFkMU5Q5cHRctxrny1Ym0vAVBWeJMunQp/pstaAAD+9If83wLLtXATXOnJj5uXF5v/gqT1orZegA5zraQ0rp6q2w3uFOAg7BoXkjwHiXTa5mTuoRvFAgOU7Eb+pTvLaZpcDaN5jkZPBFxcEMC2VqCzDMgP7hypGV4paiOvNzLU+Qxm5vnXLF0UMVKoMQ7C6WAUBJcKjgXEK/7ktcWcK0wugqZervKVYZRrFTHYFJ5pBJqUVtTiCE26hK+rE20fUBAvj3r5CqWr18PhJSrI3eHBjkoLvBTswzt+w8lV9OgMvsbLll3N1DxLOuAaJtE32giikrf9h+N3GKVjdjL16ex2LQ6abSYJq+eNeHpHbjj3P8rSQrJAzB/ZV5Zk/yBjH0LOvekM6j8qzcnonzbZMQNl2XCFIzAVjDTkG83t19JhrYN27GsBypQ5uNN0hZ6GfDtxUrgwKiXHWqqegrcISgdrIrN4KjV77pFS9TQAAAA="}};</script>
+<!-- stills:end -->
+<script>
+// which still, if any: only the four addresses the site links (the manor, the case, the banqueting house, Alice's hall),
+// and only when nothing in the address moves where you start or what is built; a test sees none unless it asks (?still=1)
+(() => { const Q = new URLSearchParams(location.search), OK = new Set(["case", "plan", "fresh", "still", "perf", "webgl", "webgpu", "stopwatch", "carry"]);
+  const key = Q.get("plan") === "alice-hall" || Q.get("plan") === "banqueting" ? (Q.get("case") ? null : Q.get("plan"))
+    : Q.get("case") === "case-1660" ? "case-1660" : Q.get("plan") || Q.get("case") ? null : "manor";
+  const S = window.__stillsMade[key], want = Q.get("still") ?? (navigator.webdriver ? "0" : "1");
+  if (!S || want === "0" || [...Q.keys()].some(k => !OK.has(k))) return;
+  // a phone held upright sees the room wider (the page's fov opens to 88° as the aspect narrows): its own still, made so
+  const tall = innerHeight > innerWidth * 1.2, el = document.getElementById("still"), img = new Image();
+  el.style.backgroundImage = `url(${tall ? S.thumbTall : S.thumb})`; el.hidden = false; el.dataset.key = key;
+  img.decoding = "async"; img.fetchPriority = "high"; img.alt = ""; img.src = `stills/${key}${tall ? "-tall" : ""}.webp?${S.v}`; el.append(img);
+  // the house is raised in one long block that paints nothing: the page waits (at most 0.4 s) for the full still to be
+  // on screen before it starts, so what you look at meanwhile is the sharp one
+  window.__stillShown = new Promise(res => { img.decode().then(() => requestAnimationFrame(() => requestAnimationFrame(res)), res); setTimeout(res, 400); });
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) el.classList.add("drift");
+  document.getElementById("status").classList.add("over"); window.__still = { key, at: performance.now() }; })();
+</script>
+<div id="where"><div class="n">—</div><div class="f"></div></div>
+<div id="keys"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> walk · mouse look · <kbd>shift</kbd> stride · walk into a stair to climb · <kbd>E</kbd>/click use · <kbd>G</kbd> take · <kbd>C</kbd> crouch · double-click go there</div>
+<div id="gate">click to walk</div>
+<div id="cross" hidden></div>
+<div id="line" hidden></div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// The manor by purpose (R47): a c.1660 gentry seat's program laid into a hybrid E-plan, every room
+// built by its type, the muniment room from its brief, doors that work, only what you can see drawn.
+// ?fresh starts a new world; ?room=<id> starts you there; ?plan=banqueting the octagonal banqueting house; ?perf=1 shows the engine's numbers.
+import * as THREE from "three/webgpu";
+import { mix, smoothstep, distance, float, positionWorld, cameraPosition } from "three/tsl";
+import * as TSL from "three/tsl";
+import { weatherOf, anyWeather, lightUnder, precipitation, footprintMask } from "../../src/make/weather.js";
+import { RectAreaLightTexturesLib } from "three/addons/lights/RectAreaLightTexturesLib.js";
+import { makeKit } from "../painted/procedural.js";
+import { textureLog, oakLog, TEX_HALF } from "../painted/texjobs.js";
+import { strongroomMaterials } from "../brief/strongroom.js";
+import { makeRender } from "../../src/make/render.js";
+import { nodeify } from "../../src/make/nodes.js";
+import { makeWarm } from "../../src/make/warm.js";
+import { makeFrameBudget } from "../../src/make/frame-budget.js";
+import { makeGeoDrop, geodropWanted } from "../../src/make/geodrop.js";
+import { buildManor } from "../../src/make/manor.js";
+import { makeWalk, BODY } from "../../src/make/walk.js";
+import { SOLID } from "../../src/make/claims.js";
+import { withBodies } from "../../src/people/bodies.js";
+import { regions } from "../../src/people/route.js";
+import { checkPeople } from "../../src/people/checks.js";
+import { planBanqueting } from "../../src/make/plans/banqueting.js";
+import { framesOf } from "../../src/make/walls.js";
+import { coplanar } from "../../src/make/coplanar.js";
+import { makePool } from "../../src/make/lightpool.js";
+import { makeCarry } from "../../src/make/carry.js";
+import { moonOf, nightLight, moonDisc, starDome } from "../../src/make/night.js";
+import { checkScene } from "../../src/make/scene.js";
+import { matchKinds } from "../../src/make/match.js";
+import { planStoryHall } from "../../src/make/plans/story-hall.js";
+import { planRecipe } from "../../src/make/recipe.js";
+import { placementFacts, eventFacts, entityOf, stamper } from "../../src/make/facts-out.js";
+import { openFactsQueue } from "../../src/make/patternbuffer.js";
+import { playRecipe } from "../../src/make/recipe-play.js";
+import { compileStory, bodyAt } from "../../src/make/story.js";
+import { playStory } from "../../src/make/story-play.js";
+import { STORY_ROOM_TYPES } from "../../src/make/rooms/story.js";
+import { makeSite, makeOutdoorWalk } from "../../src/make/terrain.js";
+import { makeGround, groundMaterial, groundTextures } from "../../src/make/terrain-mesh.js";
+import { settled, warmTextures } from "../painted/texjobs.js";
+import { LIB as OUT } from "../painted/outgen.js";
+import { buildForecourt } from "../../src/make/forecourt.js";
+import { makeFields } from "../../src/make/fields.js";
+import { caseRequired, playCase, caseSettings } from "../../src/make/case-play.js";
+import { checkCase, fairPlay } from "../../src/make/case.js";
+import { makeNarrator } from "../../src/make/narrator.js";
+import { makePresence } from "../../src/make/presence.js";
+import { makeVoice } from "../../src/make/voice.js";
+import { makeTalkPanel } from "../ui/talk-panel.js";
+import { paintSitter } from "../../src/make/sitter.js";
+import { makeBridge } from "../../src/make/bridge.js";
+import { makeHillside, hillsideTextures } from "../../src/make/hillside.js";
+import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
+import { rng as rngOf, seedOf } from "../../src/make/id.js";
+import { signOf, kept, keep as keepTable } from "../../src/make/keep.js";
+import { build } from "../../src/make/index.js";
+import { soundness } from "../../src/make/sound.js";
+import { compileRoom } from "../house/plan-compile.js";
+import { planHybridE, GENTRY_SEAT_1660, ROOM_TYPES_1660, lookC1660, makeWorks, makeWorld, kinds, kindOf, missingParts, hashOf, GENERATOR } from "../../src/make/index.js";
+import { cues, fingerCue } from "../ui/cues.js";
+import { touchControls, isTouch, fullscreenButton, actionButton, crouchButton, hint, doorAssist } from "../touch.js";
+fullscreenButton();
+
+const Q = new URLSearchParams(location.search), $ = (id) => document.getElementById(id);
+// what the house says to you (a clue noted, the narrator's beat, a door that won't give): one line at a time, in turn, each
+// up as long as it takes to read (a beat is a paragraph: 4.5 s had shown a third of it, and the next line wiped it); a tap
+// on it goes on to the next
+window.__said = []; window.__asides = []; const sayQ = [];
+const sayNext = () => { clearTimeout(say.t); const l = $("line"), t = sayQ.shift(); if (!t) { l.hidden = true; return; }
+  l.textContent = t; l.hidden = false; l.classList.toggle("more", sayQ.length > 0); say.t = setTimeout(sayNext, Math.min(24000, 1800 + 330 * t.split(/\s+/).length)); };
+const say = (t) => { if (!t) return; window.__said.push(t); if (sayQ.at(-1) === t) return; sayQ.push(t); if ($("line").hidden) sayNext(); else $("line").classList.add("more"); };
+$("line").addEventListener("pointerdown", (e) => { e.stopPropagation(); sayNext(); });
+const step = (t) => { $("status").textContent = t + "…"; return new Promise(r => setTimeout(r)); };
+
+// ---- the world document: the house's plan sealed into it the first time it is seen (Kabe's P1): a
+// better generator later never moves a wall you have walked past; the story's own magic may
+const hearths = Object.fromEntries(Object.entries(ROOM_TYPES_1660).map(([k, v]) => [k, v.hearth]));
+// ?plan=banqueting builds the octagonal garden banqueting house instead (R54 5e: rooms of any shape)
+// ?plan=alice-hall: a place from a book (R49): the scene document the one AI step wrote from the text, checked here
+// (every quote word for word in the text), its things matched to kinds, laid out by the story-hall plan type
+const STORY = Q.get("plan") === "alice-hall" ? await (async () => { const t0 = performance.now();
+  const [scene, text] = await Promise.all([fetch("../alice/hall.json").then(r => r.json()), fetch("../alice/hall.txt").then(r => r.text())]);
+  const check = checkScene(scene, text); if (!check.ok) throw new Error("scene refused: " + check.findings.map(f => `${f.at}: ${f.what}`).join("; "));
+  const match = matchKinds(scene, kinds()), plan = planStoryHall(scene, { kinds: match.kinds });
+  return { scene, text, check, match, plan, story: compileStory(scene), ms: Math.round(performance.now() - t0) }; })() : null;
+// ?plan=recipe&recipe=<name>: the main demo (design/one-world/coherence-recipes.md): a recipe's place from its facts
+// (lab/recipes/<name>.facts.json, pattern-buffer's patternbuffer.recipe-facts/1: the golden lane), laid out by rule
+// (src/make/recipe.js) and played (src/make/recipe-play.js)
+const RECIPE = Q.get("plan") === "recipe" ? await (async () => { const name = (Q.get("recipe") || "switched-light").replace(/[^a-z0-9-]/g, "");
+  const doc = await (await fetch(`../recipes/${name}.facts.json`)).json(); return { name, doc, plan: planRecipe(doc, { kinds: kinds() }) }; })() : null;
+window.__story = () => STORY && { quotes: STORY.check.quotes, match: STORY.match, chosen: STORY.plan.chosen, unread: STORY.story.unread, ms: STORY.ms };
+const fresh = STORY ? STORY.plan : RECIPE ? RECIPE.plan : Q.get("plan") === "banqueting" ? planBanqueting() : planHybridE(GENTRY_SEAT_1660, { hearths });
+// what the story requires, placed first in its room with what holds it (R54 step 6; pattern-buffer will supply
+// these): ?require=key/iron@study:table/joined-with-drawer.drawer (kind@room, optionally :in-kind.slot), comma-separated
+if (Q.get("require")) fresh.required = Q.get("require").split(",").map(t => { const [what, inside] = t.split(":"), [kind, room] = what.split("@"), [ik, slot] = (inside || "").split(".");
+  return { kind, room, ...(inside ? { in: { kind: ik, slot: slot || "drawer" } } : {}) }; });
+// ?case=case-1660: a mystery in the house (M7): its things placed first, by story id, with what holds them
+const CASE = Q.get("case") ? await (await fetch(`../case/${Q.get("case")}.json`)).json() : null;
+// the case's people painted in a worker while the house is raised (src/make/sitter-worker.js: 0.47 s of the main
+// thread's start, R65); portrait() takes what has come back, and paints on the main thread what hasn't
+const sittersPainted = new Map();
+if (CASE?.cast?.length && typeof Worker === "function" && typeof OffscreenCanvas === "function" && Q.get("sitterworker") !== "0") try {
+  const sw = new Worker(new URL("../../src/make/sitter-worker.js", import.meta.url), { type: "module" }); let left = 0;
+  sw.onmessage = ({ data }) => { if (!data.error) sittersPainted.set(data.id, data); if (--left <= 0) sw.terminate(); };
+  sw.onerror = () => sw.terminate();
+  for (const c of CASE.cast) if (c.look) { left++; sw.postMessage({ id: c.id, look: c.look, opts: { seed: seedOf(`sitter/${c.id}`), ground: false } }); }
+} catch (_) {}
+if (CASE) fresh.required = [...(fresh.required || []), ...caseRequired(CASE, fresh, new Set(kinds().map(k => k.kind)))];
+// while the generator is still being written, a world starts afresh when its output changes; at release
+// the plan's hash leaves this key, and a world keeps the plan it was sealed with for good
+const KINDS = kinds().map(k => [k.kind, k.pin]), WKEY = `holo-emitter/manor/world/${hashOf(KINDS)}/${hashOf(fresh)}`; window.__wkey = WKEY;
+let doc = null; try { if (Q.has("fresh")) localStorage.removeItem(WKEY); else doc = JSON.parse(localStorage.getItem(WKEY) || "null"); } catch (_) {}
+const world = makeWorld(doc), keep = () => { try { localStorage.setItem(WKEY, JSON.stringify(world.doc)); } catch (_) {} };
+// a case's own progress kept beside the world (src/make/case-play.js snapshot); ?fresh clears it, and then leaves the
+// address, so a phone that reloads the tab (iOS does, when it is short of memory) takes the case up again, not afresh
+const CKEY = CASE ? `${WKEY}/case/${CASE.id}` : null; let caseSaved = null;
+try { if (CKEY && Q.has("fresh")) localStorage.removeItem(CKEY); else if (CKEY) caseSaved = JSON.parse(localStorage.getItem(CKEY) || "null"); } catch (_) {}
+if (Q.has("fresh")) { const u = new URL(location.href); u.searchParams.delete("fresh"); history.replaceState(null, "", u); }
+const plan = world.seal("manor", { plan: fresh, kinds: KINDS, generator: GENERATOR }).plan;
+// the kinds' sizes and swings, measured once (src/make/keep.js): shipped for our places, kept from an earlier visit for
+// any other, signed by the code that measures them and the kinds' data; looked up while the kit is made (?keep=0: measure;
+// ?keep=fresh: measure and keep, as tools/keep-tables.mjs does)
+const SIZES = Q.get("keep") === "0" ? Promise.resolve({ sig: null, data: null })
+  : signOf(["src/make/build.js", "src/make/looks.js"], { kinds: hashOf(KINDS), look: "1660" }).then(async ({ sig }) => ({ sig, data: Q.get("keep") === "fresh" ? null : await kept("sizes", sig, { shipped: "lab/manor/kept/sizes.json" }) })).catch(() => ({ sig: null, data: null }));
+const brief = await (await fetch("../brief/manor-1660.json")).json();
+// and each room's placement, made by the whole builder from the plan, the kinds, the room types and the brief: shipped
+// per plan (lab/manor/kept/place-<plan>.json), else kept from an earlier visit
+const PKEY = hashOf(plan), PLACES = SIZES.then(({ sig }) => !sig ? { sig: null, data: null }
+  : signOf(["src/make/manor.js"], { plan: PKEY, kinds: hashOf(KINDS), look: "1660", types: hashOf({ ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }), brief: hashOf(brief), furnished: Q.get("nofurn") !== "1" })
+    .then(async ({ sig }) => ({ sig, data: Q.get("keep") === "fresh" ? null : await kept(`place/${PKEY}`, sig, { shipped: `lab/manor/kept/place-${PKEY}.json` }) }))).catch(() => ({ sig: null, data: null }));
+keep();
+
+// ---- the renderer, the kit, the house
+// a place with an outside (the manor, the banqueting house) is drawn with log depth, near and far (fps lab: a 5 km view holds
+// at no measurable cost); a story's hall underground is not
+// ?dark: every light out, the house at night with its shutters to, no fire or candle lit and nothing outside (Kabe, 2026-10-12:
+// "a completely dark room"): what you see is what the light you carry shows (src/make/carry.js)
+const DARK = Q.has("dark");
+// a recipe's room dark at the start (its facts say so): the room's own lights out and no window, which its plan already
+// makes it; the world outside keeps its day. Only your eye's faint light is as a dark house's (it had set DARK, which puts
+// out the sun and the outdoors, and the court beyond the keypad's door stood black)
+const DARK_ROOM = DARK || !!RECIPE?.plan.recipe.dark;
+// ?moon=full|half|new|0..1: night outside, by the moon's lit share (Kabe, 2026-10-12: "the difference between the full moon and
+// the new moon"): the sun becomes the moon, the sky and the fill fall to what it gives, the fires stay lit (src/make/night.js)
+const MOON = DARK ? null : moonOf(Q.get("moon")), NIGHT = MOON == null ? null : nightLight(MOON);
+// the weather (R71, src/make/weather.js): ?weather=rain|snow|fog|overcast, ?rain= ?snow= ?fog= ?cover= ?wet= (0..1), until
+// construct's set_conditions writes it; what the sky gives under it scales the day's (or night's) light
+const WEATHER = weatherOf(Q), WX = anyWeather(WEATHER) ? lightUnder(WEATHER, { night: !!NIGHT }) : null; window.__weather = () => ({ ...WEATHER, particles: PRECIP?.count ?? 0 });
+const OUTDOOR = !STORY && !DARK && Q.get("outdoor") !== "0";
+await window.__stillShown;   // (the title still on screen first: it is only waited for when shown, and never past 0.4 s)
+const ENG = await makeRender({ outdoor: OUTDOOR }), renderer = ENG.renderer; window.__eng = ENG; ENG.flags.tex = TEX_HALF ? "half" : "full";
+THREE.RectAreaLightNode.setLTC(RectAreaLightTexturesLib.init());
+await step("growing oak, laying flags, slaking lime");
+// (defer: the kit's textures are drawn in its workers while the house goes up, or come from the last visit's cache)
+// the outside's textures drawn in the worker pool while the house is built (src/make/terrain-mesh.js, hillside.js)
+if (!STORY && Q.get("outdoor") !== "0") { await warmTextures(3000, [OUT]); groundTextures(THREE); hillsideTextures(THREE); }
+const K = await makeKit(THREE, { floor: [8, 8], defer: true }), S = strongroomMaterials(THREE, K), look1660 = lookC1660(THREE, K, S);
+if (DARK || NIGHT) K.outside = new THREE.MeshBasicMaterial({ color: NIGHT ? NIGHT.sky.horizon : 0x05070b });   // ?dark: the night behind every window, shutters or no moon
+await step("raising the house, room by room, each by its purpose");
+// ?order=reverse|shuffle: the rooms built in another order (the house must come out the same; engine principle 2)
+const ORDER = { reverse: (rs) => [...rs].reverse(), shuffle: (rs) => { const r = rngOf(seedOf("order")), o = [...rs]; for (let i = o.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [o[i], o[j]] = [o[j], o[i]]; } return o; } }[Q.get("order")] || null;
+const sizesWait = performance.now(), sizesKept = await SIZES, placesKept = await PLACES, sizesWaited = Math.round(performance.now() - sizesWait);
+// R65, the start view first: the room you start in and every room within two openings or a stair of it (all it can show,
+// whatever its doors' state) before the first frame; the rest after it, nearest first (?whole=1: all at once; a story's
+// place builds whole; a case adopts its things room by room as they arrive, adoptCase)
+const START_ID = (plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open"))?.id;
+const FIRST = Q.has("whole") || STORY ? null : (() => { const near = new Map(), link = (a, b) => (near.get(a) || near.set(a, new Set()).get(a)).add(b);
+  for (const o of plan.openings || []) if (o.joins?.length === 2) { link(o.joins[0], o.joins[1]); link(o.joins[1], o.joins[0]); }
+  for (const st of plan.stairs || []) for (const a of st.joins || []) for (const b of st.joins || []) if (a !== b) link(a, b);
+  const got = new Set([START_ID]); let edge = [START_ID];
+  for (let d = 0; d < 2; d++) { const next = []; for (const a of edge) for (const b of near.get(a) || []) if (!got.has(b)) { got.add(b); next.push(b); } edge = next; }
+  return got; })();
+const manor = buildManor({ first: FIRST, vfmt: Q.get("vfmt"), known: { ...(sizesKept.data || {}), places: placesKept.data }, order: ORDER, outside: OUTDOOR, settleRooms: Q.get("roomsettle") === "1", furnished: Q.get("nofurn") !== "1", plan, types: { ...ROOM_TYPES_1660, ...STORY_ROOM_TYPES }, K, S, look: look1660, brief, bundles: ENG.backend === "webgpu" && Q.get("bundles") === "1" });     // bundles drop some wall meshes yet: on request only
+window.__rig = () => rig.map(l => ({ i: l.intensity, p: l.position.toArray().map(v => +v.toFixed(2)), w: l.width, h: l.height }));
+const scene = new THREE.Scene(); window.__scene = scene; window.__THREE = THREE; scene.background = new THREE.Color(0x9fb2c2); scene.add(manor.scene);
+nodeify(scene);
+// ?dark: the leaded lights hold the night, not the day painted into them (their glass is unlit, its daylight its own)
+const GLASS = DARK ? 0.03 : NIGHT ? NIGHT.glass : null;
+function nightGlass(g) { if (GLASS != null) g.traverse(o => { if (o.isMesh && o.material?.userData?.daylit) o.material.color.setScalar(GLASS); }); }
+nightGlass(scene);
+// windows both ways (R67; Kabe, 2026-10-13: "I should be able to see inside from the outside windows. If it helps fps to
+// not see inside until I'm close to the window fine but windows should go both ways"): outside, a room whose window faces
+// you within SEE_IN m is drawn (throughWindows, in the view), and the outside glass, dark and catching the sky from afar,
+// clears as you come near it, a little of its reflection kept; it is clear only nearer than the rooms behind it are drawn
+const SEE_IN = +(Q.get("seein") || (ENG.phone ? 10 : 14)), CLEAR = float(0.42);
+scene.traverse(o => { const m = o.isMesh && o.material; if (!m?.userData?.outsideGlass) return;
+  m.opacityNode = mix(CLEAR, float(1), smoothstep(float(SEE_IN - 7), float(SEE_IN - 4), distance(positionWorld, cameraPosition))); m.needsUpdate = true; });
+ENG.mark("built");
+// every texture whole before the first frame (lab/painted/texjobs.js); what each cost: __textures()
+await step("finishing the textures"); await K.ready(); ENG.mark("textures");
+window.__textures = textureLog; window.__oakLog = oakLog;
+
+// ---- light: one sun, its shadow map drawn once (the house is still); a soft fill; four window lights
+// that follow you room to room, so the count of lights never changes and nothing recompiles
+const ext = plan.rooms.reduce((b, q) => ({ x0: Math.min(b.x0, q.rect.x0), x1: Math.max(b.x1, q.rect.x1), y0: Math.min(b.y0, q.rect.y0), y1: Math.max(b.y1, q.rect.y1) }), { x0: 1e9, x1: -1e9, y0: 1e9, y1: -1e9 });
+const cx = (ext.x0 + ext.x1) / 2, cy = (ext.y0 + ext.y1) / 2, reach = Math.hypot(ext.x1 - ext.x0, ext.y1 - ext.y0) / 2 + 4;
+const sun = new THREE.DirectionalLight(0xffe2b8, 1.8); sun.position.set(cx + 14, 22, -cy + 30); sun.target.position.set(cx, 0, -cy);
+sun.castShadow = true; sun.shadow.mapSize.set(ENG.phone ? 2048 : 4096, ENG.phone ? 2048 : 4096); sun.shadow.bias = -0.0005; sun.shadow.normalBias = 0.03;
+Object.assign(sun.shadow.camera, { left: -reach, right: reach, top: reach, bottom: -reach, near: 1, far: 140 });
+sun.shadow.autoUpdate = false; sun.shadow.needsUpdate = true;
+const HEMI = { ...(NIGHT ? NIGHT.hemi : { sky: 0xc8d0d8, ground: 0x3a2c1e, intensity: DARK ? 0 : STORY ? 0.14 : 0.55 }) };
+if (NIGHT) { sun.color.setHex(NIGHT.moon.color); sun.intensity = NIGHT.moon.intensity; sun.castShadow = sun.intensity > 0; scene.background.setHex(NIGHT.sky.horizon); }
+// (under cloud: the sun's direct light mostly gone, and its shadow; the fill up; the sky greyed)
+if (WX && !DARK) { sun.intensity *= WX.sun; if (!WX.shadow) sun.castShadow = false; HEMI.intensity *= WX.hemi;
+  HEMI.sky = new THREE.Color(HEMI.sky).lerp(new THREE.Color(WX.sky.toward), WX.sky.by).getHex(); scene.background.lerp(new THREE.Color(WX.sky.toward), WX.sky.by); }
+scene.add(sun, sun.target, new THREE.HemisphereLight(HEMI.sky, HEMI.ground, HEMI.intensity));   // a story's hall underground: "that dark hall"
+if (DARK) { sun.intensity = 0; sun.castShadow = false; scene.background.setHex(0x000000); }
+// the light you carry: the eye's own faint pool by default, ?carry=candle|flashlight|none, L to change (src/make/carry.js); a
+// phone holds the flashlight's cone only when it starts with one (every lit pixel pays for every light)
+const carry = makeCarry(THREE, { spot: (!ENG.phone && !Q.has("nospot")) || Q.get("carry") === "flashlight", mode: Q.get("carry") || "eye", eye: DARK_ROOM || NIGHT ? 1 : STORY ? 0.8 : 0.35, ...(Q.get("eyecap") ? { cap: +Q.get("eyecap") } : {}) });   // (?eyecap=m: nearer than that, lit no more than there)
+if (Q.get("carry") !== "off") scene.add(...carry.lights);   // (?carry=off: none in the scene, their cost unpaid, to measure it)
+// how far off what you look at is, for the eye's pool (src/make/carry.js cap): along your gaze to the first wall (the house's
+// grid), the first thing in your room (its box, kept once: a ray against a few dozen boxes, no mesh raycast) or the floor
+// you look down to (the grid alone had taken a chair's seat under your gaze for what you looked at, and dimmed the desk)
+let focusDist = null; const focusBox = new WeakMap(), FR = new THREE.Ray(), FV = new THREE.Vector3(), FD = new THREE.Vector3();
+function focusAhead(max = 1.6) {
+  const f = floorOf(ph), cp = Math.cos(pitch), sp = Math.sin(pitch), ux = -Math.sin(yaw), uy = Math.cos(yaw), eye = eyeNow;
+  let best = sp < -0.05 ? Math.min(max, eye / -sp) : max; const claims = walk.claims;
+  for (let r = BODY.half + 0.08; r < best; r += 0.05) { if (claims && claims.at(f, "stand", px + ux * r * cp, py + uy * r * cp) >= SOLID) { best = r; break; } }
+  FR.origin.set(px, ph + eye, -py); FR.direction.set(ux * cp, sp, -uy * cp);
+  for (const b of manor.things) { const n = b.node; if (n.userData.room !== here || !n.visible) continue;
+    let box = focusBox.get(b); if (!box) { n.updateWorldMatrix(true, true); box = new THREE.Box3().setFromObject(n); focusBox.set(b, box); }
+    if (box.distanceToPoint(FR.origin) > best) continue; const hit = FR.intersectBox(box, FV); if (hit) { const d = FD.subVectors(hit, FR.origin).length(); if (d < best) best = Math.max(0.05, d); } }
+  return best;
+}
+let carryDirty = false; window.__carry = (m) => { if (m !== undefined) { carry.set(m); carryDirty = true; } return carry.mode; };
+// the light that follows what you see (Kabe, 2026-10-06: "all of the lighting elements should be deployed as
+// long as they are within the visual space"; "kitchen passage to kitchen jumps in the lighting again"): a fixed
+// pool, so the count of lights never changes and nothing recompiles (src/make/lightpool.js). The windows and lit
+// hearths of every room in view are ranked by what each gives where you stand, not by which room you are in, and
+// every change fades, so crossing a threshold or opening a door never jumps.
+// (a phone holds 3 of them, ?rect=N any count: every pixel of every lit material pays for every slot, lit or not; design/perf/phone-2026.md)
+const RECT = Q.get("rect") ? Math.max(1, +Q.get("rect")) : ENG.phone ? 3 : 8; ENG.flags.rect = RECT;
+const rig = Array.from({ length: RECT }, () => { const l = new THREE.RectAreaLight(0xe4ecf2, 0, 1, 1); scene.add(l); return l; });
+const fires = Array.from({ length: STORY ? 4 : 3 }, () => { const l = new THREE.PointLight(0xff9a4a, 0, 10, 1.8); scene.add(l); return l; });
+const winItems = manor.daylights.map((w, i) => ({ key: i, room: w.room, at: w.c, lands: w.c.clone().lerp(w.into, 0.3), reach: 3 + 2 * Math.sqrt(w.glazed), size: w.glazed, base: 9 * w.share * (NIGHT ? NIGHT.windows : 1) * (WX ? WX.glass : 1), w }));   // a run of windows on a wall is one light (src/make/manor.js)
+let fireItems = manor.hearths.filter(h => h.lit).map((h, i) => ({ key: i, room: h.room, at: h.at, size: h.big ? 2 : 1, base: h.big ? 16 : 8, h }));
+// lights a room's own builder made (the muniment room's barred windows and door reveal, a candle in it) join the pools too:
+// out of the scene, so the count of lights never changes (seeing that room had taken the scene from 13 lights to 16 and
+// recompiled everything in view: a 2-4 s hitch), each still driven by its own code, its strength read from it each frame
+const poolOwn = (() => { const P = new THREE.Vector3(), Q = new THREE.Quaternion(), D = new THREE.Vector3();
+  return (l, id) => { l.updateWorldMatrix(true, false); l.getWorldPosition(P); l.getWorldQuaternion(Q); const at = P.clone();
+      if (l.isRectAreaLight) { D.set(0, 0, -1).applyQuaternion(Q); const w = { w: l.width, h: l.height, c: at, into: at.clone().addScaledVector(D, 5) };
+        const it = { key: `own:${id}:${winItems.length}`, room: id, at, size: l.width * l.height, w }; Object.defineProperty(it, "base", { get: () => l.intensity }); winItems.push(it); }
+      else if (l.isPointLight) { const it = { key: `own:${id}:${fireItems.length}`, room: id, at, size: 1, still: !!l.userData.still, switched: !!l.userData.lightGroup, color: l.color.clone(), h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } };
+        // a light a switch turns shines by the world's state (works.lit), its flicker the picture's: lit, its strength as
+        // the flame now draws it, or its full strength while the flame is still coming up; out, nothing (R79, P1)
+        it.l = l; Object.defineProperty(it, "base", { get: () => { const lit = l.userData.emits ? works.lit(l) : null;
+          return lit === null ? l.intensity : !lit ? 0 : l.intensity > 0 ? l.intensity : (l.userData.on ?? 0); } }); fireItems.push(it); }
+      else return;
+      l.userData.pooled = true; l.removeFromParent(); }; })();
+{ manor.scene.updateMatrixWorld(true);
+  for (const [id, r] of manor.rooms) { const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); });
+    for (const l of own) poolOwn(l, id); } }
+const winPool = makePool(rig, { share: 1.6, place: (l, { w }) => { l.width = w.w; l.height = w.h; l.position.copy(w.c); l.lookAt(w.into); } });
+// (fires share as windows do, R79 S4: a candle past the pool's few slots still shows its flame, and what it would give is
+// carried by the slots near it, up to 1.6 times their own: forty candles light a room as forty do, on a phone's three lights)
+// (each slot takes the colour of what it carries: a hearth's orange, a candle's, a bulb's warm white; the slot had kept the
+// hearth's for everything, and a recipe room's bulb lit its walls orange)
+const FIRE = new THREE.Color(0xff9a4a);
+const firePool = makePool(fires, { share: 1.6, place: (l, { h, color }) => { l.position.set(h.at.x, h.at.y + 0.55, h.at.z); l.position.lerp(h.into, 0.15); l.color.copy(color || FIRE); } });
+let inView = new Set(), lightsDirty = true, snapLights = true;
+// (a lamp put out gives no light: its switch's state, 2026-10-07 "light off doesnt change the lighting"; a room's own light at
+// zero, a candle set out unlit, holds no slot: the great rooms' wax candles, out by day, had taken the slots from the lantern;
+// ?dark puts out the hearths and the room's fixed lights, while a candle or lantern follows its switch: out when the dark
+// begins, and lit by you it lights (Kabe, 2026-10-13: "let candles don't do anything as far as lighting goes": a candle you
+// lit in the dark study showed its flame and lit nothing)
+// whether a light a thing owns shines is the world's to say (its switch's state), never its strength in the picture
+const alight = (it) => { const lit = it.l?.userData.emits ? works.lit(it.l) : it.thing?.kind.affordances?.light ? works.stateOf(it.thing, "light") !== "out" : null;
+  return lit !== null ? lit : (!DARK || it.switched) && it.base !== 0; };
+// a light counts only while it, or where its light falls (a sphere `reach` round `lands`), is in frame, or in a margin
+// round the frame wide enough that one turned towards comes on before it shows (src/make/lightpool.js)
+const frame = new THREE.Frustum(), margin = new THREE.Frustum(), guard = new THREE.PerspectiveCamera(), M4 = new THREE.Matrix4(), ball = new THREE.Sphere();
+const seen = (it) => { ball.center.copy(it.lands || it.at); ball.radius = it.reach || 6; return frame.intersectsSphere(ball) ? 2 : margin.intersectsSphere(ball) ? 1 : 0; };
+function lightView(at) {
+  camera.updateMatrixWorld(); frame.setFromProjectionMatrix(M4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  guard.position.copy(camera.position); guard.quaternion.copy(camera.quaternion); guard.fov = Math.min(150, camera.fov + 40); guard.aspect = camera.aspect; guard.near = camera.near; guard.far = camera.far;
+  guard.updateProjectionMatrix(); guard.updateMatrixWorld(); margin.setFromProjectionMatrix(M4.multiplyMatrices(guard.projectionMatrix, guard.matrixWorldInverse));
+  const lit = lightRooms(), behind = (it) => inView.has(it.room) ? it : Object.create(it, { base: { value: 0 } });
+  winPool.update(DARK ? [] : winItems.filter(it => lit.has(it.room)).map(behind), at, seen); firePool.update(fireItems.filter(it => lit.has(it.room) && alight(it)).map(behind), at, seen); }
+// a shut door within reach counts as open for the lights (Kabe, 2026-10-13: "the lights in a room should trigger on immediately
+// before I see them so they don't 'turn on' in front of my eyes … when the door is within range to open before I open it"):
+// the rooms behind it take their lights while still hidden and come up there, giving nothing (these lights cast no shadow,
+// and the kitchen's fire had lit the passage through its wall: 5 -> 12 mean), so the door opens on a room already lit
+const DOOR_NEAR = 3;   // a hand's reach (2.6 m from the eye) and a little: in reach before you can touch it
+let nearKey = "", nearLit = null;
+function lightRooms() {
+  if (!here) return inView;
+  const f = floorOf(ph), near = [];
+  for (const o of plan.openings) { if (!o.rect || o.floor !== f) continue; const d = doorThing.get(o.id); if (!d || isOpen(d)) continue;
+    const dx = Math.max(o.rect.x0 - px, 0, px - o.rect.x1), dy = Math.max(o.rect.y0 - py, 0, py - o.rect.y1); if (dx * dx + dy * dy < DOOR_NEAR * DOOR_NEAR) near.push(d); }
+  if (!near.length) { nearKey = ""; return inView; }
+  const key = `${here}|${[...inView].join()}|${near.map(d => d.node.userData.opening).join()}`;
+  if (key !== nearKey) { nearKey = key; nearLit = manor.visibleFrom(here, (d) => isOpen(d) || near.includes(d)); }
+  return nearLit; }
+// the fires flicker, and the flames with them, while any is in view (a still flame's light, a lantern's or a sconce's, is steady)
+function flicker(now) {
+  const t = now / 1000; let any = false;
+  fires.forEach((l, i) => { if (!l.intensity || firePool.slots[i].item?.still) return; any = true; l.intensity *= 0.82 + 0.1 * Math.sin(t * 7.3 + i * 2) + 0.08 * Math.sin(t * 13.1 + i); });
+  for (const f of manor.flames) { if (DARK) { f.visible = false; continue; } if (!f.parent.parent.visible) continue; any = true; const p = f.userData.phase; f.scale.set(1, 0.8 + 0.25 * Math.sin(t * 9 + p) + 0.1 * Math.sin(t * 17 + p * 2), 1); }
+  return any;
+}
+window.__lights = () => ({ windows: winPool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), gives: +s.l.intensity.toFixed(2) }),
+  fires: firePool.slots.map(s => s.key === null ? null : { room: s.item.room, key: s.key, level: +s.level.toFixed(2), target: s.target, color: s.l.color.getHex() }), fireShare: +(firePool.boost?.() ?? 1).toFixed(2), sceneLights: (() => { let n = 0; scene.traverse(o => { if (o.isLight) n++; }); return n; })(), inView: [...inView], lit: [...lightRooms()],
+  candidates: (room) => fireItems.filter(it => it.room === room).map(it => ({ key: it.key, base: +(+it.base).toFixed(2), alight: alight(it), seen: seen(it) })) });
+
+// ---- outside (R46): the site's ground around the house, built in tiles as you go (src/make/terrain.js,
+// terrain-mesh.js), a sky and the haze of distance
+const site = OUTDOOR ? makeSite(plan) : null, fields = site ? makeFields(site) : null;
+if (fields) site.relief(fields.furrowZ);          // ridge and furrow in the ground's height, before anything samples it
+const ground = site ? makeGround(THREE, site, { bundle: ENG.backend === "webgpu" && Q.get("groundbundle") !== "0", material: groundMaterial(THREE, { rng: (n) => rngOf(seedOf(n)), wet: WEATHER.wet, snow: WEATHER.snowCover }) }) : null;
+// the fields' walls, hedges, gates and trees (src/make/hillside.js), in tiles round you; impostors drawn once by this renderer, lit by this sun
+const hill = site ? makeHillside(THREE, site, fields, { renderer, near: ENG.phone ? 100 : 150, nearTile: ENG.phone ? 100 : 150,
+  light: { sun: sun.color.getHex(), sunI: sun.intensity, sky: HEMI.sky, ground: HEMI.ground, hemi: HEMI.intensity, dir: sun.position.clone().sub(sun.target.position).toArray() } }) : null;
+if (hill) scene.add(hill.group);
+window.__site = site; window.__ground = ground; window.__hill = hill;
+// rain or snow (R71): stateless particles round the eye, none under the house's roof (its rooms' footprint, every floor);
+// a phone's fewer. Drawn every frame while they fall
+const PRECIP = site && WEATHER.falls ? precipitation(THREE, TSL, WEATHER, { count: ENG.phone ? 2500 : 6000, box: ENG.phone ? [30, 18] : [36, 22],
+  mask: footprintMask(THREE, plan.rooms.filter(r => r.type !== "open").map(r => r.rect)), roof: Math.max(...plan.rooms.map(r => manor.levelOf(r.floor || "ground"))) + 12 }) : null;
+if (PRECIP) scene.add(PRECIP.mesh);
+if (ground) { scene.add(ground.group);
+  scene.fog = new THREE.Fog(NIGHT ? NIGHT.fog : 0xb7c4cf, 220, 1500);
+  if (WX) { scene.fog.color.lerp(new THREE.Color(WX.fog.toward), WX.fog.by); scene.fog.near = WX.fog.near; scene.fog.far = WX.fog.far; }
+  // the sky: a dome that goes with you, pale at the horizon, deeper overhead (greyed under cloud)
+  const sg = new THREE.SphereGeometry(2400, 32, 16), col = [], top = new THREE.Color(NIGHT ? NIGHT.sky.top : 0x6f8fb4), hor = new THREE.Color(NIGHT ? NIGHT.sky.horizon : 0xc9d4dc), c = new THREE.Color();
+  if (WX) { top.lerp(new THREE.Color(WX.sky.toward), WX.sky.by); hor.lerp(new THREE.Color(WX.sky.toward), WX.sky.by); hor.lerp(scene.fog.color, WEATHER.fog); }
+  for (let i = 0; i < sg.attributes.position.count; i++) { const y = sg.attributes.position.getY(i) / 2400; c.copy(hor).lerp(top, Math.max(0, Math.min(1, y * 1.6))); col.push(c.r, c.g, c.b); }
+  sg.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+  const sky = new THREE.Mesh(sg, new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, fog: false, depthWrite: false })); sky.renderOrder = -1; sky.name = "sky";
+  sky.onBeforeRender = () => sky.position.copy(camera.position); scene.add(sky); window.__sky = sky;
+  // the moon where the sun stood, a little larger than life (half a degree is a speck on a phone)
+  // the stars, a night's (R71; ?cover=0..1, the weather's cloud or fog until R71 sets it, hides them)
+  { const stars = NIGHT && starDome(THREE, MOON, { cover: WEATHER.cover, width: ENG.phone ? 2048 : 4096, rng: rngOf(seedOf("sky/stars")) }); if (stars) { sky.add(stars); window.__stars = stars; } }
+  const disc = NIGHT && WEATHER.cover < 0.8 && moonDisc(THREE, MOON); if (disc) { const d = sun.position.clone().sub(sun.target.position).normalize(); disc.position.copy(d).multiplyScalar(2300); disc.scale.setScalar(2300 * 0.035); disc.lookAt(0, 0, 0); disc.renderOrder = -1; sky.add(disc); } }
+
+// ---- things that work: every door, the strongroom's drawers and chest; state is the world document's
+const store = world.store();
+// what you know (a code a person told you, one a note showed you): its name; and the keypad's panel while it is open
+const known = new Set((Q.get("knows") || "").split(",").filter(Boolean)); let padOpen = null; window.__know = (n) => known.add(n); window.__pad = () => !!padOpen;
+// the facts this page has to send pattern-buffer (R75): play events as they happen; placements (the author lane) worked out
+// when asked, from every thing as built (window.__outbox({ placements: true }))
+const outbox = []; let placementsOut = null;
+const PB = await openFactsQueue({ worldId: WKEY, pb: Q.get("pb"), hostname: location.hostname });
+window.__pbQueue = () => PB.snapshot();
+window.addEventListener("online", () => { void PB.flush(); });
+const recordFacts = (facts) => { outbox.push(...facts); PB.record(facts); };
+// A thing's named room (including a boundary's owner), its keeper's, or a door's hanging room; otherwise the plan room
+// containing its world position, open rooms too. Beyond the plan it still has a place: outside.
+const roomOfThing = (b) => { const named = b.node.userData.room || b.host?.b?.node.userData.room || plan.openings.find(o => o.id === b.node.userData.opening)?.joins?.[0]; if (named) return named;
+  const p = b.node.getWorldPosition(new THREE.Vector3()), rooms = plan.rooms.filter(r => r.rect && p.x >= r.rect.x0 && p.x <= r.rect.x1 && -p.z >= r.rect.y0 && -p.z <= r.rect.y1 && manor.levelOf(r.floor || "ground") <= p.y + 0.3);
+  rooms.sort((a, b) => manor.levelOf(b.floor || "ground") - manor.levelOf(a.floor || "ground")); return rooms[0]?.id || "outside"; };
+// Author role is offered by the module: the existing lazy placement snapshot goes to its own canon queue, never the recorder.
+window.__outbox = ({ placements = false } = {}) => { if (placements && !placementsOut) { placementsOut = placementFacts([...works.things.values()].map(b => ({ b, room: roomOfThing(b), host: b.host?.b || null })), { at: 0, stateOf: (b, aff) => works.initialOf(b, aff), people: RP?.placements || [] }); PB.author(placementsOut); }
+  return { placements: placements ? placementsOut : undefined, events: outbox.slice() }; };
+let seated = null, eyeEase = null, eyeNow = 1.6;   // sitting (R80, by the keys): the seat you are in, the eye easing to it (the works below tell it from their first add)
+for (const k of Object.keys(store)) if (k.endsWith(".sit")) delete store[k];   // (you arrive standing: a seat you sat in when you left is empty again)
+let viewDirty = true;
+// when a play event happened (facts-out.js stamper): wall time standalone; on construct's play clock once it hands the
+// page a turn's time (the C3 envelope's top-level turn_time, construct m2a2887; window.__turn(t) until that envelope arrives)
+const clock = stamper(), stampNow = () => clock.next(); window.__turn = (t) => clock.turn(t);
+const works = makeWorks(THREE, { store, save: (st) => { world.save(st, "player", (id) => works.things.get(id)); keep(); }, say,
+  // a door moved: what can be seen may have changed; a light's switch moved: the pools look again while it turns (the act's
+  // own look came before its flame was up, at strength 0, and nothing looked again till you moved: a candle lit where you
+  // stood lit nothing, Kabe 2026-10-13)
+  // Facts stay in the outbox and enqueue locally as they happen (a put is written below, which knows on what).
+  onChange: (ev) => { if (ev.type !== "put") recordFacts(eventFacts(ev, { at: stampNow() })); },
+  onMove: (b, aff) => { if (aff === "leaf") viewDirty = true; if (b.kind.affordances?.[aff]?.lights) lightsDirty = true; if (aff === "sit") seatFollow(b); },
+  ask: (need, want) => need === "knows" ? [].concat(want).every(n => known.has(n)) : false });   // (a kind's @knows: a code you know, K3)
+// ?dark: every candle and lantern starts out, as a start setting rather than a turn, so nothing is written to your world
+const darkStart = (b) => { if (DARK && b.kind.affordances?.light?.lights) b.settings = { ...b.settings, start: { ...b.settings?.start, light: "out" } }; return b; };
+for (const b of manor.things) works.add(darkStart(b));
+// a thing put down somewhere in an earlier visit (the world's latest on: for it): seated there again once both it and what
+// it was put on are built (a room built late brings either), as the put seated it; until then it stands where it was born
+const seatedAgain = new Set();
+function seatAgain() {
+  for (const id of Object.keys(world.doc.entities)) { if (seatedAgain.has(id)) continue; const w = world.whereIs(id); if (w?.rel !== "on" || !w.to?.to) continue;
+    const b = works.things.get(id), host = works.things.get(w.to.to), s = host?.slots?.get(w.to.slot); if (!b || !s) continue;
+    b.node.position.set(...w.to.at); b.node.rotation.set(0, w.to.turn ?? 0, 0); s.node.add(b.node); b.host = { b: host, slot: w.to.slot }; b.node.userData.room = host.node.userData.room; seatedAgain.add(id); } }
+seatAgain();
+// ?candles=N: N candles stood lit on the start room's floor, a grid a step from its walls, to prove a crowd of lights on the
+// phone's budget (R79 S4; tests/playwright/crowd-lights.spec.mjs): each its own thing, its light pooled like any other
+{ const n = Math.min(200, +(Q.get("candles") || 0)), r = n ? manor.rooms.get(START_ID) : null, q = r?.room.rect, crowd = [];
+  if (r) { const cols = Math.ceil(Math.sqrt(n * (q.x1 - q.x0) / (q.y1 - q.y0))), rows = Math.ceil(n / cols), y0 = manor.levelOf(r.room.floor || "ground");
+    r.grp.updateMatrixWorld(true);
+    for (let i = 0; i < n; i++) { const b = build(THREE, K, look1660, "candle/stub", `candles/${START_ID}/candle:${i}`, { start: { light: "lit" } }), c = i % cols, w = Math.floor(i / cols);
+      // (the room's group has its own frame: placed in the world's, through it)
+      b.node.position.copy(r.grp.worldToLocal(new THREE.Vector3(q.x0 + 0.8 + (q.x1 - q.x0 - 1.6) * (cols > 1 ? c / (cols - 1) : 0.5), y0, -(q.y0 + 0.8 + (q.y1 - q.y0 - 1.6) * (rows > 1 ? w / (rows - 1) : 0.5)))));
+      b.node.userData.room = START_ID; r.grp.add(b.node); crowd.push(b); works.add(b);
+      b.node.updateMatrixWorld(true); const ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, START_ID); }
+    // (kept here: the house's own list of things is remade as rooms arrive; where to stand to see them all: the near end, facing down the room)
+    window.__candles = () => crowd; window.__candlesView = () => ({ x: (q.x0 + q.x1) / 2, y: q.y0 + 0.3, h: y0 }); } }
+// ?emitters: one of every kind that gives light (its pinned sources: R79 point 4), stood out in a row down the start room, for
+// the generated browser contract (tests/playwright/emitters.spec.mjs): each lit in turn takes a pool slot in its source's
+// colour from the look, and put out gives it back. Each built under the house's look, its lights pooled like any other
+{ const r = Q.has("emitters") ? manor.rooms.get(START_ID) : null, q = r?.room.rect, out = [];
+  if (r) { const ks = kinds().filter(k => k.sources && !missingParts(k).length), y0 = manor.levelOf(r.room.floor || "ground"), my = (q.y0 + q.y1) / 2; r.grp.updateMatrixWorld(true);
+    ks.forEach((k, i) => { const aff = Object.entries(k.affordances || {}).find(([, a]) => a.lights)?.[0];
+      const b = build(THREE, K, look1660, k.kind, `emitters/${START_ID}/${k.kind}`, aff ? { start: { [aff]: "out" } } : {}), x = q.x0 + 0.8 + (q.x1 - q.x0 - 1.6) * (ks.length > 1 ? i / (ks.length - 1) : 0.5);
+      b.node.position.copy(r.grp.worldToLocal(new THREE.Vector3(x, y0, -my))); b.node.userData.room = START_ID; r.grp.add(b.node); works.add(b);
+      b.node.updateMatrixWorld(true); const k0 = fireItems.length, ls = []; b.node.traverse(o => { if (o.isPointLight) ls.push(o); }); for (const l of ls) poolOwn(l, START_ID);
+      out.push({ b, aff, x, y: my, keys: fireItems.slice(k0).map(it => it.key) }); });
+    window.__emitters = () => out.map(({ b, aff, x, y, keys }) => ({ kind: b.kind.kind, aff, x, y, keys, sources: b.kind.sources, lights: b.info.lights }));
+    window.__emitter = (i) => out[i]?.b || null; } }
+// the recipe's things, links, people and proof (the main demo)
+const RP = RECIPE ? playRecipe({ THREE, plan, manor, works, build, kindOf, K, look: look1660, poolOwn, say: (t) => say(t), know: (n) => known.add(n) }) : null;
+seatAgain();   // (a recipe's things, put down in an earlier visit)
+window.__recipe = () => RP && { name: RECIPE.name, proof: RP.proof, things: [...RP.thingOf].map(([id, b]) => ({ id, kind: b.kind.kind, address: b.address })), person: RP.placements[0] && (({ room, id, posture }) => ({ room, person: id, posture }))(RP.placements[0]), chosen: RECIPE.plan.chosen };
+window.__recipeThing = (id) => RP?.thingOf.get(id) || null; window.__recipeTalk = (id) => RP?.talk(id); window.__known = () => [...known];
+window.__works = works; window.__manor = manor; window.__plan = plan; window.__whole = !manor.pending().length; window.__startRoom = START_ID;
+// what this load measured that the table didn't hold, kept for the next visit (src/make/keep.js): now, and again once
+// every room is in (the rooms built after the start view measure kinds of their own)
+const keepSizes = () => { if (!sizesKept.sig) return; const m = manor.measured, k = sizesKept.data || { sizes: {}, sweeps: {} };
+  if (Object.keys(m.sizes).some(x => !(x in k.sizes)) || Object.keys(m.sweeps).some(x => !(x in k.sweeps))) keepTable("sizes", sizesKept.sig, { sizes: { ...k.sizes, ...m.sizes }, sweeps: { ...k.sweeps, ...m.sweeps } }); };
+keepSizes();
+if (placesKept.sig && !placesKept.data) keepTable(`place/${PKEY}`, placesKept.sig, Object.fromEntries([...manor.placements].map(([id, g]) => [id, { placed: g.placed, refused: g.refused }])));
+window.__sizesKept = { sig: sizesKept.sig, from: sizesKept.data ? "table" : "measured", probes: manor.probes, waited: sizesWaited, places: placesKept.data ? "table" : "placed", plan: PKEY, placeSig: placesKept.sig };
+// the story in play (R49): sizes, reach, deeds, what the text brings in later, the story's magic, the goal
+const SP = STORY ? playStory({ THREE, scene: STORY.scene, story: STORY.story, text: STORY.text, plan, manor, works, build, K, look: look1660, say,
+  setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); } }) : null;
+window.__sp = SP;
+// the forecourt's railed wall, its piers and its gates (src/make/forecourt.js), the gates things that work
+const FC = site ? buildForecourt({ THREE, K, look: look1660, build, plan, site, works, materials: { merge: mergeGeometries, stone: look1660.roles.ashlar, iron: look1660.roles.iron } }) : null;
+if (FC) scene.add(FC.group); window.__fc = FC;
+if (SP) { const b3 = new THREE.Box3(), c = new THREE.Vector3();
+  // each lamp's light where its flame hangs, in the pool the fires use (oil lamps flicker a little too)
+  fireItems = fireItems.concat(SP.lamps.map((b, i) => { b3.setFromObject(b.node); b3.getCenter(c); const at = c.clone(); at.y = b3.min.y + 0.12;
+    return { key: 100 + i, room: plan.entrance, at, size: 1, base: 5, thing: b, h: { at: at.clone().setY(at.y - 0.55), into: at.clone().setY(at.y - 0.55) } }; }));
+  SP.onGoal = () => { const e = document.createElement("div"); e.id = "end"; e.innerHTML = "Through the little door. <small>The first Alice proof ends here: the garden is Chapter II's and beyond.</small>"; document.body.append(e); };
+  buildGarden(); }
+// the garden beyond the passage, seen and not entered: "beds of bright flowers and those cool fountains"
+function buildGarden() { const g = plan.rooms.find(r => r.id === "garden"); if (!g) return; const G = new THREE.Group(), R = g.rect, cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2;
+  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(R.x1 - R.x0 + 30, R.y1 - R.y0 + 30), new THREE.MeshStandardMaterial({ color: 0x4f7a32, roughness: 1 })); lawn.rotation.x = -Math.PI / 2; lawn.position.set(cx - 15, -0.01, -cy); lawn.receiveShadow = true; G.add(lawn);
+  const cols = [0xd83a4a, 0xf2c14e, 0xf6f1e8, 0xb04fd0, 0xff8a3d], bloom = new THREE.IcosahedronGeometry(0.06, 0), r = (k) => { const x = Math.sin(k * 127.1) * 43758.5453; return x - Math.floor(x); };
+  for (const [bx, by] of [[-1.6, 1.0], [-1.6, -1.0], [-5.6, 1.5], [-5.6, -1.5]]) { const n = 140, m = new THREE.InstancedMesh(bloom, new THREE.MeshStandardMaterial({ roughness: 0.8 }), n), M4 = new THREE.Matrix4();
+    for (let i = 0; i < n; i++) { M4.makeTranslation(R.x1 + bx + (r(i + bx * 9) - 0.5) * 2.4, 0.08 + r(i * 3 + by) * 0.18, -(cy + by + (r(i * 7 + bx) - 0.5) * 1.2)); m.setMatrixAt(i, M4); m.setColorAt(i, new THREE.Color(cols[i % cols.length])); }
+    const bed = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.08, 1.4), new THREE.MeshStandardMaterial({ color: 0x3b2a1c, roughness: 1 })); bed.position.set(R.x1 + bx, 0.04, -(cy + by)); G.add(bed, m); }
+  const stone = new THREE.MeshStandardMaterial({ color: 0xb9b2a4, roughness: 0.9 }), water = new THREE.MeshStandardMaterial({ color: 0x9cc8e0, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.85 });
+  const basin = new THREE.Mesh(new THREE.LatheGeometry([[0, 0], [1.1, 0], [1.15, 0.35], [1.0, 0.38], [0.95, 0.3], [0, 0.3]].map(([x, y]) => new THREE.Vector2(x, y)), 32), stone); basin.position.set(R.x1 - 3.4, 0, -cy); G.add(basin);
+  const jet = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.08, 1.3, 10), water); jet.position.set(R.x1 - 3.4, 0.95, -cy); G.add(jet);
+  scene.add(G); }
+
+// ---- walking: floor to floor by the stairs, through a doorway only while its door stands open
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, OUTDOOR ? 3000 : 140); window.__camera = camera;
+// a phone held upright sees at least 50 degrees across (66 up and down had left 34 across: a person a metre to the side
+// two strides off was out of view); landscape and desktop keep 66 up and down
+const fit = () => { camera.aspect = innerWidth / innerHeight; camera.fov = Math.min(88, Math.max(66, 2 * Math.atan(Math.tan(25 * Math.PI / 180) / camera.aspect) * 180 / Math.PI)); camera.updateProjectionMatrix(); };
+fit(); addEventListener("resize", fit);
+const EYE = 1.6, floors = [...plan.floors].sort((a, b) => a.level - b.level);
+const inRect = (r, x, y, m = 0) => x > r.x0 + m && x < r.x1 - m && y > r.y0 + m && y < r.y1 - m;
+const doorThing = new Map(manor.things.filter(b => b.node.userData.opening).map(b => [b.node.userData.opening, b]));
+const isOpen = (b) => works.stateOf(b, "leaf") === "open";
+// the walking rules (src/make/walk.js), shared with the checks that walk the house
+// (a story's doorway lets you through only if you fit it; each size walks with its own body, on one grid)
+const passable = (id) => (!doorThing.get(id) || isOpen(doorThing.get(id))) && (!SP || SP.fits(id));
+const walk0 = makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable }), walkers = new Map();
+const walkFor = (s) => { if (!SP) return walk0; if (!walkers.has(s)) { const b = bodyAt(STORY.story.sizes[s]); walkers.set(s, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { half: b.half, step: Math.max(0.05, b.step), head: b.head, soffit: 0.3 } })); } return walkers.get(s); };
+let walk = walkFor(SP ? SP.size() : null);
+// outside the house, the ground's own walker (src/make/terrain.js); inside its footprint, the house's
+const outdoorWalk = site ? makeOutdoorWalk(site, { plan, blocked: (x, y, half) => !!FC?.blocked(x, y, half) || !!hill?.blocked(x, y, half) }) : null;
+const joined = (w) => !outdoorWalk ? w : { ...w, groundAt: (x, y, h) => site.inHouse(x, y) ? w.groundAt(x, y, h) : outdoorWalk.groundAt(x, y, h) };
+walk = joined(walk);
+// ---- people (M8, R60; ?people=reference, or a module's path): a population behind the person interface agreed with
+// Photonic (design/people/photonic-brief.md §3), in our rooms, walking by our rules, holding their place in the moving
+// bodies' layer, which your own walk reads too (nobody walks through anybody); ?crowd=N wanderers on the floor you
+// start on, for the phone budget (lab/people/ lists the harness's set-ups)
+let POP = null, CROWD = null, peopleCtx = null; const peopleLog = [], peopleNotes = []; window.__peopleLog = peopleLog; window.__peopleNotes = peopleNotes;
+const bodies = Q.get("people") ? withBodies(walk0.claims) : null;
+if (bodies) { const src = Q.get("people"), module = await import(src.includes("/") ? src : `../../src/people/${src}.js`), { makePeople } = module, pw = new Map();
+  const walkOf = (half) => { const k = Math.round(half * 100); if (!pw.has(k)) pw.set(k, makeWalk({ plan, levelOf: manor.levelOf, blocks: manor.blocks, isOpen: passable, claims: walk0.claims, body: { ...BODY, half: k / 100 } })); return pw.get(k); };
+  peopleCtx = { walk: { floorOf: walk0.floorOf, walkFor: walkOf }, claims: bodies, place: { roomAt: walk0.roomAt }, works, device: { share: +(Q.get("share") ?? 1) }, budgetMs: +(Q.get("routems") ?? 3) };   // ?routems: the frame's milliseconds for finding ways
+  // An older Photonic entry and the reference both export only makePeople. A request for basis identifies Photonic before it allocates a drawing;
+  // later entries name their API explicitly, while an older factory ignores basis and gives us its actual population.
+  const needsBasis = Symbol("people basis"); let modern = module.PEOPLE_API === "photonic.people/1";
+  if (!modern) { try { POP = makePeople(THREE, { ctx: peopleCtx, get basis() { throw needsBasis; } }); } catch (e) { if (e !== needsBasis) throw e; modern = true; } }
+  if (modern) { const pinned = "https://5000stadia.github.io/photonic-phone-test/v/p3/people/index.js";
+    if (src !== pinned) throw new Error(`people: this client loads Photonic only from ${pinned}`);
+    const { loadBasis } = await import(new URL("../gait.js", pinned).href), response = await fetch(new URL("../gait-basis.json", pinned));
+    if (!response.ok) throw new Error(`people: gait basis HTTP ${response.status}`);
+    POP = makePeople(THREE, { basis: loadBasis(await response.json()), quality: ENG.phone ? "phone" : "pc" });
+    RP?.usePeople(POP, (message) => { peopleNotes.push(message); console.warn(message); }); }
+  scene.add(POP.group); window.__people = POP; window.__bodies = bodies; window.__peopleWalk = walkOf;
+  if (modern) { POP.warm(); await POP.compile(renderer, scene, camera, { defer: false }); }
+  // the checks on every person (src/people/checks.js): doors as built, their width and head
+  const doorDims = new Map(); for (const { spec } of manor.specs.values()) for (const e of Object.values(spec.walls).flat()) if (e.kind === "door" && e.id) doorDims.set(e.id, { w: e.r1 - e.r0, top: e.top });
+  window.__peopleCheck = () => checkPeople({ people: POP, walkOf, claims: bodies, doors: doorDims });
+  const base = walk; walk = { ...base, groundAt: (x, y, h) => bodies.bodyAt(base.floorOf(h), x, y, BODY.half, "player") != null ? null : base.groundAt(x, y, h) }; }
+window.__peopleDump = () => [POP?.dump?.(), RP?.dump()].filter(Boolean).join("\n");
+const { floorOf, roomAt } = walk;
+const standable = (x, y, h) => walk.groundAt(x, y, h) != null;
+// ---- a case in play (M7, ?case=…): its things adopted or built, its people present as projections, the talk panel, the
+// narrator in code (the live narrative is construct's, over the contract: design/case/boundary-with-construct.md)
+let CP = null, adoptCase = () => {}; const presences = new Map(), lookMeshes = [];
+// a recipe's person, talked to as the case's people are (aimed at by their hit box)
+for (const [id, person] of RP?.people || []) presences.set(id, { p: { group: person, hit: person.userData.hit, tick: () => {} }, room: person.userData.room });
+if (CASE) {
+  const byStory = new Map(manor.things.filter(b => b.story).map(b => [b.story, b])), used = new Set(byStory.values()), knownKinds = new Set(kinds().map(k => k.kind)), looked = new Set();
+  // (adoptCase: run at load and again as each room arrives after the start view, R65: it takes only what isn't taken yet)
+  adoptCase = () => {
+  // (what the placer built for the case, a required thing carrying its story, taken as it arrives, before any is adopted
+  // by kind: a late room's required chest had been passed over for another chest of its kind)
+  for (const b of manor.things) if (b.story && !byStory.has(b.story)) { byStory.set(b.story, b); used.add(b); }
+  // what the house's own builders made (the muniment room is built from its brief, not by the placer): adopted by kind
+  for (const t of CASE.things || []) { if (byStory.has(t.id) || !plan.rooms.some(r => r.id === t.at)) continue;
+    const c = manor.things.filter(b => !used.has(b) && b.kind.kind === t.kind && (b.address || "").includes(`/${t.at}/`));
+    const pick = (/_N/.test(t.id) && c.find(b => /\bN|\/N/.test(b.address))) || c[0];
+    if (pick) { pick.story = t.id; pick.node.userData.story = t.id; byStory.set(t.id, pick); used.add(pick);
+      // the case's settings for it (its keys, how it starts), applied to what its own builder made
+      const cs = caseSettings(t); if (Object.keys(cs).length) { pick.settings = { ...pick.settings, ...cs }; works.add(pick); } } }
+  // and what those hold, built and seated in their slots
+  for (let pass = 0; pass < 4; pass++) for (const t of CASE.things || []) { if (byStory.has(t.id) || !knownKinds.has(t.kind)) continue; const host = byStory.get(t.at); if (!host) continue;
+    const b = build(THREE, K, look1660, t.kind, `case/${t.id}`, caseSettings(t)); b.story = t.id; b.node.userData.story = t.id;
+    const want = t.slot || kindOf(t.kind)?.place?.slot || "top", name = host.slots?.has(want) ? want : host.slots?.has("top") ? "top" : "inside", sl = host.slots?.get(name);
+    // several in one slot laid side by side within it, as the placer does (src/make/manor.js): the steward's key had been
+    // set at the very point the table candlestick stood, inside its foot, and could not be seen or tapped
+    if (sl) { const area = host.info?.slots?.[name]?.area, k = (sl.count = (sl.count || 0) + 1) - 1, w = Math.max(0.36, area?.[0] ?? 0.4);
+      b.node.position.set(sl.at[0] + (k ? (k % 2 ? 1 : -1) * Math.ceil(k / 2) * w / 3 : 0), sl.at[1], sl.at[2]); b.node.rotation.y = kindOf(t.kind)?.place?.turn ?? 0.35; sl.node.add(b.node);
+      b.host = { b: host, slot: name }; }     // (kept in it: not seen to the aim, nor taken, while what shuts it in is shut; src/make/works.js)
+    else { const bb = new THREE.Box3().setFromObject(host.node); b.node.position.set((bb.min.x + bb.max.x) / 2, bb.max.y, (bb.min.z + bb.max.z) / 2); scene.add(b.node); }
+    works.add(b); manor.things.push(b); byStory.set(t.id, b);
+    // its own light (the case's candle on the muniment table) pooled like the room's: a light added to the room had kept
+    // it from being compiled ahead, and its first sight stalled 4-6 s
+    const lights = []; b.node.traverse(o => { if (o.isPointLight || o.isRectAreaLight) lights.push(o); }); for (const l of lights) poolOwn(l, host.node.userData.room || CASE.things.find(q => q.id === t.at)?.at || t.at); }
+  // each called as the case labels it ("take Mr Hollins's key", "take the steward's padlock key"): both keys had read "take the key"
+  for (const [id, b] of byStory) { const l = CASE.things.find(q => q.id === id)?.label; if (l) b.name = l; }
+  // what is only looked at (the body laid out: nothing to work, nothing to carry), aimed at by its own meshes
+  for (const b of byStory.values()) if (!looked.has(b.story) && !Object.keys(b.kind.affordances || {}).length && (CASE.things.find(t => t.id === b.story)?.clue)) { looked.add(b.story); b.node.traverse(o => { if (o.isMesh) { o.userData.look = b.story; lookMeshes.push(o); } }); }
+  if (window.__case) Object.assign(window.__case, { placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) }); };
+  adoptCase();
+  // fair by the project's own check, at load (ms)
+  const fp = fairPlay(CASE, { plan, kindOf }), cc = checkCase(CASE, { plan, kinds: new Set(kinds().map(k => k.kind)), kindOf });
+  window.__case = { check: cc, fair: fp, placed: [...byStory.keys()], missing: (CASE.things || []).map(t => t.id).filter(id => !byStory.has(id)) };
+  // the people: each where the case puts them at the start, as the holodeck shows them, a portrait painted in code
+  // painted in code from each person's look in the case (src/make/sitter.js): for the projection the figure alone, on
+  // nothing (a dark ground had shown as a smudge round them); for the panel's small circle the face, cropped close
+  const portrait = (id) => { const look = CASE.cast.find(c => c.id === id)?.look, done = sittersPainted.get(id);
+    if (look && done) { const cv = Object.assign(document.createElement("canvas"), { width: done.bitmap.width, height: done.bitmap.height }); cv.getContext("2d").drawImage(done.bitmap, 0, 0); done.bitmap.close(); sittersPainted.delete(id); cv.face = done.face; return cv; }
+    if (look) return paintSitter(look, { seed: seedOf(`sitter/${id}`), ground: false });
+    const b = build(THREE, K, look1660, "picture/portrait", `case/portrait/${id}`, {}); let cv = null; b.node.traverse(o => { const m = o.material; if (!cv && m?.map?.image?.getContext) cv = m.map.image; }); return cv; };
+  const faceOf = (id) => { const look = CASE.cast.find(c => c.id === id)?.look; if (!look) return null; const src = paintSitter(look, { seed: seedOf(`sitter/${id}`), w: 256, h: 320 }), f = src.face, r = f ? f.r * 1.3 : 60;
+    const cv = Object.assign(document.createElement("canvas"), { width: 128, height: 128 }); cv.getContext("2d").drawImage(src, (f?.x ?? 128) - r, (f?.y ?? 130) - r * 0.95, r * 2, r * 2, 0, 0, 128, 128); return cv; };
+  const standIn = (roomId, others = []) => { const r = plan.rooms.find(q => q.id === roomId); if (!r) return null; const cx = (r.rect.x0 + r.rect.x1) / 2, cy = (r.rect.y0 + r.rect.y1) / 2, h = manor.levelOf(r.floor);
+    // (on open floor, clear of the hearth and the furniture by a stride: she had stood before the hall's fire, looking to be in it)
+    // (and out of a doorway's way: Daniel had stood in the line of the muniment door, and a tap on the door spoke to him)
+    const doors = plan.openings.filter(o => o.joins.includes(roomId) && o.rect).map(o => [(o.rect.x0 + o.rect.x1) / 2, (o.rect.y0 + o.rect.y1) / 2]);
+    const seg = (x, y, [ax, ay], [bx, by]) => { const vx = bx - ax, vy = by - ay, t = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / (vx * vx + vy * vy || 1))); return Math.hypot(x - ax - vx * t, y - ay - vy * t); };
+    // (nor on the way between two of the room's doors: crossing the closet to the muniment door, you met him)
+    const offDoors = (x, y) => doors.every(([dx, dy]) => Math.hypot(x - dx, y - dy) > 1.6) && doors.every((a, i) => doors.slice(i + 1).every(b => seg(x, y, a, b) > 0.8));
+    // (and a stride from whoever already stands there: at the gathering all four had stood on one spot, and a tap on Dame
+    // Anne spoke to Daniel)
+    const apart = (x, y) => others.every(([ox, oy]) => Math.hypot(x - ox, y - oy) > 1.1);
+    const clear = (x, y, need) => apart(x, y) && need === 0 || apart(x, y) && ((need === 1 || !manor.blocks.some(q => q.room === roomId && x > q.x0 - 1.2 && x < q.x1 + 1.2 && y > q.y0 - 1.2 && y < q.y1 + 1.2)) && offDoors(x, y));
+    for (const need of [2, 1, 0]) for (let k = 0; k < 800; k++) { const a = k * 2.4, rr = 0.08 * Math.sqrt(k), x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr;
+      if (walk.groundAt(x, y, h) != null && rr > (need ? 0.3 : 0.9) && clear(x, y, need)) return [x, y, h]; }
+    return [cx, cy, h]; };
+  const presenceOf = (id, room = null) => { const was = presences.get(id); if (was && (!room || was.room === room)) return was;
+    const p = CASE.cast.find(c => c.id === id); if (!p) return null; const to = room || p.presence?.find(q => q.when === "start")?.room || p.home;
+    const others = [...presences].filter(([k, q]) => k !== id && q.room === to).map(([, q]) => [q.p.group.position.x, -q.p.group.position.z]), at = standIn(to, others); if (!at) return null;
+    if (was) was.p.group.removeFromParent();
+    const picture = was?.picture || portrait(id), pr = makePresence(THREE, { picture, name: p.name, at, seed: id.length });
+    pr.hit.userData.presence = id;            // aimed at, it answers to the person's id (it had answered with the name, and talking found no one)
+    scene.add(pr.group);                       // in world space (a room's group has its own offset); shown while its room is
+    // (the panel's face painted when the panel first opens on them, not at load: four of them were 0.3 s of the case's start)
+    let face = was?.faceMade ? was.face : undefined;
+    const rec = { p: pr, picture, room: to, get faceMade() { return face !== undefined; }, get face() { if (face === undefined) face = faceOf(id); return face; } }; presences.set(id, rec); return rec; };
+  for (const p of CASE.cast) presenceOf(p.id);
+  // what pattern-buffer's beat conditions read (BEATS-V1; src/make/narrator.js fromCondition): the house as its facts say it
+  // now, in the outbox's words (a thing's state, locked, in: src/make/facts-out.js), and the player's own frame (a code known)
+  const factsNow = (e) => { for (const b of works.things.values()) if (entityOf(b) === e) { if (works.held().includes(b)) return [{ attribute: "held_by", value: "person:player" }];
+      return placementFacts([{ b, room: roomOfThing(b), host: b.host?.b || null }], { stateOf: (x, aff) => works.stateOf(x, aff) }); } return []; };
+  const N = { world: (e, a) => factsNow(e).find(f => f.attribute === a)?.value, knows: (e, a) => known.has(`${e}.${a}`) };
+  window.__narratorReads = N;
+  let narrator; try { narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), from: caseSaved?.narrator || null, ...N }); }
+  catch (e) { console.warn("case resume refused:", e.message); caseSaved = null; narrator = makeNarrator(CASE, { seed: CASE.seed || 1660, rooms: plan.rooms.map(r => r.id), ...N }); }
+  // a deck written ahead (construct's, over the contract: ?deck=<url>), merged beside the case's own beats, each part
+  // checked as they are; what was refused is said in the console and in window.__deck
+  if (Q.get("deck")) { try { const deck = await (await fetch(Q.get("deck"))).json(); const m = narrator.merge(deck); window.__deck = { from: Q.get("deck"), ...m };
+      if (m.refused.length) console.warn("deck refused:", m.refused); } catch (e) { console.warn("deck:", e.message); window.__deck = { error: e.message }; } }
+  // the live bridge to construct (R58 slice 2; ?bridge or ?bridge=<url>): this machine only, as the model relay is
+  const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  const bridge = local && Q.has("bridge") ? makeBridge({ base: Q.get("bridge") || "http://127.0.0.1:8799", merge: (d, o) => narrator.merge(d, o), log: (t) => console.info(t) }) : null;
+  window.__bridge = () => bridge?.stats() || null;
+  const panel = makeTalkPanel({
+    onAsk: (topic, stance) => CP.reply(CP.talking(), topic, stance), onSay: (text) => CP.words(text),
+    onShow: (id, topic) => CP.reply(CP.talking(), topic, "show", id), onAccuse: (c) => CP.accuse(c),
+    onOpenAccusation: () => CP.openAccusation(), onOpenNotebook: () => panel.openNotebook(CP.notebookView()), onOpenPaper: (id) => CP.openPaper(id), onHint: (id) => { if (CP.hint(id)) panel.openNotebook(CP.notebookView()); }, onClose: () => CP?.closed() });
+  // (the model's relay is for development only, on this machine: the published page never asks for it; a phone had
+  // tried 127.0.0.1 on every reply, which Android may answer with a local-network prompt)
+  CP = playCase({ kase: CASE, plan, manor, works, panel, voice: /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) && Q.get("voice") !== "0" ? makeVoice() : null, narrator, say, presenceOf,
+    setVar: (name, v) => { store[`$${name}`] = v; world.save(store, "player", (id) => works.things.get(id)); keep(); }, onEnd: () => say("The case is closed."),
+    onTurn: bridge ? (t) => bridge.turn(t) : null, know: (n) => known.add(n), saved: caseSaved, persist: (snap) => { try { localStorage.setItem(CKEY, JSON.stringify({ ...snap, at: [px, py, ph, yaw] })); } catch (_) {} } });
+  // a minute gone with the house in view and nothing asked is a quiet turn to the narrator, so a lull in real time (not
+  // only in questions) brings a servant's word towards what you haven't found
+  setInterval(() => { if (!document.hidden && !panel.isOpen()) CP.idle(); }, 60000);
+  window.__cp = CP; window.__presences = presences; window.__narrator = narrator;
+
+  // the notebook from anywhere (the bot playtest: it opened only from a conversation's header, and each of 31 thoughts
+  // asked had cost a detour to someone): a button at the top, beside the full-screen one, its brass dot when something new
+  // is in it; the panel's own sheet, over everything, opened straight to it
+  { const fs = document.querySelector('button[aria-label="Full screen"]'), nb = document.createElement("button");
+    nb.id = "hud-notebook"; nb.setAttribute("aria-label", "Notebook");
+    nb.innerHTML = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5C9.8 5 6.8 4.5 3.5 5v13c3.3-.5 6.3 0 8.5 1.5 2.2-1.5 5.2-2 8.5-1.5V5c-3.3-.5-6.3 0-8.5 1.5z"/><path d="M12 6.5v13"/></svg><i></i>';
+    Object.assign(nb.style, { position: "fixed", top: "calc(12px + env(safe-area-inset-top))", right: fs ? "64px" : "12px", zIndex: 5, width: "44px", height: "44px", borderRadius: "6px", padding: "0",
+      display: "grid", placeItems: "center", border: "1px solid rgba(236,228,210,0.35)", background: "rgba(22,19,16,0.72)", color: "#ece4d2", cursor: "pointer", touchAction: "manipulation" });
+    const dot = nb.querySelector("i"); Object.assign(dot.style, { position: "absolute", top: "6px", right: "6px", width: "8px", height: "8px", borderRadius: "50%", background: "#c9a35c", display: "none" });
+    nb.addEventListener("pointerdown", (e) => e.stopPropagation());
+    nb.addEventListener("click", (e) => { e.stopPropagation(); panel.openNotebook(CP.notebookView()); });
+    const fresh0 = panel.fresh, open0 = panel.openNotebook; panel.fresh = () => { fresh0?.(); dot.style.display = "block"; };
+    panel.openNotebook = (s) => { dot.style.display = "none"; return open0(s); };
+    document.body.append(nb); }
+  // kept as you leave, not only on a turn: where you stand and the case's clock (a walk after the last question had been
+  // lost on a reload, the clock set back; a phone kills a hidden tab without a word)
+  addEventListener("pagehide", () => CP.saveNow());
+  document.addEventListener("visibilitychange", () => { if (document.hidden) CP.saveNow(); });
+}
+const start = plan.rooms.find(r => r.id === (Q.get("room") || CASE?.player?.start)) || plan.rooms.find(r => r.id === "great_hall") || plan.rooms.find(r => r.type !== "open");
+// a story starts you where the text brings you in: the hall's near end, from the passage the Rabbit took
+let px = STORY ? start.rect.x1 - 1.4 : (start.rect.x0 + start.rect.x1) / 2, py = (start.rect.y0 + start.rect.y1) / 2, ph = manor.levelOf(start.floor), yaw = Math.PI / 2, pitch = -0.05;
+if (RECIPE) { const s0 = RECIPE.plan.recipe.start; px = s0.x; py = s0.y; yaw = s0.yaw; }   // (where the recipe's plan says you arrive)
+// not inside the furniture: the nearest clear floor to the room's middle
+for (let k = 1; !standable(px, py, ph) && k < 400; k++) { const a = k * 2.4, r = 0.1 * Math.sqrt(k); const nx = (start.rect.x0 + start.rect.x1) / 2 + Math.cos(a) * r, ny = (start.rect.y0 + start.rect.y1) / 2 + Math.sin(a) * r; if (standable(nx, ny, ph)) { px = nx; py = ny; } }
+// a frame of the people: what happened handed to the crowd, then the population's tick (the page's loop, and
+// __peopleStep(n, dt) for the suite: n frames of dt seconds at once, the same work, the same outcome every run)
+let peopleClock = 0;
+function peopleFrame(t, dt) { const evs = POP.events(); if (evs.length) { peopleLog.push(...evs); if (peopleLog.length > 400) peopleLog.splice(0, peopleLog.length - 400); }
+  CROWD?.tick(t, evs); return POP.tick(t, dt, camera); }
+// (every way found within its frame while stepping: a budget in milliseconds would end searches at different frames each run)
+window.__peopleStep = (n, dt = 1 / 30) => { const t0 = performance.now(), b = peopleCtx.budgetMs; peopleCtx.budgetMs = Infinity;
+  try { for (let k = 0; k < n; k++) { peopleClock += dt; peopleFrame(1e4 + peopleClock, dt); } } finally { peopleCtx.budgetMs = b; } return Math.round(performance.now() - t0); };
+// ?crowd=N (with ?people): N people wandering the rooms of the floor you start on, each from its own address
+// (crowd/i, its errands crowd/i/k), clear of furniture and of each other; on arriving, stuck or finding no way, a pause
+// and a new errand
+if (POP && Q.get("crowd")) { const n = +Q.get("crowd"), f = start.floor, h0 = manor.levelOf(f), rooms = plan.rooms.filter(r => r.type !== "open" && r.floor === f && r.rect);
+  // the doors all open (?doors=shut keeps them as they are): a crowd of the whole floor, not of a hall
+  if (Q.get("doors") !== "shut") { for (const b of works.things.values()) if (b.node.userData.opening && works.stateOf(b, "leaf") !== "open") works.act({ b, aff: "leaf" }); works.finish?.(); }
+  // where one can get to from where (src/people/route.js regions, as the doors stand now): errands only within reach
+  const box = { x0: Math.min(...rooms.map(r => r.rect.x0)), y0: Math.min(...rooms.map(r => r.rect.y0)), x1: Math.max(...rooms.map(r => r.rect.x1)), y1: Math.max(...rooms.map(r => r.rect.y1)) };
+  const reach = regions(walk0, box, h0), all = rooms.flatMap(r => { const ids = new Set(); for (let x = r.rect.x0 + 0.2; x < r.rect.x1; x += 0.4) for (let y = r.rect.y0 + 0.2; y < r.rect.y1; y += 0.4) { const g = reach.of(x, y); if (g) ids.add(g); } return [...ids]; });
+  const big = [...new Set(all)].sort((a, b) => reach.cells(b).length - reach.cells(a).length)[0];
+  // a free spot in a region that this body fits (a broad person refused where the regions' 0.22 m body stood)
+  const pick = (key, region = big, who = null, half = BODY.half) => { const r0 = rngOf(seedOf(key)), cells = reach.cells(region), w = window.__peopleWalk(half);
+    for (let k = 0; k < 30 && cells.length; k++) { const [x, y] = cells[Math.floor(r0() * cells.length)], g = w.groundAt(x, y, h0);
+      if (g != null && bodies.bodyAt(f, x, y, half + 0.08, who) == null) return [x, y, g]; } return null; };
+  const trips = new Map(), rest = new Map();
+  bodies.hold("player", f, px, py, BODY.half);         // (you, before anyone is set down: one had been put where you stand)
+  for (let i = 0; i < n; i++) { const id = `crowd/${i}`; let at = pick(`${id}/0`); if (!at) continue; const doc = { id, recipe: {}, seed: 0, at: { pos: [at[0], at[2], -at[1]], floor: f } }, half = POP.add(doc).bounds().half;
+    if (half > BODY.half) { POP.remove(id); at = pick(`${id}/0`, big, null, half); if (!at) continue; POP.add({ ...doc, at: { pos: [at[0], at[2], -at[1]], floor: f } }); }
+    trips.set(id, 0); rest.set(id, 0); }
+  // (nowhere free to go: asked again in a second, never in the same pass, which had looped for ever)
+  const errand = (id, t) => { const k = trips.get(id) + 1, w = POP.get(id).where(), to = pick(`${id}/${k}`, reach.of(w.pos[0], -w.pos[2]) || big, id, POP.get(id).bounds().half); trips.set(id, k);
+    if (to) POP.get(id).goTo({ pos: [to[0], to[2], -to[1]], floor: f }, { pace: k % 3 ? "walk" : "stroll" }); else rest.set(id, t + 1); };
+  CROWD = { tick(t, evs) { for (const e of evs) if (trips.has(e.id) && (e.type === "arrived" || e.type === "stuck" || e.type === "no_way")) rest.set(e.id, t + 1 + trips.get(e.id) % 4);
+    for (const [id, at] of [...rest]) if (t >= at) { rest.delete(id); errand(id, t); } } };
+}
+// a case brings you in facing whoever meets you there (you had arrived facing the panelling, Dame Anne behind you)
+// and from a side where no hearth stands behind them (seen against the fire, she had looked to stand in it): of twelve
+// spots a few strides off, the one whose line of sight past them runs farthest from any hearth
+{ const meet = CASE && [...presences.values()].find(q => q.room === start.id); if (meet) { const g = meet.p.group.position, mx = g.x, my = -g.z;
+    const fires = manor.blocks.filter(b => b.room === start.id && b.kind === "hearth").map(b => [(b.x0 + b.x1) / 2, (b.y0 + b.y1) / 2]);
+    let best = null, bs = -1; for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6, x = mx + Math.cos(a) * 2.4, y = my + Math.sin(a) * 2.4; if (!standable(x, y, ph)) continue;
+      let sc = 9; for (let d = 0.5; d <= 5; d += 0.5) for (const [hx, hy] of fires) sc = Math.min(sc, Math.hypot(mx - Math.cos(a) * d - hx, my - Math.sin(a) * d - hy));
+      if (sc > bs) { bs = sc; best = [x, y]; } }
+    if (best) [px, py] = best; yaw = Math.atan2(-(mx - px), my - py); pitch = -0.12; } }
+// taken up again: where you stood, and a line to say so
+if (CP?.resumed) { const [x, y, h, a] = caseSaved.at || []; if (x != null && standable(x, y, h)) { px = x; py = y; ph = h; yaw = a; }
+  say(`You take up the case again, ${CP.resumed.minutes} minutes in, with ${CP.resumed.clues} ${CP.resumed.clues === 1 ? "clue" : "clues"} in your book.`); }
+window.__place = (x, y, yd, pd = 0, floor = null, glide = false) => { if (seated) standUp(false); px = x; py = y; yaw = yd * Math.PI / 180; pitch = pd * Math.PI / 180; if (floor) ph = manor.levelOf(floor); if (!glide) snapLights = true; };   // a test's jump: no fade (glide: a step, as walking)
+// ?at=x,y,yaw[,pitch] (plan metres, degrees; with ?room= for the floor and the start view): start just there, a link
+// to a view for your eye (the lab's "waiting for your eye")
+{ const a = (Q.get("at") || "").split(",").map(Number); if (a.length >= 3 && a.every(Number.isFinite)) window.__place(a[0], a[1], a[2], a[3] || 0); }
+const keys = {};
+// crouching (Kabe, 2026-10-07: "We should have a crouch option"): C or Ctrl, or the thumb's crouch button; the eye
+// at 55% of its height, half the pace
+let crouch = false; const crouchTouch = isTouch() ? crouchButton((d) => { crouch = d; }) : null;
+addEventListener("keydown", e => { if (e.code === "KeyC" || e.code === "ControlLeft") { if (seated) { standUp(); crouchTouch?.(false); } else { crouch = !crouch; crouchTouch?.(crouch); } }
+  if (e.code === "KeyL" && !e.repeat) { const ring = ["eye", "candle", "flashlight", "none"]; window.__carry(ring[(ring.indexOf(carry.mode) + 1) % ring.length]); }
+  keys[e.code] = true; if (e.code === "KeyE" || e.code === "Enter") act(); if (e.code === "KeyG") takeAt(); });
+addEventListener("keyup", e => { keys[e.code] = false; });
+// sitting (R80; Kabe, 2026-10-13: "clicking the chair should anchor me IN the chair at head height to see desk better. Drawer
+// sliding open simply goes under my view and I can look down"): a seat's `sit` is a fact of the world (src/make/characteristics.js),
+// and the page follows it: your eye eases down to a sitter's over the back of its seat (its build's `seat`), facing its front,
+// a little down, still free to look round. A step, a glide, crouching or the seat clicked again stands you where you stood.
+// Where the eye goes is the seat's own (its build's seat.eye; a form's or a daybed's along its length, nearest where you clicked).
+let sitPoint = null;   // where the click that sat you landed (world), for a long seat
+const SIT_MS = 840;     // sitting down takes this long (standing up, 420 ms for the eye and 320 for the step back)
+function sitIn(b) {
+  if (!b.seat || seated?.b === b) return; if (seated) standUp(false);
+  b.node.updateWorldMatrix(true, false);
+  const e = b.seat.eye, along = sitPoint && b.seat.half ? Math.max(-b.seat.half, Math.min(b.seat.half, b.node.worldToLocal(sitPoint.clone()).x - e[0])) : 0; sitPoint = null;
+  const at = new THREE.Vector3(e[0] + along, e[1], e[2]).applyMatrix4(b.node.matrixWorld), f = new THREE.Vector3(0, 0, 1).transformDirection(b.node.matrixWorld);
+  const yaw1 = Math.atan2(-f.x, -f.z); let dyaw = yaw1 - yaw; while (dyaw > Math.PI) dyaw -= 2 * Math.PI; while (dyaw < -Math.PI) dyaw += 2 * Math.PI;
+  seated = { b, back: [px, py, ph], eye: at.y - ph }; crouch = false; crouchTouch?.(false);
+  // (at half the pace it was, 0.84 s: Kabe, 2026-10-13: "too fast to sit down though like half that speed")
+  eyeEase = { from: eyeNow, t0: performance.now(), ms: SIT_MS };
+  glide = { from: [px, py, ph, yaw, pitch], to: [at.x, -at.z, ph, yaw + dyaw, -0.3], t0: performance.now(), ms: SIT_MS, then: () => {}, cancel: false, sit: true };
+}
+// stand: back where you stood before you sat (restore), or where you are (a glide or a jump is taking you elsewhere); the
+// seat is empty again in the world
+function standUp(restore = true) {
+  const s = seated; if (!s) return; seated = null; eyeEase = { from: eyeNow, t0: performance.now(), ms: 420 };
+  if (works.stateOf(s.b, "sit") === "sat") works.set(s.b, "sit", null, "empty");
+  if (restore) glide = { from: [px, py, ph, yaw, pitch], to: [s.back[0], s.back[1], s.back[2], yaw, Math.max(pitch, -0.3)], t0: performance.now(), ms: 320, then: () => {}, cancel: false };
+}
+// the world says who sits where: the page follows (its works' onMove, every frame the state eases)
+function seatFollow(b) { const sat = works.stateOf(b, "sit") === "sat"; if (sat && seated?.b !== b) sitIn(b); else if (!sat && seated?.b === b) standUp(); }
+window.__seated = () => seated ? { thing: seated.b.id, kind: seated.b.kind.kind, eye: +(ph + seated.eye).toFixed(3), back: seated.back, at: [px, py], yaw: yaw * 180 / Math.PI, pitch: pitch * 180 / Math.PI } : null;
+window.__look = (yd, pd) => { if (yd != null) yaw = yd * Math.PI / 180; if (pd != null) pitch = pd * Math.PI / 180; };   // a test's look round, where you are (seated or not)
+const lock = () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} };
+$("gate").addEventListener("click", lock);
+document.addEventListener("pointerlockchange", () => { $("gate").hidden = document.pointerLockElement === renderer.domElement; });
+const look = (dx, dy) => { yaw -= dx * 0.0022; pitch = Math.max(-1.35, Math.min(1.35, pitch - dy * 0.0022)); };
+document.addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) look(e.movementX, e.movementY); else hover.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1); });
+const TOUCH = isTouch(), hover = new THREE.Vector2();
+// a tap uses what it lands on; a double tap goes there (Kabe, 2026-10-07: "double tap somewhere on my phone … if it's the
+// ground, I teleport to that location … if it's a wall or object … right in front of my face"): a single tap on a thing
+// waits a quarter of a second for a second tap, so a double tap on a door goes to it without opening it; a tap that takes,
+// talks or looks acts at once (the wait had been paid on every use, and nothing else is meant by a second tap on those)
+// (a double tap forgives 350 ms and 64 px between its taps, nearer Android's own 300 ms and 100 dp: 320 ms and 40 px had
+// been tight for a thumb)
+// ?autodoor=0: walking into a shut door doesn't open it; ?tapgo=0: a tap on something out of reach only says so
+const AUTODOOR = Q.get("autodoor") !== "0", TAPGO = Q.get("tapgo") !== "0";
+let tapWait = null, lastTap = null, glide = null;
+const ndcOf = (x, y) => new THREE.Vector2(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
+const onLine = (x, y) => { const l = $("line"); if (l.hidden) return false; const r = l.getBoundingClientRect(); return x >= r.left - 6 && x <= r.right + 6 && y >= r.top - 6 && y <= r.bottom + 6; };
+const instant = (t) => /^(take|talk|look)$/.test(cueOf(t)?.mode || "");
+function tapAt(x, y) {
+  fingerAt?.(x, y, null);
+  if (glide) { glide.cancel = true; return; }                // a tap while you go to something: you arrive, and leave it be
+  if (onLine(x, y)) { sayNext(); return; }                   // the line takes no touch on a phone; a tap on it goes on
+  const now = performance.now(), ndc = ndcOf(x, y);
+  if (lastTap && now - lastTap.t < 350 && Math.hypot(x - lastTap.x, y - lastTap.y) < 64) { clearTimeout(tapWait); tapWait = null; lastTap = null; goTo(ndc); return; }
+  lastTap = { t: now, x, y };
+  const t = aim(ndc), d = t && instant(t) ? aimOne(ndc) : null;
+  // (at once only when the finger is on it, not when the forgiving rings found it: a double tap on the floor beside
+  // a person had opened the talk panel, and the second tap landed on the panel)
+  if (d && (t.presence ? d.presence === t.presence : t.look ? d.look === t.look : d.b === t.b)) { actOn(t); return; }
+  if (t) tapWait = setTimeout(() => { tapWait = null; act(ndc); }, 250);
+  // a thing or a person seen but out of reach: you go to it and use it (a tap on the way stops the use); ?tapgo=0 says so
+  // instead, and how to get there (taps beyond arm's length had done nothing at all)
+  else tapWait = setTimeout(() => { tapWait = null; farTap(ndc); }, 250);
+}
+// the first thing seen along a ray (as goTo sees: glass, glows and open door leaves passed), within far
+function seenAt(ndc, far) { seeRay.setFromCamera(ndc, camera); seeRay.far = far;
+  return seeRay.intersectObjects(scene.children, true).find(h => { let o = h.object; while (o) { if (!o.visible || o.name === "sky") return false; o = o.parent; }
+    const w = works.find(h); if (w?.b?.kind?.kind?.startsWith("door/") && w.aff && works.stateOf(w.b, w.aff) === "open") return false;
+    const m = h.object.material; return !(m?.isMeshBasicMaterial && m.blending === THREE.AdditiveBlending) && !(m?.visible === false); }) || null; }
+function farTap(ndc) {
+  const h = seenAt(ndc, 14); let t = h && works.find(h);
+  if (presences.size) { seeRay.far = 14; const ph = seeRay.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0];
+    if (ph && (!h || ph.distance < h.distance + 0.3)) t = { presence: ph.object.userData.presence, point: ph.point }; }
+  if (!t) return;
+  const P = t.point || h.point;
+  if (!TAPGO) { if (!t.presence) say(`${(t.b.name || t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here. (Double-tap to go to it.)`); return; }
+  goNear(P, t.presence ? 1.6 : 1.1, () => { if (t.presence) return actOn(t);
+    const d = camera.position.distanceTo(P); if (d > ray.far + 0.3) { say(`${(t.b.name || t.b.kind.noun || "It").replace(/^./, (c) => c.toUpperCase())} is out of reach from here.`); return; }
+    actOn({ b: t.b, aff: t.aff, i: t.i, point: P }); });
+}
+// not into a case's people: a stand a body's width and a hand clear of each (a double tap on the floor beyond Dame Anne had
+// set you 0.1 m from her, inside her figure)
+const clearOfPeople = (x, y, h) => { for (const q of presences.values()) { const g = q.p.group.position; if (Math.abs(g.y - h) < 1 && Math.hypot(g.x - x, -g.z - y) < 0.6) return false; } return openAbove(x, y, h); };
+// nor under a stair: no flight or landing overhead (travel had set you at the foot of the great stair's upper flight, under
+// it, in the dark; it is there to be walked into, not to be dropped in by a tap)
+const openAbove = (x, y, h) => !(plan.stairs || []).some(s => { const R = s.rect; if (!R || x <= R.x0 || x >= R.x1 || y <= R.y0 || y >= R.y1) return false;
+  const a = manor.levelOf(s.from), b = manor.levelOf(s.to), low = a + (b - a) * Math.min(s.z0 ?? 0, s.z1 ?? 1); return low > h + 0.3 && low < h + 2.6; });   // (a flight a storey up stands over every stair: not under it)
+// to a stand a little short of P on the straight line to it (the nearest floor you can stand on there), facing it, in a
+// short glide (a third of a second: you see that you moved, and a tap on the way can stop the use), then then()
+function goNear(P, off, then) {
+  const hx = P.x, hy = -P.z, d = Math.hypot(hx - px, hy - py), k = Math.max(0, d - off) / (d || 1);
+  let tx = px + (hx - px) * k, ty = py + (hy - py) * k;
+  // the floor it stands on (the highest storey at or below it), or the ground outside; one height, searched round the
+  // stand (every storey tried at each point had found the study under the closet floor, and dropped you into it)
+  const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= P.y + 0.3).sort((a, b) => b - a)[0];
+  const h0 = lv == null ? ph : Math.abs(lv - ph) < 0.6 ? ph : lv, tries = site && !site.inHouse(tx, ty) ? [site.z(tx, ty)] : [h0];
+  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, h); if (g != null && Math.abs(g - h) < 0.6 && clearOfPeople(x, y, g)) return g; } return null; };
+  let g = stand(tx, ty);
+  for (let j = 1; g == null && j < 300; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
+  if (g == null) { then(); return; }
+  const yaw1 = Math.atan2(-(hx - tx), hy - ty), eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1), pitch1 = Math.max(-0.9, Math.min(0.6, Math.atan2(P.y - (g + eye), Math.hypot(hx - tx, hy - ty))));
+  let dyaw = yaw1 - yaw; while (dyaw > Math.PI) dyaw -= 2 * Math.PI; while (dyaw < -Math.PI) dyaw += 2 * Math.PI;
+  glide = { from: [px, py, ph, yaw, pitch], to: [tx, ty, g, yaw + dyaw, pitch1], t0: performance.now(), ms: Math.min(450, 180 + 60 * Math.hypot(tx - px, ty - py)), then, cancel: false };
+}
+// ---- stations (Kabe, 2026-10-12: "make teleport locations that it can induce"; a tester, a model or you, is set down at what
+// is to be tried, not steered there by words: finding the way from a description is no test of the house, and route-finding
+// is checked by the house's own checks). ?go=<station> at walkable; ?stations, a "Go to…" list on the page; __go(id), __stations()
+//   room:<id> its middle · person:<id> before them, facing them · thing:<id> a case thing, before it · stair:<flight>:foot|head
+const W3 = new THREE.Vector3(), B3 = new THREE.Box3();
+function stations() {
+  const out = [], mid = (r) => [(r.rect.x0 + r.rect.x1) / 2, (r.rect.y0 + r.rect.y1) / 2];
+  // (what is before you is approached from the room's door, as you would come in: from its middle, a small closet's clerk had
+  // been stood 0.6 m off, too near to see)
+  const door = (r) => { const o = r && plan.openings.find(o => o.rect && o.joins.includes(r.id)); return o ? [(o.rect.x0 + o.rect.x1) / 2, (o.rect.y0 + o.rect.y1) / 2] : r ? mid(r) : null; };
+  for (const r of plan.rooms) { if (r.type === "open" && !site) continue; const [x, y] = mid(r); out.push({ id: `room:${r.id}`, group: "Rooms", label: `${r.name || r.id}${r.floor && r.floor !== "ground" ? ` (${r.floor})` : ""}`, room: r.id, at: () => ({ x, y, h: manor.levelOf(r.floor || "ground"), look: null }) }); }
+  for (const [id, q] of presences) { const c = CASE?.cast.find(p => p.id === id); out.push({ id: `person:${id}`, group: "People", label: c?.name || id, room: q.room, at: () => { const g = q.p.group.position, r = plan.rooms.find(o => o.id === q.room), [cx, cy] = door(r) || [g.x, -g.z];
+      return { x: g.x, y: -g.z, h: g.y, look: [g.x, -g.z, g.y + 1.0], off: 1.8, from: [cx, cy], self: id }; } }); }
+  // (every case thing, built or not: one in a room not built yet has its rooms built when you go to it)
+  for (const t of CASE?.things || []) out.push({ id: `thing:${t.id}`, group: "Things", label: t.label || t.id.replace(/_/g, " "), room: null, at: () => {
+      let b = manor.things.find(q => q.story === t.id); if (!b && manor.pending().length) { arrive(manor.buildRest({})); b = manor.things.find(q => q.story === t.id); } if (!b) return null;
+      b.node.updateWorldMatrix(true, true); B3.setFromObject(b.node); B3.getCenter(W3); const r = roomAt(W3.x, -W3.z, W3.y - 0.3), [cx, cy] = door(r) || [W3.x, -W3.z];   // (a room just built: its place in the house not yet worked through to its things, which had measured where its builder made them)
+      // (a metre off its edge, not its middle: a curtained bed's station had pressed you into its hangings)
+      // and far enough that it fits the screen across (a phone held upright sees ~40 degrees: a curtained bed at a metre was all hangings)
+      const reach = Math.hypot(B3.max.x - B3.min.x, B3.max.z - B3.min.z) / 2, half = Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect);
+      return { x: W3.x, y: -W3.z, h: B3.min.y, look: [W3.x, -W3.z, Math.min(W3.y, B3.min.y + 1.2)], off: Math.min(4, Math.max(reach + 1.0, reach * 1.1 / Math.tan(half))), edge: reach + 0.6, from: [cx, cy] }; } });
+  for (const s of plan.stairs || []) { if (s.kind !== "flight" || !s.rect) continue; const R = s.rect, a = manor.levelOf(s.from), b = manor.levelOf(s.to), lo = a + (b - a) * s.z0, hi = a + (b - a) * s.z1;
+    const d = { N: [0, 1], S: [0, -1], E: [1, 0], W: [-1, 0] }[s.up] || [0, 1], cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, hx = (R.x1 - R.x0) / 2, hy = (R.y1 - R.y0) / 2;
+    const end = (k) => [cx + d[0] * (hx * Math.abs(d[0]) + 0.45) * k, cy + d[1] * (hy * Math.abs(d[1]) + 0.45) * k];
+    out.push({ id: `stair:${s.id}:foot`, group: "Stairs", label: `${s.id.replace(/_/g, " ")}, foot`, room: s.joins?.[0], at: () => { const [x, y] = end(-1); return { x, y, h: lo, look: [cx, cy, (lo + hi) / 2 + 1.2], stand: true }; } });
+    out.push({ id: `stair:${s.id}:head`, group: "Stairs", label: `${s.id.replace(/_/g, " ")}, head`, room: s.joins?.[1], at: () => { const [x, y] = end(1); return { x, y, h: hi, look: [cx, cy, (lo + hi) / 2 + 0.6], stand: true }; } }); }
+  return out;
+}
+// set down at a station: the nearest floor your body can stand on at its height, short of what it is (`off`) on the line from
+// its room's middle, clear of people and not under a stair, facing it; its room built first if it isn't yet
+window.__stations = () => stations().map(s => ({ id: s.id, group: s.group, label: s.label }));
+window.__go = (id) => {
+  let st = stations().find(s => s.id === id);
+  if (!st && manor.pending().length) { arrive(manor.buildRest({})); st = stations().find(s => s.id === id); }   // (a thing in a room not built yet)
+  if (!st) return false;
+  if (st.room && manor.rooms.get(st.room)?.built === false) arrive(manor.buildNow(st.room));
+  const t = st.at(); if (!t) return false; const [fx, fy] = t.from || [t.x, t.y], d = Math.hypot(t.x - fx, t.y - fy), k = t.off ? Math.max(0, d - t.off) / (d || 1) : 1;
+  let tx = fx + (t.x - fx) * k, ty = fy + (t.y - fy) * k;
+  const lv = plan.floors.map(f => manor.levelOf(f.id)).filter(h => h <= t.h + 0.3).sort((a, b) => b - a)[0], h0 = t.stand ? t.h : lv ?? t.h;
+  // (and no one else between you and it: late in the case Daniel stood in the hall between its door and Dame Anne, and her
+  // station had set you before him, his the one Talk on the screen)
+  const others = t.look ? [...presences].filter(([k]) => k !== t.self).map(([, q]) => q.p.group.position).filter(g => Math.abs(g.y - t.h) < 1) : [];
+  const inSight = (x, y) => others.every(g => { const ox = g.x, oy = -g.z, dx = t.x - x, dy = t.y - y, L2 = dx * dx + dy * dy || 1, u = Math.max(0, Math.min(1, ((ox - x) * dx + (oy - y) * dy) / L2));
+    return Math.hypot(x + dx * u - ox, y + dy * u - oy) > 0.6; });
+  const near = Math.min((t.off || 0) * 0.75, t.edge ?? Infinity), stand = (x, y) => { if (near && Math.hypot(x - t.x, y - t.y) < near) return null; if (!inSight(x, y)) return null; const g = walk.groundAt(x, y, h0); return g != null && Math.abs(g - h0) < 0.6 && clearOfPeople(x, y, g) ? g : null; };
+  let g = stand(tx, ty);
+  for (let j = 1; g == null && j < 2000; j++) { const a = j * 2.4, r = 0.05 * Math.sqrt(j), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; tx = x; ty = y; } }
+  if (g == null) return false;
+  const L = t.look || [tx, ty + 1, g + EYE], eye = (SP ? SP.body().eye : EYE) * (crouch ? 0.55 : 1);
+  if (seated) standUp(false); glide = null; px = tx; py = ty; ph = g; yaw = Math.atan2(-(L[0] - tx), L[1] - ty); pitch = Math.max(-0.9, Math.min(0.6, Math.atan2(L[2] - (g + eye), Math.hypot(L[0] - tx, L[1] - ty) || 1)));
+  snapLights = true; return { x: tx, y: ty, h: g };   // (where it set you: the camera follows on the next frame)
+};
+if (Q.has("stations")) { const sel = document.createElement("select"); sel.id = "stations"; sel.setAttribute("aria-label", "Go to");
+  sel.style.cssText = "position:fixed;left:calc(14px + env(safe-area-inset-left));top:calc(76px + env(safe-area-inset-top));z-index:8;max-width:70vw;min-height:44px;padding:8px 10px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.2 system-ui";
+  const fill = () => { sel.innerHTML = '<option value="">Go to…</option>'; const by = new Map(); for (const s of stations()) { if (!by.has(s.group)) by.set(s.group, []); by.get(s.group).push(s); }
+    for (const [g, list] of by) { const og = document.createElement("optgroup"); og.label = g; for (const s of list) og.appendChild(new Option(s.label, s.id)); sel.appendChild(og); } };
+  sel.addEventListener("focus", fill); sel.addEventListener("change", () => { if (sel.value) window.__go(sel.value); sel.value = ""; sel.blur(); });
+  fill(); document.body.appendChild(sel); }
+const fingerAt = TOUCH ? fingerCue() : null;
+// (looking slows to 0.6 while the dot holds something and the drag is slow: fine aim, unnoticed on a turn (Mandryk &
+// Gutwin's sticky targets; Halo's friction))
+const touch = TOUCH ? touchControls(renderer.domElement, { strideLock: true, onLook: (dx, dy, speed = 1) => { const f = speed < 0.35 && aimAt.v ? 0.6 : 1; look(dx * 1.6 * f, dy * 1.6 * f); },
+  onTap: tapAt, onDown: (x, y) => { if (!onLine(x, y)) { const t = aim(ndcOf(x, y)); fingerAt(x, y, t ? cueOf(t)?.mode : null); } }, onLift: () => fingerAt(0, 0, null) }) : { active: false, stick: { x: 0, y: 0 }, stride: 0 };
+// the doorway helpers for the thumb (lab/touch.js doorAssist): steering onto a doorway's middle, and a shut door opened by walking into it
+const assist = TOUCH ? doorAssist({ openings: plan.openings, floorAt: (h) => floorOf(h), isOpen: (id) => passable(id), autodoor: AUTODOOR,
+  shutDoor: (id) => { const b = doorThing.get(id); return b && !isOpen(b) ? b : null; }, use: (b) => actOn({ b, aff: "leaf", i: null }) }) : null;
+window.__touch = () => ({ active: touch.active, stride: touch.stride, auto: !!touch.auto, glide: !!glide });
+const firstHint = () => window.__ok ? hint("touch-1", "stick on the left to walk · drag on the right to look · double-tap to go there", 7000) : setTimeout(firstHint, 500);
+if (TOUCH) setTimeout(firstHint, 1500);
+if (TOUCH) $("gate").hidden = true;
+// on a phone the centre dot aims and the thumb's button acts on what it is on
+const actBtn = TOUCH ? actionButton(() => act(new THREE.Vector2(0, 0))) : null;
+renderer.domElement.addEventListener("click", () => { if (document.pointerLockElement === renderer.domElement) act(); else if (!TOUCH) { if (!act(hover)) lock(); } });
+renderer.domElement.addEventListener("dblclick", () => { if (!TOUCH) goTo(document.pointerLockElement === renderer.domElement ? new THREE.Vector2(0, 0) : hover); });
+// going where you point: the first thing seen along the ray (glass and shut doors stop it, so only somewhere you can see);
+// on a floor or the ground, there; on a wall or a thing, a body's width and a step in front of it, facing it; then the
+// nearest floor your body can stand on at your size
+const seeRay = new THREE.Raycaster();
+function goTo(ndc) {
+  seeRay.setFromCamera(ndc, camera); seeRay.far = OUTDOOR ? 400 : 60;
+  const hit = seeRay.intersectObjects(scene.children, true).find(h => { let o = h.object; while (o) { if (!o.visible || o.name === "sky") return false; o = o.parent; }
+    // (an open door's leaf is passed through, as the way it opens: a double tap through an open doorway had set you nose to
+    // the leaf, in the room you meant to leave)
+    const w = works.find(h); if (w?.b?.kind?.kind?.startsWith("door/") && w.aff && works.stateOf(w.b, w.aff) === "open") return false;
+    const m = h.object.material; return !(m?.isMeshBasicMaterial && m.blending === THREE.AdditiveBlending) && !(m?.visible === false); });
+  if (!hit) return false;
+  const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : new THREE.Vector3(0, 1, 0);
+  const half = (SP ? SP.body().half : 0.22);
+  let tx = hit.point.x, ty = -hit.point.z, th = hit.point.y, floorish = n.y > 0.6;
+  // a stair's riser is the front of its tread: a double tap up a flight goes onto it (from the half landing, a tap up the
+  // next flight had found a riser as a wall, and set you on the floor under the stair)
+  if (!floorish && (plan.stairs || []).some(s => s.kind === "flight" && tx > s.rect.x0 - 0.05 && tx < s.rect.x1 + 0.05 && ty > s.rect.y0 - 0.05 && ty < s.rect.y1 + 0.05
+    && th > manor.levelOf(s.from) - 0.05 && th < manor.levelOf(s.to) + 0.05)) { floorish = true; th += 0.05; }
+  // a double tap at an open doorway (its jamb, its reveal, the floor just past it) goes through it, to a stride beyond its
+  // far side (the tap had set you before the jamb, still in the room you meant to leave)
+  if (TOUCH || Q.has("doorway")) { const f = floorOf(ph);
+    for (const o of plan.openings) { if (!o.rect || o.floor !== f || !passable(o.id)) continue;
+      const R = o.rect, ew = o.axis === "EW", cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, me = ew ? px - cx : py - cy, at = ew ? tx - cx : ty - cy, across = ew ? ty - cy : tx - cx, hw = (ew ? R.y1 - R.y0 : R.x1 - R.x0) / 2;
+      if (Math.abs(me) < 0.5 || Math.abs(across) > hw + 0.5) continue;
+      const past = Math.sign(at) === -Math.sign(me) && Math.abs(at) < 1.3, onJamb = !floorish && Math.abs(at) < 0.5 && th < manor.levelOf(f) + 2.4;
+      if (!past && !onJamb) continue;
+      tx = ew ? cx - Math.sign(me) * 0.9 : cx; ty = ew ? cy : cy - Math.sign(me) * 0.9; th = manor.levelOf(f); floorish = true;
+      yaw = ew ? (me > 0 ? Math.PI / 2 : -Math.PI / 2) : (me > 0 ? Math.PI : 0); break; } }
+  if (!floorish) { const hz = new THREE.Vector2(n.x, -n.z); if (hz.lengthSq() < 1e-6) hz.set(Math.sin(yaw), -Math.cos(yaw)); hz.normalize(); tx += hz.x * (half + 0.45); ty += hz.y * (half + 0.45); }
+  // the floor there: the hit's own height if a floor, else the floor under the point (try where you are, the storeys, the ground)
+  // (a wall: your own storey first, then the storeys at or below the point you touched, highest first; from the hit's own
+  // height a tall wall seen through the great chamber's doorway had found the garret's floor above it)
+  // (a half-landing there is a level too: aimed at the wall beyond the great stair's landing from halfway up the flight,
+  // you had been set on the ground floor under it, in the dark)
+  const landings = (plan.stairs || []).filter(s => s.kind === "landing" && s.rect && tx > s.rect.x0 && tx < s.rect.x1 && ty > s.rect.y0 && ty < s.rect.y1)
+    .map(s => manor.levelOf(s.from) + (manor.levelOf(s.to) - manor.levelOf(s.from)) * (s.z0 ?? 0.5));
+  const below = [...plan.floors.map(f => manor.levelOf(f.id)), ...landings].filter(h => h <= th + 0.3).sort((a, b) => b - a);
+  const tries = floorish ? [th, ph, ...plan.floors.map(f => manor.levelOf(f.id)), site ? site.z(tx, ty) : 0] : [ph, ...below, site ? site.z(tx, ty) : 0];
+  const stand = (x, y) => { for (const h of tries) { const g = walk.groundAt(x, y, floorish ? h : h); if (g != null && (!floorish || Math.abs(g - th) < 0.6) && clearOfPeople(x, y, g)) return g; } return null; };
+  let g = stand(tx, ty), fx = tx, fy = ty;
+  for (let k = 1; g == null && k < 300; k++) { const a = k * 2.4, r = 0.05 * Math.sqrt(k), x = tx + Math.cos(a) * r, y = ty + Math.sin(a) * r; const q = stand(x, y); if (q != null) { g = q; fx = x; fy = y; } }
+  if (g == null) { say("You can't stand there."); return false; }
+  px = fx; py = fy; ph = g;
+  if (!floorish) { const dx = hit.point.x - px, dy = -hit.point.z - py; yaw = Math.atan2(-dx, dy); pitch = 0; }
+  snapLights = true; refreshView(true); return true;
+}
+window.__goTo = (nx, ny) => goTo(new THREE.Vector2(nx, ny));
+const ray = new THREE.Raycaster(); ray.far = 2.6;
+// aiming, with a forgiving circle (Kabe, 2026-10-07: small things like keys or a gate's bars are "hard to click on precisely
+// … a radio circle around it of a larger size that is invisible … when two objects are close enough … the center dot
+// shortest distance to the closest item … receives the focus"): the ray through the dot first; if it finds nothing
+// usable, rays in two rings round it (about 14 and 28 px; 28 and 56 px for a finger: 56 css px is the 9 mm a thumb needs,
+// Parhi et al. 2006, Android's 48 dp and more; 48 had been 7-8 mm), and of the usable things they
+// meet, the one whose hit lies nearest the dot on screen takes the focus. Each ray stops at the first surface, so
+// nothing behind a wall is ever chosen.
+const aimAt = {}; const RINGS = TOUCH ? [[28, 8], [56, 12]] : [[14, 8], [28, 12]], _p = new THREE.Vector3();
+// (only what lies within reach and inside the aiming cone is tested: a cheap sphere test over everything first, then the
+// rays against the few left; casting every ring ray at every mesh cost 10-19 ms an aim beside the gates)
+const _s = new THREE.Sphere(), _v = new THREE.Vector3(), _f = new THREE.Vector3();
+let near = null;
+// (the cone round the tapped point's ray, not the screen's middle: a tap low on the screen, on the padlock key in an open
+// drawer, had found only what lay round the middle, and shut the drawer instead)
+function nearAim(c = null) { if (c) { ray.setFromCamera(c, camera); _f.copy(ray.ray.direction); } else camera.getWorldDirection(_f); const cone = Math.atan(((RINGS.at(-1)[0] + 40) * 2 / innerHeight) * Math.tan(camera.fov * Math.PI / 360)) + 0.05, out = [];
+  for (const m of works.meshes()) { if (!m.geometry) continue; if (!m.geometry.boundingSphere) m.geometry.computeBoundingSphere(); _s.copy(m.geometry.boundingSphere).applyMatrix4(m.matrixWorld);
+    _v.subVectors(_s.center, camera.position); const d = _v.length(); if (d - _s.radius > ray.far) continue;
+    if (d > _s.radius && Math.acos(Math.min(1, _v.dot(_f) / d)) - Math.asin(Math.min(1, _s.radius / d)) > cone) continue; out.push(m); }
+  return out; }
+function aimOne(ndc) { ray.setFromCamera(ndc, camera); const h = ray.intersectObjects(near || works.meshes(), true)[0], t = works.find(h); if (t && h) t.point = h.point;
+  // a person present (a case's): the nearer of them and the thing aimed at
+  if (lookMeshes.length) { const lh = ray.intersectObjects(lookMeshes.filter(m => m.visible !== false), false)[0]; if (lh && lh.distance < ray.far && (!h || lh.distance < h.distance)) return { look: lh.object.userData.look, point: lh.point }; }
+  // (a person can be spoken to across a room, 7 m, not only within arm's reach: the playtest's taps on people 3 m off had
+  // done nothing)
+  if (presences.size) { const far0 = ray.far; ray.far = 7; const ph = ray.intersectObjects([...presences.values()].filter(q => q.p.group.visible !== false).map(q => q.p.hit), false)[0]; ray.far = far0;
+    // (a person is a projection: a case thing with something still to give, under the dot just behind them, is what you
+    // meant; since people answer across a room, Cressy beside the draw-table had taken every tap on the engrossment, and
+    // Daniel kneeling at his chest every tap on the chest)
+    const wanted = t?.b?.story && (CP?.wouldLook(t.b.story, t.i) || CP?.reachIn(t.b.story) || (CASE?.things.find(q => q.id === t.b.story)?.clue && !CASE.things.find(q => q.id === t.b.story).keep));
+    if (ph && (!h || ph.distance < h.distance) && !(wanted && h.distance - ph.distance < 1.2)) return { presence: ph.object.userData.presence, point: ph.point }; }
+  // a person of the population (M8): across a room as a presence is, and answering to their id
+  if (POP) { const far0 = ray.far; ray.far = 7; const ph = POP.hit(ray); ray.far = far0;
+    if (ph && (!h || ph.distance < h.distance)) return { presence: ph.id, point: ray.ray.at(ph.distance, new THREE.Vector3()) }; }
+  return t; }
+window.__aim = (x = 0, y = 0) => { const t = aim(new THREE.Vector2(x, y)); return t ? (t.presence ? { presence: t.presence } : t.look ? { look: t.look } : { kind: t.b?.kind?.kind, aff: t.aff, story: t.b?.story }) : null; };
+const _b = new THREE.Box3(), _c = new THREE.Vector3();
+const aim = (ndc) => { const c = ndc || new THREE.Vector2(0, 0); near = nearAim(c); const first = aimOne(c);
+  // (a case's thing just beside what the ray hit is preferred to it: a tap 14 px off the steward's key had opened the
+  // table's drawer under it; only a tap dead on the key took it)
+  const clueOf = (b) => b?.story && CASE?.things.find(t => t.id === b.story)?.clue;
+  const plain = first && !first.presence && !first.look && !clueOf(first.b);
+  if (first && !(CASE && plain)) { near = null; return first; }
+  // each usable thing near the aim: how far its outline lies from the dot on screen (its box's corners projected),
+  // nearest first; within the circle, one ray to its nearest point confirms it (and that nothing stands in front)
+  const R = RINGS.at(-1)[0], cands = [];
+  for (const m of near) { const t = works.find({ object: m }); if (!t) continue; if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); _b.copy(m.geometry.boundingBox).applyMatrix4(m.matrixWorld);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, behind = false;
+    for (let k = 0; k < 8; k++) { _c.set(k & 1 ? _b.max.x : _b.min.x, k & 2 ? _b.max.y : _b.min.y, k & 4 ? _b.max.z : _b.min.z).project(camera); if (_c.z > 1) behind = true;
+      x0 = Math.min(x0, _c.x); x1 = Math.max(x1, _c.x); y0 = Math.min(y0, _c.y); y1 = Math.max(y1, _c.y); }
+    if (behind) continue;
+    const qx = Math.min(x1, Math.max(x0, c.x)), qy = Math.min(y1, Math.max(y0, c.y)), d = Math.hypot((qx - c.x) * innerWidth / 2, (qy - c.y) * innerHeight / 2);
+    if (d <= R) cands.push({ d, b: t.b, m, q: new THREE.Vector2(qx + (c.x - qx) * 0.02 + (qx === c.x ? 0 : Math.sign(qx - c.x) * 2 / innerWidth), qy + (qy === c.y ? 0 : Math.sign(qy - c.y) * 2 / innerHeight)) }); }
+  cands.sort((a, b) => a.d - b.d);
+  // (preferred: one that holds a clue or can be carried, the key, the padlock key; not another piece of furniture)
+  const wanted = (b) => clueOf(b) || (b?.story && CASE?.things.find(t => t.id === b.story)?.carry !== false);
+  if (first) { for (const k of cands) if (k.b !== first.b && wanted(k.b)) {
+      // (aimed at its middle: the tap may fall inside its outline yet past its thin iron, onto the table under it)
+      _b.setFromObject(k.b.node); _b.getCenter(_c).project(camera); const t = aimOne(new THREE.Vector2(_c.x, _c.y)) || aimOne(k.q);
+      if (t && t.b === k.b) { near = null; return t; } }
+    near = null; return first; }
+  const tried = new Set();
+  for (const k of cands) { if (tried.has(k.b) || tried.size >= 4) continue; tried.add(k.b);
+    // the dot inside its outline (a gate seen between its bars): the rings cast at it alone find its nearest part
+    if (k.d === 0) { let q = null, qd = Infinity; const own = cands.filter(o => o.b === k.b).map(o => o.m);
+      for (const [px, n] of RINGS) { for (let j = 0; j < n; j++) { const a = j * 2 * Math.PI / n, r = new THREE.Vector2(c.x + Math.cos(a) * px * 2 / innerWidth, c.y + Math.sin(a) * px * 2 / innerHeight);
+          ray.setFromCamera(r, camera); if (ray.intersectObjects(own, true)[0]) { const dd = px; if (dd < qd) { qd = dd; q = r; } } } if (q) break; }
+      if (!q) continue; k.q = q; }
+    const t = aimOne(k.q); if (t && t.b === k.b) { near = null; return t; } }
+  near = null; return null; };
+function act(ndc) { const t = aim(ndc || (document.pointerLockElement === renderer.domElement ? null : hover)); if (!t) return false; return actOn(t); }
+// a test hook: act on a thing as a click on it would (its affordance, or none to take or put down)
+window.__actOn = (b, aff = null) => actOn({ b, aff, i: null });
+// the room's line under its name: its floor, and once the case's things in it have given all they hold, that you've done here
+function whereFloor(r) { $("where").querySelector(".f").textContent = `${r.floor} floor${CP?.searched(r.id) ? " · nothing more to find here" : ""}`; }
+function actOn(t) {
+  touch.stop?.();                                      // a locked stride ends at anything you do
+  if (t?.presence && RP?.talk(t.presence)) return true;   // (a recipe's person: what they know that is theirs to tell)
+  if (t?.presence) { if (!CP && POP?.get(t.presence)) { POP.get(t.presence).face({ pos: [px, ph, -py], floor: floorOf(ph) }); return true; } CP?.talkTo(t.presence); return true; }
+  // a case's thing to be looked at first (src/make/case-play.js look): looked at, not worked
+  const refloor = () => { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); return true; };
+  if (t?.look) { CP?.look(t.look); return refloor(); }
+  if (t?.b?.story && CP?.wouldLook(t.b.story, t.i)) { CP.look(t.b.story, t.i); return refloor(); }
+  // (evidence the case says to leave as it lies, the fallen candle: looked at, never worked; a second tap had lit it)
+  { const keep = t?.b?.story && CASE?.things.find(q => q.id === t.b.story)?.keep; if (keep) { say(keep); return true; } }
+  { const inner = t?.b?.story && CP?.reachIn(t.b.story), b = inner && manor.things.find(q => q.story === inner);
+    if (b) t = { b, aff: Object.keys(b.kind.affordances || {})[0] || null, i: null }; }
+  // out of reach at your size: the book's words for it ("she found she could not possibly reach it")
+  if (SP && !SP.reachable(t.b, t.point?.y ?? null)) { const id = [...SP.thingOf].find(([, b]) => b === t.b)?.[0], f = id && SP.reachFail(id); SP.say(f?.fails?.[0]?.quote || "It is out of your reach."); return true; }
+  if (SP?.beforeAct(t)) return true;
+  if (t.aff === "sit" && t.point) sitPoint = t.point.clone ? t.point.clone() : new THREE.Vector3(t.point.x, t.point.y, t.point.z);
+  let r = works.act(t);
+  // a keypad asks for its code: its keys as a panel (lab/codepad.js), the code you know (?knows=name,…; window.__know(name))
+  // keyed in for you; what it then does is said as any act's is
+  if (r.asks === "code") { const name = String(t.b.settings?.knows ?? ""), code = String(t.b.settings?.code ?? "");
+    import("../codepad.js").then(({ codePad }) => { padOpen = codePad({ length: r.length, remembered: known.has(name) ? code : null, onClose: () => { padOpen = null; },
+      onEnter: (digits) => { const r2 = works.act({ ...t, entered: digits }); if (r2.refused) say(r2.refused[0].toUpperCase() + r2.refused.slice(1) + "."); else say("The keypad chimes, and a bolt draws back.");
+        lightsDirty = true; refreshView(true); return { ok: !!r2.did }; } }); }); return true; }
+  // what you hold, put down on a surface you act on (the golden key back on the glass table)
+  if (r.refused && works.held().length && t.b.slots?.get("top")) { const b = works.held().at(-1), s = t.b.slots.get("top"); r = works.put(b);
+    if (r.did) { b.node.position.set(s.at[0] + 0.05 * (works.held().length), s.at[1], s.at[2]); b.node.rotation.y = 0.35; s.node.add(b.node); r = { said: [`You put ${b.kind.noun} down`] };
+      // where it was put, kept in the world (on: the thing, its slot, where in it): a reload finds it there (seatAgain)
+      b.host = { b: t.b, slot: "top" }; b.node.userData.room = t.b.node.userData.room; world.move(b.id, "on", { to: t.b.id, slot: "top", at: b.node.position.toArray().map(v => +v.toFixed(4)), turn: 0.35 }); keep();
+      recordFacts(eventFacts({ type: "put", b }, { at: stampNow(), on: t.b })); } }
+  if (r.refused) say(r.refused[0].toUpperCase() + r.refused.slice(1) + "."); else if (r.said?.length) say(r.said.join("; ") + "."); else if (r.took) say(`You take ${r.took}.`);
+  SP?.afterAct(t, r);                                  // the book's own words, after (and over) the engine's
+  CP?.afterAct(t, r);                                  // a case's clue in what you opened or took
+  { const rr = plan.rooms.find(q => q.id === here); if (rr) whereFloor(rr); }
+  lightsDirty = true;                                  // a lamp lit or put out, a shutter opened
+  refreshView(true); return true; }
+function takeAt() { const t = aim(document.pointerLockElement === renderer.domElement ? null : hover); if (!t) return; const r = works.take(t); say(r.refused || `You take ${r.took}.`); }
+const showCue = cues($("cross"), renderer.domElement);
+// what acting on t would do, as the cue shows it: talk, look, take, act, locked
+function cueOf(t) { return t ? (t.presence ? { mode: "talk", label: `talk to ${CASE?.cast.find(c => c.id === t.presence)?.name || "them"}` }
+    : t.look || (t.b?.story && CP?.wouldLook(t.b.story, t.i)) ? { mode: "look", label: `look at ${CASE.things.find(q => q.id === (t.look || t.b.story))?.label || "it"}` }
+    : t.b?.story && CP?.reachIn(t.b.story) ? { mode: "take", label: `take out ${CASE.things.find(q => q.id === CP.reachIn(t.b.story))?.label || "what is in it"}` } : works.cue(t)) : null; }
+
+// ---- what to draw: the room you stand in and what its open doorways show (refreshed on moving rooms, or a door)
+let here = null;
+// a room built after the first frame (manor.buildRest, buildNow): taken in as every room is at load: its materials as
+// nodes, its things into the works, its own lights into the pools, warmed, shown or hidden with the view
+function arrive(built) {
+  for (const b of built) (window.__arrived ||= []).push({ id: b.id, ms: b.ms, at: Math.round(performance.now()) });
+  for (const { id, things: made } of built) { const r = manor.rooms.get(id); nodeify(r.grp); if (r.movers) nodeify(r.movers); nightGlass(r.grp);
+    for (const b of made) { works.add(darkStart(b)); if (b.node.userData.opening) doorThing.set(b.node.userData.opening, b); }
+    seatAgain();   // (a late room's own door, the strongroom's, stops you shut)
+    adoptCase();                                                                    // (a case's things in that room)
+    r.grp.updateMatrixWorld(true); const own = [...(r.lights || [])]; r.grp.traverse(o => { if (o.isPointLight && !own.includes(o)) own.push(o); }); for (const l of own) poolOwn(l, id);
+    const q = r.room.rect; warm?.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); }
+  manor.show(inView); lightsDirty = true; ENG.invalidate();
+  // (the sun's shadow, drawn once, drawn again with every room in it)
+  if (!window.__whole && !manor.pending().length) { window.__whole = true; ENG.mark("whole"); sun.shadow.needsUpdate = true; keepSizes(); }
+}
+// outside, the rooms whose windows face you within SEE_IN m (nearer than that their glass clears)
+const throughWindows = () => { const out = new Set(), e = camera.position;
+  for (const w of manor.windows) { const dx = e.x - w.c.x, dy = e.y - w.c.y, dz = e.z - w.c.z; if (dx * dx + dy * dy + dz * dz > SEE_IN * SEE_IN) continue;
+    if ((w.c.x - w.into.x) * dx + (w.c.z - w.into.z) * dz > 0) out.add(w.room); }
+  return out; };
+let windowKey = "";
+const outdoors = () => { const r = roomAt(px, py, ph); return !r || r.type === "open"; };   // (the forecourt, an open court, is outside too)
+// the room nearest you waiting to be built (on your floor before another)
+const nearestRoom = (rs) => { let bi = 0, bd = Infinity; rs.forEach((r, i) => { const d = Math.hypot((r.rect.x0 + r.rect.x1) / 2 - px, (r.rect.y0 + r.rect.y1) / 2 - py) + Math.abs(manor.levelOf(r.floor) - ph) * 4; if (d < bd) { bd = d; bi = i; } }); return bi; };
+function refreshView(force = false) {
+  // outside: the open court you stand in (the forecourt), seen from as a room is; beyond any, the outdoors
+  const r = roomAt(px, py, ph) || (site && !site.inHouse(px, py) ? (plan.rooms.find(q => q.type === "open" && px > q.rect.x0 && px < q.rect.x1 && py > q.rect.y0 && py < q.rect.y1) || { id: plan.entrance, name: "OUTSIDE", floor: "ground" }) : null);
+  if (!r || (!force && r.id === here)) return;
+  if (CP && r.id !== here) CP.enter(r.id);
+  here = r.id; const seen = manor.visibleFrom(here, isOpen);
+  if (outdoors()) for (const id of throughWindows()) seen.add(id);
+  // (anything now in view not built yet is built at once: you walked faster than the slices)
+  { const late = [...seen].filter(id => manor.rooms.get(id)?.built === false).flatMap(id => manor.buildNow(id)); if (late.length) arrive(late); }
+  manor.show(seen); POP?.show(seen); inView = seen; lightsDirty = true;
+  $("where").querySelector(".n").textContent = r.name; whereFloor(r);
+  ENG.invalidate();
+}
+// a test hook: walk in a straight line in 5 cm steps under the same rules, on floor; where you stopped
+window.__walk = (x0, y0, x1, y1, floor) => { let x = x0, y = y0, h = manor.levelOf(floor); const n = Math.ceil(Math.hypot(x1 - x0, y1 - y0) / 0.05);
+  for (let i = 1; i <= n; i++) { const nx = x0 + (x1 - x0) * i / n, ny = y0 + (y1 - y0) * i / n, g = walk.groundAt(nx, ny, h); if (g == null) return { x: +x.toFixed(2), y: +y.toFixed(2), done: false }; x = nx; y = ny; h = g; }
+  return { x: +x.toFixed(2), y: +y.toFixed(2), done: true, floor: floorOf(h) }; };
+// walk a path of plan points from floor, carrying your height; where you stopped, at what height
+window.__walkPath = (pts, floor) => { let [x, y] = pts[0], h = manor.levelOf(floor);
+  for (let k = 1; k < pts.length; k++) { const [x1, y1] = pts[k], n = Math.ceil(Math.hypot(x1 - x, y1 - y) / 0.05), xa = x, ya = y;
+    for (let i = 1; i <= n; i++) { const nx = xa + (x1 - xa) * i / n, ny = ya + (y1 - ya) * i / n, g = walk.groundAt(nx, ny, h); if (g == null) return { at: k, x: +x.toFixed(2), y: +y.toFixed(2), h: +h.toFixed(2), done: false }; x = nx; y = ny; h = g; } }
+  return { done: true, x: +x.toFixed(2), y: +y.toFixed(2), h: +h.toFixed(2), floor: floorOf(h) }; };
+// is the house sound to walk into, furniture and all (src/make/sound.js)?
+// the house's outside as triangles in plan metres (x, y, height), for soundness rule 7
+const outsideTris = () => { const out = [], v = new THREE.Vector3(); manor.exterior?.updateMatrixWorld(true); manor.exterior?.traverse(o => { if (!o.isMesh) return; const P = o.geometry.attributes.position, I = o.geometry.index, n = I ? I.count : P.count;
+  for (let k = 0; k < n; k++) { v.fromBufferAttribute(P, I ? I.getX(k) : k).applyMatrix4(o.matrixWorld); out.push(v.x, -v.z, v.y); } }); return out; };
+// (rules 6 headroom and 7 the outside stays outside, R59, in check 11 on Kabe's standing word, 2026-10-11: "All checks
+// that likely support coherence without taxing cost is fine by me")
+window.__sound = () => soundness({ plan, compileRoom, blocks: manor.blocks, levelOf: manor.levelOf, cuts: manor.cuts, outside: outsideTris() });
+// the seal check (Kabe, 2026-10-06: "this crack is there", a slit beside the hall's fireplace to the hillside):
+// from points in every room, rays out in every direction; one that leaves the room other than through a
+// window or a doorway (or a stair's well) is a crack, named with where it got out. Authoring only.
+window.__seal = (ids = [...manor.rooms.keys()]) => { const t0 = performance.now(), rc = new THREE.Raycaster(), out = [], meshes = [];
+  scene.traverse(o => { if (o.isMesh && !o.material?.transparent) meshes.push(o); });
+  const dirs = []; for (let i = 0; i < 64; i++) { const y = 1 - (i + 0.5) / 64 * 2, r = Math.sqrt(1 - y * y), a = i * 2.39996; dirs.push(new THREE.Vector3(Math.cos(a) * r, y, Math.sin(a) * r)); }
+  for (const id of ids) { const R = manor.rooms.get(id); if (!R) continue; const room = R.room, { x0, x1, y0, y1 } = room.rect, W = x1 - x0, D = y1 - y0, Y = manor.levelOf(room.floor), H = R.H;
+    const spec = manor.specs?.get(id)?.spec || compileRoom(plan, room), leaks = new Map(), gaps = new Map();
+    const through = (px, py, hy) => { // where a ray crossed the room's bounds: through an opening?
+      const u = px - x0, v = py - y0, h = hy - Y;
+      if (h > H - 0.02 || h < 0.02) return (plan.wells || []).some(w => px > w.hole.x0 && px < w.hole.x1 && py > w.hole.y0 && py < w.hole.y1);
+      // the wall it crossed, of any direction (src/make/walls.js frames): the nearest, and how far along it
+      const frames = spec.frames || framesOf(room), cands = Object.entries(frames).map(([F, w]) => { const pu = u - w.a[0], pv = v - w.a[1], r = pu * w.dir[0] + pv * w.dir[1], d = pu * w.n[0] + pv * w.n[1];
+        return [Math.abs(d) + (r < -0.05 || r > w.L + 0.05 ? 9 : 0), F, r]; }).sort((a, b) => a[0] - b[0]);
+      const [, F, r] = cands[0];
+      return spec.walls[F].some(e => (e.kind === "door" || e.kind === "open" || e.kind === "window") && r > e.r0 - 0.05 && r < e.r1 + 0.05 && h < (e.top ?? 2.4) + 0.05 && h > (e.kind === "window" ? (e.sill ?? 0) - 0.05 : -1)); };
+    for (const [fu, fv] of [[0.25, 0.25], [0.75, 0.25], [0.5, 0.5], [0.25, 0.75], [0.75, 0.75]]) for (const hh of [0.5, 1.5]) {
+      const P = new THREE.Vector3(x0 + fu * W, Y + Math.min(hh, H - 0.3), -(y0 + fv * D));
+      for (const d of dirs) { rc.set(P, d); rc.far = 60; const hit = rc.intersectObjects(meshes, false)[0];
+        const q = hit ? hit.point : P.clone().addScaledVector(d, 60), px = q.x, py = -q.z;
+        const inside = px > x0 - 0.9 && px < x1 + 0.9 && py > y0 - 0.9 && py < y1 + 0.9 && q.y > Y - 0.6 && q.y < Y + H + 0.9;
+        // seen through a lining that stops short: the house's carved solid behind it (src/make/carve.js), a gap, not a leak
+        // (its faces that look down are the ceilings under a stair's landings, finished as plaster: not gaps)
+        if (inside && hit?.object.userData?.carve && hit.face && hit.face.normal.y < -0.5) continue;
+        if (inside && hit?.object.userData?.carve) { const q2 = hit.point; gaps.set(`${q2.x.toFixed(1)},${(-q2.z).toFixed(1)},${(q2.y - Y).toFixed(1)}`, 1); continue; }
+        if (inside) continue;
+        // where it left the room's box
+        let tl = Infinity; for (const [k, lo, hi] of [["x", x0, x1], ["z", -y1, -y0], ["y", Y, Y + H]]) { const c = d[k]; if (Math.abs(c) < 1e-9) continue; const t = ((c > 0 ? hi : lo) - P[k]) / c; if (t > 0) tl = Math.min(tl, t); }
+        const e = P.clone().addScaledVector(d, tl); if (through(e.x, -e.z, e.y)) continue;
+        const key = `${(e.x).toFixed(1)},${(-e.z).toFixed(1)},${(e.y - Y).toFixed(1)}`; leaks.set(key, hit ? `to ${hit.object.userData?.instance || hit.object.material?.userData?.cls || "?"}` : "to the sky"); } }
+    if (leaks.size || gaps.size) out.push({ room: id, cracks: [...leaks].slice(0, 6).map(([k, v]) => `out at (${k}) ${v}`), n: leaks.size, gaps: [...gaps.keys()].slice(0, 6), ngaps: gaps.size });
+  }
+  return { rooms: ids.length, leaking: out, ms: Math.round(performance.now() - t0) }; };
+// the sight check (Kabe, 2026-10-06: "looking through door to great chamber … is a black nothing until enter"): every
+// door opened, from a step before each side of every doorway a ray through its middle at eye height must pass the
+// wall it stands in, not stop in a lining standing across it. Authoring only.
+window.__sight = () => { const t0 = performance.now(), W = works, rc = new THREE.Raycaster(), meshes = [], out = [];
+  for (const b of W.things.values()) if (b.node.userData.opening && W.stateOf(b, "leaf") !== "open") W.act({ b, aff: "leaf" }); W.finish?.(); manor.scene.updateMatrixWorld(true);
+  scene.traverse(o => { if (o.isMesh && !o.material?.transparent && !o.userData.carve) meshes.push(o); });
+  const leaves = new Set(); for (const b of W.things.values()) if (b.node.userData.opening) b.node.traverse(o => leaves.add(o));
+  for (const o of plan.openings) { if (!o.rect || o.joins.some(j => plan.rooms.find(q => q.id === j)?.type === "open")) continue;
+    const R = o.rect, ew = o.axis === "EW", cx = (R.x0 + R.x1) / 2, cy = (R.y0 + R.y1) / 2, T = ew ? R.x1 - R.x0 : R.y1 - R.y0, Y = manor.levelOf(o.floor) + 1.5;
+    for (const sg of [1, -1]) { const d = ew ? new THREE.Vector3(sg, 0, 0) : new THREE.Vector3(0, 0, -sg), P = new THREE.Vector3(ew ? (sg > 0 ? R.x0 : R.x1) - sg * 0.5 : cx, Y, -(ew ? cy : (sg > 0 ? R.y0 : R.y1) - sg * 0.5));
+      rc.set(P, d); rc.far = 30; const hit = rc.intersectObjects(meshes, false).find(h => !leaves.has(h.object));
+      if (hit && hit.distance < 0.5 + T + 0.3) out.push({ door: o.id, joins: o.joins.join("|"), from: sg > 0 ? "lo" : "hi", stops: +hit.distance.toFixed(2), at: hit.object.userData?.instance || hit.object.material?.userData?.cls || "?" }); } }
+  return { blocked: out, ms: Math.round(performance.now() - t0) }; };
+// faces that fight (src/make/coplanar.js): every opaque mesh drawn, instances expanded, in world space; each pair named
+// by its material and the room it stands in. Authoring only.
+window.__fight = (ids = null) => { const t0 = performance.now(), list = [], v = new THREE.Vector3(), M4 = new THREE.Matrix4(), W4 = new THREE.Matrix4();
+  scene.updateMatrixWorld(true);
+  scene.traverse(o => { if (!o.isMesh || o.material?.transparent || o.material?.isMeshBasicMaterial) return; { let q = o; while (q && q !== window.__ground?.group && q !== window.__hill?.group) q = q.parent; if (q) return; }   // the ground and the hillside: not the house; their own checks
+    let r = o, room = null, what = null; while (r) { if (!what && (r.userData?.make?.kind || r.userData?.opening || r.userData?.carve)) what = r.userData.make?.kind || (r.userData.carve ? "carve" : "door " + r.userData.opening); if (r.userData?.room && !room) room = r.userData.room; r = r.parent; }
+    if (ids && !ids.includes(room)) return; const g = o.geometry, P = g.attributes.position, I = g.index, n = I ? I.count : P.count, inst = o.isInstancedMesh ? o.count : 1;
+    for (let q = 0; q < inst; q++) { if (o.isInstancedMesh) { o.getMatrixAt(q, M4); W4.multiplyMatrices(o.matrixWorld, M4); } else W4.copy(o.matrixWorld);
+      const tris = new Float32Array(n * 3); for (let k = 0; k < n; k++) { v.fromBufferAttribute(P, I ? I.getX(k) : k).applyMatrix4(W4); tris[k * 3] = v.x; tris[k * 3 + 1] = v.y; tris[k * 3 + 2] = v.z; }
+      list.push({ key: `${room || "?"}:${what ? what + "/" : ""}${o.material?.userData?.cls || o.material?.name || o.material?.type || "mesh"}${inst > 1 ? "#" + q : ""}`, tris, o, side: o.material?.side === THREE.BackSide ? -1 : o.material?.side === THREE.DoubleSide ? 0 : 1 }); } });
+  // only pairs that can be seen: a face with something opaque within 5 cm in front of it (a firebox's back, the wall a
+  // slab's end stands against) never shows, so it can't flicker
+  const all = list.map(m => m.o), rc = new THREE.Raycaster(); rc.far = 0.05;
+  const shows = (t, n) => { const c = new THREE.Vector3((t[0] + t[3] + t[6]) / 3, (t[1] + t[4] + t[7]) / 3, (t[2] + t[5] + t[8]) / 3), d = new THREE.Vector3(...n);
+    rc.set(c.addScaledVector(d, 0.002), d); return !rc.intersectObjects(all, false).some(h => !h.object.material?.transparent && !h.object.material?.isMeshBasicMaterial); };
+  const pairs = coplanar(list).filter(p => shows(p.ta, p.n) && shows(p.tb, p.n)), by = new Map();
+  for (const p of pairs) { const k = `${p.a} ~ ${p.b}`, e = by.get(k) || { pair: k, area: 0, n: 0, at: p.at.map(x => +x.toFixed(2)), ta: p.ta.map(x => +x.toFixed(3)), tb: p.tb.map(x => +x.toFixed(3)), nrm: p.n.map(x => +x.toFixed(2)) }; e.area += p.area; e.n++; by.set(k, e); }
+  return { meshes: list.length, pairs: pairs.length, groups: [...by.values()].sort((a, b) => b.area - a.area).map(e => ({ ...e, area: +(e.area * 1e4).toFixed(1) })), ms: Math.round(performance.now() - t0) }; };
+window.__visible = () => [...manor.rooms].filter(([, r]) => r.grp.visible).map(([id]) => id);
+
+if (!STORY) { await settled(); ENG.mark("far-textures"); }   // (an unfilled texture draws black: wait the ~0.2 s left)
+// what was added after the house (the forecourt, the sky) to node twins too, the house's own where it shares them
+// (src/make/nodes.js): the forecourt's ashlar and iron are the house's, not classic copies three converts and builds again
+nodeify(scene);
+// every room compiled ahead after the first frame while there is time to spare, nearest first (src/make/warm.js): turning
+// round, or walking into a room, then makes nothing (its shaders, pipelines and textures are ready). ?warm=0: each at first sight
+const warm = Q.get("warm") === "0" ? null : (() => {
+  // a camera high over the house looking down, whose view holds the house and the land round it (what it can't see isn't compiled)
+  const cam = new THREE.PerspectiveCamera(90, 1, 1, 2000); cam.position.set(cx, 600, -cy + 0.01); cam.lookAt(cx, 0, -cy); cam.updateMatrixWorld();
+  // (only while the view has been still a second: a GPU pipeline it makes holds a frame up, unseen when nothing moves)
+  const W = makeWarm(renderer, scene, { camera: cam, at: () => camera.position.toArray(), quiet: () => performance.now() - lastMoved > 1000 }), inRooms = new Set();
+  for (const [id, r] of manor.rooms) { const q = r.room.rect; W.add(id, [r.grp, r.movers], { center: [(q.x0 + q.x1) / 2, r.Y + r.H / 2, -(q.y0 + q.y1) / 2] }); inRooms.add(r.grp).add(r.movers); }
+  // and the outside: the house's shell, its carved solid and stairs, the forecourt, the ground and the hillside as they stand
+  W.add("outside", [...manor.scene.children.filter(o => !inRooms.has(o)), FC?.group, hill?.group, ground?.group], { center: [cx, 0, -cy] });
+  return W; })();
+window.__warm = () => warm?.stats();
+// vertex arrays the GPU already holds, let go on a phone (src/make/geodrop.js: normals, uvs, colours; positions and indexes
+// stay, for every raycast the page makes); ?geodrop=0 keeps everything
+const geodrop = geodropWanted(ENG.phone) ? makeGeoDrop(renderer, scene) : null; if (geodrop) ENG.flags.geodrop = 1;
+window.__geodrop = () => geodrop?.stats();
+ENG.mark("ready");                                  // everything built and wired; next, the first frame
+// the pipelines compiled ahead of the first frame, asynchronously: measured worse (13 s compiling every room, hidden
+// ones too, and the first frame still 2 s, 2026-10-07), so on request only, for further tries
+if (Q.get("precompile") === "1" && renderer.compileAsync) { camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ"); camera.updateMatrixWorld();
+  try { await renderer.compileAsync(scene, camera); } catch (_) {} ENG.mark("compiled"); }
+let last = performance.now(), lastMoved = 0, flickAt = 0;
+const INDOORS = start.type !== "open", TILE_FIRST = +(Q.get("tilefirst") ?? (INDOORS ? 120 : 500)), TILE_CATCH = +(Q.get("tilecatch") ?? (ENG.phone ? 6 : 12)); let tilesCaught = false, hillBusy = true, groundBusy = true;   // (kept between frames: a frame the land isn't granted, its tiles are still owed)
+// after a thumb's step: a shut door walked into opens (?autodoor=0: not); a locked stride that stalls ends; and the words
+// for the controls, once each, when they help (a long walk at walking pace, a stride, a stop at a jamb)
+const tw = { walk: 0, stride: 0, stuck: 0 };
+function thumbWalk(dt, ux, uy, blocked) {
+  if (assist) assist.push(px, py, ph, ux, uy, blocked, dt);
+  tw.stuck = blocked ? tw.stuck + dt : 0;
+  if (touch.auto && tw.stuck > 0.5) touch.stop();
+  if (touch.stride > 0.5) { tw.stride += dt; if (tw.stride > 2.5) hint("lock", "to keep striding: slide on up to the arrows and let go", 5000); }
+  else if (Math.hypot(touch.stick.x, touch.stick.y) > 0.5) { tw.walk += dt; if (tw.walk > 6) hint("stride", "push the stick to its edge to stride", 5000); }
+  const nd = tw.stuck > 1 && assist?.near(px, py, ph, ux, uy); if (nd && passable(nd.o.id)) hint("jamb", "double-tap the doorway to go through", 5000);
+}
+// ?fps / ?perf: the perf card (src/make/perfcard.js), timing drawn frames only, in render.js; and with it each layer's ms a
+// tick (the main demo's cost line): you (walking, aiming), place (things, rooms, building), people, land, lights, render
+const lap = ENG.card.lap; window.__layers = () => ENG.card.summary?.().layers ?? null;
+// the work that can wait, one budget a frame for the tier (R81, src/make/frame-budget.js): people finding their ways first (you
+// see them walk), the land's tiles, then the rooms still to build; ?budget=phone|pc tries the other tier's numbers
+const FB = makeFrameBudget(Q.get("budget") || (ENG.phone ? "phone" : "pc"))
+  .job("ways", { floor: 1, ceil: +(Q.get("routems") ?? 3) }).job("bake", { floor: 1, ceil: 4 }).job("land", { floor: 1 }).job("rooms", { floor: 1, ceil: 8 });
+window.__budget = () => FB.ledger();
+renderer.setAnimationLoop((now) => {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now; lap(null);
+  // your body at your size (a story's sizes; the manor's 1.6 m eye otherwise); a new size eases in, the walker with it
+  const B = SP ? SP.body() : null;
+  if (SP && walk !== walkFor(SP.size())) { walk = walkFor(SP.size());
+    // grown where your new width doesn't fit (beside the table): the nearest floor you do fit
+    for (let k = 1, cx = px, cy = py; walk.groundAt(px, py, ph) == null && k < 900; k++) { const a = k * 2.4, r = 0.03 * Math.sqrt(k), nx = cx + Math.cos(a) * r, ny = cy + Math.sin(a) * r; if (walk.groundAt(nx, ny, ph) != null) { px = nx; py = ny; } } }
+  if (B && Math.abs(camera.near - B.near) > 1e-4) { camera.near = B.near; camera.updateProjectionMatrix(); } if (B) ray.far = B.far;
+  const sp = ((keys.ShiftLeft || keys.ShiftRight) ? (B ? B.speed * 1.8 : 2.8) : (B ? B.speed : 1.4)) * (crouch ? 0.5 : 1), fx = -Math.sin(yaw), fy = Math.cos(yaw), rx = Math.cos(yaw), ry = Math.sin(yaw);
+  let dx = 0, dy = 0;
+  if (padOpen) for (const k of ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]) keys[k] = false;   // (the keypad's panel holds your hands)
+  if (keys.KeyW || keys.ArrowUp) { dx += fx; dy += fy; } if (keys.KeyS || keys.ArrowDown) { dx -= fx; dy -= fy; }
+  if (keys.KeyD || keys.ArrowRight) { dx += rx; dy += ry; } if (keys.KeyA || keys.ArrowLeft) { dx -= rx; dy -= ry; }
+  // the thumb: the stick pushed past four-fifths of its reach strides, up to the keyboard's shift pace (lab/touch.js);
+  // walking roughly at a doorway bends onto its middle (doorAssist); a tap's glide to something carries you
+  if (touch.active && !glide) { dx += fx * -touch.stick.y + rx * touch.stick.x; dy += fy * -touch.stick.y + ry * touch.stick.x; if (assist) [dx, dy] = assist.steer(px, py, ph, dx, dy); }
+  const n = Math.hypot(dx, dy), tsp = touch.active ? 1 + touch.stride : 1;
+  if (seated && glide && !glide.sit) standUp(false);                  // going somewhere: up as you go
+  else if (seated && n && !glide) { standUp(); dx = dy = 0; }         // a step: up, back where you stood, then on
+  if (glide) { const g = glide, k = Math.min(1, (now - g.t0) / g.ms), e = k * k * (3 - 2 * k), L = (i) => g.from[i] + (g.to[i] - g.from[i]) * e;
+    px = L(0); py = L(1); ph = L(2); yaw = L(3); pitch = L(4); if (k >= 1) { glide = null; if (!g.cancel) g.then(); } }
+  else if (n && !seated && (dx || dy)) { const a = Math.min(1, n); dx = dx / n * a * sp * tsp * dt; dy = dy / n * a * sp * tsp * dt;
+    const ox = px, oy = py, L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L;
+    let g = walk.groundAt(px + dx, py, ph); if (g != null) { px += dx; ph = g; } g = walk.groundAt(px, py + dy, ph); if (g != null) { py += dy; ph = g; }
+    // stopped at a jamb a little off a doorway's middle (the playtest stuck there, 0.36 m off): slide across, at walking
+    // pace, towards the nearest way on within half a metre
+    if ((px - ox) * ux + (py - oy) * uy < 0.2 * L) { let side = 0;
+      for (let off = 0.05; off <= 0.5 && !side; off += 0.05) for (const sg of [1, -1]) { const lx = ox - uy * off * sg, ly = oy + ux * off * sg;
+        if (walk.groundAt(lx, ly, ph) != null && walk.groundAt(lx + ux * 0.35, ly + uy * 0.35, ph) != null) { side = sg; break; } }
+      if (side) { const nx = ox - uy * L * side, ny = oy + ux * L * side, h2 = walk.groundAt(nx, ny, ph); if (h2 != null) { px = nx; py = ny; ph = h2; } } }
+    if (touch.active) thumbWalk(dt, ux, uy, (px - ox) * ux + (py - oy) * uy < 0.3 * L); }
+  if (!seated && !glide?.sit) { const g = walk.groundAt(px, py, ph); if (g != null) ph = g; }   // (a seat stands on claimed floor: its height is the seat's)
+  // the eye: a sitter's while seated, easing between that and standing (crouched: 55%)
+  const eyeTo = seated ? seated.eye : (B ? B.eye : EYE) * (crouch ? 0.55 : 1);
+  let eye = eyeTo; if (eyeEase) { const k = Math.min(1, (now - eyeEase.t0) / eyeEase.ms), e = k * k * (3 - 2 * k); eye = eyeEase.from + (eyeTo - eyeEase.from) * e; if (k >= 1) eyeEase = null; }
+  eyeNow = eye;
+  const moved = !!window.__freeCam || camera.position.x !== px || camera.position.z !== -py || camera.position.y !== ph + eye || camera.rotation.x !== pitch || camera.rotation.y !== yaw;
+  if (moved) lastMoved = now;
+  FB.begin({ still: now - lastMoved > 300 });
+  camera.position.set(px, ph + eye, -py); camera.rotation.set(pitch, yaw, 0, "YXZ");
+  if (window.__freeCam) { const [fx, fy, fz, fyaw, fpitch] = window.__freeCam; camera.position.set(fx, fz, -fy); camera.rotation.set(fpitch * Math.PI / 180, fyaw * Math.PI / 180, 0, "YXZ"); }
+  lap("you"); works.tick(dt); PRECIP?.tick(now / 1000);
+  refreshView(viewDirty); viewDirty = false;
+  const growing = SP ? SP.tick(dt, px, py, here) : false; lap("place");
+  if (bodies) bodies.hold("player", floorOf(ph), px, py, BODY.half);
+  // (the ways' grant is what Photonic's search may spend, the bake's what its walk and sit bakes may, 0 when none: the people
+  // tick every frame whatever they are. From Photonic f6c3959 it writes back each one's own time, overruns included; before
+  // it, the whole frame is counted against the ways)
+  let peopling = false;
+  if (POP) { const gw = FB.grant("ways", { urgent: true }), gb = FB.grant("bake", { urgent: true }), t0 = performance.now();
+    peopleCtx.budgetMs = gw; peopleCtx.bakeMs = gb; peopleCtx.spent = null; peopling = peopleFrame(now / 1000, dt);
+    const sp = peopleCtx.spent; if (sp) { FB.spent("ways", sp.ways ?? 0, true); FB.spent("bake", sp.bake ?? 0, true); } else { FB.spent("ways", performance.now() - t0, true); FB.spent("bake", 0, true); } }
+  for (const q of presences.values()) { q.p.group.visible = manor.rooms.get(q.room)?.grp.visible !== false; if (q.p.group.visible) q.p.tick(now / 1000, camera); }
+  lap("people");
+  // (R65: started indoors, the outside is seen only through windows: 120 ms of its nearest tiles before the first frame,
+  // not 500, then a catch-up budget a frame until every tile is built, then a few ms a frame; ?tilefirst= ?tilecatch=)
+  // (after walkable, the hill's tiles and the ground's share the land's one grant from the frame budget)
+  const lx = camera.position.x, ly = -camera.position.z;
+  if (!window.__ok) { hillBusy = hill ? hill.update(lx, ly, TILE_FIRST) : false; groundBusy = ground ? ground.update(lx, ly, TILE_FIRST) : false; }   // the nearest before the first frame
+  else if (hill || ground) FB.serve("land", (ms) => { const t0 = performance.now();   // the rest a few ms a frame, under the haze
+    hillBusy = hill ? hill.update(lx, ly, ms) : false; groundBusy = ground ? ground.update(lx, ly, Math.max(0.5, ms - (performance.now() - t0))) : false;
+    return hillBusy || groundBusy; }, { ceil: tilesCaught ? (ENG.phone ? 2 : 4) : TILE_CATCH });
+  else { hillBusy = groundBusy = false; FB.spent("land", 0, false); }
+  if (window.__ok && !tilesCaught && !hillBusy && !groundBusy) { tilesCaught = true; ENG.mark("tiles-all"); }
+  lap("land");
+  // (outside, a window coming within reach of sight draws its room: R67)
+  if (moved) { const out = outdoors(), k = out ? [...throughWindows()].sort().join() : ""; if (k !== windowKey) { windowKey = k; if (out) refreshView(true); } }
+  if (moved || lightsDirty) { lightView(camera.position); lightsDirty = false; }
+  if (snapLights || !window.__ok) { lightView(camera.position); winPool.snap(); firePool.snap(); lightView(camera.position); winPool.snap(); firePool.snap(); snapLights = false; }
+  const fading = winPool.step(dt) | firePool.step(dt); lap("lights");
+  if (!window.__ok && !ENG.marks.tiles) ENG.mark("tiles");
+  const locked = document.pointerLockElement === renderer.domElement || TOUCH; $("cross").hidden = !locked;
+  if (((moved || works.busy()) && now - (aimAt.t || 0) > 66) || now - (aimAt.t || 0) > 150 || aimAt.hover !== `${hover.x},${hover.y}`) {   /* the cue re-aims at most ~15 times a second */ aimAt.v = aim(locked ? null : hover); aimAt.t = now; aimAt.hover = `${hover.x},${hover.y}`; }
+  const cue = cueOf(aimAt.v); showCue(cue, locked); actBtn?.(cue?.mode ?? null);
+  // (a fire's flicker alone redraws at most 20 times a second: a hall with its fire in view had drawn every frame standing
+  // still, 60 a second on a phone's battery, for a flame that reads the same at 20)
+  if (moved || focusDist == null) focusDist = focusAhead();
+  const held = carry.update(camera, now, focusDist), burning = (flicker(now) || held) && now - (flickAt || 0) > 50; if (burning) flickAt = now;
+  lap("you"); ENG.frame(scene, camera, { changed: moved || burning || carryDirty || fading || growing || peopling || groundBusy || hillBusy || works.busy() || !!PRECIP || !window.__ok });
+  carryDirty = false; lap("render");
+  // the rooms still to build, one a frame once walkable, the nearest first, and only while the view has been still a third
+  // of a second: a room takes 4-160 ms to build (the study, its 4,000 books, 0.6 s), unseen when nothing moves and a
+  // stutter when you walk; one you walk into is built at once (refreshView). Building in workers removes the wait (point 2)
+  if (window.__ok && !window.__whole && now - lastMoved > 300) FB.serve("rooms", (ms) => { arrive(manor.buildRest({ budgetMs: ms, next: nearestRoom })); return manor.pending().length > 0; });
+  else FB.spent("rooms", 0, false);   // (8 ms: light steps share a frame; the worst frame is the heaviest one thing)
+  lap("place");
+  if (!window.__ok && Q.has("stopwatch")) {   // ?stopwatch: the seconds from opening the page to walking, on screen (R65 on your own phone)
+    const t = performance.now() / 1000, tx = textureLog(), drawn = tx.filter(x => x.from && x.from !== "cache").length, d = document.createElement("div");
+    d.style.cssText = "position:fixed;left:50%;top:calc(84px + env(safe-area-inset-top));transform:translateX(-50%);z-index:9;padding:8px 14px;background:rgba(14,12,10,.88);color:#ece4d2;border:1px solid #c9a35c;border-radius:6px;font:500 15px/1.4 'IBM Plex Mono',monospace;text-align:center";
+    d.textContent = `walkable in ${t.toFixed(1)} s · ${drawn ? `first visit (${drawn} textures drawn)` : "return visit (textures kept)"}`; document.body.appendChild(d); }
+  if (!window.__ok) { window.__ok = true; ENG.mark("walkable"); $("status").hidden = true; warm?.start(); geodrop?.start();
+    if (Q.get("go")) setTimeout(() => { const id = Q.get("go"); window.__go(id);   // (a station: set down there once you can walk)
+      // a person the story moves as the case takes up again (Francis, late in the case, from the parlour to the hall just after
+      // his station had chosen the parlour, codex): followed for the first few seconds, set down before them again if they go
+      const who = id.startsWith("person:") ? id.slice(7) : null, was = who && presences.get(who)?.room;
+      if (who) { const t = setInterval(() => { const now = presences.get(who)?.room; if (now && now !== was) { clearInterval(t); window.__go(id); } }, 250); setTimeout(() => clearInterval(t), 4000); } }, 0);
+    // the still fades into the live frame; one made from another house than this is said (tools/title-stills.mjs remakes them)
+    const st = $("still"); if (!st.hidden) { st.classList.add("gone"); setTimeout(() => st.remove(), 800);
+      const made = window.__stillsMade[st.dataset.key]; window.__still.world = made.world === WKEY.split("/manor/world/")[1];
+      if (!window.__still.world) console.warn("title still made from another house:", made.world, "now", WKEY); } }
+});
+window.__receipt = () => ({ marks: ENG.marks, backend: ENG.backend, rooms: manor.rooms.size, things: manor.things.length, build_ms: manor.ms, world_bytes: world.size(), visible: window.__visible() });
+</script>
+</body>
+</html>

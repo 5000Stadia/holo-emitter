@@ -1,0 +1,17 @@
+{
+  "schema": "holo-emitter-narration/0.1",
+  "lines": {
+    "toggle.*.refused_unknown": "Nothing here answers to that.",
+    "take.*.refused_unknown": "There is nothing of the kind to take.",
+    "go.*.refused_unknown": "No such way is to be found; the walls keep their counsel.",
+    "turn.*.refused": "You cannot turn that way here.",
+    "go.door_reception_treatment_room.arrive": "You pass from the reception into the treatment room.",
+    "go.door_reception_treatment_room.refused_unreachable": "The way from the reception to the treatment room is not before you from here.",
+    "go.door_treatment_room_reception.arrive": "You pass from the treatment room into the reception.",
+    "go.door_treatment_room_reception.refused_unreachable": "The way from the treatment room to the reception is not before you from here.",
+    "go.door_treatment_room_ward.arrive": "You pass from the treatment room into the ward.",
+    "go.door_treatment_room_ward.refused_unreachable": "The way from the treatment room to the ward is not before you from here.",
+    "go.door_ward_treatment_room.arrive": "You pass from the ward into the treatment room.",
+    "go.door_ward_treatment_room.refused_unreachable": "The way from the ward to the treatment room is not before you from here."
+  }
+}

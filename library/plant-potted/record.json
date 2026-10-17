@@ -1,0 +1,91 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "plant-potted",
+ "noun": "potted plant office",
+ "dims_m": {
+  "h": 1.4,
+  "w": 0.6,
+  "d": 0.6
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   1.75,
+   1.4,
+   1.468
+  ],
+  "source_faces": 17982
+ },
+ "gate": {
+  "ok": false,
+  "glb": "/home/k/Projects/holo-emitter/library/plant-potted/model.glb",
+  "triangles": 17982,
+  "bbox_min": [
+   -0.8748001456260681,
+   0.0,
+   -0.7340730428695679
+  ],
+  "bbox_max": [
+   0.8748001456260681,
+   1.399999976158142,
+   0.7340730428695679
+  ],
+  "size": [
+   1.7496002912521362,
+   1.399999976158142,
+   1.4681460857391357
+  ],
+  "up_axis": "x",
+  "aspect_err": 0.958,
+  "images": 3,
+  "materials": 1,
+  "failures": [
+   "shape off: side/height ratios 0.80,0.84 vs declared 0.43,0.43 (err 0.96 > 0.8)"
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/plant-potted/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 61,
+  "size_m": [
+   1.75,
+   1.4,
+   1.468
+  ],
+  "lowest_1pct_spread_m": 0.0635,
+  "level_rule": "base",
+  "front": null,
+  "wants": {
+   "ground": "base",
+   "walls": []
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 17982
+ },
+ "level": "base",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "85c03c01a73a45de9bd9f92e0f48c942",
+  "name": "Office Plant",
+  "author": "Gumiie",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-85c03c01a73a45de9bd9f92e0f48c942",
+  "query": "potted plant office",
+  "pick": 0,
+  "candidates": 3,
+  "hits": 17
+ },
+ "timings_s": {
+  "search": 0.7,
+  "map": 1.1,
+  "download": 3.3,
+  "stand": 5.8,
+  "gate": 0.0,
+  "request_to_library": 11.0
+ }
+}

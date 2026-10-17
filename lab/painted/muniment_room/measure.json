@@ -1,0 +1,114 @@
+{
+ "_what": "Hand-measured back-wall rectangles (px) on each facing painting, read off gridded 2x zooms; vp from tools/paint-calibrate.py (LSD + RANSAC over floorboards and side-wall mouldings); focal from the facing's meta. Room size from the metas' measured_room means; storey from the paintings' own wall aspect. Fireplace reliefs, firebox and hearth read off gridded zooms of N.png.",
+ "backdrops": "backdrops/muniment_room",
+ "room_m": {
+  "w": 4.85,
+  "d": 4.87,
+  "h": 3.1
+ },
+ "floor_from": [
+  "E",
+  "W"
+ ],
+ "fill_axis": "x",
+ "floor_note": "N paints its boards running N-S; S, E and W paint them E-W. The floor takes E and W (S adds a window sheen that reads as a puddle once you walk); the middle, which neither sees, is mirrored along the boards.",
+ "facings": {
+  "N": {
+   "x0": 217,
+   "x1": 1311,
+   "ceil": 90,
+   "floor": 840,
+   "vp": [
+    799.2,
+    523.3
+   ],
+   "focal": 966.2,
+   "reliefs": [
+    {
+     "what": "stone surround",
+     "x0": 517,
+     "x1": 1015,
+     "top": 512,
+     "bottom": 840,
+     "depth": 0.12
+    },
+    {
+     "what": "mantel and frieze",
+     "x0": 475,
+     "x1": 1052,
+     "top": 414,
+     "bottom": 512,
+     "depth": 0.17
+    }
+   ],
+   "openings": [
+    {
+     "kind": "recess",
+     "what": "firebox",
+     "x0": 600,
+     "x1": 930,
+     "top": 590,
+     "depth": 0.5
+    }
+   ],
+   "hearth": {
+    "x0": 495,
+    "x1": 1035,
+    "sample": [
+     700,
+     855
+    ],
+    "out_m": 0.4
+   }
+  },
+  "E": {
+   "x0": 162,
+   "x1": 1375,
+   "ceil": 55,
+   "floor": 807,
+   "vp": [
+    817.6,
+    470.3
+   ],
+   "focal": 998.8,
+   "openings": [
+    {
+     "kind": "door",
+     "x0": 840,
+     "x1": 1053,
+     "top": 235
+    }
+   ]
+  },
+  "S": {
+   "x0": 180,
+   "x1": 1350,
+   "ceil": 101,
+   "floor": 832,
+   "vp": [
+    815.5,
+    488.4
+   ],
+   "focal": 952.4
+  },
+  "W": {
+   "x0": 181,
+   "x1": 1363,
+   "ceil": 91,
+   "floor": 810,
+   "vp": [
+    780.5,
+    475.5
+   ],
+   "focal": 1033.3,
+   "openings": [
+    {
+     "kind": "door",
+     "x0": 580,
+     "x1": 810,
+     "top": 281
+    }
+   ]
+  }
+ }
+}

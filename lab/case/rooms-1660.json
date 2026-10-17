@@ -1,0 +1,648 @@
+{
+ "_what": "the manor's rooms as the page builds them (tools/export-rooms.mjs): for checking a case or a deck against the whole house",
+ "plan": "src/make/plans/hybrid-e.js (GENTRY_SEAT_1660)",
+ "entrance": "forecourt",
+ "floors": [
+  {
+   "id": "ground",
+   "z": 0
+  },
+  {
+   "id": "first",
+   "z": 1
+  },
+  {
+   "id": "garret",
+   "z": 2
+  }
+ ],
+ "rooms": [
+  {
+   "id": "screens_passage",
+   "name": "SCREENS PASSAGE",
+   "floor": "ground",
+   "type": "screens_passage"
+  },
+  {
+   "id": "great_hall",
+   "name": "GREAT HALL",
+   "floor": "ground",
+   "type": "great_hall"
+  },
+  {
+   "id": "great_stair",
+   "name": "GREAT STAIR",
+   "floor": "ground",
+   "type": "great_stair"
+  },
+  {
+   "id": "buttery",
+   "name": "BUTTERY",
+   "floor": "ground",
+   "type": "buttery"
+  },
+  {
+   "id": "kitchen_passage",
+   "name": "KITCHEN PASSAGE",
+   "floor": "ground",
+   "type": "screens_passage"
+  },
+  {
+   "id": "pantry",
+   "name": "PANTRY",
+   "floor": "ground",
+   "type": "pantry"
+  },
+  {
+   "id": "kitchen",
+   "name": "KITCHEN",
+   "floor": "ground",
+   "type": "kitchen"
+  },
+  {
+   "id": "larder",
+   "name": "LARDER",
+   "floor": "ground",
+   "type": "larder"
+  },
+  {
+   "id": "back_stair",
+   "name": "BACK STAIR",
+   "floor": "ground",
+   "type": "back_stair"
+  },
+  {
+   "id": "servants_hall",
+   "name": "SERVANTS' HALL",
+   "floor": "ground",
+   "type": "servants_hall"
+  },
+  {
+   "id": "bakehouse",
+   "name": "BAKEHOUSE",
+   "floor": "ground",
+   "type": "bakehouse"
+  },
+  {
+   "id": "great_parlour",
+   "name": "GREAT PARLOUR",
+   "floor": "ground",
+   "type": "great_parlour"
+  },
+  {
+   "id": "little_parlour",
+   "name": "LITTLE PARLOUR",
+   "floor": "ground",
+   "type": "little_parlour"
+  },
+  {
+   "id": "study",
+   "name": "STUDY",
+   "floor": "ground",
+   "type": "study"
+  },
+  {
+   "id": "porch",
+   "name": "PORCH",
+   "floor": "ground",
+   "type": "porch"
+  },
+  {
+   "id": "forecourt",
+   "name": "FORECOURT",
+   "floor": "ground",
+   "type": "court",
+   "open": true
+  },
+  {
+   "id": "great_chamber",
+   "name": "GREAT CHAMBER",
+   "floor": "first",
+   "type": "great_chamber"
+  },
+  {
+   "id": "withdrawing_chamber",
+   "name": "WITHDRAWING CHAMBER",
+   "floor": "first",
+   "type": "withdrawing_chamber"
+  },
+  {
+   "id": "best_bedchamber",
+   "name": "BEST BEDCHAMBER",
+   "floor": "first",
+   "type": "best_bedchamber"
+  },
+  {
+   "id": "closet_best",
+   "name": "CLOSET",
+   "floor": "first",
+   "type": "closet"
+  },
+  {
+   "id": "muniment_room",
+   "name": "MUNIMENT ROOM",
+   "floor": "first",
+   "type": "muniment_room"
+  },
+  {
+   "id": "stair_landing",
+   "name": "GREAT STAIR",
+   "floor": "first",
+   "type": "great_stair"
+  },
+  {
+   "id": "bedchamber_west",
+   "name": "BEDCHAMBER",
+   "floor": "first",
+   "type": "bedchamber"
+  },
+  {
+   "id": "closet_west",
+   "name": "CLOSET",
+   "floor": "first",
+   "type": "closet"
+  },
+  {
+   "id": "bedchamber_passage",
+   "name": "LITTLE CHAMBER",
+   "floor": "first",
+   "type": "bedchamber"
+  },
+  {
+   "id": "cooks_chamber",
+   "name": "COOK'S CHAMBER",
+   "floor": "first",
+   "type": "servants_chamber"
+  },
+  {
+   "id": "steward_chamber",
+   "name": "STEWARD'S CHAMBER",
+   "floor": "first",
+   "type": "bedchamber"
+  },
+  {
+   "id": "nursery",
+   "name": "NURSERY",
+   "floor": "first",
+   "type": "nursery"
+  },
+  {
+   "id": "bedchamber_south",
+   "name": "BEDCHAMBER",
+   "floor": "first",
+   "type": "bedchamber"
+  },
+  {
+   "id": "long_gallery",
+   "name": "LONG GALLERY",
+   "floor": "garret",
+   "type": "long_gallery"
+  },
+  {
+   "id": "servants_chamber_west",
+   "name": "SERVANTS' CHAMBER",
+   "floor": "garret",
+   "type": "servants_chamber"
+  },
+  {
+   "id": "servants_chamber_east",
+   "name": "SERVANTS' CHAMBER",
+   "floor": "garret",
+   "type": "servants_chamber"
+  },
+  {
+   "id": "back_stair_first",
+   "name": "BACK STAIR",
+   "floor": "first",
+   "type": "back_stair"
+  },
+  {
+   "id": "back_stair_garret",
+   "name": "BACK STAIR",
+   "floor": "garret",
+   "type": "back_stair"
+  },
+  {
+   "id": "gallery_landing",
+   "name": "GREAT STAIR",
+   "floor": "garret",
+   "type": "great_stair"
+  }
+ ],
+ "doors": [
+  {
+   "id": "d1",
+   "joins": [
+    "forecourt",
+    "porch"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d2",
+   "joins": [
+    "porch",
+    "screens_passage"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d3",
+   "joins": [
+    "screens_passage",
+    "great_hall"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d4",
+   "joins": [
+    "screens_passage",
+    "buttery"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d5",
+   "joins": [
+    "screens_passage",
+    "kitchen_passage"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d6",
+   "joins": [
+    "screens_passage",
+    "pantry"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d7",
+   "joins": [
+    "kitchen_passage",
+    "kitchen"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d8",
+   "joins": [
+    "kitchen",
+    "larder"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d9",
+   "joins": [
+    "larder",
+    "back_stair"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d10",
+   "joins": [
+    "back_stair",
+    "servants_hall"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d11",
+   "joins": [
+    "servants_hall",
+    "bakehouse"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d12",
+   "joins": [
+    "forecourt",
+    "bakehouse"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d13",
+   "joins": [
+    "great_hall",
+    "great_stair"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d14",
+   "joins": [
+    "great_stair",
+    "great_parlour"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d15",
+   "joins": [
+    "great_parlour",
+    "little_parlour"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d16",
+   "joins": [
+    "little_parlour",
+    "study"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d17",
+   "joins": [
+    "stair_landing",
+    "great_chamber"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d18",
+   "joins": [
+    "great_chamber",
+    "withdrawing_chamber"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d19",
+   "joins": [
+    "withdrawing_chamber",
+    "best_bedchamber"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d20",
+   "joins": [
+    "best_bedchamber",
+    "closet_best"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d21",
+   "joins": [
+    "closet_best",
+    "muniment_room"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d22",
+   "joins": [
+    "bedchamber_passage",
+    "bedchamber_west"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d23",
+   "joins": [
+    "bedchamber_west",
+    "closet_west"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d24",
+   "joins": [
+    "closet_west",
+    "cooks_chamber"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d25",
+   "joins": [
+    "cooks_chamber",
+    "steward_chamber"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d26",
+   "joins": [
+    "nursery",
+    "bedchamber_south"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d27",
+   "joins": [
+    "back_stair_first",
+    "nursery"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d28",
+   "joins": [
+    "back_stair_first",
+    "steward_chamber"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d29",
+   "joins": [
+    "back_stair_garret",
+    "servants_chamber_west"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d30",
+   "joins": [
+    "back_stair_garret",
+    "long_gallery"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d31",
+   "joins": [
+    "gallery_landing",
+    "long_gallery"
+   ],
+   "kind": "door"
+  },
+  {
+   "id": "d32",
+   "joins": [
+    "gallery_landing",
+    "servants_chamber_east"
+   ],
+   "kind": "door"
+  }
+ ],
+ "stairs": [
+  {
+   "id": "great_stair_ground_a",
+   "stair": "great_stair",
+   "joins": [
+    "great_stair",
+    "stair_landing"
+   ],
+   "floors": [
+    "ground",
+    "first"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "great_stair_ground_landing",
+   "stair": "great_stair",
+   "joins": [
+    "great_stair",
+    "stair_landing"
+   ],
+   "floors": [
+    "ground",
+    "first"
+   ],
+   "kind": "landing"
+  },
+  {
+   "id": "great_stair_ground_b",
+   "stair": "great_stair",
+   "joins": [
+    "great_stair",
+    "stair_landing"
+   ],
+   "floors": [
+    "ground",
+    "first"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "great_stair_first_a",
+   "stair": "great_stair",
+   "joins": [
+    "stair_landing",
+    "gallery_landing"
+   ],
+   "floors": [
+    "first",
+    "garret"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "great_stair_first_landing",
+   "stair": "great_stair",
+   "joins": [
+    "stair_landing",
+    "gallery_landing"
+   ],
+   "floors": [
+    "first",
+    "garret"
+   ],
+   "kind": "landing"
+  },
+  {
+   "id": "great_stair_first_b",
+   "stair": "great_stair",
+   "joins": [
+    "stair_landing",
+    "gallery_landing"
+   ],
+   "floors": [
+    "first",
+    "garret"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "back_stair_ground_a",
+   "stair": "back_stair",
+   "joins": [
+    "back_stair",
+    "back_stair_first"
+   ],
+   "floors": [
+    "ground",
+    "first"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "back_stair_ground_landing",
+   "stair": "back_stair",
+   "joins": [
+    "back_stair",
+    "back_stair_first"
+   ],
+   "floors": [
+    "ground",
+    "first"
+   ],
+   "kind": "landing"
+  },
+  {
+   "id": "back_stair_ground_b",
+   "stair": "back_stair",
+   "joins": [
+    "back_stair",
+    "back_stair_first"
+   ],
+   "floors": [
+    "ground",
+    "first"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "back_stair_first_a",
+   "stair": "back_stair",
+   "joins": [
+    "back_stair_first",
+    "back_stair_garret"
+   ],
+   "floors": [
+    "first",
+    "garret"
+   ],
+   "kind": "flight"
+  },
+  {
+   "id": "back_stair_first_landing",
+   "stair": "back_stair",
+   "joins": [
+    "back_stair_first",
+    "back_stair_garret"
+   ],
+   "floors": [
+    "first",
+    "garret"
+   ],
+   "kind": "landing"
+  },
+  {
+   "id": "back_stair_first_b",
+   "stair": "back_stair",
+   "joins": [
+    "back_stair_first",
+    "back_stair_garret"
+   ],
+   "floors": [
+    "first",
+    "garret"
+   ],
+   "kind": "flight"
+  }
+ ]
+}

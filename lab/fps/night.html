@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=6dc881b8"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Night Street Lights</title>
+<style>
+  :root { --bg: #05070b; --ink: #cfd6e0; --panel: rgba(0, 0, 0, 0.55); }
+  html, body { margin: 0; height: 100%; background: var(--bg); overflow: hidden; }
+  #hud { position: fixed; left: 8px; top: 8px; color: var(--ink); font: 12px/1.45 ui-monospace, monospace; white-space: pre; background: var(--panel); padding: 6px 8px; border-radius: 4px; }
+  [hidden] { display: none !important; }
+  #hourbar { position: fixed; left: 8px; bottom: 10px; color: var(--ink); font: 12px ui-monospace, monospace; background: var(--panel); padding: 6px 8px; border-radius: 4px; display: flex; gap: 8px; align-items: center; }
+  #hourbar input { width: min(60vw, 420px); }
+  #status { position: fixed; inset: 0; display: grid; place-items: center; color: var(--ink); font: 14px ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<div id="hud" hidden></div>
+<label id="hourbar">hour <input id="hour" type="range" min="0" max="24" step="0.1"></label>
+<div id="status">raising the street…</div>
+<script type="importmap">{"imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.webgpu.min.js",
+  "three/tsl": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.tsl.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.js": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.core.min.js"
+}}</script>
+<script type="module">
+// The light bench (R50, the fps lab; Kabe, 2026-10-11: "London street at night, extra long each window having an internal
+// light source and street lamps going down is a good test. Have MANY light sources, lock in high fidelity for all, consider
+// cheapest approximation render for all, compare quality overall against each other, then where the quality cutoff in
+// distance isnt too noticeable cut over to cheap. Then play with that radius to optimize fps without drastic quality loss").
+// The London street (src/make/street.js) at night, 400 m by default, every front window lit from within and a lantern at
+// every door. Each source shows itself the same way in every mode (the glass glows, a lantern's flame and halo), so the
+// modes differ only in the light each casts:
+//   ?mode=full    every source a real point light (three r186's ClusteredLighting: Forward+, WebGPU only)
+//   ?mode=grid    every source's light summed at generation into a probe grid (three's LightProbeGrid, its spherical
+//                 harmonics filled from the lights by arithmetic, no bake): one lookup a pixel, however many lights
+//   ?mode=hybrid  real lights within ?r= metres of you, the grid for the rest (the grid made again when you have gone r/4)
+//   ?mode=none    the moon and the sky alone
+// Far away (the monitor for Kabe, 2026-10-11: "camera 1–2 km out, walk in, and each handover (far points → grid → real
+// lights) measured as on the street"): beyond ?castfar= metres (1500) a source casts nothing, and the grid fills in as you
+// come within it; a window or lantern smaller than a few pixels is drawn as a point of the same light, never under
+// ?pmin= pixels (1.5) and as bright in all, fading to the glass itself between ?p0= and ?p1= metres (1000, 1500) (?points=0 never,
+// 1 always). The hour (Kabe: "a moon and sun that we can dynamically switch between times of day"): ?hour= (22), the slider,
+// [ and ]: one set of values for the whole look (sun or moon as the one key light, sky, fog, exposure, the lamps lit).
+// ?length= (m), ?gs= the grid's spacing (m), ?exposure=, ?dpr=. Test hooks: __eye(s, t, yaw, pitch), __at(x, y, z, yaw,
+// pitch) (three's coordinates, degrees), __hour(h), __spin, __gpu(), __stats(), __depth(on) (each pixel's distance from
+// the eye as grey, 1 = 256 m), __hybrid(r).
+import * as THREE from "three/webgpu";
+import { positionView, positionWorld, positionLocal, cameraPosition, uniform, vec2, vec3, float, mix, dot, max, exp, smoothstep, step as stepN, floor, hash, uv, instancedBufferAttribute } from "three/tsl";
+import { ClusteredLighting } from "three/addons/lighting/ClusteredLighting.js";
+import { LightProbeGrid } from "three/addons/lighting/LightProbeGrid.js";
+import { LightProbeGridNode, ATLAS_PADDING } from "three/addons/tsl/lighting/LightProbeGridNode.js";
+import { makeStreet, STREET_1660, frameXf } from "../../src/make/street.js";
+import { warmTextures } from "../painted/texjobs.js";
+import { LIB as OUT } from "../painted/outgen.js";
+
+const Q = new URLSearchParams(location.search), num = (k, d) => Q.has(k) ? +Q.get(k) : d, T0 = performance.now(), mark = {};
+const MODE = Q.get("mode") || "hybrid", LEN = num("length", 400), GS = num("gs", 1);
+let R = num("r", 20);
+
+// the renderer, made here (as lab/fps/three.html) so its GPU time can be read
+const renderer = new THREE.WebGPURenderer({ antialias: Q.get("msaa") !== "0", reversedDepthBuffer: true, outputBufferType: THREE.HalfFloatType,
+  forceWebGL: Q.get("webgl") === "1", powerPreference: "high-performance", trackTimestamp: Q.get("gpu") !== "0" });
+renderer.setPixelRatio(Q.has("dpr") ? +Q.get("dpr") : Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = num("exposure", 1.2);
+renderer.shadowMap.enabled = Q.get("shadows") !== "0"; renderer.shadowMap.type = THREE.PCFShadowMap;
+document.body.prepend(renderer.domElement);
+if (MODE === "full" || MODE === "hybrid") renderer.lighting = new ClusteredLighting(4096, 32, 24, 128);
+await renderer.init();
+renderer.library.addLight(LightProbeGridNode, LightProbeGrid);
+const BACKEND = renderer.backend.isWebGPUBackend ? "webgpu" : "webgl";
+
+// the street: nearly straight (the grid is a box), a lantern at every door
+const spine = []; { let x = 0, y = 0; for (let s = 0; s <= LEN + 1e-6; s += 2) { const a = 0.03 * Math.sin(s / 60); spine.push([Math.round(x * 1000) / 1000, Math.round(y * 1000) / 1000]); x += Math.sin(a) * 2; y += Math.cos(a) * 2; } }
+// (it runs north, three's −z: the grid's long axis is then its texture's depth, so a change uploads only the slices it touches)
+await warmTextures(3000, [OUT]);
+const street = makeStreet(THREE, { spine, width: 10, seed: num("seed", 1660), ground: () => 0, rules: { ...STREET_1660, lantern: 1 }, backland: Q.get("backland") !== "0" });
+await street.ready; mark.street = Math.round(performance.now() - T0);
+const scene = new THREE.Scene(); scene.add(street.group);
+const camera = new THREE.PerspectiveCamera(66, innerWidth / innerHeight, 0.05, 6000);
+const pxAngleU = uniform(0);       // a pixel's width in radians (for the far points)
+const fitPx = () => { pxAngleU.value = 2 * Math.tan(camera.fov * Math.PI / 360) / (innerHeight * renderer.getPixelRatio()); }; fitPx();
+addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); fitPx(); });
+// the land round the town, out to the hills a camera stands on
+{ const g = new THREE.PlaneGeometry(12000, 12000); g.rotateX(-Math.PI / 2); const land = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x2b261e, roughness: 1 }));
+  land.position.y = -0.12; land.receiveShadow = true; scene.add(land); }
+
+// ---- the hour: one set of values for the whole look, worked out from the hour (engine principle 5,
+// design/engine-principles.md): the sun or the moon as the one key light (one shadow map), sky, fog, exposure, the lamps lit
+const nightU = uniform(1), densityU = uniform(0.0006), sunDirU = uniform(new THREE.Vector3(0, 1, 0)), moonDirU = uniform(new THREE.Vector3(0, 1, 0));
+const sunColU = uniform(new THREE.Color()), sunVisU = uniform(0), moonKU = uniform(0), starsU = uniform(0), zenithU = uniform(new THREE.Color()), horizonU = uniform(new THREE.Color());
+const key = new THREE.DirectionalLight(0xffffff, 1); key.castShadow = renderer.shadowMap.enabled; key.shadow.mapSize.set(4096, 4096); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.04;
+Object.assign(key.shadow.camera, { left: -90, right: 90, top: 90, bottom: -90, near: 1, far: 700 }); key.shadow.autoUpdate = false;
+const hemi = new THREE.HemisphereLight(0x000000, 0x000000, 1), fog = new THREE.FogExp2(0x000000, 0.0006); scene.add(key, key.target, hemi); scene.fog = fog;
+const LOOK = {   // night, dusk and day ends of each value (London's sea-coal haze by day: research-1660.md §B2)
+  night: { zen: 0x03050b, hor: 0x0c111d, sky: 0x33415e, ground: 0x0b0907, hemi: 0.16, density: 0.0006, exposure: 1.2 },
+  dusk: { zen: 0x2a3450, hor: 0xc0784c, sky: 0x6a6a88, ground: 0x2a2018, hemi: 0.4, density: 0.0011, exposure: 1.15 },
+  day: { zen: 0x7f95ae, hor: 0xc3bca9, sky: 0xc6cbd2, ground: 0x5a4a38, hemi: 0.9, density: 0.0016, exposure: 1.0 } };
+const sm = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+let HOUR = num("hour", 22), NF = 1, shadowAt = null;
+function setHour(h) {
+  HOUR = ((h % 24) + 24) % 24; const th = (HOUR - 6) / 12 * Math.PI, tm = th + Math.PI * 0.94;
+  const sun = new THREE.Vector3(Math.cos(th), Math.sin(th) * 0.85, 0.2 + 0.35 * Math.max(0, Math.sin(th))).normalize(), moon = new THREE.Vector3(Math.cos(tm), Math.sin(tm) * 0.8, 0.3).normalize();
+  const dayK = sm(-0.08, 0.25, sun.y), duskK = 0.85 * (1 - sm(0, 0.3, Math.abs(sun.y + 0.03)));
+  const v = (k) => { const n = LOOK.night[k], d = LOOK.dusk[k], y = LOOK.day[k]; if (typeof n === "number" && n < 2) { return (n + (y - n) * dayK) * (1 - duskK) + d * duskK; } return new THREE.Color(n).lerp(new THREE.Color(y), dayK).lerp(new THREE.Color(d), duskK); };
+  zenithU.value.copy(v("zen")); horizonU.value.copy(v("hor")); hemi.color.copy(v("sky")); hemi.groundColor.copy(v("ground")); hemi.intensity = v("hemi");
+  fog.color.copy(horizonU.value); fog.density = densityU.value = num("density", v("density")); renderer.toneMappingExposure = num("exposure", v("exposure"));
+  const sunI = 2.6 * sm(-0.02, 0.2, sun.y), moonI = 0.16 * sm(-0.05, 0.15, moon.y) * (1 - dayK), useSun = sunI >= moonI;
+  key.color.set(useSun ? new THREE.Color(0xffa060).lerp(new THREE.Color(0xfff2de), sm(0.05, 0.5, sun.y)) : new THREE.Color(0x8ea4d4)); key.intensity = Math.max(sunI, moonI);
+  key.userData.dir = (useSun ? sun : moon).clone(); shadowAt = null;
+  sunDirU.value.copy(sun); moonDirU.value.copy(moon); sunColU.value.copy(key.color); sunVisU.value = sm(-0.05, 0.02, sun.y); moonKU.value = sm(-0.05, 0.05, moon.y) * (1 - dayK); starsU.value = 1 - sm(-0.15, 0, sun.y);
+  NF = nightU.value = Q.get("lamps") === "0" ? 0 : 1 - sm(-0.04, 0.12, sun.y);      // the lamps and the windows lit from just before sunset till after dawn (?lamps=0: out, for measuring)
+  if (Q.get("stars") === "0") starsU.value = 0;
+  if (typeof $hour !== "undefined") $hour.value = HOUR; relight(); dirty = true;
+}
+// the key light's shadow box goes with you, in 25 m steps, drawn again only when it moves or the hour changes
+function placeKey(x, z) { const k = 25, sx = Math.round(x / k) * k, sz = Math.round(z / k) * k; if (shadowAt && shadowAt[0] === sx && shadowAt[1] === sz) return;
+  shadowAt = [sx, sz]; const d = key.userData.dir || new THREE.Vector3(0, 1, 0); key.target.position.set(sx, 0, sz); key.position.set(sx + d.x * 300, d.y * 300, sz + d.z * 300); key.target.updateMatrixWorld(); key.shadow.needsUpdate = true; }
+// the sky: horizon to zenith, the sun's disc and glow, the moon, stars at night; it goes with you
+{ const dir = positionLocal.normalize(), up = dir.y.max(0);
+  let col = mix(horizonU, zenithU, up.pow(0.45));
+  const sd = dot(dir, sunDirU).max(0); col = col.add(sunColU.mul(sd.pow(1500).mul(30).add(sd.pow(10).mul(0.3))).mul(sunVisU));
+  const md = dot(dir, moonDirU).max(0); col = col.add(vec3(0.8, 0.85, 0.95).mul(md.pow(5000).mul(5).add(md.pow(40).mul(0.03))).mul(moonKU));
+  const cell = floor(dir.mul(900)), st = stepN(0.99975, hash(cell.x.add(cell.y.mul(157)).add(cell.z.mul(311))));
+  col = col.add(vec3(st).mul(starsU).mul(up.pow(0.25)).mul(0.8));
+  col = mix(horizonU.mul(0.5), col, smoothstep(-0.06, 0.01, dir.y));
+  const skyM = new THREE.MeshBasicNodeMaterial({ side: THREE.BackSide, depthWrite: false, fog: false }); skyM.colorNode = col;
+  const skyMesh = new THREE.Mesh(new THREE.SphereGeometry(5000, 48, 24), skyM); skyMesh.renderOrder = -1; skyMesh.frustumCulled = false;
+  skyMesh.onBeforeRender = () => skyMesh.position.copy(camera.position); scene.add(skyMesh); }
+
+// ---- the sources. Windows: every glass quad of the street's fronts facing out of its wall, a light 0.4 m behind the
+// glass (in the room, so it never lights the outside of its own wall, which a lamp within can't), as strong as the glass
+// is big. Lanterns: the street's own, one by each door.
+const WARM_W = new THREE.Color(0xffad5c), WARM_L = new THREE.Color(0xffa04a), sources = [], glows = [];
+street.group.traverse(o => { if (!o.isMesh || !o.name.endsWith("/glass")) return;
+  const P = o.geometry.attributes.position, N = o.geometry.attributes.normal, I = o.geometry.index.array, a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), d = new THREE.Vector3();
+  for (let i = 0; i + 5 < I.length; i += 6) { a.fromBufferAttribute(P, I[i]); b.fromBufferAttribute(P, I[i + 1]); c.fromBufferAttribute(P, I[i + 2]); d.fromBufferAttribute(P, I[i + 5]);
+    const n = new THREE.Vector3().fromBufferAttribute(N, I[i]); if (Math.abs(n.y) > 0.3) continue;
+    const area = new THREE.Vector3().subVectors(b, a).cross(new THREE.Vector3().subVectors(c, a)).length();
+    if (area < 0.12) continue;
+    const ww = a.distanceTo(b), wh = a.distanceTo(d), face = a.clone().add(b).add(c).add(d).multiplyScalar(0.25), at = face.clone().addScaledVector(n, -num("inset", 0.4)), pr = street.plan.spine.project(at.x, -at.z);
+    if (!pr || Math.abs(pr.t) > 9) { glows.push({ at: face.addScaledVector(n, 0.06), size: Math.sqrt(area), w: ww, h: wh, n }); continue; }   // the yards behind: their glow only, not a light
+    sources.push({ kind: "window", at, face: face.clone().addScaledVector(n, 0.06), size: Math.sqrt(area), w: ww, h: wh, n, color: WARM_W, I: num("wi", 0.9) * area, range: 9 }); } });
+for (const lot of street.lots) { if (!lot.lantern || !lot.ground?.door) continue; const X = frameXf(lot), [a, b] = lot.ground.door, W = lot.width, u = (a + b) / 2 < W / 2 ? b + 0.32 : a - 0.32;
+  const p = X.p(u, -0.39, 2.5); sources.push({ kind: "lantern", at: new THREE.Vector3(...p), face: new THREE.Vector3(...p), size: 0.22, w: 0.22, h: 0.22, n: null, color: WARM_L, I: num("li", 5), range: 12 }); }
+const lanterns = sources.filter(s => s.kind === "lantern"), windows = sources.filter(s => s.kind === "window");
+
+// how each shows itself, the same in every mode: the glass glowing from within; a lantern's flame (its halo, a sphere, read
+// as a grey disc: dropped; far off, the points below carry it)
+// (the far points take a window's glow over between P0 and P1 metres: glass and point never both full)
+const GLOW = num("glow", 0.7), PTS = Q.get("points") || "auto", P0U = uniform(PTS === "1" ? 0 : PTS === "0" ? 1e9 : num("p0", 1000)), P1U = uniform(PTS === "1" ? 0.001 : PTS === "0" ? 2e9 : num("p1", 1500));
+const farW = (d) => smoothstep(P0U, P1U, d);
+{ const old = street.materials.glass, gm = new THREE.MeshStandardNodeMaterial({ vertexColors: true, map: old.map, roughness: old.roughness, metalness: old.metalness });
+  gm.emissiveNode = vec3(1.0, 0.6, 0.28).mul(GLOW).mul(nightU).mul(float(1).sub(farW(positionWorld.distance(cameraPosition))));
+  street.group.traverse(o => { if (o.isMesh && o.material === old) o.material = gm; }); street.materials.glass = gm; }
+{ const flame = new THREE.InstancedMesh(new THREE.SphereGeometry(0.09, 10, 8), new THREE.MeshBasicNodeMaterial({ colorNode: vec3(3.2, 2.0, 0.9).mul(nightU) }), lanterns.length);
+  const m = new THREE.Matrix4(); lanterns.forEach((s, i) => { m.makeTranslation(s.at.x, s.at.y, s.at.z); flame.setMatrixAt(i, m); });
+  flame.frustumCulled = false; scene.add(flame); }
+
+// ---- the far points: every window and lantern (and the yards' windows) as a sprite of its own light, never under PMIN
+// pixels across and as bright in all, as much as it faces you (its glow over its area, spread over the sprite as a soft disc, whose integral
+// over the square is 0.452 of it), fogged as the glass would be, taking over from the glass between P0 and P1 metres. One draw.
+{ const all = [...sources.map(so => ({ at: so.face, size: so.size, w: so.w, h: so.h, n: so.n, lantern: so.kind === "lantern" })), ...glows], N = all.length;
+  const P = new Float32Array(N * 3), Z = new Float32Array(N * 2), K = new Float32Array(N * 3), NN = new Float32Array(N * 3);
+  all.forEach((g, i) => { P.set([g.at.x, g.at.y, g.at.z], i * 3); if (g.n) NN.set([g.n.x, g.n.y, g.n.z], i * 3); Z[i * 2] = g.w; Z[i * 2 + 1] = g.h; K.set(g.lantern ? [3.2 * 0.5, 2.0 * 0.5, 0.9 * 0.5] : [1.0 * GLOW, 0.6 * GLOW, 0.28 * GLOW], i * 3); });
+  const nn = instancedBufferAttribute(new THREE.InstancedBufferAttribute(NN, 3)), pos = instancedBufferAttribute(new THREE.InstancedBufferAttribute(P, 3)), wh = instancedBufferAttribute(new THREE.InstancedBufferAttribute(Z, 2)), kc = instancedBufferAttribute(new THREE.InstancedBufferAttribute(K, 3));
+  const pm = new THREE.SpriteNodeMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+  // its window as seen: as wide as it faces you (seen along the street, a front is nearly edge-on), as tall as it is; never
+  // under PMIN pixels either way, and as bright in all (its glow over its seen area, spread over the sprite as a soft disc)
+  const d = pos.distance(cameraPosition), px = d.mul(pxAngleU).mul(num("pmin", 1.5)), r = uv().sub(0.5).length().mul(2);
+  const facing = dot(nn, cameraPosition.sub(pos).normalize()).max(0).add(float(1).sub(nn.length())), seen = vec2(wh.x.mul(facing), wh.y), sc = max(seen, vec2(px, px));
+  // drawn a little toward you, by its own half-size (facing you, it would otherwise cut into its own wall, seen along the street)
+  // the profile: a soft-edged box (a window is a rectangle; ?prof=disc for the round one), flat to 0.6 of its half-size,
+  // and its integral over the sprite's square (0.6400 box, 0.4516 disc) divided out, so the sprite carries all the light
+  const q = uv().sub(0.5).abs().mul(2), PROFILE = Q.get("prof") === "disc" ? float(1).sub(smoothstep(0.5, 1, r)).mul(1 / 0.4516) : float(1).sub(smoothstep(0.6, 1, q.x)).mul(float(1).sub(smoothstep(0.6, 1, q.y))).mul(1 / 0.64);
+  pm.positionNode = pos.add(cameraPosition.sub(pos).normalize().mul(max(sc.x, sc.y).mul(0.6))); pm.scaleNode = sc;
+  pm.colorNode = kc.mul(seen.x.mul(seen.y).div(sc.x.mul(sc.y))).mul(PROFILE).mul(num("pgain", 1.2))   /* measured against 3x renders: 1.18 at 2 km, 1.07 at 1 km, 0.8 at 500 m (the disc gained 1.5 too much far off) */.mul(farW(d)).mul(nightU).mul(exp(d.mul(densityU).pow(2).negate()));
+  const pts = new THREE.Sprite(pm); pts.count = N; pts.frustumCulled = false; scene.add(pts); }
+
+// ---- the real lights: a fixed pool handed between sources (a light added to or taken from the scene changes the lights'
+// list, and every shader with it: a 1.6 s stall measured walking). A free slot: nothing, nowhere. None cast shadows
+// (ClusteredLighting takes only those). full: one per source, set once.
+const POOL = MODE === "full" ? sources.length : MODE === "hybrid" ? num("pool", 192) : 0;
+const pool = Array.from({ length: POOL }, () => { const l = new THREE.PointLight(0xffffff, 0, 0.001, 2); l.position.set(0, -1000, 0); scene.add(l); return l; });
+const slotOf = new Int32Array(sources.length).fill(-1), free = [...Array(POOL).keys()].reverse(), shareOf = new Float32Array(Math.max(1, POOL));
+const relight = () => { for (let i = 0; i < sources.length; i++) { const k = slotOf[i]; if (k >= 0) pool[k].intensity = sources[i].I * shareOf[k] * NF; } grid.intensity = NF; };   // (called once everything is made)
+function setReal(i, share) { let k = slotOf[i];
+  if (!(share > 1e-3)) { if (k >= 0) { const l = pool[k]; l.intensity = 0; l.distance = 0.001; l.position.set(0, -1000, 0); free.push(k); slotOf[i] = -1; } return true; }
+  if (k < 0) { if (!free.length) return false; k = slotOf[i] = free.pop(); const l = pool[k], so = sources[i]; l.position.copy(so.at); l.color.copy(so.color); l.distance = so.range; }
+  shareOf[k] = share; pool[k].intensity = sources[i].I * share * NF; return true; }
+// ---- the grid: every source's light summed into L2 spherical harmonics at each probe, as three's own bake packs them
+// (src/make: none yet; this is the bench's). A point light's radiance is a spike in its direction, so its coefficients
+// are its irradiance at a facing surface times the basis there: L_lm = E · Y_lm(l). E as three attenuates a point light:
+// I / max(d², 0.01) · (1 − (d/range)⁴)²
+const box = new THREE.Box3(); for (const s of sources) box.expandByPoint(s.at); box.expandByScalar(4); box.min.y = -0.5; box.max.y = Math.max(box.max.y, 12);
+// spacing GS across and up; along the street (z) as fine as the atlas allows: seven padded sub-volumes along z must fit the
+// device's largest 3D texture (2048 here), so 2 m along a 400 m street (a grid over the limit is never made, and fails silently)
+const size = box.getSize(new THREE.Vector3()), MAX3D = renderer.backend.device?.limits?.maxTextureDimension3D || 2048;
+const GSZ = Math.max(num("gsz", 2), size.z / (Math.floor(MAX3D / 7) - 2 * ATLAS_PADDING - 1));
+const res = new THREE.Vector3(Math.round(size.x / GS) + 1, Math.round(size.y / GS) + 1, Math.round(size.z / GSZ) + 1);
+const grid = new LightProbeGrid(size.x, size.y, size.z, res.x, res.y, res.z); grid.position.copy(box.getCenter(new THREE.Vector3())); grid.updateBoundingBox();
+const PAD = ATLAS_PADDING, slices = res.z + 2 * PAD, gridData = new Float32Array(res.x * res.y * slices * 7 * 4);
+grid.texture = new THREE.Data3DTexture(gridData, res.x, res.y, slices * 7);
+Object.assign(grid.texture, { format: THREE.RGBAFormat, type: THREE.FloatType, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, generateMipmaps: false, unpackAlignment: 1 });
+// what each source holds in the grid now; a change adds only the difference, over the probes its range reaches, straight
+// into the atlas three samples (32-bit floats, filtered where the GPU can: every desktop here; a phone would want halves
+// and a packing step), and uploads only the slices along the street it touched (the layer list three's upload reads).
+// The atlas (LightProbeGridNode's): the 27 numbers of a probe's L2 harmonics, 4 to a texel, in seven sub-volumes along z,
+// each padded a slice at both ends with a copy of its edge.
+const held = new Float32Array(sources.length), step = size.clone().divide(res.clone().subScalar(1)), Yb = new Float32Array(9);
+grid.texture.layerUpdates = new Set(); grid.texture.clearLayerUpdates = function () { this.layerUpdates.clear(); };
+let touchLo = Infinity, touchHi = -1;      // the padded slices (within a sub-volume) touched since the last upload
+const plane = res.x * res.y * 4, atOf = new Int32Array(27);         // a coefficient's offset in its texel's slice, by sub-volume
+for (let j = 0; j < 27; j++) atOf[j] = Math.floor(j / 4) * slices * plane + (j % 4);
+let gridMade = false;
+function addToGrid(i, w) {         // source i's share of the grid to w
+  const so = sources[i], dw = w - held[i]; held[i] = w; if (Math.abs(dw) < 1e-6) return;
+  const x0 = box.min.x, y0 = box.min.y, z0 = box.min.z, r = so.range, rr = r * r, cl = (v, n) => Math.min(n - 1, Math.max(0, v)), C = [so.color.r, so.color.g, so.color.b];
+  const xa = cl(Math.ceil((so.at.x - r - x0) / step.x), res.x), xb = cl(Math.floor((so.at.x + r - x0) / step.x), res.x), ya = cl(Math.ceil((so.at.y - r - y0) / step.y), res.y), yb = cl(Math.floor((so.at.y + r - y0) / step.y), res.y);
+  const za = cl(Math.ceil((so.at.z - r - z0) / step.z), res.z), zb = cl(Math.floor((so.at.z + r - z0) / step.z), res.z);
+  for (let iz = za; iz <= zb; iz++) { const dz = so.at.z - (z0 + iz * step.z), sls = [PAD + iz]; if (iz === 0) sls.push(0); if (iz === res.z - 1) sls.push(slices - 1);
+    for (const sl of sls) { touchLo = Math.min(touchLo, sl); touchHi = Math.max(touchHi, sl); }
+    for (let iy = ya; iy <= yb; iy++) { const dy = so.at.y - (y0 + iy * step.y);
+      for (let ix = xa; ix <= xb; ix++) { const dx = so.at.x - (x0 + ix * step.x), d2 = dx * dx + dy * dy + dz * dz; if (d2 >= rr) continue;
+        const f = 1 - (d2 * d2) / (rr * rr), E = dw * so.I / Math.max(d2, 0.01) * f * f, d = Math.sqrt(d2) || 1, x = dx / d, y = dy / d, z = dz / d;
+        Yb[0] = 0.282095; Yb[1] = 0.488603 * y; Yb[2] = 0.488603 * z; Yb[3] = 0.488603 * x; Yb[4] = 1.092548 * x * y; Yb[5] = 1.092548 * y * z; Yb[6] = 0.315392 * (3 * z * z - 1); Yb[7] = 1.092548 * x * z; Yb[8] = 0.546274 * (x * x - y * y);
+        const cell = (iy * res.x + ix) * 4;
+        for (const sl of sls) { const o = sl * plane + cell;
+          for (let c = 0; c < 9; c++) { const e = E * Yb[c]; for (let ch = 0; ch < 3; ch++) gridData[o + atOf[c * 3 + ch]] += e * C[ch]; } } } } }
+}
+function fillGrid(use) {           // every source at once (at load): use(i) -> its grid share
+  const t = performance.now(); for (let i = 0; i < sources.length; i++) addToGrid(i, use(i)); grid.texture.needsUpdate = true; gridMade = true; touchLo = Infinity; touchHi = -1; grid.texture.layerUpdates.clear(); return { ms: Math.round(performance.now() - t) };
+}
+
+// the eye
+let px = 0, py = 0, ph = 0, yaw = 0, pitch = 0.02, dirty = true; const EYE = 1.6, keys = {};
+window.__eye = (s, t = -0.8, yd, pd = 1) => { const f = street.frame(s, t); px = f.x; py = f.y; ph = street.heightAt(px, py); yaw = (yd ?? f.yaw) * Math.PI / 180; pitch = pd * Math.PI / 180; dirty = true; };
+__eye(num("s", 12), num("t", -0.8), Q.has("yaw") ? +Q.get("yaw") : undefined);
+let freeCam = null; window.__at = (x, y, z, yd = 0, pd = 0) => { freeCam = [x, y, z, yd * Math.PI / 180, pd * Math.PI / 180]; dirty = true; };
+if (Q.has("at")) __at(...Q.get("at").split(",").map(Number));
+window.__hour = (h) => setHour(h);
+addEventListener("keydown", e => { if (e.code === "BracketLeft") { setHour(HOUR - 0.5); $hour.value = HOUR; } if (e.code === "BracketRight") { setHour(HOUR + 0.5); $hour.value = HOUR; } });
+addEventListener("keydown", e => { keys[e.code] = true; }); addEventListener("keyup", e => { keys[e.code] = false; });
+renderer.domElement.addEventListener("click", () => { try { renderer.domElement.requestPointerLock()?.catch?.(() => {}); } catch (_) {} });
+addEventListener("mousemove", e => { if (document.pointerLockElement === renderer.domElement) { yaw -= e.movementX * 0.0022; pitch = Math.max(-1.3, Math.min(1.3, pitch - e.movementY * 0.0022)); dirty = true; } });
+
+// ---- the modes. hybrid: a source within R of you is a real light; beyond R + BAND, all in the grid; between, both. Its
+// real share is always 1 − its grid share, so a source is never lit twice or lost, whatever has been brought up to date.
+// Each frame the sources furthest from their share move first, within BUDGET ms. A source that wants a real light when the
+// pool is full takes the slot of the least needed one holding a light, if it needs it more (a higher real share, or the
+// same and over a metre nearer): that one fades into the grid over FADE seconds, real and grid still summing to the
+// source, and the slot passes on when it is out (the monitor for Kabe, 2026-10-11: "if a newly close light matters more
+// than the least-needed real one, swap them (with a fade)"; ?swap=0 waits for a free slot instead, as before).
+const BAND = 4, BUDGET = num("budget", 3), FADE = num("fade", 0.5), SWAP = Q.get("swap") !== "0", moves = [], leaving = new Set(); let gridMs = 0, swaps = 0, lastT = performance.now();
+const wOf = (so, at) => { const d = so.at.distanceTo(at); return d <= R ? 1 : d >= R + BAND ? 0 : Math.round(4 * (1 - (d - R) / BAND)) / 4; };   // (in quarters: a share moves about once a metre, not every frame)
+// beyond CASTFAR of the town a source casts nothing (its light on the town's surfaces is under the mark from there: measured)
+const CASTFAR = Q.get("cast") === "none" ? -1 : num("castfar", 1500);   // (measured: from 1.5 km the town's cast light is under a pixel's notice; at 1 km its arrival would just show)
+let FAR = false; const realOf = (i, at) => FAR ? 0 : wOf(sources[i], at), gridOf = (i, at) => FAR ? 0 : 1 - wOf(sources[i], at), realNow = (i) => slotOf[i] >= 0 ? shareOf[slotOf[i]] : 0;
+if (MODE === "full") sources.forEach((_, i) => setReal(i, 1));
+if (MODE === "grid") gridMs = fillGrid(() => 1).ms;
+if (MODE === "hybrid" && CASTFAR >= 0 && !Q.has("at")) { const at = new THREE.Vector3(); { const f = street.frame(num("s", 12), num("t", -0.8)); at.set(f.x, street.heightAt(f.x, f.y) + 1.6, -f.y); }
+  gridMade = false; [...sources.keys()].sort((a, b) => sources[a].at.distanceTo(at) - sources[b].at.distanceTo(at)).forEach(i => { const so = sources[i]; if (!setReal(i, wOf(so, at))) addToGrid(i, 1); else addToGrid(i, 1 - wOf(so, at)); });   /* nearest first */ grid.texture.needsUpdate = true; gridMade = true; touchLo = Infinity; touchHi = -1; grid.texture.layerUpdates.clear(); }
+function setMode(at) {
+  if (MODE !== "hybrid") return;
+  const t0 = performance.now(), dt = Math.min(0.1, (t0 - lastT) / 1000), todo = []; lastT = t0; let n = 0;
+  FAR = CASTFAR < 0 || box.distanceToPoint(at) > CASTFAR;
+  // those giving up their light: a step of the fade, the grid taking what the light lets go
+  for (const j of leaving) { const r = Math.max(0, realNow(j) - dt / FADE); setReal(j, r); addToGrid(j, FAR ? 0 : 1 - r); n++; if (r <= 0) leaving.delete(j); }
+  // lights waiting for a slot, most needed first (a freed slot goes to the nearest of them, never round again); the rest by
+  // how far each is from its share
+  const dist = (i) => sources[i].at.distanceTo(at), more = (a, b) => { const wa = wOf(sources[a], at), wb = wOf(sources[b], at); return wa > wb || (wa === wb && dist(a) < dist(b) - 1); };
+  const want = [];
+  for (let i = 0; i < sources.length; i++) { if (leaving.has(i)) continue; const g = gridOf(i, at), rl = realOf(i, at), d = Math.abs(g - held[i]) + Math.abs(rl - realNow(i)); if (d <= 0.01) continue;
+    if (rl > 0 && slotOf[i] < 0) want.push(i); else todo.push([d, i]); }
+  if (!todo.length && !want.length && !n) return;
+  want.sort((a, b) => wOf(sources[b], at) - wOf(sources[a], at) || dist(a) - dist(b)); todo.sort((a, b) => b[0] - a[0]);
+  let waiting = 0;
+  for (const i of want) { if (performance.now() - t0 > BUDGET && n) break;
+    if (setReal(i, realOf(i, at))) { addToGrid(i, gridOf(i, at)); n++; continue; }
+    // no slot free: the least needed holder gives way, if this needs it more; never more fading out than are waiting
+    waiting++; if (!SWAP || leaving.size >= waiting) continue;
+    let least = -1; for (let k = 0; k < sources.length; k++) if (slotOf[k] >= 0 && !leaving.has(k) && (least < 0 || more(least, k))) least = k;
+    if (least >= 0 && more(i, least)) { leaving.add(least); swaps++; } }
+  for (const [, i] of todo) { if (performance.now() - t0 > BUDGET && n) break; if (setReal(i, realOf(i, at))) { addToGrid(i, gridOf(i, at)); n++; } }
+  // only the slices touched go up (three's upload of a 3D texture's layers; walking, 1 frame in 100 at 19-20 ms, 18 with no grid)
+  if (n) { for (let sl = touchLo; sl <= touchHi; sl++) for (let t7 = 0; t7 < 7; t7++) grid.texture.layerUpdates.add(t7 * slices + sl); touchLo = Infinity; touchHi = -1; grid.texture.needsUpdate = true; }
+  moves.push({ ms: +(performance.now() - t0).toFixed(1), add: +(performance.now() - t0).toFixed(1), n, left: todo.length - n }); if (moves.length > 2000) moves.shift(); dirty = true;
+}
+window.__hybrid = (r) => { R = r; dirty = true; };
+window.__moves = () => moves;
+// which sources hold a real light, and how far they are, against the nearest as many (the swap's test)
+window.__held = () => { const at = camera.position, d = (i) => +sources[i].at.distanceTo(at).toFixed(1), real = [...sources.keys()].filter(i => slotOf[i] >= 0 && !leaving.has(i)).map(d).sort((a, b) => a - b);
+  const nearest = [...sources.keys()].map(d).sort((a, b) => a - b).slice(0, real.length); return { real, nearest, swaps }; };
+if (MODE === "grid" || MODE === "hybrid") scene.add(grid);
+if (!gridMade) { grid.texture.needsUpdate = true; gridMade = true; }   // (empty, but made: a grid first used before its first upload was bound as the wrong kind of texture)
+
+// distance as grey (1 = 256 m), straight to the canvas: for measuring the modes' differences by distance
+const depthMat = new THREE.MeshBasicNodeMaterial({ colorNode: vec3(positionView.length().div(256)), fog: false });
+let depthOn = false; window.__depth = (on) => { depthOn = on; dirty = true; };
+
+const $hud = document.getElementById("hud"), $hour = document.getElementById("hour"), gpuMs = [];
+$hour.value = HOUR; $hour.addEventListener("input", () => setHour(+$hour.value)); let gpuBusy = false, frames = 0, since = performance.now(), fps = 0;
+window.__spin = false;
+window.__gpu = () => { const a = [...gpuMs].sort((p, q) => p - q); return a.length ? +a[Math.floor(a.length / 2)].toFixed(2) : null; };
+window.__gpuReset = () => { gpuMs.length = 0; };
+window.__stats = () => ({ backend: BACKEND, mode: MODE, r: R, hour: HOUR, far: FAR, gridHeld: +held.reduce((a, b) => a + b, 0).toFixed(1), fps, gpu: __gpu(), sources: sources.length, windows: windows.length, lanterns: lanterns.length,
+  realOn: pool.filter(l => l.intensity > 0).length, pool: POOL, swaps, grid: [res.x, res.y, res.z], gridMB: +(gridData.byteLength / 1048576).toFixed(1), gridMs, spacing: [GS, GS, +GSZ.toFixed(2)], marks: mark, calls: renderer.info.render.drawCalls });
+setHour(HOUR);
+let last = performance.now();
+renderer.setAnimationLoop(() => {
+  const now = performance.now(), dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const sp = (keys.ShiftLeft ? 6 : 2) * dt, fx = -Math.sin(yaw), fy = Math.cos(yaw);
+  if (keys.KeyW) { px += fx * sp; py += fy * sp; dirty = true; } if (keys.KeyS) { px -= fx * sp; py -= fy * sp; dirty = true; }
+  if (keys.KeyW || keys.KeyS) freeCam = null;
+  if (freeCam) { camera.position.set(freeCam[0], freeCam[1], freeCam[2]); camera.rotation.set(freeCam[4], freeCam[3], 0, "YXZ"); }
+  else { camera.position.set(px, ph + EYE, -py); camera.rotation.set(pitch, yaw, 0, "YXZ"); }
+  placeKey(camera.position.x, camera.position.z);
+  setMode(camera.position);
+  if (!dirty && !window.__spin) return;
+  dirty = false;
+  if (depthOn) { scene.overrideMaterial = depthMat; scene.fog = null; renderer.toneMapping = THREE.NoToneMapping; renderer.outputColorSpace = THREE.LinearSRGBColorSpace; }
+  renderer.render(scene, camera);
+  if (depthOn) { scene.overrideMaterial = null; scene.fog = fog; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace; }
+  if (renderer.backend.trackTimestamp && !gpuBusy) { gpuBusy = true; renderer.resolveTimestampsAsync("render").then(v => { if (v > 0) { gpuMs.push(v); if (gpuMs.length > 240) gpuMs.shift(); } }).catch(() => {}).finally(() => { gpuBusy = false; }); }
+  frames++; if (now - since > 500) { fps = Math.round(frames * 1000 / (now - since)); frames = 0; since = now;
+    $hud.textContent = `${String(Math.floor(HOUR)).padStart(2, "0")}:${String(Math.round((HOUR % 1) * 60)).padStart(2, "0")} · ${BACKEND} · ${MODE}${MODE === "hybrid" ? ` r ${R} m` : ""} · ${fps} fps · GPU ${__gpu() ?? "–"} ms\n${windows.length} windows · ${lanterns.length} lanterns · ${pool.filter(l => l.intensity > 0).length} of ${POOL} real lights on\ngrid ${res.x}×${res.y}×${res.z} (${(gridData.byteLength / 1048576).toFixed(1)} MB) filled in ${gridMs} ms`; }
+  if (!window.__ok) { window.__ok = true; mark.first = Math.round(performance.now() - T0); document.getElementById("status").hidden = true; document.getElementById("hud").hidden = Q.get("ui") === "0"; document.getElementById("hourbar").hidden = Q.get("ui") === "0"; }
+});
+</script>
+</body>
+</html>

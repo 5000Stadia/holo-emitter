@@ -1,0 +1,75 @@
+{
+  "schema": "holo-emitter/0.1",
+  "locations": [
+    {
+      "id": "booking_hall",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_booking_hall_platform",
+          "from": "booking_hall",
+          "facing": "E",
+          "to": "platform",
+          "arrive_facing": "E",
+          "via": "door01"
+        }
+      ]
+    },
+    {
+      "id": "platform",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "door_platform_booking_hall",
+          "from": "platform",
+          "facing": "W",
+          "to": "booking_hall",
+          "arrive_facing": "W",
+          "via": "door01"
+        },
+        {
+          "id": "way_platform_platform_far",
+          "from": "platform",
+          "facing": "E",
+          "to": "platform_far",
+          "arrive_facing": "E",
+          "via": "way01"
+        }
+      ]
+    },
+    {
+      "id": "platform_far",
+      "facings": [
+        "N",
+        "E",
+        "S",
+        "W"
+      ],
+      "exits": [
+        {
+          "id": "way_platform_far_platform",
+          "from": "platform_far",
+          "facing": "W",
+          "to": "platform",
+          "arrive_facing": "W",
+          "via": "way01"
+        }
+      ]
+    }
+  ],
+  "entities": [],
+  "relations": [],
+  "knowledge": {
+    "player": []
+  }
+}

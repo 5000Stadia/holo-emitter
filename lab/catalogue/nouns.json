@@ -1,0 +1,111 @@
+{
+ "pack": "liner-3",
+ "period": "c.1934 North Atlantic liner, first-class writing room",
+ "reference": "backdrops/writing_room/N.png",
+ "nouns": [
+  {
+   "id": "desk-liner-1934-writing",
+   "noun": "writing desk",
+   "dims_m": {
+    "h": 0.76,
+    "w": 1.2,
+    "d": 0.6
+   },
+   "materials": "pale bird's-eye maple veneer top and modesty panel, macassar ebony legs, chrome ferrules",
+   "subject": "A moderne writing desk: a rectangular top with a shallow pen tray at the back, a single central drawer with a chrome bar pull, four slender tapering legs.",
+   "avoid": "computer, lamp on the desk, papers,",
+   "level": "top"
+  },
+  {
+   "id": "armchair-liner-1934-club",
+   "noun": "club armchair",
+   "dims_m": {
+    "h": 0.8,
+    "w": 0.8,
+    "d": 0.85
+   },
+   "materials": "deep-blue wool upholstery, pale maple veneer plinth, macassar feet",
+   "subject": "A low moderne club armchair: a rounded barrel back flowing into padded arms, a loose seat cushion, a shallow veneered plinth base.",
+   "avoid": "wicker, deckchair, tubular steel,",
+   "level": "seat:0.42"
+  },
+  {
+   "id": "table-liner-1934-side",
+   "noun": "side table",
+   "dims_m": {
+    "h": 0.6,
+    "w": 0.5,
+    "d": 0.5
+   },
+   "materials": "pale maple veneer top, macassar ebony column and base, chrome ring",
+   "subject": "A small round side table: a circular veneered top on a single tapered column rising from a round stepped base, with a thin chrome ring where column meets top.",
+   "avoid": "glass top, tablecloth,",
+   "level": "top"
+  },
+  {
+   "id": "lamp-liner-1934-floor",
+   "noun": "floor lamp",
+   "dims_m": {
+    "h": 1.6,
+    "w": 0.4,
+    "d": 0.4
+   },
+   "materials": "chrome stem, macassar ebony base, cream parchment drum shade",
+   "subject": "A slender moderne floor lamp: a round stepped ebony base, a polished chrome stem, a plain cream drum shade at the top, switched off.",
+   "avoid": "lit bulb glow, cord, tassels,",
+   "level": "base"
+  },
+  {
+   "id": "bookcase-liner-1934-low",
+   "noun": "low bookcase",
+   "dims_m": {
+    "h": 1.0,
+    "w": 1.2,
+    "d": 0.35
+   },
+   "materials": "pale maple veneer carcass, macassar ebony plinth, chrome edge strip",
+   "subject": "A low open bookcase with two shelves, veneered carcass with rounded vertical ends, a dark plinth, empty shelves.",
+   "avoid": "books, ornaments, glass doors,",
+   "level": "top"
+  },
+  {
+   "id": "basket-liner-1934-waste",
+   "noun": "wastepaper basket",
+   "dims_m": {
+    "h": 0.32,
+    "w": 0.26,
+    "d": 0.26
+   },
+   "materials": "macassar ebony veneer with a chrome rim",
+   "subject": "A tapered cylindrical wastepaper basket, veneered, with a polished chrome rim at the top, empty.",
+   "avoid": "wicker, paper inside,",
+   "level": "base"
+  },
+  {
+   "id": "clock-liner-1934-mantel",
+   "noun": "mantel clock",
+   "dims_m": {
+    "h": 0.22,
+    "w": 0.3,
+    "d": 0.1
+   },
+   "materials": "pale maple veneer case, chrome bezel, cream dial",
+   "subject": "A small moderne mantel clock: a stepped veneered case, a round chrome bezel, a plain cream dial with slim hands and no numerals.",
+   "avoid": "legible numerals, brand name,",
+   "level": "base"
+  },
+  {
+   "id": "stand-liner-1934-coat",
+   "noun": "coat stand",
+   "dims_m": {
+    "h": 1.8,
+    "w": 0.45,
+    "d": 0.45
+   },
+   "materials": "chrome stem and hooks, macassar ebony base",
+   "subject": "A moderne coat stand: a round stepped ebony base, a polished chrome column, six curved chrome hooks near the top, nothing hanging on it.",
+   "avoid": "coats, hats, umbrellas,",
+   "level": "base"
+  }
+ ]
+}

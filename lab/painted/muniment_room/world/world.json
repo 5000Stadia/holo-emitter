@@ -1,0 +1,44 @@
+{
+ "schema": "holo-emitter/0.1",
+ "locations": [
+  {
+   "id": "muniment_room",
+   "facings": [
+    "N",
+    "E",
+    "S",
+    "W"
+   ],
+   "exits": []
+  }
+ ],
+ "entities": [
+  {
+   "id": "desk1",
+   "sprite": "desk-joined-oak-1660",
+   "location": "muniment_room",
+   "states": [
+    "closed",
+    "open"
+   ],
+   "state": "closed"
+  },
+  {
+   "id": "key1",
+   "sprite": "key-iron",
+   "takeable": true
+  }
+ ],
+ "relations": [
+  [
+   "in",
+   "key1",
+   "desk1"
+  ]
+ ],
+ "knowledge": {
+  "player": [
+   "desk1"
+  ]
+ }
+}

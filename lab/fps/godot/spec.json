@@ -1,0 +1,782 @@
+{
+ "_what": "The fps lab's test scene, defined once for every engine (Kabe, 2026-10-05: an identical demo scene in both engines, same number of polygons, logging fps with and without each element). Each case changes one thing from the base. layout.json holds the objects' positions, from the seed, so every engine places the same objects in the same places.",
+ "viewport": [
+  1280,
+  720
+ ],
+ "pixel_ratio": 1,
+ "seconds": 6,
+ "warmup_seconds": 2,
+ "camera": {
+  "orbit_radius": 42,
+  "height": 16,
+  "look_at": [
+   0,
+   3,
+   0
+  ],
+  "turn_per_second": 0.25
+ },
+ "base": {
+  "objects": 1000,
+  "mesh": "sphere",
+  "segments": [
+   16,
+   12
+  ],
+  "instanced": false,
+  "material": "standard",
+  "point_lights": 0,
+  "shadows": 0,
+  "post": [],
+  "physics": 0,
+  "msaa": false,
+  "bundle": false,
+  "batched": false,
+  "shared_material": false,
+  "static": false,
+  "shadows_static": false,
+  "casters": "all",
+  "street": 0,
+  "far": false,
+  "depth": "standard",
+  "lighting": "default",
+  "render_scale": 1,
+  "upscale": null,
+  "rect_lights": 0,
+  "textures": null,
+  "tex_drop": false,
+  "out": 16,
+  "direct": false,
+  "tonemap": false,
+  "still": null
+ },
+ "cases": [
+  {
+   "id": "base",
+   "change": "1,000 spheres of 360 triangles, each its own mesh; one sun; no shadows; no post"
+  },
+  {
+   "id": "instanced",
+   "change": "the same, drawn as one instanced mesh",
+   "set": {
+    "instanced": true
+   }
+  },
+  {
+   "id": "objects-10k",
+   "change": "10,000 separate meshes",
+   "set": {
+    "objects": 10000
+   }
+  },
+  {
+   "id": "objects-10k-instanced",
+   "change": "10,000 instanced",
+   "set": {
+    "objects": 10000,
+    "instanced": true
+   }
+  },
+  {
+   "id": "tris-5.8M",
+   "change": "1,000 instanced spheres of 5,760 triangles (64 x 45)",
+   "set": {
+    "segments": [
+     64,
+     45
+    ],
+    "instanced": true
+   }
+  },
+  {
+   "id": "tris-23M",
+   "change": "4,000 instanced spheres of 5,760 triangles",
+   "set": {
+    "objects": 4000,
+    "segments": [
+     64,
+     45
+    ],
+    "instanced": true
+   }
+  },
+  {
+   "id": "lights-8",
+   "change": "8 point lights",
+   "set": {
+    "point_lights": 8
+   }
+  },
+  {
+   "id": "lights-32",
+   "change": "32 point lights",
+   "set": {
+    "point_lights": 32
+   }
+  },
+  {
+   "id": "shadows-2048",
+   "change": "the sun casts shadows, 2048 map",
+   "set": {
+    "shadows": 2048
+   }
+  },
+  {
+   "id": "shadows-4096",
+   "change": "the sun casts shadows, 4096 map",
+   "set": {
+    "shadows": 4096
+   }
+  },
+  {
+   "id": "material-basic",
+   "change": "unlit material",
+   "set": {
+    "material": "basic"
+   }
+  },
+  {
+   "id": "material-lambert",
+   "change": "diffuse-only material",
+   "set": {
+    "material": "lambert"
+   }
+  },
+  {
+   "id": "material-physical",
+   "change": "physical material with clearcoat",
+   "set": {
+    "material": "physical"
+   }
+  },
+  {
+   "id": "msaa",
+   "change": "4x multisample anti-aliasing",
+   "set": {
+    "msaa": true
+   }
+  },
+  {
+   "id": "post-ao",
+   "change": "screen-space ambient occlusion",
+   "set": {
+    "post": [
+     "ao"
+    ]
+   }
+  },
+  {
+   "id": "post-bloom",
+   "change": "bloom (glow)",
+   "set": {
+    "post": [
+     "bloom"
+    ]
+   }
+  },
+  {
+   "id": "physics-500",
+   "change": "500 boxes falling and stacking under rigid-body physics",
+   "set": {
+    "physics": 500,
+    "instanced": true
+   }
+  },
+  {
+   "id": "physics-2000",
+   "change": "2,000 boxes falling and stacking",
+   "set": {
+    "physics": 2000,
+    "instanced": true
+   }
+  },
+  {
+   "id": "shared-material",
+   "change": "1,000 separate meshes sharing one material",
+   "set": {
+    "shared_material": true
+   }
+  },
+  {
+   "id": "static-matrices",
+   "change": "1,000 separate meshes, matrices frozen (nothing moves)",
+   "set": {
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "bundle",
+   "change": "1,000 separate meshes recorded once as a WebGPU render bundle",
+   "set": {
+    "bundle": true,
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "bundle-10k",
+   "change": "10,000 separate meshes in a render bundle",
+   "set": {
+    "objects": 10000,
+    "bundle": true,
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "shadows-static",
+   "change": "shadows 2048, the sun's shadow map drawn once (light.shadow.autoUpdate off); Godot has no switch for this on a directional light",
+   "set": {
+    "shadows": 2048,
+    "shadows_static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "shadows-big-casters",
+   "change": "shadows 2048, only the biggest fifth of objects cast",
+   "set": {
+    "shadows": 2048,
+    "casters": "big"
+   }
+  },
+  {
+   "id": "street-5k",
+   "change": "a busy street: 5,000 objects of 50 different meshes, each its own mesh",
+   "set": {
+    "street": 5000
+   }
+  },
+  {
+   "id": "street-5k-batched",
+   "change": "the busy street as BatchedMesh in three.js (WebGPU has no multi-draw, so it still issues a draw per object); Godot has no BatchedMesh and runs its MultiMesh per type",
+   "set": {
+    "street": 5000,
+    "batched": true
+   }
+  },
+  {
+   "id": "street-5k-instanced",
+   "change": "the busy street as one instanced mesh per mesh type (50 draws): InstancedMesh in three.js, MultiMesh in Godot",
+   "set": {
+    "street": 5000,
+    "instanced": true
+   }
+  },
+  {
+   "id": "street-5k-bundle",
+   "change": "the busy street, separate meshes in a render bundle",
+   "set": {
+    "street": 5000,
+    "bundle": true,
+    "static": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "street-5k-batched-shadows",
+   "change": "the batched street with sun shadows 2048",
+   "set": {
+    "street": 5000,
+    "batched": true,
+    "shadows": 2048
+   }
+  },
+  {
+   "id": "street-5k-instanced-shadows",
+   "change": "the street as one instanced mesh per type, with sun shadows 2048",
+   "set": {
+    "street": 5000,
+    "instanced": true,
+    "shadows": 2048
+   }
+  },
+  {
+   "id": "far-standard",
+   "change": "long distance: the base scene plus a 300 m tower and 200 buildings from 1 to 5 km, each with a facade panel 5 cm proud of its wall; ordinary depth",
+   "set": {
+    "far": true
+   }
+  },
+  {
+   "id": "far-log",
+   "change": "long distance, logarithmic depth buffer",
+   "set": {
+    "far": true,
+    "depth": "log"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "far-reversed",
+   "change": "long distance, reversed floating-point depth",
+   "set": {
+    "far": true,
+    "depth": "reversed"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "candles-64",
+   "change": "64 point lights (candles), three.js's default lighting",
+   "set": {
+    "point_lights": 64
+   }
+  },
+  {
+   "id": "candles-64-dynamic",
+   "change": "64 point lights batched into uniform arrays (DynamicLighting): light count changes recompile nothing",
+   "set": {
+    "point_lights": 64,
+    "lighting": "dynamic"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "candles-64-clustered",
+   "change": "64 point lights, clustered (ClusteredLighting, WebGPU only)",
+   "set": {
+    "point_lights": 64,
+    "lighting": "clustered"
+   },
+   "engines": [
+    "three-webgpu"
+   ]
+  },
+  {
+   "id": "post-ssao",
+   "change": "SSAO at half resolution (r186's SSAONode)",
+   "set": {
+    "post": [
+     "ssao"
+    ]
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "scale-0.5",
+   "change": "the scene drawn at half resolution, stretched",
+   "set": {
+    "render_scale": 0.5
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "scale-0.5-fsr1",
+   "change": "the scene drawn at half resolution, upscaled and sharpened (FSR1)",
+   "set": {
+    "render_scale": 0.5,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "scale-0.75-fsr1",
+   "change": "the scene drawn at three-quarter resolution, upscaled (FSR1)",
+   "set": {
+    "render_scale": 0.75,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill",
+   "change": "pixel-heavy: 1,000 instanced spheres, physical clearcoat material, 2x pixel density (2560x1440), SSAO",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 2,
+    "post": [
+     "ssao"
+    ]
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill-scale-0.5-fsr1",
+   "change": "the same, drawn at half resolution and upscaled with FSR1",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 2,
+    "post": [
+     "ssao"
+    ],
+    "render_scale": 0.5,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill-scale-0.7-fsr1",
+   "change": "the same at 70% resolution, FSR1",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 2,
+    "post": [
+     "ssao"
+    ],
+    "render_scale": 0.7,
+    "upscale": "fsr1"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "fill-dpr1",
+   "change": "the same at 1x pixel density instead (the plain cap)",
+   "set": {
+    "instanced": true,
+    "material": "physical",
+    "pixel_ratio": 1,
+    "post": [
+     "ssao"
+    ]
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-ref",
+   "group": "phone",
+   "change": "the manor's desktop set, the reference for what follows: 1,000 instanced spheres in the kit's textures (1024 colour, normal, roughness), a board floor at 360 px/m (2880 square), 8 window lights (RectAreaLight), 4x MSAA, ACES tone mapping, a half-float intermediate target, ordinary depth, the far town out to 5 km",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-depth-log",
+   "group": "phone",
+   "change": "logarithmic depth (the manor's desktop outdoors): depth written from every fragment shader",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "depth": "log"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-depth-reversed",
+   "group": "phone",
+   "change": "reversed depth (the manor's phone default): a float buffer, near at 1",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "depth": "reversed"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-rect-3",
+   "group": "phone",
+   "change": "3 window lights, not 8 (the phone's pool)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 3,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-rect-0",
+   "group": "phone",
+   "change": "no window lights",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 0,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-tex-half",
+   "group": "phone",
+   "change": "textures at half density (floor 1440, kit 512: the phone's), 2x2 means of the full ones",
+   "set": {
+    "instanced": true,
+    "textures": "half",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-tex-drop",
+   "group": "phone",
+   "change": "full textures, their pixels let go on the CPU once on the GPU",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "tex_drop": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-tex-half-drop",
+   "group": "phone",
+   "change": "half textures, pixels let go (the phone's textures as shipped)",
+   "set": {
+    "instanced": true,
+    "textures": "half",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "tex_drop": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-msaa-0",
+   "group": "phone",
+   "change": "no MSAA",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": false,
+    "tonemap": true,
+    "far": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "m-out-8",
+   "group": "phone",
+   "change": "the intermediate target at 8 bits a channel, not half floats",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "out": 8
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-direct",
+   "group": "phone",
+   "change": "DirectRenderPipeline: tone mapping in each material, straight to the canvas (no intermediate target, no output pass)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "direct": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "m-phone",
+   "group": "phone",
+   "change": "the phone's set together: reversed depth, 3 window lights, half textures let go; MSAA, half floats and the usual pipeline kept",
+   "set": {
+    "instanced": true,
+    "textures": "half",
+    "rect_lights": 3,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "depth": "reversed",
+    "tex_drop": true
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2"
+   ]
+  },
+  {
+   "id": "still-every",
+   "group": "phone",
+   "change": "standing still, a fire flickering in view, every display tick drawn (60 Hz emulated): a page with no render-on-change",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "every"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "still-change",
+   "group": "phone",
+   "change": "standing still, the fire steady: drawn only on change (nothing changes)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "change"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "still-flicker16",
+   "group": "phone",
+   "change": "standing still, the fire flickering, redrawn at most every 62.5 ms (the manor's cap)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "flicker16"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  },
+  {
+   "id": "still-flicker60",
+   "group": "phone",
+   "change": "standing still, the fire flickering, redrawn on every change (each tick)",
+   "set": {
+    "instanced": true,
+    "textures": "full",
+    "rect_lights": 8,
+    "msaa": true,
+    "tonemap": true,
+    "far": true,
+    "still": "flicker60"
+   },
+   "engines": [
+    "three-webgpu",
+    "three-webgl2",
+    "godot-web"
+   ]
+  }
+ ]
+}

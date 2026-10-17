@@ -1,0 +1,96 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "table-conference",
+ "noun": "conference table",
+ "dims_m": {
+  "h": 0.75,
+  "w": 3.0,
+  "d": 1.2
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   4.488,
+   0.75,
+   1.496
+  ],
+  "source_faces": 640
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/table-conference/model.glb",
+  "triangles": 640,
+  "bbox_min": [
+   -2.2440152168273926,
+   0.0,
+   -0.7480050325393677
+  ],
+  "bbox_max": [
+   2.2440152168273926,
+   0.75,
+   0.7480050325393677
+  ],
+  "size": [
+   4.488030433654785,
+   0.75,
+   1.4960100650787354
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.496,
+  "images": 4,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/table-conference/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 16,
+  "size_m": [
+   4.488,
+   0.75,
+   1.496
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 4,
+  "faces": 640
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "1ba845e95a964809a9437c2a92ac59ab",
+  "name": "Conference Table - rectangular 6m",
+  "author": "MozillaHubs",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-1ba845e95a964809a9437c2a92ac59ab",
+  "query": "conference table",
+  "must": "table",
+  "avoid": "room,scene,set,office,chairs",
+  "pick": 0,
+  "candidates": 6,
+  "hits": 24
+ },
+ "timings_s": {
+  "search": 0.3,
+  "map": 1.1,
+  "download": 5.5,
+  "stand": 2.2,
+  "gate": 0.0,
+  "request_to_library": 9.1
+ }
+}

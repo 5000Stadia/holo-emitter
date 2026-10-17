@@ -1,0 +1,92 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "desk-manager",
+ "noun": "executive desk wood",
+ "dims_m": {
+  "h": 0.76,
+  "w": 1.8,
+  "d": 0.9
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   2.125,
+   0.76,
+   1.948
+  ],
+  "source_faces": 710
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/desk-manager/model.glb",
+  "triangles": 710,
+  "bbox_min": [
+   -1.062293291091919,
+   0.0,
+   -0.9737688899040222
+  ],
+  "bbox_max": [
+   1.062293291091919,
+   0.7599999904632568,
+   0.9737688899040222
+  ],
+  "size": [
+   2.124586582183838,
+   0.7599999904632568,
+   1.9475377798080444
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.67,
+  "images": 2,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/desk-manager/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 48,
+  "size_m": [
+   2.125,
+   0.76,
+   1.948
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "+z",
+    "-x"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 2,
+  "faces": 710
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "395c6e2b13bc4e8fab28ba430dd2a3ed",
+  "name": "Modern Wood Executive Desk",
+  "author": "JohnnyP",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-395c6e2b13bc4e8fab28ba430dd2a3ed",
+  "query": "executive desk wood",
+  "pick": 0,
+  "candidates": 1,
+  "hits": 5
+ },
+ "timings_s": {
+  "search": 0.5,
+  "map": 1.2,
+  "download": 3.2,
+  "stand": 1.2,
+  "gate": 0.0,
+  "request_to_library": 6.1
+ }
+}

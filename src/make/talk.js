@@ -1,0 +1,123 @@
+// Questioning a suspect (M7, R57; design/case/family-read.md §5, after epistemic-projector's answer states and
+// construct's reveal gates): what a person does when asked about a topic, decided in code from their own frame and
+// what the player has learned and holds; never from a model. A model, if there is one, only voices the result and may
+// state only the facts handed to it (the truth check). With no model, the case's own written lines are said.
+//   topicsFor(kase, who, frame) -> [{ id, label, words?, dry?, retired? }]   what can be raised with them now
+//     dry: asking it now would give nothing new (no unlearned clue of theirs on it whose gate asking or pressing opens with
+//     what is held and learned now, and their claim on it already heard); retired: every clue on it, from anyone, is
+//     learned, and they have no unbroken lie on it (Heaven's Vault: a question leaves everyone once answered anywhere).
+//     Neither says anything of the future: a dry topic wakes when something learned opens a gate on it.
+//   answer(kase, who, { topic, stance, shown }, frame) -> { act, facts: [{ id, text }], line, learned: [clue ids], yielded? }
+//     act: tell | deflect | refuse | lie | dontknow | guarded (a tell with `again`: what they told already, said again,
+//     "As I told your Worship: …"; a tell whose truth undoes a lie of theirs carries `yielded`, the lie set aside); frame: { learned: Set, holding: Set, said: [],
+//     yielded: Set (claims broken, which stay broken), guarded: Map (who -> turns they stay closed up) }
+//   shown: the clue or thing put before them; a lie breaks only when it is one of the lie's own breakers; anything else
+//   shown against a lie makes them close up for a few turns (Ace Attorney's press and present, without a penalty meter)
+import { cluesOf } from "./case.js";
+
+const arr = (x) => (x == null ? [] : Array.isArray(x) ? x : [x]);
+const opens = (gate, frame, stance) => { const r = gate?.requires || {};
+  return (!gate?.stance || arr(gate.stance).includes(stance)) && arr(r.learned).every(l => frame.learned.has(l)) && arr(r.holding).every(h => frame.holding.has(h)); };
+const textOf = (f) => typeof f === "string" ? f : f?.text || (Array.isArray(f) ? f.join(" ") : JSON.stringify(f));
+
+export const gateOpen = opens;
+export function topicsFor(k, who, frame) {
+  const p = arr(k.cast).find(c => c.id === who); if (!p) return [];
+  const out = new Map(), general = new Map(arr(k.topics).map(t => [t.id, t])), learned = frame.learned || new Set();
+  const open = (t) => !t?.after || learned.has(t.after);
+  const named = (id) => id.startsWith("person:") ? arr(k.cast).find(c => `person:${c.id}` === id)?.name : null;
+  // the case's general topics (the deceased, where were you, the land sale …), then each of this person's clues' and claims'
+  // topics (a topic carries its own words for reading your questions; one marked `after` opens once its clue is learned)
+  for (const t of arr(k.topics)) if (open(t)) out.set(t.id, { id: t.id, label: t.label || t.id, words: t.words });
+  const add = (id) => { if (!id || out.has(id)) return; const t = general.get(id); if (t && !open(t)) return;
+    out.set(id, { id, label: t?.label || named(id) || id.replace(/_/g, " "), ...(t?.words ? { words: t.words } : {}) }); };
+  for (const c of arr(p.clues)) add(c.gate?.topic || c.topic);
+  for (const c of arr(p.claims)) add(c.topic);
+  // and each other person, by name ("what of Master Hale?")
+  for (const q of arr(k.cast)) if (q.id !== who && !out.has(`person:${q.id}`)) out.set(`person:${q.id}`, { id: `person:${q.id}`, label: q.name });
+  for (const t of out.values()) { const w = wellOf(k, p, t.id, frame); if (w.dry) t.dry = true; if (w.retired) t.retired = true; if (w.press) t.press = true; }
+  return [...out.values()];
+}
+// is the well dry: what asking or pressing on a topic now would give them (see topicsFor)
+const topicOf = (c) => c.gate?.topic || c.topic;
+function wellOf(k, p, topic, frame) {
+  const learned = frame.learned || new Set(), f = { learned, holding: frame.holding || new Set() };
+  const asking = (c) => { const st = c.gate?.stance; return (st ? arr(st).filter(s => s === "ask" || s === "press") : ["ask"]).some(s => opens(c.gate, f, s)); };
+  const live = arr(p.clues).some(c => topicOf(c) === topic && !learned.has(c.id) && asking(c));
+  const claim = arr(p.claims).find(c => c.topic === topic);
+  const heard = arr(frame.said).some(s => s.who === p.id && s.topic === topic && s.act !== "guarded");
+  const dry = !live && (!claim || heard);
+  const all = arr(k.cast).flatMap(c => arr(c.clues)).filter(c => topicOf(c) === topic && !arr(c.gate?.stance).includes("accuse"));
+  const lie = arr(p.claims).some(c => c.topic === topic && c.false && !frame.yielded?.has(c.id) && !ownedUp(p, c, learned));
+  // (asked once, and what's left on it opens only to Press: the chip says so, since Ask repeats the old answer word for word;
+  // a naive player asked three times and moved on)
+  const press = heard && arr(p.clues).some(c => topicOf(c) === topic && !learned.has(c.id) && !opens(c.gate, f, "ask") && opens(c.gate, f, "press"));
+  return { dry, press, retired: dry && all.length > 0 && all.every(c => learned.has(c.id)) && !lie };
+}
+
+// a lie they have themselves given up: a clue of theirs that undoes it has been learned from them (one the claim lists as
+// breaking or contradicting it, or one on the claim's own matter that had to be pressed, shown or accused out of them and
+// is not itself a lie: Francis's buttery at a quarter past eleven sets aside both "abed by eleven" and "cut at supper")
+const wrung = (c) => { const st = arr(c.gate?.stance); return st.length > 0 && !st.includes("ask") && c.effect !== "false"; };
+export function ownedUp(p, claim, learned) {
+  if (!claim?.false) return false;
+  const undo = new Set([...arr(claim.broken_by || claim.debunked_by), ...arr(claim.contradicted_by)]);
+  return arr(p.clues).some(c => learned.has(c.id) && c.effect !== "false" && (undo.has(c.id) || (topicOf(c) === claim.topic && wrung(c))));
+}
+// "as I told you", in the person's own address (the case may give it: `again`; else read from their own lines)
+function again(p) {
+  if (p.again) return p.again;
+  const own = [p.dontknow, p.deflect, p.guarded].filter(Boolean).join(" ");
+  return /your worship/i.test(own) ? "As I told your Worship:" : /\bmadam\b/i.test(own) ? "As I told you, madam:" : /\bsir\b/i.test(own) ? "As I told you, sir:" : "As I told you:";
+}
+
+// a lie set aside, and its yield said: any other lie of theirs denying the truth that yield admits goes with it (Francis's
+// "not abed: I was in the buttery past eleven" sets aside "cut at supper" too; the case's says_until lists it as yielded)
+function setAside(p, claim, frame) {
+  frame.yielded.add(claim.id);
+  if (claim.yield_fact) for (const o of arr(p.claims)) if (o.false && o.id !== claim.id && o.contradicts === claim.yield_fact) frame.yielded.add(o.id);
+}
+
+export const GUARD_TURNS = 3;
+export function answer(k, who, { topic, stance = "ask", shown = null }, frame) {
+  const p = arr(k.cast).find(c => c.id === who); if (!p) return { act: "dontknow", facts: [], line: "", learned: [] };
+  frame.yielded ||= new Set(); frame.guarded ||= new Map();
+  // closed up after a wrong thing was put to them: a turn passes with every question while it lasts
+  const g = frame.guarded.get(who) || 0; if (g > 0) { frame.guarded.set(who, g - 1); return { act: "guarded", facts: [], line: p.guarded || "", learned: [] }; }
+  // a clue of theirs on this topic, its gate open: they tell it (the truth, a fact from their frame)
+  const mine = arr(p.clues).filter(c => (c.gate?.topic || c.topic) === topic);
+  const told = mine.filter(c => !frame.learned.has(c.id) && opens(c.gate, frame, stance));
+  if (told.length) {
+    // a truth that undoes a lie of theirs sets the lie aside (it is caught, as if shown), so they don't go back to it
+    const learnedNow = new Set([...frame.learned, ...told.map(c => c.id)]);
+    const undone = arr(p.claims).filter(c => c.false && !frame.yielded.has(c.id) && ownedUp(p, c, learnedNow)).map(c => c.id);
+    for (const id of undone) frame.yielded.add(id);
+    return { act: "tell", facts: told.map(c => ({ id: c.id, text: textOf(c.fact || c.text) })), line: told.map(c => c.hook || textOf(c.fact)).join(" "), learned: told.map(c => c.id), ...(undone.length ? { yielded: undone[0] } : {}) }; }
+  // a claim on this topic (what they'll say, true or not): its lie stands until a clue that debunks it is shown
+  const claim = arr(p.claims).find(c => c.topic === topic);
+  if (claim) { const breakers = arr(claim.broken_by || claim.debunked_by);
+    // broken once, broken for good: asked again they give what they gave when caught
+    if (claim.false && !frame.yielded.has(claim.id) && ownedUp(p, claim, frame.learned)) setAside(p, claim, frame);
+    if (claim.false && frame.yielded.has(claim.id)) return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [] };
+    if (claim.false && stance === "show" && shown && breakers.includes(shown) && (frame.learned.has(shown) || frame.holding.has(shown))) {
+      setAside(p, claim, frame); return { act: "refuse", facts: [], line: claim.yield || claim.when_broken || "", learned: [], yielded: claim.id }; }
+    if (claim.false && stance === "show" && shown) { frame.guarded.set(who, GUARD_TURNS); return { act: "guarded", facts: [], line: p.guarded || claim.line || "", learned: [] }; }
+    if (claim.false) return { act: "lie", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] };
+    return { act: "tell", facts: [{ id: claim.id, text: textOf(claim.fact || claim.text) }], line: claim.line || textOf(claim.fact), learned: [] }; }
+  // a clue they hold but its gate is shut: they deflect (press, or bring what the gate wants)
+  if (mine.length) { const c = mine.find(c => !frame.learned.has(c.id)); if (c) return { act: "deflect", facts: [], line: c.deflect || p.deflect || "", learned: [] }; }
+  // all they know of it already told: they say it again (never "I know nothing of that" of what they told you)
+  const said = mine.filter(c => frame.learned.has(c.id) && !arr(c.gate?.stance).includes("accuse"));
+  if (said.length) { const c = said.at(-1);
+    return { act: "tell", facts: [{ id: c.id, text: textOf(c.fact || c.text) }], line: /^as i (told|said)/i.test(c.hook || "") ? c.hook : `${again(p)} ${c.hook || textOf(c.fact)}`, learned: [], again: true }; }
+  // nothing in their frame on it
+  return { act: "dontknow", facts: [], line: p.dontknow || "", learned: [] };
+}
+
+// the truth check (decision 7b, pre-approved in principle): a voiced line may use only the facts handed to it; any
+// entity it names must be in those facts, the person's own voice note, the player's words, or what the player knows
+export function truthCheck(line, { facts, lexicon, allowed }) {
+  const named = lexicon.filter(w => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(line));
+  const ok = named.filter(w => !allowed.some(a => a.toLowerCase().includes(w.toLowerCase())) && !facts.some(f => f.text.toLowerCase().includes(w.toLowerCase())));
+  return { ok: !ok.length, strays: ok };
+}

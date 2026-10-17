@@ -1,0 +1,80 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "chair-objaverse-1",
+ "noun": "chair",
+ "dims_m": {
+  "h": 0.88,
+  "w": 0.46,
+  "d": 0.5
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "source_faces": 73696
+ },
+ "gate": {
+  "ok": false,
+  "glb": "/home/k/Projects/holo-emitter/library/chair-objaverse-1/model.glb",
+  "triangles": 73696,
+  "bbox_min": [
+   -0.1355084925889969,
+   0.0,
+   -0.16344623267650604
+  ],
+  "bbox_max": [
+   0.1355084925889969,
+   0.8799999952316284,
+   0.16344623267650604
+  ],
+  "size": [
+   0.2710169851779938,
+   0.8799999952316284,
+   0.3268924653530121
+  ],
+  "up_axis": "y",
+  "aspect_err": 0.411,
+  "images": 4,
+  "materials": 1,
+  "failures": [
+   "shape off: side/height ratios 0.31,0.37 vs declared 0.52,0.57 (err 0.41 > 0.35)"
+  ]
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/chair-objaverse-1/model.glb",
+  "tilt_corrected_deg": 0.96,
+  "support_vertices": 1628,
+  "size_m": [
+   0.271,
+   0.88,
+   0.327
+  ],
+  "lowest_1pct_spread_m": 0.0005,
+  "level_rule": "seat:0.45",
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 73696
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "objaverse-lvis",
+  "uid": "13407a0758804fc09ec4c7e51e9f9d0e",
+  "name": "Artsy Chair",
+  "license": "by",
+  "query": "art deco chair wood upholstered 1930s",
+  "rank": 0,
+  "candidates": 453,
+  "sketchfab": "https://sketchfab.com/3d-models/13407a0758804fc09ec4c7e51e9f9d0e"
+ },
+ "timings_s": {
+  "index": 0.0,
+  "annotations": 175.6,
+  "rank": 0.0,
+  "download": 5.1,
+  "stand": 4.6,
+  "gate": 0.1,
+  "request_to_library": 185.5
+ }
+}

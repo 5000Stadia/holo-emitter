@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><script src="../../src/make/assets.js?v=6dc881b8"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>People Harness</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #0e0c0a; --panel: #18150f; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a; --line: rgba(236,228,210,0.14); --brass: #c9a35c; }
+  @media (prefers-color-scheme: light) { :root:not([data-theme="dark"]) { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36,30,22,0.14); --brass: #8a6a2a; } }
+  :root[data-theme="light"] { --bg: #f3eee4; --panel: #fbf8f1; --ink: #241e16; --dim: #5e5546; --faint: #8f8574; --line: rgba(36,30,22,0.14); --brass: #8a6a2a; }
+  :root[data-theme="dark"] { --bg: #0e0c0a; --panel: #18150f; --ink: #ece4d2; --dim: #a89e88; --faint: #6f675a; --line: rgba(236,228,210,0.14); --brass: #c9a35c; }
+  * { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 13px/1.55 "IBM Plex Mono", ui-monospace, monospace; }
+  main { max-width: 900px; margin: 0 auto; padding: 28px 16px 56px; }
+  h1 { font: 600 36px/1.1 "Cormorant Garamond", Georgia, serif; margin: 0 0 8px; }
+  h2 { font: 500 12px/1 inherit; text-transform: uppercase; letter-spacing: .14em; color: var(--brass); margin: 30px 0 12px; }
+  p, li { color: var(--dim); max-width: 78ch; } b, code { color: var(--ink); font-weight: 500; } code { font: inherit; }
+  .runs { display: grid; gap: 10px; }
+  .runs a { display: block; padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); color: var(--ink); text-decoration: none; }
+  .runs a:hover { border-color: var(--brass); } .runs span { display: block; color: var(--dim); font-size: 12px; margin-top: 3px; }
+  form { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; } input, select, button { font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 4px; padding: 6px 8px; }
+  input[name=module] { flex: 1 1 260px; min-width: 0; } button { cursor: pointer; border-color: var(--brass); }
+  @media (max-width: 700px) { h1 { font-size: 28px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>People in our rooms</h1>
+  <p>The harness for Photonic's people (M8, R60). It loads a population module into one of our real places. The population sits behind the interface we agreed (<code>design/people/photonic-brief.md</code> §3), and our checks run on every person in it.</p>
+  <p>Until Photonic's modules drop into <code>src/people/</code>, the reference population stands in: capsules with a nose to show which way they face. It walks our routes under our walking rules and steps aside for others and for you.</p>
+
+  <h2>Set-ups</h2>
+  <div class="runs">
+    <a href="../manor/?plan=alice-hall&people=reference&crowd=6">Alice's hall, 6 people<span>One room, built in about 0.2 s. The plainest place to watch a person walk, stop and turn.</span></a>
+    <a href="../manor/?plan=banqueting&people=reference&crowd=20">The banqueting house, 20 people<span>An octagon with furniture: routes round tables and chairs, and through a lobby door.</span></a>
+    <a href="../manor/?people=reference&crowd=300">The manor, 300 walking<span>The ground floor, every door open. The budget: 300 people walking on a phone, frame time measured.</span></a>
+    <a href="../manor/?people=reference&crowd=300&share=0.25">The manor, 300 at a quarter share<span>A phone's subset: only people whose fixed rank is under 0.25 are drawn (engine principle 1).</span></a>
+  </div>
+
+  <h2>Your module</h2>
+  <form id="f">
+    <input name="module" value="reference" aria-label="population module: a name in src/people/ or a path">
+    <select name="place" aria-label="place"><option value="plan=alice-hall">Alice's hall</option><option value="plan=banqueting">banqueting house</option><option value="">the manor</option></select>
+    <input name="crowd" type="number" min="0" max="2000" value="20" style="width:6em" aria-label="crowd size">
+    <button>Open</button>
+  </form>
+  <p>A name loads <code>src/people/&lt;name&gt;.js</code>; a path (with a slash) loads that file. The module exports <code>makePeople(THREE, { ctx })</code>.</p>
+
+  <h2>What the page gives a population</h2>
+  <ul>
+    <li><b>ctx.walk</b>: <code>floorOf(h)</code> and <code>walkFor(half)</code>, our walker for a body of that half-width (<code>src/make/walk.js</code>). <code>src/people/route.js</code> finds routes with it (<code>seek</code> runs in slices within a frame's budget) and maps where can be reached (<code>regions</code>).</li>
+    <li><b>ctx.claims</b>: the house's claim grid with a moving-bodies layer (<code>src/people/bodies.js</code>): <code>hold</code>, <code>release</code>, <code>bodyAt</code>, <code>doorAt</code>. Your own walk reads it too.</li>
+    <li><b>ctx.place.roomAt</b>, <b>ctx.works</b> (the same calls the player makes), <b>ctx.device.share</b> (<code>?share=</code>).</li>
+    <li><b>From the page:</b> <code>show(rooms)</code> as rooms come into view; <code>hit</code> for aiming, weighed against things by distance; <code>tick</code> every frame.</li>
+  </ul>
+
+  <h2>Checks</h2>
+  <p>In the page's console, <code>__peopleCheck()</code> lists every finding (<code>src/people/checks.js</code>):</p>
+  <ul>
+    <li><b>inside:</b> standing where the house refuses a body that wide;</li>
+    <li><b>floats</b> or <b>sinks:</b> more than 2 cm off the floor;</li>
+    <li><b>door:</b> standing in a doorway the person doesn't fit;</li>
+    <li><b>overlap:</b> two bodies, or a body and you, in one place.</li>
+  </ul>
+  <p>The suite runs the checks on every set-up (<code>tests/playwright/people.spec.mjs</code>). <code>__peopleLog</code> holds the last 400 events.</p>
+</main>
+<script>
+  document.getElementById("f").addEventListener("submit", (e) => { e.preventDefault(); const d = new FormData(e.target), q = new URLSearchParams();
+    if (d.get("place")) { const [k, v] = d.get("place").split("="); q.set(k, v); } q.set("people", d.get("module") || "reference"); q.set("crowd", d.get("crowd") || "0");
+    location.href = `../manor/?${q}`; });
+</script>
+</body>
+</html>

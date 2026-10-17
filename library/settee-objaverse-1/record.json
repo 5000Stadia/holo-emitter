@@ -1,0 +1,90 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "settee-objaverse-1",
+ "noun": "sofa",
+ "dims_m": {
+  "h": 0.85,
+  "w": 1.6,
+  "d": 0.85
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "source_faces": 190284,
+  "size_m": [
+   2.804,
+   0.85,
+   2.191
+  ]
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/settee-objaverse-1/model.glb",
+  "triangles": 190284,
+  "bbox_min": [
+   -1.401822805404663,
+   0.0,
+   -1.0956289768218994
+  ],
+  "bbox_max": [
+   1.401822805404663,
+   0.8500000238418579,
+   1.0956289768218994
+  ],
+  "size": [
+   2.803645610809326,
+   0.8500000238418579,
+   2.191257953643799
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.612,
+  "images": 0,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/settee-objaverse-1/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 433,
+  "size_m": [
+   2.804,
+   0.85,
+   2.191
+  ],
+  "lowest_1pct_spread_m": 0.023,
+  "level_rule": "seat:0.45",
+  "front": "+z",
+  "wants": {
+   "ground": "seat",
+   "walls": [
+    "-z"
+   ]
+  },
+  "level_corrected_deg": null,
+  "level_surface_vertices": 0,
+  "faces": 190284
+ },
+ "level": "seat:0.45",
+ "provenance": {
+  "source": "objaverse-lvis",
+  "uid": "1a6a02daf9a84b108e437f75fdcab2f7",
+  "name": "Sofa",
+  "license": "by",
+  "query": "settee sofa art deco vintage 1930s two seater",
+  "rank": 0,
+  "candidates": 73,
+  "sketchfab": "https://sketchfab.com/3d-models/1a6a02daf9a84b108e437f75fdcab2f7"
+ },
+ "timings_s": {
+  "index": 0.0,
+  "annotations": 16.4,
+  "rank": 0.0,
+  "download": 1.1,
+  "stand": 1.5,
+  "gate": 0.0,
+  "request_to_library": 19.0
+ }
+}

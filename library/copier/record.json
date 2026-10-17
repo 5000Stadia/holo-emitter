@@ -1,0 +1,96 @@
+{
+ "schema": "library-record/mesh/0.1",
+ "id": "copier",
+ "noun": "photocopier",
+ "dims_m": {
+  "h": 1.1,
+  "w": 1.0,
+  "d": 0.7
+ },
+ "model": {
+  "kind": "glb",
+  "up": "+y",
+  "grounded": true,
+  "front": "+z",
+  "size_m": [
+   0.59,
+   1.1,
+   1.308
+  ],
+  "source_faces": 2344
+ },
+ "gate": {
+  "ok": true,
+  "glb": "/home/k/Projects/holo-emitter/library/copier/model.glb",
+  "triangles": 2344,
+  "bbox_min": [
+   -0.29493406414985657,
+   0.0,
+   -0.6539463996887207
+  ],
+  "bbox_max": [
+   0.29493406414985657,
+   1.100000023841858,
+   0.6539463996887207
+  ],
+  "size": [
+   0.5898681282997131,
+   1.100000023841858,
+   1.3078927993774414
+  ],
+  "up_axis": "z",
+  "aspect_err": 0.291,
+  "images": 2,
+  "materials": 1,
+  "failures": []
+ },
+ "grounding": {
+  "ok": true,
+  "out": "/home/k/Projects/holo-emitter/library/copier/model.glb",
+  "tilt_corrected_deg": 0.0,
+  "support_vertices": 16,
+  "size_m": [
+   0.59,
+   1.1,
+   1.308
+  ],
+  "lowest_1pct_spread_m": 0.0,
+  "level_rule": "top",
+  "front": null,
+  "wants": {
+   "ground": "top",
+   "walls": [
+    "-z",
+    "+z",
+    "-x",
+    "+x"
+   ]
+  },
+  "level_corrected_deg": 0.0,
+  "level_surface_vertices": 34,
+  "faces": 2344
+ },
+ "level": "top",
+ "provenance": {
+  "source": "sketchfab-search \u2192 objaverse-mirror",
+  "uid": "3d9bd04e9e8e497c9bb51d5d326f1cbe",
+  "name": "Old Copier",
+  "author": "sookendestroy1",
+  "license": "CC Attribution",
+  "url": "https://sketchfab.com/3d-models/none-3d9bd04e9e8e497c9bb51d5d326f1cbe",
+  "query": "photocopier",
+  "must": "",
+  "avoid": "room,scene",
+  "pick": 0,
+  "candidates": 1,
+  "hits": 3
+ },
+ "timings_s": {
+  "search": 1.1,
+  "map": 1.1,
+  "download": 4.1,
+  "stand": 0.9,
+  "gate": 0.0,
+  "request_to_library": 7.3
+ }
+}

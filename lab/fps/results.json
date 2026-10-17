@@ -1,0 +1,7105 @@
+{
+ "runs": {
+  "three-webgpu|base": {
+   "engine": "three-webgpu",
+   "case": "base",
+   "fps": 148.5,
+   "mean_ms": 6.73,
+   "p99_ms": 7.9,
+   "frames": 892,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:00.970Z"
+  },
+  "three-webgpu|instanced": {
+   "engine": "three-webgpu",
+   "case": "instanced",
+   "fps": 1397.1,
+   "mean_ms": 0.72,
+   "p99_ms": 1.3,
+   "frames": 8390,
+   "draws": 3,
+   "triangles": 352013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:09.783Z"
+  },
+  "three-webgpu|physics-500": {
+   "engine": "three-webgpu",
+   "case": "physics-500",
+   "fps": 1204,
+   "mean_ms": 0.83,
+   "p99_ms": 5.9,
+   "frames": 7225,
+   "draws": 3,
+   "triangles": 6013,
+   "physics_ms": 3.09,
+   "at": "2026-10-06T06:16:29.908Z"
+  },
+  "three-webgpu|objects-10k": {
+   "engine": "three-webgpu",
+   "case": "objects-10k",
+   "fps": 11.6,
+   "mean_ms": 85.91,
+   "p99_ms": 110.4,
+   "frames": 71,
+   "draws": 8768,
+   "triangles": 3085645,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:19.072Z"
+  },
+  "three-webgpu|objects-10k-instanced": {
+   "engine": "three-webgpu",
+   "case": "objects-10k-instanced",
+   "fps": 332.2,
+   "mean_ms": 3.01,
+   "p99_ms": 5.8,
+   "frames": 1995,
+   "draws": 3,
+   "triangles": 3520013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:28.808Z"
+  },
+  "three-webgpu|tris-5.8M": {
+   "engine": "three-webgpu",
+   "case": "tris-5.8M",
+   "fps": 234.4,
+   "mean_ms": 4.27,
+   "p99_ms": 6.2,
+   "frames": 1408,
+   "draws": 3,
+   "triangles": 5632013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:37.364Z"
+  },
+  "three-webgpu|tris-23M": {
+   "engine": "three-webgpu",
+   "case": "tris-23M",
+   "fps": 66.1,
+   "mean_ms": 15.13,
+   "p99_ms": 18.8,
+   "frames": 397,
+   "draws": 3,
+   "triangles": 22528013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:45.955Z"
+  },
+  "three-webgpu|lights-8": {
+   "engine": "three-webgpu",
+   "case": "lights-8",
+   "fps": 141.4,
+   "mean_ms": 7.07,
+   "p99_ms": 9.2,
+   "frames": 850,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:14:54.754Z"
+  },
+  "three-webgpu|lights-32": {
+   "engine": "three-webgpu",
+   "case": "lights-32",
+   "fps": 146.6,
+   "mean_ms": 6.82,
+   "p99_ms": 8.4,
+   "frames": 881,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:58.851Z"
+  },
+  "three-webgpu|shadows-2048": {
+   "engine": "three-webgpu",
+   "case": "shadows-2048",
+   "fps": 85.9,
+   "mean_ms": 11.64,
+   "p99_ms": 13.2,
+   "frames": 516,
+   "draws": 1874,
+   "triangles": 658957,
+   "physics_ms": null,
+   "at": "2026-10-06T06:15:11.786Z"
+  },
+  "three-webgpu|shadows-4096": {
+   "engine": "three-webgpu",
+   "case": "shadows-4096",
+   "fps": 83.1,
+   "mean_ms": 12.03,
+   "p99_ms": 17.4,
+   "frames": 499,
+   "draws": 1874,
+   "triangles": 658957,
+   "physics_ms": null,
+   "at": "2026-10-06T06:15:20.450Z"
+  },
+  "three-webgpu|material-basic": {
+   "engine": "three-webgpu",
+   "case": "material-basic",
+   "fps": 235.7,
+   "mean_ms": 4.24,
+   "p99_ms": 6.5,
+   "frames": 1416,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:15:29.934Z"
+  },
+  "three-webgpu|material-lambert": {
+   "engine": "three-webgpu",
+   "case": "material-lambert",
+   "fps": 141.8,
+   "mean_ms": 7.05,
+   "p99_ms": 7.8,
+   "frames": 852,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:15:39.707Z"
+  },
+  "three-webgpu|material-physical": {
+   "engine": "three-webgpu",
+   "case": "material-physical",
+   "fps": 88.6,
+   "mean_ms": 11.28,
+   "p99_ms": 15.3,
+   "frames": 532,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:15:49.699Z"
+  },
+  "three-webgpu|msaa": {
+   "engine": "three-webgpu",
+   "case": "msaa",
+   "fps": 150,
+   "mean_ms": 6.67,
+   "p99_ms": 7.8,
+   "frames": 901,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:15:59.388Z"
+  },
+  "three-webgpu|post-ao": {
+   "engine": "three-webgpu",
+   "case": "post-ao",
+   "fps": 149.6,
+   "mean_ms": 6.68,
+   "p99_ms": 8,
+   "frames": 899,
+   "draws": 878,
+   "triangles": 308014,
+   "physics_ms": null,
+   "at": "2026-10-06T06:16:08.555Z"
+  },
+  "three-webgpu|post-bloom": {
+   "engine": "three-webgpu",
+   "case": "post-bloom",
+   "fps": 133.9,
+   "mean_ms": 7.47,
+   "p99_ms": 9.7,
+   "frames": 804,
+   "draws": 889,
+   "triangles": 308025,
+   "physics_ms": null,
+   "at": "2026-10-06T06:16:18.754Z"
+  },
+  "three-webgpu|physics-2000": {
+   "engine": "three-webgpu",
+   "case": "physics-2000",
+   "fps": 320.9,
+   "mean_ms": 3.12,
+   "p99_ms": 16.7,
+   "frames": 1929,
+   "draws": 3,
+   "triangles": 24013,
+   "physics_ms": 6.5,
+   "at": "2026-10-06T06:16:40.688Z"
+  },
+  "three-webgl2|base": {
+   "engine": "three-webgl2",
+   "case": "base",
+   "fps": 135,
+   "mean_ms": 7.41,
+   "p99_ms": 9.9,
+   "frames": 811,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:16:50.850Z"
+  },
+  "three-webgl2|instanced": {
+   "engine": "three-webgl2",
+   "case": "instanced",
+   "fps": 1388.2,
+   "mean_ms": 0.72,
+   "p99_ms": 1.7,
+   "frames": 8330,
+   "draws": 3,
+   "triangles": 352013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:17:01.091Z"
+  },
+  "three-webgl2|objects-10k": {
+   "engine": "three-webgl2",
+   "case": "objects-10k",
+   "fps": 11.4,
+   "mean_ms": 87.99,
+   "p99_ms": 92.1,
+   "frames": 69,
+   "draws": 8776,
+   "triangles": 3088461,
+   "physics_ms": null,
+   "at": "2026-10-06T06:17:11.439Z"
+  },
+  "three-webgl2|objects-10k-instanced": {
+   "engine": "three-webgl2",
+   "case": "objects-10k-instanced",
+   "fps": 339.6,
+   "mean_ms": 2.94,
+   "p99_ms": 8.5,
+   "frames": 2038,
+   "draws": 3,
+   "triangles": 3520013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:17:20.255Z"
+  },
+  "three-webgl2|tris-5.8M": {
+   "engine": "three-webgl2",
+   "case": "tris-5.8M",
+   "fps": 202.5,
+   "mean_ms": 4.94,
+   "p99_ms": 18.5,
+   "frames": 1216,
+   "draws": 3,
+   "triangles": 5632013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:17:30.782Z"
+  },
+  "three-webgl2|tris-23M": {
+   "engine": "three-webgl2",
+   "case": "tris-23M",
+   "fps": 66,
+   "mean_ms": 15.16,
+   "p99_ms": 45.3,
+   "frames": 398,
+   "draws": 3,
+   "triangles": 22528013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:17:39.585Z"
+  },
+  "three-webgl2|lights-8": {
+   "engine": "three-webgl2",
+   "case": "lights-8",
+   "fps": 131.2,
+   "mean_ms": 7.62,
+   "p99_ms": 9.4,
+   "frames": 788,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:17:48.518Z"
+  },
+  "three-webgl2|lights-32": {
+   "engine": "three-webgl2",
+   "case": "lights-32",
+   "fps": 135.1,
+   "mean_ms": 7.4,
+   "p99_ms": 10.3,
+   "frames": 811,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:59.171Z"
+  },
+  "three-webgl2|shadows-2048": {
+   "engine": "three-webgl2",
+   "case": "shadows-2048",
+   "fps": 81.6,
+   "mean_ms": 12.25,
+   "p99_ms": 13.8,
+   "frames": 491,
+   "draws": 1874,
+   "triangles": 658957,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:08.364Z"
+  },
+  "three-webgl2|shadows-4096": {
+   "engine": "three-webgl2",
+   "case": "shadows-4096",
+   "fps": 81.4,
+   "mean_ms": 12.29,
+   "p99_ms": 13.7,
+   "frames": 490,
+   "draws": 1874,
+   "triangles": 658957,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:16.895Z"
+  },
+  "three-webgl2|material-basic": {
+   "engine": "three-webgl2",
+   "case": "material-basic",
+   "fps": 230.5,
+   "mean_ms": 4.34,
+   "p99_ms": 5.6,
+   "frames": 1384,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:25.418Z"
+  },
+  "three-webgl2|material-lambert": {
+   "engine": "three-webgl2",
+   "case": "material-lambert",
+   "fps": 141.7,
+   "mean_ms": 7.06,
+   "p99_ms": 8.4,
+   "frames": 851,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:33.874Z"
+  },
+  "three-webgl2|material-physical": {
+   "engine": "three-webgl2",
+   "case": "material-physical",
+   "fps": 82.1,
+   "mean_ms": 12.18,
+   "p99_ms": 14.4,
+   "frames": 493,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:42.311Z"
+  },
+  "three-webgl2|msaa": {
+   "engine": "three-webgl2",
+   "case": "msaa",
+   "fps": 138.9,
+   "mean_ms": 7.2,
+   "p99_ms": 8.9,
+   "frames": 834,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:50.820Z"
+  },
+  "three-webgl2|post-ao": {
+   "engine": "three-webgl2",
+   "case": "post-ao",
+   "fps": 132.9,
+   "mean_ms": 7.53,
+   "p99_ms": 9.5,
+   "frames": 798,
+   "draws": 878,
+   "triangles": 308014,
+   "physics_ms": null,
+   "at": "2026-10-06T06:18:59.342Z"
+  },
+  "three-webgl2|post-bloom": {
+   "engine": "three-webgl2",
+   "case": "post-bloom",
+   "fps": 127.7,
+   "mean_ms": 7.83,
+   "p99_ms": 9.8,
+   "frames": 767,
+   "draws": 889,
+   "triangles": 308025,
+   "physics_ms": null,
+   "at": "2026-10-06T06:19:07.924Z"
+  },
+  "three-webgl2|physics-500": {
+   "engine": "three-webgl2",
+   "case": "physics-500",
+   "fps": 1415.4,
+   "mean_ms": 0.71,
+   "p99_ms": 5.6,
+   "frames": 8493,
+   "draws": 3,
+   "triangles": 6013,
+   "physics_ms": 3.05,
+   "at": "2026-10-06T06:19:16.727Z"
+  },
+  "three-webgl2|physics-2000": {
+   "engine": "three-webgl2",
+   "case": "physics-2000",
+   "fps": 368.1,
+   "mean_ms": 2.72,
+   "p99_ms": 16.5,
+   "frames": 2213,
+   "draws": 3,
+   "triangles": 24013,
+   "physics_ms": 6.47,
+   "at": "2026-10-06T06:19:25.445Z"
+  },
+  "godot-web|base": {
+   "case": "base",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 217.2,
+   "frames": 1305,
+   "mean_ms": 4.6,
+   "p99_ms": 6.9,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:20:02.961Z"
+  },
+  "godot-web|instanced": {
+   "case": "instanced",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 978.7,
+   "frames": 5874,
+   "mean_ms": 1.02,
+   "p99_ms": 1.6,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 384012,
+   "at": "2026-10-06T06:20:12.326Z"
+  },
+  "godot-web|objects-10k": {
+   "case": "objects-10k",
+   "draws": 8837,
+   "engine": "godot-web",
+   "fps": 24.3,
+   "frames": 147,
+   "mean_ms": 41.17,
+   "p99_ms": 43.5,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 3393036,
+   "at": "2026-10-06T06:20:22.289Z"
+  },
+  "godot-web|objects-10k-instanced": {
+   "case": "objects-10k-instanced",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 230.6,
+   "frames": 1384,
+   "mean_ms": 4.34,
+   "p99_ms": 4.8,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 3840012,
+   "at": "2026-10-06T06:20:31.596Z"
+  },
+  "godot-web|tris-5.8M": {
+   "case": "tris-5.8M",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 156.2,
+   "frames": 938,
+   "mean_ms": 6.4,
+   "p99_ms": 8.3,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 5760012,
+   "at": "2026-10-06T06:20:40.971Z"
+  },
+  "godot-web|tris-23M": {
+   "case": "tris-23M",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 43.9,
+   "frames": 264,
+   "mean_ms": 22.76,
+   "p99_ms": 27.4,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 23040012,
+   "at": "2026-10-06T06:20:50.426Z"
+  },
+  "godot-web|lights-8": {
+   "case": "lights-8",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 185.1,
+   "frames": 1111,
+   "mean_ms": 5.4,
+   "p99_ms": 7,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:21:00.162Z"
+  },
+  "godot-web|lights-32": {
+   "case": "lights-32",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 194,
+   "frames": 1165,
+   "mean_ms": 5.15,
+   "p99_ms": 7.6,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T08:34:18.163Z"
+  },
+  "godot-web|shadows-2048": {
+   "case": "shadows-2048",
+   "draws": 1824,
+   "engine": "godot-web",
+   "fps": 169.6,
+   "frames": 1018,
+   "mean_ms": 5.9,
+   "p99_ms": 6.9,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 699672,
+   "at": "2026-10-06T06:21:18.889Z"
+  },
+  "godot-web|shadows-4096": {
+   "case": "shadows-4096",
+   "draws": 1824,
+   "engine": "godot-web",
+   "fps": 169.3,
+   "frames": 1017,
+   "mean_ms": 5.91,
+   "p99_ms": 7.5,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 699672,
+   "at": "2026-10-06T06:21:28.260Z"
+  },
+  "godot-web|material-basic": {
+   "case": "material-basic",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 220.6,
+   "frames": 1324,
+   "mean_ms": 4.53,
+   "p99_ms": 5.8,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:21:37.625Z"
+  },
+  "godot-web|material-lambert": {
+   "case": "material-lambert",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 219.2,
+   "frames": 1316,
+   "mean_ms": 4.56,
+   "p99_ms": 6.3,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:21:47.020Z"
+  },
+  "godot-web|material-physical": {
+   "case": "material-physical",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 208.3,
+   "frames": 1251,
+   "mean_ms": 4.8,
+   "p99_ms": 6.4,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:21:56.397Z"
+  },
+  "godot-web|msaa": {
+   "case": "msaa",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 211.9,
+   "frames": 1272,
+   "mean_ms": 4.72,
+   "p99_ms": 6.8,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:22:05.702Z"
+  },
+  "godot-web|post-ao": {
+   "case": "post-ao",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 198,
+   "frames": 1189,
+   "mean_ms": 5.05,
+   "p99_ms": 6.6,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:22:15.034Z"
+  },
+  "godot-web|post-bloom": {
+   "case": "post-bloom",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 212.3,
+   "frames": 1274,
+   "mean_ms": 4.71,
+   "p99_ms": 6.7,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T06:22:24.365Z"
+  },
+  "godot-web|physics-500": {
+   "case": "physics-500",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 771.7,
+   "frames": 4634,
+   "mean_ms": 1.3,
+   "p99_ms": 6.3,
+   "physics_ms": 4.74,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 6012,
+   "at": "2026-10-06T06:22:33.667Z"
+  },
+  "godot-web|physics-2000": {
+   "case": "physics-2000",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 335.5,
+   "frames": 2050,
+   "mean_ms": 2.98,
+   "p99_ms": 17.9,
+   "physics_ms": 8.21,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 24012,
+   "at": "2026-10-06T06:22:43.238Z"
+  },
+  "three-webgpu|street-5k": {
+   "engine": "three-webgpu",
+   "case": "street-5k",
+   "fps": 23.3,
+   "mean_ms": 42.98,
+   "p99_ms": 45.7,
+   "frames": 141,
+   "draws": 4389,
+   "triangles": 224173,
+   "physics_ms": null,
+   "at": "2026-10-06T08:03:42.409Z"
+  },
+  "three-webgpu|street-5k-batched": {
+   "engine": "three-webgpu",
+   "case": "street-5k-batched",
+   "fps": 352.4,
+   "mean_ms": 2.84,
+   "p99_ms": 3.3,
+   "frames": 2115,
+   "draws": 4385,
+   "triangles": 224029,
+   "physics_ms": null,
+   "at": "2026-10-06T08:03:50.966Z"
+  },
+  "godot-web|street-5k": {
+   "case": "street-5k",
+   "draws": 4384,
+   "engine": "godot-web",
+   "fps": 34.8,
+   "frames": 210,
+   "mean_ms": 28.74,
+   "p99_ms": 34.8,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 260742,
+   "at": "2026-10-06T08:06:18.697Z"
+  },
+  "godot-web|street-5k-batched": {
+   "case": "street-5k-batched",
+   "draws": 51,
+   "engine": "godot-web",
+   "fps": 625.6,
+   "frames": 3754,
+   "mean_ms": 1.6,
+   "p99_ms": 2.5,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 298012,
+   "at": "2026-10-06T08:06:28.001Z"
+  },
+  "three-webgpu|shared-material": {
+   "engine": "three-webgpu",
+   "case": "shared-material",
+   "fps": 401.2,
+   "mean_ms": 2.49,
+   "p99_ms": 3.9,
+   "frames": 2408,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:02:51.158Z"
+  },
+  "three-webgpu|static-matrices": {
+   "engine": "three-webgpu",
+   "case": "static-matrices",
+   "fps": 139,
+   "mean_ms": 7.2,
+   "p99_ms": 9.3,
+   "frames": 835,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:02:59.636Z"
+  },
+  "three-webgpu|bundle": {
+   "engine": "three-webgpu",
+   "case": "bundle",
+   "fps": 1336.6,
+   "mean_ms": 0.75,
+   "p99_ms": 1.4,
+   "frames": 8020,
+   "draws": 2,
+   "triangles": 13,
+   "physics_ms": null,
+   "at": "2026-10-06T08:03:08.091Z"
+  },
+  "three-webgpu|bundle-10k": {
+   "engine": "three-webgpu",
+   "case": "bundle-10k",
+   "fps": 247,
+   "mean_ms": 4.05,
+   "p99_ms": 7.1,
+   "frames": 1483,
+   "draws": 2,
+   "triangles": 13,
+   "physics_ms": null,
+   "at": "2026-10-06T08:03:16.769Z"
+  },
+  "three-webgpu|shadows-static": {
+   "engine": "three-webgpu",
+   "case": "shadows-static",
+   "fps": 136.3,
+   "mean_ms": 7.33,
+   "p99_ms": 10.1,
+   "frames": 819,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:02.013Z"
+  },
+  "three-webgpu|shadows-big-casters": {
+   "engine": "three-webgpu",
+   "case": "shadows-big-casters",
+   "fps": 105.5,
+   "mean_ms": 9.48,
+   "p99_ms": 10.7,
+   "frames": 634,
+   "draws": 1074,
+   "triangles": 377357,
+   "physics_ms": null,
+   "at": "2026-10-06T08:03:33.818Z"
+  },
+  "three-webgpu|street-5k-instanced": {
+   "engine": "three-webgpu",
+   "case": "street-5k-instanced",
+   "fps": 1342.2,
+   "mean_ms": 0.75,
+   "p99_ms": 1.3,
+   "frames": 8056,
+   "draws": 52,
+   "triangles": 257213,
+   "physics_ms": null,
+   "at": "2026-10-06T08:03:59.501Z"
+  },
+  "three-webgpu|street-5k-bundle": {
+   "engine": "three-webgpu",
+   "case": "street-5k-bundle",
+   "fps": 329.8,
+   "mean_ms": 3.03,
+   "p99_ms": 5.7,
+   "frames": 1980,
+   "draws": 2,
+   "triangles": 13,
+   "physics_ms": null,
+   "at": "2026-10-06T08:04:08.055Z"
+  },
+  "three-webgpu|street-5k-batched-shadows": {
+   "engine": "three-webgpu",
+   "case": "street-5k-batched-shadows",
+   "fps": 120.3,
+   "mean_ms": 8.31,
+   "p99_ms": 9.6,
+   "frames": 723,
+   "draws": 9970,
+   "triangles": 512421,
+   "physics_ms": null,
+   "at": "2026-10-06T08:04:16.684Z"
+  },
+  "three-webgl2|shared-material": {
+   "engine": "three-webgl2",
+   "case": "shared-material",
+   "fps": 312,
+   "mean_ms": 3.2,
+   "p99_ms": 4.3,
+   "frames": 1873,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:04:25.073Z"
+  },
+  "three-webgl2|static-matrices": {
+   "engine": "three-webgl2",
+   "case": "static-matrices",
+   "fps": 145.7,
+   "mean_ms": 6.87,
+   "p99_ms": 8.8,
+   "frames": 875,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:04:33.515Z"
+  },
+  "three-webgl2|bundle": {
+   "engine": "three-webgl2",
+   "case": "bundle",
+   "fps": 145,
+   "mean_ms": 6.9,
+   "p99_ms": 8.9,
+   "frames": 871,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:04:42.012Z"
+  },
+  "three-webgl2|bundle-10k": {
+   "engine": "three-webgl2",
+   "case": "bundle-10k",
+   "fps": 10.9,
+   "mean_ms": 91.37,
+   "p99_ms": 107.3,
+   "frames": 67,
+   "draws": 8766,
+   "triangles": 3084941,
+   "physics_ms": null,
+   "at": "2026-10-06T08:04:50.747Z"
+  },
+  "three-webgl2|shadows-static": {
+   "engine": "three-webgl2",
+   "case": "shadows-static",
+   "fps": 130.2,
+   "mean_ms": 7.68,
+   "p99_ms": 9.4,
+   "frames": 783,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:44.404Z"
+  },
+  "three-webgl2|shadows-big-casters": {
+   "engine": "three-webgl2",
+   "case": "shadows-big-casters",
+   "fps": 106.5,
+   "mean_ms": 9.39,
+   "p99_ms": 11.4,
+   "frames": 640,
+   "draws": 1074,
+   "triangles": 377357,
+   "physics_ms": null,
+   "at": "2026-10-06T08:05:07.655Z"
+  },
+  "three-webgl2|street-5k": {
+   "engine": "three-webgl2",
+   "case": "street-5k",
+   "fps": 21.4,
+   "mean_ms": 46.67,
+   "p99_ms": 56.5,
+   "frames": 130,
+   "draws": 4391,
+   "triangles": 224217,
+   "physics_ms": null,
+   "at": "2026-10-06T08:05:16.232Z"
+  },
+  "three-webgl2|street-5k-batched": {
+   "engine": "three-webgl2",
+   "case": "street-5k-batched",
+   "fps": 427.1,
+   "mean_ms": 2.34,
+   "p99_ms": 5,
+   "frames": 2563,
+   "draws": 3,
+   "triangles": 224029,
+   "physics_ms": null,
+   "at": "2026-10-06T08:05:24.707Z"
+  },
+  "three-webgl2|street-5k-instanced": {
+   "engine": "three-webgl2",
+   "case": "street-5k-instanced",
+   "fps": 1347.4,
+   "mean_ms": 0.74,
+   "p99_ms": 1.7,
+   "frames": 8086,
+   "draws": 52,
+   "triangles": 257213,
+   "physics_ms": null,
+   "at": "2026-10-06T08:05:33.138Z"
+  },
+  "three-webgl2|street-5k-bundle": {
+   "engine": "three-webgl2",
+   "case": "street-5k-bundle",
+   "fps": 22.1,
+   "mean_ms": 45.16,
+   "p99_ms": 49.2,
+   "frames": 134,
+   "draws": 4391,
+   "triangles": 224217,
+   "physics_ms": null,
+   "at": "2026-10-06T08:05:41.801Z"
+  },
+  "three-webgl2|street-5k-batched-shadows": {
+   "engine": "three-webgl2",
+   "case": "street-5k-batched-shadows",
+   "fps": 153.4,
+   "mean_ms": 6.52,
+   "p99_ms": 7.8,
+   "frames": 921,
+   "draws": 4,
+   "triangles": 512421,
+   "physics_ms": null,
+   "at": "2026-10-06T08:05:50.215Z"
+  },
+  "godot-web|shared-material": {
+   "case": "shared-material",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 313,
+   "frames": 1879,
+   "mean_ms": 3.19,
+   "p99_ms": 5.1,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T08:05:59.632Z"
+  },
+  "godot-web|shadows-big-casters": {
+   "case": "shadows-big-casters",
+   "draws": 1071,
+   "engine": "godot-web",
+   "fps": 198.1,
+   "frames": 1190,
+   "mean_ms": 5.05,
+   "p99_ms": 7.2,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 410520,
+   "at": "2026-10-06T08:06:09.058Z"
+  },
+  "godot-web|street-5k-instanced": {
+   "case": "street-5k-instanced",
+   "draws": 51,
+   "engine": "godot-web",
+   "fps": 658.1,
+   "frames": 3950,
+   "mean_ms": 1.52,
+   "p99_ms": 2.2,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 298012,
+   "at": "2026-10-06T08:06:37.414Z"
+  },
+  "godot-web|street-5k-batched-shadows": {
+   "case": "street-5k-batched-shadows",
+   "draws": 102,
+   "engine": "godot-web",
+   "fps": 523.6,
+   "frames": 3142,
+   "mean_ms": 1.91,
+   "p99_ms": 2.7,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 596024,
+   "at": "2026-10-06T08:06:46.713Z"
+  },
+  "three-webgpu|street-5k-instanced-shadows": {
+   "engine": "three-webgpu",
+   "case": "street-5k-instanced-shadows",
+   "fps": 559.4,
+   "mean_ms": 1.79,
+   "p99_ms": 2.2,
+   "frames": 3357,
+   "draws": 102,
+   "triangles": 514413,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:10.520Z"
+  },
+  "three-webgpu|far-standard": {
+   "engine": "three-webgpu",
+   "case": "far-standard",
+   "fps": 138.4,
+   "mean_ms": 7.23,
+   "p99_ms": 8.6,
+   "frames": 831,
+   "draws": 879,
+   "triangles": 310813,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:19.090Z"
+  },
+  "three-webgpu|far-log": {
+   "engine": "three-webgpu",
+   "case": "far-log",
+   "fps": 143.5,
+   "mean_ms": 6.97,
+   "p99_ms": 7.9,
+   "frames": 862,
+   "draws": 879,
+   "triangles": 310813,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:27.559Z"
+  },
+  "three-webgpu|far-reversed": {
+   "engine": "three-webgpu",
+   "case": "far-reversed",
+   "fps": 142.1,
+   "mean_ms": 7.04,
+   "p99_ms": 8.2,
+   "frames": 854,
+   "draws": 879,
+   "triangles": 310813,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:36.013Z"
+  },
+  "three-webgl2|street-5k-instanced-shadows": {
+   "engine": "three-webgl2",
+   "case": "street-5k-instanced-shadows",
+   "fps": 559.9,
+   "mean_ms": 1.79,
+   "p99_ms": 5.3,
+   "frames": 3360,
+   "draws": 102,
+   "triangles": 514413,
+   "physics_ms": null,
+   "at": "2026-10-06T08:08:52.854Z"
+  },
+  "three-webgl2|far-standard": {
+   "engine": "three-webgl2",
+   "case": "far-standard",
+   "fps": 137.6,
+   "mean_ms": 7.27,
+   "p99_ms": 8.5,
+   "frames": 826,
+   "draws": 879,
+   "triangles": 310813,
+   "physics_ms": null,
+   "at": "2026-10-06T08:09:01.424Z"
+  },
+  "three-webgl2|far-log": {
+   "engine": "three-webgl2",
+   "case": "far-log",
+   "fps": 139.4,
+   "mean_ms": 7.17,
+   "p99_ms": 8.7,
+   "frames": 837,
+   "draws": 879,
+   "triangles": 310813,
+   "physics_ms": null,
+   "at": "2026-10-06T08:09:09.901Z"
+  },
+  "three-webgl2|far-reversed": {
+   "engine": "three-webgl2",
+   "case": "far-reversed",
+   "fps": 139.2,
+   "mean_ms": 7.18,
+   "p99_ms": 8.7,
+   "frames": 836,
+   "draws": 879,
+   "triangles": 310813,
+   "physics_ms": null,
+   "at": "2026-10-06T08:09:18.394Z"
+  },
+  "godot-web|street-5k-instanced-shadows": {
+   "case": "street-5k-instanced-shadows",
+   "draws": 102,
+   "engine": "godot-web",
+   "fps": 525.4,
+   "frames": 3154,
+   "mean_ms": 1.9,
+   "p99_ms": 2.6,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 596024,
+   "at": "2026-10-06T08:09:27.890Z"
+  },
+  "godot-web|far-standard": {
+   "case": "far-standard",
+   "draws": 885,
+   "engine": "godot-web",
+   "fps": 210.4,
+   "frames": 1263,
+   "mean_ms": 4.75,
+   "p99_ms": 6.8,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 341500,
+   "at": "2026-10-06T08:09:37.313Z"
+  },
+  "three-webgpu|candles-64": {
+   "engine": "three-webgpu",
+   "case": "candles-64",
+   "fps": 117.5,
+   "mean_ms": 8.51,
+   "p99_ms": 11.5,
+   "frames": 707,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:31:58.705Z"
+  },
+  "three-webgpu|candles-64-dynamic": {
+   "engine": "three-webgpu",
+   "case": "candles-64-dynamic",
+   "fps": 116.4,
+   "mean_ms": 8.59,
+   "p99_ms": 20.5,
+   "frames": 699,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:07.692Z"
+  },
+  "three-webgpu|candles-64-clustered": {
+   "engine": "three-webgpu",
+   "case": "candles-64-clustered",
+   "fps": 146.8,
+   "mean_ms": 6.81,
+   "p99_ms": 8.8,
+   "frames": 882,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:16.477Z"
+  },
+  "three-webgpu|post-ssao": {
+   "engine": "three-webgpu",
+   "case": "post-ssao",
+   "fps": 137.8,
+   "mean_ms": 7.26,
+   "p99_ms": 8.1,
+   "frames": 827,
+   "draws": 880,
+   "triangles": 308016,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:24.969Z"
+  },
+  "three-webgpu|scale-0.5": {
+   "engine": "three-webgpu",
+   "case": "scale-0.5",
+   "fps": 141.4,
+   "mean_ms": 7.07,
+   "p99_ms": 7.9,
+   "frames": 850,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:33.423Z"
+  },
+  "three-webgpu|scale-0.5-fsr1": {
+   "engine": "three-webgpu",
+   "case": "scale-0.5-fsr1",
+   "fps": 135.5,
+   "mean_ms": 7.38,
+   "p99_ms": 8.5,
+   "frames": 815,
+   "draws": 879,
+   "triangles": 308015,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:41.895Z"
+  },
+  "three-webgpu|scale-0.75-fsr1": {
+   "engine": "three-webgpu",
+   "case": "scale-0.75-fsr1",
+   "fps": 148.3,
+   "mean_ms": 6.75,
+   "p99_ms": 8.3,
+   "frames": 890,
+   "draws": 879,
+   "triangles": 308015,
+   "physics_ms": null,
+   "at": "2026-10-06T08:32:50.392Z"
+  },
+  "three-webgl2|candles-64": {
+   "engine": "three-webgl2",
+   "case": "candles-64",
+   "fps": 105.2,
+   "mean_ms": 9.51,
+   "p99_ms": 14.2,
+   "frames": 632,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:07.280Z"
+  },
+  "three-webgl2|candles-64-dynamic": {
+   "engine": "three-webgl2",
+   "case": "candles-64-dynamic",
+   "fps": 90.2,
+   "mean_ms": 11.09,
+   "p99_ms": 16.1,
+   "frames": 542,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:16.443Z"
+  },
+  "three-webgl2|post-ssao": {
+   "engine": "three-webgl2",
+   "case": "post-ssao",
+   "fps": 136,
+   "mean_ms": 7.35,
+   "p99_ms": 8.7,
+   "frames": 817,
+   "draws": 880,
+   "triangles": 308016,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:25.286Z"
+  },
+  "three-webgl2|scale-0.5": {
+   "engine": "three-webgl2",
+   "case": "scale-0.5",
+   "fps": 138,
+   "mean_ms": 7.25,
+   "p99_ms": 8.9,
+   "frames": 829,
+   "draws": 877,
+   "triangles": 308013,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:33.707Z"
+  },
+  "three-webgl2|scale-0.5-fsr1": {
+   "engine": "three-webgl2",
+   "case": "scale-0.5-fsr1",
+   "fps": 142.2,
+   "mean_ms": 7.03,
+   "p99_ms": 8.5,
+   "frames": 855,
+   "draws": 879,
+   "triangles": 308015,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:42.153Z"
+  },
+  "three-webgl2|scale-0.75-fsr1": {
+   "engine": "three-webgl2",
+   "case": "scale-0.75-fsr1",
+   "fps": 141.1,
+   "mean_ms": 7.08,
+   "p99_ms": 8.7,
+   "frames": 848,
+   "draws": 879,
+   "triangles": 308015,
+   "physics_ms": null,
+   "at": "2026-10-06T08:33:50.720Z"
+  },
+  "godot-web|candles-64": {
+   "case": "candles-64",
+   "draws": 883,
+   "engine": "godot-web",
+   "fps": 218.2,
+   "frames": 1310,
+   "mean_ms": 4.58,
+   "p99_ms": 6,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 338700,
+   "at": "2026-10-06T08:34:08.709Z"
+  },
+  "three-webgpu|fill": {
+   "engine": "three-webgpu",
+   "case": "fill",
+   "fps": 226.6,
+   "mean_ms": 4.41,
+   "p99_ms": 6.2,
+   "frames": 1361,
+   "draws": 6,
+   "triangles": 352016,
+   "physics_ms": null,
+   "at": "2026-10-06T08:34:41.016Z"
+  },
+  "three-webgpu|fill-scale-0.5-fsr1": {
+   "engine": "three-webgpu",
+   "case": "fill-scale-0.5-fsr1",
+   "fps": 174.1,
+   "mean_ms": 5.74,
+   "p99_ms": 7.6,
+   "frames": 1045,
+   "draws": 9,
+   "triangles": 352019,
+   "physics_ms": null,
+   "at": "2026-10-06T08:34:50.473Z"
+  },
+  "three-webgpu|fill-scale-0.7-fsr1": {
+   "engine": "three-webgpu",
+   "case": "fill-scale-0.7-fsr1",
+   "fps": 158.9,
+   "mean_ms": 6.29,
+   "p99_ms": 8.1,
+   "frames": 955,
+   "draws": 9,
+   "triangles": 352019,
+   "physics_ms": null,
+   "at": "2026-10-06T08:34:59.140Z"
+  },
+  "three-webgpu|fill-dpr1": {
+   "engine": "three-webgpu",
+   "case": "fill-dpr1",
+   "fps": 721.1,
+   "mean_ms": 1.39,
+   "p99_ms": 2.3,
+   "frames": 4328,
+   "draws": 6,
+   "triangles": 352016,
+   "physics_ms": null,
+   "at": "2026-10-06T08:35:07.785Z"
+  },
+  "three-webgl2|fill": {
+   "engine": "three-webgl2",
+   "case": "fill",
+   "fps": 218.5,
+   "mean_ms": 4.58,
+   "p99_ms": 13.4,
+   "frames": 1312,
+   "draws": 6,
+   "triangles": 352016,
+   "physics_ms": null,
+   "at": "2026-10-06T08:35:16.316Z"
+  },
+  "three-webgl2|fill-scale-0.5-fsr1": {
+   "engine": "three-webgl2",
+   "case": "fill-scale-0.5-fsr1",
+   "fps": 169.5,
+   "mean_ms": 5.9,
+   "p99_ms": 7.5,
+   "frames": 1018,
+   "draws": 9,
+   "triangles": 352019,
+   "physics_ms": null,
+   "at": "2026-10-06T08:35:25.033Z"
+  },
+  "three-webgl2|fill-scale-0.7-fsr1": {
+   "engine": "three-webgl2",
+   "case": "fill-scale-0.7-fsr1",
+   "fps": 152.2,
+   "mean_ms": 6.57,
+   "p99_ms": 7.6,
+   "frames": 914,
+   "draws": 9,
+   "triangles": 352019,
+   "physics_ms": null,
+   "at": "2026-10-06T08:35:33.848Z"
+  },
+  "three-webgl2|fill-dpr1": {
+   "engine": "three-webgl2",
+   "case": "fill-dpr1",
+   "fps": 728,
+   "mean_ms": 1.37,
+   "p99_ms": 2.6,
+   "frames": 4369,
+   "draws": 6,
+   "triangles": 352016,
+   "physics_ms": null,
+   "at": "2026-10-06T08:35:42.610Z"
+  },
+  "three-webgpu|m-ref": {
+   "engine": "three-webgpu",
+   "case": "m-ref",
+   "fps": 84.8,
+   "mean_ms": 11.79,
+   "p99_ms": 19.6,
+   "frames": 545,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.36,
+   "first_frame_ms": 395.8,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2746,
+   "heap_mb": 83.84,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T22:01:10.795Z",
+   "fps_runs": [
+    81.1,
+    84.8,
+    78.2,
+    85.7,
+    90.8
+   ],
+   "fps_min": 78.2,
+   "fps_max": 90.8,
+   "mean_ms_runs": [
+    12.33,
+    11.79,
+    12.79,
+    11.67,
+    11.02
+   ],
+   "mean_ms_min": 11.02,
+   "mean_ms_max": 12.79,
+   "p99_ms_runs": [
+    19.7,
+    19.6,
+    19.4,
+    20.3,
+    17.8
+   ],
+   "p99_ms_min": 17.8,
+   "p99_ms_max": 20.3,
+   "gpu_ms_runs": [
+    9.404,
+    9.454,
+    9.363,
+    9.283,
+    9.301
+   ],
+   "gpu_ms_min": 9.283,
+   "gpu_ms_max": 9.454,
+   "heap_mb_runs": [
+    83.84,
+    83.84,
+    83.84,
+    83.84,
+    83.84
+   ],
+   "heap_mb_min": 83.84,
+   "heap_mb_max": 83.84,
+   "first_frame_ms_runs": [
+    395.8,
+    481.8,
+    349.4,
+    328.2,
+    539
+   ],
+   "first_frame_ms_min": 328.2,
+   "first_frame_ms_max": 539,
+   "runs": 5
+  },
+  "three-webgpu|m-depth-log": {
+   "engine": "three-webgpu",
+   "case": "m-depth-log",
+   "fps": 65.3,
+   "mean_ms": 15.31,
+   "p99_ms": 24.6,
+   "frames": 430,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 12.86,
+   "first_frame_ms": 374.7,
+   "depth": "log",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2794,
+   "heap_mb": 83.83,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    65.8,
+    62.9,
+    63.5,
+    65.3,
+    71.5
+   ],
+   "fps_min": 62.9,
+   "fps_max": 71.5,
+   "mean_ms_runs": [
+    15.19,
+    15.89,
+    15.75,
+    15.31,
+    13.98
+   ],
+   "mean_ms_min": 13.98,
+   "mean_ms_max": 15.89,
+   "p99_ms_runs": [
+    22.3,
+    24.6,
+    27.7,
+    22.5,
+    26.3
+   ],
+   "p99_ms_min": 22.3,
+   "p99_ms_max": 27.7,
+   "gpu_ms_runs": [
+    12.726,
+    12.95,
+    12.86,
+    12.935,
+    12.704
+   ],
+   "gpu_ms_min": 12.704,
+   "gpu_ms_max": 12.95,
+   "heap_mb_runs": [
+    83.83,
+    83.83,
+    83.83,
+    83.83,
+    83.85
+   ],
+   "heap_mb_min": 83.83,
+   "heap_mb_max": 83.85,
+   "first_frame_ms_runs": [
+    297.3,
+    374.7,
+    385,
+    331.3,
+    588.5
+   ],
+   "first_frame_ms_min": 297.3,
+   "first_frame_ms_max": 588.5,
+   "runs": 5
+  },
+  "three-webgpu|still-flicker16": {
+   "engine": "three-webgpu",
+   "case": "still-flicker16",
+   "still": "flicker16",
+   "fps": 14,
+   "drawn_per_s": 14,
+   "cpu_ms": 1.4,
+   "gpu_ms": 10.74,
+   "busy_ms_per_s": 168.6,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.55,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    14,
+    14,
+    14,
+    13.8,
+    14
+   ],
+   "fps_min": 13.8,
+   "fps_max": 14,
+   "gpu_ms_runs": [
+    10.744,
+    9.105,
+    8.91,
+    10.911,
+    10.912
+   ],
+   "gpu_ms_min": 8.91,
+   "gpu_ms_max": 10.912,
+   "cpu_ms_runs": [
+    1.3,
+    1.4,
+    1.3,
+    1.4,
+    1.4
+   ],
+   "cpu_ms_min": 1.3,
+   "cpu_ms_max": 1.4,
+   "busy_ms_per_s_runs": [
+    168.6,
+    147.1,
+    142.9,
+    170.3,
+    172.4
+   ],
+   "busy_ms_per_s_min": 142.9,
+   "busy_ms_per_s_max": 172.4,
+   "heap_mb_runs": [
+    84.54,
+    84.55,
+    84.55,
+    84.55,
+    84.55
+   ],
+   "heap_mb_min": 84.54,
+   "heap_mb_max": 84.55,
+   "drawn_per_s_runs": [
+    14,
+    14,
+    14,
+    13.8,
+    14
+   ],
+   "drawn_per_s_min": 13.8,
+   "drawn_per_s_max": 14,
+   "runs": 5
+  },
+  "three-webgl2|m-ref": {
+   "engine": "three-webgl2",
+   "case": "m-ref",
+   "fps": 71.3,
+   "mean_ms": 14.03,
+   "p99_ms": 51.6,
+   "frames": 623,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.43,
+   "first_frame_ms": 464.7,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2859,
+   "heap_mb": 83.65,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    71.3,
+    44.7,
+    42.1,
+    97.4,
+    103.6
+   ],
+   "fps_min": 42.1,
+   "fps_max": 103.6,
+   "mean_ms_runs": [
+    14.03,
+    22.35,
+    23.78,
+    10.27,
+    9.65
+   ],
+   "mean_ms_min": 9.65,
+   "mean_ms_max": 23.78,
+   "p99_ms_runs": [
+    51.6,
+    75.2,
+    73.9,
+    39.2,
+    36.9
+   ],
+   "p99_ms_min": 36.9,
+   "p99_ms_max": 75.2,
+   "gpu_ms_runs": [
+    10.334,
+    9.428,
+    9.405
+   ],
+   "gpu_ms_min": 9.405,
+   "gpu_ms_max": 10.334,
+   "heap_mb_runs": [
+    83.57,
+    84.07,
+    84.08,
+    83.65,
+    83.65
+   ],
+   "heap_mb_min": 83.57,
+   "heap_mb_max": 84.08,
+   "first_frame_ms_runs": [
+    628.9,
+    595.3,
+    464.7,
+    382.3,
+    327.3
+   ],
+   "first_frame_ms_min": 327.3,
+   "first_frame_ms_max": 628.9,
+   "runs": 5
+  },
+  "three-webgl2|m-depth-log": {
+   "engine": "three-webgl2",
+   "case": "m-depth-log",
+   "fps": 47.1,
+   "mean_ms": 21.23,
+   "p99_ms": 60.2,
+   "frames": 396,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 12.43,
+   "first_frame_ms": 454.8,
+   "depth": "log",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3050,
+   "heap_mb": 84.09,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    40.3,
+    47.1,
+    18.2,
+    105.5,
+    65.7
+   ],
+   "fps_min": 18.2,
+   "fps_max": 105.5,
+   "mean_ms_runs": [
+    24.83,
+    21.23,
+    54.97,
+    9.48,
+    15.22
+   ],
+   "mean_ms_min": 9.48,
+   "mean_ms_max": 54.97,
+   "p99_ms_runs": [
+    60.2,
+    62.8,
+    130.2,
+    58,
+    59
+   ],
+   "p99_ms_min": 58,
+   "p99_ms_max": 130.2,
+   "gpu_ms_runs": [
+    12.432
+   ],
+   "gpu_ms_min": 12.432,
+   "gpu_ms_max": 12.432,
+   "heap_mb_runs": [
+    84.09,
+    84.09,
+    84.12,
+    84.09,
+    83.65
+   ],
+   "heap_mb_min": 83.65,
+   "heap_mb_max": 84.12,
+   "first_frame_ms_runs": [
+    454.8,
+    413,
+    492.1,
+    1528.3,
+    334.3
+   ],
+   "first_frame_ms_min": 334.3,
+   "first_frame_ms_max": 1528.3,
+   "runs": 5
+  },
+  "three-webgl2|still-flicker16": {
+   "engine": "three-webgl2",
+   "case": "still-flicker16",
+   "still": "flicker16",
+   "fps": 14,
+   "drawn_per_s": 14,
+   "cpu_ms": 1.2,
+   "gpu_ms": 10.66,
+   "busy_ms_per_s": 164.6,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.64,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T22:01:10.802Z",
+   "fps_runs": [
+    14,
+    14,
+    14,
+    14,
+    13.7
+   ],
+   "fps_min": 13.7,
+   "fps_max": 14,
+   "gpu_ms_runs": [
+    10.469,
+    10.66,
+    10.658,
+    11.043,
+    10.675
+   ],
+   "gpu_ms_min": 10.469,
+   "gpu_ms_max": 11.043,
+   "cpu_ms_runs": [
+    1.2,
+    1.1,
+    1.2,
+    1.4,
+    1.3
+   ],
+   "cpu_ms_min": 1.1,
+   "cpu_ms_max": 1.4,
+   "busy_ms_per_s_runs": [
+    163.4,
+    164.6,
+    166,
+    174.2,
+    163.7
+   ],
+   "busy_ms_per_s_min": 163.4,
+   "busy_ms_per_s_max": 174.2,
+   "heap_mb_runs": [
+    84.63,
+    84.64,
+    84.64,
+    84.64,
+    84.63
+   ],
+   "heap_mb_min": 84.63,
+   "heap_mb_max": 84.64,
+   "drawn_per_s_runs": [
+    14,
+    14,
+    14,
+    14,
+    13.7
+   ],
+   "drawn_per_s_min": 13.7,
+   "drawn_per_s_max": 14,
+   "runs": 5
+  },
+  "godot-web|m-ref": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "m-ref",
+   "draws": 4,
+   "engine": "godot-web",
+   "fps": 48.8,
+   "frames": 368,
+   "gpu_ms": null,
+   "mean_ms": 20.48,
+   "p99_ms": 32.3,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 386802,
+   "heap_mb": 197.22,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.770Z",
+   "fps_runs": [
+    32.2,
+    48.8,
+    55.6,
+    47.8,
+    61.2
+   ],
+   "fps_min": 32.2,
+   "fps_max": 61.2,
+   "mean_ms_runs": [
+    31.04,
+    20.48,
+    17.99,
+    20.9,
+    16.34
+   ],
+   "mean_ms_min": 16.34,
+   "mean_ms_max": 31.04,
+   "p99_ms_runs": [
+    41.8,
+    32.3,
+    28.6,
+    39.1,
+    20.2
+   ],
+   "p99_ms_min": 20.2,
+   "p99_ms_max": 41.8,
+   "heap_mb_runs": [
+    197.21,
+    197.22,
+    197.22,
+    197.22,
+    197.22
+   ],
+   "heap_mb_min": 197.21,
+   "heap_mb_max": 197.22,
+   "runs": 5
+  },
+  "godot-web|m-rect-0": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "m-rect-0",
+   "draws": 4,
+   "engine": "godot-web",
+   "fps": 363.2,
+   "frames": 2593,
+   "gpu_ms": null,
+   "mean_ms": 2.75,
+   "p99_ms": 7.7,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 386802,
+   "heap_mb": 197.22,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.770Z",
+   "fps_runs": [
+    479.7,
+    329.9,
+    355.6,
+    363.2,
+    432.1
+   ],
+   "fps_min": 329.9,
+   "fps_max": 479.7,
+   "mean_ms_runs": [
+    2.08,
+    3.03,
+    2.81,
+    2.75,
+    2.31
+   ],
+   "mean_ms_min": 2.08,
+   "mean_ms_max": 3.03,
+   "p99_ms_runs": [
+    4.9,
+    7.8,
+    8.5,
+    7.7,
+    7.3
+   ],
+   "p99_ms_min": 4.9,
+   "p99_ms_max": 8.5,
+   "heap_mb_runs": [
+    197.23,
+    197.22,
+    197.22,
+    197.22,
+    197.21
+   ],
+   "heap_mb_min": 197.21,
+   "heap_mb_max": 197.23,
+   "runs": 5
+  },
+  "godot-web|still-every": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "still-every",
+   "drawn_per_s": 59.7,
+   "engine": "godot-web",
+   "fps": 59.7,
+   "gpu_ms": null,
+   "still": "every",
+   "heap_mb": 197.27,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.771Z",
+   "fps_runs": [
+    57.2,
+    47.5,
+    60,
+    59.7,
+    60
+   ],
+   "fps_min": 47.5,
+   "fps_max": 60,
+   "heap_mb_runs": [
+    197.27,
+    197.27,
+    197.26,
+    197.27,
+    197.27
+   ],
+   "heap_mb_min": 197.26,
+   "heap_mb_max": 197.27,
+   "drawn_per_s_runs": [
+    57.2,
+    47.5,
+    60,
+    59.7,
+    60
+   ],
+   "drawn_per_s_min": 47.5,
+   "drawn_per_s_max": 60,
+   "runs": 5
+  },
+  "godot-web|still-change": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "still-change",
+   "drawn_per_s": 0.2,
+   "engine": "godot-web",
+   "fps": 0.2,
+   "gpu_ms": null,
+   "still": "change",
+   "heap_mb": 197.25,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.771Z",
+   "fps_runs": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+   ],
+   "fps_min": 0.2,
+   "fps_max": 0.2,
+   "heap_mb_runs": [
+    197.25,
+    197.25,
+    197.25,
+    197.25,
+    197.25
+   ],
+   "heap_mb_min": 197.25,
+   "heap_mb_max": 197.25,
+   "drawn_per_s_runs": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+   ],
+   "drawn_per_s_min": 0.2,
+   "drawn_per_s_max": 0.2,
+   "runs": 5
+  },
+  "godot-web|still-flicker16": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "still-flicker16",
+   "drawn_per_s": 15.2,
+   "engine": "godot-web",
+   "fps": 15.2,
+   "gpu_ms": null,
+   "still": "flicker16",
+   "heap_mb": 197.26,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.771Z",
+   "fps_runs": [
+    15.2,
+    15.2,
+    15.2,
+    15.2,
+    15.2
+   ],
+   "fps_min": 15.2,
+   "fps_max": 15.2,
+   "heap_mb_runs": [
+    197.26,
+    197.37,
+    197.64,
+    197.26,
+    197.26
+   ],
+   "heap_mb_min": 197.26,
+   "heap_mb_max": 197.64,
+   "drawn_per_s_runs": [
+    15.2,
+    15.2,
+    15.2,
+    15.2,
+    15.2
+   ],
+   "drawn_per_s_min": 15.2,
+   "drawn_per_s_max": 15.2,
+   "runs": 5
+  },
+  "three-webgpu|m-direct": {
+   "engine": "three-webgpu",
+   "case": "m-direct",
+   "fps": 83.5,
+   "mean_ms": 11.97,
+   "p99_ms": 25,
+   "frames": 540,
+   "draws": 5,
+   "triangles": 356796,
+   "physics_ms": null,
+   "gpu_ms": 9.54,
+   "first_frame_ms": 378.4,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3262,
+   "heap_mb": 83.8,
+   "heap_buffers_mb": 77.4,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    78.7,
+    83.5,
+    81.2,
+    94.8,
+    89.9
+   ],
+   "fps_min": 78.7,
+   "fps_max": 94.8,
+   "mean_ms_runs": [
+    12.71,
+    11.97,
+    12.32,
+    10.55,
+    11.12
+   ],
+   "mean_ms_min": 10.55,
+   "mean_ms_max": 12.71,
+   "p99_ms_runs": [
+    25,
+    21.5,
+    29.9,
+    26.7,
+    21.3
+   ],
+   "p99_ms_min": 21.3,
+   "p99_ms_max": 29.9,
+   "gpu_ms_runs": [
+    9.454,
+    9.544,
+    9.519,
+    9.574,
+    9.55
+   ],
+   "gpu_ms_min": 9.454,
+   "gpu_ms_max": 9.574,
+   "heap_mb_runs": [
+    83.8,
+    83.8,
+    83.8,
+    83.81,
+    83.8
+   ],
+   "heap_mb_min": 83.8,
+   "heap_mb_max": 83.81,
+   "first_frame_ms_runs": [
+    481.1,
+    378.4,
+    305.5,
+    1030.8,
+    298.5
+   ],
+   "first_frame_ms_min": 298.5,
+   "first_frame_ms_max": 1030.8,
+   "runs": 5
+  },
+  "three-webgpu|m-out-8": {
+   "engine": "three-webgpu",
+   "case": "m-out-8",
+   "fps": 78.2,
+   "mean_ms": 12.79,
+   "p99_ms": 20.7,
+   "frames": 543,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.47,
+   "first_frame_ms": 334.6,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3110,
+   "heap_mb": 83.84,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    76.5,
+    77.4,
+    78.2,
+    95,
+    90.3
+   ],
+   "fps_min": 76.5,
+   "fps_max": 95,
+   "mean_ms_runs": [
+    13.08,
+    12.92,
+    12.79,
+    10.53,
+    11.08
+   ],
+   "mean_ms_min": 10.53,
+   "mean_ms_max": 13.08,
+   "p99_ms_runs": [
+    24.5,
+    20.7,
+    19.7,
+    20.5,
+    21
+   ],
+   "p99_ms_min": 19.7,
+   "p99_ms_max": 24.5,
+   "gpu_ms_runs": [
+    9.373,
+    9.709,
+    9.272,
+    9.538,
+    9.473
+   ],
+   "gpu_ms_min": 9.272,
+   "gpu_ms_max": 9.709,
+   "heap_mb_runs": [
+    83.84,
+    83.84,
+    83.84,
+    83.84,
+    83.84
+   ],
+   "heap_mb_min": 83.84,
+   "heap_mb_max": 83.84,
+   "first_frame_ms_runs": [
+    327.3,
+    353.6,
+    334.6,
+    772.5,
+    331.3
+   ],
+   "first_frame_ms_min": 327.3,
+   "first_frame_ms_max": 772.5,
+   "runs": 5
+  },
+  "three-webgpu|m-tex-drop": {
+   "engine": "three-webgpu",
+   "case": "m-tex-drop",
+   "fps": 79.9,
+   "mean_ms": 12.51,
+   "p99_ms": 21.3,
+   "frames": 552,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.4,
+   "first_frame_ms": 358.8,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 2776,
+   "heap_mb": 8.56,
+   "heap_buffers_mb": 2.06,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    79.1,
+    79.9,
+    82.2,
+    71.8,
+    91.9
+   ],
+   "fps_min": 71.8,
+   "fps_max": 91.9,
+   "mean_ms_runs": [
+    12.65,
+    12.51,
+    12.17,
+    13.92,
+    10.88
+   ],
+   "mean_ms_min": 10.88,
+   "mean_ms_max": 13.92,
+   "p99_ms_runs": [
+    22.2,
+    21.3,
+    22.5,
+    21.2,
+    20.5
+   ],
+   "p99_ms_min": 20.5,
+   "p99_ms_max": 22.5,
+   "gpu_ms_runs": [
+    9.513,
+    9.399,
+    9.353,
+    9.514,
+    9.319
+   ],
+   "gpu_ms_min": 9.319,
+   "gpu_ms_max": 9.514,
+   "heap_mb_runs": [
+    8.56,
+    8.56,
+    8.55,
+    8.55,
+    8.56
+   ],
+   "heap_mb_min": 8.55,
+   "heap_mb_max": 8.56,
+   "first_frame_ms_runs": [
+    358.8,
+    390.7,
+    466.6,
+    322.8,
+    354.6
+   ],
+   "first_frame_ms_min": 322.8,
+   "first_frame_ms_max": 466.6,
+   "runs": 5
+  },
+  "three-webgpu|m-tex-half": {
+   "engine": "three-webgpu",
+   "case": "m-tex-half",
+   "fps": 84,
+   "mean_ms": 11.9,
+   "p99_ms": 18.5,
+   "frames": 531,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.4,
+   "first_frame_ms": 271.6,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 18.8,
+   "tex_gen_ms": 4579,
+   "heap_mb": 27.38,
+   "heap_buffers_mb": 20.88,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    84,
+    83.4,
+    80.3,
+    93.2,
+    88.4
+   ],
+   "fps_min": 80.3,
+   "fps_max": 93.2,
+   "mean_ms_runs": [
+    11.9,
+    12,
+    12.45,
+    10.73,
+    11.31
+   ],
+   "mean_ms_min": 10.73,
+   "mean_ms_max": 12.45,
+   "p99_ms_runs": [
+    22,
+    18.4,
+    20.8,
+    14.4,
+    18.5
+   ],
+   "p99_ms_min": 14.4,
+   "p99_ms_max": 22,
+   "gpu_ms_runs": [
+    9.402,
+    9.365,
+    9.681,
+    9.587,
+    9.212
+   ],
+   "gpu_ms_min": 9.212,
+   "gpu_ms_max": 9.681,
+   "heap_mb_runs": [
+    27.38,
+    27.38,
+    27.38,
+    27.39,
+    27.38
+   ],
+   "heap_mb_min": 27.38,
+   "heap_mb_max": 27.39,
+   "first_frame_ms_runs": [
+    307.8,
+    271.6,
+    306.7,
+    260,
+    245.8
+   ],
+   "first_frame_ms_min": 245.8,
+   "first_frame_ms_max": 307.8,
+   "runs": 5
+  },
+  "three-webgpu|m-depth-reversed": {
+   "engine": "three-webgpu",
+   "case": "m-depth-reversed",
+   "fps": 83,
+   "mean_ms": 12.04,
+   "p99_ms": 20.8,
+   "frames": 496,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.36,
+   "first_frame_ms": 341.9,
+   "depth": "reversed",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2797,
+   "heap_mb": 83.84,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    85.1,
+    76.2,
+    83,
+    85.6,
+    82.4
+   ],
+   "fps_min": 76.2,
+   "fps_max": 85.6,
+   "mean_ms_runs": [
+    11.76,
+    13.12,
+    12.04,
+    11.68,
+    12.14
+   ],
+   "mean_ms_min": 11.68,
+   "mean_ms_max": 13.12,
+   "p99_ms_runs": [
+    17.9,
+    45.5,
+    20.8,
+    20.2,
+    140.7
+   ],
+   "p99_ms_min": 17.9,
+   "p99_ms_max": 140.7,
+   "gpu_ms_runs": [
+    9.36,
+    9.466,
+    9.33,
+    9.263,
+    9.364
+   ],
+   "gpu_ms_min": 9.263,
+   "gpu_ms_max": 9.466,
+   "heap_mb_runs": [
+    83.84,
+    83.84,
+    83.84,
+    83.84,
+    83.84
+   ],
+   "heap_mb_min": 83.84,
+   "heap_mb_max": 83.84,
+   "first_frame_ms_runs": [
+    317.6,
+    341.9,
+    387.1,
+    305.5,
+    897.8
+   ],
+   "first_frame_ms_min": 305.5,
+   "first_frame_ms_max": 897.8,
+   "runs": 5
+  },
+  "three-webgpu|m-phone": {
+   "engine": "three-webgpu",
+   "case": "m-phone",
+   "fps": 169.3,
+   "mean_ms": 5.91,
+   "p99_ms": 11.6,
+   "frames": 1206,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 4.26,
+   "first_frame_ms": 261.4,
+   "depth": "reversed",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 4293,
+   "heap_mb": 8.44,
+   "heap_buffers_mb": 1.99,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    181.4,
+    86.3,
+    169.3,
+    137.4,
+    200.8
+   ],
+   "fps_min": 86.3,
+   "fps_max": 200.8,
+   "mean_ms_runs": [
+    5.51,
+    11.59,
+    5.91,
+    7.28,
+    4.98
+   ],
+   "mean_ms_min": 4.98,
+   "mean_ms_max": 11.59,
+   "p99_ms_runs": [
+    10.7,
+    18.9,
+    11.6,
+    12.8,
+    9.7
+   ],
+   "p99_ms_min": 9.7,
+   "p99_ms_max": 18.9,
+   "gpu_ms_runs": [
+    4.13,
+    9.594,
+    4.258,
+    4.276,
+    4.21
+   ],
+   "gpu_ms_min": 4.13,
+   "gpu_ms_max": 9.594,
+   "heap_mb_runs": [
+    8.44,
+    8.4,
+    8.44,
+    8.44,
+    8.44
+   ],
+   "heap_mb_min": 8.4,
+   "heap_mb_max": 8.44,
+   "first_frame_ms_runs": [
+    257.8,
+    213.5,
+    310.1,
+    422,
+    261.4
+   ],
+   "first_frame_ms_min": 213.5,
+   "first_frame_ms_max": 422,
+   "runs": 5
+  },
+  "three-webgl2|m-direct": {
+   "engine": "three-webgl2",
+   "case": "m-direct",
+   "fps": 104.4,
+   "mean_ms": 9.58,
+   "p99_ms": 30,
+   "frames": 627,
+   "draws": 5,
+   "triangles": 356796,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 455,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 4147,
+   "heap_mb": 84.06,
+   "heap_buffers_mb": 77.36,
+   "at": "2026-10-08T22:01:10.802Z",
+   "fps_runs": [
+    96.4,
+    112,
+    98.8,
+    106.7,
+    104.4
+   ],
+   "fps_min": 96.4,
+   "fps_max": 112,
+   "mean_ms_runs": [
+    10.38,
+    8.93,
+    10.12,
+    9.37,
+    9.58
+   ],
+   "mean_ms_min": 8.93,
+   "mean_ms_max": 10.38,
+   "p99_ms_runs": [
+    30.6,
+    30,
+    27.8,
+    26.4,
+    32.4
+   ],
+   "p99_ms_min": 26.4,
+   "p99_ms_max": 32.4,
+   "heap_mb_runs": [
+    84.06,
+    84.04,
+    84.06,
+    84.05,
+    84.06
+   ],
+   "heap_mb_min": 84.04,
+   "heap_mb_max": 84.06,
+   "first_frame_ms_runs": [
+    455,
+    401.1,
+    358.1,
+    719.3,
+    525.8
+   ],
+   "first_frame_ms_min": 358.1,
+   "first_frame_ms_max": 719.3,
+   "runs": 5
+  },
+  "three-webgl2|m-out-8": {
+   "engine": "three-webgl2",
+   "case": "m-out-8",
+   "fps": 95.2,
+   "mean_ms": 10.51,
+   "p99_ms": 45,
+   "frames": 596,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.42,
+   "first_frame_ms": 530.7,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 4278,
+   "heap_mb": 83.65,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    79.4,
+    97.9,
+    95.2,
+    77.7,
+    98.6
+   ],
+   "fps_min": 77.7,
+   "fps_max": 98.6,
+   "mean_ms_runs": [
+    12.6,
+    10.21,
+    10.51,
+    12.86,
+    10.14
+   ],
+   "mean_ms_min": 10.14,
+   "mean_ms_max": 12.86,
+   "p99_ms_runs": [
+    52.9,
+    45,
+    42,
+    42.9,
+    47.8
+   ],
+   "p99_ms_min": 42,
+   "p99_ms_max": 52.9,
+   "gpu_ms_runs": [
+    10.31,
+    9.4,
+    9.522,
+    9.418,
+    9.412
+   ],
+   "gpu_ms_min": 9.4,
+   "gpu_ms_max": 10.31,
+   "heap_mb_runs": [
+    83.64,
+    83.66,
+    83.65,
+    83.64,
+    83.65
+   ],
+   "heap_mb_min": 83.64,
+   "heap_mb_max": 83.66,
+   "first_frame_ms_runs": [
+    530.7,
+    586.8,
+    381.7,
+    998.5,
+    392.5
+   ],
+   "first_frame_ms_min": 381.7,
+   "first_frame_ms_max": 998.5,
+   "runs": 5
+  },
+  "three-webgl2|m-tex-drop": {
+   "engine": "three-webgl2",
+   "case": "m-tex-drop",
+   "fps": 86.6,
+   "mean_ms": 11.55,
+   "p99_ms": 47,
+   "frames": 579,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.47,
+   "first_frame_ms": 370.5,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 3102,
+   "heap_mb": 8.36,
+   "heap_buffers_mb": 2.03,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    21.8,
+    85,
+    86.6,
+    103.2,
+    95.7
+   ],
+   "fps_min": 21.8,
+   "fps_max": 103.2,
+   "mean_ms_runs": [
+    45.96,
+    11.77,
+    11.55,
+    9.69,
+    10.45
+   ],
+   "mean_ms_min": 9.69,
+   "mean_ms_max": 45.96,
+   "p99_ms_runs": [
+    99.1,
+    47.8,
+    40.5,
+    32.9,
+    47
+   ],
+   "p99_ms_min": 32.9,
+   "p99_ms_max": 99.1,
+   "gpu_ms_runs": [
+    9.465,
+    9.456,
+    9.79,
+    9.483
+   ],
+   "gpu_ms_min": 9.456,
+   "gpu_ms_max": 9.79,
+   "heap_mb_runs": [
+    8.81,
+    8.36,
+    8.36,
+    8.37,
+    8.3
+   ],
+   "heap_mb_min": 8.3,
+   "heap_mb_max": 8.81,
+   "first_frame_ms_runs": [
+    370.5,
+    369.3,
+    355.1,
+    424.7,
+    435.2
+   ],
+   "first_frame_ms_min": 355.1,
+   "first_frame_ms_max": 435.2,
+   "runs": 5
+  },
+  "three-webgl2|m-tex-half": {
+   "engine": "three-webgl2",
+   "case": "m-tex-half",
+   "fps": 80.4,
+   "mean_ms": 12.44,
+   "p99_ms": 46.3,
+   "frames": 626,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.64,
+   "first_frame_ms": 338.6,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 18.8,
+   "tex_gen_ms": 5415,
+   "heap_mb": 27.19,
+   "heap_buffers_mb": 20.85,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    78.2,
+    76,
+    80.4,
+    90.3,
+    104.1
+   ],
+   "fps_min": 76,
+   "fps_max": 104.1,
+   "mean_ms_runs": [
+    12.78,
+    13.15,
+    12.44,
+    11.08,
+    9.6
+   ],
+   "mean_ms_min": 9.6,
+   "mean_ms_max": 13.15,
+   "p99_ms_runs": [
+    48.7,
+    33.8,
+    55.4,
+    46.3,
+    42.7
+   ],
+   "p99_ms_min": 33.8,
+   "p99_ms_max": 55.4,
+   "gpu_ms_runs": [
+    11.384,
+    9.729,
+    9.636,
+    9.461,
+    9.458
+   ],
+   "gpu_ms_min": 9.458,
+   "gpu_ms_max": 11.384,
+   "heap_mb_runs": [
+    27.19,
+    27.14,
+    27.14,
+    27.19,
+    27.19
+   ],
+   "heap_mb_min": 27.14,
+   "heap_mb_max": 27.19,
+   "first_frame_ms_runs": [
+    444.6,
+    338.6,
+    323.5,
+    336.2,
+    453.8
+   ],
+   "first_frame_ms_min": 323.5,
+   "first_frame_ms_max": 453.8,
+   "runs": 5
+  },
+  "three-webgl2|m-depth-reversed": {
+   "engine": "three-webgl2",
+   "case": "m-depth-reversed",
+   "fps": 89.1,
+   "mean_ms": 11.23,
+   "p99_ms": 43.3,
+   "frames": 635,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.5,
+   "first_frame_ms": 404.3,
+   "depth": "reversed",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3523,
+   "heap_mb": 83.65,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    88.3,
+    89.1,
+    88.6,
+    93.8,
+    105.6
+   ],
+   "fps_min": 88.3,
+   "fps_max": 105.6,
+   "mean_ms_runs": [
+    11.33,
+    11.23,
+    11.28,
+    10.67,
+    9.47
+   ],
+   "mean_ms_min": 9.47,
+   "mean_ms_max": 11.33,
+   "p99_ms_runs": [
+    44.8,
+    36.2,
+    45.2,
+    32.8,
+    43.3
+   ],
+   "p99_ms_min": 32.8,
+   "p99_ms_max": 45.2,
+   "gpu_ms_runs": [
+    9.504,
+    9.542,
+    9.89,
+    9.463,
+    9.475
+   ],
+   "gpu_ms_min": 9.463,
+   "gpu_ms_max": 9.89,
+   "heap_mb_runs": [
+    83.65,
+    83.65,
+    83.65,
+    83.58,
+    83.63
+   ],
+   "heap_mb_min": 83.58,
+   "heap_mb_max": 83.65,
+   "first_frame_ms_runs": [
+    449.2,
+    363.4,
+    404.3,
+    370.2,
+    420.7
+   ],
+   "first_frame_ms_min": 363.4,
+   "first_frame_ms_max": 449.2,
+   "runs": 5
+  },
+  "three-webgl2|m-phone": {
+   "engine": "three-webgl2",
+   "case": "m-phone",
+   "fps": 160.8,
+   "mean_ms": 6.22,
+   "p99_ms": 23.4,
+   "frames": 965,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 5.27,
+   "first_frame_ms": 238.7,
+   "depth": "reversed",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 4450,
+   "heap_mb": 8.72,
+   "heap_buffers_mb": 1.96,
+   "at": "2026-10-08T22:01:10.802Z",
+   "fps_runs": [
+    162.9,
+    157.5,
+    156.2,
+    160.8,
+    160.8
+   ],
+   "fps_min": 156.2,
+   "fps_max": 162.9,
+   "mean_ms_runs": [
+    6.14,
+    6.35,
+    6.4,
+    6.22,
+    6.22
+   ],
+   "mean_ms_min": 6.14,
+   "mean_ms_max": 6.4,
+   "p99_ms_runs": [
+    22.1,
+    26.5,
+    28.8,
+    23.4,
+    21.7
+   ],
+   "p99_ms_min": 21.7,
+   "p99_ms_max": 28.8,
+   "gpu_ms_runs": [
+    5.535,
+    5.272,
+    5.272,
+    5.253
+   ],
+   "gpu_ms_min": 5.253,
+   "gpu_ms_max": 5.535,
+   "heap_mb_runs": [
+    8.62,
+    8.72,
+    8.73,
+    8.7,
+    8.72
+   ],
+   "heap_mb_min": 8.62,
+   "heap_mb_max": 8.73,
+   "first_frame_ms_runs": [
+    238.7,
+    281.1,
+    219.3,
+    236,
+    242.3
+   ],
+   "first_frame_ms_min": 219.3,
+   "first_frame_ms_max": 281.1,
+   "runs": 5
+  },
+  "three-webgpu|m-rect-3": {
+   "engine": "three-webgpu",
+   "case": "m-rect-3",
+   "fps": 182.7,
+   "mean_ms": 5.47,
+   "p99_ms": 9.9,
+   "frames": 1213,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 4.13,
+   "first_frame_ms": 346.5,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2825,
+   "heap_mb": 83.72,
+   "heap_buffers_mb": 77.27,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    182.7,
+    182.7,
+    178.2,
+    185.6,
+    202.1
+   ],
+   "fps_min": 178.2,
+   "fps_max": 202.1,
+   "mean_ms_runs": [
+    5.47,
+    5.47,
+    5.61,
+    5.39,
+    4.95
+   ],
+   "mean_ms_min": 4.95,
+   "mean_ms_max": 5.61,
+   "p99_ms_runs": [
+    13.3,
+    9.9,
+    11.1,
+    9.7,
+    9.9
+   ],
+   "p99_ms_min": 9.7,
+   "p99_ms_max": 13.3,
+   "gpu_ms_runs": [
+    4.084,
+    4.124,
+    4.205,
+    4.131,
+    4.132
+   ],
+   "gpu_ms_min": 4.084,
+   "gpu_ms_max": 4.205,
+   "heap_mb_runs": [
+    83.72,
+    83.71,
+    83.72,
+    83.72,
+    83.72
+   ],
+   "heap_mb_min": 83.71,
+   "heap_mb_max": 83.72,
+   "first_frame_ms_runs": [
+    266.8,
+    460.9,
+    346.5,
+    359.2,
+    264.8
+   ],
+   "first_frame_ms_min": 264.8,
+   "first_frame_ms_max": 460.9,
+   "runs": 5
+  },
+  "three-webgpu|m-rect-0": {
+   "engine": "three-webgpu",
+   "case": "m-rect-0",
+   "fps": 624.9,
+   "mean_ms": 1.6,
+   "p99_ms": 6,
+   "frames": 4146,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 1.15,
+   "first_frame_ms": 259.8,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3125,
+   "heap_mb": 82.89,
+   "heap_buffers_mb": 76.73,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    573.9,
+    624.9,
+    599.8,
+    719,
+    690.8
+   ],
+   "fps_min": 573.9,
+   "fps_max": 719,
+   "mean_ms_runs": [
+    1.74,
+    1.6,
+    1.67,
+    1.39,
+    1.45
+   ],
+   "mean_ms_min": 1.39,
+   "mean_ms_max": 1.74,
+   "p99_ms_runs": [
+    6.4,
+    6,
+    6.1,
+    3.6,
+    5.3
+   ],
+   "p99_ms_min": 3.6,
+   "p99_ms_max": 6.4,
+   "gpu_ms_runs": [
+    1.154,
+    1.201,
+    1.155,
+    1.154,
+    1.153
+   ],
+   "gpu_ms_min": 1.153,
+   "gpu_ms_max": 1.201,
+   "heap_mb_runs": [
+    82.89,
+    82.87,
+    82.87,
+    82.9,
+    82.9
+   ],
+   "heap_mb_min": 82.87,
+   "heap_mb_max": 82.9,
+   "first_frame_ms_runs": [
+    285.4,
+    244.4,
+    284.8,
+    195.1,
+    259.8
+   ],
+   "first_frame_ms_min": 195.1,
+   "first_frame_ms_max": 285.4,
+   "runs": 5
+  },
+  "three-webgpu|m-tex-half-drop": {
+   "engine": "three-webgpu",
+   "case": "m-tex-half-drop",
+   "fps": 79.6,
+   "mean_ms": 12.56,
+   "p99_ms": 21.6,
+   "frames": 551,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.52,
+   "first_frame_ms": 270.4,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 4469,
+   "heap_mb": 8.56,
+   "heap_buffers_mb": 2.06,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    82.9,
+    71.9,
+    79.6,
+    66.8,
+    91.7
+   ],
+   "fps_min": 66.8,
+   "fps_max": 91.7,
+   "mean_ms_runs": [
+    12.06,
+    13.91,
+    12.56,
+    14.97,
+    10.91
+   ],
+   "mean_ms_min": 10.91,
+   "mean_ms_max": 14.97,
+   "p99_ms_runs": [
+    21,
+    24.7,
+    21.6,
+    37.8,
+    20
+   ],
+   "p99_ms_min": 20,
+   "p99_ms_max": 37.8,
+   "gpu_ms_runs": [
+    9.52,
+    9.75,
+    9.438,
+    9.553,
+    9.298
+   ],
+   "gpu_ms_min": 9.298,
+   "gpu_ms_max": 9.75,
+   "heap_mb_runs": [
+    8.56,
+    8.56,
+    8.56,
+    8.25,
+    8.56
+   ],
+   "heap_mb_min": 8.25,
+   "heap_mb_max": 8.56,
+   "first_frame_ms_runs": [
+    269.3,
+    270.4,
+    268.4,
+    1121.7,
+    289.3
+   ],
+   "first_frame_ms_min": 268.4,
+   "first_frame_ms_max": 1121.7,
+   "runs": 5
+  },
+  "three-webgpu|m-msaa-0": {
+   "engine": "three-webgpu",
+   "case": "m-msaa-0",
+   "fps": 109.6,
+   "mean_ms": 9.13,
+   "p99_ms": 16.8,
+   "frames": 705,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 6.7,
+   "first_frame_ms": 402.3,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2916,
+   "heap_mb": 83.84,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    107.1,
+    104.8,
+    113.5,
+    109.6,
+    117.4
+   ],
+   "fps_min": 104.8,
+   "fps_max": 117.4,
+   "mean_ms_runs": [
+    9.34,
+    9.54,
+    8.81,
+    9.13,
+    8.52
+   ],
+   "mean_ms_min": 8.52,
+   "mean_ms_max": 9.54,
+   "p99_ms_runs": [
+    17.7,
+    15.4,
+    16.8,
+    17.7,
+    16.3
+   ],
+   "p99_ms_min": 15.4,
+   "p99_ms_max": 17.7,
+   "gpu_ms_runs": [
+    6.603,
+    6.88,
+    6.629,
+    6.825,
+    6.695
+   ],
+   "gpu_ms_min": 6.603,
+   "gpu_ms_max": 6.88,
+   "heap_mb_runs": [
+    83.84,
+    83.84,
+    83.84,
+    83.84,
+    83.84
+   ],
+   "heap_mb_min": 83.84,
+   "heap_mb_max": 83.84,
+   "first_frame_ms_runs": [
+    821.3,
+    327.2,
+    402.3,
+    433.7,
+    375.1
+   ],
+   "first_frame_ms_min": 327.2,
+   "first_frame_ms_max": 821.3,
+   "runs": 5
+  },
+  "three-webgpu|still-every": {
+   "engine": "three-webgpu",
+   "case": "still-every",
+   "still": "every",
+   "fps": 60.2,
+   "drawn_per_s": 60.2,
+   "cpu_ms": 0.9,
+   "gpu_ms": 9.14,
+   "busy_ms_per_s": 603.5,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.74,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    60.2,
+    60.3,
+    60.2,
+    56.7,
+    60.2
+   ],
+   "fps_min": 56.7,
+   "fps_max": 60.3,
+   "gpu_ms_runs": [
+    9.392,
+    9.292,
+    9.131,
+    9.139,
+    9.032
+   ],
+   "gpu_ms_min": 9.032,
+   "gpu_ms_max": 9.392,
+   "cpu_ms_runs": [
+    0.9,
+    1,
+    0.9,
+    0.9,
+    0.8
+   ],
+   "cpu_ms_min": 0.8,
+   "cpu_ms_max": 1,
+   "busy_ms_per_s_runs": [
+    619.2,
+    621,
+    603.5,
+    568.9,
+    591.6
+   ],
+   "busy_ms_per_s_min": 568.9,
+   "busy_ms_per_s_max": 621,
+   "heap_mb_runs": [
+    84.74,
+    84.74,
+    84.74,
+    84.74,
+    84.75
+   ],
+   "heap_mb_min": 84.74,
+   "heap_mb_max": 84.75,
+   "drawn_per_s_runs": [
+    60.2,
+    60.3,
+    60.2,
+    56.7,
+    60.2
+   ],
+   "drawn_per_s_min": 56.7,
+   "drawn_per_s_max": 60.3,
+   "runs": 5
+  },
+  "three-webgpu|still-change": {
+   "engine": "three-webgpu",
+   "case": "still-change",
+   "still": "change",
+   "fps": 0,
+   "drawn_per_s": 0,
+   "cpu_ms": null,
+   "gpu_ms": null,
+   "busy_ms_per_s": 0,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 83.94,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "fps_min": 0,
+   "fps_max": 0,
+   "busy_ms_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "busy_ms_per_s_min": 0,
+   "busy_ms_per_s_max": 0,
+   "heap_mb_runs": [
+    83.94,
+    83.94,
+    83.94,
+    83.94,
+    83.94
+   ],
+   "heap_mb_min": 83.94,
+   "heap_mb_max": 83.94,
+   "drawn_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "drawn_per_s_min": 0,
+   "drawn_per_s_max": 0,
+   "runs": 5
+  },
+  "three-webgpu|still-flicker60": {
+   "engine": "three-webgpu",
+   "case": "still-flicker60",
+   "still": "flicker60",
+   "fps": 60,
+   "drawn_per_s": 60,
+   "cpu_ms": 0.9,
+   "gpu_ms": 9.11,
+   "busy_ms_per_s": 602.1,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.76,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T22:01:10.800Z",
+   "fps_runs": [
+    60,
+    60,
+    60.2,
+    60,
+    60.2
+   ],
+   "fps_min": 60,
+   "fps_max": 60.2,
+   "gpu_ms_runs": [
+    8.903,
+    11.112,
+    9.536,
+    8.91,
+    9.108
+   ],
+   "gpu_ms_min": 8.903,
+   "gpu_ms_max": 11.112,
+   "cpu_ms_runs": [
+    0.9,
+    0.9,
+    0.9,
+    0.9,
+    0.9
+   ],
+   "cpu_ms_min": 0.9,
+   "cpu_ms_max": 0.9,
+   "busy_ms_per_s_runs": [
+    588.2,
+    720.7,
+    627.9,
+    588.6,
+    602.1
+   ],
+   "busy_ms_per_s_min": 588.2,
+   "busy_ms_per_s_max": 720.7,
+   "heap_mb_runs": [
+    84.76,
+    84.74,
+    84.76,
+    84.75,
+    84.76
+   ],
+   "heap_mb_min": 84.74,
+   "heap_mb_max": 84.76,
+   "drawn_per_s_runs": [
+    60,
+    60,
+    60.2,
+    60,
+    60.2
+   ],
+   "drawn_per_s_min": 60,
+   "drawn_per_s_max": 60.2,
+   "runs": 5
+  },
+  "three-webgl2|m-rect-3": {
+   "engine": "three-webgl2",
+   "case": "m-rect-3",
+   "fps": 164.4,
+   "mean_ms": 6.08,
+   "p99_ms": 26.3,
+   "frames": 1366,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 5.6,
+   "first_frame_ms": 302.6,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3404,
+   "heap_mb": 83.99,
+   "heap_buffers_mb": 77.25,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    152.7,
+    164.4,
+    151,
+    226.7,
+    226.7
+   ],
+   "fps_min": 151,
+   "fps_max": 226.7,
+   "mean_ms_runs": [
+    6.55,
+    6.08,
+    6.62,
+    4.41,
+    4.41
+   ],
+   "mean_ms_min": 4.41,
+   "mean_ms_max": 6.62,
+   "p99_ms_runs": [
+    27,
+    26.3,
+    26.3,
+    16.2,
+    16.3
+   ],
+   "p99_ms_min": 16.2,
+   "p99_ms_max": 27,
+   "gpu_ms_runs": [
+    5.269,
+    5.597,
+    8.458
+   ],
+   "gpu_ms_min": 5.269,
+   "gpu_ms_max": 8.458,
+   "heap_mb_runs": [
+    84.03,
+    83.99,
+    84.01,
+    83.9,
+    83.89
+   ],
+   "heap_mb_min": 83.89,
+   "heap_mb_max": 84.03,
+   "first_frame_ms_runs": [
+    399.3,
+    390.6,
+    265.2,
+    278.9,
+    302.6
+   ],
+   "first_frame_ms_min": 265.2,
+   "first_frame_ms_max": 399.3,
+   "runs": 5
+  },
+  "three-webgl2|m-rect-0": {
+   "engine": "three-webgl2",
+   "case": "m-rect-0",
+   "fps": 489.55,
+   "mean_ms": 2.05,
+   "p99_ms": 9.6,
+   "frames": 3018,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 1.81,
+   "first_frame_ms": 301.05,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3286,
+   "heap_mb": 83.04,
+   "heap_buffers_mb": 76.71,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    477.1,
+    586.2,
+    457.4,
+    502
+   ],
+   "fps_min": 457.4,
+   "fps_max": 586.2,
+   "mean_ms_runs": [
+    2.1,
+    1.71,
+    2.19,
+    1.99
+   ],
+   "mean_ms_min": 1.71,
+   "mean_ms_max": 2.19,
+   "p99_ms_runs": [
+    8.2,
+    10.2,
+    9,
+    10.3
+   ],
+   "p99_ms_min": 8.2,
+   "p99_ms_max": 10.3,
+   "gpu_ms_runs": [
+    1.774,
+    1.84
+   ],
+   "gpu_ms_min": 1.774,
+   "gpu_ms_max": 1.84,
+   "heap_mb_runs": [
+    83.06,
+    83.02,
+    83.06,
+    83.02
+   ],
+   "heap_mb_min": 83.02,
+   "heap_mb_max": 83.06,
+   "first_frame_ms_runs": [
+    289.1,
+    313,
+    224.4,
+    525.8
+   ],
+   "first_frame_ms_min": 224.4,
+   "first_frame_ms_max": 525.8,
+   "runs": 4,
+   "failures": 1
+  },
+  "three-webgl2|m-tex-half-drop": {
+   "engine": "three-webgl2",
+   "case": "m-tex-half-drop",
+   "fps": 94.2,
+   "mean_ms": 10.61,
+   "p99_ms": 46.9,
+   "frames": 601,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.54,
+   "first_frame_ms": 324.2,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 5841,
+   "heap_mb": 8.37,
+   "heap_buffers_mb": 2.03,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    32.4,
+    96.8,
+    94.2,
+    90.5,
+    100
+   ],
+   "fps_min": 32.4,
+   "fps_max": 100,
+   "mean_ms_runs": [
+    30.89,
+    10.33,
+    10.61,
+    11.05,
+    10
+   ],
+   "mean_ms_min": 10,
+   "mean_ms_max": 30.89,
+   "p99_ms_runs": [
+    65,
+    46.9,
+    46.3,
+    34.3,
+    48.3
+   ],
+   "p99_ms_min": 34.3,
+   "p99_ms_max": 65,
+   "gpu_ms_runs": [
+    9.538,
+    9.576,
+    9.453,
+    9.539
+   ],
+   "gpu_ms_min": 9.453,
+   "gpu_ms_max": 9.576,
+   "heap_mb_runs": [
+    8.82,
+    8.3,
+    8.37,
+    8.37,
+    8.37
+   ],
+   "heap_mb_min": 8.3,
+   "heap_mb_max": 8.82,
+   "first_frame_ms_runs": [
+    502.4,
+    318.8,
+    324.2,
+    271.4,
+    552.2
+   ],
+   "first_frame_ms_min": 271.4,
+   "first_frame_ms_max": 552.2,
+   "runs": 5
+  },
+  "three-webgl2|m-msaa-0": {
+   "engine": "three-webgl2",
+   "case": "m-msaa-0",
+   "fps": 139.6,
+   "mean_ms": 7.16,
+   "p99_ms": 29.8,
+   "frames": 845,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 7.56,
+   "first_frame_ms": 433.4,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 4372,
+   "heap_mb": 84.23,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T22:01:10.801Z",
+   "fps_runs": [
+    130.7,
+    139.8,
+    135.9,
+    139.6,
+    140.1
+   ],
+   "fps_min": 130.7,
+   "fps_max": 140.1,
+   "mean_ms_runs": [
+    7.65,
+    7.15,
+    7.36,
+    7.16,
+    7.14
+   ],
+   "mean_ms_min": 7.14,
+   "mean_ms_max": 7.65,
+   "p99_ms_runs": [
+    23.7,
+    32.5,
+    30.9,
+    26.9,
+    29.8
+   ],
+   "p99_ms_min": 23.7,
+   "p99_ms_max": 32.5,
+   "gpu_ms_runs": [
+    6.763,
+    8.574,
+    8.831,
+    7.556,
+    7.537
+   ],
+   "gpu_ms_min": 6.763,
+   "gpu_ms_max": 8.831,
+   "heap_mb_runs": [
+    83.64,
+    84.23,
+    84.22,
+    84.23,
+    84.23
+   ],
+   "heap_mb_min": 83.64,
+   "heap_mb_max": 84.23,
+   "first_frame_ms_runs": [
+    363.3,
+    433.4,
+    365.6,
+    491.2,
+    581.1
+   ],
+   "first_frame_ms_min": 363.3,
+   "first_frame_ms_max": 581.1,
+   "runs": 5
+  },
+  "three-webgl2|still-every": {
+   "engine": "three-webgl2",
+   "case": "still-every",
+   "still": "every",
+   "fps": 60,
+   "drawn_per_s": 60,
+   "cpu_ms": 0.8,
+   "gpu_ms": 10.09,
+   "busy_ms_per_s": 653.3,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.85,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T22:01:10.802Z",
+   "fps_runs": [
+    60,
+    60.3,
+    60.2,
+    60,
+    60
+   ],
+   "fps_min": 60,
+   "fps_max": 60.3,
+   "gpu_ms_runs": [
+    9.95,
+    10.243,
+    10.172,
+    9.974,
+    10.088
+   ],
+   "gpu_ms_min": 9.95,
+   "gpu_ms_max": 10.243,
+   "cpu_ms_runs": [
+    0.8,
+    0.8,
+    0.8,
+    0.9,
+    0.8
+   ],
+   "cpu_ms_min": 0.8,
+   "cpu_ms_max": 0.9,
+   "busy_ms_per_s_runs": [
+    645,
+    666.3,
+    660.1,
+    652.4,
+    653.3
+   ],
+   "busy_ms_per_s_min": 645,
+   "busy_ms_per_s_max": 666.3,
+   "heap_mb_runs": [
+    84.84,
+    84.85,
+    84.85,
+    84.85,
+    84.86
+   ],
+   "heap_mb_min": 84.84,
+   "heap_mb_max": 84.86,
+   "drawn_per_s_runs": [
+    60,
+    60.3,
+    60.2,
+    60,
+    60
+   ],
+   "drawn_per_s_min": 60,
+   "drawn_per_s_max": 60.3,
+   "runs": 5
+  },
+  "three-webgl2|still-change": {
+   "engine": "three-webgl2",
+   "case": "still-change",
+   "still": "change",
+   "fps": 0,
+   "drawn_per_s": 0,
+   "cpu_ms": null,
+   "gpu_ms": null,
+   "busy_ms_per_s": 0,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.03,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T22:01:10.802Z",
+   "fps_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "fps_min": 0,
+   "fps_max": 0,
+   "busy_ms_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "busy_ms_per_s_min": 0,
+   "busy_ms_per_s_max": 0,
+   "heap_mb_runs": [
+    84.03,
+    84.03,
+    84.03,
+    84.03,
+    84.03
+   ],
+   "heap_mb_min": 84.03,
+   "heap_mb_max": 84.03,
+   "drawn_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "drawn_per_s_min": 0,
+   "drawn_per_s_max": 0,
+   "runs": 5
+  },
+  "three-webgl2|still-flicker60": {
+   "engine": "three-webgl2",
+   "case": "still-flicker60",
+   "still": "flicker60",
+   "fps": 60.2,
+   "drawn_per_s": 60.2,
+   "cpu_ms": 0.8,
+   "gpu_ms": 10.12,
+   "busy_ms_per_s": 657.1,
+   "depth": "standard",
+   "buffer": [
+    1280,
+    720
+   ],
+   "heap_mb": 84.87,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T22:01:10.802Z",
+   "fps_runs": [
+    60.2,
+    60.2,
+    60.2,
+    60.2,
+    60.3
+   ],
+   "fps_min": 60.2,
+   "fps_max": 60.3,
+   "gpu_ms_runs": [
+    10.145,
+    10.576,
+    10.121,
+    10.006,
+    9.935
+   ],
+   "gpu_ms_min": 9.935,
+   "gpu_ms_max": 10.576,
+   "cpu_ms_runs": [
+    0.8,
+    0.8,
+    0.8,
+    0.9,
+    0.8
+   ],
+   "cpu_ms_min": 0.8,
+   "cpu_ms_max": 0.9,
+   "busy_ms_per_s_runs": [
+    658.5,
+    684.5,
+    657.1,
+    656.2,
+    647.7
+   ],
+   "busy_ms_per_s_min": 647.7,
+   "busy_ms_per_s_max": 684.5,
+   "heap_mb_runs": [
+    84.87,
+    84.84,
+    84.86,
+    84.87,
+    84.87
+   ],
+   "heap_mb_min": 84.84,
+   "heap_mb_max": 84.87,
+   "drawn_per_s_runs": [
+    60.2,
+    60.2,
+    60.2,
+    60.2,
+    60.3
+   ],
+   "drawn_per_s_min": 60.2,
+   "drawn_per_s_max": 60.3,
+   "runs": 5
+  },
+  "godot-web|m-rect-3": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "m-rect-3",
+   "draws": 4,
+   "engine": "godot-web",
+   "fps": 116.9,
+   "frames": 758,
+   "gpu_ms": null,
+   "mean_ms": 8.56,
+   "p99_ms": 15.9,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 386802,
+   "heap_mb": 197.26,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.770Z",
+   "fps_runs": [
+    121.7,
+    21.4,
+    116.9,
+    99.5,
+    126.3
+   ],
+   "fps_min": 21.4,
+   "fps_max": 126.3,
+   "mean_ms_runs": [
+    8.22,
+    46.69,
+    8.56,
+    10.05,
+    7.92
+   ],
+   "mean_ms_min": 7.92,
+   "mean_ms_max": 46.69,
+   "p99_ms_runs": [
+    14,
+    102.3,
+    15.9,
+    17.4,
+    14.9
+   ],
+   "p99_ms_min": 14,
+   "p99_ms_max": 102.3,
+   "heap_mb_runs": [
+    197.26,
+    197.21,
+    197.26,
+    197.26,
+    197.26
+   ],
+   "heap_mb_min": 197.21,
+   "heap_mb_max": 197.26,
+   "runs": 5
+  },
+  "godot-web|m-tex-half": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "m-tex-half",
+   "draws": 4,
+   "engine": "godot-web",
+   "fps": 55.9,
+   "frames": 336,
+   "gpu_ms": null,
+   "mean_ms": 17.9,
+   "p99_ms": 26.9,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 386802,
+   "heap_mb": 149.79,
+   "heap_buffers_mb": 140.82,
+   "at": "2026-10-08T21:04:52.771Z",
+   "fps_runs": [
+    43.6,
+    54.9,
+    61.1,
+    58.1,
+    55.9
+   ],
+   "fps_min": 43.6,
+   "fps_max": 61.1,
+   "mean_ms_runs": [
+    22.92,
+    18.21,
+    16.37,
+    17.22,
+    17.9
+   ],
+   "mean_ms_min": 16.37,
+   "mean_ms_max": 22.92,
+   "p99_ms_runs": [
+    32.3,
+    29.1,
+    25.5,
+    25.3,
+    26.9
+   ],
+   "p99_ms_min": 25.3,
+   "p99_ms_max": 32.3,
+   "heap_mb_runs": [
+    149.78,
+    149.79,
+    149.79,
+    149.79,
+    149.79
+   ],
+   "heap_mb_min": 149.78,
+   "heap_mb_max": 149.79,
+   "runs": 5
+  },
+  "godot-web|m-msaa-0": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "m-msaa-0",
+   "draws": 4,
+   "engine": "godot-web",
+   "fps": 78.9,
+   "frames": 478,
+   "gpu_ms": null,
+   "mean_ms": 12.68,
+   "p99_ms": 21.2,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 386802,
+   "heap_mb": 197.25,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.771Z",
+   "fps_runs": [
+    73.3,
+    59,
+    82.9,
+    85.3,
+    78.9
+   ],
+   "fps_min": 59,
+   "fps_max": 85.3,
+   "mean_ms_runs": [
+    13.65,
+    16.94,
+    12.06,
+    11.72,
+    12.68
+   ],
+   "mean_ms_min": 11.72,
+   "mean_ms_max": 16.94,
+   "p99_ms_runs": [
+    23.4,
+    30.6,
+    20.5,
+    15.3,
+    21.2
+   ],
+   "p99_ms_min": 15.3,
+   "p99_ms_max": 30.6,
+   "heap_mb_runs": [
+    197.25,
+    197.22,
+    197.25,
+    197.24,
+    197.25
+   ],
+   "heap_mb_min": 197.22,
+   "heap_mb_max": 197.25,
+   "runs": 5
+  },
+  "godot-web|still-flicker60": {
+   "buffer": [
+    1280,
+    720
+   ],
+   "case": "still-flicker60",
+   "drawn_per_s": 58.7,
+   "engine": "godot-web",
+   "fps": 58.7,
+   "gpu_ms": null,
+   "still": "flicker60",
+   "heap_mb": 197.27,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T21:04:52.771Z",
+   "fps_runs": [
+    38.6,
+    59.6,
+    60,
+    58.7,
+    58.2
+   ],
+   "fps_min": 38.6,
+   "fps_max": 60,
+   "heap_mb_runs": [
+    197.26,
+    197.87,
+    197.27,
+    197.27,
+    197.46
+   ],
+   "heap_mb_min": 197.26,
+   "heap_mb_max": 197.87,
+   "drawn_per_s_runs": [
+    38.6,
+    59.6,
+    60,
+    58.7,
+    58.2
+   ],
+   "drawn_per_s_min": 38.6,
+   "drawn_per_s_max": 60,
+   "runs": 5
+  },
+  "three-webgpu|m-ref|phone": {
+   "engine": "three-webgpu",
+   "case": "m-ref",
+   "fps": 45.4,
+   "mean_ms": 22.02,
+   "p99_ms": 34.2,
+   "frames": 274,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 18.27,
+   "first_frame_ms": 331.1,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2981,
+   "heap_mb": 83.8,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T23:00:30.433Z",
+   "fps_runs": [
+    45.4,
+    50,
+    38.6,
+    43.8,
+    45.6
+   ],
+   "fps_min": 38.6,
+   "fps_max": 50,
+   "mean_ms_runs": [
+    22.02,
+    20,
+    25.87,
+    22.85,
+    21.92
+   ],
+   "mean_ms_min": 20,
+   "mean_ms_max": 25.87,
+   "p99_ms_runs": [
+    37.9,
+    45.4,
+    34.2,
+    32.2,
+    29.2
+   ],
+   "p99_ms_min": 29.2,
+   "p99_ms_max": 45.4,
+   "gpu_ms_runs": [
+    18.291,
+    18.067,
+    18.274,
+    18.27,
+    18.231
+   ],
+   "gpu_ms_min": 18.067,
+   "gpu_ms_max": 18.291,
+   "heap_mb_runs": [
+    83.81,
+    83.43,
+    83.8,
+    83.81,
+    83.51
+   ],
+   "heap_mb_min": 83.43,
+   "heap_mb_max": 83.81,
+   "first_frame_ms_runs": [
+    331.1,
+    763.2,
+    654.6,
+    292.2,
+    275
+   ],
+   "first_frame_ms_min": 275,
+   "first_frame_ms_max": 763.2,
+   "runs": 5
+  },
+  "three-webgpu|m-rect-3|phone": {
+   "engine": "three-webgpu",
+   "case": "m-rect-3",
+   "fps": 100.6,
+   "mean_ms": 9.94,
+   "p99_ms": 18.8,
+   "frames": 609,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 8.37,
+   "first_frame_ms": 380.6,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3010,
+   "heap_mb": 83.39,
+   "heap_buffers_mb": 77.27,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    103.2,
+    81.9,
+    100.6,
+    98.1,
+    101.3
+   ],
+   "fps_min": 81.9,
+   "fps_max": 103.2,
+   "mean_ms_runs": [
+    9.69,
+    12.21,
+    9.94,
+    10.2,
+    9.87
+   ],
+   "mean_ms_min": 9.69,
+   "mean_ms_max": 12.21,
+   "p99_ms_runs": [
+    18.8,
+    20.9,
+    19.5,
+    15.7,
+    16.5
+   ],
+   "p99_ms_min": 15.7,
+   "p99_ms_max": 20.9,
+   "gpu_ms_runs": [
+    8.196,
+    8.005,
+    8.694,
+    8.366,
+    8.738
+   ],
+   "gpu_ms_min": 8.005,
+   "gpu_ms_max": 8.738,
+   "heap_mb_runs": [
+    83.39,
+    83.3,
+    83.39,
+    83.39,
+    83.68
+   ],
+   "heap_mb_min": 83.3,
+   "heap_mb_max": 83.68,
+   "first_frame_ms_runs": [
+    380.6,
+    434.8,
+    484.5,
+    248.5,
+    213.3
+   ],
+   "first_frame_ms_min": 213.3,
+   "first_frame_ms_max": 484.5,
+   "runs": 5
+  },
+  "three-webgl2|m-ref|phone": {
+   "engine": "three-webgl2",
+   "case": "m-ref",
+   "fps": 26.8,
+   "mean_ms": 37.26,
+   "p99_ms": 107,
+   "frames": 164,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 580.4,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2748,
+   "heap_mb": 84.09,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    41.6,
+    26.1,
+    26.8,
+    25.8,
+    27.2
+   ],
+   "fps_min": 25.8,
+   "fps_max": 41.6,
+   "mean_ms_runs": [
+    24.03,
+    38.26,
+    37.26,
+    38.73,
+    36.7
+   ],
+   "mean_ms_min": 24.03,
+   "mean_ms_max": 38.73,
+   "p99_ms_runs": [
+    146.1,
+    107,
+    91.4,
+    94,
+    110.4
+   ],
+   "p99_ms_min": 91.4,
+   "p99_ms_max": 146.1,
+   "heap_mb_runs": [
+    84.09,
+    84.09,
+    84.1,
+    84.1,
+    84.09
+   ],
+   "heap_mb_min": 84.09,
+   "heap_mb_max": 84.1,
+   "first_frame_ms_runs": [
+    1161.5,
+    580.4,
+    631.1,
+    356.9,
+    350.7
+   ],
+   "first_frame_ms_min": 350.7,
+   "first_frame_ms_max": 1161.5,
+   "runs": 5
+  },
+  "three-webgl2|m-rect-3|phone": {
+   "engine": "three-webgl2",
+   "case": "m-rect-3",
+   "fps": 107.2,
+   "mean_ms": 9.33,
+   "p99_ms": 43,
+   "frames": 586,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 10.27,
+   "first_frame_ms": 564.9,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2954,
+   "heap_mb": 83.89,
+   "heap_buffers_mb": 77.25,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    134.7,
+    107.2,
+    108.3,
+    92.4,
+    97.4
+   ],
+   "fps_min": 92.4,
+   "fps_max": 134.7,
+   "mean_ms_runs": [
+    7.42,
+    9.33,
+    9.23,
+    10.82,
+    10.27
+   ],
+   "mean_ms_min": 7.42,
+   "mean_ms_max": 10.82,
+   "p99_ms_runs": [
+    38.3,
+    59.7,
+    32,
+    43,
+    43.9
+   ],
+   "p99_ms_min": 32,
+   "p99_ms_max": 59.7,
+   "gpu_ms_runs": [
+    9.833,
+    10.7
+   ],
+   "gpu_ms_min": 9.833,
+   "gpu_ms_max": 10.7,
+   "heap_mb_runs": [
+    83.48,
+    83.76,
+    83.91,
+    83.89,
+    83.89
+   ],
+   "heap_mb_min": 83.48,
+   "heap_mb_max": 83.91,
+   "first_frame_ms_runs": [
+    662.8,
+    747.1,
+    327,
+    288.8,
+    564.9
+   ],
+   "first_frame_ms_min": 288.8,
+   "first_frame_ms_max": 747.1,
+   "runs": 5
+  },
+  "three-webgpu|m-depth-log|phone": {
+   "engine": "three-webgpu",
+   "case": "m-depth-log",
+   "fps": 32.4,
+   "mean_ms": 30.91,
+   "p99_ms": 53.7,
+   "frames": 193,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 28.24,
+   "first_frame_ms": 362.9,
+   "depth": "log",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2919,
+   "heap_mb": 83.81,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    32.4,
+    66,
+    52,
+    31.4,
+    32
+   ],
+   "fps_min": 31.4,
+   "fps_max": 66,
+   "mean_ms_runs": [
+    30.91,
+    15.15,
+    19.22,
+    31.87,
+    31.23
+   ],
+   "mean_ms_min": 15.15,
+   "mean_ms_max": 31.87,
+   "p99_ms_runs": [
+    58.6,
+    58,
+    53.7,
+    39.6,
+    48.4
+   ],
+   "p99_ms_min": 39.6,
+   "p99_ms_max": 58.6,
+   "gpu_ms_runs": [
+    28.408,
+    28.243,
+    28.886,
+    28.002,
+    27.518
+   ],
+   "gpu_ms_min": 27.518,
+   "gpu_ms_max": 28.886,
+   "heap_mb_runs": [
+    83.81,
+    83.44,
+    83.44,
+    83.81,
+    83.82
+   ],
+   "heap_mb_min": 83.44,
+   "heap_mb_max": 83.82,
+   "first_frame_ms_runs": [
+    362.9,
+    937.3,
+    735.6,
+    300.1,
+    269.2
+   ],
+   "first_frame_ms_min": 269.2,
+   "first_frame_ms_max": 937.3,
+   "runs": 5
+  },
+  "three-webgpu|m-depth-reversed|phone": {
+   "engine": "three-webgpu",
+   "case": "m-depth-reversed",
+   "fps": 43.9,
+   "mean_ms": 22.8,
+   "p99_ms": 39.9,
+   "frames": 241,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 18.59,
+   "first_frame_ms": 322.6,
+   "depth": "reversed",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2744,
+   "heap_mb": 83.81,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    45.5,
+    43.9,
+    45.6,
+    43,
+    39.9
+   ],
+   "fps_min": 39.9,
+   "fps_max": 45.6,
+   "mean_ms_runs": [
+    21.98,
+    22.8,
+    21.93,
+    23.25,
+    25.04
+   ],
+   "mean_ms_min": 21.93,
+   "mean_ms_max": 25.04,
+   "p99_ms_runs": [
+    46.1,
+    32.9,
+    43.8,
+    31.1,
+    39.9
+   ],
+   "p99_ms_min": 31.1,
+   "p99_ms_max": 46.1,
+   "gpu_ms_runs": [
+    18.368,
+    18.948,
+    18.198,
+    18.592,
+    18.636
+   ],
+   "gpu_ms_min": 18.198,
+   "gpu_ms_max": 18.948,
+   "heap_mb_runs": [
+    83.81,
+    83.52,
+    83.81,
+    83.51,
+    83.81
+   ],
+   "heap_mb_min": 83.51,
+   "heap_mb_max": 83.81,
+   "first_frame_ms_runs": [
+    356.6,
+    373.6,
+    322.6,
+    306.6,
+    286.9
+   ],
+   "first_frame_ms_min": 286.9,
+   "first_frame_ms_max": 373.6,
+   "runs": 5
+  },
+  "three-webgpu|m-rect-0|phone": {
+   "engine": "three-webgpu",
+   "case": "m-rect-0",
+   "fps": 343,
+   "mean_ms": 2.92,
+   "p99_ms": 9.8,
+   "frames": 2172,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 2.4,
+   "first_frame_ms": 262.7,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2957,
+   "heap_mb": 82.67,
+   "heap_buffers_mb": 76.73,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    343,
+    241,
+    311.7,
+    345.9,
+    361.7
+   ],
+   "fps_min": 241,
+   "fps_max": 361.7,
+   "mean_ms_runs": [
+    2.92,
+    4.15,
+    3.21,
+    2.89,
+    2.76
+   ],
+   "mean_ms_min": 2.76,
+   "mean_ms_max": 4.15,
+   "p99_ms_runs": [
+    11,
+    10.3,
+    9.8,
+    7.8,
+    4.5
+   ],
+   "p99_ms_min": 4.5,
+   "p99_ms_max": 11,
+   "gpu_ms_runs": [
+    2.405,
+    2.404,
+    2.439,
+    2.402,
+    2.403
+   ],
+   "gpu_ms_min": 2.402,
+   "gpu_ms_max": 2.439,
+   "heap_mb_runs": [
+    82.67,
+    82.64,
+    82.66,
+    82.79,
+    82.82
+   ],
+   "heap_mb_min": 82.64,
+   "heap_mb_max": 82.82,
+   "first_frame_ms_runs": [
+    322,
+    378.8,
+    226.5,
+    262.7,
+    165.8
+   ],
+   "first_frame_ms_min": 165.8,
+   "first_frame_ms_max": 378.8,
+   "runs": 5
+  },
+  "three-webgpu|m-tex-half|phone": {
+   "engine": "three-webgpu",
+   "case": "m-tex-half",
+   "fps": 44.7,
+   "mean_ms": 22.39,
+   "p99_ms": 43.1,
+   "frames": 244,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 18.33,
+   "first_frame_ms": 317.7,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 18.8,
+   "tex_gen_ms": 4118,
+   "heap_mb": 27.06,
+   "heap_buffers_mb": 20.88,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    45.3,
+    45.4,
+    33.4,
+    44.7,
+    40.6
+   ],
+   "fps_min": 33.4,
+   "fps_max": 45.4,
+   "mean_ms_runs": [
+    22.09,
+    22.03,
+    29.91,
+    22.39,
+    24.64
+   ],
+   "mean_ms_min": 22.03,
+   "mean_ms_max": 29.91,
+   "p99_ms_runs": [
+    43.1,
+    46.9,
+    44.5,
+    32.4,
+    34.6
+   ],
+   "p99_ms_min": 32.4,
+   "p99_ms_max": 46.9,
+   "gpu_ms_runs": [
+    18.332,
+    18.258,
+    18.427,
+    18.37,
+    18.225
+   ],
+   "gpu_ms_min": 18.225,
+   "gpu_ms_max": 18.427,
+   "heap_mb_runs": [
+    27.06,
+    27.35,
+    27.35,
+    27.06,
+    27.06
+   ],
+   "heap_mb_min": 27.06,
+   "heap_mb_max": 27.35,
+   "first_frame_ms_runs": [
+    383.1,
+    317.7,
+    535.5,
+    249.5,
+    223.9
+   ],
+   "first_frame_ms_min": 223.9,
+   "first_frame_ms_max": 535.5,
+   "runs": 5
+  },
+  "three-webgpu|m-tex-drop|phone": {
+   "engine": "three-webgpu",
+   "case": "m-tex-drop",
+   "fps": 45.3,
+   "mean_ms": 22.08,
+   "p99_ms": 33.6,
+   "frames": 277,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 18.38,
+   "first_frame_ms": 301.9,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 3029,
+   "heap_mb": 8.53,
+   "heap_buffers_mb": 2.06,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    44.7,
+    45.3,
+    46.1,
+    45,
+    45.9
+   ],
+   "fps_min": 44.7,
+   "fps_max": 46.1,
+   "mean_ms_runs": [
+    22.36,
+    22.08,
+    21.7,
+    22.23,
+    21.76
+   ],
+   "mean_ms_min": 21.7,
+   "mean_ms_max": 22.36,
+   "p99_ms_runs": [
+    46.1,
+    33.6,
+    39.8,
+    32.1,
+    29.1
+   ],
+   "p99_ms_min": 29.1,
+   "p99_ms_max": 46.1,
+   "gpu_ms_runs": [
+    18.547,
+    18.499,
+    18.382,
+    18.328,
+    18.103
+   ],
+   "gpu_ms_min": 18.103,
+   "gpu_ms_max": 18.547,
+   "heap_mb_runs": [
+    8.53,
+    8.53,
+    8.23,
+    8.53,
+    8.24
+   ],
+   "heap_mb_min": 8.23,
+   "heap_mb_max": 8.53,
+   "first_frame_ms_runs": [
+    370,
+    299.5,
+    826.2,
+    301.9,
+    269.5
+   ],
+   "first_frame_ms_min": 269.5,
+   "first_frame_ms_max": 826.2,
+   "runs": 5
+  },
+  "three-webgpu|m-tex-half-drop|phone": {
+   "engine": "three-webgpu",
+   "case": "m-tex-half-drop",
+   "fps": 45.3,
+   "mean_ms": 22.06,
+   "p99_ms": 35.4,
+   "frames": 273,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 18.33,
+   "first_frame_ms": 295.8,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 4106,
+   "heap_mb": 8.24,
+   "heap_buffers_mb": 2.06,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    44.5,
+    45.7,
+    45.3,
+    44.9,
+    45.5
+   ],
+   "fps_min": 44.5,
+   "fps_max": 45.7,
+   "mean_ms_runs": [
+    22.45,
+    21.87,
+    22.06,
+    22.25,
+    22
+   ],
+   "mean_ms_min": 21.87,
+   "mean_ms_max": 22.45,
+   "p99_ms_runs": [
+    49.6,
+    43.8,
+    35.4,
+    31.3,
+    30.1
+   ],
+   "p99_ms_min": 30.1,
+   "p99_ms_max": 49.6,
+   "gpu_ms_runs": [
+    18.521,
+    18.914,
+    18.332,
+    17.945,
+    18.315
+   ],
+   "gpu_ms_min": 17.945,
+   "gpu_ms_max": 18.914,
+   "heap_mb_runs": [
+    8.16,
+    8.24,
+    8.53,
+    8.24,
+    8.24
+   ],
+   "heap_mb_min": 8.16,
+   "heap_mb_max": 8.53,
+   "first_frame_ms_runs": [
+    455.3,
+    315.5,
+    295.8,
+    228.7,
+    231.6
+   ],
+   "first_frame_ms_min": 228.7,
+   "first_frame_ms_max": 455.3,
+   "runs": 5
+  },
+  "three-webgpu|m-msaa-0|phone": {
+   "engine": "three-webgpu",
+   "case": "m-msaa-0",
+   "fps": 50.1,
+   "mean_ms": 19.98,
+   "p99_ms": 31.9,
+   "frames": 301,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 15.51,
+   "first_frame_ms": 376.5,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2925,
+   "heap_mb": 83.82,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    70.1,
+    39.5,
+    53.7,
+    46.8,
+    50.1
+   ],
+   "fps_min": 39.5,
+   "fps_max": 70.1,
+   "mean_ms_runs": [
+    14.27,
+    25.32,
+    18.62,
+    21.35,
+    19.98
+   ],
+   "mean_ms_min": 14.27,
+   "mean_ms_max": 25.32,
+   "p99_ms_runs": [
+    31.9,
+    52.8,
+    31,
+    29.4,
+    33.4
+   ],
+   "p99_ms_min": 29.4,
+   "p99_ms_max": 52.8,
+   "gpu_ms_runs": [
+    15.462,
+    15.452,
+    15.513,
+    15.829,
+    15.599
+   ],
+   "gpu_ms_min": 15.452,
+   "gpu_ms_max": 15.829,
+   "heap_mb_runs": [
+    83.44,
+    83.46,
+    83.82,
+    83.82,
+    83.82
+   ],
+   "heap_mb_min": 83.44,
+   "heap_mb_max": 83.82,
+   "first_frame_ms_runs": [
+    599.1,
+    600.9,
+    376.5,
+    296.3,
+    265.4
+   ],
+   "first_frame_ms_min": 265.4,
+   "first_frame_ms_max": 600.9,
+   "runs": 5
+  },
+  "three-webgpu|m-out-8|phone": {
+   "engine": "three-webgpu",
+   "case": "m-out-8",
+   "fps": 46.3,
+   "mean_ms": 21.59,
+   "p99_ms": 33.9,
+   "frames": 249,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 18.38,
+   "first_frame_ms": 577.1,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2775,
+   "heap_mb": 83.81,
+   "heap_buffers_mb": 77.34,
+   "at": "2026-10-08T23:00:30.445Z",
+   "fps_runs": [
+    47,
+    73,
+    46.3,
+    41.6,
+    41.3
+   ],
+   "fps_min": 41.3,
+   "fps_max": 73,
+   "mean_ms_runs": [
+    21.27,
+    13.71,
+    21.59,
+    24.03,
+    24.22
+   ],
+   "mean_ms_min": 13.71,
+   "mean_ms_max": 24.22,
+   "p99_ms_runs": [
+    47.6,
+    32.8,
+    38.6,
+    33.9,
+    33.2
+   ],
+   "p99_ms_min": 32.8,
+   "p99_ms_max": 47.6,
+   "gpu_ms_runs": [
+    17.942,
+    18.375,
+    19.322,
+    18.384,
+    18.924
+   ],
+   "gpu_ms_min": 17.942,
+   "gpu_ms_max": 19.322,
+   "heap_mb_runs": [
+    83.44,
+    83.44,
+    83.81,
+    83.81,
+    83.81
+   ],
+   "heap_mb_min": 83.44,
+   "heap_mb_max": 83.81,
+   "first_frame_ms_runs": [
+    895.6,
+    706,
+    577.1,
+    306.6,
+    362.4
+   ],
+   "first_frame_ms_min": 306.6,
+   "first_frame_ms_max": 895.6,
+   "runs": 5
+  },
+  "three-webgpu|m-direct|phone": {
+   "engine": "three-webgpu",
+   "case": "m-direct",
+   "fps": 46,
+   "mean_ms": 21.75,
+   "p99_ms": 31.6,
+   "frames": 219,
+   "draws": 5,
+   "triangles": 356796,
+   "physics_ms": null,
+   "gpu_ms": 18.54,
+   "first_frame_ms": 345.2,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2992,
+   "heap_mb": 83.78,
+   "heap_buffers_mb": 77.4,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    83.8,
+    44.7,
+    46.5,
+    46,
+    36.4
+   ],
+   "fps_min": 36.4,
+   "fps_max": 83.8,
+   "mean_ms_runs": [
+    11.94,
+    22.35,
+    21.49,
+    21.75,
+    27.47
+   ],
+   "mean_ms_min": 11.94,
+   "mean_ms_max": 27.47,
+   "p99_ms_runs": [
+    89.3,
+    31.6,
+    28.8,
+    30,
+    32.5
+   ],
+   "p99_ms_min": 28.8,
+   "p99_ms_max": 89.3,
+   "gpu_ms_runs": [
+    18.02,
+    18.885,
+    18.542,
+    18.785,
+    17.969
+   ],
+   "gpu_ms_min": 17.969,
+   "gpu_ms_max": 18.885,
+   "heap_mb_runs": [
+    83.4,
+    83.78,
+    83.78,
+    83.79,
+    83.78
+   ],
+   "heap_mb_min": 83.4,
+   "heap_mb_max": 83.79,
+   "first_frame_ms_runs": [
+    816.7,
+    345.2,
+    929.4,
+    322.1,
+    266
+   ],
+   "first_frame_ms_min": 266,
+   "first_frame_ms_max": 929.4,
+   "runs": 5
+  },
+  "three-webgpu|m-phone|phone": {
+   "engine": "three-webgpu",
+   "case": "m-phone",
+   "fps": 98.7,
+   "mean_ms": 10.13,
+   "p99_ms": 19.3,
+   "frames": 607,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 8.63,
+   "first_frame_ms": 223.6,
+   "depth": "reversed",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 4234,
+   "heap_mb": 8.11,
+   "heap_buffers_mb": 1.99,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    123.1,
+    83.5,
+    98.7,
+    90.1,
+    101
+   ],
+   "fps_min": 83.5,
+   "fps_max": 123.1,
+   "mean_ms_runs": [
+    8.12,
+    11.97,
+    10.13,
+    11.09,
+    9.9
+   ],
+   "mean_ms_min": 8.12,
+   "mean_ms_max": 11.97,
+   "p99_ms_runs": [
+    20.7,
+    19.6,
+    19.2,
+    19.3,
+    11.6
+   ],
+   "p99_ms_min": 11.6,
+   "p99_ms_max": 20.7,
+   "gpu_ms_runs": [
+    8.625,
+    8.402,
+    8.922,
+    8.879,
+    8.397
+   ],
+   "gpu_ms_min": 8.397,
+   "gpu_ms_max": 8.922,
+   "heap_mb_runs": [
+    8.03,
+    8.02,
+    8.11,
+    8.4,
+    8.41
+   ],
+   "heap_mb_min": 8.02,
+   "heap_mb_max": 8.41,
+   "first_frame_ms_runs": [
+    452.1,
+    330.6,
+    223.6,
+    211.2,
+    192.2
+   ],
+   "first_frame_ms_min": 192.2,
+   "first_frame_ms_max": 452.1,
+   "runs": 5
+  },
+  "three-webgpu|still-every|phone": {
+   "engine": "three-webgpu",
+   "case": "still-every",
+   "still": "every",
+   "fps": 60,
+   "drawn_per_s": 60,
+   "cpu_ms": 0.9,
+   "gpu_ms": 20.21,
+   "busy_ms_per_s": 1266.7,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.37,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    56.7,
+    60,
+    60,
+    60,
+    60.2
+   ],
+   "fps_min": 56.7,
+   "fps_max": 60.2,
+   "gpu_ms_runs": [
+    19.9,
+    20.212,
+    20.562,
+    23.3,
+    20.049
+   ],
+   "gpu_ms_min": 19.9,
+   "gpu_ms_max": 23.3,
+   "cpu_ms_runs": [
+    1.2,
+    0.9,
+    0.8,
+    0.7,
+    0.9
+   ],
+   "cpu_ms_min": 0.7,
+   "cpu_ms_max": 1.2,
+   "busy_ms_per_s_runs": [
+    1195.7,
+    1266.7,
+    1281.7,
+    1440,
+    1260.4
+   ],
+   "busy_ms_per_s_min": 1195.7,
+   "busy_ms_per_s_max": 1440,
+   "heap_mb_runs": [
+    84.35,
+    84.37,
+    84.38,
+    84.38,
+    84.37
+   ],
+   "heap_mb_min": 84.35,
+   "heap_mb_max": 84.38,
+   "drawn_per_s_runs": [
+    56.7,
+    60,
+    60,
+    60,
+    60.2
+   ],
+   "drawn_per_s_min": 56.7,
+   "drawn_per_s_max": 60.2,
+   "runs": 5
+  },
+  "three-webgpu|still-change|phone": {
+   "engine": "three-webgpu",
+   "case": "still-change",
+   "still": "change",
+   "fps": 0,
+   "drawn_per_s": 0,
+   "cpu_ms": null,
+   "gpu_ms": null,
+   "busy_ms_per_s": 0,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 83.94,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "fps_min": 0,
+   "fps_max": 0,
+   "busy_ms_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "busy_ms_per_s_min": 0,
+   "busy_ms_per_s_max": 0,
+   "heap_mb_runs": [
+    83.94,
+    83.94,
+    83.94,
+    83.94,
+    83.94
+   ],
+   "heap_mb_min": 83.94,
+   "heap_mb_max": 83.94,
+   "drawn_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "drawn_per_s_min": 0,
+   "drawn_per_s_max": 0,
+   "runs": 5
+  },
+  "three-webgpu|still-flicker16|phone": {
+   "engine": "three-webgpu",
+   "case": "still-flicker16",
+   "still": "flicker16",
+   "fps": 14,
+   "drawn_per_s": 14,
+   "cpu_ms": 1.4,
+   "gpu_ms": 18.14,
+   "busy_ms_per_s": 273.5,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.55,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    13.7,
+    13.7,
+    14,
+    14,
+    14
+   ],
+   "fps_min": 13.7,
+   "fps_max": 14,
+   "gpu_ms_runs": [
+    18.143,
+    18.123,
+    19.649,
+    18.477,
+    18.138
+   ],
+   "gpu_ms_min": 18.123,
+   "gpu_ms_max": 19.649,
+   "cpu_ms_runs": [
+    1.4,
+    1.6,
+    1.2,
+    1.4,
+    1.4
+   ],
+   "cpu_ms_min": 1.2,
+   "cpu_ms_max": 1.6,
+   "busy_ms_per_s_runs": [
+    267.1,
+    269.5,
+    291.9,
+    278.3,
+    273.5
+   ],
+   "busy_ms_per_s_min": 267.1,
+   "busy_ms_per_s_max": 291.9,
+   "heap_mb_runs": [
+    84.53,
+    84.54,
+    84.55,
+    84.55,
+    84.55
+   ],
+   "heap_mb_min": 84.53,
+   "heap_mb_max": 84.55,
+   "drawn_per_s_runs": [
+    13.7,
+    13.7,
+    14,
+    14,
+    14
+   ],
+   "drawn_per_s_min": 13.7,
+   "drawn_per_s_max": 14,
+   "runs": 5
+  },
+  "three-webgpu|still-flicker60|phone": {
+   "engine": "three-webgpu",
+   "case": "still-flicker60",
+   "still": "flicker60",
+   "fps": 60.2,
+   "drawn_per_s": 60.2,
+   "cpu_ms": 0.9,
+   "gpu_ms": 20.62,
+   "busy_ms_per_s": 1295,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.38,
+   "heap_buffers_mb": 77.35,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    58.8,
+    60.3,
+    60.2,
+    60.2,
+    60.3
+   ],
+   "fps_min": 58.8,
+   "fps_max": 60.3,
+   "gpu_ms_runs": [
+    20.235,
+    24.631,
+    21.029,
+    20.623,
+    20.262
+   ],
+   "gpu_ms_min": 20.235,
+   "gpu_ms_max": 24.631,
+   "cpu_ms_runs": [
+    1,
+    1,
+    0.9,
+    0.9,
+    0.8
+   ],
+   "cpu_ms_min": 0.8,
+   "cpu_ms_max": 1,
+   "busy_ms_per_s_runs": [
+    1249.3,
+    1546.4,
+    1319.4,
+    1295,
+    1270.7
+   ],
+   "busy_ms_per_s_min": 1249.3,
+   "busy_ms_per_s_max": 1546.4,
+   "heap_mb_runs": [
+    84.37,
+    84.36,
+    84.38,
+    84.38,
+    84.38
+   ],
+   "heap_mb_min": 84.36,
+   "heap_mb_max": 84.38,
+   "drawn_per_s_runs": [
+    58.8,
+    60.3,
+    60.2,
+    60.2,
+    60.3
+   ],
+   "drawn_per_s_min": 58.8,
+   "drawn_per_s_max": 60.3,
+   "runs": 5
+  },
+  "three-webgl2|m-depth-log|phone": {
+   "engine": "three-webgl2",
+   "case": "m-depth-log",
+   "fps": 15.9,
+   "mean_ms": 62.81,
+   "p99_ms": 121.9,
+   "frames": 95,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 366.7,
+   "depth": "log",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 3036,
+   "heap_mb": 84.13,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    40.4,
+    75,
+    15.9,
+    15.1,
+    15.6
+   ],
+   "fps_min": 15.1,
+   "fps_max": 75,
+   "mean_ms_runs": [
+    24.77,
+    13.34,
+    62.81,
+    66.3,
+    64.03
+   ],
+   "mean_ms_min": 13.34,
+   "mean_ms_max": 66.3,
+   "p99_ms_runs": [
+    163.7,
+    121.9,
+    143.9,
+    103.2,
+    118.5
+   ],
+   "p99_ms_min": 103.2,
+   "p99_ms_max": 163.7,
+   "heap_mb_runs": [
+    84.13,
+    84.14,
+    84.13,
+    84.11,
+    84.12
+   ],
+   "heap_mb_min": 84.11,
+   "heap_mb_max": 84.14,
+   "first_frame_ms_runs": [
+    1205.1,
+    1989.3,
+    366.7,
+    336.6,
+    325.4
+   ],
+   "first_frame_ms_min": 325.4,
+   "first_frame_ms_max": 1989.3,
+   "runs": 5
+  },
+  "three-webgl2|m-depth-reversed|phone": {
+   "engine": "three-webgl2",
+   "case": "m-depth-reversed",
+   "fps": 27.3,
+   "mean_ms": 36.63,
+   "p99_ms": 83.7,
+   "frames": 165,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 383.9,
+   "depth": "reversed",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2982,
+   "heap_mb": 84.09,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    44.9,
+    83.5,
+    27.3,
+    25.8,
+    27.3
+   ],
+   "fps_min": 25.8,
+   "fps_max": 83.5,
+   "mean_ms_runs": [
+    22.27,
+    11.97,
+    36.65,
+    38.72,
+    36.63
+   ],
+   "mean_ms_min": 11.97,
+   "mean_ms_max": 38.72,
+   "p99_ms_runs": [
+    108.6,
+    83.7,
+    91.8,
+    79.3,
+    50.2
+   ],
+   "p99_ms_min": 50.2,
+   "p99_ms_max": 108.6,
+   "heap_mb_runs": [
+    84.09,
+    84.1,
+    84.09,
+    84.06,
+    84.09
+   ],
+   "heap_mb_min": 84.06,
+   "heap_mb_max": 84.1,
+   "first_frame_ms_runs": [
+    753.1,
+    1102.4,
+    383.9,
+    345.2,
+    329.5
+   ],
+   "first_frame_ms_min": 329.5,
+   "first_frame_ms_max": 1102.4,
+   "runs": 5
+  },
+  "three-webgl2|m-rect-0|phone": {
+   "engine": "three-webgl2",
+   "case": "m-rect-0",
+   "fps": 229.5,
+   "mean_ms": 4.36,
+   "p99_ms": 13.5,
+   "frames": 1428,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 4.36,
+   "first_frame_ms": 254.2,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2969,
+   "heap_mb": 83.01,
+   "heap_buffers_mb": 76.71,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    267,
+    218.1,
+    218.5,
+    229.5,
+    237.2
+   ],
+   "fps_min": 218.1,
+   "fps_max": 267,
+   "mean_ms_runs": [
+    3.74,
+    4.59,
+    4.58,
+    4.36,
+    4.22
+   ],
+   "mean_ms_min": 3.74,
+   "mean_ms_max": 4.59,
+   "p99_ms_runs": [
+    13.5,
+    47.7,
+    13,
+    10.8,
+    27.4
+   ],
+   "p99_ms_min": 10.8,
+   "p99_ms_max": 47.7,
+   "gpu_ms_runs": [
+    4.361
+   ],
+   "gpu_ms_min": 4.361,
+   "gpu_ms_max": 4.361,
+   "heap_mb_runs": [
+    83.01,
+    82.98,
+    83.05,
+    83.03,
+    83
+   ],
+   "heap_mb_min": 82.98,
+   "heap_mb_max": 83.05,
+   "first_frame_ms_runs": [
+    915.6,
+    802.2,
+    254.2,
+    242.9,
+    227.4
+   ],
+   "first_frame_ms_min": 227.4,
+   "first_frame_ms_max": 915.6,
+   "runs": 5
+  },
+  "three-webgl2|m-tex-half|phone": {
+   "engine": "three-webgl2",
+   "case": "m-tex-half",
+   "fps": 26.1,
+   "mean_ms": 38.38,
+   "p99_ms": 97.8,
+   "frames": 157,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 443.4,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 18.8,
+   "tex_gen_ms": 4195,
+   "heap_mb": 27.64,
+   "heap_buffers_mb": 20.85,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    24.3,
+    26.6,
+    26.7,
+    25.9,
+    26.1
+   ],
+   "fps_min": 24.3,
+   "fps_max": 26.7,
+   "mean_ms_runs": [
+    41.23,
+    37.65,
+    37.4,
+    38.59,
+    38.38
+   ],
+   "mean_ms_min": 37.4,
+   "mean_ms_max": 41.23,
+   "p99_ms_runs": [
+    105.8,
+    120.6,
+    96.2,
+    97.8,
+    88.8
+   ],
+   "p99_ms_min": 88.8,
+   "p99_ms_max": 120.6,
+   "heap_mb_runs": [
+    27.61,
+    27.63,
+    27.64,
+    27.65,
+    27.64
+   ],
+   "heap_mb_min": 27.61,
+   "heap_mb_max": 27.65,
+   "first_frame_ms_runs": [
+    892.5,
+    715.9,
+    443.4,
+    272.3,
+    274.6
+   ],
+   "first_frame_ms_min": 272.3,
+   "first_frame_ms_max": 892.5,
+   "runs": 5
+  },
+  "three-webgl2|m-tex-drop|phone": {
+   "engine": "three-webgl2",
+   "case": "m-tex-drop",
+   "fps": 26.8,
+   "mean_ms": 37.38,
+   "p99_ms": 93.3,
+   "frames": 165,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 427.2,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 2975,
+   "heap_mb": 8.81,
+   "heap_buffers_mb": 2.03,
+   "at": "2026-10-08T23:00:30.446Z",
+   "fps_runs": [
+    26.8,
+    23.2,
+    26.2,
+    27.8,
+    27.3
+   ],
+   "fps_min": 23.2,
+   "fps_max": 27.8,
+   "mean_ms_runs": [
+    37.38,
+    43.02,
+    38.18,
+    35.95,
+    36.69
+   ],
+   "mean_ms_min": 35.95,
+   "mean_ms_max": 43.02,
+   "p99_ms_runs": [
+    93.1,
+    114.1,
+    93.3,
+    91.1,
+    93.6
+   ],
+   "p99_ms_min": 91.1,
+   "p99_ms_max": 114.1,
+   "heap_mb_runs": [
+    8.81,
+    8.81,
+    8.81,
+    8.81,
+    8.81
+   ],
+   "heap_mb_min": 8.81,
+   "heap_mb_max": 8.81,
+   "first_frame_ms_runs": [
+    427.2,
+    536.8,
+    488.8,
+    320,
+    300.4
+   ],
+   "first_frame_ms_min": 300.4,
+   "first_frame_ms_max": 536.8,
+   "runs": 5
+  },
+  "three-webgl2|m-tex-half-drop|phone": {
+   "engine": "three-webgl2",
+   "case": "m-tex-half-drop",
+   "fps": 24.5,
+   "mean_ms": 40.89,
+   "p99_ms": 103.1,
+   "frames": 127,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 291.1,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 3981,
+   "heap_mb": 8.82,
+   "heap_buffers_mb": 2.03,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    26.6,
+    24.5,
+    23.8,
+    26.6,
+    20.9
+   ],
+   "fps_min": 20.9,
+   "fps_max": 26.6,
+   "mean_ms_runs": [
+    37.64,
+    40.89,
+    42.03,
+    37.57,
+    47.84
+   ],
+   "mean_ms_min": 37.57,
+   "mean_ms_max": 47.84,
+   "p99_ms_runs": [
+    91.9,
+    106.2,
+    103.1,
+    64.7,
+    106.1
+   ],
+   "p99_ms_min": 64.7,
+   "p99_ms_max": 106.2,
+   "heap_mb_runs": [
+    8.82,
+    8.81,
+    8.81,
+    8.82,
+    8.82
+   ],
+   "heap_mb_min": 8.81,
+   "heap_mb_max": 8.82,
+   "first_frame_ms_runs": [
+    338.5,
+    459.8,
+    291.1,
+    248.5,
+    287.5
+   ],
+   "first_frame_ms_min": 248.5,
+   "first_frame_ms_max": 459.8,
+   "runs": 5
+  },
+  "three-webgl2|m-msaa-0|phone": {
+   "engine": "three-webgl2",
+   "case": "m-msaa-0",
+   "fps": 33.4,
+   "mean_ms": 29.98,
+   "p99_ms": 84.9,
+   "frames": 212,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 345.9,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2730,
+   "heap_mb": 84.07,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    52.8,
+    29.6,
+    28.8,
+    33.4,
+    35.2
+   ],
+   "fps_min": 28.8,
+   "fps_max": 52.8,
+   "mean_ms_runs": [
+    18.94,
+    33.8,
+    34.77,
+    29.98,
+    28.42
+   ],
+   "mean_ms_min": 18.94,
+   "mean_ms_max": 34.77,
+   "p99_ms_runs": [
+    84.9,
+    97.3,
+    71.6,
+    90.4,
+    60.7
+   ],
+   "p99_ms_min": 60.7,
+   "p99_ms_max": 97.3,
+   "heap_mb_runs": [
+    84.08,
+    84.09,
+    84.07,
+    84.06,
+    84.06
+   ],
+   "heap_mb_min": 84.06,
+   "heap_mb_max": 84.09,
+   "first_frame_ms_runs": [
+    747.1,
+    498.2,
+    345.9,
+    322.4,
+    326.5
+   ],
+   "first_frame_ms_min": 322.4,
+   "first_frame_ms_max": 747.1,
+   "runs": 5
+  },
+  "three-webgl2|m-out-8|phone": {
+   "engine": "three-webgl2",
+   "case": "m-out-8",
+   "fps": 25.3,
+   "mean_ms": 39.53,
+   "p99_ms": 103,
+   "frames": 164,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": null,
+   "first_frame_ms": 385.4,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2996,
+   "heap_mb": 84.09,
+   "heap_buffers_mb": 77.31,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    92.8,
+    22.9,
+    22.3,
+    25.3,
+    27.2
+   ],
+   "fps_min": 22.3,
+   "fps_max": 92.8,
+   "mean_ms_runs": [
+    10.77,
+    43.68,
+    44.75,
+    39.53,
+    36.8
+   ],
+   "mean_ms_min": 10.77,
+   "mean_ms_max": 44.75,
+   "p99_ms_runs": [
+    88.6,
+    105.5,
+    118.6,
+    103,
+    87.2
+   ],
+   "p99_ms_min": 87.2,
+   "p99_ms_max": 118.6,
+   "heap_mb_runs": [
+    84.1,
+    84.09,
+    84.09,
+    84.1,
+    84.09
+   ],
+   "heap_mb_min": 84.09,
+   "heap_mb_max": 84.1,
+   "first_frame_ms_runs": [
+    1253.3,
+    504.7,
+    385.4,
+    343.2,
+    316.4
+   ],
+   "first_frame_ms_min": 316.4,
+   "first_frame_ms_max": 1253.3,
+   "runs": 5
+  },
+  "three-webgl2|m-direct|phone": {
+   "engine": "three-webgl2",
+   "case": "m-direct",
+   "fps": 59.9,
+   "mean_ms": 16.7,
+   "p99_ms": 55.2,
+   "frames": 361,
+   "draws": 5,
+   "triangles": 356796,
+   "physics_ms": null,
+   "gpu_ms": 15.53,
+   "first_frame_ms": 470.3,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 100.4,
+   "tex_cpu_mb": 75.3,
+   "tex_gen_ms": 2981,
+   "heap_mb": 83.6,
+   "heap_buffers_mb": 77.36,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    147.3,
+    107.3,
+    54.4,
+    59.1,
+    59.9
+   ],
+   "fps_min": 54.4,
+   "fps_max": 147.3,
+   "mean_ms_runs": [
+    6.79,
+    9.32,
+    18.39,
+    16.91,
+    16.7
+   ],
+   "mean_ms_min": 6.79,
+   "mean_ms_max": 18.39,
+   "p99_ms_runs": [
+    57.2,
+    69.7,
+    43.6,
+    41.5,
+    55.2
+   ],
+   "p99_ms_min": 41.5,
+   "p99_ms_max": 69.7,
+   "gpu_ms_runs": [
+    15.302,
+    16.626,
+    15.827,
+    15.526,
+    15.272
+   ],
+   "gpu_ms_min": 15.272,
+   "gpu_ms_max": 16.626,
+   "heap_mb_runs": [
+    83.61,
+    83.9,
+    83.6,
+    83.58,
+    83.6
+   ],
+   "heap_mb_min": 83.58,
+   "heap_mb_max": 83.9,
+   "first_frame_ms_runs": [
+    1737.6,
+    970.3,
+    470.3,
+    338.7,
+    350
+   ],
+   "first_frame_ms_min": 338.7,
+   "first_frame_ms_max": 1737.6,
+   "runs": 5
+  },
+  "three-webgl2|m-phone|phone": {
+   "engine": "three-webgl2",
+   "case": "m-phone",
+   "fps": 110.8,
+   "mean_ms": 9.03,
+   "p99_ms": 42.4,
+   "frames": 671,
+   "draws": 5,
+   "triangles": 354813,
+   "physics_ms": null,
+   "gpu_ms": 9.85,
+   "first_frame_ms": 218.5,
+   "depth": "reversed",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "tex_gpu_mb": 25.1,
+   "tex_cpu_mb": 0,
+   "tex_gen_ms": 3849,
+   "heap_mb": 8.63,
+   "heap_buffers_mb": 1.96,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    131,
+    102.1,
+    103.9,
+    110.8,
+    111.4
+   ],
+   "fps_min": 102.1,
+   "fps_max": 131,
+   "mean_ms_runs": [
+    7.64,
+    9.79,
+    9.63,
+    9.03,
+    8.98
+   ],
+   "mean_ms_min": 7.64,
+   "mean_ms_max": 9.79,
+   "p99_ms_runs": [
+    49.1,
+    42.4,
+    45.5,
+    32,
+    34
+   ],
+   "p99_ms_min": 32,
+   "p99_ms_max": 49.1,
+   "gpu_ms_runs": [
+    9.854
+   ],
+   "gpu_ms_min": 9.854,
+   "gpu_ms_max": 9.854,
+   "heap_mb_runs": [
+    8.17,
+    8.64,
+    8.64,
+    8.63,
+    8.63
+   ],
+   "heap_mb_min": 8.17,
+   "heap_mb_max": 8.64,
+   "first_frame_ms_runs": [
+    695.6,
+    257.8,
+    215.2,
+    218.5,
+    207.4
+   ],
+   "first_frame_ms_min": 207.4,
+   "first_frame_ms_max": 695.6,
+   "runs": 5
+  },
+  "three-webgl2|still-every|phone": {
+   "engine": "three-webgl2",
+   "case": "still-every",
+   "still": "every",
+   "fps": 60.1,
+   "drawn_per_s": 60.1,
+   "cpu_ms": 0.75,
+   "gpu_ms": 22.99,
+   "busy_ms_per_s": 1423.5,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.83,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    60,
+    60.2,
+    60.2,
+    60
+   ],
+   "fps_min": 60,
+   "fps_max": 60.2,
+   "gpu_ms_runs": [
+    22.879,
+    23.612,
+    22.967,
+    23.017
+   ],
+   "gpu_ms_min": 22.879,
+   "gpu_ms_max": 23.612,
+   "cpu_ms_runs": [
+    0.8,
+    0.8,
+    0.7,
+    0.7
+   ],
+   "cpu_ms_min": 0.7,
+   "cpu_ms_max": 0.8,
+   "busy_ms_per_s_runs": [
+    1420.7,
+    1468.8,
+    1424,
+    1423
+   ],
+   "busy_ms_per_s_min": 1420.7,
+   "busy_ms_per_s_max": 1468.8,
+   "heap_mb_runs": [
+    84.83,
+    84.83,
+    84.84,
+    84.83
+   ],
+   "heap_mb_min": 84.83,
+   "heap_mb_max": 84.84,
+   "drawn_per_s_runs": [
+    60,
+    60.2,
+    60.2,
+    60
+   ],
+   "drawn_per_s_min": 60,
+   "drawn_per_s_max": 60.2,
+   "runs": 4,
+   "failures": 1
+  },
+  "three-webgl2|still-change|phone": {
+   "engine": "three-webgl2",
+   "case": "still-change",
+   "still": "change",
+   "fps": 0,
+   "drawn_per_s": 0,
+   "cpu_ms": null,
+   "gpu_ms": null,
+   "busy_ms_per_s": 0,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.03,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "fps_min": 0,
+   "fps_max": 0,
+   "busy_ms_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "busy_ms_per_s_min": 0,
+   "busy_ms_per_s_max": 0,
+   "heap_mb_runs": [
+    84.03,
+    84.03,
+    84.03,
+    84.03,
+    84.03
+   ],
+   "heap_mb_min": 84.03,
+   "heap_mb_max": 84.03,
+   "drawn_per_s_runs": [
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "drawn_per_s_min": 0,
+   "drawn_per_s_max": 0,
+   "runs": 5
+  },
+  "three-webgl2|still-flicker16|phone": {
+   "engine": "three-webgl2",
+   "case": "still-flicker16",
+   "still": "flicker16",
+   "fps": 13.8,
+   "drawn_per_s": 13.8,
+   "cpu_ms": 1.3,
+   "gpu_ms": 22.77,
+   "busy_ms_per_s": 333,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.63,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    13.5,
+    13.8,
+    13.8,
+    14,
+    14
+   ],
+   "fps_min": 13.5,
+   "fps_max": 14,
+   "gpu_ms_runs": [
+    22.815,
+    22.77,
+    22.772,
+    22.722,
+    22.791
+   ],
+   "gpu_ms_min": 22.722,
+   "gpu_ms_max": 22.815,
+   "cpu_ms_runs": [
+    1.7,
+    1.3,
+    1.3,
+    1.5,
+    1.2
+   ],
+   "cpu_ms_min": 1.2,
+   "cpu_ms_max": 1.7,
+   "busy_ms_per_s_runs": [
+    331,
+    333,
+    333,
+    339.1,
+    335.9
+   ],
+   "busy_ms_per_s_min": 331,
+   "busy_ms_per_s_max": 339.1,
+   "heap_mb_runs": [
+    84.63,
+    84.63,
+    84.63,
+    84.63,
+    84.64
+   ],
+   "heap_mb_min": 84.63,
+   "heap_mb_max": 84.64,
+   "drawn_per_s_runs": [
+    13.5,
+    13.8,
+    13.8,
+    14,
+    14
+   ],
+   "drawn_per_s_min": 13.5,
+   "drawn_per_s_max": 14,
+   "runs": 5
+  },
+  "three-webgl2|still-flicker60|phone": {
+   "engine": "three-webgl2",
+   "case": "still-flicker60",
+   "still": "flicker60",
+   "fps": 60.2,
+   "drawn_per_s": 60.2,
+   "cpu_ms": 0.8,
+   "gpu_ms": 23,
+   "busy_ms_per_s": 1432.8,
+   "depth": "standard",
+   "buffer": [
+    1170,
+    2532
+   ],
+   "heap_mb": 84.84,
+   "heap_buffers_mb": 77.32,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    60.2,
+    59.7,
+    60.2,
+    60.3,
+    60.3
+   ],
+   "fps_min": 59.7,
+   "fps_max": 60.3,
+   "gpu_ms_runs": [
+    23.172,
+    22.977,
+    23.055,
+    22.948,
+    22.996
+   ],
+   "gpu_ms_min": 22.948,
+   "gpu_ms_max": 23.172,
+   "cpu_ms_runs": [
+    0.9,
+    0.8,
+    0.7,
+    0.8,
+    0.8
+   ],
+   "cpu_ms_min": 0.7,
+   "cpu_ms_max": 0.9,
+   "busy_ms_per_s_runs": [
+    1448.3,
+    1418.7,
+    1429.3,
+    1432.8,
+    1435.7
+   ],
+   "busy_ms_per_s_min": 1418.7,
+   "busy_ms_per_s_max": 1448.3,
+   "heap_mb_runs": [
+    84.85,
+    84.84,
+    84.84,
+    84.84,
+    84.84
+   ],
+   "heap_mb_min": 84.84,
+   "heap_mb_max": 84.85,
+   "drawn_per_s_runs": [
+    60.2,
+    59.7,
+    60.2,
+    60.3,
+    60.3
+   ],
+   "drawn_per_s_min": 59.7,
+   "drawn_per_s_max": 60.3,
+   "runs": 5
+  },
+  "godot-web|m-ref|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "m-ref",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 30,
+   "frames": 182,
+   "gpu_ms": null,
+   "mean_ms": 33.37,
+   "p99_ms": 44,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 384002,
+   "heap_mb": 197.21,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    30,
+    25,
+    29.5,
+    30,
+    30.2
+   ],
+   "fps_min": 25,
+   "fps_max": 30.2,
+   "mean_ms_runs": [
+    33.37,
+    39.93,
+    33.91,
+    33.31,
+    33.11
+   ],
+   "mean_ms_min": 33.11,
+   "mean_ms_max": 39.93,
+   "p99_ms_runs": [
+    98.3,
+    57.4,
+    44,
+    38.4,
+    36.8
+   ],
+   "p99_ms_min": 36.8,
+   "p99_ms_max": 98.3,
+   "heap_mb_runs": [
+    197.21,
+    197.21,
+    197.21,
+    197.21,
+    197.21
+   ],
+   "heap_mb_min": 197.21,
+   "heap_mb_max": 197.21,
+   "runs": 5
+  },
+  "godot-web|m-rect-3|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "m-rect-3",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 65,
+   "frames": 369,
+   "gpu_ms": null,
+   "mean_ms": 15.38,
+   "p99_ms": 25.8,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 384002,
+   "heap_mb": 197.22,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    66.6,
+    65,
+    68.4,
+    58.5,
+    61.4
+   ],
+   "fps_min": 58.5,
+   "fps_max": 68.4,
+   "mean_ms_runs": [
+    15.01,
+    15.38,
+    14.62,
+    17.1,
+    16.29
+   ],
+   "mean_ms_min": 14.62,
+   "mean_ms_max": 17.1,
+   "p99_ms_runs": [
+    25.8,
+    19.4,
+    20,
+    32.2,
+    28
+   ],
+   "p99_ms_min": 19.4,
+   "p99_ms_max": 32.2,
+   "heap_mb_runs": [
+    197.22,
+    197.22,
+    197.25,
+    197.22,
+    197.22
+   ],
+   "heap_mb_min": 197.22,
+   "heap_mb_max": 197.25,
+   "runs": 5
+  },
+  "godot-web|m-rect-0|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "m-rect-0",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 229.1,
+   "frames": 1259,
+   "gpu_ms": null,
+   "mean_ms": 4.36,
+   "p99_ms": 9.2,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 384002,
+   "heap_mb": 197.21,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    186.7,
+    229.1,
+    231.1,
+    234.5,
+    209.5
+   ],
+   "fps_min": 186.7,
+   "fps_max": 234.5,
+   "mean_ms_runs": [
+    5.36,
+    4.36,
+    4.33,
+    4.27,
+    4.77
+   ],
+   "mean_ms_min": 4.27,
+   "mean_ms_max": 5.36,
+   "p99_ms_runs": [
+    14.4,
+    7.9,
+    9.2,
+    5,
+    10.5
+   ],
+   "p99_ms_min": 5,
+   "p99_ms_max": 14.4,
+   "heap_mb_runs": [
+    197.21,
+    197.21,
+    197.21,
+    197.21,
+    197.21
+   ],
+   "heap_mb_min": 197.21,
+   "heap_mb_max": 197.21,
+   "runs": 5
+  },
+  "godot-web|m-tex-half|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "m-tex-half",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 29.8,
+   "frames": 180,
+   "gpu_ms": null,
+   "mean_ms": 33.53,
+   "p99_ms": 45.7,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 384002,
+   "heap_mb": 149.77,
+   "heap_buffers_mb": 140.82,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    29.9,
+    29,
+    29.2,
+    30.4,
+    29.8
+   ],
+   "fps_min": 29,
+   "fps_max": 30.4,
+   "mean_ms_runs": [
+    33.48,
+    34.46,
+    34.29,
+    32.88,
+    33.53
+   ],
+   "mean_ms_min": 32.88,
+   "mean_ms_max": 34.46,
+   "p99_ms_runs": [
+    45.7,
+    61.1,
+    43.3,
+    37.5,
+    46
+   ],
+   "p99_ms_min": 37.5,
+   "p99_ms_max": 61.1,
+   "heap_mb_runs": [
+    149.78,
+    149.77,
+    149.77,
+    149.77,
+    149.77
+   ],
+   "heap_mb_min": 149.77,
+   "heap_mb_max": 149.78,
+   "runs": 5
+  },
+  "godot-web|m-msaa-0|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "m-msaa-0",
+   "draws": 2,
+   "engine": "godot-web",
+   "fps": 36,
+   "frames": 225,
+   "gpu_ms": null,
+   "mean_ms": 27.76,
+   "p99_ms": 39.4,
+   "physics_ms": null,
+   "renderer": "WebKit WebGL / gl_compatibility",
+   "triangles": 384002,
+   "heap_mb": 197.21,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    36,
+    37,
+    35.9,
+    32.8,
+    37.3
+   ],
+   "fps_min": 32.8,
+   "fps_max": 37.3,
+   "mean_ms_runs": [
+    27.76,
+    27.04,
+    27.82,
+    30.5,
+    26.79
+   ],
+   "mean_ms_min": 26.79,
+   "mean_ms_max": 30.5,
+   "p99_ms_runs": [
+    39.4,
+    40.1,
+    36.9,
+    41.5,
+    30.9
+   ],
+   "p99_ms_min": 30.9,
+   "p99_ms_max": 41.5,
+   "heap_mb_runs": [
+    197.21,
+    197.22,
+    197.19,
+    197.21,
+    197.21
+   ],
+   "heap_mb_min": 197.19,
+   "heap_mb_max": 197.22,
+   "runs": 5
+  },
+  "godot-web|still-every|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "still-every",
+   "drawn_per_s": 27.9,
+   "engine": "godot-web",
+   "fps": 27.9,
+   "gpu_ms": null,
+   "still": "every",
+   "heap_mb": 197.25,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    28.1,
+    28,
+    25.3,
+    27.1,
+    27.9
+   ],
+   "fps_min": 25.3,
+   "fps_max": 28.1,
+   "heap_mb_runs": [
+    197.26,
+    197.26,
+    197.25,
+    197.25,
+    197.25
+   ],
+   "heap_mb_min": 197.25,
+   "heap_mb_max": 197.26,
+   "drawn_per_s_runs": [
+    28.1,
+    28,
+    25.3,
+    27.1,
+    27.9
+   ],
+   "drawn_per_s_min": 25.3,
+   "drawn_per_s_max": 28.1,
+   "runs": 5
+  },
+  "godot-web|still-change|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "still-change",
+   "drawn_per_s": 0.2,
+   "engine": "godot-web",
+   "fps": 0.2,
+   "gpu_ms": null,
+   "still": "change",
+   "heap_mb": 197.24,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+   ],
+   "fps_min": 0.2,
+   "fps_max": 0.2,
+   "heap_mb_runs": [
+    197.24,
+    197.24,
+    197.24,
+    197.24,
+    197.24
+   ],
+   "heap_mb_min": 197.24,
+   "heap_mb_max": 197.24,
+   "drawn_per_s_runs": [
+    0.2,
+    0.2,
+    0.2,
+    0.2,
+    0.2
+   ],
+   "drawn_per_s_min": 0.2,
+   "drawn_per_s_max": 0.2,
+   "runs": 5
+  },
+  "godot-web|still-flicker16|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "still-flicker16",
+   "drawn_per_s": 15,
+   "engine": "godot-web",
+   "fps": 15,
+   "gpu_ms": null,
+   "still": "flicker16",
+   "heap_mb": 197.25,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    14.8,
+    15.1,
+    13.9,
+    15,
+    15.2
+   ],
+   "fps_min": 13.9,
+   "fps_max": 15.2,
+   "heap_mb_runs": [
+    197.25,
+    197.75,
+    197.25,
+    197.25,
+    197.26
+   ],
+   "heap_mb_min": 197.25,
+   "heap_mb_max": 197.75,
+   "drawn_per_s_runs": [
+    14.8,
+    15.1,
+    13.9,
+    15,
+    15.2
+   ],
+   "drawn_per_s_min": 13.9,
+   "drawn_per_s_max": 15.2,
+   "runs": 5
+  },
+  "godot-web|still-flicker60|phone": {
+   "buffer": [
+    1170,
+    2532
+   ],
+   "case": "still-flicker60",
+   "drawn_per_s": 27.4,
+   "engine": "godot-web",
+   "fps": 27.4,
+   "gpu_ms": null,
+   "still": "flicker60",
+   "heap_mb": 197.38,
+   "heap_buffers_mb": 188.26,
+   "at": "2026-10-08T23:00:30.447Z",
+   "fps_runs": [
+    27.6,
+    24.6,
+    27.4,
+    27.3,
+    28
+   ],
+   "fps_min": 24.6,
+   "fps_max": 28,
+   "heap_mb_runs": [
+    197.25,
+    197.38,
+    197.64,
+    197.25,
+    197.68
+   ],
+   "heap_mb_min": 197.25,
+   "heap_mb_max": 197.68,
+   "drawn_per_s_runs": [
+    27.6,
+    24.6,
+    27.4,
+    27.3,
+    28
+   ],
+   "drawn_per_s_min": 24.6,
+   "drawn_per_s_max": 28,
+   "runs": 5
+  }
+ },
+ "machine": "ANGLE (AMD, Vulkan 1.4.318 (AMD Radeon RX 460 Graphics (RADV POLARIS11) (0x000067EF)), radv)",
+ "spec": {
+  "viewport": [
+   1280,
+   720
+  ],
+  "seconds": 6
+ },
+ "phone_viewport": {
+  "css": [
+   390,
+   844
+  ],
+  "dpr": 3,
+  "pixels": [
+   1170,
+   2532
+  ]
+ }
+}
