@@ -336,6 +336,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
     grp.add(Object.assign(new THREE.Mesh(fg, floorMat), { receiveShadow: true }));
     const cg = tileUV(cutSlab(floorOf(room).map(([u, v]) => [u, D - v]).reverse(), down), 1); cg.rotateX(Math.PI / 2); cg.translate(0, H, -D);
     grp.add(Object.assign(new THREE.Mesh(cg, T.walls === "limewash" || T.walls === "stone" ? M.limewash : M.plaster), { castShadow: true, receiveShadow: true }));
+    yield;   // (the shell in steps: floor and ceiling, the ceiling's make, then a wall a step: 155 ms in one step had been the worst a room took, R81)
     // the ceiling's make: exposed joists across the short span, or moulded ribs in compartments
     if (T.ceiling === "beams" || T.ceiling === "compartments") {
       const along = W >= D, span = along ? D : W, len = along ? W : D, beam = T.ceiling === "beams";
@@ -357,6 +358,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       if (T.walls === "tapestry") for (const g of hangings(F, L, H, spec.walls[F])) w.grp.add(Object.assign(new THREE.Mesh(g, verdureMaterial()), { receiveShadow: true }));
       for (const l of w.lights) l.parent.remove(l);
       grp.add(w.grp);
+      yield;
     }
     const got = placements.get(room.id);
     const builtHere = [];
@@ -402,7 +404,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
       const taken = []; host.node.traverse(o => { if (o !== host.node && o.userData.make?.kind) taken.push(o.position.x); });
       const x = fs.map(f => f * w).find(x => taken.every(t => Math.abs(t - x) > 0.18)) ?? 0;
       node.position.set(x, h, d / 2); node.rotation.y = 0; host.node.add(node); };
-    if (furnished) for (const what of T.light || []) {
+    if (furnished) for (const what of T.light || []) { yield;   // (a light a step: a sconce's flame is 50-70 ms on a slow machine)
       if (what === "candle_at_stairhead") {
         // over the head of the flight that arrives on this floor, 0.45 m on from its top step; on the floor a stair only
         // leaves from, over its foot, 0.45 m before its first step. Under a ceiling, not the well
@@ -688,7 +690,11 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   const finishCur = () => { const e = rooms.get(cur.room.id); e.building = false; const made = cur.made; things.push(...made);
     for (const b of made) if (b.node.userData.opening) doorOf.set(b.node.userData.opening, b);
     const r = { id: cur.room.id, things: made, ms: Math.round(cur.ms) }; cur = null; return r; };
-  const step = () => { const t = performance.now(); let r; into = cur.made; try { r = cur.it.next(); } finally { into = things; } cur.ms += performance.now() - t; return r.done ? finishCur() : null; };
+  // (a step over 8 ms is kept, with its room and what it made: the frame budget can't cut one, so these are what to split)
+  const slow = [];
+  const step = () => { const t = performance.now(), n0 = cur.made.length; let r; into = cur.made; try { r = cur.it.next(); } finally { into = things; } const ms = performance.now() - t; cur.ms += ms;
+    if (ms > 8) { slow.push({ room: cur.room.id, step: cur.n || 0, ms: Math.round(ms), made: cur.made.slice(n0).map(b => b.kind?.kind ?? "?").join(",") || "shell" }); if (slow.length > 200) slow.shift(); }
+    cur.n = (cur.n || 0) + 1; return r.done ? finishCur() : null; };
   const buildRest = ({ budgetMs = Infinity, next = null } = {}) => { const t0 = performance.now(), out = [];
     while ((cur || later.length) && performance.now() - t0 < budgetMs) {
       if (!cur) { const room = later.splice(next ? next(later) : 0, 1)[0], e = rooms.get(room.id); e.building = true; e.grp.visible = false; if (e.movers) e.movers.visible = false;
@@ -698,7 +704,7 @@ export function buildManor({ plan, types, K, S, look, brief, bundles = true, fur
   // (every room it built: the one in steps, finished first, and the one asked for)
   const buildNow = (id) => { const out = []; if (cur) { let r; while (!(r = step())); out.push(r); }
     const i = later.findIndex(r => r.id === id); if (i >= 0) out.push(buildOne(later.splice(i, 1)[0])); return out; };
-  return { pending: () => [...(cur ? [cur.room.id] : []), ...later.map(r => r.id)], buildRest, buildNow, exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, get measured() { return { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }; },   // (read when asked: rooms built after the start view measure too)
+  return { pending: () => [...(cur ? [cur.room.id] : []), ...later.map(r => r.id)], buildRest, buildNow, slowSteps: () => slow.slice(), exterior, rails, carved, specs, cuts, placements, scene, rooms, things, windows, daylights, blocks, hearths, flames, levelOf, heightOf, stairFrom, stairTo, visibleFrom, show, probes: { ...probes, ms: Math.round(probes.ms) }, get measured() { return { sizes: Object.fromEntries(sizes), sweeps: Object.fromEntries(sweeps) }; },   // (read when asked: rooms built after the start view measure too)
      ms: Math.round(performance.now() - t0) };
 }
 
