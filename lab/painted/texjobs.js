@@ -116,7 +116,9 @@ function entry(lib, gen, args, mode, srgb = true) {
     const G = lib.GEN[gen];
     if (!G) throw new Error(`no texture generator "${gen}"`);
     const [fw, fh] = G.size(args); let w = fw, h = fh;
-    if (!(lib === KIT && gen === "floor")) while (Math.max(w, h) > CAP && w % 2 === 0 && h % 2 === 0) { w /= 2; h /= 2; }
+    // (a generator may keep more on a phone: the books' spines, halved once, src/make/parts/spinegen.js)
+    const cap = TEX_HALF && G.phoneCap ? G.phoneCap : CAP;
+    if (!(lib === KIT && gen === "floor")) while (Math.max(w, h) > cap && w % 2 === 0 && h % 2 === 0) { w /= 2; h /= 2; }
     e = { key, G, w, h, fw, fh, srgb, data: null, waiting: [], live: 0, log: { gen, args: JSON.stringify(args), w, h, bands: 0, from: "", worker_ms: 0, wall_ms: 0 } };
     if (w !== fw) e.log.full = [fw, fh];
     known.set(key, e); logs.push(e.log);

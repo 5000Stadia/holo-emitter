@@ -11,6 +11,8 @@
 // the same title unless their seeds say so.
 import { rng, hash } from "../../../lab/painted/procedural.js";
 import { halfCanvas } from "../device.js";
+import { kitTexture } from "../../../lab/painted/texjobs.js";
+import { LIB as SPINES, spineCell, CELLS } from "./spinegen.js";
 
 // English formats c. 1660, heights and thicknesses in metres
 export const SIZE_CLASSES = {
@@ -80,49 +82,14 @@ export function bookContext(means = "gentry", purpose = null) {
 
 // ---- the look's spines: 256 designs in four bindings, made once per look and shared by every book
 const BIND = { gilt: [0, 128], plain: [128, 192], vellum: [192, 224], paper: [224, 256] };
-const CELLS = 256;
 // where the title goes on each binding's spine, in the spine's own 0..1 (u across, v up)
 const LABEL = { gilt: [0.083, 0.6675, 0.917, 0.7724], plain: [0.12, 0.655, 0.88, 0.785], vellum: [0.18, 0.3, 0.82, 0.86], paper: [0.14, 0.62, 0.86, 0.78] };
 const pick = (r, weights) => { const e = Object.entries(weights).filter(([, w]) => w > 0), s = e.reduce((a, [, w]) => a + w, 0); let x = r() * s; for (const [k, w] of e) if ((x -= w) <= 0) return k; return e[e.length - 1][0]; };
 
+// the spines are drawn in the kit's texture workers (spinegen.js); the texture comes back at once and fills when they are done
 function spineAtlas(THREE, seed) {
-  const cw = 48, ch = 384, cols = 32, rows = Math.ceil((CELLS + 1) / cols);
-  const c = document.createElement("canvas"); c.width = cols * cw; c.height = rows * ch; const CW = c.width, CH = c.height;
-  const g = c.getContext("2d"), r = rng(seed);
-  const gilt = (a) => `rgba(${196 + r() * 30},${158 + r() * 24},${70 + r() * 20},${a})`;
-  const cell = (k) => { const x = (k % cols) * cw, y = Math.floor(k / cols) * ch; return [x / CW, 1 - (y + ch) / CH, (x + cw) / CW, 1 - y / CH]; };
-  const wear = (x, y, n) => { for (let q = 0; q < n; q++) { g.fillStyle = `rgba(${r() < 0.5 ? "0,0,0" : "255,240,220"},${0.03 + r() * 0.05})`; g.fillRect(x + r() * cw, y + r() * ch, 1 + r() * 3, 1 + r() * 6); } };
-  const bandsAt = (y) => { const top = 0.06, step = 0.88 / 6; return [1, 2, 3, 4, 5].map(b => y + ch * (top + step * b)); };
-  for (let k = 0; k < CELLS; k++) {
-    const x = (k % cols) * cw, y = Math.floor(k / cols) * ch;
-    const kind = k < 128 ? "gilt" : k < 192 ? "plain" : k < 224 ? "vellum" : "paper";
-    let base;
-    if (kind === "gilt") { const t = r(); base = t < 0.1 ? [118, 42, 32] : t < 0.16 ? [40, 52, 40] : (() => { const s = 0.45 + r() * 0.55; return [118 * s + 30, 74 * s + 18, 42 * s + 10]; })(); }
-    if (kind === "plain") { const s = 0.35 + r() * 0.45; base = [104 * s + 34, 72 * s + 24, 46 * s + 16]; }
-    if (kind === "vellum") { const s = 0.9 + r() * 0.1; base = [214 * s, 200 * s, 168 * s]; }
-    if (kind === "paper") { const t = r(); base = t < 0.4 ? [118, 124, 128] : t < 0.7 ? [150, 128, 96] : [104, 92, 80]; }
-    g.fillStyle = `rgb(${base.map(v => v | 0).join(",")})`; g.fillRect(x, y, cw, ch);
-    wear(x, y, kind === "paper" ? 260 : 160);
-    const rub = g.createLinearGradient(0, y, 0, y + ch); rub.addColorStop(0, "rgba(240,220,190,0.22)"); rub.addColorStop(0.06, "rgba(0,0,0,0)"); rub.addColorStop(0.94, "rgba(0,0,0,0)"); rub.addColorStop(1, "rgba(240,220,190,0.22)");
-    g.fillStyle = rub; g.fillRect(x, y, cw, ch);
-    if (kind === "gilt" || kind === "plain") for (const by of bandsAt(y)) {
-      g.fillStyle = "rgba(0,0,0,0.35)"; g.fillRect(x, by - 3, cw, 6);
-      g.fillStyle = kind === "gilt" ? gilt(0.85) : "rgba(0,0,0,0.3)"; g.fillRect(x + 3, by - 6, cw - 6, 1.4); g.fillRect(x + 3, by + 5, cw - 6, 1.4);
-    }
-    if (kind === "gilt") {
-      const top = 0.06, step = 0.88 / 6, lp = y + ch * (top + step) + 8, lh = ch * step - 16;
-      g.fillStyle = r() < 0.6 ? "rgb(120,30,24)" : "rgb(26,20,16)"; g.fillRect(x + 4, lp, cw - 8, lh);
-      for (let p = 2; p <= 5; p++) { const py = y + ch * (top + step * p + step / 2); g.fillStyle = gilt(0.7); g.beginPath(); g.arc(x + cw / 2, py, 3.5, 0, 7); g.fill(); g.fillRect(x + cw / 2 - 7, py - 0.6, 14, 1.2); g.fillRect(x + cw / 2 - 0.6, py - 7, 1.2, 14); }
-    }
-    if (kind === "vellum") { g.strokeStyle = "rgba(120,100,70,0.25)"; g.lineWidth = 1; for (const f of [0.2, 0.8]) { g.beginPath(); g.moveTo(x, y + ch * f); g.lineTo(x + cw, y + ch * f); g.stroke(); } }
-    if (kind === "paper" && r() < 0.4) { for (let q = 0; q < 30; q++) { g.fillStyle = `rgba(${r() * 80 | 0},${r() * 60 | 0},${r() * 90 | 0},0.12)`; g.beginPath(); g.arc(x + r() * cw, y + r() * ch, 2 + r() * 6, 0, 7); g.fill(); } }   // marbled
-  }
-  const px = (CELLS % cols) * cw, py = Math.floor(CELLS / cols) * ch;
-  g.fillStyle = "rgb(222,210,182)"; g.fillRect(px, py, cw, ch);
-  for (let q = 0; q < ch; q += 2) { g.fillStyle = `rgba(120,100,70,${0.05 + r() * 0.08})`; g.fillRect(px, py + q, cw, 1); }
-  // (a phone keeps the atlas at half size, 768 x 1728: 7 MB on the GPU, not 27; the cells are in 0..1, so nothing else changes)
-  const t = new THREE.CanvasTexture(halfCanvas(c)); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-  return { texture: t, cell, pages: cell(CELLS) };
+  const { map } = kitTexture(THREE, { lib: SPINES, gen: "spines", args: [seed] }, { repeat: false, mode: "async" }); map.anisotropy = 8;
+  return { texture: map, cell: spineCell, pages: spineCell(CELLS) };
 }
 
 // ---- the titles: every title in each style it can take, drawn once per look. Gilt: capitals in gold
