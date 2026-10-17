@@ -134,9 +134,26 @@ function overlap(ta, ia, tb, ib, nx, ny, nz) {
 // overlapping, the smaller triangle (the detail: a bar's end in a stile, a fold over a side) is lifted a millimetre along
 // its face, so which shows is decided once and the other is never seen. geos: the geometries of one rigid node
 // (a thing's body, or one mover), all in its frame; indexed ones are unshared first. Returns how many were lifted.
+// (what it lifts depends only on the positions, their sides and the lift: a thing built again the same, six sconces or a
+// room's chairs, finds its lifts kept by a hash of them and lays them on again, R81; two 32-bit hashes, so a false match
+// is out of reach; at most SETTLE_KEEP kept, the oldest let go)
+const SETTLED = new Map(), SETTLE_KEEP = 400, settleStats = { hits: 0, misses: 0, ms: 0 };
+export const settleLog = () => ({ ...settleStats, kept: SETTLED.size });
+function settleKey(meshes, lift) {
+  let h1 = 0x811c9dc5 ^ meshes.length, h2 = 0x2545f491 ^ Math.round(lift * 1e7);
+  for (const m of meshes) { const u = new Uint32Array(m.tris.buffer, m.tris.byteOffset, m.tris.length);
+    h1 = Math.imul(h1 ^ (u.length + 3 * m.side), 16777619); h2 = Math.imul(h2 ^ u.length, 2246822519);
+    for (let i = 0; i < u.length; i++) { const x = u[i]; h1 = Math.imul(h1 ^ x, 16777619); h2 = Math.imul((h2 ^ x) + (h2 >>> 15), 2246822519); } }
+  return `${(h1 >>> 0).toString(36)}.${(h2 >>> 0).toString(36)}`;
+}
 export function settleFaces(geos, lift = 0.001, sides = []) {
   for (let k = 0; k < geos.length; k++) if (geos[k].index) geos[k] = geos[k].toNonIndexed();
   const meshes = geos.map((g, k) => ({ key: k, tris: g.attributes.position.array, side: sides[k] ?? 1 }));
+  const t0 = performance.now(), sk = settleKey(meshes, lift), kept = SETTLED.get(sk);
+  if (kept) { settleStats.hits++;
+    for (const [m, i, dx, dy, dz] of kept) { const t = meshes[m].tris; for (let c = 0; c < 3; c++) { t[i * 9 + c * 3] += dx; t[i * 9 + c * 3 + 1] += dy; t[i * 9 + c * 3 + 2] += dz; } geos[m].attributes.position.needsUpdate = true; }
+    settleStats.ms += performance.now() - t0; return kept.length; }
+  settleStats.misses++;
   const area = (t, i) => { const ux = t[i + 3] - t[i], uy = t[i + 4] - t[i + 1], uz = t[i + 5] - t[i + 2], vx = t[i + 6] - t[i], vy = t[i + 7] - t[i + 1], vz = t[i + 8] - t[i + 2];
     return Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2; };
   // one pass: each face lifted once for every larger face it lies on, so a stack of three or more ends at as many
@@ -150,8 +167,12 @@ export function settleFaces(geos, lift = 0.001, sides = []) {
     const pk = `${p.ma}/${p.ia}|${p.mb}/${p.ib}`; if (seen.has(pk)) continue; seen.add(pk);
     steps.set(key, (steps.get(key) || 0) + 1); normal.set(key, p.n);
   }
+  const lifts = [];
   for (const [key, k] of steps) { const m = Math.floor(key / T), i = key - m * T, n = normal.get(key), t = meshes[m].tris;
     for (let c = 0; c < 3; c++) for (let x = 0; x < 3; x++) t[i * 9 + c * 3 + x] += n[x] * lift * k;
+    lifts.push([m, i, n[0] * lift * k, n[1] * lift * k, n[2] * lift * k]);
     geos[m].attributes.position.needsUpdate = true; }
+  if (SETTLED.size >= SETTLE_KEEP) SETTLED.delete(SETTLED.keys().next().value);
+  SETTLED.set(sk, lifts); settleStats.ms += performance.now() - t0;
   return steps.size;
 }
