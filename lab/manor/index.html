@@ -1266,7 +1266,7 @@ const lap = ENG.card.lap; window.__layers = () => ENG.card.summary?.().layers ??
 // the work that can wait, one budget a frame for the tier (R81, src/make/frame-budget.js): people finding their ways first (you
 // see them walk), the land's tiles, then the rooms still to build; ?budget=phone|pc tries the other tier's numbers
 const FB = makeFrameBudget(Q.get("budget") || (ENG.phone ? "phone" : "pc"))
-  .job("ways", { floor: 1, ceil: +(Q.get("routems") ?? 3) }).job("land", { floor: 1 }).job("rooms", { floor: 1, ceil: 8 });
+  .job("ways", { floor: 1, ceil: +(Q.get("routems") ?? 3) }).job("bake", { floor: 1, ceil: 4 }).job("land", { floor: 1 }).job("rooms", { floor: 1, ceil: 8 });
 window.__budget = () => FB.ledger();
 renderer.setAnimationLoop((now) => {
   const dt = Math.min(0.05, (now - last) / 1000); last = now; lap(null);
@@ -1313,10 +1313,13 @@ renderer.setAnimationLoop((now) => {
   refreshView(viewDirty); viewDirty = false;
   const growing = SP ? SP.tick(dt, px, py, here) : false; lap("place");
   if (bodies) bodies.hold("player", floorOf(ph), px, py, BODY.half);
-  // (the ways' grant is what Photonic's search may spend, 0 when none: the people tick every frame whatever it is; their
-  // whole frame is counted against it, the tick with it)
+  // (the ways' grant is what Photonic's search may spend, the bake's what its walk and sit bakes may, 0 when none: the people
+  // tick every frame whatever they are. From Photonic f6c3959 it writes back each one's own time, overruns included; before
+  // it, the whole frame is counted against the ways)
   let peopling = false;
-  if (POP) { const g = FB.grant("ways", { urgent: true }), t0 = performance.now(); peopleCtx.budgetMs = g; peopling = peopleFrame(now / 1000, dt); FB.spent("ways", performance.now() - t0, true); }
+  if (POP) { const gw = FB.grant("ways", { urgent: true }), gb = FB.grant("bake", { urgent: true }), t0 = performance.now();
+    peopleCtx.budgetMs = gw; peopleCtx.bakeMs = gb; peopleCtx.spent = null; peopling = peopleFrame(now / 1000, dt);
+    const sp = peopleCtx.spent; if (sp) { FB.spent("ways", sp.ways ?? 0, true); FB.spent("bake", sp.bake ?? 0, true); } else { FB.spent("ways", performance.now() - t0, true); FB.spent("bake", 0, true); } }
   for (const q of presences.values()) { q.p.group.visible = manor.rooms.get(q.room)?.grp.visible !== false; if (q.p.group.visible) q.p.tick(now / 1000, camera); }
   lap("people");
   // (R65: started indoors, the outside is seen only through windows: 120 ms of its nearest tiles before the first frame,
